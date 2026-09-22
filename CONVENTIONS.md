@@ -25,7 +25,7 @@
 7. **`Camera` e logica di inseguimento in `LateUpdate`**, mai in `Update`.
 8. **ScriptableObject = dati immutabili.** Mai stato runtime dentro un SO: in editor sembra funzionare, in build si rompe.
 9. **Un file, una classe.** Il nome del file coincide con il nome della classe.
-10. **Namespace** `<NomeProgetto>.<Area>` — es. `DarkDescent.Combat`, `DarkDescent.Items`.
+10. **Namespace** `DarkDescent.<Area>` — es. `DarkDescent.Combat`, `DarkDescent.Items`.
 
 ## Commenti
 

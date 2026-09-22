@@ -84,7 +84,7 @@ solo `PlayerAnimatorDriver`.
 Il corpo dei metodi lo scrivi tu. Questi sono i contratti.
 
 ```csharp
-namespace <NomeProgetto>.Player
+namespace DarkDescent.Player
 {
     /// Traduce l'input grezzo in intenzioni. Non conosce il mondo di gioco.
     public class PlayerInputReader : MonoBehaviour
@@ -123,7 +123,7 @@ namespace <NomeProgetto>.Player
     }
 }
 
-namespace <NomeProgetto>.Rendering
+namespace DarkDescent.Rendering
 {
     public class CameraFollow : MonoBehaviour
     {

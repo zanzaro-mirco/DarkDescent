@@ -79,7 +79,7 @@ Le convenzioni complete sono in `CONVENTIONS.md`. Le non negoziabili:
 - **Niente `GameObject.Find` / `FindObjectOfType`** fuori da `Awake`.
 - **Niente allocazioni per-frame** in `Update` (no `new`, no LINQ, no stringhe concatenate).
 - **Input System nuovo**, mai `Input.GetKey` / `Input.GetMouseButton` legacy.
-- Namespace `<NomeProgetto>.<Area>`.
+- Namespace `DarkDescent.<Area>`.
 
 ## Ambito
 
