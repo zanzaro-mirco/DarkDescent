@@ -6,6 +6,9 @@
 *.cs      text diff=csharp eol=lf
 *.md      text eol=lf
 *.json    text eol=lf
+*.asmdef  text eol=lf
+*.asmref  text eol=lf
+*.inputactions text eol=lf
 *.shader  text eol=lf
 *.hlsl    text eol=lf
 *.cginc   text eol=lf
