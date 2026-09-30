@@ -9,7 +9,6 @@ Milestone corrente: **M0 — Fondamenta**
 
 ## Documenti
 
-- [DEVLOG.md](DEVLOG.md) — diario di sviluppo
 - [DECISIONS.md](DECISIONS.md) — decisioni architetturali (ADR)
 - [CONVENTIONS.md](CONVENTIONS.md) — convenzioni di codice
 - [ICEBOX.md](ICEBOX.md) — idee fuori scope

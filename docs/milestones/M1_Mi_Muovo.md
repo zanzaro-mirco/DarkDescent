@@ -21,28 +21,6 @@ corsa, e la camera isometrica lo segue in modo fluido, senza scatti.
 
 ---
 
-## Concetti Unity che imparerai qui
-
-Prima di scrivere codice, leggi questi (30–40 minuti, sono i fondamenti su cui
-si regge tutto il resto del progetto):
-
-- **Ciclo di vita dei componenti** — `Awake`, `OnEnable`, `Start`, `Update`,
-  `LateUpdate`, `FixedUpdate`, `OnDisable`, `OnDestroy`, e soprattutto **in quale
-  ordine** vengono chiamati tra oggetti diversi.
-  → `docs.unity3d.com/Manual/ExecutionOrder.html`
-- **GameObject / Component / Prefab** — la composizione al posto dell'ereditarietà.
-  Un `GameObject` è un contenitore vuoto; tutto il comportamento sono `Component`.
-- **Layer e LayerMask** — filtri bitmask per fisica e rendering.
-  → `docs.unity3d.com/Manual/Layers.html`
-- **Raycast** — `Camera.ScreenPointToRay` + `Physics.Raycast`.
-- **NavMesh e NavMeshAgent** — pathfinding su superficie navigabile.
-  → package *AI Navigation*, `docs.unity3d.com/Packages/com.unity.ai.navigation@latest`
-- **Animator, parametri, blend tree** — macchina a stati per le animazioni.
-- **Input System** — asset di azioni, binding, callback.
-  → `docs.unity3d.com/Packages/com.unity.inputsystem@latest`
-
----
-
 ## Architettura
 
 Quattro script piccoli invece di uno grande. Sembra eccessivo adesso; alla M9,
@@ -81,7 +59,8 @@ solo `PlayerAnimatorDriver`.
 
 ## Scheletri
 
-Il corpo dei metodi lo scrivi tu. Questi sono i contratti.
+Questi sono i contratti. Le implementazioni complete arrivano passo per passo,
+nei file sotto `Assets/_Project/Scripts/`: dove differiscono, vale il codice.
 
 ```csharp
 namespace DarkDescent.Player
@@ -118,7 +97,7 @@ namespace DarkDescent.Player
         [SerializeField] private float _maxRayDistance = 100f;
 
         // Se il raggio colpisce una superficie camminabile, restituisce true
-        // e il punto colpito. Implementala per prima e testala con Debug.DrawRay.
+        // e il punto colpito.
         private bool TryGetPointUnderCursor(out Vector3 point) { point = default; return false; }
     }
 }
@@ -128,12 +107,13 @@ namespace DarkDescent.Rendering
     public class CameraFollow : MonoBehaviour
     {
         [SerializeField] private Transform _target;
-        [SerializeField] private Vector3 _offset = new Vector3(-10f, 12f, -10f);
-        [SerializeField] private float _smoothTime = 0.2f;
+        [SerializeField] private float _distance = 20f;     // lungo l'asse di vista
+        [SerializeField] private float _smoothTime = 0.15f;
 
         private Vector3 _velocity; // stato interno di SmoothDamp, non toccarlo
 
-        private void LateUpdate() { /* Vector3.SmoothDamp verso _target.position + _offset */ }
+        private void Start()      { /* aggancio immediato, niente volo iniziale */ }
+        private void LateUpdate() { /* SmoothDamp verso _target.position - transform.forward * _distance */ }
     }
 }
 ```
@@ -146,14 +126,17 @@ namespace DarkDescent.Rendering
 2. Un **Plane** scalato a 5 (= 50×50 m) come pavimento. Qualche **Cube** come ostacolo.
 3. Crea il layer **`Ground`** (*Layers → Edit Layers*) e assegnalo al Plane.
    Crea anche `Obstacle` e assegnalo ai cubi.
-4. `Main Camera`: **Projection → Orthographic**, `Size` 8–10,
+4. `Main Camera`: **Projection → Orthographic**, `Size` 9,
    **Rotation `(30, 45, 0)`**, posizione qualsiasi (ci penserà lo script).
-5. Scrivi `CameraFollow.cs` e assegna il target.
+5. Aggiungi `CameraFollow` (`Scripts/Rendering/`) alla camera e assegna il target.
+   La posizione si ricava dalla rotazione, non da un offset fisso: un offset
+   scritto a mano va tenuto allineato con la rotazione, altrimenti il target
+   esce dal centro dell'inquadratura.
 
 > **Perché `(30,45,0)` e non `(45,45,0)`.** 45° di inclinazione dà un look
 > dall'alto, quasi top-down. 30° si avvicina alla proiezione 2:1 dei classici
-> isometrici e mostra di più i lati dei modelli. Prova entrambi **guardando**,
-> non leggendo: è una scelta estetica, non tecnica.
+> isometrici e mostra di più i lati dei modelli. È una scelta estetica: se
+> preferisci l'altra, basta cambiare la rotazione nell'Inspector.
 
 **Verifica:** muovi il target a mano in Play Mode (trascinandolo nella Scene view)
 e la camera lo segue morbida, senza tremolii.
@@ -177,12 +160,12 @@ e la camera lo segue morbida, senza tremolii.
    `DarkDescent.asmdef`, altrimenti finisce in `Assembly-CSharp` e il tuo
    `PlayerInputReader` non la vede (ADR-003). Lasciandola accanto all'asset, in
    `Settings/`, avresti un errore "type or namespace not found".
-4. Scrivi `PlayerInputReader.cs`.
+4. Aggiungi `PlayerInputReader` al `Player`.
 
-> **Le due strade.** Puoi usare il componente `PlayerInput` (drag & drop, comodo
-> ma magico) oppure la classe generata (più codice, controllo totale, testabile).
-> **Usa la classe generata**: è quella che troverai nei progetti seri e ti fa
-> capire cosa succede davvero.
+> **Le due strade.** Il componente `PlayerInput` (drag & drop, comodo ma magico)
+> oppure la classe generata (più codice, controllo totale, testabile).
+> **Si usa la classe generata**: le dipendenze restano esplicite nel codice
+> invece che nascoste in callback collegate dall'Inspector.
 
 **Verifica:** un `Debug.Log` nell'evento, click nel gioco, il log appare.
 
@@ -194,12 +177,7 @@ e la camera lo segue morbida, senza tremolii.
    (package AI Navigation), imposta *Collect Objects: All*, premi **Bake**.
    Deve comparire una superficie azzurra sul pavimento, con i buchi degli ostacoli.
 2. Crea il GameObject `Player` (per ora una Capsule), aggiungi `NavMeshAgent`.
-3. Scrivi `PlayerMotor.cs` e `PlayerController.cs`.
-
-**Parametri del NavMeshAgent da capire, non da copiare:**
-`speed`, `angularSpeed`, `acceleration`, `stoppingDistance`, `autoBraking`,
-`updateRotation`, `radius`, `height`. Cambiali in Play Mode e guarda cosa succede:
-si impara più in dieci minuti così che in un'ora di lettura.
+3. Aggiungi `PlayerMotor` e `PlayerController` al `Player`.
 
 **Verifica:** clicchi sul pavimento, la capsula ci va aggirando gli ostacoli.
 Clicchi su un ostacolo e **non** succede niente (grazie alla LayerMask).
@@ -224,7 +202,7 @@ Clicchi su un ostacolo e **non** succede niente (grazie alla LayerMask).
 3. Crea un **Animator Controller**, aggiungi un parametro float `Speed`,
    e un **Blend Tree 1D** con Idle (0) → Running (1).
 4. Metti il modello come **figlio** del `Player`, l'Animator sul modello.
-5. Scrivi `PlayerAnimatorDriver.cs`.
+5. Aggiungi `PlayerAnimatorDriver` al modello.
 
 > **Un float, non un bool.** `Speed` come float in un blend tree ti dà la
 > transizione continua camminata→corsa e ti prepara alla M9. Un bool `isRunning`
@@ -290,25 +268,5 @@ guardare l'agent che calcola il path vale cento `Debug.Log`.
 - [ ] `Player` salvato come **prefab** in `Assets/_Project/Prefabs/`
 - [ ] Console pulita, nessun warning giallo lasciato lì
 - [ ] **Build eseguibile che parte e funziona**
-- [ ] GIF registrata (ShareX) per il devlog
-- [ ] Voce in `DEVLOG.md`
+- [ ] GIF registrata (ShareX) per il README
 - [ ] Commit e push
-
----
-
-## Esercizi di consolidamento
-
-Falli dopo aver chiuso la checklist. Servono a trasformare "ha funzionato" in
-"ho capito".
-
-1. **Movimento tenendo premuto.** Come in Diablo: tenendo giù il tasto il
-   personaggio continua a seguire il cursore. Suggerimento: l'hai già previsto
-   con `IsMoveCommandHeld`.
-2. **Indicatore di destinazione.** Un cerchio o un decal che compare dove hai
-   cliccato e svanisce in mezzo secondo.
-3. **Ortho vs perspective.** Metti la camera in Perspective con FOV 20–25 e
-   confronta. Scrivi in `DECISIONS.md` quale scegli e perché.
-4. **Esperimento sul refactoring.** Prova a immaginare — a parole, nel devlog —
-   cosa dovresti toccare per aggiungere il supporto a tastiera WASD.
-   Se la risposta è "solo `PlayerInputReader`", l'architettura è corretta.
-   Se è "tre file", ripensa la divisione delle responsabilità.

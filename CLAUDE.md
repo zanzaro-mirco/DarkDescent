@@ -18,7 +18,7 @@ La milestone corrente e le schede operative sono in `docs/milestones/`.
 
 1. Finire un gioco giocabile.
 2. **Un progetto che regga come materiale da portfolio.** Repo pubblico curato,
-   ADR che spiegano le scelte, devlog, build giocabile.
+   ADR che spiegano le scelte, build giocabile.
 
 ---
 
@@ -30,15 +30,22 @@ funzionanti, non firme da riempire. Mirco li rivede, li prova e li integra.
 Resta comunque richiesto, in forma breve e senza lezioni:
 
 - **Perché** di una scelta architetturale, quando non è ovvia — serve a Mirco
-  per scrivere l'ADR e il devlog.
+  per scrivere l'ADR.
 - **Trappole Unity** rilevanti per quel codice, segnalate mentre le si aggira.
 - **Conseguenze a distanza:** se una scelta si paga in una milestone successiva,
   dirlo subito.
 - **Code review vera** quando Mirco scrive o modifica del codice: cosa è corretto,
   cosa rifaresti, cosa si romperà tra tre milestone. Niente compiacenza.
 
+**Niente parti didattiche.** Le schede e le risposte non assegnano a Mirco
+esercizi, codice da scrivere o modificare a mano per imparare, letture di
+approfondimento o esperimenti del tipo "cambia il valore e guarda cosa succede".
+A mano restano solo i passaggi nell'editor che Claude non può fare (sezione in
+fondo) e le decisioni che spettano a lui (design, ambito, ADR).
+
 *(Fino al 30 set 2026 valeva il metodo "io spiego, tu scrivi", con Claude limitato
-a concetti, architettura e sole firme. Rimosso su richiesta di Mirco.)*
+a concetti, architettura e sole firme. Rimosso su richiesta di Mirco, insieme a
+esercizi e devlog.)*
 
 ---
 
@@ -64,11 +71,13 @@ quando succede: il feature creep è il rischio numero uno del progetto.
 
 ## Documentazione viva
 
-A ogni sessione significativa, ricordagli di aggiornare:
-- `DEVLOG.md` — cosa fatto, cosa rotto, cosa capito
-- `DECISIONS.md` — una ADR per ogni scelta tecnica non ovvia
+A ogni sessione significativa, ricordagli di aggiornare `DECISIONS.md`:
+una ADR per ogni scelta tecnica non ovvia.
 
 Non scrivere tu queste voci al posto suo, ma aiutalo a formularle se te lo chiede.
+
+Il devlog non esiste più (dal 30 set 2026): non ricordarlo e non proporlo.
+`DEVLOG.md` è stato cancellato; la voce della M0 resta nella storia git.
 
 ## Cosa NON puoi fare da terminale
 
