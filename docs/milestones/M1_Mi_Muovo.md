@@ -94,10 +94,13 @@ namespace DarkDescent.Player
     [RequireComponent(typeof(PlayerMotor), typeof(PlayerInputReader))]
     public class PlayerController : MonoBehaviour
     {
-        [SerializeField] private LayerMask _walkableLayers;
+        [SerializeField] private LayerMask _walkableLayers;   // Ground
+        [SerializeField] private LayerMask _blockingLayers;   // Obstacle: fermano il raggio, non si cammina
         [SerializeField] private float _maxRayDistance = 100f;
+        [SerializeField] private float _holdRepathInterval = 0.1f;
+        [SerializeField] private Camera _camera;              // vuoto = Camera.main in Awake
 
-        // Se il raggio colpisce una superficie camminabile, restituisce true
+        // Se il primo collider colpito è camminabile, restituisce true
         // e il punto colpito.
         private bool TryGetPointUnderCursor(out Vector3 point) { point = default; return false; }
     }
@@ -183,14 +186,25 @@ quando il click muove la capsula.
 
 ## Passo 1.3 — NavMesh e movimento
 
-1. Crea un GameObject vuoto `NavMesh`, aggiungi il componente **`NavMeshSurface`**
-   (package AI Navigation), imposta *Collect Objects: All*, premi **Bake**.
-   Deve comparire una superficie azzurra sul pavimento, con i buchi degli ostacoli.
-2. Crea il GameObject `Player` (per ora una Capsule), aggiungi `NavMeshAgent`.
-3. Aggiungi `PlayerMotor` e `PlayerController` al `Player`.
+1. GameObject vuoto `NavMesh` con **`NavMeshSurface`**: *Collect Objects: All*,
+   *Include Layers* solo `Ground` e `Obstacle`, *Build Height Mesh* attivo.
+   L'asset cotto sta in `Scenes/Sandbox_Combat/`.
+   - Senza il filtro sui layer, il bake include la capsula del player e le ritaglia
+     un buco nel NavMesh proprio dove parte.
+   - Senza la height mesh, il NavMesh sta circa 8 cm sopra il pavimento e il player
+     galleggia.
+2. `NavMeshModifier` su `Obstacles`, area *Not Walkable*, applicato ai figli:
+   altrimenti le facce superiori dei cubi diventano isole di NavMesh irraggiungibili.
+3. Sul `Player`: `PlayerController`, che porta con sé `PlayerMotor`,
+   `PlayerInputReader` e `NavMeshAgent` via `RequireComponent`.
+   Agent: *Base Offset* 1 (il pivot della capsula è al centro),
+   *Speed* 5, *Angular Speed* 720, *Acceleration* 40, *Stopping Distance* 0.1.
+4. Tenendo premuto il tasto il player continua a seguire il cursore; la
+   destinazione si aggiorna ogni 0,1 s e il motor scarta quelle quasi uguali.
 
 **Verifica:** clicchi sul pavimento, la capsula ci va aggirando gli ostacoli.
-Clicchi su un ostacolo e **non** succede niente (grazie alla LayerMask).
+Clicchi su un ostacolo e **non** succede niente. Coperta anche da test PlayMode
+temporanei (click dietro il muro, click sull'ostacolo, tasto tenuto premuto).
 
 ---
 
@@ -230,8 +244,11 @@ Clicchi su un ostacolo e **non** succede niente (grazie alla LayerMask).
 
 3. **Il raycast colpisce la cosa sbagliata.** Passa la `LayerMask` **come
    parametro** a `Physics.Raycast`, non fare il raycast su tutto e poi
-   controllare il layer del risultato: il primo collider colpito potrebbe essere
-   un nemico e perderesti il click sul pavimento dietro di lui.
+   filtrare. Ma la maschera deve includere anche ciò che **blocca** il click:
+   con il solo `Ground` il raggio attraversa i cubi e colpisce il pavimento
+   dietro, e un click su un ostacolo porta il player alle sue spalle. Per questo
+   il raggio usa camminabili + bloccanti, e poi si controlla il layer del primo
+   collider colpito. Alla M2 i nemici entrano come terza categoria (click = attacco).
 
 4. **`SetDestination` chiamato ogni frame** costa e fa scattare il path.
    Chiamalo solo quando la destinazione cambia davvero.
