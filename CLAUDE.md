@@ -14,56 +14,31 @@ Disponibilità: 6–10 h/settimana.
 Il piano completo è in `Piano_Sviluppo_ARPG_v2.md` (cartella padre, `game_projects/`).
 La milestone corrente e le schede operative sono in `docs/milestones/`.
 
-## Obiettivo doppio — leggere con attenzione
+## Obiettivo doppio
 
 1. Finire un gioco giocabile.
-2. **Acquisire competenze reali e spendibili.** Questo secondo obiettivo è vincolante
-   e cambia il modo in cui devi rispondere.
+2. **Un progetto che regga come materiale da portfolio.** Repo pubblico curato,
+   ADR che spiegano le scelte, devlog, build giocabile.
 
 ---
 
-## Contratto di lavoro — NON scrivere il codice di gameplay
+## Come si lavora
 
-Mirco ha scelto esplicitamente il metodo **"io spiego, tu scrivi"**.
-Consegnargli uno script pronto sembra utile ma gli toglie il motivo per cui
-sta facendo il progetto. Non farlo.
+**Claude scrive il codice, compreso quello di gameplay.** File completi e
+funzionanti, non firme da riempire. Mirco li rivede, li prova e li integra.
 
-### Quando ti chiede aiuto su un sistema di gameplay, fornisci:
+Resta comunque richiesto, in forma breve e senza lezioni:
 
-1. **Obiettivo osservabile** — cosa deve succedere a schermo quando è finito.
-2. **Concetti nuovi** — le API e i concetti Unity coinvolti, spiegati, con i link
-   alla **documentazione ufficiale Unity** (non a tutorial YouTube: deve imparare
-   a leggere i docs, è la competenza che lo rende autonomo).
-3. **Architettura** — quali classi, quali responsabilità, come comunicano.
-   In prosa e schema, non in codice.
-4. **Firme e scheletri** — interfacce, signature dei metodi pubblici, campi
-   serializzati. Il **corpo dei metodi lo scrive lui**, tranne i passaggi
-   davvero non ovvi (matematica vettoriale, API Unity oscure, workaround noti).
-5. **Trappole note** — dichiarate *prima* che le incontri, così le riconosce.
-6. **Checklist di verifica** osservabile.
+- **Perché** di una scelta architetturale, quando non è ovvia — serve a Mirco
+  per scrivere l'ADR e il devlog.
+- **Trappole Unity** rilevanti per quel codice, segnalate mentre le si aggira.
+- **Conseguenze a distanza:** se una scelta si paga in una milestone successiva,
+  dirlo subito.
+- **Code review vera** quando Mirco scrive o modifica del codice: cosa è corretto,
+  cosa rifaresti, cosa si romperà tra tre milestone. Niente compiacenza.
 
-### Puoi invece dare codice completo, senza discussioni, per:
-
-- Boilerplate di configurazione (`.gitignore`, `.gitattributes`, YAML di CI, `.asmdef`)
-- Script di utility e tool dell'editor non legati al gameplay
-- Snippet matematici standard (conversioni di spazio, curve, easing)
-- Correzioni puntuali su codice che ha già scritto lui
-
-### Quando è bloccato
-
-Regola dei 30 minuti: chiede un **indizio**, non la soluzione.
-Chiedigli cosa ha provato e cosa vede esattamente. Restringi il campo con una
-domanda o un test diagnostico. Dagli la soluzione completa solo se lo chiede
-esplicitamente dopo aver provato, o se è un bug ambientale (versione, setup,
-bug noto di Unity) dove non c'è nulla da imparare.
-
-### Code review
-
-Quando ti manda codice scritto da lui, fai una review vera:
-cosa è corretto, cosa rifaresti e perché, **cosa si romperà tra tre milestone**.
-Non essere accomodante: un "va benissimo" su codice mediocre è tempo sprecato.
-Chiudi con un **esercizio di estensione** che consolidi il concetto
-(es. "adesso aggiungi il knockback senza toccare `IDamageable`").
+*(Fino al 30 set 2026 valeva il metodo "io spiego, tu scrivi", con Claude limitato
+a concetti, architettura e sole firme. Rimosso su richiesta di Mirco.)*
 
 ---
 
