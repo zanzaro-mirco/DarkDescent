@@ -68,14 +68,15 @@ namespace DarkDescent.Player
     /// Traduce l'input grezzo in intenzioni. Non conosce il mondo di gioco.
     public class PlayerInputReader : MonoBehaviour
     {
-        public event Action OnMoveCommandStarted;   // click premuto
-        public event Action OnMoveCommandCanceled;  // click rilasciato
+        public event Action MoveCommandStarted;   // click premuto
+        public event Action MoveCommandCanceled;  // click rilasciato
         public bool IsMoveCommandHeld { get; private set; }
         public Vector2 PointerScreenPosition { get; }
 
-        private void Awake()   { /* crea/abilita le azioni, iscrivi le callback */ }
-        private void OnEnable()  { }
-        private void OnDisable() { /* disabilita le azioni e disiscrivi */ }
+        private void Awake()     { /* crea PlayerControls */ }
+        private void OnEnable()  { /* iscrivi le callback, abilita la mappa */ }
+        private void OnDisable() { /* disabilita la mappa, disiscrivi */ }
+        private void OnDestroy() { /* Dispose di PlayerControls */ }
     }
 
     /// Esegue il movimento. Non conosce l'input.
@@ -156,18 +157,27 @@ e la camera lo segue morbida, senza tremolii.
 3. Nell'Inspector dell'asset, spunta **Generate C# Class** e imposta
    **C# Class File** a `Assets/_Project/Scripts/Input/PlayerControls.cs`, poi
    applica. Unity genera una classe `PlayerControls` che puoi istanziare dal codice.
+   Namespace della classe: `DarkDescent.Input`.
    **Il percorso conta:** la classe deve stare sotto la cartella di
-   `DarkDescent.asmdef`, altrimenti finisce in `Assembly-CSharp` e il tuo
+   `DarkDescent.asmdef`, altrimenti finisce in `Assembly-CSharp` e il
    `PlayerInputReader` non la vede (ADR-003). Lasciandola accanto all'asset, in
    `Settings/`, avresti un errore "type or namespace not found".
-4. Aggiungi `PlayerInputReader` al `Player`.
+4. `PlayerInputReader` in `Scripts/Player/`. Va sul `Player` al passo 1.3,
+   insieme a `PlayerMotor` e `PlayerController`.
+
+> **Nomi degli eventi senza `On`.** `MoveCommandStarted`, non `OnMoveCommandStarted`:
+> in .NET il prefisso `On` è dei metodi che sollevano l'evento, e in Unity
+> `OnQualcosa` sembra un messaggio dell'engine come `OnEnable`.
 
 > **Le due strade.** Il componente `PlayerInput` (drag & drop, comodo ma magico)
 > oppure la classe generata (più codice, controllo totale, testabile).
 > **Si usa la classe generata**: le dipendenze restano esplicite nel codice
 > invece che nascoste in callback collegate dall'Inspector.
 
-**Verifica:** un `Debug.Log` nell'evento, click nel gioco, il log appare.
+**Verifica:** fatta con un test PlayMode temporaneo su `InputTestFixture`
+(mouse virtuale): pressione, rilascio, disattivazione a tasto premuto e
+riattivazione emettono gli eventi giusti. La prova a mano arriva con il 1.3,
+quando il click muove la capsula.
 
 ---
 
