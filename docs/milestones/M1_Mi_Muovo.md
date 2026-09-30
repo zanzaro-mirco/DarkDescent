@@ -45,7 +45,7 @@ si regge tutto il resto del progetto):
 
 ## Architettura
 
-Quattro script piccoli invece di uno grande. Sembra eccessivo adesso; alla M8,
+Quattro script piccoli invece di uno grande. Sembra eccessivo adesso; alla M9,
 quando gli input saranno dieci e il movimento sarà interrotto da stun, root e
 teletrasporti, sarà l'unica cosa che ti salva.
 
@@ -162,13 +162,21 @@ e la camera lo segue morbida, senza tremolii.
 
 ## Passo 1.2 — Input System
 
+0. **Prima, il residuo del template.** In *Project Settings → Input System Package*
+   stacca `InputSystem_Actions` dal campo *Project-wide Actions*, poi cancella
+   `Assets/InputSystem_Actions.inputactions` dal Project window.
 1. *Assets → Create → Input Actions*, chiamalo `PlayerControls`, mettilo in
    `Assets/_Project/Settings/`.
 2. Aprilo, crea un Action Map `Gameplay` con due azioni:
    - `Move` — tipo **Button**, binding `Mouse/leftButton`
    - `Point` — tipo **Value / Vector2**, binding `Mouse/position`
-3. Nell'Inspector dell'asset, spunta **Generate C# Class** e applica.
-   Unity genera una classe `PlayerControls` che puoi istanziare dal codice.
+3. Nell'Inspector dell'asset, spunta **Generate C# Class** e imposta
+   **C# Class File** a `Assets/_Project/Scripts/Input/PlayerControls.cs`, poi
+   applica. Unity genera una classe `PlayerControls` che puoi istanziare dal codice.
+   **Il percorso conta:** la classe deve stare sotto la cartella di
+   `DarkDescent.asmdef`, altrimenti finisce in `Assembly-CSharp` e il tuo
+   `PlayerInputReader` non la vede (ADR-003). Lasciandola accanto all'asset, in
+   `Settings/`, avresti un errore "type or namespace not found".
 4. Scrivi `PlayerInputReader.cs`.
 
 > **Le due strade.** Puoi usare il componente `PlayerInput` (drag & drop, comodo
@@ -200,6 +208,13 @@ Clicchi su un ostacolo e **non** succede niente (grazie alla LayerMask).
 
 ## Passo 1.4 — Personaggio e animazioni
 
+> **Prima di scaricare qualsiasi cosa: ADR-004.** Il repo è pubblico, e le FAQ di
+> Mixamo escludono la distribuzione gratuita dei file grezzi: un FBX di Mixamo
+> committato su GitHub lo è. Le alternative (asset CC0, submodule privato, repo
+> privato) sono nel § 1.4 del piano. Decidi, scrivi l'ADR, poi procedi. Le
+> istruzioni qui sotto valgono per Mixamo; con un personaggio CC0 cambiano solo
+> il sito e le opzioni di download, non l'import.
+
 1. Su **mixamo.com**: scegli un personaggio, scarica **FBX for Unity**.
    Scarica anche le animazioni **Idle** e **Running**, in formato *FBX for Unity*,
    **"Without Skin"**, con **"In Place" spuntato**.
@@ -212,7 +227,7 @@ Clicchi su un ostacolo e **non** succede niente (grazie alla LayerMask).
 5. Scrivi `PlayerAnimatorDriver.cs`.
 
 > **Un float, non un bool.** `Speed` come float in un blend tree ti dà la
-> transizione continua camminata→corsa e ti prepara alla M8. Un bool `isRunning`
+> transizione continua camminata→corsa e ti prepara alla M9. Un bool `isRunning`
 > ti costringerebbe a rifare tutto.
 
 ---
