@@ -294,6 +294,12 @@ senza scivolare.
     vengono creati e distrutti a centinaia, è la differenza tra un gioco che gira
     e uno che ingolfa.
 
+12. **`Failed to create agent because there is no valid NavMesh`** nel log della
+    build, non in editor. L'agent nativo prova ad agganciarsi un istante prima che
+    `NavMeshSurface` carichi i dati, poi ci riesce da solo: al primo frame utile è
+    già sul NavMesh. Innocuo qui; alla M6, con il bake a runtime, l'agent del player
+    va attivato solo dopo il bake, e lì sparisce anche questo messaggio.
+
 **Strumenti di diagnosi da usare fin da subito:** `Debug.DrawRay` (disegna il
 raggio nella Scene view), `Debug.DrawLine`, `OnDrawGizmosSelected` per
 visualizzare raggi e distanze, e la **Scene view attiva durante il Play Mode** —
@@ -303,12 +309,12 @@ guardare l'agent che calcola il path vale cento `Debug.Log`.
 
 ## Checklist di chiusura
 
-- [ ] Il personaggio si muove dove clicchi, aggirando gli ostacoli
-- [ ] Il click su un ostacolo non fa nulla
-- [ ] Animazione idle ↔ corsa fluida, senza scivolamenti
-- [ ] Camera fluida, nessun jitter
-- [ ] `Player` salvato come **prefab** in `Assets/_Project/Prefabs/`
-- [ ] Console pulita, nessun warning giallo lasciato lì
-- [ ] **Build eseguibile che parte e funziona**
-- [ ] GIF registrata (ShareX) per il README
+- [x] Il personaggio si muove dove clicchi, aggirando gli ostacoli *(test PlayMode)*
+- [x] Il click su un ostacolo non fa nulla *(test PlayMode)*
+- [ ] Animazione idle ↔ corsa fluida, senza scivolamenti *(test: Speed e ossa ok; manca l'occhio di Mirco)*
+- [x] Camera fluida, nessun jitter *(provata da Mirco al passo 1.1)*
+- [x] `Player` salvato come **prefab** in `Assets/_Project/Prefabs/`
+- [x] Console pulita, nessun warning giallo lasciato lì *(editor; nel log della build resta la riga della trappola 12)*
+- [ ] **Build eseguibile che parte e funziona** *(avvio e movimento verificati in headless; manca la prova a mano di Mirco)*
+- [x] GIF per il README *(generata dai fotogrammi della camera, `docs/media/`)*
 - [ ] Commit e push
