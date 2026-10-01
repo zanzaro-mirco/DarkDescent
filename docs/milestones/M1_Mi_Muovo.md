@@ -1,4 +1,4 @@
-# M1 — "Mi muovo"
+# M1 — "Mi muovo" ✅ chiusa il 1 ottobre 2026
 
 **Cosa deve succedere a schermo (Definition of Done):**
 in una **build eseguibile**, una stanza grigia con qualche ostacolo. Clicchi sul
@@ -311,10 +311,10 @@ guardare l'agent che calcola il path vale cento `Debug.Log`.
 
 - [x] Il personaggio si muove dove clicchi, aggirando gli ostacoli *(test PlayMode)*
 - [x] Il click su un ostacolo non fa nulla *(test PlayMode)*
-- [ ] Animazione idle ↔ corsa fluida, senza scivolamenti *(test: Speed e ossa ok; manca l'occhio di Mirco)*
+- [x] Animazione idle ↔ corsa fluida, senza scivolamenti *(test PlayMode e prova di Mirco in build)*
 - [x] Camera fluida, nessun jitter *(provata da Mirco al passo 1.1)*
 - [x] `Player` salvato come **prefab** in `Assets/_Project/Prefabs/`
 - [x] Console pulita, nessun warning giallo lasciato lì *(editor; nel log della build resta la riga della trappola 12)*
-- [ ] **Build eseguibile che parte e funziona** *(avvio e movimento verificati in headless; manca la prova a mano di Mirco)*
+- [x] **Build eseguibile che parte e funziona** *(headless e prova a mano di Mirco, 1 ott 2026)*
 - [x] GIF per il README *(generata dai fotogrammi della camera, `docs/media/`)*
-- [ ] Commit e push
+- [x] Commit, push e tag `m1`

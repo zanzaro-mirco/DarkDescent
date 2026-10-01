@@ -7,9 +7,9 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
-Milestone corrente: **M1 — "Mi muovo"**, in chiusura. Una stanza di prova: clicchi
-sul pavimento e il cavaliere ci corre aggirando gli ostacoli, la camera isometrica
-lo segue.
+**M1 — "Mi muovo"** chiusa il 1 ottobre 2026 (tag `m1`): una stanza di prova in cui
+clicchi sul pavimento e il cavaliere ci corre aggirando gli ostacoli, con la camera
+isometrica che lo segue. Prossima: **M2 — "Colpisco e muoio"**, il primo gameplay loop.
 
 **Comandi:** click sinistro per muoversi; tenendo premuto, il personaggio segue il cursore.
 
