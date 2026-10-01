@@ -1,13 +1,14 @@
+using DarkDescent.Combat;
 using UnityEngine;
 
 namespace DarkDescent.Player
 {
     /// <summary>
-    /// Collega input e movimento: ascolta il reader, trova il punto sotto il cursore, comanda il motor.
-    /// È l'unico dei tre a conoscere camera, layer e mondo 3D.
+    /// Collega input, movimento e attacco: ascolta il reader, guarda cosa c'è sotto il cursore e
+    /// comanda il motor (terreno) o l'attacco (nemico). È l'unico a conoscere camera, layer e mondo 3D.
     /// </summary>
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(PlayerMotor), typeof(PlayerInputReader))]
+    [RequireComponent(typeof(PlayerMotor), typeof(PlayerInputReader), typeof(MeleeAttack))]
     public class PlayerController : MonoBehaviour
     {
         [Tooltip("Layer su cui un click fa camminare.")]
@@ -16,9 +17,12 @@ namespace DarkDescent.Player
         [Tooltip("Layer che fermano il raggio senza essere camminabili: un click su di essi non fa nulla.")]
         [SerializeField] private LayerMask _blockingLayers;
 
+        [Tooltip("Layer dei nemici: un click su di essi attacca.")]
+        [SerializeField] private LayerMask _enemyLayers;
+
         [SerializeField, Min(1f)] private float _maxRayDistance = 100f;
 
-        [Tooltip("Ogni quanti secondi si aggiorna la destinazione tenendo premuto il tasto.")]
+        [Tooltip("Ogni quanti secondi si aggiorna il comando tenendo premuto il tasto.")]
         [SerializeField, Min(0.02f)] private float _holdRepathInterval = 0.1f;
 
         [Tooltip("Vuoto = Camera.main, risolta una volta in Awake.")]
@@ -26,12 +30,22 @@ namespace DarkDescent.Player
 
         private PlayerMotor _motor;
         private PlayerInputReader _input;
+        private MeleeAttack _attack;
         private float _holdTimer;
+
+        // nemico cliccato all'inizio della pressione: tenendo premuto si continua a colpire lui,
+        // ovunque vada il cursore, come in Diablo
+        private IDamageable _heldTarget;
+
+        // movimento chiesto durante un colpo: parte appena il colpo è arrivato
+        private bool _hasQueuedMove;
+        private Vector3 _queuedMove;
 
         private void Awake()
         {
             _motor = GetComponent<PlayerMotor>();
             _input = GetComponent<PlayerInputReader>();
+            _attack = GetComponent<MeleeAttack>();
 
             // Camera.main è una ricerca per tag: una volta qui, mai per frame
             if (_camera == null)
@@ -43,17 +57,23 @@ namespace DarkDescent.Player
         private void OnEnable()
         {
             _input.MoveCommandStarted += HandleMoveCommandStarted;
+            _input.MoveCommandCanceled += HandleMoveCommandCanceled;
         }
 
         private void OnDisable()
         {
             _input.MoveCommandStarted -= HandleMoveCommandStarted;
+            _input.MoveCommandCanceled -= HandleMoveCommandCanceled;
         }
 
         private void Update()
         {
-            // tenendo premuto si continua a seguire il cursore, come in Diablo;
-            // il motor scarta da solo le destinazioni quasi uguali alla corrente
+            if (_hasQueuedMove && !_attack.IsSwinging)
+            {
+                _hasQueuedMove = false;
+                Walk(_queuedMove);
+            }
+
             if (!_input.IsMoveCommandHeld)
             {
                 return;
@@ -66,46 +86,101 @@ namespace DarkDescent.Player
             }
 
             _holdTimer = _holdRepathInterval;
-            MoveToCursor();
+
+            if (_heldTarget != null)
+            {
+                // morto il bersaglio tenuto, ci si ferma finché non si rilascia: niente passi a sorpresa
+                if (_heldTarget.IsAlive())
+                {
+                    _attack.SetTarget(_heldTarget);
+                }
+
+                return;
+            }
+
+            // tenendo premuto e passando sopra un nemico non si cambia idea: si continua a camminare
+            ExecuteCursorCommand(allowAttack: false);
         }
 
         private void HandleMoveCommandStarted()
         {
             _holdTimer = _holdRepathInterval;
-            MoveToCursor();
+            _heldTarget = null;
+            ExecuteCursorCommand(allowAttack: true);
         }
 
-        private void MoveToCursor()
+        private void HandleMoveCommandCanceled()
         {
-            if (TryGetPointUnderCursor(out Vector3 point))
+            _heldTarget = null;
+        }
+
+        private void ExecuteCursorCommand(bool allowAttack)
+        {
+            if (!TryRaycastCursor(out RaycastHit hit))
             {
-                _motor.MoveTo(point);
+                return;
+            }
+
+            int layerBit = 1 << hit.collider.gameObject.layer;
+
+            if ((_enemyLayers.value & layerBit) != 0)
+            {
+                if (!allowAttack)
+                {
+                    return;
+                }
+
+                // il collider può stare su un figlio del nemico: si risale fino a chi riceve i colpi
+                var target = hit.collider.GetComponentInParent<IDamageable>();
+                if (target.IsAlive())
+                {
+                    _heldTarget = target;
+                    _hasQueuedMove = false;
+                    _attack.SetTarget(target);
+                }
+
+                return;
+            }
+
+            if ((_walkableLayers.value & layerBit) != 0)
+            {
+                RequestWalk(hit.point);
             }
         }
 
-        // Il raggio usa camminabili + bloccanti. Con i soli camminabili attraverserebbe i cubi e colpirebbe
-        // il pavimento dietro: un click su un ostacolo porterebbe il player alle sue spalle.
-        private bool TryGetPointUnderCursor(out Vector3 point)
+        private void RequestWalk(Vector3 point)
         {
-            point = default;
+            // il colpo partito si finisce: il movimento resta in coda e parte subito dopo
+            if (_attack.IsSwinging)
+            {
+                _queuedMove = point;
+                _hasQueuedMove = true;
+                return;
+            }
+
+            _hasQueuedMove = false;
+            Walk(point);
+        }
+
+        private void Walk(Vector3 point)
+        {
+            _attack.ClearTarget();
+            _motor.MoveTo(point);
+        }
+
+        // Il raggio usa camminabili + bloccanti + nemici e decide sul primo collider colpito. Con i soli
+        // camminabili attraverserebbe cubi e nemici e colpirebbe il pavimento dietro.
+        private bool TryRaycastCursor(out RaycastHit hit)
+        {
+            hit = default;
             if (_camera == null)
             {
                 return false;
             }
 
             Ray ray = _camera.ScreenPointToRay(_input.PointerScreenPosition);
-            if (!Physics.Raycast(ray, out RaycastHit hit, _maxRayDistance, _walkableLayers | _blockingLayers, QueryTriggerInteraction.Ignore))
-            {
-                return false;
-            }
-
-            if ((_walkableLayers.value & (1 << hit.collider.gameObject.layer)) == 0)
-            {
-                return false;
-            }
-
-            point = hit.point;
-            return true;
+            int mask = _walkableLayers | _blockingLayers | _enemyLayers;
+            return Physics.Raycast(ray, out hit, _maxRayDistance, mask, QueryTriggerInteraction.Ignore);
         }
     }
 }

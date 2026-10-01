@@ -10,7 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6432807766451126628}
   - component: {fileID: 4060913236897253554}
-  m_Layer: 0
+  - component: {fileID: 4129913166319692949}
+  - component: {fileID: 9186552914136770494}
+  m_Layer: 8
   m_Name: Skeleton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -55,6 +57,42 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &4129913166319692949
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.45
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &9186552914136770494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c59a7bc500cdb4d8659353dd03e93e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.Health
+  _maxHealth: 30
 --- !u!1001 &8531279894515779573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -207,6 +245,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Characters.CharacterAnimatorDriver
   _agent: {fileID: 0}
+  _health: {fileID: 0}
+  _attack: {fileID: 0}
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05
 --- !u!4 &9121910610659155312 stripped

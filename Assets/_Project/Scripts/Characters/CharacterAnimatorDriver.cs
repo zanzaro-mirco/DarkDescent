@@ -1,3 +1,4 @@
+using DarkDescent.Combat;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -5,8 +6,9 @@ namespace DarkDescent.Characters
 {
     /// <summary>
     /// Traduce lo stato di un personaggio, player o nemico, in animazioni. Nessuna logica di gioco:
-    /// la locomozione la legge dall'agent, gli one-shot (attacco, colpo subito, morte) li riceve
-    /// da chi decide. Sta sul modello, figlio della radice che porta l'agent.
+    /// la locomozione la legge dall'agent, gli one-shot (attacco, colpo subito, morte) arrivano dagli
+    /// eventi di MeleeAttack e Health. Sta sul modello, figlio della radice che porta quei componenti.
+    /// La dipendenza va in un solo verso: il combattimento non sa niente di animazioni.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Animator))]
@@ -22,6 +24,12 @@ namespace DarkDescent.Characters
 
         [Tooltip("Vuoto = NavMeshAgent del parent, risolto in Awake.")]
         [SerializeField] private NavMeshAgent _agent;
+
+        [Tooltip("Vuoto = Health del parent, risolta in Awake. Colpo subito e morte partono dai suoi eventi.")]
+        [SerializeField] private Health _health;
+
+        [Tooltip("Vuoto = MeleeAttack del parent, risolto in Awake. L'animazione d'attacco parte dal suo evento.")]
+        [SerializeField] private MeleeAttack _attack;
 
         [Tooltip("Smorzamento del parametro Speed, in secondi. Evita gli scatti tra idle e movimento.")]
         [SerializeField, Min(0f)] private float _speedDampTime = 0.1f;
@@ -40,6 +48,54 @@ namespace DarkDescent.Characters
             if (_agent == null)
             {
                 _agent = GetComponentInParent<NavMeshAgent>();
+            }
+
+            if (_health == null)
+            {
+                _health = GetComponentInParent<Health>();
+            }
+
+            if (_attack == null)
+            {
+                _attack = GetComponentInParent<MeleeAttack>();
+            }
+        }
+
+        // Health e MeleeAttack possono mancare (un modello senza combattimento): ci si iscrive a quel che c'è
+        private void OnEnable()
+        {
+            if (_health != null)
+            {
+                _health.Damaged += HandleDamaged;
+                _health.Died += PlayDeath;
+            }
+
+            if (_attack != null)
+            {
+                _attack.SwingStarted += PlayAttack;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (_health != null)
+            {
+                _health.Damaged -= HandleDamaged;
+                _health.Died -= PlayDeath;
+            }
+
+            if (_attack != null)
+            {
+                _attack.SwingStarted -= PlayAttack;
+            }
+        }
+
+        private void HandleDamaged(DamageInfo info, float applied)
+        {
+            // il colpo che uccide passa a Death subito dopo (Died arriva dopo Damaged): niente Hit in mezzo
+            if (!_health.IsDead)
+            {
+                PlayHit();
             }
         }
 

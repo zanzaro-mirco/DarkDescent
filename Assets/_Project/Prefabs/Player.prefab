@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 4531034534785418903}
   - component: {fileID: 3353591711613391109}
   - component: {fileID: 8143097604569687465}
+  - component: {fileID: 7590239097679901996}
+  - component: {fileID: 3870862040190096367}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -126,9 +128,40 @@ MonoBehaviour:
   _blockingLayers:
     serializedVersion: 2
     m_Bits: 128
+  _enemyLayers:
+    serializedVersion: 2
+    m_Bits: 256
   _maxRayDistance: 100
   _holdRepathInterval: 0.1
   _camera: {fileID: 0}
+--- !u!114 &7590239097679901996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4b9819a8c4abe24f9fa4ade90b5362b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.MeleeAttack
+  _weapon: {fileID: 11400000, guid: edb5aa48207955b4ba8f40a78873892f, type: 2}
+  _chaseRepathInterval: 0.1
+  _facingTolerance: 30
+--- !u!114 &3870862040190096367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c59a7bc500cdb4d8659353dd03e93e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.Health
+  _maxHealth: 100
 --- !u!1001 &2294196101016226000
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -290,5 +323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Player.PlayerAnimatorDriver
   _agent: {fileID: 0}
+  _health: {fileID: 0}
+  _attack: {fileID: 0}
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05

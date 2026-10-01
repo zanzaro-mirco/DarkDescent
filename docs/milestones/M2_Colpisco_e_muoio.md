@@ -74,8 +74,9 @@ DarkDescent.UI                            DarkDescent.Core
 ```
 
 - `PlayerAnimatorDriver` diventa `CharacterAnimatorDriver` (`DarkDescent.Characters`),
-  condiviso: legge la velocità dall'agent e riceve i comandi one-shot
-  (`PlayAttack`, `PlayHit`, `PlayDeath`). Dopo la morte ignora ogni altro comando.
+  condiviso: legge la velocità dall'agent, e gli one-shot (`PlayAttack`, `PlayHit`,
+  `PlayDeath`) partono dagli eventi di `MeleeAttack` e `Health`. Dopo la morte
+  ignora ogni altro comando.
 - `PlayerMotor` resta del player; lo scheletro usa il `NavMeshAgent` dall'IA.
 - Il danno parte **dopo il ritardo dell'arma**, non da un Animation Event: gli
   eventi si perdono a ogni reimport della clip.
@@ -192,8 +193,36 @@ colpo subito sullo scheletro con il culling acceso); nessun warning di import.
    annulla il bersaglio.
 4. `WeaponDefinition` per la spada: danno fisso (in M2 non c'è formula, piano § 2).
 
-**Verifica:** test PlayMode — click su uno scheletro fermo, il cavaliere si
-avvicina, attacca, la vita dello scheletro scende.
+**Com'è andata:**
+
+- `Data/Weapons/Sword.asset`: danno 10, portata 0,6 m tra i bordi, margine 0,5 m,
+  intervallo 1 s, `HitDelay` 0,6 s. Il ritardo viene dalla clip: la punta della
+  lama scende tra 0,57 e 0,63 s di `Melee_1H_Attack_Chop`. Per il fendente dello
+  scheletro (`Slice_Diagonal`) l'impatto è a 0,42 s.
+- `SetTarget` chiede **un** colpo: avvicinamento, colpo, poi il bersaglio si lascia.
+  Per colpire di continuo si richiama a ogni tick: il `PlayerController` lo fa
+  finché il tasto è premuto sul nemico cliccato, l'IA lo farà nello stato Attack.
+- Dall'inizio del colpo al danno (`IsSwinging`) il colpo non si annulla: un click
+  sul terreno in quell'intervallo resta in coda e parte subito dopo.
+- Tenendo premuto su un nemico morto il cavaliere resta fermo fino al rilascio.
+- Il bersaglio è salvato anche come `Transform`, per il confronto con il null di
+  Unity. Sulle interfacce c'è `IDamageable.IsAlive()`, che fa il cast a
+  `UnityEngine.Object`.
+- Player: `Health` 100 e `MeleeAttack` con la spada. Scheletro: layer `Enemy`,
+  `CapsuleCollider` sulla radice, `Health` 30 (tre colpi).
+- `CharacterAnimatorDriver` si iscrive da solo a `MeleeAttack.SwingStarted`,
+  `Health.Damaged` e `Health.Died` del parent. Il combattimento non conosce le
+  animazioni.
+
+**Verifica:** test PlayMode `PlayerAttackTests` — click che avvicina e dà un solo
+colpo (lo scheletro passa in Hit); tasto tenuto fino alla morte; click sul terreno
+che annulla l'avvicinamento; bersaglio che si allontana durante il fendente e non
+prende danno.
+
+**Decisione aperta per il 2.5:** un colpo subito interrompe il colpo in corso di
+chi lo riceve? Oggi l'animazione passa in Hit, ma il danno del fendente arriva lo
+stesso. In Diablo 1 il "hit recovery" interrompe l'attacco solo sopra una soglia
+di danno.
 
 ---
 
@@ -263,8 +292,9 @@ calendario).
 
 ## Trappole note
 
-1. **Il collider del nemico sta sul modello, non sulla radice.** Dal raycast si
-   risale con `GetComponentInParent<IDamageable>()`, non `GetComponent`.
+1. **Il collider del nemico può stare su un figlio.** Oggi è sulla radice, ma dal
+   raycast si risale comunque con `GetComponentInParent<IDamageable>()`, non
+   `GetComponent`: un collider per osso o un modello diverso non rompono niente.
 
 2. **Portata d'attacco e `stoppingDistance` sono due cose diverse.** La portata va
    misurata tra i bordi (distanza tra i centri meno i raggi), e a portata l'agent
