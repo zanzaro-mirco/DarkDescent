@@ -19,9 +19,6 @@ namespace DarkDescent.Player
 
         private NavMeshAgent _agent;
 
-        /// <summary>0 = fermo, 1 = velocità massima. Grezza, senza smoothing: lo smorzamento spetta a chi la legge.</summary>
-        public float NormalizedSpeed => _agent.speed > 0f ? Mathf.Clamp01(_agent.velocity.magnitude / _agent.speed) : 0f;
-
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();

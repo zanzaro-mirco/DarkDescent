@@ -73,8 +73,9 @@ DarkDescent.UI                            DarkDescent.Core
 └─ DamageNumbers  numeri fluttuanti, con pool
 ```
 
-- `PlayerAnimatorDriver` diventa `CharacterAnimatorDriver`, condiviso: legge la
-  velocità dall'agent e riceve i comandi one-shot (attacco, colpo subito, morte).
+- `PlayerAnimatorDriver` diventa `CharacterAnimatorDriver` (`DarkDescent.Characters`),
+  condiviso: legge la velocità dall'agent e riceve i comandi one-shot
+  (`PlayAttack`, `PlayHit`, `PlayDeath`). Dopo la morte ignora ogni altro comando.
 - `PlayerMotor` resta del player; lo scheletro usa il `NavMeshAgent` dall'IA.
 - Il danno parte **dopo il ritardo dell'arma**, non da un Animation Event: gli
   eventi si perdono a ogni reimport della clip.
@@ -153,20 +154,28 @@ degli eventi, morte una volta sola, danno nullo silenzioso, accesso via `IDamage
 
 ## Passo 2.3 — Scheletro e animazioni di combattimento
 
-1. Download (D4) e import in `Art/Models/KayKit/Skeletons/`. **Da verificare
-   subito:** che lo scheletro usi lo stesso `Rig_Medium` del cavaliere. Se sì,
-   rig Generic e `Copy From Other Avatar` come alla M1. Se no, avatar proprio e
-   animazioni dal suo pacchetto.
-2. `Rig_Medium_CombatMelee.fbx` in `Art/Animations/KayKit/`: clip d'attacco a
-   una mano. `Hit_A` e `Death_A` ci sono già da `Rig_Medium_General`.
-3. Spada: `sword_1handed.fbx` dallo zip Adventurers, figlia dell'osso
-   `handslot.r` del cavaliere. Lo scheletro usa una delle sue armi.
-4. Animator Controller condiviso o con override (`AnimatorOverrideController`)
-   per lo scheletro: stato `Locomotion` (blend tree della M1) più gli one-shot
-   `Attack`, `Hit`, `Death`.
-5. Riga in `CREDITS.md` per ogni file nuovo.
+1. `Skeleton_Minion` e `Skeleton_Blade` in `Art/Models/KayKit/Skeletons/`, rig
+   Generic con avatar proprio. **Verificato:** stesse 24 ossa del cavaliere con
+   gli stessi percorsi, e le animazioni del pacchetto Skeletons sono identiche
+   byte per byte a quelle già importate. Le clip si condividono senza retargeting.
+2. `Rig_Medium_CombatMelee.fbx` in `Art/Animations/KayKit/`, avatar copiato dal
+   cavaliere. Il cavaliere usa `Melee_1H_Attack_Chop` (1,07 s), lo scheletro
+   `Melee_1H_Attack_Slice_Diagonal` (1,00 s). `Hit_A` e `Death_A` da `Rig_Medium_General`.
+3. Armi figlie dell'osso `handslot.r` con trasformazione identità: `sword_1handed`
+   (variante `fbx(unity)` dello zip Adventurers) per il cavaliere, `Skeleton_Blade`
+   per lo scheletro.
+4. `Player.controller` rinominato `Character.controller` (stesso GUID), condiviso:
+   `Locomotion` (blend tree della M1), `Attack` e `Hit` con ritorno a exit time,
+   `Death` senza uscite. `Skeleton.overrideController` sostituisce la corsa con
+   `Walking_A` e il fendente.
+5. Prefab `Skeleton`: radice con `NavMeshAgent` (velocità 3, priorità 60) e
+   `Model` con Animator in `CullUpdateTransforms` e `CharacterAnimatorDriver`.
+   Uno in scena a (6, 0, 6).
+6. Righe in `CREDITS.md`.
 
-**Verifica:** scheletro in scena che respira in idle; nessun warning di import.
+**Verifica:** test PlayMode `CharacterAnimationTests` (scheletro fermo sul NavMesh,
+attacco che torna in Locomotion, doppio attacco che riparte, morte definitiva,
+colpo subito sullo scheletro con il culling acceso); nessun warning di import.
 
 ---
 
