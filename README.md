@@ -12,6 +12,7 @@ Milestone corrente: **M0 — Fondamenta**
 - [DECISIONS.md](DECISIONS.md) — decisioni architetturali (ADR)
 - [CONVENTIONS.md](CONVENTIONS.md) — convenzioni di codice
 - [ICEBOX.md](ICEBOX.md) — idee fuori scope
+- [CREDITS.md](CREDITS.md) — asset di terzi e licenze
 
 ## Setup
 

@@ -16,7 +16,7 @@ corsa, e la camera isometrica lo segue in modo fluido, senza scatti.
 | 1.1 | Scena sandbox e camera isometrica | 2–3 |
 | 1.2 | Input System: asset delle azioni e reader | 2–3 |
 | 1.3 | NavMesh e movimento click-to-move | 3–4 |
-| 1.4 | Personaggio Mixamo e Animator | 3–4 |
+| 1.4 | Personaggio KayKit (CC0) e Animator | 3–4 |
 | 1.5 | Rifinitura, build, GIF, commit | 2 |
 
 ---
@@ -210,23 +210,36 @@ temporanei (click dietro il muro, click sull'ostacolo, tasto tenuto premuto).
 
 ## Passo 1.4 — Personaggio e animazioni
 
-> **Prima di scaricare qualsiasi cosa: ADR-004.** Il repo è pubblico, e le FAQ di
-> Mixamo escludono la distribuzione gratuita dei file grezzi: un FBX di Mixamo
-> committato su GitHub lo è. Le alternative (asset CC0, submodule privato, repo
-> privato) sono nel § 1.4 del piano. Decidi, scrivi l'ADR, poi procedi. Le
-> istruzioni qui sotto valgono per Mixamo; con un personaggio CC0 cambiano solo
-> il sito e le opzioni di download, non l'import.
+Fonte: **KayKit** di Kay Lousberg, CC0 (ADR-004, opzione a). Crediti in `CREDITS.md`.
+Nel repo entra solo ciò che si usa: gli zip completi restano fuori.
 
-1. Su **mixamo.com**: scegli un personaggio, scarica **FBX for Unity**.
-   Scarica anche le animazioni **Idle** e **Running**, in formato *FBX for Unity*,
-   **"Without Skin"**, con **"In Place" spuntato**.
-2. Import in `Assets/_Project/Art/`. Nelle *Import Settings* di ogni file:
-   tab **Rig → Animation Type: Humanoid**. Per le clip, tab **Animation**,
-   spunta **Loop Time**.
-3. Crea un **Animator Controller**, aggiungi un parametro float `Speed`,
-   e un **Blend Tree 1D** con Idle (0) → Running (1).
-4. Metti il modello come **figlio** del `Player`, l'Animator sul modello.
-5. Aggiungi `PlayerAnimatorDriver` al modello.
+1. Da *KayKit Adventurers 2.0* (FREE): `Knight.fbx` e `knight_texture.png`
+   in `Art/Models/KayKit/`. Da *KayKit Character Animations 1.1* (FREE):
+   `Rig_Medium_General.fbx` e `Rig_Medium_MovementBasic.fbx` in `Art/Animations/KayKit/`.
+   Gli attacchi (`Rig_Medium_CombatMelee.fbx`) entrano alla M2.
+2. Import, tab **Rig → Animation Type: Generic**, non Humanoid. Il Knight crea
+   l'avatar (*Create From This Model*); i due file di animazioni lo copiano
+   (*Copy From Other Avatar* → `KnightAvatar`). **Loop Time** su idle, walk e run.
+   > **Perché Generic.** Con Humanoid, Unity non mappa l'osso `chest` di KayKit
+   > e scarta la rotazione del busto in tutte le clip (più alcune traslazioni):
+   > l'import lo segnala con un warning per clip. Personaggi, scheletri nemici e
+   > animazioni KayKit condividono lo stesso `Rig_Medium`, quindi il retargeting
+   > di Humanoid non serve; Generic riproduce le clip senza perdite e costa meno.
+   > Si rinuncia a retargeting su rig diversi e IK dei piedi.
+3. `Art/Animations/Player.controller`: parametro float `Speed`, stato di default
+   **Blend Tree 1D** `Locomotion` con `Idle_A` (0) → `Running_A` (1).
+4. Il Knight è il figlio `Model` del `Player`. Sul `Player` la capsula resta solo
+   collider (centro 1.1, altezza 2.2); il pivot va ai piedi, quindi
+   **Base Offset 0** sull'agent. Sull'Animator: *Apply Root Motion* spento
+   (la posizione la decide il NavMeshAgent), *Culling Mode* **Always Animate**:
+   il player è sempre inquadrato, il culling non risparmierebbe nulla.
+5. `PlayerAnimatorDriver` sul `Model`: legge `NormalizedSpeed` dal motor e lo
+   passa a `Speed` con damping.
+
+**Verifica:** fatta con test PlayMode temporanei: da fermo `Speed` ≈ 0, in corsa
+≈ 0,93 con le ossa delle gambe in movimento, all'arrivo di nuovo ≈ 0, piedi sul
+pavimento. A mano: click lontano, il cavaliere corre, si ferma e torna in idle
+senza scivolare.
 
 > **Un float, non un bool.** `Speed` come float in un blend tree ti dà la
 > transizione continua camminata→corsa e ti prepara alla M9. Un bool `isRunning`
@@ -260,8 +273,10 @@ temporanei (click dietro il muro, click sull'ostacolo, tasto tenuto premuto).
    (0 nel primo frame dopo un `SetDestination`), il secondo è quella voluta.
    Per l'animazione, `velocity.magnitude` è quello giusto, ma smorzalo.
 
-7. **Il personaggio scivola senza animare** → scala d'import sbagliata o
-   "In Place" non spuntato su Mixamo.
+7. **Il personaggio scivola senza animare** → le clip non sono collegate allo
+   scheletro (percorsi delle ossa diversi tra clip e modello) oppure l'Animator
+   è in culling. In batchmode nessuna camera disegna davvero, quindi con
+   *Cull Update Transforms* le ossa restano ferme anche se `Speed` cambia.
 
 8. **Il personaggio ruota due volte o vibra** → sia il `NavMeshAgent`
    (`updateRotation`) sia il tuo codice stanno gestendo la rotazione. Scegline uno.
