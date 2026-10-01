@@ -15,6 +15,8 @@ isometrica che lo segue. Prossima: **M2 — "Colpisco e muoio"**, il primo gamep
 
 ## Documenti
 
+- [Piano di sviluppo](docs/Piano_Sviluppo_ARPG.md) — ambito, milestone, architettura
+- [Milestone](docs/milestones/) — schede operative
 - [DECISIONS.md](DECISIONS.md) — decisioni architetturali (ADR)
 - [CONVENTIONS.md](CONVENTIONS.md) — convenzioni di codice
 - [ICEBOX.md](ICEBOX.md) — idee fuori scope

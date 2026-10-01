@@ -11,7 +11,7 @@ ARPG isometrico dark fantasy ispirato a Diablo 1. Unity LTS + URP + C#.
 Progetto personale di **Mirco**: sviluppatore esperto in altri ambiti, **Unity da zero**.
 Disponibilità: 6–10 h/settimana.
 
-Il piano completo è in `Piano_Sviluppo_ARPG_v2.md` (cartella padre, `game_projects/`).
+Il piano completo è in `docs/Piano_Sviluppo_ARPG.md`, versionato nel repo.
 La milestone corrente e le schede operative sono in `docs/milestones/`.
 
 ## Obiettivo doppio
