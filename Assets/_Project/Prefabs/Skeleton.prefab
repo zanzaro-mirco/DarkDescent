@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 4311261776623411597}
   - component: {fileID: 8942145007644078378}
   - component: {fileID: 6381474352372389961}
+  - component: {fileID: 3025011650240641013}
+  - component: {fileID: 8883921936609676798}
   m_Layer: 8
   m_Name: Skeleton
   m_TagString: Untagged
@@ -143,6 +145,126 @@ MonoBehaviour:
     m_Bits: 128
   _eyeHeight: 1.5
   _perceptionInterval: 0.2
+  _corpseLifetime: 5
+--- !u!82 &3025011650240641013
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &8883921936609676798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9f452ee2503a0c4dbb7859609beba30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Characters.CharacterAudio
+  _swingClips:
+  - {fileID: 8300000, guid: 1318c0efd9832de468643a0f08534573, type: 3}
+  - {fileID: 8300000, guid: 4aedf0e05aefc6144af3668d7cf34c13, type: 3}
+  _hitClips:
+  - {fileID: 8300000, guid: d154776ed00fad941aa07362615af206, type: 3}
+  - {fileID: 8300000, guid: b6220159b7e1adc4a97746b4953de163, type: 3}
+  - {fileID: 8300000, guid: 62157d9709e75b744affa137f695761e, type: 3}
+  _deathClips:
+  - {fileID: 8300000, guid: f443828afe8dce34eaec00ea7062ceab, type: 3}
+  _pitchVariation: 0.06
 --- !u!1001 &8531279894515779573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -271,6 +393,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 30e6ce6889e2bae4582ec05d0afe47f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4392716045101401340}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 30e6ce6889e2bae4582ec05d0afe47f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6512745034588951292}
   m_SourcePrefab: {fileID: 100100000, guid: 30e6ce6889e2bae4582ec05d0afe47f8, type: 3}
 --- !u!4 &5361870026992552607 stripped
 Transform:
@@ -300,6 +425,21 @@ MonoBehaviour:
   _attack: {fileID: 0}
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05
+--- !u!114 &6512745034588951292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8492761894564972490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f61785d7bca999408369ab53253b1bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Characters.HitFlash
+  _flashMaterial: {fileID: 2100000, guid: 9d7765ff58f9f024096bc74c476dd2bd, type: 2}
+  _duration: 0.1
+  _health: {fileID: 0}
 --- !u!4 &9121910610659155312 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 30e6ce6889e2bae4582ec05d0afe47f8, type: 3}

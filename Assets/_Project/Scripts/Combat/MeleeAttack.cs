@@ -44,6 +44,9 @@ namespace DarkDescent.Combat
         /// <summary>Partito un colpo: l'animazione d'attacco si aggancia qui.</summary>
         public event Action SwingStarted;
 
+        /// <summary>Il colpo è arrivato e ha fatto danno: hit stop e simili si agganciano qui.</summary>
+        public event Action<DamageInfo> HitLanded;
+
         public WeaponDefinition Weapon => _weapon;
 
         public bool HasTarget => _targetTransform != null;
@@ -222,7 +225,9 @@ namespace DarkDescent.Combat
 
             if (inReach)
             {
-                _swingTarget.TakeDamage(new DamageInfo(_weapon.Damage, _weapon.DamageType, gameObject));
+                var info = new DamageInfo(_weapon.Damage, _weapon.DamageType, gameObject);
+                _swingTarget.TakeDamage(info);
+                HitLanded?.Invoke(info);
             }
 
             ForgetSwingTarget();

@@ -357,6 +357,37 @@ anche se un test lo aveva lasciato a 0,3); il corpo dello scheletro resta e poi 
 
 **Verifica:** a occhio e a orecchio, in build.
 
+**Com'è andata:**
+
+- **Lampo** (`HitFlash`, sul modello): per 0,1 s, contati in tempo reale, tutti i
+  renderer del modello, arma compresa, passano a `M_HitFlash` (URP Unlit bianco).
+  Gli array di materiali si preparano in `Awake`, così il lampo non alloca. Niente
+  emissione: i materiali KayKit stanno dentro l'FBX e nessuno usa `_EMISSION`, quindi
+  in build quella variante dello shader verrebbe tolta e il lampo funzionerebbe solo
+  nell'editor. Il materiale del lampo è un asset referenziato dai prefab, quindi in
+  build c'è.
+- **Hit stop** (`HitStop`, in scena): 0,05 s a `timeScale` 0, solo sui colpi del
+  player (`MeleeAttack.HitLanded`, collegato dal composition root). Due hit stop
+  ravvicinati non si sommano: vale la fine più lontana. La scala da ripristinare si
+  legge solo al primo, altrimenti il secondo salverebbe lo 0 del primo. Spento a
+  metà, ripristina comunque.
+- **Numeri di danno** (`DamageNumbers` sotto l'HUD, `DamageNumber` per ciascuno):
+  testi TMP in screen space che seguono un punto del mondo che sale di 1 m in 0,8 s
+  e sfuma nella seconda metà. Escono da un `ObjectPool`. Un solo `Update` per tutti
+  i numeri attivi. `SetText("{0}", n)` non alloca stringhe. Gialli sui nemici, rossi
+  sul player. Il composition root fa il `Track` di player e nemici.
+- **Suoni** (`CharacterAudio`, sulla radice): fendente su `SwingStarted`, impatto su
+  `Damaged`, morte su `Died`, con una clip a caso tra le varianti e l'intonazione
+  variata di ±6%. Ogni personaggio ha i suoi: armatura per il cavaliere, legno
+  per le ossa dello scheletro. Audio 2D per ora: con la camera a 20 m
+  l'attenuazione 3D renderebbe tutto quasi muto. Kenney RPG Audio e Impact
+  Sounds (CC0): nel repo solo le 10 clip usate.
+
+**Test:** `GameFeelTests` — due hit stop ravvicinati non si sommano e ripristinano
+la scala di prima (0,5, non 1 e non 0); il colpo del player ferma il tempo, fa
+lampeggiare lo scheletro e mostra "10", poi tutto torna normale; i numeri tornano
+al pool e vengono riusati. I suoni si verificano a orecchio.
+
 ---
 
 ## Passo 2.9 — Chiusura
