@@ -138,10 +138,16 @@ namespace DarkDescent.Combat
 ## Passo 2.2 — Danno
 
 `DamageInfo`, `IDamageable`, `Health` (guscio di `HealthModel`, eventi in C#,
-nessun `UnityEvent`). `Health` espone `Damaged(DamageInfo)` oltre a `Changed` e
-`Died`: serve a flash, numeri e suoni senza che ognuno ricalcoli la differenza.
+nessun `UnityEvent`). Eventi di `Health`, in quest'ordine:
+`HealthChanged(current, max)`, `Damaged(DamageInfo, applied)`, `Died` (una volta).
+`Damaged` porta il danno **applicato**, non quello richiesto: è quello che mostrano
+i numeri di danno.
 
-**Verifica:** test EditMode verdi; `Health` provato nel passo 2.4.
+`Health` inoltra gli eventi da `TakeDamage` invece di iscriversi a quelli del
+model: nessun `+=` da bilanciare, e l'ordine è deciso in un punto solo.
+
+**Verifica:** test PlayMode su `Health` (in EditMode `Awake` non gira): ordine
+degli eventi, morte una volta sola, danno nullo silenzioso, accesso via `IDamageable`.
 
 ---
 
@@ -202,8 +208,8 @@ gli toglie vita.
 ## Passo 2.6 — HUD e composition root
 
 1. Canvas *Screen Space – Overlay*, `EventSystem` con `InputSystemUIInputModule`.
-2. `HealthOrb`: `Image` *Filled* verticale, iscritta a `Changed` del player.
-   **Nessun polling** in `Update`.
+2. `HealthOrb`: `Image` *Filled* verticale.
+   **Nessun polling** in `Update`. Si iscrive a `HealthChanged`.
 3. `CompositionRoot` in `DarkDescent.Core`: riferimenti serializzati a player,
    nemici, HUD e schermata di morte; in `Awake` passa a ognuno ciò che gli serve
    (`HealthOrb.Bind(Health)`, `EnemyAI.Init(Transform player)`).
