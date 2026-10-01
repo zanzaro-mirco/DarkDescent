@@ -317,6 +317,34 @@ il pavimento, così non passa per caso).
 **Verifica:** muori, ricominci, tutto riparte pulito: vita piena, nemici vivi,
 `Time.timeScale` a 1.
 
+**Com'è andata:**
+
+- `PlayerDeath` sul player, iscritto a `Health.Died`. Spegne il controller prima
+  del reader: spegnendo il reader con il tasto premuto parte un `canceled`, e il
+  controller non deve più ascoltare. Poi spegne `MeleeAttack` (annulla il fendente
+  in volo), ferma il motor e spegne l'agent. L'animazione la fa partire il driver.
+- `DeathScreen` sotto l'HUD. Il componente sta su un oggetto sempre attivo e si
+  accende solo il pannello. `Bind` e `OnEnable` funzionano come per la sfera. La
+  schermata compare 2 s dopo la morte, con `WaitForSecondsRealtime`: con un hit
+  stop in corso `WaitForSeconds` non finirebbe mai. Non ricarica niente da sé:
+  emette `RestartRequested`.
+- Il composition root riceve `RestartRequested`, rimette `Time.timeScale` a 1 e
+  ricarica la scena attiva per indice.
+- Scheletro morto: oltre a collider, agent e attacco spenti (passo 2.5), il corpo
+  si distrugge dopo 5 s. Chi lo teneva come bersaglio lo controlla con il null
+  di Unity.
+- **TMP Essential Resources** importate con `-importPackage` da riga di comando.
+  `AssetDatabase.ImportPackage` dentro `-executeMethod` non basta: con `-quit`
+  Unity esce prima che l'import asincrono finisca. Dentro ci sono LiberationSans
+  (SIL OFL 1.1) e la sprite EmojiOne (CC BY 4.0): non sono CC0, sono nei crediti,
+  e vanno decisi rispetto all'ADR-004.
+
+**Test:** `DeathAndRestartTests` — alla morte controller, input e agent spenti,
+driver in Death, un click non muove il corpo, schermata solo dopo la caduta;
+**Ricomincia** cliccato con il mouse virtuale ricarica una scena pulita (vita piena,
+scheletro vivo in Idle, sfera piena, schermata nascosta, `timeScale` rimesso a 1
+anche se un test lo aveva lasciato a 0,3); il corpo dello scheletro resta e poi sparisce.
+
 ---
 
 ## Passo 2.8 — Game feel

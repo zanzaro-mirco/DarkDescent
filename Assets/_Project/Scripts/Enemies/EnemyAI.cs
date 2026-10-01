@@ -25,6 +25,9 @@ namespace DarkDescent.Enemies
         [Tooltip("Ogni quanti secondi, da fermo, si controlla se il bersaglio è visibile.")]
         [SerializeField, Min(0.02f)] private float _perceptionInterval = 0.2f;
 
+        [Tooltip("Secondi in cui il corpo resta a terra prima di sparire.")]
+        [SerializeField, Min(0f)] private float _corpseLifetime = 5f;
+
         private NavMeshAgent _agent;
         private MeleeAttack _attack;
         private Health _health;
@@ -147,6 +150,9 @@ namespace DarkDescent.Enemies
             {
                 _collider.enabled = false;
             }
+
+            // chi lo teneva come bersaglio lo controlla con il null di Unity: la distruzione è sicura
+            Destroy(gameObject, _corpseLifetime);
         }
 
         // _target è un tipo Unity: il confronto con null vede anche un player distrutto
