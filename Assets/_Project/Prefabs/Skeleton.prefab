@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 4060913236897253554}
   - component: {fileID: 4129913166319692949}
   - component: {fileID: 9186552914136770494}
+  - component: {fileID: 4311261776623411597}
+  - component: {fileID: 8942145007644078378}
+  - component: {fileID: 6381474352372389961}
   m_Layer: 8
   m_Name: Skeleton
   m_TagString: Untagged
@@ -93,6 +96,53 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.Health
   _maxHealth: 30
+--- !u!114 &4311261776623411597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4b9819a8c4abe24f9fa4ade90b5362b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.MeleeAttack
+  _weapon: {fileID: 11400000, guid: 2613645cd3270fb4e97cb8f5400b9bcf, type: 2}
+  _chaseRepathInterval: 0.1
+  _facingTolerance: 30
+--- !u!114 &8942145007644078378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21adbae2e80e59441b5d00c8603f36a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.HitRecovery
+  _threshold: 0.2
+  _duration: 0.5
+--- !u!114 &6381474352372389961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b91e88b8a5ef624daa568fc7282b3ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Enemies.EnemyAI
+  _aggroRange: 8
+  _sightBlockers:
+    serializedVersion: 2
+    m_Bits: 128
+  _eyeHeight: 1.5
+  _perceptionInterval: 0.2
 --- !u!1001 &8531279894515779573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -246,6 +296,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Characters.CharacterAnimatorDriver
   _agent: {fileID: 0}
   _health: {fileID: 0}
+  _hitRecovery: {fileID: 0}
   _attack: {fileID: 0}
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05

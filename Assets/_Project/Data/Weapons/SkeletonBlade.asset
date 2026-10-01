@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1329ffda492c0b47b832c30e4978259, type: 3}
+  m_Name: SkeletonBlade
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.WeaponDefinition
+  _damage: 5
+  _damageType: 0
+  _range: 0.6
+  _rangeTolerance: 0.5
+  _attackInterval: 1.6
+  _hitDelay: 0.42

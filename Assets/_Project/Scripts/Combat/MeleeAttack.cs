@@ -38,6 +38,8 @@ namespace DarkDescent.Combat
 
         private float _cooldown;
         private float _repathTimer;
+        private float _lockTimer;
+        private bool _inRange;
 
         /// <summary>Partito un colpo: l'animazione d'attacco si aggancia qui.</summary>
         public event Action SwingStarted;
@@ -49,6 +51,12 @@ namespace DarkDescent.Combat
         /// <summary>Vero dall'inizio del colpo al danno: in questo intervallo il colpo non si annulla.</summary>
         public bool IsSwinging => _hitPending;
 
+        /// <summary>Il bersaglio è a portata: fermo, girato o in attesa del prossimo colpo.</summary>
+        public bool IsTargetInRange => _inRange;
+
+        /// <summary>Vero durante il blocco dopo un'interruzione: niente inseguimento né colpi.</summary>
+        public bool IsInterrupted => _lockTimer > 0f;
+
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
@@ -58,6 +66,7 @@ namespace DarkDescent.Combat
         {
             // spento a metà colpo (per esempio alla morte): il danno non deve arrivare più tardi
             _hitPending = false;
+            _lockTimer = 0f;
             ForgetTarget();
             ForgetSwingTarget();
         }
@@ -95,11 +104,29 @@ namespace DarkDescent.Combat
             ForgetTarget();
         }
 
+        /// <summary>
+        /// Annulla il colpo in corso (il danno non arriva) e blocca il personaggio per la durata data.
+        /// Il bersaglio resta: finito il blocco, se qualcuno lo richiede ancora, si riprende.
+        /// </summary>
+        public void Interrupt(float lockDuration)
+        {
+            _hitPending = false;
+            ForgetSwingTarget();
+            _lockTimer = Mathf.Max(_lockTimer, lockDuration);
+            StopAgent();
+        }
+
         private void Update()
         {
             if (_cooldown > 0f)
             {
                 _cooldown -= Time.deltaTime;
+            }
+
+            if (_lockTimer > 0f)
+            {
+                _lockTimer -= Time.deltaTime;
+                return;
             }
 
             if (_hitPending)
@@ -127,7 +154,8 @@ namespace DarkDescent.Combat
             }
 
             Vector3 toTarget = Flat(_targetTransform.position - transform.position);
-            if (EdgeDistance(toTarget, _targetRadius) > _weapon.Range)
+            _inRange = EdgeDistance(toTarget, _targetRadius) <= _weapon.Range;
+            if (!_inRange)
             {
                 Chase();
                 return;
@@ -218,6 +246,7 @@ namespace DarkDescent.Combat
             _target = null;
             _targetTransform = null;
             _attackRequested = false;
+            _inRange = false;
         }
 
         private void ForgetSwingTarget()

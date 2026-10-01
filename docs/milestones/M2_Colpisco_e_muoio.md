@@ -219,10 +219,9 @@ colpo (lo scheletro passa in Hit); tasto tenuto fino alla morte; click sul terre
 che annulla l'avvicinamento; bersaglio che si allontana durante il fendente e non
 prende danno.
 
-**Decisione aperta per il 2.5:** un colpo subito interrompe il colpo in corso di
-chi lo riceve? Oggi l'animazione passa in Hit, ma il danno del fendente arriva lo
-stesso. In Diablo 1 il "hit recovery" interrompe l'attacco solo sopra una soglia
-di danno.
+**Decisione presa al 2.5:** un colpo subito interrompe il colpo in corso di chi lo
+riceve solo sopra una soglia di danno, come l'hit recovery di Diablo 1 (vedi
+`HitRecovery` al passo 2.5).
 
 ---
 
@@ -238,8 +237,34 @@ di danno.
 
 Una state machine a classi è rimandata alla M7, quando i tipi di nemico saranno tre.
 
-**Verifica:** test PlayMode — il player si avvicina, lo scheletro lo insegue e
-gli toglie vita.
+**Com'è andata:**
+
+- `Chase` e `Attack` chiedono entrambi il colpo con `MeleeAttack.SetTarget` a ogni
+  frame: l'avvicinamento è già lì, con il ricalcolo del percorso ogni 0,1 s. Lo
+  stato distingue solo se il bersaglio è a portata (`IsTargetInRange`) o se un
+  colpo è partito. Una volta notato il player non si molla, come in Diablo 1.
+- `Idle` controlla la vista ogni 0,2 s: raggio di 8 m, poi un `Linecast` all'altezza
+  degli occhi (1,5 m) sul layer `Obstacle`.
+- `Dead` spegne `MeleeAttack` (annulla anche un fendente in volo), l'agent (il
+  corpo non spinge gli altri) e il collider (i click passano al pavimento).
+- `Data/Weapons/SkeletonBlade.asset`: danno 5, portata 0,6 m, intervallo 1,6 s,
+  `HitDelay` 0,42 s. Il cavaliere corre a 5 m/s, lo scheletro cammina a 3: si può
+  sempre scappare.
+- **Decisione sull'interruzione:** soglia, come l'hit recovery di Diablo 1.
+  `HitRecovery` ascolta `Health.Damaged`. Se un colpo toglie almeno il 20% della
+  vita massima, chiama `MeleeAttack.Interrupt(0,5 s)`: il fendente in corso si
+  annulla e per mezzo secondo niente inseguimento né colpi. L'animazione Hit parte
+  solo in quel caso, da `HitRecovery.Staggered`, non a ogni danno. Contro lo
+  scheletro (30 di vita) la spada da 10 interrompe sempre. Il player per ora non
+  ha `HitRecovery`: i colpi da 5 non lo fermano.
+- `CompositionRoot` anticipato da qui: un riferimento serializzato al `Health` del
+  player e, in `Awake`, `EnemyAI.Bind` su tutti gli scheletri della scena. Al 2.6
+  si aggiungono HUD e schermata di morte.
+
+**Verifica:** test PlayMode `EnemyAITests` — fermo con il player lontano; insegue
+e colpisce quando lo vede; resta fermo con il player nel raggio ma dietro il cubo;
+colpo forte che interrompe il fendente, colpo debole che non lo interrompe; da
+morto non colpisce più e spegne collider e agent; morto il player torna in Idle.
 
 ---
 
@@ -248,9 +273,9 @@ gli toglie vita.
 1. Canvas *Screen Space – Overlay*, `EventSystem` con `InputSystemUIInputModule`.
 2. `HealthOrb`: `Image` *Filled* verticale.
    **Nessun polling** in `Update`. Si iscrive a `HealthChanged`.
-3. `CompositionRoot` in `DarkDescent.Core`: riferimenti serializzati a player,
-   nemici, HUD e schermata di morte; in `Awake` passa a ognuno ciò che gli serve
-   (`HealthOrb.Bind(Health)`, `EnemyAI.Init(Transform player)`).
+3. `CompositionRoot` in `DarkDescent.Core` (nato al 2.5 con `EnemyAI.Bind(Health)`):
+   si aggiungono i riferimenti a HUD e schermata di morte, e in `Awake` passa a
+   ognuno ciò che gli serve (`HealthOrb.Bind(Health)`).
 4. Nel `PlayerController`, il click sopra la UI non deve muovere il player
    (trappola 10 della M1, e trappola 7 qui sotto).
 

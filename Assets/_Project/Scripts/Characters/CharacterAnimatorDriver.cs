@@ -7,8 +7,8 @@ namespace DarkDescent.Characters
     /// <summary>
     /// Traduce lo stato di un personaggio, player o nemico, in animazioni. Nessuna logica di gioco:
     /// la locomozione la legge dall'agent, gli one-shot (attacco, colpo subito, morte) arrivano dagli
-    /// eventi di MeleeAttack e Health. Sta sul modello, figlio della radice che porta quei componenti.
-    /// La dipendenza va in un solo verso: il combattimento non sa niente di animazioni.
+    /// eventi di MeleeAttack, HitRecovery e Health. Sta sul modello, figlio della radice che porta
+    /// quei componenti. La dipendenza va in un solo verso: il combattimento non sa niente di animazioni.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Animator))]
@@ -25,8 +25,11 @@ namespace DarkDescent.Characters
         [Tooltip("Vuoto = NavMeshAgent del parent, risolto in Awake.")]
         [SerializeField] private NavMeshAgent _agent;
 
-        [Tooltip("Vuoto = Health del parent, risolta in Awake. Colpo subito e morte partono dai suoi eventi.")]
+        [Tooltip("Vuoto = Health del parent, risolta in Awake. La morte parte dal suo evento.")]
         [SerializeField] private Health _health;
+
+        [Tooltip("Vuoto = HitRecovery del parent, risolto in Awake. Il colpo subito parte dal suo evento: solo i colpi forti.")]
+        [SerializeField] private HitRecovery _hitRecovery;
 
         [Tooltip("Vuoto = MeleeAttack del parent, risolto in Awake. L'animazione d'attacco parte dal suo evento.")]
         [SerializeField] private MeleeAttack _attack;
@@ -59,14 +62,18 @@ namespace DarkDescent.Characters
             {
                 _attack = GetComponentInParent<MeleeAttack>();
             }
+
+            if (_hitRecovery == null)
+            {
+                _hitRecovery = GetComponentInParent<HitRecovery>();
+            }
         }
 
-        // Health e MeleeAttack possono mancare (un modello senza combattimento): ci si iscrive a quel che c'è
+        // i componenti di combattimento possono mancare (un modello senza combattimento): ci si iscrive a quel che c'è
         private void OnEnable()
         {
             if (_health != null)
             {
-                _health.Damaged += HandleDamaged;
                 _health.Died += PlayDeath;
             }
 
@@ -74,13 +81,17 @@ namespace DarkDescent.Characters
             {
                 _attack.SwingStarted += PlayAttack;
             }
+
+            if (_hitRecovery != null)
+            {
+                _hitRecovery.Staggered += PlayHit;
+            }
         }
 
         private void OnDisable()
         {
             if (_health != null)
             {
-                _health.Damaged -= HandleDamaged;
                 _health.Died -= PlayDeath;
             }
 
@@ -88,14 +99,10 @@ namespace DarkDescent.Characters
             {
                 _attack.SwingStarted -= PlayAttack;
             }
-        }
 
-        private void HandleDamaged(DamageInfo info, float applied)
-        {
-            // il colpo che uccide passa a Death subito dopo (Died arriva dopo Damaged): niente Hit in mezzo
-            if (!_health.IsDead)
+            if (_hitRecovery != null)
             {
-                PlayHit();
+                _hitRecovery.Staggered -= PlayHit;
             }
         }
 
