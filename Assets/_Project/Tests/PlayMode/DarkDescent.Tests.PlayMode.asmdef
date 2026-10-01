@@ -4,6 +4,7 @@
     "references": [
         "DarkDescent",
         "Unity.InputSystem",
+        "UnityEngine.UI",
         "Unity.InputSystem.TestFramework",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

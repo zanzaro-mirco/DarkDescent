@@ -1,5 +1,6 @@
 using DarkDescent.Combat;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace DarkDescent.Player
 {
@@ -41,6 +42,12 @@ namespace DarkDescent.Player
         private bool _hasQueuedMove;
         private Vector3 _queuedMove;
 
+        // La pressione arriva da una callback dell'Input System, dove IsPointerOverGameObject dà lo
+        // stato della UI del frame prima e genera un warning (trappola 7): la si annota e la si
+        // esegue nel primo Update. Una pressione nata sopra la UI non diventa mai un movimento.
+        private bool _pressPending;
+        private bool _pressStartedOverUI;
+
         private void Awake()
         {
             _motor = GetComponent<PlayerMotor>();
@@ -74,7 +81,14 @@ namespace DarkDescent.Player
                 Walk(_queuedMove);
             }
 
-            if (!_input.IsMoveCommandHeld)
+            if (_pressPending)
+            {
+                _pressPending = false;
+                ExecutePress();
+                return;
+            }
+
+            if (!_input.IsMoveCommandHeld || _pressStartedOverUI)
             {
                 return;
             }
@@ -104,9 +118,23 @@ namespace DarkDescent.Player
 
         private void HandleMoveCommandStarted()
         {
+            _pressPending = true;
+        }
+
+        private void ExecutePress()
+        {
             _holdTimer = _holdRepathInterval;
             _heldTarget = null;
-            ExecuteCursorCommand(allowAttack: true);
+            _pressStartedOverUI = IsPointerOverUI();
+            if (!_pressStartedOverUI)
+            {
+                ExecuteCursorCommand(allowAttack: true);
+            }
+        }
+
+        private static bool IsPointerOverUI()
+        {
+            return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
         }
 
         private void HandleMoveCommandCanceled()

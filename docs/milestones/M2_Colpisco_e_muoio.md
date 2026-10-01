@@ -279,7 +279,31 @@ morto non colpisce più e spegne collider e agent; morto il player torna in Idle
 4. Nel `PlayerController`, il click sopra la UI non deve muovere il player
    (trappola 10 della M1, e trappola 7 qui sotto).
 
-**Verifica:** la sfera scende quando lo scheletro colpisce.
+**Com'è andata:**
+
+- Canvas `HUD` (*Screen Space – Overlay*, *Scale With Screen Size* 1920×1080).
+  Sfera in basso a sinistra, 190 px, in tre `Image` sovrapposte: fondo scuro
+  (l'unico bersaglio dei raycast della UI), `Fill` rosso *Filled* verticale dal
+  basso, anello di cornice. Le due sprite (`Art/UI/orb.png`, `orb_ring.png`) sono
+  generate da codice: sfera in scala di grigi con luce e riflesso, colorata
+  dall'`Image`. Nessun asset esterno.
+- `HealthOrb.Bind` e `OnEnable`: si iscrive chi arriva per secondo. All'iscrizione
+  la sfera si allinea alla vita attuale, quindi una sfera rimasta spenta durante
+  un danno torna giusta alla riaccensione.
+- `Health` crea il suo model al primo accesso e non in `Awake`. L'ordine degli
+  `Awake` tra oggetti diversi non è garantito: il composition root poteva leggere
+  la vita prima che esistesse.
+- `PlayerController`: la pressione arriva dalla callback dell'Input System e viene
+  solo annotata. Si esegue nel primo `Update`, dove `IsPointerOverGameObject` non
+  genera il warning (trappola 7). Una pressione nata sopra la UI non diventa un
+  movimento, nemmeno tenendo premuto e trascinando nel mondo.
+- `EventSystem` con `InputSystemUIInputModule` e le azioni di default.
+
+**Verifica:** test PlayMode `HealthOrbTests` — sfera piena all'avvio e allineata
+subito al danno, senza aspettare un frame; riallineata alla riaccensione; staccata
+dalla vita precedente dopo un nuovo `Bind`; scende quando lo scheletro colpisce; un
+click sulla sfera non muove il player (il test controlla anche che dietro ci sia
+il pavimento, così non passa per caso).
 
 ---
 

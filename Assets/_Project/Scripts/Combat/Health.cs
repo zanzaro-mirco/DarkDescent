@@ -23,30 +23,30 @@ namespace DarkDescent.Combat
         /// <summary>Emesso una sola volta.</summary>
         public event Action Died;
 
-        public float Current => _model.Current;
-        public float Max => _model.Max;
-        public bool IsDead => _model.IsDead;
+        public float Current => Model.Current;
+        public float Max => Model.Max;
+        public bool IsDead => Model.IsDead;
 
-        private void Awake()
-        {
-            _model = new HealthModel(_maxHealth);
-        }
+        // Creato al primo accesso, non in Awake: chi si collega in Awake da un altro oggetto
+        // (il composition root, la sfera della vita) può arrivare prima, perché l'ordine
+        // degli Awake tra oggetti diversi non è garantito.
+        private HealthModel Model => _model ??= new HealthModel(_maxHealth);
 
         public void TakeDamage(in DamageInfo info)
         {
             // Gli eventi si inoltrano da qui e non iscrivendosi a quelli del model:
             // nessun += da bilanciare, e l'ordine (vita, colpo, morte) è deciso in un punto solo.
-            bool wasDead = _model.IsDead;
-            float applied = _model.ApplyDamage(info.Amount);
+            bool wasDead = Model.IsDead;
+            float applied = Model.ApplyDamage(info.Amount);
             if (applied <= 0f)
             {
                 return;
             }
 
-            HealthChanged?.Invoke(_model.Current, _model.Max);
+            HealthChanged?.Invoke(Model.Current, Model.Max);
             Damaged?.Invoke(info, applied);
 
-            if (!wasDead && _model.IsDead)
+            if (!wasDead && Model.IsDead)
             {
                 Died?.Invoke();
             }
