@@ -147,6 +147,27 @@ stop con la scritta, danno tirato) verdi.
 **Test:** ogni definizione ha un ID non vuoto e unico, ed è nel database; un
 `ItemInstance` passato per `JsonUtility` e riletto risolve la stessa definizione.
 
+**Com'è andata (4 ott 2026).** In `DarkDescent.Items`: `ItemDefinition` astratta (ID,
+nome, icona, celle, modello, rotazione per l'icona; l'ID nasce in `Reset` e `OnValidate`
+se manca), `WeaponDefinition` spostata qui con `git mv` (lo stesso GUID dello script,
+quindi gli asset e i prefab non si accorgono di niente) e con la Forza richiesta,
+`ArmorDefinition`, `ItemInstance` (ID serializzato, definizione ritrovata con `Resolve`),
+`ItemDatabase` con un indice per ID ricavato dall'elenco. **Asset:** in `Data/Items` la
+spada corta (l'asset della spada di prima, rinominato), la lama dello scheletro (8–12,
+Forza 25) e lo scudo con stemma (`shield_badge`, Armatura 5, 2×2); il colpo dello
+scheletro è passato in `Data/Enemies/SkeletonStrike`, fuori dal database: è un'arma, ma
+non si raccoglie. **Scudo:** `shield_badge` dalla cartella `fbx(unity)` dello zip, con le
+stesse impostazioni d'import della spada; usa la texture del cavaliere, già nel progetto.
+Riga in `CREDITS.md` aggiornata. **`ItemTools`** in `DarkDescent.Editor`, menu
+*DarkDescent → Oggetti*: *Aggiorna il database* (le definizioni di `Data/Items` in ordine
+di nome) e *Rigenera le icone*, che rende ogni modello in una scena di anteprima, così non
+tocca le scene aperte: camera ortografica, una luce principale e una di riempimento, 128
+pixel per cella, sfondo trasparente, PNG in `Art/Icons` importati come sprite. Lo scudo
+usciva di schiena, con la maniglia in vista: ha una rotazione di 180° nell'asset. Test: 40
+EditMode (`ItemDatabaseTests`: ID unici anche tra i nemici, database uguale alla cartella,
+oggetti completi, ricerca per ID, JSON con l'ID e ritorno, valori di D7) e 61 PlayMode
+verdi.
+
 ---
 
 ## Passo 4.3 — Equipaggiamento
@@ -260,8 +281,8 @@ cursore esce dalla cella.
 
 - [x] Decisioni D1–D8 confermate
 - [x] Statistiche e formula del colpo, test esistenti verdi sulla sorgente fissa
-- [ ] Tre oggetti con ID stabile, nel database, con le icone
-- [ ] Modelli nuovi importati, riga in `CREDITS.md`
+- [x] Tre oggetti con ID stabile, nel database, con le icone
+- [x] Modelli nuovi importati, riga in `CREDITS.md`
 - [ ] Equipaggiamento con arma e scudo visibili sul cavaliere
 - [ ] Drop, oggetti a terra e raccolta
 - [ ] Inventario, pannello del personaggio e tooltip

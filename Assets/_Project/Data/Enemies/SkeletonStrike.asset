@@ -10,12 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1329ffda492c0b47b832c30e4978259, type: 3}
-  m_Name: Sword
+  m_Name: SkeletonStrike
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.WeaponDefinition
-  _minDamage: 6
-  _maxDamage: 9
+  _id: d4f73847ead44e5588708bf68f59c0af
+  _displayName: Fendente dello scheletro
+  _icon: {fileID: 0}
+  _size: {x: 1, y: 3}
+  _model: {fileID: 919132149155446097, guid: da85e36e56e0daf448adc9f0c64f607d, type: 3}
+  _iconRotation: {x: 0, y: 0, z: 0}
+  _minDamage: 4
+  _maxDamage: 6
   _damageType: 0
+  _requiredStrength: 0
   _range: 0.6
   _rangeTolerance: 0.5
-  _attackInterval: 1
-  _hitDelay: 0.6
+  _attackInterval: 1.6
+  _hitDelay: 0.42

@@ -10,12 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1329ffda492c0b47b832c30e4978259, type: 3}
-  m_Name: SkeletonBlade
+  m_Name: ShortSword
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.WeaponDefinition
-  _minDamage: 4
-  _maxDamage: 6
+  _id: 79db3768aa614aa9b28c0a633e7832e7
+  _displayName: Spada corta
+  _icon: {fileID: 21300000, guid: 2a96fe246af1f7c4fa14046d61679be5, type: 3}
+  _size: {x: 1, y: 3}
+  _model: {fileID: 919132149155446097, guid: b13735070651ed941bee37d751401c21, type: 3}
+  _iconRotation: {x: 0, y: 0, z: 0}
+  _minDamage: 6
+  _maxDamage: 9
   _damageType: 0
+  _requiredStrength: 0
   _range: 0.6
   _rangeTolerance: 0.5
-  _attackInterval: 1.6
-  _hitDelay: 0.42
+  _attackInterval: 1
+  _hitDelay: 0.6

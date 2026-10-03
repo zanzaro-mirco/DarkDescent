@@ -1,5 +1,6 @@
 using System;
 using DarkDescent.Core;
+using DarkDescent.Items;
 using DarkDescent.Stats;
 using UnityEngine;
 using UnityEngine.AI;
