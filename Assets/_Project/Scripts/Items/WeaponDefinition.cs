@@ -6,8 +6,8 @@ namespace DarkDescent.Items
     /// <summary>
     /// Un'arma da mischia: un oggetto con danno, portata e tempi del colpo. Immutabile a runtime:
     /// chi la usa legge, non scrive. I tempi sono in secondi reali e vanno tenuti coerenti con la
-    /// clip d'attacco. Anche i colpi dei nemici usano questo tipo, ma i loro asset stanno in
-    /// <c>Data/Enemies</c> e non nel database degli oggetti: non si raccolgono.
+    /// clip d'attacco. Anche i colpi dei nemici e i pugni usano questo tipo, ma i loro asset stanno in
+    /// <c>Data/Attacks</c> e non nel database degli oggetti: non si raccolgono.
     /// </summary>
     [CreateAssetMenu(fileName = "Weapon", menuName = "DarkDescent/Items/Weapon")]
     public sealed class WeaponDefinition : ItemDefinition

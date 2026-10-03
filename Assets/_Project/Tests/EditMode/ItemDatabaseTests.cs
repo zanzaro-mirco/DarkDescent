@@ -47,7 +47,7 @@ namespace DarkDescent.Tests
             var expected = LoadDefinitions(ItemsFolder);
 
             CollectionAssert.AreEquivalent(expected, Database.Items);
-            Assert.IsFalse(Database.TryGet(AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Enemies/SkeletonStrike.asset").Id, out _),
+            Assert.IsFalse(Database.TryGet(AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Attacks/SkeletonStrike.asset").Id, out _),
                 "il colpo dello scheletro non si raccoglie");
         }
 

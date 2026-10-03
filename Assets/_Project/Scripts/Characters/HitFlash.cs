@@ -33,7 +33,21 @@ namespace DarkDescent.Characters
                 _health = GetComponentInParent<Health>();
             }
 
-            // gli array si preparano una volta, così il lampo non alloca a ogni colpo.
+            RefreshRenderers();
+        }
+
+        /// <summary>
+        /// Raccoglie di nuovo i renderer, per esempio quando cambia il modello in mano. Se il lampo
+        /// è in corso, prima rimette i materiali di prima.
+        /// </summary>
+        public void RefreshRenderers()
+        {
+            if (IsFlashing)
+            {
+                Restore();
+            }
+
+            // gli array si preparano qui, così il lampo non alloca a ogni colpo.
             // Scambio di materiale e non _BaseColor bianco: su URP Lit il colore base moltiplica la
             // texture e non schiarisce (trappola 8). E non l'emissione: i materiali KayKit stanno
             // dentro l'FBX, nessuno usa _EMISSION, e in build quella variante dello shader viene tolta.
@@ -106,7 +120,11 @@ namespace DarkDescent.Characters
         {
             for (int i = 0; i < _renderers.Length; i++)
             {
-                _renderers[i].sharedMaterials = materials[i];
+                // un modello in mano appena sostituito è già distrutto
+                if (_renderers[i] != null)
+                {
+                    _renderers[i].sharedMaterials = materials[i];
+                }
             }
         }
     }

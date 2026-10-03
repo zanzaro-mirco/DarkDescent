@@ -79,6 +79,12 @@ namespace DarkDescent.Combat
             TryGetComponent(out _stats);
         }
 
+        /// <summary>Cambia l'arma, per esempio quando il cavaliere ne equipaggia un'altra.</summary>
+        public void SetWeapon(WeaponDefinition weapon)
+        {
+            _weapon = weapon != null ? weapon : throw new ArgumentNullException(nameof(weapon));
+        }
+
         /// <summary>Da dove vengono i tiri: lo passa il CompositionRoot (D3 della M4).</summary>
         public void SetRandomSource(IRandomSource random)
         {

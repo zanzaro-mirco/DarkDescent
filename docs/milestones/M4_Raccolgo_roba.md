@@ -155,7 +155,7 @@ quindi gli asset e i prefab non si accorgono di niente) e con la Forza richiesta
 `ItemDatabase` con un indice per ID ricavato dall'elenco. **Asset:** in `Data/Items` la
 spada corta (l'asset della spada di prima, rinominato), la lama dello scheletro (8–12,
 Forza 25) e lo scudo con stemma (`shield_badge`, Armatura 5, 2×2); il colpo dello
-scheletro è passato in `Data/Enemies/SkeletonStrike`, fuori dal database: è un'arma, ma
+scheletro è passato in `Data/Attacks/SkeletonStrike`, fuori dal database: è un'arma, ma
 non si raccoglie. **Scudo:** `shield_badge` dalla cartella `fbx(unity)` dello zip, con le
 stesse impostazioni d'import della spada; usa la texture del cavaliere, già nel progetto.
 Riga in `CREDITS.md` aggiornata. **`ItemTools`** in `DarkDescent.Editor`, menu
@@ -180,6 +180,24 @@ verdi.
 **Test:** equipaggiare e poi togliere un oggetto riporta tutte le statistiche
 **esattamente** ai valori di partenza; un'arma senza la Forza richiesta viene rifiutata;
 cambiando arma, `MeleeAttack` usa quella nuova.
+
+**Com'è andata (4 ott 2026).** `Equipment` (logica pura): uno slot per valore di
+`EquipSlot`, `TryEquip` restituisce l'oggetto che c'era, `Unequip`, `MeetsRequirements`
+(Forza attuale contro Forza richiesta) ed evento `Changed` con lo slot. Ogni oggetto mette i
+suoi modificatori con sé stesso come sorgente: lo scudo dà Armatura fissa, le armi nessun
+modificatore, perché il loro danno lo legge `MeleeAttack`. **`PlayerInventory`** sul
+cavaliere crea l'equipaggiamento sullo `StatSheet`, equipaggia la spada corta in `Start`
+(quando tutti gli iscritti ascoltano già) e tiene allineata l'arma di `MeleeAttack`
+(`SetWeapon`); senza arma, i **pugni** (`Data/Attacks/Unarmed`, 1–3). La cartella dei colpi
+che non si raccolgono ora si chiama `Data/Attacks`, con dentro anche quello dello scheletro.
+**`EquipmentVisuals`** crea il modello dell'oggetto su `handslot.r` o `handslot.l` solo
+quando lo slot cambia, gli copia i rendering layer del corpo (la luce di riempimento
+illumina anche l'arma) e chiede a `HitFlash` di raccogliere di nuovo i renderer. `HitFlash`
+ora salta i renderer distrutti, perché il modello vecchio sparisce prima del nuovo elenco.
+Dal prefab è sparita la spada fissa in mano. Una foto da vicino ha confermato lo scudo sul
+braccio sinistro con lo stemma verso l'esterno, senza bisogno di spostamenti. Test: 46
+EditMode (`EquipmentTests`) e 65 PlayMode (`EquipmentPlayModeTests`: spada all'avvio,
+cambio d'arma con modello e layer, scudo con Armatura avanti e indietro, pugni) verdi.
 
 ---
 
@@ -283,7 +301,7 @@ cursore esce dalla cella.
 - [x] Statistiche e formula del colpo, test esistenti verdi sulla sorgente fissa
 - [x] Tre oggetti con ID stabile, nel database, con le icone
 - [x] Modelli nuovi importati, riga in `CREDITS.md`
-- [ ] Equipaggiamento con arma e scudo visibili sul cavaliere
+- [x] Equipaggiamento con arma e scudo visibili sul cavaliere
 - [ ] Drop, oggetti a terra e raccolta
 - [ ] Inventario, pannello del personaggio e tooltip
 - [ ] Scenario della Definition of Done provato in build
