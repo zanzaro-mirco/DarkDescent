@@ -1,4 +1,4 @@
-# M2 — "Colpisco e muoio"
+# M2 — "Colpisco e muoio" ✅ chiusa il 3 ottobre 2026
 
 **Cosa deve succedere a schermo (Definition of Done):**
 in una **build eseguibile**, la stanza della M1 con tre scheletri. Clicchi su uno
@@ -502,7 +502,7 @@ calendario).
 - [x] Prefab `Skeleton` in `Assets/_Project/Prefabs/`
 - [x] Test EditMode verdi (e PlayMode, se D3)
 - [x] Console pulita
-- [ ] **Build in cui sopravvivi a tre scheletri o muori provandoci**
+- [x] **Build in cui sopravvivi a tre scheletri o muori provandoci** (provata a mano da Mirco il 3 ott 2026)
 - [x] `CREDITS.md` aggiornato
 - [x] GIF per il README
-- [ ] Commit, push e tag `m2`
+- [x] Commit, push e tag `m2`
