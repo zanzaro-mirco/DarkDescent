@@ -31,7 +31,7 @@
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
 | **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) |
-| **Milestone corrente** | **M2.5 — Pipeline automatica**: scheda da scrivere prima di cominciare (§ 6) |
+| **Milestone corrente** | **M2.5 — Pipeline automatica** → `docs/milestones/M2.5_Pipeline_automatica.md` |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
 | **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…003) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
@@ -341,12 +341,11 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 **Contenuto:**
 
-- GitHub Actions con **GameCI**, con la licenza Unity Personal attivata tramite i secrets del repo
-- Job di **test EditMode** su ogni push e pull request verso `main`
+- GitHub Actions con **GameCI**, con la licenza Unity Personal attivata tramite i secrets del repo (email e password: dal 2026 per la Personal non esiste più il file `.ulf`)
+- Job di **test EditMode e PlayMode** su ogni push e pull request verso `main` (i PlayMode sono la maggior parte dei test utili, D2 della scheda)
 - Job di **build Windows** su tag (`m2`, `m3`… e `v*` per le release) o ad avvio manuale, con la build scaricabile come artifact
 - **Cache** della cartella `Library/` e degli oggetti LFS. Il repo è pubblico, quindi i minuti di Actions sui runner standard non si pagano; ogni checkout che scarica file LFS però consuma la banda LFS gratuita, che resta il vincolo da tenere d'occhio anche se oggi è largo (10 GB al mese contro 10 MB per checkout, § 3). È per questo che la build gira sui tag e non a ogni push
 - Badge di stato nel README
-- Con il submodule privato (ADR-004, opzione b): un token di accesso per il checkout
 
 **Definition of Done:** un push con un test volutamente rotto fa diventare rosso il job — la prova che la CI intercetta davvero i problemi — e un tag produce una build scaricabile che parte.
 

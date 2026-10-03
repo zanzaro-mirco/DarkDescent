@@ -29,8 +29,7 @@ funzionanti, non firme da riempire. Mirco li rivede, li prova e li integra.
 
 Resta comunque richiesto, in forma breve e senza lezioni:
 
-- **Perché** di una scelta architetturale, quando non è ovvia — serve a Mirco
-  per scrivere l'ADR.
+- **Perché** di una scelta architetturale, quando non è ovvia — finisce nell'ADR.
 - **Trappole Unity** rilevanti per quel codice, segnalate mentre le si aggira.
 - **Conseguenze a distanza:** se una scelta si paga in una milestone successiva,
   dirlo subito.
@@ -41,7 +40,7 @@ Resta comunque richiesto, in forma breve e senza lezioni:
 esercizi, codice da scrivere o modificare a mano per imparare, letture di
 approfondimento o esperimenti del tipo "cambia il valore e guarda cosa succede".
 A mano restano solo i passaggi nell'editor che Claude non può fare (sezione in
-fondo) e le decisioni che spettano a lui (design, ambito, ADR).
+fondo) e le decisioni che spettano a lui (design, ambito).
 
 *(Fino al 30 set 2026 valeva il metodo "io spiego, tu scrivi", con Claude limitato
 a concetti, architettura e sole firme. Rimosso su richiesta di Mirco, insieme a
@@ -71,10 +70,10 @@ quando succede: il feature creep è il rischio numero uno del progetto.
 
 ## Documentazione viva
 
-A ogni sessione significativa, ricordagli di aggiornare `DECISIONS.md`:
-una ADR per ogni scelta tecnica non ovvia.
-
-Non scrivere tu queste voci al posto suo, ma aiutalo a formularle se te lo chiede.
+**Gli ADR li scrive Claude** (dal 3 ott 2026, su richiesta di Mirco): una voce in
+`DECISIONS.md` per ogni scelta tecnica non ovvia, al più tardi alla chiusura della
+milestone in cui è stata presa. Mirco li rivede. *(Prima li scriveva Mirco, con
+Claude che ricordava quali mancavano.)*
 
 Il devlog non esiste più (dal 30 set 2026): non ricordarlo e non proporlo.
 `DEVLOG.md` è stato cancellato; la voce della M0 resta nella storia git.
