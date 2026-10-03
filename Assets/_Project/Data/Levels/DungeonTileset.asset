@@ -19,6 +19,8 @@ MonoBehaviour:
   _stairsDown: {fileID: 2354004079276962870, guid: 5aa31967817d4a04b94de8242e7c8403, type: 3}
   _exitBanner: {fileID: 7684724433698735442, guid: 64c4626053a6e8345b294f0729766217, type: 3}
   _highlightMaterial: {fileID: 2100000, guid: 4b16f4eed1b106d4aad33a68e8cce2d4, type: 2}
+  _ambientColor: {r: 0.24, g: 0.24, b: 0.3, a: 1}
+  _postProcessing: {fileID: 11400000, guid: 9929bcb3021807643ad1c3e1fad1cc1d, type: 2}
   _markers:
   - _symbol: 83
     _prefab: {fileID: 544816584095552241, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}

@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace DarkDescent.Levels
 {
     /// <summary>
-    /// I moduli con cui si costruisce un livello dalla sua mappa. Dati immutabili: chi costruisce
-    /// legge, non scrive. Oggi lo usa lo strumento di editor, alla M6 il generatore a runtime.
+    /// I moduli con cui si costruisce un livello dalla sua mappa, e la sua atmosfera: luce ambiente
+    /// e post-processing. Dati immutabili: chi costruisce legge, non scrive. Oggi lo usa lo
+    /// strumento di editor, alla M6 il generatore a runtime.
     /// </summary>
     [CreateAssetMenu(fileName = "Tileset", menuName = "DarkDescent/Level Tileset")]
     public class LevelTileset : ScriptableObject
@@ -29,6 +31,12 @@ namespace DarkDescent.Levels
         [Tooltip("Il materiale dei moduli con l'emissione accesa: l'uscita sotto il cursore.")]
         [SerializeField] private Material _highlightMaterial;
 
+        [Tooltip("Luce ambiente del livello, a colore unico: quasi nero, il resto lo fanno torce e cavaliere.")]
+        [SerializeField] private Color _ambientColor = new Color(0.03f, 0.03f, 0.045f);
+
+        [Tooltip("Post-processing del livello: tonemapping, bloom, vignetta. Volume globale nella scena del livello.")]
+        [SerializeField] private VolumeProfile _postProcessing;
+
         [Tooltip("Gli altri marcatori: nemici e oggetti di scena, al centro della cella.")]
         [SerializeField] private MarkerPrefab[] _markers;
 
@@ -45,6 +53,10 @@ namespace DarkDescent.Levels
         public GameObject ExitBanner => _exitBanner;
 
         public Material HighlightMaterial => _highlightMaterial;
+
+        public Color AmbientColor => _ambientColor;
+
+        public VolumeProfile PostProcessing => _postProcessing;
 
         public GameObject GetMarkerPrefab(char symbol)
         {

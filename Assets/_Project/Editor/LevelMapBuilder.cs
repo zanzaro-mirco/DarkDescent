@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace DarkDescent.Editor
@@ -94,18 +95,34 @@ namespace DarkDescent.Editor
             var surface = navMesh.AddComponent<NavMeshSurface>();
             ConfigureSurface(surface);
 
-            // provvisoria fino al passo 3.6, che porta il buio e le torce
-            var light = new GameObject("Directional Light").AddComponent<Light>();
-            light.type = LightType.Directional;
-            light.intensity = 1f;
-            light.shadows = LightShadows.Soft;
-            light.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+            ApplyAtmosphere(tileset, level.transform);
 
             Directory.CreateDirectory(Path.GetDirectoryName(scenePath));
             EditorSceneManager.SaveScene(scene, scenePath);
 
             BakeNavMesh(surface, scenePath);
             EditorSceneManager.SaveScene(scene);
+        }
+
+        // Niente sole e niente cielo: ambiente quasi nero a colore unico, il resto lo fanno torce,
+        // scala e cavaliere (D4). Valgono solo se il livello è la scena attiva: lo fa il LevelManager.
+        public static void ApplyAtmosphere(LevelTileset tileset, Transform level)
+        {
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientLight = tileset.AmbientColor;
+            RenderSettings.skybox = null;
+            RenderSettings.sun = null;
+            RenderSettings.fog = false;
+
+            // senza cielo anche i riflessi devono essere neri, o i materiali luccicano nel buio
+            RenderSettings.defaultReflectionMode = DefaultReflectionMode.Custom;
+            RenderSettings.customReflectionTexture = null;
+
+            var post = new GameObject("PostProcessing");
+            post.transform.SetParent(level, false);
+            var volume = post.AddComponent<Volume>();
+            volume.isGlobal = true;
+            volume.sharedProfile = tileset.PostProcessing;
         }
 
         private static Transform CreateNotWalkableGroup(string name)

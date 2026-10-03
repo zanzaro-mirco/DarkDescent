@@ -3,7 +3,8 @@
     "rootNamespace": "DarkDescent.Editor",
     "references": [
         "DarkDescent",
-        "Unity.AI.Navigation"
+        "Unity.AI.Navigation",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [
         "Editor"

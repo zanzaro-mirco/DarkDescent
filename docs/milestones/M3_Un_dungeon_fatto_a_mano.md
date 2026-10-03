@@ -300,6 +300,25 @@ uscita abbia etichetta ed evidenziazione).
 stanze si devono leggere. **Test:** nessuno di aspetto; un test che ogni livello ha
 un `Volume` e nessuna luce direzionale.
 
+**Com'è andata (3 ott 2026).** Il tileset ora porta anche l'atmosfera: colore ambiente e
+profilo `DungeonPostProcessing` (tonemapping ACES, bloom con soglia 0,9, vignetta 0,35).
+Il builder, al posto della luce direzionale provvisoria, mette ambiente a colore unico,
+niente cielo, riflessi neri e un `Volume` globale; `ApplyAtmosphere` è pubblico e l'ho
+usato anche per portare al buio `Sandbox_Combat`. **Cavaliere:** `PlayerLight` nel prefab,
+puntiforme a 3,5 m sopra la testa, raggio 11 m, ombre morbide in alta risoluzione; è
+l'unica luce con le ombre. **Torce:** luce `Flame` nel prefab `WallTorch`, arancione,
+raggio 8 m, senza ombre, con `TorchFlicker` (rumore di Perlin, punto di partenza preso
+dalla posizione, quindi niente torce all'unisono e niente `Random`). **Pipeline:** ombre
+a 25 m, atlante delle luci aggiuntive a 4096. **Camera:** il post-processing era spento,
+perché `Core` non aveva i dati URP della camera; ora è acceso, con SMAA. **Taratura:**
+ambiente 0,24/0,24/0,30. **Trappola:** il colore ambiente è in gamma e diventa lineare
+(0,12 vale 0,013), quindi 0,03, 0,08 e 0,12 davano tutti nero pieno; l'ho capito
+misurando la sonda ambientale. Occhi degli scheletri: niente, a occhio non serve. Test:
+18 EditMode e 56 PlayMode verdi (`LevelDataTests`: ogni livello, sandbox compresa, ha
+ambiente a colore unico, `Volume` globale con i tre effetti, nessuna luce direzionale e
+una sola luce con le ombre, quella del cavaliere; `TorchFlickerTests`: il tremolio resta
+nel margine e due torce non vanno all'unisono).
+
 ---
 
 ## Passo 3.7 — itch.io

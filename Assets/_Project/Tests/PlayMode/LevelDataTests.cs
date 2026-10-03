@@ -6,6 +6,8 @@ using DarkDescent.Levels;
 using NUnit.Framework;
 using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
@@ -33,6 +35,41 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             SceneManager.LoadScene(level, LoadSceneMode.Additive);
             yield return WaitForLevel();
+        }
+
+        [UnityTest, Description("Ogni livello, sandbox compresa, è al buio: ambiente a colore unico, post-processing, niente sole, una sola luce con le ombre (quella del cavaliere)")]
+        public IEnumerator Levels_AreDarkWithOneShadowLight()
+        {
+            var levels = LevelScenes();
+            levels.Add(SandboxScene);
+            foreach (var level in levels)
+            {
+                yield return LoadWithCore(level);
+
+                // le impostazioni di luce valgono solo per la scena attiva (trappola 1)
+                Assert.AreEqual(level, SceneManager.GetActiveScene().name);
+                Assert.AreEqual(AmbientMode.Flat, RenderSettings.ambientMode, $"{level}: ambiente non a colore unico");
+                Assert.IsNull(RenderSettings.skybox, $"{level}: c'è ancora il cielo");
+
+                var volume = Object.FindFirstObjectByType<Volume>();
+                Assert.IsNotNull(volume, $"{level}: manca il Volume");
+                Assert.IsTrue(volume.isGlobal);
+                Assert.IsTrue(volume.sharedProfile.Has<Tonemapping>() && volume.sharedProfile.Has<Bloom>()
+                    && volume.sharedProfile.Has<Vignette>(), $"{level}: post-processing incompleto");
+
+                int shadowLights = 0;
+                foreach (var light in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
+                {
+                    Assert.AreNotEqual(LightType.Directional, light.type, $"{level}: luce direzionale {light.name}");
+                    if (light.shadows != LightShadows.None)
+                    {
+                        shadowLights++;
+                        Assert.AreEqual("PlayerLight", light.name, $"{level}: {light.name} fa ombre");
+                    }
+                }
+
+                Assert.AreEqual(1, shadowLights, $"{level}: le ombre le fa solo la luce del cavaliere (D4)");
+            }
         }
 
         [UnityTest, Description("Ogni livello ha contesto, ingresso e NavMesh; ogni uscita porta a una scena della build e a un suo ingresso")]
