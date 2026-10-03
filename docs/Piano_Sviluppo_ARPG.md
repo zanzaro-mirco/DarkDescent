@@ -32,7 +32,7 @@
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
 | **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) |
-| **Milestone corrente** | **M3 — "Un dungeon fatto a mano"**: scheda da scrivere prima di cominciarla (§ 6) |
+| **Milestone corrente** | **M3 — "Un dungeon fatto a mano"** → `docs/milestones/M3_Un_dungeon_fatto_a_mano.md` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*` (ADR-011…013) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
 | **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…013) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
@@ -274,6 +274,18 @@ Chiusa il 3 ottobre 2026: 11 test EditMode e 36 PlayMode verdi, build Windows se
 - **Quello che funziona nell'editor può sparire in build:** l'emissione non usata da nessun materiale viene tolta dallo shader, per questo il lampo scambia il materiale. E `timeScale` sopravvive al caricamento della scena.
 - **Batchmode:** Unity cancella `Temp/` all'uscita; un `RequireComponent` aggiunge componenti già al caricamento del prefab; `AssetDatabase.ImportPackage` non finisce prima di `-quit`, serve `-importPackage`; gli script di editor vedono TextMeshPro, gli asmdef del gioco no.
 - **Punto di controllo superato:** 1,5 settimane contro 8 stimate. Le stime in ore precedono la scelta di far scrivere il codice a Claude e da qui sovrastimano.
+
+---
+
+### M2.5 — Pipeline automatica ✅
+
+Chiusa il 3 ottobre 2026: test e build Windows in CI, tag `m2.5` con la sua build. Lezioni emerse:
+
+- **La licenza Personal in CI passa da email e password,** non più dal file `.ulf`. Un account Unity dedicato alla CI tiene fuori da GitHub la password dell'account principale (ADR-011).
+- **Le action di GameCI scaricano l'ultima CLI anche quando sono fissate:** va fissata anche `cliVersion`. Il primo run è morto in 4 secondi per un'incompatibilità tra action e CLI (`--no-coverageEnabled`): la copertura si spegne con `GAME_CI_COVERAGE_ENABLED` (ADR-012).
+- **Un gruppo di `concurrency` solo per tutto il repo,** senza annullare i run in corso: i posti della licenza sono pochi e un job ucciso a metà rischia di non restituirlo.
+- **I PlayMode girano su Linux in Docker senza modifiche,** e le cache di LFS e `Library/` portano un run da circa 6 a circa 4 minuti; la build Windows riparte dalla `Library/` dei test.
+- **Sui run rossi la CLI non crea il riepilogo dei risultati:** il nome del test fallito si legge nel log o nell'XML tra gli artifact.
 
 ---
 
