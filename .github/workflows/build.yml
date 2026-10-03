@@ -1,11 +1,18 @@
 # Build Windows su tag di milestone (m*) o di versione (v*) e su avvio manuale (D3).
 # Prima girano i test: un tag con un test rosso non produce build.
+# Da avvio manuale si può scegliere la build Web (M3, passo 3.7); i tag fanno sempre Windows.
 name: Build
 
 on:
   push:
     tags: ['m*', 'v*']
   workflow_dispatch:
+    inputs:
+      targetPlatform:
+        description: Piattaforma
+        type: choice
+        options: [StandaloneWindows64, WebGL]
+        default: StandaloneWindows64
 
 # Niente concurrency a livello di workflow: il gruppo "unity" lo prende già tests.yml
 # richiamato qui sotto, e lo stesso gruppo su chiamante e chiamato si blocca a vicenda.
@@ -21,7 +28,7 @@ jobs:
     secrets: inherit
 
   build:
-    name: Build Windows
+    name: Build ${{ inputs.targetPlatform || 'StandaloneWindows64' }}
     needs: tests
     # Fissato come le action (D1).
     runs-on: ubuntu-24.04
@@ -29,7 +36,20 @@ jobs:
     concurrency:
       group: unity
       cancel-in-progress: false
+    # Sui tag inputs è vuoto: Windows.
+    env:
+      TARGET_PLATFORM: ${{ inputs.targetPlatform || 'StandaloneWindows64' }}
+      ARTIFACT_LABEL: ${{ inputs.targetPlatform == 'WebGL' && 'Web' || 'Windows' }}
     steps:
+      # L'immagine webgl porta con sé Emscripten ed è più grande di quella Windows: si libera
+      # spazio togliendo dal runner SDK che qui non servono.
+      - name: Spazio su disco per l'immagine Web
+        if: env.TARGET_PLATFORM == 'WebGL'
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
       # Stesso checkout e stessa cache LFS dei test: vedi tests.yml.
       - name: Checkout
         uses: actions/checkout@v7
@@ -48,21 +68,24 @@ jobs:
       - name: Pull LFS
         run: git lfs pull
 
-      # Cache separata da quella dei test: la Library di una build Windows contiene gli asset
-      # importati per quella piattaforma. Se manca, riparte da quella dei test, che ha già
-      # gli script compilati e gli asset comuni.
+      # Cache separata da quella dei test, una per piattaforma: la Library contiene gli asset
+      # importati per la piattaforma della build. Se manca, riparte da quella dei test, che ha
+      # già gli script compilati e gli asset comuni.
       - name: Cache Library
         uses: actions/cache@v6
         with:
           path: Library
-          key: Library-StandaloneWindows64-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ env.TARGET_PLATFORM }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-StandaloneWindows64-
+            Library-${{ env.TARGET_PLATFORM }}-
             Library-
 
-      # Backend Mono: l'immagine windows-mono gira su runner Linux.
+      # Windows con backend Mono: l'immagine windows-mono gira su runner Linux. Per il Web
+      # GameCI sceglie da sé l'immagine webgl. Compressione Gzip con decompression fallback,
+      # nelle impostazioni del progetto: la pagina parte anche da un server che non manda
+      # gli header Content-Encoding, come un server locale o itch.io.
       # versioning: None lascia il bundleVersion del progetto; la versione dal tag si valuta
-      # alla M3, con la prima build pubblica.
+      # alla M10, con la prima build pubblica.
       - name: Build
         uses: game-ci/unity-builder@v6.0.0
         env:
@@ -70,14 +93,14 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           cliVersion: v0.1.71
-          targetPlatform: StandaloneWindows64
+          targetPlatform: ${{ env.TARGET_PLATFORM }}
           buildName: DarkDescent
           versioning: None
 
       - name: Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: DarkDescent-Windows-${{ github.ref_name }}
-          path: build/StandaloneWindows64
+          name: DarkDescent-${{ env.ARTIFACT_LABEL }}-${{ github.ref_name }}
+          path: build/${{ env.TARGET_PLATFORM }}
           retention-days: 30
           if-no-files-found: error
