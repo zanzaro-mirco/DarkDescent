@@ -15,6 +15,7 @@
 | v2.4 | 30 set 2026 | Rimossi il devlog e le parti didattiche (esercizi, letture, esperimenti): ore reali solo nella tabella del § 5; § 6 e § 8 allineati, `CLAUDE.md` e scheda M1 aggiornati |
 | v2.5 | 1 ott 2026 | Piano spostato nel repo, `docs/Piano_Sviluppo_ARPG.md`, quindi versionato · tolte le ore reali (colonna, rituale) e la retrospettiva · punti di controllo misurati in settimane di calendario · M1 chiusa, scheda M2 scritta |
 | v2.6 | 3 ott 2026 | M2 chiusa, con le lezioni · punto di controllo di M2 superato (rapporto 0,19, nessun taglio) · ADR-004: eccezione per il font OFL di TextMesh Pro, EmojiOne tolta |
+| v2.7 | 3 ott 2026 | Stime ricalcolate: il codice lo scrive Claude, le ore sono quelle di sessione di Mirco (totale da 240–350 a circa 95–140 h) · punti di controllo riformulati sulle nuove stime · audio posizionale anticipato a M3 · Cinemachine a M3 con Impulse e zona morta · reazione al colpo del cavaliere a M7 · pavimento della sandbox a M3 · ADR-004…010 scritti |
 
 ---
 
@@ -31,7 +32,7 @@
 | **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
 | **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) |
 | **Milestone corrente** | **M2.5 — Pipeline automatica**: scheda da scrivere prima di cominciare (§ 6) |
-| **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4). Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta. Voce in `DECISIONS.md` da scrivere |
+| **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
 | **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…003) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
@@ -76,11 +77,16 @@ click-to-move con un combattimento che "si sente" · loot con affissi · inventa
 
 ### 1.3 Stime e punti di controllo
 
-Le stime sono in **ore di lavoro**: servono a dimensionare le milestone. Le ore reali non si registrano (decisione del 1 ott 2026).
+Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, che scrive il codice, mentre lui decide, prova nell'editor e in build, e rivede. Servono a dimensionare le milestone. Le ore reali non si registrano (decisione del 1 ott 2026).
 
-**Totale stimato:** 240–350 ore. A 8 h a settimana sono 30–44 settimane di lavoro effettivo; con pause, vacanze e settimane saltate, **8–12 mesi di calendario**.
+**Ricalcolo del 3 ott 2026 (v2.7).** Le stime della v2.1 (240–350 h) presupponevano che il codice lo scrivesse Mirco. Con Claude che scrive il codice, M1 e M2 (stimate 32–50 h) si sono chiuse in quattro giorni di calendario. Il nuovo fattore non è uniforme:
 
-**Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** impiegate con la stima massima delle milestone chiuse, convertita a 6 h a settimana (M1 + M2 = 50 h → circa 8 settimane). Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag.
+- **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
+- **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
+
+**Totale stimato:** circa 95–140 ore, comprese M1 e M2. Per le milestone ancora aperte restano 85–130 ore: a 6–10 h a settimana sono 9–22 settimane di lavoro effettivo; con pause e settimane saltate, **3–6 mesi di calendario**.
+
+**Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 39 h, circa 6,5 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1.
 
 ### 1.4 Proprietà intellettuale e licenze degli asset
 
@@ -147,7 +153,7 @@ La v2.0 era tutta tecnica. Ma già M2 deve sapere come si calcola un colpo, e M4
 | Camera | **Cinemachine 3.1**, da M3 | Prima la camera scritta a mano in M1, per sapere cosa fa sotto |
 | Test | **Unity Test Framework 1.6** | Test EditMode sulla logica pura, da M2 |
 | IDE | **Visual Studio Community** (installato), Rider opzionale | Rider ha analisi statica specifica per Unity: da valutare dopo M1 |
-| Version control | **Git + LFS**, repo pubblico su GitHub | La quota LFS gratuita di GitHub è **da verificare in *Settings → Billing and licensing*** prima di progettare la CI: risulta 1 GiB di spazio e 1 GiB di banda al mese sul piano Free, non i 10 GiB scritti in una versione precedente di questo piano. In ogni caso i download della CI consumano banda (vedi M2.5) |
+| Version control | **Git + LFS**, repo pubblico su GitHub | Quota LFS **verificata il 3 ott 2026** in *Settings → Billing and licensing*: 10 GB di spazio e 10 GB di banda al mese inclusi, entrambi a 0 GB usati. Il repo ha 10,4 MB in LFS (24 file): un checkout completo in CI costa circa 10 MB di banda, quindi la quota regge centinaia di esecuzioni al mese. La cache LFS in CI resta comunque, perché la quota cresce con gli asset (vedi M2.5) |
 | Modellazione | **Blender**, estensione opzionale di M11 | Solo se il tempo avanza: vedi la strategia asset e la stima di M11 |
 | Animazioni | CC0 KayKit (ADR-004), rig Generic | Humanoid scarta la rotazione dell'osso `chest` di KayKit: si usa Generic |
 
@@ -214,21 +220,21 @@ Oggi c'è un solo `DarkDescent.asmdef` (ADR-003). Da M2 si aggiunge `DarkDescent
 
 Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6. Se non parte in build, non è finita.
 
-| # | Milestone | Risultato | Ore stimate | Stato |
+| # | Milestone | Risultato | Ore stimate (v2.7; M1 e M2 con le stime originali) | Stato |
 |---|---|---|---|---|
 | M0 | Fondamenta | repo e build vuota da clone pulito | — | ✅ 23 set |
 | M1 | "Mi muovo" | cammini in una stanza | 12–20 | ✅ 1 ott |
-| M2 | "Colpisco e muoio" | primo gameplay loop | 20–30 | |
-| M2.5 | Pipeline automatica | test e build in CI | 5–10 | |
-| M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, **prima build pubblica** | 20–28 | |
-| M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 24–36 | |
-| M5 | "Loot casuale" | affissi e rarità | 16–24 | |
-| M6 | "Dungeon infinito" | cripta procedurale | 28–36 | |
-| M7 | "Le profondità" | caverne, nuovi nemici, automappa | 24–32 | |
-| M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 16–24 | |
-| M9 | "Magia" | mana, incantesimi, nemico a distanza | 24–32 | |
-| M10 | "Città e loop completo" | il gioco è finibile | 20–28 | |
-| M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 30–50 | |
+| M2 | "Colpisco e muoio" | primo gameplay loop | 20–30 | ✅ 3 ott |
+| M2.5 | Pipeline automatica | test e build in CI | 2–4 | |
+| M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, **prima build pubblica** | 9–14 | |
+| M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | |
+| M5 | "Loot casuale" | affissi e rarità | 6–9 | |
+| M6 | "Dungeon infinito" | cripta procedurale | 10–13 | |
+| M7 | "Le profondità" | caverne, nuovi nemici, automappa | 11–16 | |
+| M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 6–9 | |
+| M9 | "Magia" | mana, incantesimi, nemico a distanza | 8–11 | |
+| M10 | "Città e loop completo" | il gioco è finibile | 10–14 | |
+| M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 15–25 | |
 
 ---
 
@@ -329,7 +335,7 @@ Chiude il **primo gameplay loop**: da qui in poi migliori un gioco, non ne costr
 
 ---
 
-### M2.5 — Pipeline automatica · 5–10 h
+### M2.5 — Pipeline automatica · 2–4 h
 
 Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3–M4", cioè da nessuna parte. Ora esistono i primi test, e la CI ha qualcosa da verificare.
 
@@ -338,7 +344,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 - GitHub Actions con **GameCI**, con la licenza Unity Personal attivata tramite i secrets del repo
 - Job di **test EditMode** su ogni push e pull request verso `main`
 - Job di **build Windows** su tag (`m2`, `m3`… e `v*` per le release) o ad avvio manuale, con la build scaricabile come artifact
-- **Cache** della cartella `Library/` e degli oggetti LFS. Il repo è pubblico, quindi i minuti di Actions sui runner standard non si pagano; ogni checkout che scarica file LFS però consuma la banda LFS gratuita, che è il vincolo stretto (verifica la quota effettiva, § 3). È per questo che la build gira sui tag e non a ogni push
+- **Cache** della cartella `Library/` e degli oggetti LFS. Il repo è pubblico, quindi i minuti di Actions sui runner standard non si pagano; ogni checkout che scarica file LFS però consuma la banda LFS gratuita, che resta il vincolo da tenere d'occhio anche se oggi è largo (10 GB al mese contro 10 MB per checkout, § 3). È per questo che la build gira sui tag e non a ogni push
 - Badge di stato nel README
 - Con il submodule privato (ADR-004, opzione b): un token di accesso per il checkout
 
@@ -348,7 +354,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M3 — "Un dungeon fatto a mano" · 20–28 h
+### M3 — "Un dungeon fatto a mano" · 9–14 h
 
 **A schermo:** stanze collegate, costruite a mano con un tileset modulare grezzo, buie, illuminate da torce; il personaggio porta con sé un raggio di luce. In fondo, una scala scende al secondo livello, e vita e stato del personaggio lo seguono.
 
@@ -359,7 +365,9 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 - Griglia di moduli a dimensione fissa (4×4 m come punto di partenza): pavimento, muro, angolo, porta, scala
 - Due livelli fatti a mano, con la **struttura a scene additive** (§ 4.3) e un `LevelManager`
 - Illuminazione URP con ombre; oscurità e raggio di luce del giocatore
-- Cinemachine 3 al posto del `CameraFollow` scritto a mano (attenzione ai tutorial per la 2.x, § 3)
+- Cinemachine 3 al posto del `CameraFollow` scritto a mano (attenzione ai tutorial per la 2.x, § 3). Cosa porta in più: **Impulse**, cioè uno scuotimento della camera misurato sui colpi pesanti subiti e sulle morti, che completa il game feel della M2; una **zona morta** in cui il cavaliere si muove senza che la camera lo insegua; smorzamento configurabile senza codice. I test della M1 sulla camera vanno riportati sulla nuova camera
+- **Audio posizionale.** Oggi i suoni sono 2D, perché con l'`AudioListener` sulla camera, a 20 m, l'attenuazione 3D renderebbe tutto quasi muto. Le modifiche: l'`AudioListener` passa sul giocatore, o su un oggetto che lo segue all'altezza della testa; le `AudioSource` dei personaggi diventano 3D (`spatialBlend` 1) con attenuazione logaritmica tra circa 4 e 25 m; un `AudioMixer` con i gruppi SFX, UI e, più avanti, Musica. In un dungeon buio, un nemico fuori schermo si deve sentire prima di vederlo
+- La sandbox `Sandbox_Combat` resta la scena dei test: pavimento più grande, o sfondo in tinta con il pavimento, perché camera e GIF non mostrino il bordo nero oltre il piano
 - **Prima build pubblica su itch.io**, con pagina "in sviluppo", aggiornata a ogni milestone. Un link giocabile a M3 invece che a M11 sono mesi di portfolio in più, e chi lo prova ti dà riscontri veri
 - Da valutare in un ADR: una build **Web** oltre a quella Windows. Si gioca nel browser senza scaricare nulla, e per chi valuta un portfolio fa differenza; richiede però il modulo *Web Build Support*, e URP sul web ha limiti che potrebbero pesare sugli shader di M11
 
@@ -371,7 +379,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M4 — "Raccolgo roba" · 24–36 h
+### M4 — "Raccolgo roba" · 8–12 h
 
 **A schermo:** un nemico lascia cadere una spada; la raccogli, apri l'inventario a griglia, la trascini nello slot dell'arma e il danno nel pannello del personaggio sale. La togli, e torna com'era.
 
@@ -394,7 +402,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M5 — "Loot casuale" · 16–24 h
+### M5 — "Loot casuale" · 6–9 h
 
 **A schermo:** cade una "Spada Lunga Feroce del Grifone", rara, con tre affissi; il tooltip li mostra e li confronta con l'arma equipaggiata.
 
@@ -414,7 +422,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M6 — "Dungeon infinito" · 28–36 h
+### M6 — "Dungeon infinito" · 10–13 h
 
 **A schermo:** i livelli 1–4 sono cripte generate a ogni partita, sempre percorribili dall'ingresso all'uscita; nemici e casse aumentano con la profondità.
 
@@ -436,7 +444,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M7 — "Le profondità" · 24–32 h
+### M7 — "Le profondità" · 11–16 h
 
 **A schermo:** dal livello 5 il dungeon cambia: caverne organiche e nemici nuovi — uno sciame veloce, un bruto che carica colpi telegrafati. Un'automappa mostra ciò che hai esplorato.
 
@@ -446,6 +454,8 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 - Generazione **random walk** per le caverne
 - Archetipi **sciame** e **bruto** (§ 2)
+- **Reazione al colpo del cavaliere:** `HitRecovery` anche sul player, con una soglia tarata sui colpi del bruto. Il bruto deve poter interrompere un attacco, lo sciame no (ADR-010)
+- **Limite di voci audio** per lo sciame: con dieci nemici che colpiscono insieme, una sola clip d'impatto per frame e per tipo, e una priorità più bassa per i nemici lontani
 - **Refactoring dell'IA** da `enum` e `switch` a classi di stato: ora i tipi sono tre e il bisogno è reale. Documentato in un ADR, è materiale da portfolio
 - Stato di esplorazione delle celle e **automappa**
 - Tabelle di spawn per profondità, con il giusto mix di archetipi
@@ -458,7 +468,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M8 — "Progressione e persistenza" · 16–24 h
+### M8 — "Progressione e persistenza" · 6–9 h
 
 **A schermo:** uccidi, sali di livello, distribuisci punti negli attributi. Chiudi il gioco, lo riapri, e sei dove eri, con lo stesso equipaggiamento.
 
@@ -472,7 +482,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M9 — "Magia" · 24–32 h
+### M9 — "Magia" · 8–11 h
 
 **A schermo:** la sfera blu del mana si svuota mentre lanci dalla hotbar un proiettile, un incantesimo ad area e un potenziamento; un nemico tiene le distanze e ti bersaglia.
 
@@ -484,7 +494,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M10 — "Città e loop completo" · 20–28 h
+### M10 — "Città e loop completo" · 10–14 h
 
 **A schermo:** dal menu arrivi in città, compri dal mercante, scendi, risali a vendere, affronti il boss al livello 8, vedi la schermata di vittoria.
 
@@ -498,11 +508,11 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M11 — "Look, feel e release" · 30–50 h (percorso base)
+### M11 — "Look, feel e release" · 15–25 h (percorso base)
 
 **Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · musica ambientale e audio posizionale, con un mixer a gruppi · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · pagina itch.io definitiva e release **v1.0**.
 
-**Estensione opzionale — Blender.** Sostituire gli asset CC0 con modelli propri è **fuori** dalle 30–50 h: la sola modellazione, partendo da zero con Blender, vale facilmente 80–100 h. Si valuta a M11 chiusa, con la v1.0 già pubblicata, e semmai diventa una v1.1. Non è un taglio: è il percorso base che non la prevede.
+**Estensione opzionale — Blender.** Sostituire gli asset CC0 con modelli propri è **fuori** dalle 15–25 h: la sola modellazione, partendo da zero con Blender, vale facilmente 80–100 h, e lì il lavoro resta tutto di Mirco. Si valuta a M11 chiusa, con la v1.0 già pubblicata, e semmai diventa una v1.1. Non è un taglio: è il percorso base che non la prevede.
 
 **Definition of Done:** v1.0 pubblicata, `CREDITS.md` completo, README con GIF e sezione sull'architettura.
 
