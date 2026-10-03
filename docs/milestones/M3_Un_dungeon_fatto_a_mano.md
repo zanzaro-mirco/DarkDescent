@@ -319,6 +319,15 @@ ambiente a colore unico, `Volume` globale con i tre effetti, nessuna luce direzi
 una sola luce con le ombre, quella del cavaliere; `TorchFlickerTests`: il tremolio resta
 nel margine e due torce non vanno all'unisono).
 
+**Ritocco dopo la prova di Mirco.** La luce sopra la testa non andava: elmo bruciato di
+bianco, corpo al buio, ombra sotto i piedi, cerchio piccolo; in Diablo il personaggio si
+vede bene anche al buio. Ora `PlayerLightRig` la tiene a 6 m d'altezza e 2,5 m verso la
+camera, aggiornata in `LateUpdate` come il listener audio e indipendente da dove guarda il
+cavaliere: illumina il lato che si vede e l'ombra cade dietro. Raggio 18 m, intensità 30;
+più alta, la luce cala più piano e il cerchio a terra è più largo e uniforme. Test: 18
+EditMode e 57 PlayMode verdi (`PlayerLightTests`: la luce segue il cavaliere all'altezza e
+alla distanza fissate, dal lato della camera, anche con il cavaliere girato).
+
 ---
 
 ## Passo 3.7 — itch.io
