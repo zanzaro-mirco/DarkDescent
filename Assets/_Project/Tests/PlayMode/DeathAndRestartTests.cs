@@ -2,6 +2,7 @@ using System.Collections;
 using DarkDescent.Characters;
 using DarkDescent.Combat;
 using DarkDescent.Enemies;
+using DarkDescent.Levels;
 using DarkDescent.Player;
 using DarkDescent.UI;
 using NUnit.Framework;
@@ -59,7 +60,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(FindDeathScreen().IsShown);
         }
 
-        [UnityTest, Description("Ricomincia ricarica la scena pulita: vita piena, scheletro vivo, timeScale a 1")]
+        [UnityTest, Description("Ricomincia ricarica Core e riparte dal primo livello: vita piena, scheletri vivi e fermi, timeScale a 1")]
         public IEnumerator Restart_ReloadsCleanScene()
         {
             yield return LoadSandbox();
@@ -97,10 +98,15 @@ namespace DarkDescent.Tests
             Assert.IsTrue(player.GetComponent<PlayerController>().enabled);
             Assert.IsTrue(player.GetComponent<NavMeshAgent>().isOnNavMesh);
 
-            var skeleton = GameObject.Find("Skeleton");
-            var skeletonHealth = skeleton.GetComponent<Health>();
-            Assert.AreEqual(skeletonHealth.Max, skeletonHealth.Current, "lo scheletro riparte con la vita piena");
-            Assert.AreEqual(EnemyState.Idle, skeleton.GetComponent<EnemyAI>().State);
+            Assert.AreEqual("Level_01", Object.FindFirstObjectByType<LevelManager>().CurrentLevel.gameObject.scene.name, "si riparte dal primo livello (D8)");
+            var enemies = Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+            Assert.IsNotEmpty(enemies);
+            foreach (var enemy in enemies)
+            {
+                var enemyHealth = enemy.GetComponent<Health>();
+                Assert.AreEqual(enemyHealth.Max, enemyHealth.Current, $"{enemy.name} riparte con la vita piena");
+                Assert.AreEqual(EnemyState.Idle, enemy.State);
+            }
 
             Assert.IsFalse(FindDeathScreen().IsShown, "dopo il riavvio la schermata è nascosta");
             Assert.AreEqual(1f, Object.FindFirstObjectByType<HealthOrb>().FillAmount, 0.001f);

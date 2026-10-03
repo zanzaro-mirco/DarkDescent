@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using DarkDescent.Combat;
 using DarkDescent.Player;
+using DarkDescent.UI;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
@@ -15,12 +16,14 @@ namespace DarkDescent.Levels
     [DisallowMultipleComponent]
     public class LevelManager : MonoBehaviour
     {
-        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto.")]
-        [SerializeField] private string _firstLevel = "Sandbox_Combat";
+        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto. Ricomincia riparte da qui (D8).")]
+        [SerializeField] private string _firstLevel = "Level_01";
 
         [SerializeField] private string _firstEntrance = "Start";
 
         [SerializeField] private PlayerController _player;
+
+        [SerializeField] private ScreenFader _fader;
 
         private NavMeshAgent _playerAgent;
         private MeleeAttack _playerAttack;
@@ -58,6 +61,14 @@ namespace DarkDescent.Levels
             LoadLevel(_firstLevel, _firstEntrance);
         }
 
+        private void OnDisable()
+        {
+            if (CurrentLevel != null)
+            {
+                CurrentLevel.ExitRequested -= HandleExitRequested;
+            }
+        }
+
         public void LoadLevel(string sceneName, string entranceId)
         {
             if (IsTransitioning)
@@ -66,6 +77,15 @@ namespace DarkDescent.Levels
             }
 
             StartCoroutine(Transition(sceneName, entranceId));
+        }
+
+        private void HandleExitRequested(LevelExit exit)
+        {
+            // un morto che scivola sulle scale non cambia livello
+            if (!_playerHealth.IsDead)
+            {
+                LoadLevel(exit.TargetScene, exit.TargetEntrance);
+            }
         }
 
         private IEnumerator Transition(string sceneName, string entranceId)
@@ -77,11 +97,23 @@ namespace DarkDescent.Levels
             _player.enabled = false;
             _playerAttack.ClearTarget();
 
+            if (CurrentLevel != null)
+            {
+                // il player si ferma sul posto mentre lo schermo diventa nero
+                if (_playerAgent.isOnNavMesh)
+                {
+                    _playerAgent.ResetPath();
+                }
+
+                yield return _fader.FadeTo(1f);
+            }
+
             // un agent sopra un NavMesh che viene scaricato resta senza appoggio: lo si spegne prima
             _playerAgent.enabled = false;
 
             if (CurrentLevel != null)
             {
+                CurrentLevel.ExitRequested -= HandleExitRequested;
                 LevelUnloading?.Invoke(CurrentLevel);
                 CurrentLevel = null;
                 yield return SceneManager.UnloadSceneAsync(_currentScene);
@@ -106,6 +138,7 @@ namespace DarkDescent.Levels
             // luci, ambiente e nebbia vengono dalla scena attiva, e lì finiscono gli Instantiate (trappola 1)
             SceneManager.SetActiveScene(_currentScene);
             CurrentLevel = context;
+            context.ExitRequested += HandleExitRequested;
 
             // Spento, spostato, riacceso: riaccendendosi l'agent si aggancia al NavMesh del livello. Con
             // l'agent acceso si userebbe Warp, ma qui il NavMesh sotto il player è appena cambiato.
@@ -121,6 +154,7 @@ namespace DarkDescent.Levels
 
             IsTransitioning = false;
             LevelLoaded?.Invoke(context);
+            StartCoroutine(_fader.FadeTo(0f));
         }
 
         private bool TryFindLoadedLevel(out LevelContext context)

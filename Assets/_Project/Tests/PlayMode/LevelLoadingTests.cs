@@ -23,7 +23,7 @@ namespace DarkDescent.Tests
             yield return WaitForLevel();
 
             var level = Manager.CurrentLevel;
-            Assert.AreEqual(SandboxScene, level.gameObject.scene.name);
+            Assert.AreEqual("Level_01", level.gameObject.scene.name);
             Assert.AreEqual(level.gameObject.scene, SceneManager.GetActiveScene(), "il livello deve essere la scena attiva");
 
             var player = GameObject.Find("Player");

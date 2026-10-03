@@ -1,4 +1,5 @@
 using DarkDescent.Combat;
+using DarkDescent.Interaction;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -6,7 +7,8 @@ namespace DarkDescent.Player
 {
     /// <summary>
     /// Collega input, movimento e attacco: ascolta il reader, guarda cosa c'è sotto il cursore e
-    /// comanda il motor (terreno) o l'attacco (nemico). È l'unico a conoscere camera, layer e mondo 3D.
+    /// comanda il motor (terreno, oggetti da usare) o l'attacco (nemico). È l'unico a conoscere
+    /// camera, layer e mondo 3D.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerMotor), typeof(PlayerInputReader), typeof(MeleeAttack))]
@@ -20,6 +22,9 @@ namespace DarkDescent.Player
 
         [Tooltip("Layer dei nemici: un click su di essi attacca.")]
         [SerializeField] private LayerMask _enemyLayers;
+
+        [Tooltip("Layer delle cose da usare (scale, poi porte e oggetti): un click ci porta il player.")]
+        [SerializeField] private LayerMask _interactableLayers;
 
         [SerializeField, Min(1f)] private float _maxRayDistance = 100f;
 
@@ -170,6 +175,19 @@ namespace DarkDescent.Player
                 return;
             }
 
+            if ((_interactableLayers.value & layerBit) != 0)
+            {
+                // come per i nemici, solo alla pressione: tenendo premuto sopra le scale si continua
+                // a camminare dove si stava andando
+                var interactable = hit.collider.GetComponentInParent<Interactable>();
+                if (allowAttack && interactable != null)
+                {
+                    RequestWalk(interactable.ApproachPoint);
+                }
+
+                return;
+            }
+
             if ((_walkableLayers.value & layerBit) != 0)
             {
                 RequestWalk(hit.point);
@@ -196,8 +214,8 @@ namespace DarkDescent.Player
             _motor.MoveTo(point);
         }
 
-        // Il raggio usa camminabili + bloccanti + nemici e decide sul primo collider colpito. Con i soli
-        // camminabili attraverserebbe cubi e nemici e colpirebbe il pavimento dietro.
+        // Il raggio usa camminabili + bloccanti + nemici + interagibili e decide sul primo collider
+        // colpito. Con i soli camminabili attraverserebbe cubi e nemici e colpirebbe il pavimento dietro.
         private bool TryRaycastCursor(out RaycastHit hit)
         {
             hit = default;
@@ -207,7 +225,7 @@ namespace DarkDescent.Player
             }
 
             Ray ray = _camera.ScreenPointToRay(_input.PointerScreenPosition);
-            int mask = _walkableLayers | _blockingLayers | _enemyLayers;
+            int mask = _walkableLayers | _blockingLayers | _enemyLayers | _interactableLayers;
             return Physics.Raycast(ray, out hit, _maxRayDistance, mask, QueryTriggerInteraction.Ignore);
         }
     }

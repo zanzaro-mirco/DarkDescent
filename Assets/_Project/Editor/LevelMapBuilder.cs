@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using DarkDescent.Interaction;
 using DarkDescent.Levels;
 using Unity.AI.Navigation;
 using UnityEditor;
@@ -31,6 +32,12 @@ namespace DarkDescent.Editor
         private const float WallHalfThickness = 0.5f;
         private const float TorchHeight = 2.2f;
 
+        // Il trigger dell'uscita copre la cella della scala e sconfina nella cella da cui si arriva:
+        // il NavMesh finisce mezzo metro prima del bordo (raggio dell'agent), il player deve entrarci
+        // fermandosi lì. Il punto d'arrivo del click sta appena dentro il NavMesh.
+        private const float ExitTriggerReach = 1.5f;
+        private const float ApproachDistance = 2.8f;
+
         [MenuItem("DarkDescent/Ricostruisci i livelli dalle mappe")]
         public static void BuildAllFromMenu()
         {
@@ -46,14 +53,19 @@ namespace DarkDescent.Editor
         public static void BuildAll()
         {
             var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>(TilesetPath);
+            var built = new List<string>();
             foreach (var guid in AssetDatabase.FindAssets("t:TextAsset", new[] { MapsFolder }))
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var name = Path.GetFileNameWithoutExtension(path);
                 var map = LevelMap.Parse(AssetDatabase.LoadAssetAtPath<TextAsset>(path).text);
-                Build(map, tileset, $"{ScenesFolder}/{name}.unity");
+                var scenePath = $"{ScenesFolder}/{name}.unity";
+                Build(map, tileset, scenePath);
+                built.Add(scenePath);
                 Debug.Log($"Livello {name} costruito: {map.Width}×{map.Height} celle, {map.Markers.Count} marcatori.");
             }
+
+            SyncBuildSettings(built);
         }
 
         public static void Build(LevelMap map, LevelTileset tileset, string scenePath)
@@ -94,7 +106,6 @@ namespace DarkDescent.Editor
 
             BakeNavMesh(surface, scenePath);
             EditorSceneManager.SaveScene(scene);
-            AddToBuildSettings(scenePath);
         }
 
         private static Transform CreateNotWalkableGroup(string name)
@@ -210,6 +221,52 @@ namespace DarkDescent.Editor
             position.y = FloorTop - StairsHeight;
             var stairs = Place(tileset.StairsDown, level, position, Quaternion.LookRotation(toEntry));
             stairs.name = "StairsDown";
+
+            var exitInfo = map.GetDirective("exit");
+            if (exitInfo.Count < 2)
+            {
+                Debug.LogError("Scala senza direttiva @exit <scena> <ingresso>: non porta da nessuna parte.");
+                return;
+            }
+
+            CreateExit(level, LevelMap.CellCenter(marker.X, marker.Y), toEntry, exitInfo[0], exitInfo[1]);
+        }
+
+        // L'uscita guarda verso la cella da cui si arriva (+Z locale = verso l'ingresso della scala).
+        private static void CreateExit(Transform level, Vector3 cellCenter, Vector3 toEntry, string targetScene, string targetEntrance)
+        {
+            var go = new GameObject("Exit");
+            go.transform.SetParent(level, false);
+            go.transform.SetPositionAndRotation(cellCenter, Quaternion.LookRotation(toEntry));
+
+            float half = LevelMap.CellSize * 0.5f;
+            var trigger = go.AddComponent<BoxCollider>();
+            trigger.isTrigger = true;
+            trigger.center = new Vector3(0f, 1f, ExitTriggerReach * 0.5f);
+            trigger.size = new Vector3(LevelMap.CellSize, 2f, LevelMap.CellSize + ExitTriggerReach);
+            go.AddComponent<Rigidbody>().isKinematic = true;
+
+            var exit = go.AddComponent<LevelExit>();
+            SetString(exit, "_targetScene", targetScene);
+            SetString(exit, "_targetEntrance", targetEntrance);
+
+            // il collider del click è separato dal trigger: il raggio del click ignora i trigger
+            var click = new GameObject("ClickArea");
+            click.layer = LayerMask.NameToLayer("Interactable");
+            click.transform.SetParent(go.transform, false);
+            var clickBox = click.AddComponent<BoxCollider>();
+            clickBox.center = new Vector3(0f, -0.05f, 0f);
+            clickBox.size = new Vector3(LevelMap.CellSize, 0.2f, LevelMap.CellSize);
+
+            var approach = new GameObject("ApproachPoint").transform;
+            approach.SetParent(go.transform, false);
+            approach.localPosition = new Vector3(0f, 0f, ApproachDistance);
+            var interactable = go.AddComponent<Interactable>();
+            var so = new SerializedObject(interactable);
+            so.FindProperty("_approachPoint").objectReferenceValue = approach;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            Debug.Assert(ApproachDistance > half && ApproachDistance < half + ExitTriggerReach, "il punto d'arrivo deve stare nel trigger");
         }
 
         // La torcia va sul muro alto della sua cella, a nord o a est: sui muri bassi non c'è dove appenderla.
@@ -277,18 +334,25 @@ namespace DarkDescent.Editor
             EditorUtility.SetDirty(surface);
         }
 
-        private static void AddToBuildSettings(string scenePath)
+        // Le scene dei livelli nei Build Profiles sono esattamente quelle che hanno una mappa: una
+        // mappa cancellata toglie anche la sua scena dalla build. Le altre scene restano in testa.
+        private static void SyncBuildSettings(List<string> levelScenes)
         {
-            var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-            foreach (var s in scenes)
+            var scenes = new List<EditorBuildSettingsScene>();
+            foreach (var s in EditorBuildSettings.scenes)
             {
-                if (s.path == scenePath)
+                if (!s.path.StartsWith(ScenesFolder + "/"))
                 {
-                    return;
+                    scenes.Add(s);
                 }
             }
 
-            scenes.Add(new EditorBuildSettingsScene(scenePath, true));
+            levelScenes.Sort(System.StringComparer.Ordinal);
+            foreach (var path in levelScenes)
+            {
+                scenes.Add(new EditorBuildSettingsScene(path, true));
+            }
+
             EditorBuildSettings.scenes = scenes.ToArray();
         }
     }

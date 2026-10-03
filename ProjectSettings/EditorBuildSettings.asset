@@ -12,7 +12,10 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/Sandbox_Combat.unity
     guid: 903850ba31efb0741b0445b2e07d420a
   - enabled: 1
-    path: Assets/_Project/Scenes/Levels/Level_Test.unity
-    guid: fe49dedf6a057734eb5fe98a0872c45b
+    path: Assets/_Project/Scenes/Levels/Level_01.unity
+    guid: d9f50022ad84929499cd1a5bbcffb9b1
+  - enabled: 1
+    path: Assets/_Project/Scenes/Levels/Level_02.unity
+    guid: 9ea10ccbfe36ced448c08e9dcbfc8f04
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

@@ -1,0 +1,13 @@
+// Livello 2: sotto la scala. Due stanze, due scheletri, nessuna uscita (per ora).
+@entrance FromAbove
+###############
+#T..T.###.T.b.#
+#.....###.....#
+#..<.......S..#
+#.....###.....#
+#.....###...p.#
+#########.....#
+###########.###
+########T....c#
+########..S...#
+###############

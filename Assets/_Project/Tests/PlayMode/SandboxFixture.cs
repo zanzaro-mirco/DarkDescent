@@ -50,6 +50,21 @@ namespace DarkDescent.Tests
 
             // un frame perché Start (snap della camera, agent dei nemici) sia passato
             yield return null;
+            FindPlayer();
+        }
+
+        /// <summary>Core da sola, come nella build: il LevelManager carica il primo livello.</summary>
+        protected IEnumerator LoadCore()
+        {
+            Mouse = InputSystem.AddDevice<Mouse>();
+            SceneManager.LoadScene("Core");
+            yield return WaitForLevel();
+            yield return null;
+            FindPlayer();
+        }
+
+        private void FindPlayer()
+        {
             Camera = Camera.main;
             Player = GameObject.Find("Player").transform;
             PlayerAgent = Player.GetComponent<NavMeshAgent>();

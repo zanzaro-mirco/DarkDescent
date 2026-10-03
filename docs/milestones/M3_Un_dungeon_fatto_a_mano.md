@@ -243,6 +243,25 @@ scaricato; il cavaliere è sull'ingresso e il suo agent è sul NavMesh; i nemici
 livello nuovo sono collegati (numeri di danno, IA); durante la transizione i click
 sono ignorati.
 
+**Com'è andata (3 ott 2026).** Mappe composte da uno script che verifica che ogni cella
+sia raggiungibile dall'ingresso e che torce e scala stiano contro un muro: **livello 1**
+23×13 celle, cinque stanze, quattro scheletri, scala a est (`@exit Level_02 FromAbove`);
+**livello 2** 15×11, due stanze e due scheletri, senza uscita. `Level_Test` cancellato;
+il builder ora tiene allineati i *Build Profiles* (le scene dei livelli sono esattamente
+quelle con una mappa). **Uscita:** il builder mette sulla scala un oggetto `Exit` con
+`LevelExit` (trigger più `Rigidbody` cinematico, perché il player si muove con l'agent e
+senza un corpo rigido i trigger non scattano), un `ClickArea` separato sul layer
+`Interactable` (il raggio del click ignora i trigger) e `Interactable` con il punto
+d'arrivo appena dentro il NavMesh. Il `LevelContext` raccoglie le uscite e le riporta al
+`LevelManager`, che sta in `Core` e che le uscite non conoscono. `PlayerController` ha
+il ramo nuovo previsto dall'ADR-006. **Dissolvenza:** `ScreenFader` sull'HUD, nero
+all'avvio, 0,35 s in tempo non scalato, non blocca mai i click (altrimenti i test che
+cliccano subito dopo il caricamento sarebbero falliti). Primo livello: `Level_01`; dopo
+la morte si riparte da lì. Test: 18 EditMode e 51 PlayMode verdi (`LevelTransitionTests`:
+click sulla scala → livello 2 con la stessa vita, dissolvenza, un morto non scende,
+controller spento fino al livello pronto; `LevelDataTests`: ogni uscita porta a una
+scena della build e a un ingresso che esiste).
+
 ---
 
 ## Passo 3.6 — Buio e luci

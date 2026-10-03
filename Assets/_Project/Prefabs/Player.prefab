@@ -136,6 +136,9 @@ MonoBehaviour:
   _enemyLayers:
     serializedVersion: 2
     m_Bits: 256
+  _interactableLayers:
+    serializedVersion: 2
+    m_Bits: 512
   _maxRayDistance: 100
   _holdRepathInterval: 0.1
   _camera: {fileID: 0}
