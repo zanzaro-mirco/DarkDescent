@@ -1,0 +1,17 @@
+// Mappa di prova del passo 3.4: nove stanze 3×3 collegate da passaggi.
+// # roccia, . pavimento, < ingresso, > scala che scende, T torcia, S scheletro,
+// b barile, x casse, p colonna, c baule.
+@entrance Start
+#############
+#<.T#..T#...#
+#...........#
+#..S#...#.S.#
+##.###.###.##
+#...#T..#...#
+#.b.....x...#
+#...#.S.#...#
+##.###.###.##
+#T..#...#..>#
+#.......p...#
+#...#...#..c#
+#############

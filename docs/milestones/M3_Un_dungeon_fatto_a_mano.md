@@ -203,6 +203,29 @@ PlayMode verdi (`AudioTests`).
 
 **Verifica:** una mappa di prova 3×3 stanze costruita e giocabile da `Core`.
 
+**Com'è andata (3 ott 2026).** Lo zip l'ho scaricato io su richiesta di Mirco; nel
+progetto ne sono entrati 38 modelli su 211, 1,2 MB, con un materiale condiviso
+`M_Dungeon` sulla texture atlante. **Misure:** la griglia è davvero 4 m
+(`floor_tile_large` 4×4, cima a 0,05 m); `wall` è lungo 4, alto 4 e spesso 1, centrato
+sul lato; `wall_half` è un muro *corto*, non basso, quindi il muro basso è `barrier`,
+una balaustra in pietra alta 1,1 m; `stairs` è larga 5, profonda 4 e scende di 5,1.
+**Prefab** in `Prefabs/Dungeon/`: radice con layer e collider, modello come figlio.
+Nuovo layer `Interactable` (9) per le scale. **Codice:** `LevelMap` (logica pura, 7 test
+EditMode) legge griglia, marcatori e direttive `@`; `LevelTileset` (ScriptableObject in
+`Data/Levels/`) dice quale prefab va dove; `LevelMapBuilder` (assembly
+`DarkDescent.Editor`, menu *DarkDescent → Ricostruisci i livelli dalle mappe*) rifà le
+scene in `Scenes/Levels/` con NavMesh cotto e le aggiunge ai *Build Profiles*. Muri
+alti sui lati nord ed est, balaustre su sud e ovest; torce sul muro alto della loro
+cella. **Scala:** la prima versione scendeva verso sud e un pezzo spuntava sotto la
+balaustra, nel vuoto. Ora si entra preferibilmente da sud e scende verso nord, sotto
+il muro alto che la nasconde: nelle mappe il `>` va contro un muro nord. Tra una stanza
+e l'altra la roccia larga una cella resta un vuoto nero: con il buio del passo 3.6 non
+dovrebbe vedersi, si giudica lì. La porta `D` della legenda non c'è ancora: per ora le
+stanze si collegano con passaggi aperti. Verifica con un test temporaneo: cavaliere
+sull'ingresso, percorso completo fino alla stanza della scala, a piedi dalla prima
+stanza a quella centrale in 6,4 s, cella della scala non calpestabile. Test: 18
+EditMode e 46 PlayMode verdi.
+
 ---
 
 ## Passo 3.5 — Livelli e cambio di livello

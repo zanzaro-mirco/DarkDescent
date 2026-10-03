@@ -13,6 +13,7 @@
 *.hlsl    text eol=lf
 *.cginc   text eol=lf
 *.yml     text eol=lf
+*.txt     text eol=lf
 *.gitattributes text eol=lf
 .gitignore      text eol=lf
 
