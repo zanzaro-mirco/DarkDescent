@@ -1,0 +1,83 @@
+# Build Windows su tag di milestone (m*) o di versione (v*) e su avvio manuale (D3).
+# Prima girano i test: un tag con un test rosso non produce build.
+name: Build
+
+on:
+  push:
+    tags: ['m*', 'v*']
+  workflow_dispatch:
+
+# Niente concurrency a livello di workflow: il gruppo "unity" lo prende già tests.yml
+# richiamato qui sotto, e lo stesso gruppo su chiamante e chiamato si blocca a vicenda.
+# La build lo prende a livello di job, dopo che i test l'hanno rilasciato.
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+
+  build:
+    name: Build Windows
+    needs: tests
+    # Fissato come le action (D1).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    concurrency:
+      group: unity
+      cancel-in-progress: false
+    steps:
+      # Stesso checkout e stessa cache LFS dei test: vedi tests.yml.
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          lfs: false
+
+      - name: Lista degli oggetti LFS
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Cache LFS
+        uses: actions/cache@v6
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Pull LFS
+        run: git lfs pull
+
+      # Cache separata da quella dei test: la Library di una build Windows contiene gli asset
+      # importati per quella piattaforma. Se manca, riparte da quella dei test, che ha già
+      # gli script compilati e gli asset comuni.
+      - name: Cache Library
+        uses: actions/cache@v6
+        with:
+          path: Library
+          key: Library-StandaloneWindows64-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-StandaloneWindows64-
+            Library-
+
+      # Backend Mono: l'immagine windows-mono gira su runner Linux.
+      # versioning: None lascia il bundleVersion del progetto; la versione dal tag si valuta
+      # alla M3, con la prima build pubblica.
+      - name: Build
+        uses: game-ci/unity-builder@v6.0.0
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          cliVersion: v0.1.71
+          targetPlatform: StandaloneWindows64
+          buildName: DarkDescent
+          versioning: None
+
+      - name: Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: DarkDescent-Windows-${{ github.ref_name }}
+          path: build/StandaloneWindows64
+          retention-days: 30
+          if-no-files-found: error

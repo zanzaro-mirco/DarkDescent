@@ -1,4 +1,5 @@
 # Test EditMode e PlayMode a ogni push su main, a ogni pull request e su avvio manuale.
+# Il workflow della build lo richiama (workflow_call) prima di buildare.
 name: Tests
 
 on:
@@ -6,6 +7,7 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 # Un run alla volta in tutto il repo, non per branch: la licenza Personal ha pochi posti di
 # attivazione (D4). Niente cancel-in-progress: un job ucciso a metà rischia di non restituire
