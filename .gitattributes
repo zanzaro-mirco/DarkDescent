@@ -27,6 +27,7 @@
 *.anim       merge=unityyamlmerge eol=lf
 *.controller merge=unityyamlmerge eol=lf
 *.overrideController merge=unityyamlmerge eol=lf
+*.mixer      merge=unityyamlmerge eol=lf
 *.physicMaterial     merge=unityyamlmerge eol=lf
 *.meta       merge=unityyamlmerge eol=lf
 

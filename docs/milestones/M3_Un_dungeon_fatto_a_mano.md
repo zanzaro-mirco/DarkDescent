@@ -173,6 +173,18 @@ sui colpi).
 **Verifica:** a orecchio: uno scheletro fuori schermo si sente, da lontano più piano.
 **Test:** in `Core` esiste un solo `AudioListener`.
 
+**Com'è andata (3 ott 2026).** Il listener non è un figlio del player, come scritto
+sopra, ma un oggetto `AudioListener` in `Core` con `AudioListenerRig`: in
+`LateUpdate` si mette a 1,6 m sopra il cavaliere e prende l'imbardata della camera.
+Figlio del player avrebbe girato con lui, e destra e sinistra si sarebbero scambiate
+a ogni cambio di direzione. Sorgenti di cavaliere e scheletro in 3D, logaritmiche tra
+4 e 25 m, effetto Doppler spento (con camera e listener che si muovono darebbe
+variazioni di intonazione a caso). `Audio/Main.mixer` con `SFX`, `UI` e `Music` sotto
+`Master`: Unity non ha un'API pubblica per creare un mixer, quindi lo script di
+editor è passato per la reflection, e ha dovuto creare a mano anche la vista della
+finestra del mixer. `*.mixer` aggiunto a `.gitattributes`. Test: 11 EditMode e 46
+PlayMode verdi (`AudioTests`).
+
 ---
 
 ## Passo 3.4 — Tileset e strumento delle mappe
