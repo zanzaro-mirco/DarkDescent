@@ -15,6 +15,7 @@
 | v2.4 | 30 set 2026 | Rimossi il devlog e le parti didattiche (esercizi, letture, esperimenti): ore reali solo nella tabella del § 5; § 6 e § 8 allineati, `CLAUDE.md` e scheda M1 aggiornati |
 | v2.5 | 1 ott 2026 | Piano spostato nel repo, `docs/Piano_Sviluppo_ARPG.md`, quindi versionato · tolte le ore reali (colonna, rituale) e la retrospettiva · punti di controllo misurati in settimane di calendario · M1 chiusa, scheda M2 scritta |
 | v2.6 | 3 ott 2026 | M2 chiusa, con le lezioni · punto di controllo di M2 superato (rapporto 0,19, nessun taglio) · ADR-004: eccezione per il font OFL di TextMesh Pro, EmojiOne tolta |
+| v2.8 | 3 ott 2026 | M2.5 chiusa (tag `m2.5`): test e build in CI con GameCI · ADR-011…013 |
 | v2.7 | 3 ott 2026 | Stime ricalcolate: il codice lo scrive Claude, le ore sono quelle di sessione di Mirco (totale da 240–350 a circa 95–140 h) · punti di controllo riformulati sulle nuove stime · audio posizionale anticipato a M3 · Cinemachine a M3 con Impulse e zona morta · reazione al colpo del cavaliere a M7 · pavimento della sandbox a M3 · ADR-004…010 scritti |
 
 ---
@@ -30,10 +31,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) |
-| **Milestone corrente** | **M2.5 — Pipeline automatica** → `docs/milestones/M2.5_Pipeline_automatica.md` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) |
+| **Milestone corrente** | **M3 — "Un dungeon fatto a mano"**: scheda da scrivere prima di cominciarla (§ 6) |
+| **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*` (ADR-011…013) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…003) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…013) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -225,7 +227,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M0 | Fondamenta | repo e build vuota da clone pulito | — | ✅ 23 set |
 | M1 | "Mi muovo" | cammini in una stanza | 12–20 | ✅ 1 ott |
 | M2 | "Colpisco e muoio" | primo gameplay loop | 20–30 | ✅ 3 ott |
-| M2.5 | Pipeline automatica | test e build in CI | 2–4 | |
+| M2.5 | Pipeline automatica | test e build in CI | 2–4 | ✅ 3 ott |
 | M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, **prima build pubblica** | 9–14 | |
 | M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | |
 | M5 | "Loot casuale" | affissi e rarità | 6–9 | |
