@@ -32,11 +32,14 @@ jobs:
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          # Copertura spenta via variabile d'ambiente: l'input coverageEnabled: false
+          # dell'action diventa --no-coverageEnabled, che la CLI rifiuta (niente prefisso
+          # di negazione, parsing strict) e il run muore prima di partire.
+          GAME_CI_COVERAGE_ENABLED: 'false'
         with:
           cliVersion: v0.1.71
           testMode: EditMode
           customParameters: -assemblyNames DarkDescent.Tests.EditMode
-          coverageEnabled: false
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: Risultati EditMode
 
