@@ -328,6 +328,16 @@ più alta, la luce cala più piano e il cerchio a terra è più largo e uniforme
 EditMode e 57 PlayMode verdi (`PlayerLightTests`: la luce segue il cavaliere all'altezza e
 alla distanza fissate, dal lato della camera, anche con il cavaliere girato).
 
+**Secondo ritocco.** Di fronte il cavaliere restava scuro: una luce così ripida prende il
+cimiero e quasi niente le superfici verticali. Abbassarla avrebbe spostato anche il cerchio
+a terra, quindi ho aggiunto `PlayerFillLight`: puntiforme, senza ombre, all'altezza del petto
+e 2,5 m verso la camera (lo stesso `PlayerLightRig`), raggio 5 m, che illumina **solo** il
+rendering layer `Player`. Il layer 1 dei rendering layer si chiamava "Light Layer 1" e ora
+si chiama `Player`; i renderer del cavaliere stanno su `Default` più `Player`. Pavimento e
+scheletri non la vedono. Test: 18 EditMode e 58 PlayMode verdi (`PlayerLightTests`: la
+luce di riempimento non fa ombre, tocca solo il layer `Player`, che c'è su tutti i renderer
+del cavaliere e su nessuno degli scheletri).
+
 ---
 
 ## Passo 3.7 — itch.io
