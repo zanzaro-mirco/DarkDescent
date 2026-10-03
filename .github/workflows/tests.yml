@@ -1,0 +1,49 @@
+# Passo 2.5.1: prova dell'attivazione della licenza Personal in CI.
+# Solo avvio manuale e solo i test EditMode. Al passo 2.5.2 diventa il workflow dei test
+# completo (push, pull request, PlayMode, cache).
+name: Tests
+
+on:
+  workflow_dispatch:
+
+# Un run alla volta: la licenza Personal ha pochi posti di attivazione (D4).
+concurrency:
+  group: unity
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  tests:
+    name: Test EditMode
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Test
+        id: tests
+        uses: game-ci/unity-test-runner@v4.4.0
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          cliVersion: v0.1.71
+          testMode: EditMode
+          customParameters: -assemblyNames DarkDescent.Tests.EditMode
+          coverageEnabled: false
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Risultati EditMode
+
+      - name: Risultati
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: risultati-editmode
+          path: ${{ steps.tests.outputs.artifactsPath }}
+          retention-days: 14
