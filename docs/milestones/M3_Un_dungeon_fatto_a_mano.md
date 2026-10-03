@@ -350,6 +350,18 @@ del cavaliere e su nessuno degli scheletri).
 3. Se regge: alla M10 va su itch.io nel canale `web`, giocabile nella pagina. Se no:
    resta Windows e si riprova alla M11. In tutti e due i casi, ADR.
 
+**Com'è andata (3 ott 2026).** `build.yml` ad avvio manuale chiede la piattaforma
+(`StandaloneWindows64` o `WebGL`); i tag fanno sempre Windows. Cache della `Library/` e
+nome dell'artifact per piattaforma (`DarkDescent-Web-<ref>`); l'immagine `webgl` la
+sceglie GameCI. Nelle impostazioni del progetto: compressione Gzip con *decompression
+fallback*, e il livello di qualità del Web portato da *Mobile* a *PC*. Con *Mobile* la
+build avrebbe perso le ombre della luce del cavaliere e il Forward+: la prova deve
+mostrare lo stesso dungeon di Windows. Run 37153361810: test e build verdi, build Web di
+19,3 MB, 19 minuti. Avevo aggiunto un passo che liberava spazio sul runner per
+l'immagine più grande, ma di spazio ce n'erano già 87 GB: tolto. **Prova di Mirco**
+dall'artifact, con un server locale (`python -m http.server`): funziona correttamente,
+luci comprese. Decisione nell'ADR-019: alla M10 il Web va su itch.io accanto a Windows.
+
 ---
 
 ## Passo 3.8 — Chiusura
@@ -358,6 +370,16 @@ del cavaliere e su nessuno degli scheletri).
 2. ADR: struttura delle scene (D1), mappe di testo (D2), luci in tempo reale (D4),
    muri bassi (D5), itch.io rimandato alla M10 (D6), build Web (D7).
 3. Lezioni nel piano, tabella dello stato, tag `m3`: la CI produce la build.
+
+**Com'è andata (3 ott 2026).** **GIF** (`docs/media/m3_descent.gif`, 1,9 MB): test
+PlayMode temporaneo come alla M2, 20 fps fissi, 166 fotogrammi. Il cavaliere parte nella
+stanza della scala, il cursore accende la scala con l'etichetta, il click lo porta giù, lo
+schermo sfuma e il livello 2 si apre al buio. La compilazione asincrona degli shader era
+spenta (`ShaderUtil.allowAsyncCompilation`), altrimenti la scala evidenziata usciva
+azzurra. Pesa tre volte quella della M2: la camera segue il cavaliere e le torce tremano,
+quindi cambia quasi tutto a ogni fotogramma. Ho codificato la GIF ignorando le differenze
+di colore minime, e da 3,8 MB è scesa a 1,9. **ADR-014…019** in `DECISIONS.md`. Lezioni e
+stato nel piano (v2.10), README con la GIF nuova.
 
 ---
 
@@ -410,14 +432,14 @@ del cavaliere e su nessuno degli scheletri).
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D8 confermate
-- [ ] `Core` + livelli additivi, test esistenti verdi
-- [ ] Camera Cinemachine con zona morta e Impulse
-- [ ] Audio posizionale
-- [ ] Tileset KayKit importato, riga in `CREDITS.md`
-- [ ] Livelli 1 e 2 dalle mappe, scale funzionanti, vita conservata
-- [ ] Buio, torce e luce del cavaliere, giudicati in build
-- [ ] Build Web provata e decisa in un ADR
-- [ ] Test verdi in CI
+- [x] Decisioni D1–D8 confermate (D6 poi rimandata alla M10)
+- [x] `Core` + livelli additivi, test esistenti verdi
+- [x] Camera Cinemachine con zona morta e Impulse
+- [x] Audio posizionale
+- [x] Tileset KayKit importato, riga in `CREDITS.md`
+- [x] Livelli 1 e 2 dalle mappe, scale funzionanti, vita conservata
+- [x] Buio, torce e luce del cavaliere, giudicati in build
+- [x] Build Web provata e decisa in un ADR
+- [x] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m3`
 - [ ] Scheda della M4 scritta prima di cominciarla

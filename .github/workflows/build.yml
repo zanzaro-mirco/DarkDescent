@@ -41,15 +41,6 @@ jobs:
       TARGET_PLATFORM: ${{ inputs.targetPlatform || 'StandaloneWindows64' }}
       ARTIFACT_LABEL: ${{ inputs.targetPlatform == 'WebGL' && 'Web' || 'Windows' }}
     steps:
-      # L'immagine webgl porta con sé Emscripten ed è più grande di quella Windows: si libera
-      # spazio togliendo dal runner SDK che qui non servono.
-      - name: Spazio su disco per l'immagine Web
-        if: env.TARGET_PLATFORM == 'WebGL'
-        run: |
-          df -h /
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          df -h /
-
       # Stesso checkout e stessa cache LFS dei test: vedi tests.yml.
       - name: Checkout
         uses: actions/checkout@v7

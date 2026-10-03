@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.9**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.10**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -18,6 +18,7 @@
 | v2.8 | 3 ott 2026 | M2.5 chiusa (tag `m2.5`): test e build in CI con GameCI · ADR-011…013 |
 | v2.7 | 3 ott 2026 | Stime ricalcolate: il codice lo scrive Claude, le ore sono quelle di sessione di Mirco (totale da 240–350 a circa 95–140 h) · punti di controllo riformulati sulle nuove stime · audio posizionale anticipato a M3 · Cinemachine a M3 con Impulse e zona morta · reazione al colpo del cavaliere a M7 · pavimento della sandbox a M3 · ADR-004…010 scritti |
 | v2.9 | 3 ott 2026 | Prima build pubblica su itch.io spostata da M3 a M10, quando il gioco è finibile: decisione di Mirco. A M3 resta la prova della build Web dall'artifact della CI |
+| v2.10 | 3 ott 2026 | M3 chiusa (tag `m3`), con le lezioni · § 4.3 decisa (ADR-014) · build Web provata e tenuta (ADR-019) · ADR-014…019 |
 
 ---
 
@@ -32,11 +33,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) |
-| **Milestone corrente** | **M3 — "Un dungeon fatto a mano"** → `docs/milestones/M3_Un_dungeon_fatto_a_mano.md` |
-| **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*` (ADR-011…013) |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) |
+| **Milestone corrente** | **M4 — "Raccolgo roba"**: scheda da scrivere in `docs/milestones/` prima di cominciare |
+| **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…013) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…019) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -207,6 +208,8 @@ Proposta: una scena **`Core`** sempre caricata (giocatore, camera, HUD, EventSys
 
 La scelta va in un ADR prima di scrivere il `LevelManager` di M3.
 
+**Decisa il 3 ott 2026 (ADR-014):** `Core` più livelli additivi, che diventano la scena attiva. Niente `Bootstrap` per ora: arriverà con il menu.
+
 ### 4.4 Dati: definizioni con ID stabili — da M4
 
 La regola è già nota: **ScriptableObject = definizione immutabile, classe C# = istanza runtime.** Si aggiunge un vincolo che conviene rispettare da subito: ogni definizione ha un **ID stabile** — una stringa generata una volta e mai più cambiata, non il nome dell'asset — e le istanze runtime riferiscono le definizioni attraverso quell'ID. Un registro (`ItemDatabase`) risolve ID → definizione.
@@ -229,14 +232,14 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M1 | "Mi muovo" | cammini in una stanza | 12–20 | ✅ 1 ott |
 | M2 | "Colpisco e muoio" | primo gameplay loop | 20–30 | ✅ 3 ott |
 | M2.5 | Pipeline automatica | test e build in CI | 2–4 | ✅ 3 ott |
-| M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, **prima build pubblica** | 9–14 | |
+| M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, build Web provata | 9–14 | ✅ 3 ott |
 | M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | |
 | M5 | "Loot casuale" | affissi e rarità | 6–9 | |
 | M6 | "Dungeon infinito" | cripta procedurale | 10–13 | |
 | M7 | "Le profondità" | caverne, nuovi nemici, automappa | 11–16 | |
 | M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 6–9 | |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza | 8–11 | |
-| M10 | "Città e loop completo" | il gioco è finibile | 10–14 | |
+| M10 | "Città e loop completo" | il gioco è finibile, **prima build pubblica** | 10–14 | |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 15–25 | |
 
 ---
@@ -287,6 +290,20 @@ Chiusa il 3 ottobre 2026: test e build Windows in CI, tag `m2.5` con la sua buil
 - **Un gruppo di `concurrency` solo per tutto il repo,** senza annullare i run in corso: i posti della licenza sono pochi e un job ucciso a metà rischia di non restituirlo.
 - **I PlayMode girano su Linux in Docker senza modifiche,** e le cache di LFS e `Library/` portano un run da circa 6 a circa 4 minuti; la build Windows riparte dalla `Library/` dei test.
 - **Sui run rossi la CLI non crea il riepilogo dei risultati:** il nome del test fallito si legge nel log o nell'XML tra gli artifact.
+
+---
+
+### M3 — "Un dungeon fatto a mano" ✅
+
+Chiusa il 3 ottobre 2026: 18 test EditMode e 58 PlayMode verdi, build Windows del tag `m3` dalla CI, build Web provata nel browser. Lezioni emerse:
+
+- **La scena attiva decide luci e ambiente:** dopo il caricamento additivo il livello va reso attivo, altrimenti prende il cielo di `Core`. Il colore ambiente si scrive in gamma e diventa lineare: 0,12 vale 0,013, cioè nero pieno (ADR-014, ADR-016).
+- **Una luce ripida illumina il cimiero e non il resto:** la luce del cavaliere sta alta e spostata verso la camera, e una seconda luce senza ombre illumina solo il rendering layer `Player`. Così il cavaliere si vede di fronte senza schiarire la stanza.
+- **Mappe di testo e uno strumento che resta nel repo** (ADR-015): i livelli si rivedono in un diff, e alla M6 il generatore dovrà solo produrre la stessa griglia. Le misure del tileset si prendono all'import: in KayKit `wall_half` è un muro corto, non basso, e il muro basso è `barrier`.
+- **Trigger e click hanno bisogni diversi:** un player mosso dall'agent fa scattare i trigger solo se c'è un `Rigidbody` cinematico, e il raggio del click ignora i trigger. Per questo la scala ha un'area cliccabile separata.
+- **Gli shader si compilano al primo uso:** nell'editor la prima evidenziazione esce azzurra (segnaposto), in batch il primo fotogramma emissivo esce magenta; in build non succede. URP toglie `_EMISSION` da un materiale i cui flag di illuminazione globale non sono emissivi.
+- **Unity non ha un'API pubblica per creare un `AudioMixer`:** lo script di editor è passato per la reflection.
+- **Il Web regge il dungeon** (ADR-019) se usa la stessa qualità *PC*: il livello *Mobile*, assegnato di default al Web, toglieva ombre e Forward+. La pubblicazione su itch.io è passata alla M10 (ADR-018).
 
 ---
 

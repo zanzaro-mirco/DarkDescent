@@ -5,27 +5,34 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Combattimento: il cavaliere attacca uno scheletro, con lampo, numeri di danno e sfera della vita](docs/media/m2_combat.gif)
+![Discesa: nella cripta buia il cavaliere raggiunge la scala evidenziata e scende al livello 2](docs/media/m3_descent.gif)
 
 ## Stato
 
-**M2.5 — Pipeline automatica** chiusa il 3 ottobre 2026 (tag `m2.5`): test e build
-Windows in CI con GitHub Actions e GameCI (vedi [CI](#ci)).
-Prossima: **M3 — "Un dungeon fatto a mano"**.
+**M3 — "Un dungeon fatto a mano"** chiusa il 3 ottobre 2026 (tag `m3`): due livelli di
+una cripta, costruiti da mappe di testo con il tileset KayKit. Il dungeon è buio:
+torce che tremano sui muri e una luce che segue il cavaliere, l'unica con le ombre. In
+fondo al primo livello una scala, evidenziata al passaggio del mouse: un click e il
+cavaliere scende al livello 2 con la vita che aveva. Camera Cinemachine con zona morta
+e scossa sui colpi, audio posizionale: gli scheletri si sentono prima di vederli. La
+build gira anche nel browser.
+Prossima: **M4 — "Raccolgo roba"**.
 
-**M2 — "Colpisco e muoio"** chiusa il 3 ottobre 2026 (tag `m2`): il primo gameplay
-loop. Nella stanza di prova ci sono tre scheletri. Clicchi su uno scheletro e il
-cavaliere si avvicina e lo colpisce; lo scheletro, quando ti vede, ti insegue e
-risponde. La sfera rossa mostra la tua vita, e dalla schermata di morte ricominci.
-Colpi con lampo bianco, hit stop, numeri di danno ed effetti sonori.
+Milestone precedenti:
 
-Milestone precedenti: **M1 — "Mi muovo"** (tag `m1`), click-to-move con NavMesh e
-camera isometrica ([GIF](docs/media/m1_click_to_move.gif)).
+- **M2.5 — Pipeline automatica** (tag `m2.5`): test e build in CI con GitHub Actions e
+  GameCI (vedi [CI](#ci)).
+- **M2 — "Colpisco e muoio"** (tag `m2`): il primo gameplay loop, scheletri che
+  inseguono e rispondono, sfera della vita, schermata di morte
+  ([GIF](docs/media/m2_combat.gif)).
+- **M1 — "Mi muovo"** (tag `m1`): click-to-move con NavMesh e camera isometrica
+  ([GIF](docs/media/m1_click_to_move.gif)).
 
 **Comandi:**
 
 - click sinistro sul pavimento per muoversi; tenendo premuto, il personaggio segue il cursore
 - click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo
+- click sinistro sulla scala per scendere al livello successivo
 
 ## CI
 
@@ -35,9 +42,12 @@ Due workflow di GitHub Actions, con [GameCI](https://game.ci) e la licenza Unity
 - **[Tests](.github/workflows/tests.yml)**: test EditMode e PlayMode a ogni push su
   `main` e a ogni pull request. I risultati XML restano 14 giorni tra gli artifact del run.
 - **[Build](.github/workflows/build.yml)**: build Windows sui tag di milestone (`m*`) e di
-  versione (`v*`), o ad avvio manuale da *Actions → Build → Run workflow*. Prima rifà i
-  test; la build si scarica dagli *Artifacts* del run (`DarkDescent-Windows-<tag>`, 30
-  giorni). Eseguibile non firmato: al primo avvio Windows chiede conferma.
+  versione (`v*`), o ad avvio manuale da *Actions → Build → Run workflow*, dove si può
+  scegliere anche la build Web (`WebGL`). Prima rifà i test; la build si scarica dagli
+  *Artifacts* del run (`DarkDescent-Windows-<tag>` o `DarkDescent-Web-<ramo>`, 30
+  giorni). Eseguibile non firmato: al primo avvio Windows chiede conferma. La build Web
+  va servita da un server, anche locale (`python -m http.server` nella cartella di
+  `index.html`): aperta con un doppio click non parte.
 
 Un run alla volta in tutto il repo, perché la licenza ha pochi posti di attivazione.
 
