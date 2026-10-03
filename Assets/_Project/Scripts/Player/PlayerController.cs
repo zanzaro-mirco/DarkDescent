@@ -1,3 +1,4 @@
+using System;
 using DarkDescent.Combat;
 using DarkDescent.Interaction;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace DarkDescent.Player
     /// <summary>
     /// Collega input, movimento e attacco: ascolta il reader, guarda cosa c'è sotto il cursore e
     /// comanda il motor (terreno, oggetti da usare) o l'attacco (nemico). È l'unico a conoscere
-    /// camera, layer e mondo 3D.
+    /// camera, layer e mondo 3D. Ogni frame guarda anche cosa c'è sotto il cursore, per evidenziarlo.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerMotor), typeof(PlayerInputReader), typeof(MeleeAttack))]
@@ -53,6 +54,11 @@ namespace DarkDescent.Player
         private bool _pressPending;
         private bool _pressStartedOverUI;
 
+        /// <summary>L'oggetto da usare sotto il cursore è cambiato; null = nessuno.</summary>
+        public event Action<Interactable> HoveredChanged;
+
+        public Interactable Hovered { get; private set; }
+
         private void Awake()
         {
             _motor = GetComponent<PlayerMotor>();
@@ -76,10 +82,15 @@ namespace DarkDescent.Player
         {
             _input.MoveCommandStarted -= HandleMoveCommandStarted;
             _input.MoveCommandCanceled -= HandleMoveCommandCanceled;
+
+            // spento il controller (morte, cambio di livello) niente resta evidenziato
+            SetHovered(null);
         }
 
         private void Update()
         {
+            UpdateHover();
+
             if (_hasQueuedMove && !_attack.IsSwinging)
             {
                 _hasQueuedMove = false;
@@ -192,6 +203,42 @@ namespace DarkDescent.Player
             {
                 RequestWalk(hit.point);
             }
+        }
+
+        // Lo stesso raggio del click: un muro davanti alla scala la nasconde anche al cursore
+        private void UpdateHover()
+        {
+            Interactable hovered = null;
+            if (!IsPointerOverUI() && TryRaycastCursor(out RaycastHit hit)
+                && (_interactableLayers.value & (1 << hit.collider.gameObject.layer)) != 0)
+            {
+                hovered = hit.collider.GetComponentInParent<Interactable>();
+            }
+
+            SetHovered(hovered);
+        }
+
+        private void SetHovered(Interactable hovered)
+        {
+            // ReferenceEquals: se quello di prima è stato distrutto, null deve comunque arrivare a chi ascolta
+            if (ReferenceEquals(hovered, Hovered))
+            {
+                return;
+            }
+
+            // quello di prima può essere già distrutto, con la sua scena
+            if (Hovered != null)
+            {
+                Hovered.SetHighlighted(false);
+            }
+
+            Hovered = hovered;
+            if (hovered != null)
+            {
+                hovered.SetHighlighted(true);
+            }
+
+            HoveredChanged?.Invoke(hovered);
         }
 
         private void RequestWalk(Vector3 point)

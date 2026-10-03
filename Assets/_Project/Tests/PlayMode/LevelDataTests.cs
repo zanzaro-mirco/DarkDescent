@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using DarkDescent.Interaction;
 using DarkDescent.Levels;
 using NUnit.Framework;
 using Unity.AI.Navigation;
@@ -50,6 +51,8 @@ namespace DarkDescent.Tests
                 Assert.IsNotNull(Object.FindFirstObjectByType<NavMeshSurface>(), $"{level}: manca il NavMesh");
                 foreach (var exit in context.Exits)
                 {
+                    Assert.IsNotEmpty(exit.GetComponent<Interactable>().Label, $"{level}: uscita senza etichetta");
+                    Assert.IsNotNull(exit.GetComponent<InteractableHighlight>(), $"{level}: uscita che non si evidenzia");
                     exits.Add((level, exit.TargetScene, exit.TargetEntrance));
                 }
             }

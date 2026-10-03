@@ -23,6 +23,12 @@ namespace DarkDescent.Levels
         [Tooltip("Scala che scende: prende il posto del pavimento della sua cella.")]
         [SerializeField] private GameObject _stairsDown;
 
+        [Tooltip("Stendardo appeso al muro alto oltre la scala: segnala l'uscita da lontano.")]
+        [SerializeField] private GameObject _exitBanner;
+
+        [Tooltip("Il materiale dei moduli con l'emissione accesa: l'uscita sotto il cursore.")]
+        [SerializeField] private Material _highlightMaterial;
+
         [Tooltip("Gli altri marcatori: nemici e oggetti di scena, al centro della cella.")]
         [SerializeField] private MarkerPrefab[] _markers;
 
@@ -35,6 +41,10 @@ namespace DarkDescent.Levels
         public GameObject WallTorch => _wallTorch;
 
         public GameObject StairsDown => _stairsDown;
+
+        public GameObject ExitBanner => _exitBanner;
+
+        public Material HighlightMaterial => _highlightMaterial;
 
         public GameObject GetMarkerPrefab(char symbol)
         {

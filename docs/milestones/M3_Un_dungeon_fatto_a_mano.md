@@ -262,6 +262,25 @@ click sulla scala → livello 2 con la stessa vita, dissolvenza, un morto non sc
 controller spento fino al livello pronto; `LevelDataTests`: ogni uscita porta a una
 scena della build e a un ingresso che esiste).
 
+**Ritocco dopo la prova di Mirco.** La scala non piaceva: trave in diagonale e buco
+aperto ai lati. Ora è `stairs_walled` stretto a 4 m, una tromba di scale murata, con due
+balaustre ai lati, due pilastrini all'imbocco e una luce arancione dal fondo (`Glow`,
+senza ombre); tutto nel prefab `StairsDown`, con l'origine al centro della cella. Sul
+muro alto oltre la scala il builder appende `ExitBanner`, uno stendardo rosso: l'unico
+colore acceso del livello. **Evidenziazione al passaggio del mouse:** `PlayerController`
+a ogni frame guarda cosa c'è sotto il cursore con lo stesso raggio del click e annuncia
+`HoveredChanged`; spento il controller (morte, cambio di livello) niente resta acceso.
+`InteractableHighlight` passa scala e balaustre a `M_DungeonHighlight` (emissione ambra
+a colore pieno: con la texture come mappa l'ambra si mescolava al blu della pietra) e
+raddoppia il bagliore; lo stendardo resta rosso. `InteractableLabel` nell'HUD mostra in
+alto "Scendi al livello 2", con il numero preso dal nome della scena. `ClickArea` alta
+quanto le balaustre. **Trappola:** in batch il primo fotogramma con un materiale
+emissivo esce magenta, perché lo shader si compila al primo uso; ci ho perso tempo
+cercando la causa nella luce ambiente. Test: 18 EditMode e 53 PlayMode verdi
+(`ExitHoverTests`: il cursore accende scala ed etichetta e spostandolo si spengono;
+morendo con il cursore sulla scala si spegne tutto; `LevelDataTests` controlla che ogni
+uscita abbia etichetta ed evidenziazione).
+
 ---
 
 ## Passo 3.6 — Buio e luci

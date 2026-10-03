@@ -25,10 +25,6 @@ namespace DarkDescent.Editor
         private const char StairsDownSymbol = '>';
         private const char TorchSymbol = 'T';
 
-        // la cima della scala sta appena sopra il pavimento (0,05 m), il resto scende nel buio
-        private const float StairsHeight = 5.1f;
-        private const float FloorTop = 0.05f;
-
         private const float WallHalfThickness = 0.5f;
         private const float TorchHeight = 2.2f;
 
@@ -37,6 +33,10 @@ namespace DarkDescent.Editor
         // fermandosi lì. Il punto d'arrivo del click sta appena dentro il NavMesh.
         private const float ExitTriggerReach = 1.5f;
         private const float ApproachDistance = 2.8f;
+
+        // l'area del click va da appena sotto il pavimento alla cima delle balaustre
+        private const float ClickAreaBottom = -0.15f;
+        private const float ClickAreaTop = 1.15f;
 
         [MenuItem("DarkDescent/Ricostruisci i livelli dalle mappe")]
         public static void BuildAllFromMenu()
@@ -202,25 +202,35 @@ namespace DarkDescent.Editor
         // la parte sotto il pavimento finisce dietro il muro alto invece di spuntare nel vuoto
         private static readonly MapDirection[] StairsEntryOrder = { MapDirection.South, MapDirection.West, MapDirection.East, MapDirection.North };
 
-        // La scala sale verso +Z del modello: la cima va verso il pavimento da cui si arriva, e tutto
-        // il resto scende sotto il livello del pavimento.
+        // Il prefab della scala ha l'origine al centro della cella, all'altezza del pavimento, e il +Z
+        // verso il pavimento da cui si arriva: lì c'è la cima, il resto scende sotto il livello del
+        // pavimento. Balaustre, pilastrini e bagliore sono già nel prefab.
         private static void PlaceStairsDown(LevelMap map, LevelTileset tileset, Transform level, MapMarker marker)
         {
             Vector3 toEntry = Vector3.back;
             foreach (var side in StairsEntryOrder)
             {
                 Vector3 dir = LevelMap.ToWorld(side);
-                if (map.IsFloor(marker.X + Mathf.RoundToInt(dir.x), marker.Y - Mathf.RoundToInt(dir.z)))
+                if (IsFloorToward(map, marker, dir))
                 {
                     toEntry = dir;
                     break;
                 }
             }
 
-            Vector3 position = LevelMap.CellCenter(marker.X, marker.Y) - toEntry * (LevelMap.CellSize * 0.5f);
-            position.y = FloorTop - StairsHeight;
-            var stairs = Place(tileset.StairsDown, level, position, Quaternion.LookRotation(toEntry));
+            Vector3 cellCenter = LevelMap.CellCenter(marker.X, marker.Y);
+            var stairs = Place(tileset.StairsDown, level, cellCenter, Quaternion.LookRotation(toEntry));
             stairs.name = "StairsDown";
+
+            // lo stendardo va sul muro alto oltre la scala, a nord o a est: sui muri bassi non c'è
+            // dove appenderlo, e la scala resta senza
+            Vector3 far = -toEntry;
+            bool highWall = far == LevelMap.ToWorld(MapDirection.North) || far == LevelMap.ToWorld(MapDirection.East);
+            if (highWall && !IsFloorToward(map, marker, far))
+            {
+                Vector3 wallFace = cellCenter + far * (LevelMap.CellSize * 0.5f - WallHalfThickness);
+                Place(tileset.ExitBanner, level, wallFace, Quaternion.LookRotation(toEntry)).name = "ExitBanner";
+            }
 
             var exitInfo = map.GetDirective("exit");
             if (exitInfo.Count < 2)
@@ -229,11 +239,50 @@ namespace DarkDescent.Editor
                 return;
             }
 
-            CreateExit(level, LevelMap.CellCenter(marker.X, marker.Y), toEntry, exitInfo[0], exitInfo[1]);
+            var exit = CreateExit(level, cellCenter, toEntry, exitInfo[0], exitInfo[1]);
+            AddHighlight(exit, tileset, stairs);
+        }
+
+        private static bool IsFloorToward(LevelMap map, MapMarker marker, Vector3 dir)
+        {
+            return map.IsFloor(marker.X + Mathf.RoundToInt(dir.x), marker.Y - Mathf.RoundToInt(dir.z));
+        }
+
+        // "Level_02" diventa "Scendi al livello 2": il numero è quello in fondo al nome della scena
+        private static string ExitLabel(string targetScene)
+        {
+            int start = targetScene.Length;
+            while (start > 0 && char.IsDigit(targetScene[start - 1]))
+            {
+                start--;
+            }
+
+            return start < targetScene.Length
+                ? $"Scendi al livello {int.Parse(targetScene.Substring(start))}"
+                : "Scendi";
+        }
+
+        // Sotto il cursore si accendono la scala e le balaustre, e il bagliore si alza. Lo stendardo
+        // resta com'è: acceso d'ambra perderebbe il rosso che lo fa riconoscere da lontano.
+        private static void AddHighlight(GameObject exit, LevelTileset tileset, GameObject stairs)
+        {
+            var renderers = stairs.GetComponentsInChildren<Renderer>();
+            var highlight = exit.AddComponent<InteractableHighlight>();
+            var so = new SerializedObject(highlight);
+            var list = so.FindProperty("_renderers");
+            list.arraySize = renderers.Length;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                list.GetArrayElementAtIndex(i).objectReferenceValue = renderers[i];
+            }
+
+            so.FindProperty("_highlightMaterial").objectReferenceValue = tileset.HighlightMaterial;
+            so.FindProperty("_light").objectReferenceValue = stairs.GetComponentInChildren<Light>();
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         // L'uscita guarda verso la cella da cui si arriva (+Z locale = verso l'ingresso della scala).
-        private static void CreateExit(Transform level, Vector3 cellCenter, Vector3 toEntry, string targetScene, string targetEntrance)
+        private static GameObject CreateExit(Transform level, Vector3 cellCenter, Vector3 toEntry, string targetScene, string targetEntrance)
         {
             var go = new GameObject("Exit");
             go.transform.SetParent(level, false);
@@ -250,13 +299,14 @@ namespace DarkDescent.Editor
             SetString(exit, "_targetScene", targetScene);
             SetString(exit, "_targetEntrance", targetEntrance);
 
-            // il collider del click è separato dal trigger: il raggio del click ignora i trigger
+            // il collider del click è separato dal trigger: il raggio del click ignora i trigger.
+            // Alto quanto le balaustre, così il cursore prende la scala anche passando sopra di loro.
             var click = new GameObject("ClickArea");
             click.layer = LayerMask.NameToLayer("Interactable");
             click.transform.SetParent(go.transform, false);
             var clickBox = click.AddComponent<BoxCollider>();
-            clickBox.center = new Vector3(0f, -0.05f, 0f);
-            clickBox.size = new Vector3(LevelMap.CellSize, 0.2f, LevelMap.CellSize);
+            clickBox.center = new Vector3(0f, (ClickAreaTop + ClickAreaBottom) * 0.5f, 0f);
+            clickBox.size = new Vector3(LevelMap.CellSize, ClickAreaTop - ClickAreaBottom, LevelMap.CellSize);
 
             var approach = new GameObject("ApproachPoint").transform;
             approach.SetParent(go.transform, false);
@@ -264,9 +314,11 @@ namespace DarkDescent.Editor
             var interactable = go.AddComponent<Interactable>();
             var so = new SerializedObject(interactable);
             so.FindProperty("_approachPoint").objectReferenceValue = approach;
+            so.FindProperty("_label").stringValue = ExitLabel(targetScene);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             Debug.Assert(ApproachDistance > half && ApproachDistance < half + ExitTriggerReach, "il punto d'arrivo deve stare nel trigger");
+            return go;
         }
 
         // La torcia va sul muro alto della sua cella, a nord o a est: sui muri bassi non c'è dove appenderla.

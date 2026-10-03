@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DarkDescent.Combat;
 using DarkDescent.Levels;
+using DarkDescent.Player;
 using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -25,6 +26,8 @@ namespace DarkDescent.Core
 
         [SerializeField] private DamageNumbers _damageNumbers;
 
+        [SerializeField] private InteractableLabel _interactableLabel;
+
         [SerializeField] private HitStop _hitStop;
 
         [SerializeField] private CinemachineCamera _playerCamera;
@@ -42,6 +45,7 @@ namespace DarkDescent.Core
             _healthOrb.Bind(_player);
             _deathScreen.Bind(_player);
             _damageNumbers.Track(_player, isPlayer: true);
+            _interactableLabel.Bind(_player.GetComponent<PlayerController>());
         }
 
         private void OnEnable()

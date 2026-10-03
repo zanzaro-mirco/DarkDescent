@@ -17,6 +17,8 @@ MonoBehaviour:
   _lowWall: {fileID: 4631418959423265132, guid: 881427301ec7ca542a57f8b942f8b404, type: 3}
   _wallTorch: {fileID: 7056847793620555119, guid: 6e970fac7631258408fbe395a40143b7, type: 3}
   _stairsDown: {fileID: 2354004079276962870, guid: 5aa31967817d4a04b94de8242e7c8403, type: 3}
+  _exitBanner: {fileID: 7684724433698735442, guid: 64c4626053a6e8345b294f0729766217, type: 3}
+  _highlightMaterial: {fileID: 2100000, guid: 4b16f4eed1b106d4aad33a68e8cce2d4, type: 2}
   _markers:
   - _symbol: 83
     _prefab: {fileID: 544816584095552241, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
