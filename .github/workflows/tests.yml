@@ -21,7 +21,8 @@ permissions:
 jobs:
   tests:
     name: Test EditMode e PlayMode
-    runs-on: ubuntu-latest
+    # Fissato come le action (D1): ubuntu-latest passa a Ubuntu 26 dal 19 ott 2026.
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       # Checkout senza LFS: con lfs: true gli oggetti verrebbero riscaricati a ogni run,
