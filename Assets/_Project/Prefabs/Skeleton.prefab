@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6381474352372389961}
   - component: {fileID: 3025011650240641013}
   - component: {fileID: 8883921936609676798}
+  - component: {fileID: 5267768890862529430}
   m_Layer: 8
   m_Name: Skeleton
   m_TagString: Untagged
@@ -47,7 +48,7 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 544816584095552241}
-  m_Enabled: 1
+  m_Enabled: 0
   m_AgentTypeID: 0
   m_Radius: 0.45
   m_Speed: 3
@@ -259,12 +260,24 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 1318c0efd9832de468643a0f08534573, type: 3}
   - {fileID: 8300000, guid: 4aedf0e05aefc6144af3668d7cf34c13, type: 3}
   _hitClips:
-  - {fileID: 8300000, guid: d154776ed00fad941aa07362615af206, type: 3}
-  - {fileID: 8300000, guid: b6220159b7e1adc4a97746b4953de163, type: 3}
-  - {fileID: 8300000, guid: 62157d9709e75b744affa137f695761e, type: 3}
+  - {fileID: 8300000, guid: 00ba7b11727b70b4ba8ede57f9b99a5c, type: 3}
+  - {fileID: 8300000, guid: 9c445788a0946ce41904ea5a539cde4e, type: 3}
+  - {fileID: 8300000, guid: c8707ec5c8934304d99921e26407d95d, type: 3}
   _deathClips:
-  - {fileID: 8300000, guid: f443828afe8dce34eaec00ea7062ceab, type: 3}
+  - {fileID: 8300000, guid: a77c9d43b49eeab46b96d6ac4e131c67, type: 3}
   _pitchVariation: 0.06
+--- !u!114 &5267768890862529430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f37f0dfb1782df644a8db23d106c9ef1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Characters.AgentActivator
 --- !u!1001 &8531279894515779573
 PrefabInstance:
   m_ObjectHideFlags: 0

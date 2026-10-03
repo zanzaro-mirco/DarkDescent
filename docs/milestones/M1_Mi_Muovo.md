@@ -297,8 +297,10 @@ senza scivolare.
 12. **`Failed to create agent because there is no valid NavMesh`** nel log della
     build, non in editor. L'agent nativo prova ad agganciarsi un istante prima che
     `NavMeshSurface` carichi i dati, poi ci riesce da solo: al primo frame utile è
-    già sul NavMesh. Innocuo qui; alla M6, con il bake a runtime, l'agent del player
-    va attivato solo dopo il bake, e lì sparisce anche questo messaggio.
+    già sul NavMesh. Innocuo qui. **Risolto il 3 ottobre 2026, dopo la M2:** l'agent
+    parte spento nei prefab e lo accende `AgentActivator` in `Start`, che arriva dopo
+    tutti gli `OnEnable` della scena, compreso quello di `NavMeshSurface`. Alla M6,
+    con il bake a runtime, l'attivazione andrà spostata a dopo il bake.
 
 **Strumenti di diagnosi da usare fin da subito:** `Debug.DrawRay` (disegna il
 raggio nella Scene view), `Debug.DrawLine`, `OnDrawGizmosSelected` per

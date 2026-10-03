@@ -380,10 +380,12 @@ anche se un test lo aveva lasciato a 0,3); il corpo dello scheletro resta e poi 
   sul player. Il composition root fa il `Track` di player e nemici.
 - **Suoni** (`CharacterAudio`, sulla radice): fendente su `SwingStarted`, impatto su
   `Damaged`, morte su `Died`, con una clip a caso tra le varianti e l'intonazione
-  variata di ±6%. Ogni personaggio ha i suoi: armatura per il cavaliere, legno
-  per le ossa dello scheletro. Audio 2D per ora: con la camera a 20 m
-  l'attenuazione 3D renderebbe tutto quasi muto. Kenney RPG Audio e Impact
-  Sounds (CC0): nel repo solo le 10 clip usate.
+  variata di ±6%. Ogni personaggio ha i suoi. Audio 2D per ora: con la camera a 20 m
+  l'attenuazione 3D renderebbe tutto quasi muto (audio posizionale alla M3). Kenney
+  RPG Audio e Impact Sounds (CC0): nel repo solo le clip usate. **Dopo la chiusura,
+  3 ott 2026:** i primi impatti (legno per lo scheletro, armatura per il cavaliere)
+  suonavano troppo legnosi e metallici; sostituiti con `impactPunch` (medio per lo
+  scheletro, pesante per il cavaliere) e, per le morti, con `impactSoft_heavy`.
 
 **Test:** `GameFeelTests` — due hit stop ravvicinati non si sommano e ripristinano
 la scala di prima (0,5, non 1 e non 0); il colpo del player ferma il tempo, fa
