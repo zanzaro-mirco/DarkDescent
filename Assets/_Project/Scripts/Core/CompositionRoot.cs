@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using DarkDescent.Combat;
 using DarkDescent.Levels;
 using DarkDescent.UI;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -25,6 +26,8 @@ namespace DarkDescent.Core
         [SerializeField] private DamageNumbers _damageNumbers;
 
         [SerializeField] private HitStop _hitStop;
+
+        [SerializeField] private CinemachineCamera _playerCamera;
 
         private MeleeAttack _playerAttack;
 
@@ -59,6 +62,11 @@ namespace DarkDescent.Core
 
         private void BindLevel(LevelContext level)
         {
+            // il player è stato spostato sull'ingresso: senza questo la camera ci arriverebbe con lo
+            // smorzamento, attraversando la mappa (trappola 3). Invalidato lo stato, al prossimo
+            // LateUpdate si posiziona direttamente sul bersaglio.
+            _playerCamera.PreviousStateIsValid = false;
+
             foreach (var enemy in level.Enemies)
             {
                 // un nemico può essere già morto e sparito se il livello era aperto da prima

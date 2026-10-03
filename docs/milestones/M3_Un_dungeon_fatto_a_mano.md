@@ -148,6 +148,19 @@ senza avvisi nel log.
 **Verifica:** a occhio in Play Mode, niente tremolii. **Test:** dopo un `Warp` del
 cavaliere la camera è già su di lui al frame successivo, senza attraversare la mappa.
 
+**Com'è andata (3 ott 2026).** `CinemachineBrain` sulla `Main Camera` e una
+`PlayerCamera` con la rotazione della camera di prima, lente ortografica `Size` 9,
+*Position Composer* (distanza 20, smorzamento 0,3 s, zona morta 6% × 8% dello
+schermo) e *Impulse Listener*. Sul player una `CinemachineImpulseSource` (uniforme,
+forma *Bump*, 0,2 s) e `DamageCameraShake`: la scossa scala con il danno ed è piena
+al 20% della vita, quindi i colpi dello scheletro (5 su 100) danno una scossa leggera,
+la morte una forte (1,5). Dopo un cambio di livello il `CompositionRoot` invalida lo
+stato della camera (`PreviousStateIsValid = false`) invece di chiamare
+`OnTargetObjectWarped`: con lo schermo che sfuma conviene il riposizionamento netto.
+`CameraFollow` cancellato. Test: 11 EditMode e 43 PlayMode verdi (`CameraTests`:
+camera al centro dopo il cambio di livello, cavaliere dentro la zona morta, scossa
+sui colpi).
+
 ---
 
 ## Passo 3.3 — Audio posizionale
