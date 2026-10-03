@@ -120,6 +120,18 @@ Level_01 / Level_02 / Sandbox_Combat (additive, una alla volta)
 **Verifica:** test verdi in locale e in CI; in Play Mode, da `Core`, la sandbox si
 gioca come alla M2.
 
+**Com'è andata (3 ott 2026).** `Core` creata da uno script di editor usa e getta che
+ci ha spostato `CompositionRoot`, `EventSystem`, `HitStop`, HUD, camera e player, e
+ha aggiunto il `LevelManager`. Nella sandbox restano pavimento (ora 100×100 m, NavMesh
+ricotto), ostacoli, luce e scheletri, più un oggetto `Level` con `LevelContext` e
+l'ingresso `Start`. Dal prefab del player è sparito `AgentActivator`: l'agent lo
+accende il `LevelManager` dopo averlo messo sull'ingresso. `DamageNumbers.Untrack` usa
+`ReferenceEquals` perché uno scheletro già distrutto va tolto lo stesso dal dizionario.
+Test: 11 EditMode e 40 PlayMode verdi (i 36 di prima più `LevelLoadingTests`). Una
+trappola nuova nei test: `WaitForLevel` deve aspettare un frame prima di controllare,
+altrimenti trova il `LevelManager` della scena precedente, già pronto. Build locale
+senza avvisi nel log.
+
 ---
 
 ## Passo 3.2 — Camera con Cinemachine

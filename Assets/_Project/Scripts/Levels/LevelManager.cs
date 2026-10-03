@@ -1,0 +1,160 @@
+using System;
+using System.Collections;
+using DarkDescent.Combat;
+using DarkDescent.Player;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.SceneManagement;
+
+namespace DarkDescent.Levels
+{
+    /// <summary>
+    /// Carica i livelli sopra Core in modo additivo, uno alla volta, e ci porta il player (D1 della
+    /// scheda M3). Player, camera e HUD stanno in Core e sopravvivono al cambio senza DontDestroyOnLoad.
+    /// </summary>
+    [DisallowMultipleComponent]
+    public class LevelManager : MonoBehaviour
+    {
+        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto.")]
+        [SerializeField] private string _firstLevel = "Sandbox_Combat";
+
+        [SerializeField] private string _firstEntrance = "Start";
+
+        [SerializeField] private PlayerController _player;
+
+        private NavMeshAgent _playerAgent;
+        private MeleeAttack _playerAttack;
+        private Health _playerHealth;
+        private Scene _currentScene;
+
+        /// <summary>Livello pronto, player già sull'ingresso: è il momento di collegare i nemici.</summary>
+        public event Action<LevelContext> LevelLoaded;
+
+        /// <summary>Il livello sta per essere scaricato: è l'ultimo momento per staccarsi dai suoi oggetti.</summary>
+        public event Action<LevelContext> LevelUnloading;
+
+        public LevelContext CurrentLevel { get; private set; }
+
+        public bool IsTransitioning { get; private set; }
+
+        private void Awake()
+        {
+            _playerAgent = _player.GetComponent<NavMeshAgent>();
+            _playerAttack = _player.GetComponent<MeleeAttack>();
+            _playerHealth = _player.GetComponent<Health>();
+        }
+
+        private void Start()
+        {
+            // Nell'editor si può premere Play con Core e un livello aperti insieme, e i test caricano
+            // Core e la sandbox nello stesso frame: si usa il livello già caricato invece di caricarne
+            // una seconda copia (trappola 6).
+            if (TryFindLoadedLevel(out LevelContext loaded))
+            {
+                Enter(loaded, _firstEntrance);
+                return;
+            }
+
+            LoadLevel(_firstLevel, _firstEntrance);
+        }
+
+        public void LoadLevel(string sceneName, string entranceId)
+        {
+            if (IsTransitioning)
+            {
+                return;
+            }
+
+            StartCoroutine(Transition(sceneName, entranceId));
+        }
+
+        private IEnumerator Transition(string sceneName, string entranceId)
+        {
+            IsTransitioning = true;
+
+            // niente click durante il cambio, e nessun riferimento a oggetti che stanno per sparire
+            // (trappola 5): il bersaglio del player è nel livello vecchio
+            _player.enabled = false;
+            _playerAttack.ClearTarget();
+
+            // un agent sopra un NavMesh che viene scaricato resta senza appoggio: lo si spegne prima
+            _playerAgent.enabled = false;
+
+            if (CurrentLevel != null)
+            {
+                LevelUnloading?.Invoke(CurrentLevel);
+                CurrentLevel = null;
+                yield return SceneManager.UnloadSceneAsync(_currentScene);
+            }
+
+            yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+
+            if (!TryGetContext(SceneManager.GetSceneByName(sceneName), out LevelContext context))
+            {
+                Debug.LogError($"La scena {sceneName} non ha un LevelContext alla radice.", this);
+                IsTransitioning = false;
+                yield break;
+            }
+
+            Enter(context, entranceId);
+        }
+
+        private void Enter(LevelContext context, string entranceId)
+        {
+            _currentScene = context.gameObject.scene;
+
+            // luci, ambiente e nebbia vengono dalla scena attiva, e lì finiscono gli Instantiate (trappola 1)
+            SceneManager.SetActiveScene(_currentScene);
+            CurrentLevel = context;
+
+            // Spento, spostato, riacceso: riaccendendosi l'agent si aggancia al NavMesh del livello. Con
+            // l'agent acceso si userebbe Warp, ma qui il NavMesh sotto il player è appena cambiato.
+            Transform entrance = context.GetEntrance(entranceId);
+            _playerAgent.enabled = false;
+            _player.transform.SetPositionAndRotation(entrance.position, entrance.rotation);
+
+            if (!_playerHealth.IsDead)
+            {
+                _playerAgent.enabled = true;
+                _player.enabled = true;
+            }
+
+            IsTransitioning = false;
+            LevelLoaded?.Invoke(context);
+        }
+
+        private bool TryFindLoadedLevel(out LevelContext context)
+        {
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                Scene scene = SceneManager.GetSceneAt(i);
+                if (scene != gameObject.scene && scene.isLoaded && TryGetContext(scene, out context))
+                {
+                    return true;
+                }
+            }
+
+            context = null;
+            return false;
+        }
+
+        private static bool TryGetContext(Scene scene, out LevelContext context)
+        {
+            context = null;
+            if (!scene.IsValid() || !scene.isLoaded)
+            {
+                return false;
+            }
+
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (root.TryGetComponent(out context))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+}

@@ -41,6 +41,8 @@ namespace DarkDescent.UI
 
         public int ActiveCount => _active.Count;
 
+        public int TrackedCount => _handlers.Count;
+
         private void Awake()
         {
             _container = (RectTransform)transform;
@@ -79,6 +81,26 @@ namespace DarkDescent.UI
             {
                 health.Damaged += handler;
             }
+        }
+
+        /// <summary>
+        /// Smette di seguire una vita, per esempio quando il suo livello viene scaricato.
+        /// </summary>
+        public void Untrack(Health health)
+        {
+            // ReferenceEquals e non ==: una Health distrutta è "null" per Unity, ma resta una chiave
+            // valida del dizionario e va tolta lo stesso
+            if (ReferenceEquals(health, null) || !_handlers.TryGetValue(health, out var handler))
+            {
+                return;
+            }
+
+            if (_subscribed)
+            {
+                health.Damaged -= handler;
+            }
+
+            _handlers.Remove(health);
         }
 
         private void OnEnable()

@@ -69,6 +69,7 @@ namespace DarkDescent.Tests
             // un hit stop rimasto a metà non deve sopravvivere al riavvio (trappola 6)
             Time.timeScale = 0.3f;
 
+            var oldPlayer = Player.gameObject;
             var button = GameObject.Find("RestartButton").GetComponent<RectTransform>();
             Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, button.TransformPoint(button.rect.center));
             Move(Mouse.position, screen);
@@ -77,10 +78,16 @@ namespace DarkDescent.Tests
             Press(Mouse.leftButton);
             Release(Mouse.leftButton);
 
-            // LoadScene completa al frame successivo; due frame anche per gli Start
-            yield return null;
-            yield return null;
-            yield return null;
+            // il click arriva al bottone al frame dopo, Core si ricarica a quello dopo ancora: si
+            // aspetta che il player vecchio sparisca, poi che il LevelManager nuovo carichi il livello
+            float elapsed = 0f;
+            while (oldPlayer != null && elapsed < 5f)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            Assert.IsTrue(oldPlayer == null, "Ricomincia deve ricaricare Core");
+            yield return WaitForLevel();
 
             Assert.AreEqual(1f, Time.timeScale, "timeScale va rimesso a 1");
             var player = GameObject.Find("Player");

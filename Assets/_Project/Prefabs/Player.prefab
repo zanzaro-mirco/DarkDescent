@@ -19,7 +19,6 @@ GameObject:
   - component: {fileID: 5841524807765799164}
   - component: {fileID: 106908924181147097}
   - component: {fileID: 4352564824588143245}
-  - component: {fileID: 6598065807788601725}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -297,18 +296,6 @@ MonoBehaviour:
   _deathClips:
   - {fileID: 8300000, guid: 6bfab967a1104eb4183dd41e76027eb0, type: 3}
   _pitchVariation: 0.06
---- !u!114 &6598065807788601725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7183737884788070027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f37f0dfb1782df644a8db23d106c9ef1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: DarkDescent::DarkDescent.Characters.AgentActivator
 --- !u!1001 &2294196101016226000
 PrefabInstance:
   m_ObjectHideFlags: 0
