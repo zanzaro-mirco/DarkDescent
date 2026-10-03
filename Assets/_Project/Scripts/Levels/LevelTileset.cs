@@ -37,10 +37,15 @@ namespace DarkDescent.Levels
         [Tooltip("Post-processing del livello: tonemapping, bloom, vignetta. Volume globale nella scena del livello.")]
         [SerializeField] private VolumeProfile _postProcessing;
 
+        [Tooltip("Il prefab degli oggetti a terra: i marcatori 'i', con l'oggetto preso dalla direttiva @items.")]
+        [SerializeField] private GameObject _groundItem;
+
         [Tooltip("Gli altri marcatori: nemici e oggetti di scena, al centro della cella.")]
         [SerializeField] private MarkerPrefab[] _markers;
 
         public GameObject Floor => _floor;
+
+        public GameObject GroundItem => _groundItem;
 
         public GameObject Wall => _wall;
 

@@ -15,6 +15,12 @@ namespace DarkDescent.Player
         public event Action MoveCommandStarted;
         public event Action MoveCommandCanceled;
 
+        /// <summary>Tasto dell'inventario (I).</summary>
+        public event Action InventoryToggled;
+
+        /// <summary>Tasto del pannello del personaggio (C).</summary>
+        public event Action CharacterToggled;
+
         public bool IsMoveCommandHeld { get; private set; }
 
         public Vector2 PointerScreenPosition => _controls.Gameplay.Point.ReadValue<Vector2>();
@@ -32,6 +38,8 @@ namespace DarkDescent.Player
         {
             _controls.Gameplay.Move.performed += HandleMovePerformed;
             _controls.Gameplay.Move.canceled += HandleMoveCanceled;
+            _controls.Gameplay.ToggleInventory.performed += HandleInventoryPerformed;
+            _controls.Gameplay.ToggleCharacter.performed += HandleCharacterPerformed;
             _controls.Gameplay.Enable();
         }
 
@@ -42,6 +50,8 @@ namespace DarkDescent.Player
             _controls.Gameplay.Disable();
             _controls.Gameplay.Move.performed -= HandleMovePerformed;
             _controls.Gameplay.Move.canceled -= HandleMoveCanceled;
+            _controls.Gameplay.ToggleInventory.performed -= HandleInventoryPerformed;
+            _controls.Gameplay.ToggleCharacter.performed -= HandleCharacterPerformed;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
@@ -65,6 +75,16 @@ namespace DarkDescent.Player
         {
             IsMoveCommandHeld = false;
             MoveCommandCanceled?.Invoke();
+        }
+
+        private void HandleInventoryPerformed(InputAction.CallbackContext context)
+        {
+            InventoryToggled?.Invoke();
+        }
+
+        private void HandleCharacterPerformed(InputAction.CallbackContext context)
+        {
+            CharacterToggled?.Invoke();
         }
     }
 }

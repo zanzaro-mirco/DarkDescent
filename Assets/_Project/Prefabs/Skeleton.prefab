@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 8883921936609676798}
   - component: {fileID: 5267768890862529430}
   - component: {fileID: 38634171940131001}
+  - component: {fileID: 7770187681205802080}
   m_Layer: 8
   m_Name: Skeleton
   m_TagString: Untagged
@@ -297,6 +298,21 @@ MonoBehaviour:
   _vitality: 0
   _armor: 10
   _lifeFromVitality: 0
+--- !u!114 &7770187681205802080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ada986fbde9ee414d970cfc5947bc6fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.LootDrop
+  _item: {fileID: 11400000, guid: 02b6800f1674534418a06c4cbe658b3b, type: 2}
+  _groundItemPrefab: {fileID: 733407215090042755, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
+  _forwardOffset: 0.9
 --- !u!1001 &8531279894515779573
 PrefabInstance:
   m_ObjectHideFlags: 0

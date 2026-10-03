@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using DarkDescent.Interaction;
+using DarkDescent.Items;
 using DarkDescent.Levels;
 using Unity.AI.Navigation;
 using UnityEditor;
@@ -25,6 +26,8 @@ namespace DarkDescent.Editor
         private const char EntranceSymbol = '<';
         private const char StairsDownSymbol = '>';
         private const char TorchSymbol = 'T';
+        private const char ItemSymbol = 'i';
+        private const string ItemsFolder = "Assets/_Project/Data/Items";
 
         private const float WallHalfThickness = 0.5f;
         private const float TorchHeight = 2.2f;
@@ -171,6 +174,10 @@ namespace DarkDescent.Editor
         private static void BuildMarkers(LevelMap map, LevelTileset tileset, Transform level, Transform props, Transform torches, Transform enemies)
         {
             int enemyCount = 0;
+
+            // gli oggetti a terra prendono, in ordine di lettura della mappa, i nomi di @items
+            var itemNames = map.GetDirective("items");
+            int itemCount = 0;
             foreach (var marker in map.Markers)
             {
                 Vector3 center = LevelMap.CellCenter(marker.X, marker.Y);
@@ -192,6 +199,10 @@ namespace DarkDescent.Editor
                         break;
                     case TorchSymbol:
                         PlaceTorch(map, tileset, torches, marker);
+                        break;
+                    case ItemSymbol:
+                        PlaceGroundItem(tileset, props, center, itemCount < itemNames.Count ? itemNames[itemCount] : null);
+                        itemCount++;
                         break;
                     default:
                     {
@@ -363,6 +374,22 @@ namespace DarkDescent.Editor
 
             // il modello sporge lungo il suo +Z: verso l'interno della stanza
             Place(tileset.WallTorch, parent, position, Quaternion.LookRotation(-outward));
+        }
+
+        private static void PlaceGroundItem(LevelTileset tileset, Transform parent, Vector3 center, string itemName)
+        {
+            var definition = itemName != null ? AssetDatabase.LoadAssetAtPath<ItemDefinition>($"{ItemsFolder}/{itemName}.asset") : null;
+            if (definition == null)
+            {
+                Debug.LogError($"Oggetto a terra in {center} senza un oggetto valido in @items ('{itemName}').");
+                return;
+            }
+
+            var placed = Place(tileset.GroundItem, parent, center, Quaternion.identity);
+            placed.name = "Item_" + itemName;
+            var so = new SerializedObject(placed.GetComponent<GroundItem>());
+            so.FindProperty("_definition").objectReferenceValue = definition;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static GameObject Place(GameObject prefab, Transform parent, Vector3 position, Quaternion rotation)

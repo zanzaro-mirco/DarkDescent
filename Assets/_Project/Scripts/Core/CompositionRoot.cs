@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DarkDescent.Combat;
+using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Player;
 using DarkDescent.UI;
@@ -29,6 +30,12 @@ namespace DarkDescent.Core
 
         [SerializeField] private InteractableLabel _interactableLabel;
 
+        [SerializeField] private InventoryPanel _inventoryPanel;
+
+        [SerializeField] private CharacterPanel _characterPanel;
+
+        [SerializeField] private ItemCursor _itemCursor;
+
         [SerializeField] private HitStop _hitStop;
 
         [SerializeField] private CinemachineCamera _playerCamera;
@@ -54,6 +61,12 @@ namespace DarkDescent.Core
             _deathScreen.Bind(_player);
             _damageNumbers.Track(_player, isPlayer: true);
             _interactableLabel.Bind(_player.GetComponent<PlayerController>());
+
+            var inventory = _player.GetComponent<PlayerInventory>();
+            var reader = _player.GetComponent<PlayerInputReader>();
+            _inventoryPanel.Bind(inventory, reader);
+            _itemCursor.Bind(inventory, reader);
+            _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, reader);
         }
 
         private void OnEnable()

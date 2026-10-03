@@ -18,6 +18,7 @@ namespace DarkDescent.UI
         [SerializeField] private TMP_Text _text;
 
         private PlayerController _controller;
+        private Interactable _shown;
         private bool _subscribed;
 
         public bool IsShown => _panel.activeSelf;
@@ -71,9 +72,38 @@ namespace DarkDescent.UI
 
             _controller.HoveredChanged -= Show;
             _subscribed = false;
+            Watch(null);
         }
 
         private void Show(Interactable hovered)
+        {
+            Watch(hovered);
+            Refresh(hovered);
+        }
+
+        // l'etichetta di quello sotto il cursore può cambiare mentre è lì ("inventario pieno")
+        private void Watch(Interactable hovered)
+        {
+            // ReferenceEquals: quello di prima può essere già distrutto (un oggetto raccolto), e il
+            // -= va fatto lo stesso
+            if (ReferenceEquals(hovered, _shown))
+            {
+                return;
+            }
+
+            if (!ReferenceEquals(_shown, null))
+            {
+                _shown.LabelChanged -= Refresh;
+            }
+
+            _shown = hovered;
+            if (!ReferenceEquals(_shown, null))
+            {
+                _shown.LabelChanged += Refresh;
+            }
+        }
+
+        private void Refresh(Interactable hovered)
         {
             bool visible = hovered != null && !string.IsNullOrEmpty(hovered.Label);
             if (visible)

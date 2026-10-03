@@ -222,6 +222,24 @@ PlayMode verdi.
 nell'inventario; con l'inventario pieno resta a terra; cambiando livello gli oggetti a terra
 del livello vecchio spariscono con lui.
 
+**Com'è andata (4 ott 2026).** `InventoryGrid` (logica pura): occupazione cella per cella,
+`TryPlace`, `TryPlaceOrSwap` (scambio solo con un oggetto sotto), `TryAutoPlace` colonna per
+colonna come Diablo, `Remove`, evento `Changed`. **`GroundItem`** (prefab `GroundItem` sul
+layer `Interactable`): mostra il modello disteso, centrato sull'oggetto e appoggiato al
+pavimento (i modelli KayKit hanno il perno sull'impugnatura, e il click cadeva fuori),
+ridimensiona il collider sul modello e ha una piccola luce calda, `Glow`, che triplica al
+passaggio del mouse: con il materiale evidenziato della scala avrebbe preso la texture del
+dungeon. `Spawn` lo mette sul NavMesh, con una rotazione ricavata dal punto. **Raccolta:**
+`Interactable` ha ora `Use` e `Used`, e un'etichetta che può cambiare (`SetLabel`,
+`LabelChanged`, che `InteractableLabel` ascolta per l'oggetto sotto il cursore).
+`PlayerController` ricorda l'oggetto cliccato e lo usa quando arriva entro 1 m; ogni comando
+nuovo lo dimentica. Le scale non cambiano: le porta giù il loro trigger. Con l'inventario
+pieno l'etichetta diventa "… (inventario pieno)". **`LootDrop`** sullo scheletro: alla morte
+la lama, 0,9 m davanti al corpo. **Mappe:** il marcatore `i` con la direttiva `@items` (gli
+oggetti in ordine di lettura); `LevelTileset` porta il prefab, e il builder mette lo scudo
+nella prima stanza del livello 1. Nei test gli oggetti lasciati dallo scheletro principale
+finivano dietro il cubo della sandbox, come per la GIF della M2: si usa `Skeleton_B`.
+
 ---
 
 ## Passo 4.5 — Inventario e pannello del personaggio
@@ -236,6 +254,30 @@ del livello vecchio spariscono con lui.
 click su una cella prende l'oggetto e un altro lo posa; posato su un oggetto solo, li
 scambia; un click sul pannello non muove il cavaliere; il pannello del personaggio cambia
 quando cambia l'arma.
+
+**Com'è andata (4 ott 2026).** `Inventory` (logica pura) tiene griglia, equipaggiamento e
+oggetto sul cursore: `ClickCell` prende o posa centrando l'oggetto sulla cella e
+spostandolo dentro i bordi, `ClickSlot` equipaggia (slot giusto e requisiti) o toglie,
+`ReleaseHeld`, `TryStoreHeld`. `PlayerInventory` è il suo guscio: la griglia 10 × 4, la
+spada di partenza, i pugni, `DropHeld` ai piedi del cavaliere e `PutAwayHeld` alla
+chiusura. **Input:** azioni `ToggleInventory` (I) e `ToggleCharacter` (C); la classe
+generata va rigenerata da Unity prima di usarle, quindi un import in batch in due tempi
+(trappola della M1). **UI** costruita da uno script nell'HUD di `Core`, prima della
+schermata di morte: `InventoryPanel` a destra (titolo, slot Arma e Scudo da 2 × 3 celle,
+griglia da 56 pixel di riferimento per cella, immagini degli oggetti riusate),
+`InventoryGridView` che trasforma il punto premuto nella cella, `EquipmentSlotView`,
+`DropCatcher` (fondo trasparente a tutto schermo, acceso solo con un oggetto sul cursore:
+il click lascia l'oggetto a terra e non arriva mai al mondo), `ItemCursor` (l'oggetto
+segue il mouse, senza bersaglio dei raggi), `CharacterPanel` a sinistra con attributi,
+vita, Armatura, danno e probabilità di colpire contro l'Armatura dello scheletro, scritti
+con uno `StringBuilder` riusato. Tutto si aggiorna sugli eventi; l'unico lavoro per frame è
+l'oggetto che segue il mouse, e solo quando c'è. Le pressioni sono `OnPointerDown`, non click:
+prendere un oggetto è immediato come in Diablo. Il `CompositionRoot` collega pannelli e
+cursore. Test: 59 EditMode (`InventoryGridTests`, `InventoryTests`) e 74 PlayMode
+(`LootAndPickupTests`: drop sul NavMesh, raccolta con un click, inventario pieno, scudo del
+livello 1 che resta lì scendendo; `InventoryUITests`: I e C, prendi e posa con il mouse
+senza muovere il cavaliere, dalla griglia allo slot con il pannello che passa da 8–12 a
+10–16, click fuori che lascia a terra, chiusura che rimette a posto) verdi.
 
 ---
 
@@ -311,8 +353,8 @@ cursore esce dalla cella.
 - [x] Tre oggetti con ID stabile, nel database, con le icone
 - [x] Modelli nuovi importati, riga in `CREDITS.md`
 - [x] Equipaggiamento con arma e scudo visibili sul cavaliere
-- [ ] Drop, oggetti a terra e raccolta
-- [ ] Inventario, pannello del personaggio e tooltip
+- [x] Drop, oggetti a terra e raccolta
+- [ ] Inventario, pannello del personaggio e tooltip (manca il tooltip)
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m4`

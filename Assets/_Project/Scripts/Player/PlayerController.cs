@@ -29,6 +29,9 @@ namespace DarkDescent.Player
 
         [SerializeField, Min(1f)] private float _maxRayDistance = 100f;
 
+        [Tooltip("A che distanza, in orizzontale, dal punto d'arrivo di un oggetto cliccato lo si usa (raccogliere, aprire).")]
+        [SerializeField, Min(0.1f)] private float _useReach = 1f;
+
         [Tooltip("Ogni quanti secondi si aggiorna il comando tenendo premuto il tasto.")]
         [SerializeField, Min(0.02f)] private float _holdRepathInterval = 0.1f;
 
@@ -47,6 +50,9 @@ namespace DarkDescent.Player
         // movimento chiesto durante un colpo: parte appena il colpo è arrivato
         private bool _hasQueuedMove;
         private Vector3 _queuedMove;
+
+        // oggetto cliccato verso cui si sta andando: raggiunto, lo si usa
+        private Interactable _pendingUse;
 
         // La pressione arriva da una callback dell'Input System, dove IsPointerOverGameObject dà lo
         // stato della UI del frame prima e genera un warning (trappola 7): la si annota e la si
@@ -83,13 +89,15 @@ namespace DarkDescent.Player
             _input.MoveCommandStarted -= HandleMoveCommandStarted;
             _input.MoveCommandCanceled -= HandleMoveCommandCanceled;
 
-            // spento il controller (morte, cambio di livello) niente resta evidenziato
+            // spento il controller (morte, cambio di livello) niente resta evidenziato né da usare
             SetHovered(null);
+            _pendingUse = null;
         }
 
         private void Update()
         {
             UpdateHover();
+            UpdatePendingUse();
 
             if (_hasQueuedMove && !_attack.IsSwinging)
             {
@@ -180,6 +188,7 @@ namespace DarkDescent.Player
                 {
                     _heldTarget = target;
                     _hasQueuedMove = false;
+                    _pendingUse = null;
                     _attack.SetTarget(target);
                 }
 
@@ -194,6 +203,7 @@ namespace DarkDescent.Player
                 if (allowAttack && interactable != null)
                 {
                     RequestWalk(interactable.ApproachPoint);
+                    _pendingUse = interactable;
                 }
 
                 return;
@@ -241,8 +251,32 @@ namespace DarkDescent.Player
             HoveredChanged?.Invoke(hovered);
         }
 
+        private void UpdatePendingUse()
+        {
+            // l'oggetto può sparire nel frattempo: raccolto, o con il suo livello
+            if (_pendingUse == null)
+            {
+                _pendingUse = null;
+                return;
+            }
+
+            Vector3 offset = _pendingUse.ApproachPoint - transform.position;
+            offset.y = 0f;
+            if (offset.sqrMagnitude > _useReach * _useReach)
+            {
+                return;
+            }
+
+            Interactable target = _pendingUse;
+            _pendingUse = null;
+            target.Use(gameObject);
+        }
+
         private void RequestWalk(Vector3 point)
         {
+            // un comando nuovo dimentica l'oggetto che si stava andando a usare
+            _pendingUse = null;
+
             // il colpo partito si finisce: il movimento resta in coda e parte subito dopo
             if (_attack.IsSwinging)
             {

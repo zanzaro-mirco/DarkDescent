@@ -433,6 +433,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   _maxRayDistance: 100
+  _useReach: 1
   _holdRepathInterval: 0.1
   _camera: {fileID: 0}
 --- !u!114 &7590239097679901996
@@ -691,8 +692,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59d62d5284b374b4ab7f6114e1030ae1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.PlayerInventory
+  _gridSize: {x: 10, y: 4}
   _startingWeapon: {fileID: 11400000, guid: edb5aa48207955b4ba8f40a78873892f, type: 2}
   _unarmed: {fileID: 11400000, guid: 4dba6ef1102b3e448b62876c452e8951, type: 2}
+  _groundItemPrefab: {fileID: 733407215090042755, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
 --- !u!114 &954267181143827798
 MonoBehaviour:
   m_ObjectHideFlags: 0

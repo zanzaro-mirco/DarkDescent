@@ -113,6 +113,26 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": true,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleInventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""b569d7e1-d00e-41f1-a9e4-c0518afa5dd5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleCharacter"",
+                    ""type"": ""Button"",
+                    ""id"": ""82050055-2dbd-4712-bf5f-2968696e5612"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -137,6 +157,28 @@ namespace DarkDescent.Input
                     ""action"": ""Point"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""75bfed11-dab7-474d-9e87-4a4616155270"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3d16be8a-5177-42df-8fb8-24129479e26f"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCharacter"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -147,6 +189,8 @@ namespace DarkDescent.Input
             m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
             m_Gameplay_Move = m_Gameplay.FindAction("Move", throwIfNotFound: true);
             m_Gameplay_Point = m_Gameplay.FindAction("Point", throwIfNotFound: true);
+            m_Gameplay_ToggleInventory = m_Gameplay.FindAction("ToggleInventory", throwIfNotFound: true);
+            m_Gameplay_ToggleCharacter = m_Gameplay.FindAction("ToggleCharacter", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -229,6 +273,8 @@ namespace DarkDescent.Input
         private List<IGameplayActions> m_GameplayActionsCallbackInterfaces = new List<IGameplayActions>();
         private readonly InputAction m_Gameplay_Move;
         private readonly InputAction m_Gameplay_Point;
+        private readonly InputAction m_Gameplay_ToggleInventory;
+        private readonly InputAction m_Gameplay_ToggleCharacter;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -248,6 +294,14 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/Point".
             /// </summary>
             public InputAction @Point => m_Wrapper.m_Gameplay_Point;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/ToggleInventory".
+            /// </summary>
+            public InputAction @ToggleInventory => m_Wrapper.m_Gameplay_ToggleInventory;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/ToggleCharacter".
+            /// </summary>
+            public InputAction @ToggleCharacter => m_Wrapper.m_Gameplay_ToggleCharacter;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -280,6 +334,12 @@ namespace DarkDescent.Input
                 @Point.started += instance.OnPoint;
                 @Point.performed += instance.OnPoint;
                 @Point.canceled += instance.OnPoint;
+                @ToggleInventory.started += instance.OnToggleInventory;
+                @ToggleInventory.performed += instance.OnToggleInventory;
+                @ToggleInventory.canceled += instance.OnToggleInventory;
+                @ToggleCharacter.started += instance.OnToggleCharacter;
+                @ToggleCharacter.performed += instance.OnToggleCharacter;
+                @ToggleCharacter.canceled += instance.OnToggleCharacter;
             }
 
             /// <summary>
@@ -297,6 +357,12 @@ namespace DarkDescent.Input
                 @Point.started -= instance.OnPoint;
                 @Point.performed -= instance.OnPoint;
                 @Point.canceled -= instance.OnPoint;
+                @ToggleInventory.started -= instance.OnToggleInventory;
+                @ToggleInventory.performed -= instance.OnToggleInventory;
+                @ToggleInventory.canceled -= instance.OnToggleInventory;
+                @ToggleCharacter.started -= instance.OnToggleCharacter;
+                @ToggleCharacter.performed -= instance.OnToggleCharacter;
+                @ToggleCharacter.canceled -= instance.OnToggleCharacter;
             }
 
             /// <summary>
@@ -351,6 +417,20 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnPoint(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleInventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleInventory(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleCharacter" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleCharacter(InputAction.CallbackContext context);
         }
     }
 }
