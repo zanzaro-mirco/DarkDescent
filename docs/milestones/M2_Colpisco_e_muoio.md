@@ -335,9 +335,11 @@ il pavimento, così non passa per caso).
   di Unity.
 - **TMP Essential Resources** importate con `-importPackage` da riga di comando.
   `AssetDatabase.ImportPackage` dentro `-executeMethod` non basta: con `-quit`
-  Unity esce prima che l'import asincrono finisca. Dentro ci sono LiberationSans
-  (SIL OFL 1.1) e la sprite EmojiOne (CC BY 4.0): non sono CC0, sono nei crediti,
-  e vanno decisi rispetto all'ADR-004.
+  Unity esce prima che l'import asincrono finisca. Dentro ci sono due asset non CC0.
+  Decisione (da riportare nell'ADR-004): la sprite EmojiOne (CC BY 4.0) è tolta,
+  perché serve solo ai tag `<sprite>` che non usiamo; il riferimento in
+  `TMP Settings` è azzerato. Il font LiberationSans (SIL OFL 1.1) resta, come
+  eccezione per i font OFL, con il testo della licenza accanto e la riga nei crediti.
 
 **Test:** `DeathAndRestartTests` — alla morte controller, input e agent spenti,
 driver in Death, un click non muove il corpo, schermata solo dopo la caduta;
@@ -395,6 +397,32 @@ al pool e vengono riusati. I suoni si verificano a orecchio.
 Tre scheletri in `Sandbox_Combat`, prefab `Skeleton` in `Prefabs/`, build, GIF
 per il README, tag `m2`. Punto di controllo del piano (§ 1.3, in settimane di
 calendario).
+
+**Com'è andata:**
+
+- Due scheletri in più: `Skeleton_B` in (-8, 0, 7) e `Skeleton_C` in (5, 0, -10),
+  oltre a `Skeleton` in (6, 0, 6). Tutti partono fuori dal raggio di aggro e girati
+  verso il centro: il cavaliere li va a cercare.
+- `SandboxFixture.LoadSandbox` spegne gli scheletri diversi da `Skeleton`, perché
+  i test su un nemico non vengano disturbati dagli altri. Con `allSkeletons: true`
+  carica la stanza della build. Un test verifica i tre scheletri: sul NavMesh,
+  fermi in Idle, fuori dal raggio.
+- `DamageNumbers` passa la camera della Canvas alla conversione da schermo a
+  Canvas: null in Overlay, la camera in Screen Space Camera. Prima i numeri
+  funzionavano solo in Overlay.
+- **GIF** (`docs/media/m2_combat.gif`, 647 KB): test PlayMode temporaneo a 20 fps
+  fissi (`Time.captureFramerate`), con la camera che scrive sempre in una
+  RenderTexture e la Canvas in *Screen Space – Camera*. Così il render include
+  l'HUD, e coordinate schermo, input e UI restano coerenti tra loro. Lo scontro
+  è con `Skeleton_B`: con lo scheletro principale il cubo in (4, 1, 3) copriva
+  la scena.
+- **Build** Windows: 0 errori, 0 warning. Avviata headless per 10 s: nel log solo i
+  quattro `Failed to create agent` della trappola 12 della M1 (player e tre scheletri).
+- **Punto di controllo:** dalla chiusura della M0 (23 settembre) alla chiusura
+  della M2 sono 1,5 settimane, contro le circa 8 della stima (M1 + M2 = 50 h a
+  6 h a settimana). Rapporto 0,19, sotto la soglia di 1,5: nessuna linea di
+  taglio. Le stime in ore sono state scritte quando il codice lo scriveva Mirco,
+  quindi da qui in avanti sovrastimano.
 
 ---
 
@@ -459,22 +487,22 @@ calendario).
 | Tipo | Cosa |
 |---|---|
 | EditMode | `HealthModel`: i cinque casi del passo 2.1 |
-| EditMode | `MeleeAttack` nella parte di temporizzazione, se estratta in una classe pura (intervallo e ritardo del colpo) |
-| PlayMode (D3) | click-to-move della M1; click su scheletro → la sua vita scende; scheletro che insegue e colpisce; morte del player → schermata di morte |
+| EditMode | `MeleeAttack` nella parte di temporizzazione, se estratta in una classe pura: non estratta, la coprono i test PlayMode |
+| PlayMode (D3) | click-to-move della M1; click su scheletro → la sua vita scende; scheletro che insegue e colpisce; morte del player → schermata di morte. A chiusura: 36 test in nove classi, più gli 11 EditMode |
 
 ---
 
 ## Checklist di chiusura
 
-- [ ] Click su uno scheletro: il cavaliere si avvicina e lo colpisce
-- [ ] Lo scheletro insegue, attacca, reagisce ai colpi e muore
-- [ ] Sfera della vita aggiornata via eventi, nessun polling
-- [ ] Morte del player → schermata → **Ricomincia** riporta tutto allo stato iniziale
-- [ ] Flash, hit stop, numeri di danno, effetti sonori
-- [ ] Prefab `Skeleton` in `Assets/_Project/Prefabs/`
-- [ ] Test EditMode verdi (e PlayMode, se D3)
-- [ ] Console pulita
+- [x] Click su uno scheletro: il cavaliere si avvicina e lo colpisce
+- [x] Lo scheletro insegue, attacca, reagisce ai colpi e muore
+- [x] Sfera della vita aggiornata via eventi, nessun polling
+- [x] Morte del player → schermata → **Ricomincia** riporta tutto allo stato iniziale
+- [x] Flash, hit stop, numeri di danno, effetti sonori
+- [x] Prefab `Skeleton` in `Assets/_Project/Prefabs/`
+- [x] Test EditMode verdi (e PlayMode, se D3)
+- [x] Console pulita
 - [ ] **Build in cui sopravvivi a tre scheletri o muori provandoci**
-- [ ] `CREDITS.md` aggiornato
-- [ ] GIF per il README
+- [x] `CREDITS.md` aggiornato
+- [x] GIF per il README
 - [ ] Commit, push e tag `m2`

@@ -33,7 +33,8 @@ namespace DarkDescent.UI
         }
 
         /// <summary>Avanza il numero; false quando ha finito e va restituito al pool.</summary>
-        public bool Tick(float deltaTime, float lifetime, float rise, Camera camera, RectTransform container)
+        /// <param name="uiCamera">La camera della Canvas: null in Screen Space Overlay.</param>
+        public bool Tick(float deltaTime, float lifetime, float rise, Camera camera, RectTransform container, Camera uiCamera)
         {
             _age += deltaTime;
             float t = _age / lifetime;
@@ -44,7 +45,7 @@ namespace DarkDescent.UI
 
             Vector3 world = _worldPosition + Vector3.up * (rise * t);
             Vector2 screen = camera.WorldToScreenPoint(world);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(container, screen, null, out Vector2 local);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(container, screen, uiCamera, out Vector2 local);
             _rect.anchoredPosition = local;
 
             // pieno per metà vita, poi sfuma

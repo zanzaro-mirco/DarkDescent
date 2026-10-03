@@ -1,4 +1,5 @@
 using System.Collections;
+using DarkDescent.Enemies;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
@@ -18,12 +19,26 @@ namespace DarkDescent.Tests
         protected Transform Player { get; private set; }
         protected NavMeshAgent PlayerAgent { get; private set; }
 
-        protected IEnumerator LoadSandbox()
+        /// <param name="allSkeletons">
+        /// Falso (default): resta attivo solo lo scheletro "Skeleton", così i test su un nemico non
+        /// vengono disturbati dagli altri. Vero: la stanza com'è nella build.
+        /// </param>
+        protected IEnumerator LoadSandbox(bool allSkeletons = false)
         {
             Mouse = InputSystem.AddDevice<Mouse>();
             SceneManager.LoadScene("Sandbox_Combat");
             // due frame: uno per il caricamento, uno perché Start (snap della camera) sia passato
             yield return null;
+            if (!allSkeletons)
+            {
+                foreach (var enemy in Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None))
+                {
+                    if (enemy.name != "Skeleton")
+                    {
+                        enemy.gameObject.SetActive(false);
+                    }
+                }
+            }
             yield return null;
             Camera = Camera.main;
             Player = GameObject.Find("Player").transform;

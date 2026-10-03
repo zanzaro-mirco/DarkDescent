@@ -3,15 +3,24 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Click-to-move con NavMesh e camera isometrica](docs/media/m1_click_to_move.gif)
+![Combattimento: il cavaliere attacca uno scheletro, con lampo, numeri di danno e sfera della vita](docs/media/m2_combat.gif)
 
 ## Stato
 
-**M1 — "Mi muovo"** chiusa il 1 ottobre 2026 (tag `m1`): una stanza di prova in cui
-clicchi sul pavimento e il cavaliere ci corre aggirando gli ostacoli, con la camera
-isometrica che lo segue. Prossima: **M2 — "Colpisco e muoio"**, il primo gameplay loop.
+**M2 — "Colpisco e muoio"** chiusa il 3 ottobre 2026 (tag `m2`): il primo gameplay
+loop. Nella stanza di prova ci sono tre scheletri. Clicchi su uno scheletro e il
+cavaliere si avvicina e lo colpisce; lo scheletro, quando ti vede, ti insegue e
+risponde. La sfera rossa mostra la tua vita, e dalla schermata di morte ricominci.
+Colpi con lampo bianco, hit stop, numeri di danno ed effetti sonori.
+Prossima: **M2.5 — Pipeline automatica** (test e build in CI).
 
-**Comandi:** click sinistro per muoversi; tenendo premuto, il personaggio segue il cursore.
+Milestone precedenti: **M1 — "Mi muovo"** (tag `m1`), click-to-move con NavMesh e
+camera isometrica ([GIF](docs/media/m1_click_to_move.gif)).
+
+**Comandi:**
+
+- click sinistro sul pavimento per muoversi; tenendo premuto, il personaggio segue il cursore
+- click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo
 
 ## Documenti
 

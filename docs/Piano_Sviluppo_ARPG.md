@@ -14,10 +14,11 @@
 | v2.3 | 30 set 2026 | Rimosso il metodo "io spiego, tu scrivi": Claude scrive il codice di gameplay. Allineati § 8, intestazione e appendice; `CLAUDE.md` aggiornato nel repo |
 | v2.4 | 30 set 2026 | Rimossi il devlog e le parti didattiche (esercizi, letture, esperimenti): ore reali solo nella tabella del § 5; § 6 e § 8 allineati, `CLAUDE.md` e scheda M1 aggiornati |
 | v2.5 | 1 ott 2026 | Piano spostato nel repo, `docs/Piano_Sviluppo_ARPG.md`, quindi versionato · tolte le ore reali (colonna, rituale) e la retrospettiva · punti di controllo misurati in settimane di calendario · M1 chiusa, scheda M2 scritta |
+| v2.6 | 3 ott 2026 | M2 chiusa, con le lezioni · punto di controllo di M2 superato (rapporto 0,19, nessun taglio) · ADR-004: eccezione per il font OFL di TextMesh Pro, EmojiOne tolta |
 
 ---
 
-## Stato del progetto — aggiornato al 1 ottobre 2026
+## Stato del progetto — aggiornato al 3 ottobre 2026
 
 | | |
 |---|---|
@@ -26,11 +27,11 @@
 | **Cartella locale** | `game_projects/DarkDescent` |
 | **Engine** | Unity 6.3 LTS — **6000.3.24f1**, bloccata per tutto il progetto (ADR-001) |
 | **Render pipeline** | URP 17.3.0 |
-| **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 |
-| **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) |
-| **Milestone corrente** | **M2 — "Colpisco e muoio"** → `docs/milestones/M2_Colpisco_e_muoio.md` |
-| **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4). Personaggio e animazioni da KayKit (Adventurers + Character Animations, rig `Rig_Medium`). Voce in `DECISIONS.md` da scrivere |
+| **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
+| **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) |
+| **Milestone corrente** | **M2.5 — Pipeline automatica**: scheda da scrivere prima di cominciare (§ 6) |
+| **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4). Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta. Voce in `DECISIONS.md` da scrivere |
 | **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…003) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
@@ -251,6 +252,20 @@ Chiusa il 1 ottobre 2026: build Windows provata a mano, tag `m1`. Lezioni emerse
 - **NavMesh:** il bake va limitato ai layer dell'ambiente (altrimenti il player si ritaglia un buco), serve la height mesh (altrimenti si galleggia di 8 cm), e gli ostacoli vanno marcati *Not Walkable* per non creare isole sulle loro facce superiori.
 - **Il raggio del click deve fermarsi anche sugli ostacoli,** non solo sul pavimento: altrimenti un click su un cubo porta il player alle sue spalle.
 - **LFS verificato davvero** con i primi binari: nel blob c'è il pointer, su disco il file.
+
+---
+
+### M2 — "Colpisco e muoio" ✅
+
+Chiusa il 3 ottobre 2026: 11 test EditMode e 36 PlayMode verdi, build Windows senza warning. Lezioni emerse:
+
+- **Il combattimento è un componente solo, `MeleeAttack`, per player e nemici:** cambia chi sceglie il bersaglio. `SetTarget` chiede un colpo; per colpire di continuo lo si richiama. Il danno parte dopo il ritardo dell'arma, misurato campionando la traiettoria della lama nella clip, e al momento del colpo si ricontrolla tutto.
+- **Presentazione e logica in un verso solo:** driver delle animazioni, lampo, suoni e numeri si iscrivono agli eventi di `Health`, `MeleeAttack` e `HitRecovery`. Il combattimento non sa niente di come viene mostrato.
+- **L'ordine degli `Awake` tra oggetti non è garantito:** `Health` crea il suo model al primo accesso, e i componenti con `Bind` si iscrivono quando arrivano per secondi tra `Bind` e `OnEnable`.
+- **Il null "finto" di Unity non si vede attraverso un'interfaccia:** `IDamageable.IsAlive()` fa il cast a `UnityEngine.Object` prima del confronto.
+- **Quello che funziona nell'editor può sparire in build:** l'emissione non usata da nessun materiale viene tolta dallo shader, per questo il lampo scambia il materiale. E `timeScale` sopravvive al caricamento della scena.
+- **Batchmode:** Unity cancella `Temp/` all'uscita; un `RequireComponent` aggiunge componenti già al caricamento del prefab; `AssetDatabase.ImportPackage` non finisce prima di `-quit`, serve `-importPackage`; gli script di editor vedono TextMeshPro, gli asmdef del gioco no.
+- **Punto di controllo superato:** 1,5 settimane contro 8 stimate. Le stime in ore precedono la scelta di far scrivere il codice a Claude e da qui sovrastimano.
 
 ---
 

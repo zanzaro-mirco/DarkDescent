@@ -36,6 +36,7 @@ namespace DarkDescent.UI
         private readonly List<DamageNumber> _active = new List<DamageNumber>();
         private ObjectPool<DamageNumber> _pool;
         private RectTransform _container;
+        private Canvas _canvas;
         private bool _subscribed;
 
         public int ActiveCount => _active.Count;
@@ -43,6 +44,7 @@ namespace DarkDescent.UI
         private void Awake()
         {
             _container = (RectTransform)transform;
+            _canvas = GetComponentInParent<Canvas>().rootCanvas;
             if (_camera == null)
             {
                 _camera = Camera.main;
@@ -106,15 +108,21 @@ namespace DarkDescent.UI
             number.Show(owner.position + Vector3.up * _spawnHeight, amount, color);
             _active.Add(number);
             // posizionato subito, non al prossimo Update: niente numero per un frame nell'angolo
-            number.Tick(0f, _lifetime, _rise, _camera, _container);
+            number.Tick(0f, _lifetime, _rise, _camera, _container, UiCamera);
         }
+
+        // In Overlay la conversione da schermo a Canvas vuole null; in Screen Space Camera vuole la
+        // camera della Canvas. Letta ogni volta: la modalità si può cambiare a runtime.
+        private Camera UiCamera => _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera;
 
         private void Update()
         {
+            Camera uiCamera = UiCamera;
+
             // all'indietro: si può togliere dalla lista mentre la si scorre
             for (int i = _active.Count - 1; i >= 0; i--)
             {
-                if (!_active[i].Tick(Time.deltaTime, _lifetime, _rise, _camera, _container))
+                if (!_active[i].Tick(Time.deltaTime, _lifetime, _rise, _camera, _container, uiCamera))
                 {
                     _pool.Release(_active[i]);
                     _active.RemoveAt(i);

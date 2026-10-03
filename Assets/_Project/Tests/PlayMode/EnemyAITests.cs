@@ -53,6 +53,22 @@ namespace DarkDescent.Tests
             return new DamageInfo(amount, DamageType.Physical, null);
         }
 
+        [UnityTest, Description("La stanza della build ha tre scheletri, tutti sul NavMesh e fermi finché il player è lontano")]
+        public IEnumerator Sandbox_HasThreeIdleSkeletonsOnNavMesh()
+        {
+            yield return LoadSandbox(allSkeletons: true);
+            var enemies = Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+            Assert.AreEqual(3, enemies.Length);
+
+            yield return new WaitForSeconds(1f);
+            foreach (var enemy in enemies)
+            {
+                Assert.IsTrue(enemy.GetComponent<NavMeshAgent>().isOnNavMesh, $"{enemy.name} deve stare sul NavMesh");
+                Assert.AreEqual(EnemyState.Idle, enemy.State, $"{enemy.name} non deve vedere il player all'avvio");
+                Assert.Greater(FlatDistance(enemy.transform.position, Player.position), 8f, $"{enemy.name} deve partire fuori dal raggio di aggro");
+            }
+        }
+
         [UnityTest, Description("Con il player lontano lo scheletro resta fermo in Idle")]
         public IEnumerator PlayerFar_SkeletonStaysIdle()
         {
