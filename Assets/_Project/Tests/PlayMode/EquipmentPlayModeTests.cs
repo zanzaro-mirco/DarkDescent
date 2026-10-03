@@ -83,7 +83,14 @@ namespace DarkDescent.Tests
             yield return null;
             Assert.AreEqual(5f, _stats.Armor);
             Assert.IsNotNull(_visuals.OffHandModel);
-            Assert.AreEqual("handslot.l", _visuals.OffHandModel.transform.parent.name);
+            Transform hand = _visuals.OffHandModel.transform.parent;
+            Assert.AreEqual("handslot.l", hand.name);
+
+            // lo scudo sta fuori dal braccio, non tra il braccio e il corpo: il suo centro è più a
+            // sinistra della mano (la sinistra del cavaliere), di almeno 10 cm
+            Bounds shieldBounds = _visuals.OffHandModel.GetComponentInChildren<Renderer>().bounds;
+            float outward = Vector3.Dot(shieldBounds.center - hand.position, -Player.right);
+            Assert.Greater(outward, 0.1f, $"lo scudo deve coprire la mano da fuori, è a {outward:F2} m");
 
             _inventory.Equipment.Unequip(EquipSlot.Offhand);
             yield return null;

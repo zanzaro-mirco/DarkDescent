@@ -27,12 +27,20 @@ namespace DarkDescent.Items
         [Tooltip("Rotazione del modello davanti alla camera dell'icona.")]
         [SerializeField] private Vector3 _iconRotation;
 
+        [Tooltip("Posizione del modello rispetto all'osso della mano (handslot), quando è equipaggiato.")]
+        [SerializeField] private Vector3 _heldPosition;
+
+        [Tooltip("Rotazione del modello rispetto all'osso della mano, quando è equipaggiato.")]
+        [SerializeField] private Vector3 _heldRotation;
+
         public string Id => _id;
         public string DisplayName => _displayName;
         public Sprite Icon => _icon;
         public Vector2Int Size => _size;
         public GameObject Model => _model;
         public Vector3 IconRotation => _iconRotation;
+        public Vector3 HeldPosition => _heldPosition;
+        public Vector3 HeldRotation => _heldRotation;
 
         /// <summary>Lo slot in cui va equipaggiato; None per gli oggetti che non si indossano.</summary>
         public abstract EquipSlot Slot { get; }

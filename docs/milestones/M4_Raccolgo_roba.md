@@ -199,6 +199,15 @@ braccio sinistro con lo stemma verso l'esterno, senza bisogno di spostamenti. Te
 EditMode (`EquipmentTests`) e 65 PlayMode (`EquipmentPlayModeTests`: spada all'avvio,
 cambio d'arma con modello e layer, scudo con Armatura avanti e indietro, pugni) verdi.
 
+**Ritocco dopo la prova di Mirco.** Dalle foto lo scudo stava tra il braccio e il corpo,
+con la mano che gli passava davanti. `ItemDefinition` ora ha posizione e rotazione "in mano",
+applicate da `EquipmentVisuals` rispetto all'osso. Provati 0, 10, 20 e 30 cm verso
+l'esterno (l'asse +Z di `handslot.l`, che punta alla sinistra del cavaliere): a 10 cm
+spuntava ancora il braccio sul bordo, a 30 lo scudo si staccava dal corpo. Scelto 15 cm:
+di lato e dalla camera di gioco la mano non si vede più. Il test dello scudo ora controlla
+anche che il suo centro stia almeno 10 cm più in fuori della mano. 46 EditMode e 65
+PlayMode verdi.
+
 ---
 
 ## Passo 4.4 — Oggetti a terra, drop e raccolta

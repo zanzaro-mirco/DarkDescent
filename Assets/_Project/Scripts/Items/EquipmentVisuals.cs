@@ -64,7 +64,8 @@ namespace DarkDescent.Items
 
         private GameObject Replace(GameObject current, EquipSlot slot, Transform hand)
         {
-            GameObject model = _inventory.Equipment.Get(slot)?.Definition.Model;
+            ItemDefinition definition = _inventory.Equipment.Get(slot)?.Definition;
+            GameObject model = definition != null ? definition.Model : null;
 
             // stesso modello di prima: niente da rifare
             if (current != null && model != null && current.name == model.name)
@@ -85,6 +86,8 @@ namespace DarkDescent.Items
 
             var instance = Instantiate(model, hand, false);
             instance.name = model.name;
+            // ogni oggetto sa come si tiene: lo scudo, per esempio, sta fuori dal braccio e non dentro
+            instance.transform.SetLocalPositionAndRotation(definition.HeldPosition, Quaternion.Euler(definition.HeldRotation));
             if (_layerSource != null)
             {
                 foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
