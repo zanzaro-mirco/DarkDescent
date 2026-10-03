@@ -1,18 +1,18 @@
 # M3 — "Un dungeon fatto a mano"
 
-**Cosa deve succedere (Definition of Done):** in una **build scaricata da itch.io**,
+**Cosa deve succedere (Definition of Done):** in una **build prodotta dalla CI**,
 il cavaliere parte nel livello 1: stanze e corridoi di una cripta, buia, illuminata da
 torce, con un raggio di luce che il personaggio porta con sé. Si combatte con gli
 scheletri come alla M2. In fondo una scala: un click, il cavaliere la raggiunge e
 scende al livello 2, **con la vita che aveva**. I nemici si sentono prima di vederli.
-La build parte su un PC che **non è quello di Mirco**. Test verdi in CI.
+Test verdi in CI. La pubblicazione su itch.io e la prova su un altro PC sono rimandate
+alla M10 (D6).
 
 **Tempo stimato:** 9–14 h (piano v2.8). **Prerequisito:** M2.5 chiusa (tag `m2.5`).
 
 **Come si lavora:** il codice e i passaggi nell'editor li faccio io, in batchmode a
 Unity chiuso, come alla M2. A Mirco restano le decisioni qui sotto, il download del
-tileset, l'account e la pagina su itch.io con il suo secret, le prove in Play Mode e
-in build (anche su un altro PC) e la revisione degli ADR.
+tileset, le prove in Play Mode e in build e la revisione degli ADR.
 
 ---
 
@@ -39,8 +39,8 @@ in build (anche su un altro PC) e la revisione degli ADR.
 | D3 | **Tileset** | KayKit **Dungeon Pack Free 1.1** (31 MB, CC0), scaricato da Mirco | CC0 come vuole l'ADR-004, stesso stile di cavaliere e scheletri. Si scarica dalla pagina di itch.io dell'autore con un click nel browser ("No thanks, just take me to the downloads") |
 | D4 | **Illuminazione** | **Solo luci in tempo reale**, niente lightmap. Ambiente quasi nero, nessuna luce direzionale. Una luce puntiforme sul cavaliere, l'**unica con le ombre**. Torce come luci puntiformi **senza ombre**, con un leggero tremolio. Post-processing con tonemapping, bloom sulle fiamme e vignetta | Alla M6 i livelli nascono a runtime e non si possono cuocere le lightmap: meglio non prendere un'abitudine da buttare. Ogni luce puntiforme con ombre occupa sei porzioni della mappa delle ombre: con dieci torce sarebbero sessanta |
 | D5 | **Muri che coprono il cavaliere** | Sui lati del livello rivolti verso la camera, **muri bassi** (mezza altezza), come nella visuale di Diablo. Un effetto di trasparenza vicino al personaggio si valuta alla M11 con gli shader | Con la camera isometrica un muro alto tra camera e cavaliere lo nasconde del tutto. In più l'ADR-006 ferma il raggio del click sugli ostacoli: dietro un muro alto non si potrebbe cliccare |
-| D6 | **Pubblicazione su itch.io** | Pagina creata da **Mirco** (account, titolo, stato "In development", gratuita, Windows). Poi la **CI carica la build** con butler a ogni tag `m*`/`v*`, con un secret `BUTLER_API_KEY` inserito da Mirco | La pagina è una vetrina pubblica a suo nome: la crea e la pubblica lui. Il caricamento invece si ripete a ogni milestone, ed è il lavoro giusto per il workflow della build della M2.5. Il primo caricamento si può fare anche a mano dal sito, se si preferisce vedere il risultato prima di automatizzare |
-| D7 | **Build Web** | **Prova in CI** dopo che le luci del dungeon esistono (passo 3.8), con l'immagine `webgl`. Se aspetto e fluidità reggono, va su itch.io accanto a quella Windows, giocabile nel browser. La scelta finisce in un ADR | Chi guarda un portfolio clicca "gioca" più volentieri di "scarica". Ma il punto debole di URP sul web sono proprio molte luci e ombre: va giudicato sul dungeon vero, non in astratto. In CI non serve installare il modulo *Web Build Support* sul PC |
+| D6 | **Pubblicazione su itch.io** — **rimandata alla M10** (decisione di Mirco, 3 ott 2026: il gioco va pubblicato quando è quasi completo) | Pagina creata da **Mirco** (account, titolo, stato "In development", gratuita, Windows). Poi la **CI carica la build** con butler a ogni tag `m*`/`v*`, con un secret `BUTLER_API_KEY` inserito da Mirco | La pagina è una vetrina pubblica a suo nome: la crea e la pubblica lui. Il caricamento invece si ripete a ogni milestone, ed è il lavoro giusto per il workflow della build della M2.5. Il primo caricamento si può fare anche a mano dal sito, se si preferisce vedere il risultato prima di automatizzare |
+| D7 | **Build Web** | **Prova in CI** dopo che le luci del dungeon esistono (passo 3.7), con l'immagine `webgl`. Se aspetto e fluidità reggono, alla M10 va su itch.io accanto a quella Windows, giocabile nel browser. La scelta finisce in un ADR | Chi guarda un portfolio clicca "gioca" più volentieri di "scarica". Ma il punto debole di URP sul web sono proprio molte luci e ombre: va giudicato sul dungeon vero, non in astratto. In CI non serve installare il modulo *Web Build Support* sul PC |
 | D8 | **Cambio di livello e restart** | Le scale stanno su un layer nuovo, **`Interactable`**: un click ci porta il cavaliere, e quando le raggiunge lo schermo sfuma al nero, il livello vecchio si scarica e il nuovo si carica. Dopo la morte, **Ricomincia** riparte da `Core` e dal livello 1 | È il ramo in più del click previsto dall'ADR-006, che dopo servirà anche per porte, oggetti a terra e PNG. Ripartire dal livello 1 dopo la morte è il comportamento più semplice finché non c'è un salvataggio (M8) |
 
 ---
@@ -55,9 +55,10 @@ in build (anche su un altro PC) e la revisione degli ADR.
 | 3.4 | Tileset: import, misure, prefab dei moduli, strumento delle mappe | 1–2 |
 | 3.5 | Livelli 1 e 2, scale e cambio di livello | 1,5–2 |
 | 3.6 | Buio, torce, luce del cavaliere e post-processing | 1,5–2 |
-| 3.7 | itch.io: pagina, butler in CI, prova su un altro PC | 1–1,5 |
-| 3.8 | Prova della build Web | 0,5 |
-| 3.9 | Chiusura: GIF, ADR, tag `m3` | 0,5 |
+| 3.7 | Prova della build Web | 0,5 |
+| 3.8 | Chiusura: GIF, ADR, tag `m3` | 0,5 |
+
+Il passo su itch.io (pagina, butler in CI, prova su un altro PC) è passato alla M10: D6.
 
 ---
 
@@ -340,44 +341,23 @@ del cavaliere e su nessuno degli scheletri).
 
 ---
 
-## Passo 3.7 — itch.io
-
-1. **Mirco:** account itch.io (se non c'è già), progetto nuovo "DarkDescent", tipo
-   *Downloadable*, gratuito, stato **In development**, piattaforma Windows, visibilità
-   *Draft* finché la prima build non è su.
-2. **Mirco:** chiave API di butler (*Settings → API keys*) nel secret
-   `BUTLER_API_KEY` del repo. Come per Unity: non passa dalla chat.
-3. `build.yml`: dopo l'artifact, sui soli tag, un passo che scarica butler 15.31.0
-   dal sito ufficiale e fa `butler push` della cartella sul canale `windows`, con la
-   versione uguale al tag.
-4. Tag di prova o avvio manuale con il caricamento acceso, poi **Mirco** rende
-   pubblica la pagina.
-5. **Prova su un altro PC:** Mirco, o qualcuno a cui manda il link, scarica da
-   itch.io e gioca.
-
-**Verifica:** la pagina pubblica mostra la build, e su un PC che non è quello di
-Mirco il gioco parte.
-
----
-
-## Passo 3.8 — Prova della build Web
+## Passo 3.7 — Prova della build Web
 
 1. Un avvio manuale di `build.yml` con `targetPlatform: WebGL`, compressione con
    *decompression fallback* (itch.io non manda gli header per i file compressi).
 2. Mirco la prova nel browser dall'artifact: aspetto delle luci, fluidità, audio
    (nel browser parte solo dopo il primo click).
-3. Se regge: canale `web` su itch.io, giocabile nella pagina. Se no: resta Windows e
-   si riprova alla M11. In tutti e due i casi, ADR.
+3. Se regge: alla M10 va su itch.io nel canale `web`, giocabile nella pagina. Se no:
+   resta Windows e si riprova alla M11. In tutti e due i casi, ADR.
 
 ---
 
-## Passo 3.9 — Chiusura
+## Passo 3.8 — Chiusura
 
 1. GIF del README: discesa delle scale, dal buio della cripta al livello 2.
 2. ADR: struttura delle scene (D1), mappe di testo (D2), luci in tempo reale (D4),
-   muri bassi (D5), itch.io con butler (D6), build Web (D7).
-3. Lezioni nel piano, tabella dello stato, tag `m3`: la CI produce la build e la
-   carica su itch.io.
+   muri bassi (D5), itch.io rimandato alla M10 (D6), build Web (D7).
+3. Lezioni nel piano, tabella dello stato, tag `m3`: la CI produce la build.
 
 ---
 
@@ -437,8 +417,6 @@ Mirco il gioco parte.
 - [ ] Tileset KayKit importato, riga in `CREDITS.md`
 - [ ] Livelli 1 e 2 dalle mappe, scale funzionanti, vita conservata
 - [ ] Buio, torce e luce del cavaliere, giudicati in build
-- [ ] Pagina itch.io pubblica, build caricata dalla CI
-- [ ] Build provata su un PC che non è quello di Mirco
 - [ ] Build Web provata e decisa in un ADR
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m3`

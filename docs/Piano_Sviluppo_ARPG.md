@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.5**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.9**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -17,6 +17,7 @@
 | v2.6 | 3 ott 2026 | M2 chiusa, con le lezioni · punto di controllo di M2 superato (rapporto 0,19, nessun taglio) · ADR-004: eccezione per il font OFL di TextMesh Pro, EmojiOne tolta |
 | v2.8 | 3 ott 2026 | M2.5 chiusa (tag `m2.5`): test e build in CI con GameCI · ADR-011…013 |
 | v2.7 | 3 ott 2026 | Stime ricalcolate: il codice lo scrive Claude, le ore sono quelle di sessione di Mirco (totale da 240–350 a circa 95–140 h) · punti di controllo riformulati sulle nuove stime · audio posizionale anticipato a M3 · Cinemachine a M3 con Impulse e zona morta · reazione al colpo del cavaliere a M7 · pavimento della sandbox a M3 · ADR-004…010 scritti |
+| v2.9 | 3 ott 2026 | Prima build pubblica su itch.io spostata da M3 a M10, quando il gioco è finibile: decisione di Mirco. A M3 resta la prova della build Web dall'artifact della CI |
 
 ---
 
@@ -381,12 +382,11 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 - Cinemachine 3 al posto del `CameraFollow` scritto a mano (attenzione ai tutorial per la 2.x, § 3). Cosa porta in più: **Impulse**, cioè uno scuotimento della camera misurato sui colpi pesanti subiti e sulle morti, che completa il game feel della M2; una **zona morta** in cui il cavaliere si muove senza che la camera lo insegua; smorzamento configurabile senza codice. I test della M1 sulla camera vanno riportati sulla nuova camera
 - **Audio posizionale.** Oggi i suoni sono 2D, perché con l'`AudioListener` sulla camera, a 20 m, l'attenuazione 3D renderebbe tutto quasi muto. Le modifiche: l'`AudioListener` passa sul giocatore, o su un oggetto che lo segue all'altezza della testa; le `AudioSource` dei personaggi diventano 3D (`spatialBlend` 1) con attenuazione logaritmica tra circa 4 e 25 m; un `AudioMixer` con i gruppi SFX, UI e, più avanti, Musica. In un dungeon buio, un nemico fuori schermo si deve sentire prima di vederlo
 - La sandbox `Sandbox_Combat` resta la scena dei test: pavimento più grande, o sfondo in tinta con il pavimento, perché camera e GIF non mostrino il bordo nero oltre il piano
-- **Prima build pubblica su itch.io**, con pagina "in sviluppo", aggiornata a ogni milestone. Un link giocabile a M3 invece che a M11 sono mesi di portfolio in più, e chi lo prova ti dà riscontri veri
 - Da valutare in un ADR: una build **Web** oltre a quella Windows. Si gioca nel browser senza scaricare nulla, e per chi valuta un portfolio fa differenza; richiede però il modulo *Web Build Support*, e URP sul web ha limiti che potrebbero pesare sugli shader di M11
 
 **Decisione da prendere:** struttura delle scene (§ 4.3).
 
-**Definition of Done:** in build, scendi dal livello 1 al livello 2 mantenendo vita e stato; la build si scarica da itch.io e parte su un PC che non è il tuo.
+**Definition of Done:** in build, scendi dal livello 1 al livello 2 mantenendo vita e stato. La pubblicazione su itch.io, prevista qui fino alla v2.8, è spostata a M10.
 
 **Per il CV:** level design modulare, gestione delle scene, illuminazione in URP, pubblicazione.
 
@@ -511,11 +511,11 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 **A schermo:** dal menu arrivi in città, compri dal mercante, scendi, risali a vendere, affronti il boss al livello 8, vedi la schermata di vittoria.
 
-**Contenuto:** città hub · mercante · flusso di gioco completo (menu → città → dungeon → morte o vittoria) costruito sulla struttura a scene di M3 · ritorno in città dai livelli profondi · **boss** (§ 2) · vittoria e riconoscimenti.
+**Contenuto:** città hub · mercante · flusso di gioco completo (menu → città → dungeon → morte o vittoria) costruito sulla struttura a scene di M3 · ritorno in città dai livelli profondi · **boss** (§ 2) · vittoria e riconoscimenti · **prima build pubblica su itch.io** (spostata da M3): pagina "in sviluppo" creata da Mirco, caricamento dalla CI con butler sui tag, eventuale canale Web se la prova di M3 ha retto.
 
-**A fine M10 il gioco è finibile.** È il momento di farlo provare a cinque persone e di prendere appunti senza difendersi.
+**A fine M10 il gioco è finibile.** È il momento di farlo provare a cinque persone e di prendere appunti senza difendersi: il link di itch.io è il modo più semplice per dargliela.
 
-**Definition of Done:** una partita completa, dall'avvio alla vittoria, in build, senza passare dall'editor.
+**Definition of Done:** una partita completa, dall'avvio alla vittoria, in build, senza passare dall'editor; la build si scarica da itch.io e parte su un PC che non è quello di Mirco.
 
 **Per il CV:** gestione dello stato di gioco, design di un boss.
 
@@ -541,7 +541,7 @@ Dieci minuti di disciplina che tengono il progetto leggibile anche dopo un mese 
 2. Test verdi (da M2) e CI verde (da M2.5)
 3. GIF per il README
 4. `git tag m<N>` e push del tag (da M2.5 produce anche la build)
-5. Build aggiornata su itch.io (da M3)
+5. Build aggiornata su itch.io (da M10)
 6. Tabella "Stato del progetto" aggiornata
 7. Scheda della milestone successiva in `docs/milestones/`, scritta **prima** di cominciarla
 
@@ -570,9 +570,9 @@ Le schede si scrivono una alla volta, all'inizio di ogni milestone, con quello c
 | URP, Shader Graph, illuminazione | M3, M11 |
 | Git, LFS, licenze degli asset in un repo pubblico | M0, M1 |
 | Blender (estensione opzionale) | dopo M11 |
-| Pubblicazione e release | M3, M11 |
+| Pubblicazione e release | M10, M11 |
 
-**Come presentarlo:** repo pubblico con un README curato (GIF, schema dell'architettura, link agli ADR), build giocabile su itch.io da M3, e 3–4 articoli tecnici sulle parti più interessanti: il generatore di dungeon, il sistema di affissi, la pipeline di CI, lo shader retro.
+**Come presentarlo:** repo pubblico con un README curato (GIF, schema dell'architettura, link agli ADR), build giocabile su itch.io da M10, e 3–4 articoli tecnici sulle parti più interessanti: il generatore di dungeon, il sistema di affissi, la pipeline di CI, lo shader retro.
 
 ---
 
