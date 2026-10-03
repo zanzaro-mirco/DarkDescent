@@ -441,5 +441,5 @@ stato nel piano (v2.10), README con la GIF nuova.
 - [x] Buio, torce e luce del cavaliere, giudicati in build
 - [x] Build Web provata e decisa in un ADR
 - [x] Test verdi in CI
-- [ ] GIF, ADR, lezioni nel piano, tag `m3`
+- [x] GIF, ADR, lezioni nel piano, tag `m3` (build del tag verde, run 37156867653)
 - [ ] Scheda della M4 scritta prima di cominciarla
