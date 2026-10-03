@@ -32,6 +32,16 @@ namespace DarkDescent.UI
             _text.color = color;
         }
 
+        /// <summary>Come Show, con una scritta al posto del numero ("Mancato").</summary>
+        public void ShowText(Vector3 worldPosition, string text, Color color)
+        {
+            _worldPosition = worldPosition;
+            _color = color;
+            _age = 0f;
+            _text.SetText(text);
+            _text.color = color;
+        }
+
         /// <summary>Avanza il numero; false quando ha finito e va restituito al pool.</summary>
         /// <param name="uiCamera">La camera della Canvas: null in Screen Space Overlay.</param>
         public bool Tick(float deltaTime, float lifetime, float rise, Camera camera, RectTransform container, Camera uiCamera)

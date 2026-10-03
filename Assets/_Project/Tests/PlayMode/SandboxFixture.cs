@@ -1,6 +1,9 @@
 using System.Collections;
+using DarkDescent.Combat;
+using DarkDescent.Core;
 using DarkDescent.Enemies;
 using DarkDescent.Levels;
+using DarkDescent.Stats;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
@@ -69,6 +72,23 @@ namespace DarkDescent.Tests
             Player = GameObject.Find("Player").transform;
             PlayerAgent = Player.GetComponent<NavMeshAgent>();
             Assert.IsTrue(PlayerAgent.isOnNavMesh, "il player deve stare sul NavMesh");
+
+            // tiri fissi (D3 della M4): ogni colpo va a segno con il danno minimo, come i colpi
+            // sempre uguali della M2 che questi test verificano
+            UseRandom(0.0);
+        }
+
+        /// <summary>I tiri del combattimento restituiscono questi valori, in ciclo.</summary>
+        protected static void UseRandom(params double[] values)
+        {
+            Object.FindFirstObjectByType<CompositionRoot>().UseRandomSource(new FixedRandomSource(values));
+        }
+
+        /// <summary>Il danno di un colpo a segno con il tiro minimo: danno minimo dell'arma per la Forza.</summary>
+        protected static float MinHitDamage(MeleeAttack attack)
+        {
+            float strength = CharacterStats.ValueOf(attack.GetComponent<CharacterStats>(), StatType.Strength);
+            return attack.Weapon.MinDamage * CombatFormulas.StrengthMultiplier(strength);
         }
 
         /// <summary>Aspetta che un livello sia caricato e il player sopra, con un limite di tempo.</summary>

@@ -110,6 +110,28 @@ Livelli
 mancato. **Test:** ordine dei modificatori; percentuali sommate; limiti 5–95; tiri del danno
 sempre tra minimo e massimo.
 
+**Com'è andata (4 ott 2026).** Decisioni D1–D8 confermate da Mirco così come sono.
+**Logica pura:** `StatSheet` in `DarkDescent.Stats` (valori base in un array indicizzato
+dall'enum, modificatori in una lista, `Get` senza allocazioni), `StatModifier` con la
+sorgente obbligatoria, `CombatFormulas` in `DarkDescent.Combat`, `IRandomSource` con
+`SystemRandomSource` (seme) e `FixedRandomSource` (valori in ciclo, per i test) in
+`DarkDescent.Core`. **Gusci:** `CharacterStats` sul cavaliere (30/20/10/25, vita dalla
+Vitalità) e sullo scheletro (Destrezza 10, Armatura 10); `Health` prende la vita massima
+dalla Vitalità se `CharacterStats` lo chiede, altrimenti resta la sua. **Armi:**
+`WeaponDefinition` ha danno minimo e massimo interi al posto del danno fisso: spada 6–9,
+lama dello scheletro 4–6 (in media 5, come prima). **`MeleeAttack`** tira al momento del
+danno, con le statistiche del bersaglio prese quando lo sceglie (niente `GetComponent` a
+ogni colpo); senza `IRandomSource` lancia un'eccezione invece di colpire a caso.
+**"Mancato":** `IDamageable.Evade` e l'evento `Health.Evaded`, a cui si iscrivono i numeri di
+danno con una scritta grigia; un colpo mancato non fa scattare lampo, hit stop e
+interruzione, che stanno tutti sul danno. **`CompositionRoot`** crea la sorgente con un
+seme preso dall'orologio e la passa al cavaliere e ai nemici di ogni livello;
+`UseRandomSource` la cambia per tutti. **Test:** `SandboxFixture` passa a tiri fissi (sempre a
+segno, danno minimo); tre test che leggevano il danno fisso ora lo calcolano dalla formula.
+34 EditMode (`StatSheetTests`, `CombatFormulasTests`, `RandomSourceTests`) e 61 PlayMode
+(`CombatStatsTests`: statistiche di cavaliere e scheletro, colpo mancato senza danno né hit
+stop con la scritta, danno tirato) verdi.
+
 ---
 
 ## Passo 4.2 — Definizioni degli oggetti, database e icone
@@ -236,8 +258,8 @@ cursore esce dalla cella.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D8 confermate
-- [ ] Statistiche e formula del colpo, test esistenti verdi sulla sorgente fissa
+- [x] Decisioni D1–D8 confermate
+- [x] Statistiche e formula del colpo, test esistenti verdi sulla sorgente fissa
 - [ ] Tre oggetti con ID stabile, nel database, con le icone
 - [ ] Modelli nuovi importati, riga in `CREDITS.md`
 - [ ] Equipaggiamento con arma e scudo visibili sul cavaliere

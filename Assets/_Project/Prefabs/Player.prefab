@@ -309,6 +309,7 @@ GameObject:
   - component: {fileID: 4352564824588143245}
   - component: {fileID: 8189815453064965116}
   - component: {fileID: 4778730172358856196}
+  - component: {fileID: 4556274574701756022}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -658,6 +659,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Rendering.DamageCameraShake
   _fullForceFraction: 0.2
   _deathForce: 1.5
+--- !u!114 &4556274574701756022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44ceeb38b92e46d449e3b754058130c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Stats.CharacterStats
+  _strength: 30
+  _dexterity: 20
+  _magic: 10
+  _vitality: 25
+  _armor: 0
+  _lifeFromVitality: 1
 --- !u!1001 &2294196101016226000
 PrefabInstance:
   m_ObjectHideFlags: 0

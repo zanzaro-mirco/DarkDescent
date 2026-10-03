@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 3025011650240641013}
   - component: {fileID: 8883921936609676798}
   - component: {fileID: 5267768890862529430}
+  - component: {fileID: 38634171940131001}
   m_Layer: 8
   m_Name: Skeleton
   m_TagString: Untagged
@@ -278,6 +279,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f37f0dfb1782df644a8db23d106c9ef1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Characters.AgentActivator
+--- !u!114 &38634171940131001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544816584095552241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44ceeb38b92e46d449e3b754058130c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Stats.CharacterStats
+  _strength: 0
+  _dexterity: 10
+  _magic: 0
+  _vitality: 0
+  _armor: 10
+  _lifeFromVitality: 0
 --- !u!1001 &8531279894515779573
 PrefabInstance:
   m_ObjectHideFlags: 0

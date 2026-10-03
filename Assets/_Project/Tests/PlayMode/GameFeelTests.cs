@@ -70,7 +70,8 @@ namespace DarkDescent.Tests
             Assert.IsTrue(flash.IsFlashing);
             Assert.AreNotSame(originalMaterial, renderer.sharedMaterial, "durante il lampo il materiale è quello bianco");
             var texts = numbers.GetComponentsInChildren<TextMeshProUGUI>().Select(t => t.text).ToArray();
-            CollectionAssert.Contains(texts, "10", "deve comparire il numero del danno della spada");
+            string expected = Mathf.RoundToInt(MinHitDamage(Player.GetComponent<MeleeAttack>())).ToString();
+            CollectionAssert.Contains(texts, expected, "deve comparire il numero del danno della spada");
 
             yield return new WaitForSecondsRealtime(1.2f);
             Assert.AreEqual(1f, Time.timeScale, "finito l'hit stop il tempo riparte");

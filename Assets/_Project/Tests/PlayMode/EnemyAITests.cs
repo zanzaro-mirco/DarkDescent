@@ -85,7 +85,7 @@ namespace DarkDescent.Tests
         public IEnumerator PlayerInSight_SkeletonChasesAndHits()
         {
             yield return LoadArena();
-            float damage = _skeletonAttack.Weapon.Damage;
+            float damage = MinHitDamage(_skeletonAttack);
 
             ClickAt(InSightPoint);
             yield return WaitFor(() => _ai.State == EnemyState.Chase, 4f);

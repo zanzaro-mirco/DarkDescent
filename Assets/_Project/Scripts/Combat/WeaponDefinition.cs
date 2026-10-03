@@ -9,7 +9,11 @@ namespace DarkDescent.Combat
     [CreateAssetMenu(fileName = "Weapon", menuName = "DarkDescent/Weapon Definition")]
     public sealed class WeaponDefinition : ScriptableObject
     {
-        [SerializeField, Min(0f)] private float _damage = 10f;
+        [Tooltip("Danno minimo del tiro, prima del moltiplicatore della Forza.")]
+        [SerializeField, Min(0)] private int _minDamage = 6;
+
+        [Tooltip("Danno massimo del tiro, compreso.")]
+        [SerializeField, Min(0)] private int _maxDamage = 9;
 
         [SerializeField] private DamageType _damageType = DamageType.Physical;
 
@@ -25,7 +29,8 @@ namespace DarkDescent.Combat
         [Tooltip("Secondi tra l'inizio dell'animazione e il danno: il momento in cui la lama arriva sul bersaglio.")]
         [SerializeField, Min(0f)] private float _hitDelay = 0.6f;
 
-        public float Damage => _damage;
+        public int MinDamage => _minDamage;
+        public int MaxDamage => _maxDamage;
         public DamageType DamageType => _damageType;
         public float Range => _range;
         public float RangeTolerance => _rangeTolerance;
@@ -36,6 +41,7 @@ namespace DarkDescent.Combat
         {
             // un danno che arriva dopo l'inizio del colpo successivo sovrapporrebbe due fendenti
             _hitDelay = Mathf.Min(_hitDelay, _attackInterval);
+            _maxDamage = Mathf.Max(_maxDamage, _minDamage);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace DarkDescent.UI
 
         [SerializeField] private Color _enemyDamageColor = new Color(1f, 0.88f, 0.55f);
         [SerializeField] private Color _playerDamageColor = new Color(1f, 0.25f, 0.2f);
+        [SerializeField] private Color _missColor = new Color(0.7f, 0.7f, 0.7f);
 
         [Tooltip("Altezza sopra i piedi da cui parte il numero.")]
         [SerializeField, Min(0f)] private float _spawnHeight = 2.3f;
@@ -31,8 +32,11 @@ namespace DarkDescent.UI
         [Tooltip("Vuoto = Camera.main, risolta in Awake.")]
         [SerializeField] private Camera _camera;
 
-        // per ogni Health seguita, il suo handler: serve lo stesso delegato per il -=
-        private readonly Dictionary<Health, Action<DamageInfo, float>> _handlers = new Dictionary<Health, Action<DamageInfo, float>>();
+        private const string MissText = "Mancato";
+
+        // per ogni Health seguita, i suoi handler: servono gli stessi delegati per il -=
+        private readonly Dictionary<Health, (Action<DamageInfo, float> damaged, Action<DamageInfo> evaded)> _handlers =
+            new Dictionary<Health, (Action<DamageInfo, float>, Action<DamageInfo>)>();
         private readonly List<DamageNumber> _active = new List<DamageNumber>();
         private ObjectPool<DamageNumber> _pool;
         private RectTransform _container;
@@ -74,12 +78,13 @@ namespace DarkDescent.UI
 
             Color color = isPlayer ? _playerDamageColor : _enemyDamageColor;
             Transform owner = health.transform;
-            Action<DamageInfo, float> handler = (info, applied) => Spawn(owner, applied, color);
-            _handlers.Add(health, handler);
+            Action<DamageInfo, float> damaged = (info, applied) => Spawn(owner, applied, color);
+            Action<DamageInfo> evaded = info => SpawnMiss(owner);
+            _handlers.Add(health, (damaged, evaded));
 
             if (_subscribed)
             {
-                health.Damaged += handler;
+                Subscribe(health, damaged, evaded);
             }
         }
 
@@ -90,14 +95,14 @@ namespace DarkDescent.UI
         {
             // ReferenceEquals e non ==: una Health distrutta è "null" per Unity, ma resta una chiave
             // valida del dizionario e va tolta lo stesso
-            if (ReferenceEquals(health, null) || !_handlers.TryGetValue(health, out var handler))
+            if (ReferenceEquals(health, null) || !_handlers.TryGetValue(health, out var handlers))
             {
                 return;
             }
 
             if (_subscribed)
             {
-                health.Damaged -= handler;
+                Unsubscribe(health, handlers.damaged, handlers.evaded);
             }
 
             _handlers.Remove(health);
@@ -107,7 +112,7 @@ namespace DarkDescent.UI
         {
             foreach (var pair in _handlers)
             {
-                pair.Key.Damaged += pair.Value;
+                Subscribe(pair.Key, pair.Value.damaged, pair.Value.evaded);
             }
 
             _subscribed = true;
@@ -118,16 +123,40 @@ namespace DarkDescent.UI
             // una Health distrutta (scheletro sparito) ha portato con sé i suoi delegati: il -= è innocuo
             foreach (var pair in _handlers)
             {
-                pair.Key.Damaged -= pair.Value;
+                Unsubscribe(pair.Key, pair.Value.damaged, pair.Value.evaded);
             }
 
             _subscribed = false;
+        }
+
+        private static void Subscribe(Health health, Action<DamageInfo, float> damaged, Action<DamageInfo> evaded)
+        {
+            health.Damaged += damaged;
+            health.Evaded += evaded;
+        }
+
+        private static void Unsubscribe(Health health, Action<DamageInfo, float> damaged, Action<DamageInfo> evaded)
+        {
+            health.Damaged -= damaged;
+            health.Evaded -= evaded;
         }
 
         private void Spawn(Transform owner, float amount, Color color)
         {
             var number = _pool.Get();
             number.Show(owner.position + Vector3.up * _spawnHeight, amount, color);
+            Activate(number);
+        }
+
+        private void SpawnMiss(Transform owner)
+        {
+            var number = _pool.Get();
+            number.ShowText(owner.position + Vector3.up * _spawnHeight, MissText, _missColor);
+            Activate(number);
+        }
+
+        private void Activate(DamageNumber number)
+        {
             _active.Add(number);
             // posizionato subito, non al prossimo Update: niente numero per un frame nell'angolo
             number.Tick(0f, _lifetime, _rise, _camera, _container, UiCamera);

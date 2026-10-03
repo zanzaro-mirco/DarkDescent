@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1329ffda492c0b47b832c30e4978259, type: 3}
   m_Name: SkeletonBlade
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.WeaponDefinition
-  _damage: 5
+  _minDamage: 4
+  _maxDamage: 6
   _damageType: 0
   _range: 0.6
   _rangeTolerance: 0.5

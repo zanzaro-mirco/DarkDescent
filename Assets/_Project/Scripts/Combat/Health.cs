@@ -1,4 +1,5 @@
 using System;
+using DarkDescent.Stats;
 using UnityEngine;
 
 namespace DarkDescent.Combat
@@ -10,6 +11,7 @@ namespace DarkDescent.Combat
     [DisallowMultipleComponent]
     public class Health : MonoBehaviour, IDamageable
     {
+        [Tooltip("Vita massima. Ignorata se CharacterStats la ricava dalla Vitalità, come per il cavaliere.")]
         [SerializeField, Min(1f)] private float _maxHealth = 100f;
 
         private HealthModel _model;
@@ -23,6 +25,9 @@ namespace DarkDescent.Combat
         /// <summary>Emesso una sola volta.</summary>
         public event Action Died;
 
+        /// <summary>Un colpo mancato: nessun danno, nessun lampo, solo la scritta.</summary>
+        public event Action<DamageInfo> Evaded;
+
         public float Current => Model.Current;
         public float Max => Model.Max;
         public bool IsDead => Model.IsDead;
@@ -30,7 +35,7 @@ namespace DarkDescent.Combat
         // Creato al primo accesso, non in Awake: chi si collega in Awake da un altro oggetto
         // (il composition root, la sfera della vita) può arrivare prima, perché l'ordine
         // degli Awake tra oggetti diversi non è garantito.
-        private HealthModel Model => _model ??= new HealthModel(_maxHealth);
+        private HealthModel Model => _model ??= new HealthModel(MaxLife());
 
         public void TakeDamage(in DamageInfo info)
         {
@@ -50,6 +55,21 @@ namespace DarkDescent.Combat
             {
                 Died?.Invoke();
             }
+        }
+
+        public void Evade(in DamageInfo info)
+        {
+            if (!Model.IsDead)
+            {
+                Evaded?.Invoke(info);
+            }
+        }
+
+        private float MaxLife()
+        {
+            return TryGetComponent(out CharacterStats stats) && stats.LifeFromVitality
+                ? CombatFormulas.MaxLife(stats.Vitality)
+                : _maxHealth;
         }
     }
 }

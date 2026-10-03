@@ -53,7 +53,7 @@ namespace DarkDescent.Tests
         public IEnumerator ClickOnSkeleton_ApproachesAndHitsOnce()
         {
             yield return LoadArena();
-            float damage = _playerAttack.Weapon.Damage;
+            float damage = MinHitDamage(_playerAttack);
 
             ClickAt(SkeletonAimPoint);
             yield return WaitUntilDamaged(6f);

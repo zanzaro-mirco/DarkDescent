@@ -1,4 +1,6 @@
 using System;
+using DarkDescent.Core;
+using DarkDescent.Stats;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,6 +10,8 @@ namespace DarkDescent.Combat
     /// Attacco in mischia, uguale per player e nemici: chi lo usa sceglie solo il bersaglio.
     /// Se il bersaglio è lontano lo raggiunge con l'agent, a portata si ferma, si gira e colpisce.
     /// Il danno arriva dopo il ritardo dell'arma, ricontrollando che il bersaglio sia ancora lì.
+    /// A quel punto si tira: colpito o mancato (Destrezza contro Armatura), poi il danno (arma e
+    /// Forza), con la formula di CombatFormulas.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NavMeshAgent))]
@@ -22,17 +26,21 @@ namespace DarkDescent.Combat
         [SerializeField, Range(1f, 180f)] private float _facingTolerance = 30f;
 
         private NavMeshAgent _agent;
+        private CharacterStats _stats;
+        private IRandomSource _random;
 
         // il bersaglio scelto e quello del colpo in corso sono distinti: cambiare bersaglio
         // a metà fendente non deve spostare il danno su un altro nemico
         private IDamageable _target;
         private Transform _targetTransform;
         private float _targetRadius;
+        private CharacterStats _targetStats;
         private bool _attackRequested;
 
         private IDamageable _swingTarget;
         private Transform _swingTransform;
         private float _swingTargetRadius;
+        private CharacterStats _swingTargetStats;
         private bool _hitPending;
         private float _hitTimer;
 
@@ -46,6 +54,9 @@ namespace DarkDescent.Combat
 
         /// <summary>Il colpo è arrivato e ha fatto danno: hit stop e simili si agganciano qui.</summary>
         public event Action<DamageInfo> HitLanded;
+
+        /// <summary>Il colpo è arrivato a portata ma il tiro l'ha mancato: niente danno né hit stop.</summary>
+        public event Action<DamageInfo> Missed;
 
         public WeaponDefinition Weapon => _weapon;
 
@@ -63,6 +74,14 @@ namespace DarkDescent.Combat
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
+            // senza statistiche (un bersaglio di prova) si tira con Forza e Destrezza a zero
+            TryGetComponent(out _stats);
+        }
+
+        /// <summary>Da dove vengono i tiri: lo passa il CompositionRoot (D3 della M4).</summary>
+        public void SetRandomSource(IRandomSource random)
+        {
+            _random = random;
         }
 
         private void OnDisable()
@@ -90,6 +109,7 @@ namespace DarkDescent.Combat
                 _target = target;
                 _targetTransform = component.transform;
                 _targetRadius = RadiusOf(component);
+                _targetStats = component.GetComponent<CharacterStats>();
                 _repathTimer = 0f;
             }
 
@@ -210,6 +230,7 @@ namespace DarkDescent.Combat
             _swingTarget = _target;
             _swingTransform = _targetTransform;
             _swingTargetRadius = _targetRadius;
+            _swingTargetStats = _targetStats;
 
             SwingStarted?.Invoke();
         }
@@ -225,9 +246,29 @@ namespace DarkDescent.Combat
 
             if (inReach)
             {
-                var info = new DamageInfo(_weapon.Damage, _weapon.DamageType, gameObject);
-                _swingTarget.TakeDamage(info);
-                HitLanded?.Invoke(info);
+                if (_random == null)
+                {
+                    throw new InvalidOperationException($"{name}: MeleeAttack senza IRandomSource, lo collega il CompositionRoot");
+                }
+
+                float hitChance = CombatFormulas.HitChance(
+                    CharacterStats.ValueOf(_stats, StatType.Dexterity),
+                    CharacterStats.ValueOf(_swingTargetStats, StatType.Armor));
+
+                if (CombatFormulas.RollHit(hitChance, _random))
+                {
+                    float amount = CombatFormulas.RollDamage(_weapon.MinDamage, _weapon.MaxDamage,
+                        CharacterStats.ValueOf(_stats, StatType.Strength), _random);
+                    var info = new DamageInfo(amount, _weapon.DamageType, gameObject);
+                    _swingTarget.TakeDamage(info);
+                    HitLanded?.Invoke(info);
+                }
+                else
+                {
+                    var info = new DamageInfo(0f, _weapon.DamageType, gameObject);
+                    _swingTarget.Evade(info);
+                    Missed?.Invoke(info);
+                }
             }
 
             ForgetSwingTarget();
@@ -250,6 +291,7 @@ namespace DarkDescent.Combat
         {
             _target = null;
             _targetTransform = null;
+            _targetStats = null;
             _attackRequested = false;
             _inRange = false;
         }
@@ -258,6 +300,7 @@ namespace DarkDescent.Combat
         {
             _swingTarget = null;
             _swingTransform = null;
+            _swingTargetStats = null;
         }
 
         private static float RadiusOf(Component target)

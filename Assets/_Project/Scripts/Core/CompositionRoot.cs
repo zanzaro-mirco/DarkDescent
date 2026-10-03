@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DarkDescent.Combat;
 using DarkDescent.Levels;
@@ -34,6 +35,11 @@ namespace DarkDescent.Core
 
         private MeleeAttack _playerAttack;
 
+        // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
+        private IRandomSource _random;
+
+        private readonly List<MeleeAttack> _enemyAttacks = new List<MeleeAttack>();
+
         // le Health dei nemici seguite dai numeri di danno: al cambio di livello vanno lasciate, anche
         // quelle già distrutte, di cui non si potrebbe più chiedere il componente all'EnemyAI
         private readonly List<Health> _trackedEnemies = new List<Health>();
@@ -41,6 +47,8 @@ namespace DarkDescent.Core
         private void Awake()
         {
             _playerAttack = _player.GetComponent<MeleeAttack>();
+            _random = new SystemRandomSource(Environment.TickCount);
+            _playerAttack.SetRandomSource(_random);
 
             _healthOrb.Bind(_player);
             _deathScreen.Bind(_player);
@@ -80,6 +88,9 @@ namespace DarkDescent.Core
                 }
 
                 enemy.Bind(_player);
+                var attack = enemy.GetComponent<MeleeAttack>();
+                attack.SetRandomSource(_random);
+                _enemyAttacks.Add(attack);
                 var health = enemy.GetComponent<Health>();
                 _damageNumbers.Track(health, isPlayer: false);
                 _trackedEnemies.Add(health);
@@ -94,6 +105,25 @@ namespace DarkDescent.Core
             }
 
             _trackedEnemies.Clear();
+            _enemyAttacks.Clear();
+        }
+
+        /// <summary>
+        /// Cambia la sorgente dei tiri per il player e per i nemici del livello, e per quelli dei
+        /// livelli successivi. Per i test (una sorgente fissa) e, dalla M5, per rigiocare un seme.
+        /// </summary>
+        public void UseRandomSource(IRandomSource random)
+        {
+            _random = random ?? throw new ArgumentNullException(nameof(random));
+            _playerAttack.SetRandomSource(random);
+            foreach (var attack in _enemyAttacks)
+            {
+                // un nemico distrutto non tira più
+                if (attack != null)
+                {
+                    attack.SetRandomSource(random);
+                }
+            }
         }
 
         // solo i colpi del player fermano il tempo: con tre scheletri che colpiscono, il gioco singhiozzerebbe

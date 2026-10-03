@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1329ffda492c0b47b832c30e4978259, type: 3}
   m_Name: Sword
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.WeaponDefinition
-  _damage: 10
+  _minDamage: 6
+  _maxDamage: 9
   _damageType: 0
   _range: 0.6
   _rangeTolerance: 0.5
