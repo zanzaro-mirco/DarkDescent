@@ -1,12 +1,15 @@
-# Passo 2.5.1: prova dell'attivazione della licenza Personal in CI.
-# Solo avvio manuale e solo i test EditMode. Al passo 2.5.2 diventa il workflow dei test
-# completo (push, pull request, PlayMode, cache).
+# Test EditMode e PlayMode a ogni push su main, a ogni pull request e su avvio manuale.
 name: Tests
 
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
-# Un run alla volta: la licenza Personal ha pochi posti di attivazione (D4).
+# Un run alla volta in tutto il repo, non per branch: la licenza Personal ha pochi posti di
+# attivazione (D4). Niente cancel-in-progress: un job ucciso a metà rischia di non restituire
+# il posto; il run in coda aspetta.
 concurrency:
   group: unity
   cancel-in-progress: false
@@ -17,14 +20,39 @@ permissions:
 
 jobs:
   tests:
-    name: Test EditMode
+    name: Test EditMode e PlayMode
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
+      # Checkout senza LFS: con lfs: true gli oggetti verrebbero riscaricati a ogni run,
+      # ignorando la cache qui sotto.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
-          lfs: true
+          lfs: false
+
+      - name: Lista degli oggetti LFS
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Cache LFS
+        uses: actions/cache@v6
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Pull LFS
+        run: git lfs pull
+
+      # La chiave cambia con qualunque asset, pacchetto o impostazione (compresi
+      # ProjectVersion.txt e packages-lock.json): una Library di un'altra versione di Unity
+      # produce errori di import senza senso. Le restore-keys ripartono dalla più recente.
+      - name: Cache Library
+        uses: actions/cache@v6
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
 
       - name: Test
         id: tests
@@ -38,15 +66,17 @@ jobs:
           GAME_CI_COVERAGE_ENABLED: 'false'
         with:
           cliVersion: v0.1.71
-          testMode: EditMode
-          customParameters: -assemblyNames DarkDescent.Tests.EditMode
+          testMode: all
+          # Solo i nostri assembly: i test interni dell'Input System (tra i testables del
+          # manifest) restano fuori.
+          customParameters: -assemblyNames DarkDescent.Tests.EditMode;DarkDescent.Tests.PlayMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          checkName: Risultati EditMode
+          checkName: Risultati dei test
 
       - name: Risultati
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: risultati-editmode
+          name: risultati-test
           path: ${{ steps.tests.outputs.artifactsPath }}
           retention-days: 14
