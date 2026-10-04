@@ -20,6 +20,8 @@ namespace DarkDescent.Items
 
         [SerializeField] private DamageType _damageType = DamageType.Physical;
 
+        [SerializeField] private WeaponKind _kind = WeaponKind.Sword;
+
         [Tooltip("Forza necessaria per equipaggiarla.")]
         [SerializeField, Min(0)] private int _requiredStrength;
 
@@ -38,6 +40,7 @@ namespace DarkDescent.Items
         public int MinDamage => _minDamage;
         public int MaxDamage => _maxDamage;
         public DamageType DamageType => _damageType;
+        public WeaponKind Kind => _kind;
         public int RequiredStrength => _requiredStrength;
         public float Range => _range;
         public float RangeTolerance => _rangeTolerance;

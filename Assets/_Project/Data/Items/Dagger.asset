@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1329ffda492c0b47b832c30e4978259, type: 3}
-  m_Name: Unarmed
+  m_Name: Dagger
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.WeaponDefinition
-  _id: 7a7bf2052f2849de95232a1b305a342e
-  _nameKey: item.unarmed
-  _icon: {fileID: 0}
-  _size: {x: 1, y: 1}
-  _model: {fileID: 0}
+  _id: fdcb202e0508442e8a9d44ddffe3000f
+  _nameKey: item.dagger
+  _icon: {fileID: 21300000, guid: 6a89f80378e7b7b409f2b5bdf7e18d13, type: 3}
+  _size: {x: 1, y: 2}
+  _model: {fileID: 919132149155446097, guid: ce959b9eb16147beac9836c55890cd33, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
-  _minDamage: 1
-  _maxDamage: 3
+  _minDamage: 3
+  _maxDamage: 6
   _damageType: 0
-  _kind: 0
+  _kind: 1
   _requiredStrength: 0
   _range: 0.6
   _rangeTolerance: 0.5

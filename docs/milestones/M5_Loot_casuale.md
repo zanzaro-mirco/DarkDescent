@@ -298,6 +298,23 @@ con 30 di danno in mezzo; spada Affilata: `MeleeAttack` 8–12 e pannello 10–1
 **Test:** il test della M4 sugli ID unici copre i nuovi oggetti; ogni base ha icona, modello,
 nome in ogni lingua e genere in italiano; ogni scudo ha un blocco tra 0 e 75.
 
+**Com'è andata (4 ott 2026).** Dallo zip di *Adventurers* (cartella `fbx(unity)`):
+`dagger`, `axe_1handed`, `shield_round`, `shield_square`, `shield_spikes`, con le texture
+che usano (`rogue_texture` per il pugnale, `barbarian_texture` per l'ascia; gli scudi
+usano `knight_texture`, già nel progetto). Le impostazioni d'importazione sono quelle di
+`shield_badge`, con GUID nuovi; riga di `CREDITS.md` aggiornata. `WeaponKind` (pugni,
+pugnale, spada, ascia) è un dato di `WeaponDefinition`; i colpi dello scheletro sono una
+spada, i pugni `Unarmed`. Uno script di editor ha creato le cinque definizioni con i valori
+di D7, copiando dalla spada corta portata e tempi del colpo (legati alla clip d'attacco) e
+dallo scudo con stemma rotazione dell'icona e posizione in mano; poi *Rigenera le icone*
+e il database. Le icone mostrano tutte il davanti; le foto del cavaliere da vicino, di
+fronte e dal lato sinistro, mostrano gli scudi fuori dal braccio con il davanti verso
+l'esterno, pugnale e ascia nella mano destra come la spada. Nomi e **generi** delle basi
+nella tabella (`item.<base>.gender`: `n` in inglese, `m` o `f` in italiano). Un livello
+minimo per le basi non serve ancora: quale base cade lo decidono i pesi della loot table
+(5.6). Test: 88 EditMode (valori delle otto basi e tipi d'arma, generi in ogni lingua) e
+85 PlayMode verdi.
+
 ## Passo 5.6 — Loot table, profondità e seme
 
 1. `@depth` nelle mappe, letta da `LevelContext`.
@@ -401,7 +418,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 - [x] Blocco con lo scudo, con animazione e suono
 - [x] Affissi, rarità e generatore riproducibile
 - [x] Statistiche nuove e vita massima variabile
-- [ ] Basi nuove con modelli, icone e riga in `CREDITS.md`
+- [x] Basi nuove con modelli, icone e riga in `CREDITS.md`
 - [ ] Loot table, profondità e seme da riga di comando
 - [ ] Nomi composti per lingua, colori, tooltip con confronto
 - [ ] Scenario della Definition of Done provato in build

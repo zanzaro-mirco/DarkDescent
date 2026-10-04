@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6047108da5d76c648b1118cc70d69e6a, type: 3}
+  m_Name: RoundShield
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.ArmorDefinition
+  _id: 60210ca3f4da4d379e371018e700671a
+  _nameKey: item.round_shield
+  _icon: {fileID: 21300000, guid: 3483344484f9b9643b9da8ff5937aa4c, type: 3}
+  _size: {x: 2, y: 2}
+  _model: {fileID: 919132149155446097, guid: c6eaeacdca7e4d2696f9482e60fbd8b9, type: 3}
+  _iconRotation: {x: 0, y: 180, z: 0}
+  _heldPosition: {x: 0, y: 0, z: 0.15}
+  _heldRotation: {x: 0, y: 0, z: 0}
+  _armor: 4
+  _blockChance: 15

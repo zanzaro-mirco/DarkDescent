@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1329ffda492c0b47b832c30e4978259, type: 3}
-  m_Name: Unarmed
+  m_Name: Axe
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.WeaponDefinition
-  _id: 7a7bf2052f2849de95232a1b305a342e
-  _nameKey: item.unarmed
-  _icon: {fileID: 0}
-  _size: {x: 1, y: 1}
-  _model: {fileID: 0}
+  _id: e0b0ddd77ab14bd6b7d38926708bae5b
+  _nameKey: item.axe
+  _icon: {fileID: 21300000, guid: f077afabd634817449faeb76e2d84e52, type: 3}
+  _size: {x: 2, y: 3}
+  _model: {fileID: 919132149155446097, guid: 1d3d6bdfad6c46c1bfd72c2b3342dd0b, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
-  _minDamage: 1
-  _maxDamage: 3
+  _minDamage: 7
+  _maxDamage: 11
   _damageType: 0
-  _kind: 0
-  _requiredStrength: 0
+  _kind: 3
+  _requiredStrength: 30
   _range: 0.6
   _rangeTolerance: 0.5
   _attackInterval: 1

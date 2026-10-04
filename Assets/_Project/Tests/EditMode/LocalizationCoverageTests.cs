@@ -51,6 +51,23 @@ namespace DarkDescent.Tests
             }
         }
 
+        [Test, Description("Ogni oggetto che si trova ha il genere in ogni lingua: n in inglese, m o f in italiano")]
+        public void ItemGenders_Exist()
+        {
+            var table = Table;
+            int english = table.IndexOf("en");
+            int italian = table.IndexOf("it");
+            foreach (var guid in AssetDatabase.FindAssets("t:ItemDefinition", new[] { "Assets/_Project/Data/Items" }))
+            {
+                var item = AssetDatabase.LoadAssetAtPath<ItemDefinition>(AssetDatabase.GUIDToAssetPath(guid));
+                string key = item.NameKey + ".gender";
+                Assert.IsTrue(table.TryGet(key, english, out var en), $"{item.name}: manca {key} in inglese");
+                Assert.IsTrue(table.TryGet(key, italian, out var it), $"{item.name}: manca {key} in italiano");
+                Assert.AreEqual("n", en, item.name);
+                CollectionAssert.Contains(new[] { "m", "f" }, it, item.name);
+            }
+        }
+
         [Test, Description("Ogni affisso ha il nome nella tabella; i prefissi anche la forma femminile")]
         public void AffixNameKeys_Exist()
         {

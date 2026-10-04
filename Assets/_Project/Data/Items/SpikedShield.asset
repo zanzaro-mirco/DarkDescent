@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6047108da5d76c648b1118cc70d69e6a, type: 3}
+  m_Name: SpikedShield
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.ArmorDefinition
+  _id: 3fa41aee67784a71bc0a19690debd63d
+  _nameKey: item.spiked_shield
+  _icon: {fileID: 21300000, guid: e82a036b8b5be274b9b0e4a39e9ae5d1, type: 3}
+  _size: {x: 2, y: 2}
+  _model: {fileID: 919132149155446097, guid: e67b3df4fcc14f79af7cdcde28b0a21d, type: 3}
+  _iconRotation: {x: 0, y: 180, z: 0}
+  _heldPosition: {x: 0, y: 0, z: 0.15}
+  _heldRotation: {x: 0, y: 0, z: 0}
+  _armor: 6
+  _blockChance: 5

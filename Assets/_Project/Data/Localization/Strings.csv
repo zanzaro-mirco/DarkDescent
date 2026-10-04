@@ -30,6 +30,22 @@ item.skeleton_blade,Skeleton Blade,Lama dello scheletro
 item.badge_shield,Crest Shield,Scudo con stemma
 item.skeleton_strike,Skeleton Strike,Fendente dello scheletro
 item.unarmed,Fists,Pugni
+item.dagger,Dagger,Pugnale
+item.axe,Axe,Ascia
+item.round_shield,Round Shield,Scudo tondo
+item.square_shield,Square Shield,Scudo quadrato
+item.spiked_shield,Spiked Shield,Scudo chiodato
+
+# Genere grammaticale delle basi (D4 della M5): sceglie la forma del prefisso.
+# n = senza genere (inglese), m e f; altre lingue potranno usare anche n
+item.short_sword.gender,n,f
+item.skeleton_blade.gender,n,f
+item.dagger.gender,n,m
+item.axe.gender,n,f
+item.badge_shield.gender,n,m
+item.round_shield.gender,n,m
+item.square_shield.gender,n,m
+item.spiked_shield.gender,n,m
 
 # Affissi: i prefissi hanno la forma femminile in .f (D4 della M5); in inglese è la stessa
 affix.sharp,Sharp,Affilato

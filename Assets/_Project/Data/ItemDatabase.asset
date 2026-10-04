@@ -13,6 +13,11 @@ MonoBehaviour:
   m_Name: ItemDatabase
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.ItemDatabase
   _items:
+  - {fileID: 11400000, guid: a152012fd4f58a948a88fd205e5cbeee, type: 2}
   - {fileID: 11400000, guid: dec2236586c455e4db9128a1b0589fe2, type: 2}
+  - {fileID: 11400000, guid: 5b68e6f7f75fd7a4cb0a44f39c5288ff, type: 2}
+  - {fileID: 11400000, guid: a744ff80628cebb468e3985f1480c7b2, type: 2}
   - {fileID: 11400000, guid: edb5aa48207955b4ba8f40a78873892f, type: 2}
   - {fileID: 11400000, guid: 02b6800f1674534418a06c4cbe658b3b, type: 2}
+  - {fileID: 11400000, guid: d631c2d532f69a142a518ccd4f266c23, type: 2}
+  - {fileID: 11400000, guid: 5bf26066b8f5ec14e9081fcd90edf111, type: 2}

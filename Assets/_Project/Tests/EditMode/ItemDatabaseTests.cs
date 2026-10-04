@@ -109,5 +109,36 @@ namespace DarkDescent.Tests
             Assert.AreEqual(new Vector2Int(2, 2), shield.Size);
             Assert.AreEqual(EquipSlot.Offhand, shield.Slot);
         }
+    
+        [Test, Description("Le basi della M5 hanno i valori della scheda (D7): otto oggetti a una mano")]
+        public void M5Bases_MatchTheScheda()
+        {
+            Assert.AreEqual(8, Database.Items.Count);
+
+            var dagger = Item<WeaponDefinition>("Dagger");
+            Assert.AreEqual((3, 6, 0, WeaponKind.Dagger), (dagger.MinDamage, dagger.MaxDamage, dagger.RequiredStrength, dagger.Kind));
+            Assert.AreEqual(new Vector2Int(1, 2), dagger.Size);
+
+            var axe = Item<WeaponDefinition>("Axe");
+            Assert.AreEqual((7, 11, 30, WeaponKind.Axe), (axe.MinDamage, axe.MaxDamage, axe.RequiredStrength, axe.Kind));
+            Assert.AreEqual(new Vector2Int(2, 3), axe.Size);
+
+            Assert.AreEqual(WeaponKind.Sword, Item<WeaponDefinition>("ShortSword").Kind);
+            Assert.AreEqual(WeaponKind.Unarmed, AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/_Project/Data/Attacks/Unarmed.asset").Kind);
+
+            var shields = new (string name, int armor, int block, Vector2Int size)[]
+            {
+                ("BadgeShield", 5, 10, new Vector2Int(2, 2)),
+                ("RoundShield", 4, 15, new Vector2Int(2, 2)),
+                ("SquareShield", 8, 10, new Vector2Int(2, 3)),
+                ("SpikedShield", 6, 5, new Vector2Int(2, 2)),
+            };
+            foreach (var (name, armor, block, size) in shields)
+            {
+                var shield = Item<ArmorDefinition>(name);
+                Assert.AreEqual((armor, block, size), (shield.Armor, shield.BlockChance, shield.Size), name);
+                Assert.That(shield.BlockChance, Is.InRange(0, 75), name);
+            }
+        }
     }
 }
