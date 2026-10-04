@@ -11,10 +11,9 @@
 - Quest system
 - NPC multipli e dialoghi
 - Crafting
-- Classi aggiuntive (Mago, Ladro)
+- Classi aggiuntive (Mago, Ladro): quando arriveranno, con loro le armi nuove (piano § 5, "Dopo la v1.0")
 - Set item e unici complessi
 - Cinematiche
-- Localizzazione
 - Supporto gamepad
 - Achievement
 - Livelli di difficoltà multipli

@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.11**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.12**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -20,6 +20,7 @@
 | v2.9 | 3 ott 2026 | Prima build pubblica su itch.io spostata da M3 a M10, quando il gioco è finibile: decisione di Mirco. A M3 resta la prova della build Web dall'artifact della CI |
 | v2.10 | 3 ott 2026 | M3 chiusa (tag `m3`), con le lezioni · § 4.3 decisa (ADR-014) · build Web provata e tenuta (ADR-019) · ADR-014…019 |
 | v2.11 | 4 ott 2026 | M4 chiusa (tag `m4`), con le lezioni · attributi e formula del colpo confermati (§ 2, ADR-020) · inventario a click-e-click invece del drag & drop (ADR-023) · ADR-020…024 |
+| v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), rarità **leggendaria**, **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
 
 ---
 
@@ -60,8 +61,9 @@ Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del
 - Salvataggio e caricamento
 - Oscurità con raggio di luce attorno al giocatore, automappa
 - Musica ambientale ed effetti sonori
+- Interfaccia e nomi degli oggetti in inglese (default) e italiano, predisposti per altre lingue (da M5, decisione di Mirco del 4 ott 2026)
 
-**Fuori, esplicitamente:** multiplayer · quest system · dialoghi e NPC multipli · crafting · altre classi · set e oggetti unici complessi · cinematiche · localizzazione · gamepad · achievement · livelli di difficoltà.
+**Fuori, esplicitamente:** multiplayer · quest system · dialoghi e NPC multipli · crafting · altre classi (con le loro armi: vedi "Dopo la v1.0" nel § 5) · set e oggetti unici complessi · cinematiche · gamepad · achievement · livelli di difficoltà. La localizzazione, fuori fino alla v2.11, è entrata nella v1.0 con la M5.
 
 Un'idea fuori ambito va in `ICEBOX.md`, non nel codice.
 
@@ -89,9 +91,9 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 95–140 ore, comprese M1 e M2. Per le milestone ancora aperte restano 85–130 ore: a 6–10 h a settimana sono 9–22 settimane di lavoro effettivo; con pause e settimane saltate, **3–6 mesi di calendario**.
+**Totale stimato:** circa 98–143 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco). Per le milestone ancora aperte restano 85–130 ore: a 6–10 h a settimana sono 9–22 settimane di lavoro effettivo; con pause e settimane saltate, **3–6 mesi di calendario**.
 
-**Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 39 h, circa 6,5 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1.
+**Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1.
 
 ### 1.4 Proprietà intellettuale e licenze degli asset
 
@@ -237,7 +239,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M2.5 | Pipeline automatica | test e build in CI | 2–4 | ✅ 3 ott |
 | M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, build Web provata | 9–14 | ✅ 3 ott |
 | M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | ✅ 4 ott |
-| M5 | "Loot casuale" | affissi e rarità | 6–9 | |
+| M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | |
 | M6 | "Dungeon infinito" | cripta procedurale | 10–13 | |
 | M7 | "Le profondità" | caverne, nuovi nemici, automappa | 11–16 | |
 | M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 6–9 | |
@@ -447,19 +449,19 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M5 — "Loot casuale" · 6–9 h
+### M5 — "Loot casuale" · 9–12 h
 
-**A schermo:** cade una "Spada Lunga Feroce del Grifone", rara, con tre affissi; il tooltip li mostra e li confronta con l'arma equipaggiata.
+**A schermo:** cade una "Savage Short Sword of the Griffin" (in italiano "Spada corta Feroce del Grifone"), rara, con tre affissi; il tooltip li mostra e li confronta con l'arma equipaggiata. Con lo scudo, una parte dei colpi nemici viene bloccata.
 
 È il cuore del genere, e merita una milestone sua.
 
-**Contenuto:** `AffixDefinition` per prefissi e suffissi · pool filtrati per *item level* e tipo di oggetto · livelli di rarità con le rispettive probabilità · generazione del nome · loot table per nemico · confronto nel tooltip.
+**Contenuto:** `AffixDefinition` per prefissi e suffissi · pool filtrati per *item level* e tipo di oggetto · quattro rarità, dal normale al **leggendario** (arancione) · generazione del nome, composto secondo la lingua · loot table per nemico · confronto nel tooltip · **blocco** con lo scudo, legato alla Destrezza (§ 2) · **lingue**: inglese di default e italiano, con una tabella delle stringhe a cui una lingua nuova aggiunge solo una colonna. Dettagli e decisioni: `docs/milestones/M5_Loot_casuale.md`.
 
 **Concetti:** estrazione pesata; `System.Random` con **seed riproducibile** — "rigenera il drop 4711" invece di "riprova finché non ricapita".
 
 **Test:** stesso seed, stesso oggetto, sempre; gli affissi rispettano l'item level; su 10.000 estrazioni le rarità restano entro una tolleranza dalle probabilità previste.
 
-**Definition of Done:** in build, con il seed fissato lo stesso nemico lascia sempre lo stesso oggetto; senza seed, cinquanta uccisioni mostrano tutte le rarità. Test verdi.
+**Definition of Done:** in build, con il seed fissato lo stesso nemico lascia sempre lo stesso oggetto; senza seed, in poche partite compaiono normali, magici e rari (che ci siano tutte e quattro le rarità lo verifica un test su 10.000 estrazioni: otto scheletri per partita sono pochi). Lo scudo blocca. Il gioco parte in inglese e passa all'italiano. Test verdi.
 
 **Punto di controllo** (§ 1.3).
 
@@ -543,7 +545,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 **A schermo:** dal menu arrivi in città, compri dal mercante, scendi, risali a vendere, affronti il boss al livello 8, vedi la schermata di vittoria.
 
-**Contenuto:** città hub · mercante · flusso di gioco completo (menu → città → dungeon → morte o vittoria) costruito sulla struttura a scene di M3 · ritorno in città dai livelli profondi · **boss** (§ 2) · vittoria e riconoscimenti · **prima build pubblica su itch.io** (spostata da M3): pagina "in sviluppo" creata da Mirco, caricamento dalla CI con butler sui tag, eventuale canale Web se la prova di M3 ha retto.
+**Contenuto:** città hub · mercante · flusso di gioco completo (menu → città → dungeon → morte o vittoria) costruito sulla struttura a scene di M3 · menu delle opzioni, con la scelta della lingua che sostituisce il tasto provvisorio della M5 · ritorno in città dai livelli profondi · **boss** (§ 2) · vittoria e riconoscimenti · **prima build pubblica su itch.io** (spostata da M3): pagina "in sviluppo" creata da Mirco, caricamento dalla CI con butler sui tag, eventuale canale Web se la prova di M3 ha retto.
 
 **A fine M10 il gioco è finibile.** È il momento di farlo provare a cinque persone e di prendere appunti senza difendersi: il link di itch.io è il modo più semplice per dargliela.
 
@@ -562,6 +564,15 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 **Definition of Done:** v1.0 pubblicata, `CREDITS.md` completo, README con GIF e sezione sull'architettura.
 
 **Per il CV:** Shader Graph, ottimizzazione, pipeline di release.
+
+---
+
+### Dopo la v1.0
+
+Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non sono nella stima del § 1.3.
+
+- **Nuove classi e le loro armi** (chiesto da Mirco il 4 ott 2026). Quando si aggiungono classi oltre al Guerriero: armi **a due mani** (spadone, ascia a due mani; occupano anche lo slot dello scudo), **bacchette** e **bastoni** per gli incantatori, **archi** e **balestre** con le frecce, e gli altri tipi che serviranno. Dalla M5 il tipo d'arma è un dato della definizione (`WeaponKind`): un tipo nuovo vuole un valore dell'enum, la regola sugli slot, le animazioni e gli affissi che lo ammettono, non una struttura nuova. I modelli di KayKit *Adventurers* ci sono già: `sword_2handed`, `axe_2handed`, `staff`, `wand`, `bow`, `crossbow_1handed`, `crossbow_2handed`.
+- **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---
 
