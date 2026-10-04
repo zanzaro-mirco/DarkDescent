@@ -9,7 +9,7 @@ namespace DarkDescent.UI
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RectTransform))]
-    public class InventoryGridView : MonoBehaviour, IPointerDownHandler
+    public class InventoryGridView : MonoBehaviour, IPointerDownHandler, IPointerMoveHandler, IPointerExitHandler
     {
         [SerializeField] private InventoryPanel _panel;
 
@@ -27,6 +27,22 @@ namespace DarkDescent.UI
             {
                 _panel.ClickCell(CellAt(local, rect, _panel.CellSize));
             }
+        }
+
+        // il movimento è un evento del modulo UI, non un controllo per frame; il pannello agisce
+        // solo quando la cella cambia
+        public void OnPointerMove(PointerEventData eventData)
+        {
+            var rect = (RectTransform)transform;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position, eventData.enterEventCamera, out Vector2 local))
+            {
+                _panel.HoverCell(CellAt(local, rect, _panel.CellSize));
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _panel.HoverCell(null);
         }
 
         /// <summary>La cella sotto un punto locale del rettangolo, con la cella (0, 0) in alto a sinistra.</summary>

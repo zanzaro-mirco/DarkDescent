@@ -62,6 +62,24 @@ namespace DarkDescent.Tests
             yield return null;
         }
 
+        private IEnumerator HoverScreen(Vector2 position)
+        {
+            Move(Mouse.position, position);
+            yield return null;
+            yield return null;
+        }
+
+        // In Overlay gli angoli "mondo" del riquadro sono pixel dello schermo
+        private static void AssertInsideScreen(RectTransform rect)
+        {
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            Assert.GreaterOrEqual(corners[0].x, -0.5f, "esce a sinistra");
+            Assert.GreaterOrEqual(corners[0].y, -0.5f, "esce in basso");
+            Assert.LessOrEqual(corners[2].x, Screen.width + 0.5f, "esce a destra");
+            Assert.LessOrEqual(corners[2].y, Screen.height + 0.5f, "esce in alto");
+        }
+
         private EquipmentSlotView SlotView(EquipSlot slot)
         {
             foreach (var view in Object.FindObjectsByType<EquipmentSlotView>(FindObjectsSortMode.None))
@@ -172,6 +190,80 @@ namespace DarkDescent.Tests
             Assert.Less(FlatDistance(dropped.transform.position, Player.position), 1.5f);
             yield return new WaitForSeconds(0.3f);
             Assert.Less(FlatDistance(start, Player.position), 0.05f, "il cavaliere non parte verso il punto cliccato");
+        }
+
+        [UnityTest, Description("Il tooltip della lama mostra danno e Forza richiesta; sparisce quando il cursore esce dalla cella")]
+        public IEnumerator Tooltip_ShowsBlade_HidesWhenCursorLeaves()
+        {
+            yield return LoadUI();
+            var tooltip = Object.FindFirstObjectByType<ItemTooltip>();
+            _inventory.TryPickUp(Item("SkeletonBlade"));
+            _panel.SetOpen(true);
+            yield return null;
+            Assert.IsFalse(tooltip.IsShowing);
+
+            yield return HoverScreen(CellOnScreen(new Vector2Int(0, 1)));
+            Assert.IsTrue(tooltip.IsShowing, "sopra la lama");
+            StringAssert.Contains("Lama dello scheletro", tooltip.Text);
+            StringAssert.Contains("Danno: 8–12", tooltip.Text);
+            StringAssert.Contains("Forza richiesta: 25", tooltip.Text);
+            StringAssert.DoesNotContain("<color", tooltip.Text, "Forza 30: il requisito non è in rosso");
+            AssertInsideScreen(tooltip.Box);
+
+            yield return HoverScreen(CellOnScreen(new Vector2Int(5, 2)));
+            Assert.IsFalse(tooltip.IsShowing, "su una cella vuota");
+
+            yield return HoverScreen(CellOnScreen(new Vector2Int(0, 2)));
+            Assert.IsTrue(tooltip.IsShowing);
+            yield return HoverScreen(new Vector2(Screen.width * 0.3f, Screen.height * 0.5f));
+            Assert.IsFalse(tooltip.IsShowing, "fuori dalla griglia");
+
+            // con un oggetto sul cursore il tooltip coprirebbe la cella dove posarlo
+            yield return ClickScreen(CellOnScreen(new Vector2Int(0, 0)));
+            Assert.IsNotNull(_inventory.Inventory.Held);
+            yield return HoverScreen(CellOnScreen(new Vector2Int(0, 1)));
+            Assert.IsFalse(tooltip.IsShowing, "non mentre si tiene un oggetto");
+        }
+
+        [UnityTest, Description("Sopra lo slot dell'arma il tooltip descrive la spada impugnata; chiudendo l'inventario sparisce")]
+        public IEnumerator Tooltip_OnWeaponSlot_HidesOnClose()
+        {
+            yield return LoadUI();
+            var tooltip = Object.FindFirstObjectByType<ItemTooltip>();
+            _panel.SetOpen(true);
+            yield return null;
+
+            yield return HoverScreen(CenterOnScreen((RectTransform)SlotView(EquipSlot.Weapon).transform));
+            Assert.IsTrue(tooltip.IsShowing);
+            StringAssert.Contains("Spada corta", tooltip.Text);
+            StringAssert.Contains("Danno: 6–9", tooltip.Text);
+            AssertInsideScreen(tooltip.Box);
+
+            _panel.SetOpen(false);
+            Assert.IsFalse(tooltip.IsShowing);
+        }
+
+        [UnityTest, Description("Un oggetto in un angolo dello schermo: il tooltip resta dentro, sotto o di lato")]
+        public IEnumerator Tooltip_NearScreenEdges_StaysInside()
+        {
+            yield return LoadUI();
+            var tooltip = Object.FindFirstObjectByType<ItemTooltip>();
+            var definition = Item("SkeletonBlade").Definition;
+
+            // un bersaglio finto grande quanto una cella, in ognuno dei quattro angoli
+            var target = new GameObject("Target", typeof(RectTransform)).GetComponent<RectTransform>();
+            target.SetParent(tooltip.transform.parent, false);
+            target.sizeDelta = new Vector2(56f, 56f);
+            var corners = new[] { Vector2.zero, Vector2.right, Vector2.up, Vector2.one };
+            foreach (var corner in corners)
+            {
+                target.anchorMin = target.anchorMax = target.pivot = corner;
+                target.anchoredPosition = Vector2.zero;
+                tooltip.Show(definition, true, target);
+                AssertInsideScreen(tooltip.Box);
+            }
+
+            Object.Destroy(target.gameObject);
         }
 
         [UnityTest, Description("Chiudendo l'inventario con un oggetto sul cursore, l'oggetto torna nella griglia")]

@@ -290,6 +290,24 @@ senza muovere il cavaliere, dalla griglia allo slot con il pannello che passa da
 **Test:** il tooltip della lama mostra 8–12 e la Forza richiesta; sparisce quando il
 cursore esce dalla cella.
 
+**Com'è andata (4 ott 2026).** `ItemDescription` (logica pura) scrive il testo in rich text
+di TextMesh Pro: nome in grassetto, danno o Armatura, Forza richiesta (in rosso
+`#D04848` se non basta, come in Diablo; la spada corta non chiede niente e la riga non
+c'è). `ItemTooltip` è un riquadro nell'HUD di `Core`, subito dopo l'oggetto sul cursore:
+fondo e bordo come le finestre, nessun bersaglio dei raggi, misurato sul testo con
+`GetPreferredValues` invece che con un layout group. Si mette **sopra** l'oggetto
+descritto, **sotto** se in alto non c'è spazio, ed è spostato dentro i bordi in tutte le
+direzioni. Non guarda niente da solo: lo accende `InventoryPanel`, che riceve dalla griglia
+la cella sotto il cursore (`IPointerMoveHandler`, un evento del modulo UI e non un
+controllo per frame, che agisce solo quando la cella cambia) e dagli slot l'entrata e
+l'uscita. Il pannello rinfresca il tooltip quando cambiano griglia, slot o oggetto sul
+cursore; con un oggetto sul cursore il tooltip non c'è, perché coprirebbe la cella dove
+posarlo. Una finestra spenta non riceve l'uscita del cursore: chiudendo l'inventario il
+pannello dimentica cella e slot. Test: 62 EditMode (`ItemDescriptionTests`: lama, rosso
+con la Forza che non basta, spada e scudo) e 77 PlayMode (lama sotto il cursore con 8–12 e
+Forza 25, cella vuota, fuori dalla griglia, oggetto sul cursore; slot dell'arma e
+chiusura; i quattro angoli dello schermo) verdi.
+
 ---
 
 ## Passo 4.7 — Chiusura
@@ -341,7 +359,8 @@ cursore esce dalla cella.
 | `EquipmentTests` (EditMode) | Equipaggia e togli riporta le statistiche ai valori di partenza; Forza insufficiente |
 | `ItemDatabaseTests` (EditMode) | ID non vuoti e unici, ogni definizione nel database, `ItemInstance` in JSON e ritorno |
 | `LootAndPickupTests` | Drop della lama, raccolta, inventario pieno, oggetti a terra scaricati con il livello |
-| `InventoryUITests` | Click-e-click, scambio, click sul pannello che non muove il cavaliere, pannello del personaggio aggiornato |
+| `InventoryUITests` | Click-e-click, scambio, click sul pannello che non muove il cavaliere, pannello del personaggio aggiornato, tooltip dentro lo schermo |
+| `ItemDescriptionTests` (EditMode) | Testo del tooltip: danno, Armatura, Forza richiesta in rosso solo se non basta |
 | `EquipmentPlayModeTests` | Arma nuova in mano e usata da `MeleeAttack` |
 
 ---
@@ -354,7 +373,7 @@ cursore esce dalla cella.
 - [x] Modelli nuovi importati, riga in `CREDITS.md`
 - [x] Equipaggiamento con arma e scudo visibili sul cavaliere
 - [x] Drop, oggetti a terra e raccolta
-- [ ] Inventario, pannello del personaggio e tooltip (manca il tooltip)
+- [x] Inventario, pannello del personaggio e tooltip
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m4`
