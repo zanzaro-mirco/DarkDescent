@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.10**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.11**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -19,10 +19,11 @@
 | v2.7 | 3 ott 2026 | Stime ricalcolate: il codice lo scrive Claude, le ore sono quelle di sessione di Mirco (totale da 240–350 a circa 95–140 h) · punti di controllo riformulati sulle nuove stime · audio posizionale anticipato a M3 · Cinemachine a M3 con Impulse e zona morta · reazione al colpo del cavaliere a M7 · pavimento della sandbox a M3 · ADR-004…010 scritti |
 | v2.9 | 3 ott 2026 | Prima build pubblica su itch.io spostata da M3 a M10, quando il gioco è finibile: decisione di Mirco. A M3 resta la prova della build Web dall'artifact della CI |
 | v2.10 | 3 ott 2026 | M3 chiusa (tag `m3`), con le lezioni · § 4.3 decisa (ADR-014) · build Web provata e tenuta (ADR-019) · ADR-014…019 |
+| v2.11 | 4 ott 2026 | M4 chiusa (tag `m4`), con le lezioni · attributi e formula del colpo confermati (§ 2, ADR-020) · inventario a click-e-click invece del drag & drop (ADR-023) · ADR-020…024 |
 
 ---
 
-## Stato del progetto — aggiornato al 3 ottobre 2026
+## Stato del progetto — aggiornato al 4 ottobre 2026
 
 | | |
 |---|---|
@@ -33,11 +34,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) |
-| **Milestone corrente** | **M4 — "Raccolgo roba"** → `docs/milestones/M4_Raccolgo_roba.md` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) |
+| **Milestone corrente** | **M5 — "Loot casuale"**, scheda da scrivere in `docs/milestones/` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…019) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…024) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -121,7 +122,7 @@ La v2.0 era tutta tecnica. Ma già M2 deve sapere come si calcola un colpo, e M4
 
 **Core loop.** Città → scendi → esplori e combatti → raccogli → torni in città → vendi, compri, equipaggi → scendi più in basso. *Come* si risale da un livello profondo (scale, pergamena, portale) si decide in M10.
 
-**Personaggio:** quattro attributi, da confermare entro **M4**, quando nasce lo `StatSystem`.
+**Personaggio:** quattro attributi, confermati alla **M4** (ADR-020): il cavaliere parte da 30 / 20 / 10 / 25, e la vita è 50 + 2 × Vitalità.
 
 | Attributo | Influenza |
 |---|---|
@@ -130,7 +131,7 @@ La v2.0 era tutta tecnica. Ma già M2 deve sapere come si calcola un colpo, e M4
 | Magia | mana, danno degli incantesimi |
 | Vitalità | punti vita |
 
-**Formula del colpo**, bozza per M4 (in M2 basta un danno fisso): la probabilità di colpire dipende dalla Destrezza di chi attacca e dall'Armatura del bersaglio, limitata tra il 5% e il 95%; il danno è un tiro tra minimo e massimo dell'arma, moltiplicato per (1 + Forza/100).
+**Formula del colpo**, confermata alla M4 (ADR-020): probabilità di colpire = 75 + Destrezza / 2 − Armatura del bersaglio, limitata tra il 5% e il 95%; il danno è un tiro tra minimo e massimo dell'arma, moltiplicato per (1 + Forza/100).
 
 **Archetipi di nemico**, definiti per *comportamento*, perché è il comportamento che costa lavoro, non il modello:
 
@@ -216,6 +217,8 @@ La regola è già nota: **ScriptableObject = definizione immutabile, classe C# =
 
 Senza questo, in M8 si scopre che un riferimento a uno ScriptableObject non sopravvive a un salvataggio su file (`JsonUtility` scrive un identificativo che cambia a ogni avvio), e l'inventario va riscritto per poter salvare la partita.
 
+**Applicata dalla M4 (ADR-022):** `ItemDefinition` con GUID, `ItemInstance` con il solo ID, `ItemDatabase` in `Data/`.
+
 ### 4.5 Assembly definition
 
 Oggi c'è un solo `DarkDescent.asmdef` (ADR-003). Da M2 si aggiunge `DarkDescent.Tests.EditMode`, che referenzia `DarkDescent` e il Test Framework — possibile proprio perché il codice non sta in `Assembly-CSharp`. La divisione per area (Player, Combat, Items…) si valuta in M6, sulle dipendenze reali.
@@ -233,7 +236,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M2 | "Colpisco e muoio" | primo gameplay loop | 20–30 | ✅ 3 ott |
 | M2.5 | Pipeline automatica | test e build in CI | 2–4 | ✅ 3 ott |
 | M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, build Web provata | 9–14 | ✅ 3 ott |
-| M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | |
+| M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | ✅ 4 ott |
 | M5 | "Loot casuale" | affissi e rarità | 6–9 | |
 | M6 | "Dungeon infinito" | cripta procedurale | 10–13 | |
 | M7 | "Le profondità" | caverne, nuovi nemici, automappa | 11–16 | |
@@ -304,6 +307,18 @@ Chiusa il 3 ottobre 2026: 18 test EditMode e 58 PlayMode verdi, build Windows de
 - **Gli shader si compilano al primo uso:** nell'editor la prima evidenziazione esce azzurra (segnaposto), in batch il primo fotogramma emissivo esce magenta; in build non succede. URP toglie `_EMISSION` da un materiale i cui flag di illuminazione globale non sono emissivi.
 - **Unity non ha un'API pubblica per creare un `AudioMixer`:** lo script di editor è passato per la reflection.
 - **Il Web regge il dungeon** (ADR-019) se usa la stessa qualità *PC*: il livello *Mobile*, assegnato di default al Web, toglieva ombre e Forward+. La pubblicazione su itch.io è passata alla M10 (ADR-018).
+
+### M4 — "Raccolgo roba" ✅
+
+Chiusa il 4 ottobre 2026: 62 test EditMode e 77 PlayMode verdi. Lezioni emerse:
+
+- **La casualità si inietta prima di introdurla** (ADR-021): con una sorgente fissa i test che contano i colpi sono rimasti com'erano. Allentarli avrebbe tolto proprio quello che verificano.
+- **Una statistica si toglie per sorgente, non per valore** (ADR-020): ogni modificatore ricorda l'oggetto che l'ha messo, e togliere l'oggetto riporta le statistiche esattamente a prima. È il test che il piano chiedeva, e regge anche per gli affissi della M5.
+- **I modelli KayKit hanno il perno sull'impugnatura:** a terra vanno centrati sull'oggetto, altrimenti click, etichetta e punto d'arrivo cadono fuori dal modello. In mano ogni oggetto ha una posizione sua: lo scudo, agganciato all'osso della mano, stava dalla parte sbagliata e lasciava vedere la mano finché non è stato spostato verso l'esterno (riscontro di Mirco).
+- **La classe generata dall'Input System va rigenerata prima di usare le azioni nuove:** con un errore di compilazione l'import non parte, quindi in batch servono due passaggi (trappola della M1).
+- **Nella UI conta quando arriva l'evento:** il click di uGUI arriva al rilascio, quindi prendere un oggetto usa la pressione. Una finestra spenta non riceve l'uscita del cursore, e chi la chiude deve dimenticare cella e slot sotto il cursore. Un fondo trasparente acceso solo con un oggetto preso impedisce al click di arrivare al mondo.
+- **Le icone si fanno dai modelli** (ADR-024): un oggetto nuovo ha l'icona con un click, ma ogni modello ha il suo verso, e lo scudo fotografato da davanti mostrava il retro.
+- **`git mv` di un asset tiene il GUID ma non il nome interno:** `m_Name` va corretto, altrimenti l'Inspector e i log mostrano il nome vecchio.
 
 ---
 
@@ -411,13 +426,13 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ### M4 — "Raccolgo roba" · 8–12 h
 
-**A schermo:** un nemico lascia cadere una spada; la raccogli, apri l'inventario a griglia, la trascini nello slot dell'arma e il danno nel pannello del personaggio sale. La togli, e torna com'era.
+**A schermo:** un nemico lascia cadere una spada; la raccogli, apri l'inventario a griglia, la metti nello slot dell'arma e il danno nel pannello del personaggio sale. La togli, e torna com'era.
 
 **Contenuto:**
 
 - `ItemDefinition` (ScriptableObject) con **ID stabile**, `ItemInstance` (classe semplice e serializzabile), registro `ItemDatabase` (§ 4.4)
 - Oggetti a terra e raccolta
-- Inventario a griglia con oggetti su più celle, drag & drop in **uGUI** (per l'HUD di un gioco è più pratico di UI Toolkit, che tornerà utile per i tool dell'editor)
+- Inventario a griglia con oggetti su più celle in **uGUI** (per l'HUD di un gioco è più pratico di UI Toolkit, che tornerà utile per i tool dell'editor): click-e-click come in Diablo 1 invece del drag & drop previsto fino alla v2.10 (ADR-023)
 - Slot di equipaggiamento
 - `StatSystem`: i quattro attributi del § 2, modificatori fissi e percentuali con un **ordine di applicazione definito e documentato**, formula del colpo del § 2
 - Tooltip

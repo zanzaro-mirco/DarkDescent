@@ -149,3 +149,38 @@ Formato:
 - **Decisione:** la build Web si fa in CI, ad avvio manuale di `build.yml` con `targetPlatform: WebGL`. Usa compressione Gzip con *decompression fallback*, così parte anche da server che non mandano gli header di compressione, come itch.io o un server locale. La qualità resta *PC*, la stessa di Windows. Provata da Mirco il 3 ottobre 2026: luci e fluidità reggono. Alla M10 va su itch.io nel canale `web`, accanto a Windows.
 - **Alternative scartate:** solo Windows, che rinuncia al link giocabile; qualità *Mobile* per il Web, che toglieva le ombre del cavaliere e il Forward+; Brotli, che con il *fallback* si decomprime più lentamente nel browser.
 - **Conseguenze:** non serve il modulo *Web Build Support* sul PC di Mirco. Ogni effetto della M11 (shader retro, post-processing) va riprovato anche nel browser. Sul web `Application.Quit` non fa niente, e l'audio parte solo dopo il primo click.
+
+## ADR-020 — Attributi di Diablo, formula del colpo e modificatori sommati
+- **Data:** 2026-10-04
+- **Contesto:** fino alla M3 ogni colpo andava a segno con un danno fisso. Con gli oggetti servono statistiche che gli oggetti possano cambiare, e alla M5 gli affissi aggiungeranno modificatori fissi e percentuali sulla stessa statistica.
+- **Decisione:** quattro attributi più l'Armatura in uno `StatSheet` (logica pura); il cavaliere parte da 30 / 20 / 10 / 25 come il guerriero di Diablo. Vita = 50 + 2 × Vitalità. Colpire = 75 + Destrezza / 2 − Armatura del bersaglio, limitata tra 5 e 95. Danno = tiro intero tra minimo e massimo dell'arma × (1 + Forza / 100). Valore di una statistica = (base + fissi) × (1 + somma delle percentuali / 100). Ogni modificatore ricorda la sua sorgente (l'oggetto), e `RemoveModifiersFrom` li toglie tutti insieme. Gli scheletri hanno un `CharacterStats` con la sola Destrezza 10 e Armatura 10.
+- **Alternative scartate:** percentuali moltiplicate tra loro, che con gli affissi crescono in modo esponenziale e nel tooltip non si leggono; modificatori tolti uno per uno, dove basta dimenticarne uno perché togliere un oggetto non riporti le statistiche a prima; attributi completi anche per i nemici, che oggi nessuno userebbe.
+- **Conseguenze:** il bilanciamento della M2 resta: con la spada corta (6–9) il cavaliere fa 7,8–11,7 a colpo e colpisce lo scheletro 3 volte su 4. La vita massima è ancora fissa all'avvio: quando alla M5 un affisso cambierà la Vitalità, va deciso cosa succede alla vita corrente.
+
+## ADR-021 — Tiri del combattimento da una sorgente iniettata
+- **Data:** 2026-10-04
+- **Contesto:** con colpi mancati e danno variabile, i test che contano i colpi (lo scheletro muore al terzo) diventano casuali. La M5 vorrà un seme riproducibile per il loot.
+- **Decisione:** i tiri passano da `IRandomSource`. Il `CompositionRoot` crea una `SystemRandomSource` con un seme qualsiasi e la passa al cavaliere e, a ogni livello caricato, agli attacchi dei nemici. I test usano `FixedRandomSource`, che restituisce in ciclo i valori dati: con 0,0 ogni colpo va a segno con il danno minimo. Un attacco senza sorgente lancia un'eccezione invece di tirare a caso.
+- **Alternative scartate:** `UnityEngine.Random`, globale e condiviso con suoni e animazioni, quindi un seme fissato nei test non basterebbe; allentare le asserzioni dei test, che smetterebbero di verificare il numero di colpi.
+- **Conseguenze:** i test di combattimento restano deterministici senza cambiare le asserzioni. Un attaccante nuovo deve ricevere la sorgente dal `CompositionRoot`, altrimenti il primo colpo lo dice subito. Il loot della M5 avrà una sorgente sua, con il seme salvato.
+
+## ADR-022 — Oggetti con ID stabile, definizione immutabile e istanza separata
+- **Data:** 2026-10-04
+- **Contesto:** un inventario va salvato su file alla M8, e `JsonUtility` non sa salvare un riferimento a uno ScriptableObject: scrive un identificativo che cambia a ogni avvio (piano § 4.4). Alla M4 l'arma era già una `WeaponDefinition`, letta da `MeleeAttack`.
+- **Decisione:** `ItemDefinition` è uno ScriptableObject astratto e immutabile: ID generato una volta (GUID), nome, icona, celle, modello, slot, posizione in mano. `WeaponDefinition` lo estende, assorbendo quella di prima (spostata con `git mv`, stesso GUID dell'asset), e `ArmorDefinition` aggiunge l'Armatura. `ItemInstance` è una classe serializzabile con il solo ID; `ItemDatabase` risolve l'ID nella definizione e raccoglie gli oggetti di `Data/Items` da un menu dell'editor. I colpi dei nemici e i pugni restano `WeaponDefinition` in `Data/Attacks`, fuori dal database.
+- **Alternative scartate:** riferimenti diretti alle definizioni nell'inventario, da riscrivere alla M8; il nome dell'asset come ID, che cambia a ogni rinomina; due asset per la stessa spada (oggetto e arma).
+- **Conseguenze:** l'inventario si potrà salvare così com'è. Duplicare un asset copia anche l'ID: un test controlla che gli ID siano unici e che ogni definizione sia nel database. Con `git mv` il nome interno dell'asset resta quello vecchio e va corretto a mano.
+
+## ADR-023 — Inventario a click-e-click, come in Diablo 1
+- **Data:** 2026-10-04
+- **Contesto:** il piano prevedeva il drag & drop. Il gioco di riferimento usa un'altra regola, e lo scambio tra due oggetti con il trascinamento è scomodo.
+- **Decisione:** una pressione prende l'oggetto sul cursore, un'altra lo posa centrato sulla cella e spostato dentro i bordi. Su un oggetto solo li scambia, su due non fa niente. Lo slot equipaggia se l'oggetto è giusto e i requisiti bastano. Con un oggetto preso, un fondo trasparente dietro le finestre prende la pressione fuori dai pannelli e lascia l'oggetto a terra ai piedi del cavaliere; chiudendo l'inventario l'oggetto torna nella griglia. Si usa `OnPointerDown`, non il click, così prendere è immediato. La logica sta in `Inventory`, pura; i pannelli inoltrano e si ridisegnano sugli eventi.
+- **Alternative scartate:** drag & drop, che obbliga a tenere premuto e rende lo scambio poco naturale; un click destro per equipaggiare, che Diablo 1 non ha.
+- **Conseguenze:** nei test sono due pressioni invece di un trascinamento. L'immagine sul cursore non deve essere bersaglio dei raggi, i pannelli sì. Il tooltip non si mostra mentre si tiene un oggetto.
+
+## ADR-024 — Icone fatte dai modelli 3D con uno strumento di editor
+- **Data:** 2026-10-04
+- **Contesto:** ogni oggetto ha bisogno di un'icona per la griglia. KayKit fornisce modelli, non icone, e un pacchetto di icone a parte vorrebbe dire un altro stile e un'altra licenza da verificare (ADR-004).
+- **Decisione:** il menu *DarkDescent → Oggetti → Rigenera le icone* fotografa ogni modello in una scena di anteprima: camera ortografica, sfondo trasparente, 128 pixel per cella, rotazione propria di ogni oggetto (lo scudo va girato di 180° per mostrare lo stemma). Le PNG finiscono in `Art/Icons/` come sprite e si committano.
+- **Alternative scartate:** icone disegnate o prese da un pacchetto, con stile e licenza diversi; icone renderizzate a runtime, che costano memoria e tempo all'avvio per immagini che non cambiano mai.
+- **Conseguenze:** un oggetto nuovo della M5 ha l'icona con un click, nello stesso stile degli oggetti a terra. Se cambia un modello, l'icona va rigenerata.

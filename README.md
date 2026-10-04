@@ -5,20 +5,23 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Discesa: nella cripta buia il cavaliere raggiunge la scala evidenziata e scende al livello 2](docs/media/m3_descent.gif)
+![Loot: lo scheletro cade e lascia la sua lama, il cavaliere la raccoglie, la equipaggia dall'inventario e il danno sale](docs/media/m4_loot.gif)
 
 ## Stato
 
-**M3 — "Un dungeon fatto a mano"** chiusa il 3 ottobre 2026 (tag `m3`): due livelli di
-una cripta, costruiti da mappe di testo con il tileset KayKit. Il dungeon è buio:
-torce che tremano sui muri e una luce che segue il cavaliere, l'unica con le ombre. In
-fondo al primo livello una scala, evidenziata al passaggio del mouse: un click e il
-cavaliere scende al livello 2 con la vita che aveva. Camera Cinemachine con zona morta
-e scossa sui colpi, audio posizionale: gli scheletri si sentono prima di vederli. La
-build gira anche nel browser.
-Prossima: **M4 — "Raccolgo roba"**.
+**M4 — "Raccolgo roba"** chiusa il 4 ottobre 2026 (tag `m4`): attributi alla Diablo
+(Forza, Destrezza, Magia, Vitalità) e una formula del colpo con colpi mancati e danno
+variabile. Gli scheletri lasciano la loro lama, uno scudo aspetta nella prima stanza: un
+click e il cavaliere li raccoglie. Inventario a griglia 10 × 4 con oggetti su più celle,
+presi e posati con un click come in Diablo 1, slot di arma e scudo visibili in mano al
+cavaliere, tooltip con danno e requisiti, pannello del personaggio che si aggiorna.
+Prossima: **M5 — "Loot casuale"**.
 
 Milestone precedenti:
+
+- **M3 — "Un dungeon fatto a mano"** (tag `m3`): due livelli di una cripta buia da mappe
+  di testo, torce, scala per scendere, camera Cinemachine, audio posizionale, build Web
+  ([GIF](docs/media/m3_descent.gif)).
 
 - **M2.5 — Pipeline automatica** (tag `m2.5`): test e build in CI con GitHub Actions e
   GameCI (vedi [CI](#ci)).
@@ -33,6 +36,10 @@ Milestone precedenti:
 - click sinistro sul pavimento per muoversi; tenendo premuto, il personaggio segue il cursore
 - click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo
 - click sinistro sulla scala per scendere al livello successivo
+- click sinistro su un oggetto a terra per raccoglierlo
+- `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
+  con un oggetto preso, un click fuori dalle finestre lo lascia a terra
+- `C` pannello del personaggio
 
 ## CI
 

@@ -318,6 +318,16 @@ chiusura; i quattro angoli dello schermo) verdi.
    stabile (D4), click-e-click nell'inventario (D5), icone dai modelli (D6).
 3. Lezioni nel piano, tabella dello stato, tag `m4`.
 
+**Com'è andata (4 ott 2026).** GIF del README (`docs/media/m4_loot.gif`, 800 × 450,
+1,2 MB in LFS) registrata da un test usa e getta nel livello 1: lo scheletro cade, la lama
+a terra si accende sotto il mouse, il cavaliere la raccoglie; nell'inventario il tooltip
+mostra 8–12 e Forza 25, la lama va nello slot e il pannello passa da 8–12 a 10–16, la
+spada corta torna nella griglia. A 640 × 360, come alla M3, il testo dei pannelli non si
+leggeva. ADR-020…024: attributi e formula (D1, D2), tiri iniettati (D3), oggetti con ID
+stabile (D4), click-e-click (D5), icone dai modelli (D6). Piano alla v2.11 con le
+lezioni, § 2 e § 4.4 confermati, tabella dello stato; README con la GIF nuova e i comandi
+dell'inventario.
+
 ---
 
 ## Trappole note
@@ -376,5 +386,5 @@ chiusura; i quattro angoli dello schermo) verdi.
 - [x] Inventario, pannello del personaggio e tooltip
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
-- [ ] GIF, ADR, lezioni nel piano, tag `m4`
+- [ ] GIF, ADR, lezioni nel piano, tag `m4` (manca il tag)
 - [ ] Scheda della M5 scritta prima di cominciarla
