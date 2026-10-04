@@ -310,7 +310,7 @@ Chiusa il 3 ottobre 2026: 18 test EditMode e 58 PlayMode verdi, build Windows de
 
 ### M4 — "Raccolgo roba" ✅
 
-Chiusa il 4 ottobre 2026: 62 test EditMode e 77 PlayMode verdi. Lezioni emerse:
+Chiusa il 4 ottobre 2026: 62 test EditMode e 77 PlayMode verdi, build Windows della CI provata da Mirco sullo scenario della Definition of Done. Lezioni emerse:
 
 - **La casualità si inietta prima di introdurla** (ADR-021): con una sorgente fissa i test che contano i colpi sono rimasti com'erano. Allentarli avrebbe tolto proprio quello che verificano.
 - **Una statistica si toglie per sorgente, non per valore** (ADR-020): ogni modificatore ricorda l'oggetto che l'ha messo, e togliere l'oggetto riporta le statistiche esattamente a prima. È il test che il piano chiedeva, e regge anche per gli affissi della M5.
