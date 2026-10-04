@@ -1,5 +1,6 @@
 using System.Text;
 using DarkDescent.Items;
+using DarkDescent.Localization;
 using TMPro;
 using UnityEngine;
 
@@ -37,9 +38,9 @@ namespace DarkDescent.UI
         public RectTransform Box => _box;
 
         /// <summary>Descrive l'oggetto accanto a <paramref name="target"/>, il rettangolo che lo mostra.</summary>
-        public void Show(ItemDefinition definition, bool meetsRequirements, RectTransform target)
+        public void Show(ItemDefinition definition, bool meetsRequirements, Localizer localizer, RectTransform target)
         {
-            ItemDescription.Write(_builder, definition, meetsRequirements);
+            ItemDescription.Write(_builder, definition, meetsRequirements, localizer);
             _text.SetText(_builder);
             _box.gameObject.SetActive(true);
 

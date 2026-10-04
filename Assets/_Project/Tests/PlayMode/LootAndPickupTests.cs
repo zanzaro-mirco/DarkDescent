@@ -47,7 +47,7 @@ namespace DarkDescent.Tests
             var drops = GroundItems();
             Assert.AreEqual(1, drops.Length);
             Assert.AreEqual("SkeletonBlade", drops[0].Item.Definition.name);
-            Assert.AreEqual("Lama dello scheletro", drops[0].GetComponent<Interactable>().Label);
+            Assert.AreEqual("Skeleton Blade", drops[0].GetComponent<Interactable>().GetLabel(Localizer));
             Assert.Less(FlatDistance(drops[0].transform.position, GameObject.Find(SkeletonName).transform.position), 2f);
             Assert.IsTrue(NavMesh.SamplePosition(drops[0].transform.position, out _, 0.2f, NavMesh.AllAreas), "deve stare dove il cavaliere arriva");
         }
@@ -88,7 +88,7 @@ namespace DarkDescent.Tests
             yield return new WaitForSeconds(0.3f);
 
             Assert.IsTrue(drop != null, "deve restare a terra");
-            StringAssert.Contains("inventario pieno", drop.GetComponent<Interactable>().Label);
+            StringAssert.Contains("inventory full", drop.GetComponent<Interactable>().GetLabel(Localizer));
         }
 
         [UnityTest, Description("Nel livello 1 lo scudo è a terra; scendendo, gli oggetti a terra se ne vanno con il livello")]

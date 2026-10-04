@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ShortSword
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.WeaponDefinition
   _id: 79db3768aa614aa9b28c0a633e7832e7
-  _displayName: Spada corta
+  _nameKey: item.short_sword
   _icon: {fileID: 21300000, guid: 2a96fe246af1f7c4fa14046d61679be5, type: 3}
   _size: {x: 1, y: 3}
   _model: {fileID: 919132149155446097, guid: b13735070651ed941bee37d751401c21, type: 3}

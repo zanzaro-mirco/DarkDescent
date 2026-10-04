@@ -3,6 +3,7 @@ using System.IO;
 using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Localization;
 using Unity.AI.Navigation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -276,8 +277,9 @@ namespace DarkDescent.Editor
             return map.IsFloor(marker.X + Mathf.RoundToInt(dir.x), marker.Y - Mathf.RoundToInt(dir.z));
         }
 
-        // "Level_02" diventa "Scendi al livello 2": il numero è quello in fondo al nome della scena
-        private static string ExitLabel(string targetScene)
+        // "Level_02" diventa 2, il segnaposto di "Descend to level {0}": il numero è quello in fondo
+        // al nome della scena; vuoto se non ce n'è
+        private static string ExitLevelNumber(string targetScene)
         {
             int start = targetScene.Length;
             while (start > 0 && char.IsDigit(targetScene[start - 1]))
@@ -285,9 +287,7 @@ namespace DarkDescent.Editor
                 start--;
             }
 
-            return start < targetScene.Length
-                ? $"Scendi al livello {int.Parse(targetScene.Substring(start))}"
-                : "Scendi";
+            return start < targetScene.Length ? int.Parse(targetScene.Substring(start)).ToString() : string.Empty;
         }
 
         // Sotto il cursore si accendono la scala e le balaustre, e il bagliore si alza. Lo stendardo
@@ -342,7 +342,8 @@ namespace DarkDescent.Editor
             var interactable = go.AddComponent<Interactable>();
             var so = new SerializedObject(interactable);
             so.FindProperty("_approachPoint").objectReferenceValue = approach;
-            so.FindProperty("_label").stringValue = ExitLabel(targetScene);
+            so.FindProperty("_labelKey").stringValue = TextKeys.ExitDescend;
+            so.FindProperty("_labelArgument").stringValue = ExitLevelNumber(targetScene);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             Debug.Assert(ApproachDistance > half && ApproachDistance < half + ExitTriggerReach, "il punto d'arrivo deve stare nel trigger");

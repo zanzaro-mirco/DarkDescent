@@ -88,7 +88,7 @@ namespace DarkDescent.Tests
                 Assert.IsNotNull(Object.FindFirstObjectByType<NavMeshSurface>(), $"{level}: manca il NavMesh");
                 foreach (var exit in context.Exits)
                 {
-                    Assert.IsNotEmpty(exit.GetComponent<Interactable>().Label, $"{level}: uscita senza etichetta");
+                    Assert.IsNotEmpty(exit.GetComponent<Interactable>().LabelKey, $"{level}: uscita senza etichetta");
                     Assert.IsNotNull(exit.GetComponent<InteractableHighlight>(), $"{level}: uscita che non si evidenzia");
                     exits.Add((level, exit.TargetScene, exit.TargetEntrance));
                 }

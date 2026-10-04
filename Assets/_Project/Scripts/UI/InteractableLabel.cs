@@ -1,4 +1,5 @@
 using DarkDescent.Interaction;
+using DarkDescent.Localization;
 using DarkDescent.Player;
 using TMPro;
 using UnityEngine;
@@ -7,7 +8,8 @@ namespace DarkDescent.UI
 {
     /// <summary>
     /// Il nome di ciò che sta sotto il cursore, in alto al centro dello schermo. Nessun polling: si
-    /// aggiorna quando il controller annuncia che l'oggetto sotto il cursore è cambiato.
+    /// aggiorna quando il controller annuncia che l'oggetto sotto il cursore è cambiato, quando
+    /// l'oggetto cambia nome e quando cambia la lingua.
     /// </summary>
     [DisallowMultipleComponent]
     public class InteractableLabel : MonoBehaviour
@@ -18,6 +20,7 @@ namespace DarkDescent.UI
         [SerializeField] private TMP_Text _text;
 
         private PlayerController _controller;
+        private Localizer _localizer;
         private Interactable _shown;
         private bool _subscribed;
 
@@ -26,10 +29,11 @@ namespace DarkDescent.UI
         public string Text => _text.text;
 
         /// <summary>Come la sfera: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
-        public void Bind(PlayerController controller)
+        public void Bind(PlayerController controller, Localizer localizer)
         {
             Unsubscribe();
             _controller = controller;
+            _localizer = localizer;
             if (isActiveAndEnabled)
             {
                 Subscribe();
@@ -59,6 +63,7 @@ namespace DarkDescent.UI
             }
 
             _controller.HoveredChanged += Show;
+            _localizer.LanguageChanged += HandleLanguageChanged;
             _subscribed = true;
             Show(_controller.Hovered);
         }
@@ -71,6 +76,7 @@ namespace DarkDescent.UI
             }
 
             _controller.HoveredChanged -= Show;
+            _localizer.LanguageChanged -= HandleLanguageChanged;
             _subscribed = false;
             Watch(null);
         }
@@ -103,12 +109,18 @@ namespace DarkDescent.UI
             }
         }
 
+        private void HandleLanguageChanged()
+        {
+            Refresh(_shown);
+        }
+
         private void Refresh(Interactable hovered)
         {
-            bool visible = hovered != null && !string.IsNullOrEmpty(hovered.Label);
+            string label = hovered != null ? hovered.GetLabel(_localizer) : null;
+            bool visible = !string.IsNullOrEmpty(label);
             if (visible)
             {
-                _text.text = hovered.Label;
+                _text.text = label;
             }
 
             _panel.SetActive(visible);

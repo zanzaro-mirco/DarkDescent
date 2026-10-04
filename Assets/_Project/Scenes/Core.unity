@@ -748,6 +748,7 @@ GameObject:
   - component: {fileID: 150062855}
   - component: {fileID: 150062857}
   - component: {fileID: 150062856}
+  - component: {fileID: 150062858}
   m_Layer: 5
   m_Name: Names
   m_TagString: Untagged
@@ -875,6 +876,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 150062854}
   m_CullTransparentMesh: 1
+--- !u!114 &150062858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 150062854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 167485ba2a0d54449a2a96cb1f9a08c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Localization.LocalizedText
+  _key: hud.stat_names
 --- !u!1 &156087292
 GameObject:
   m_ObjectHideFlags: 0
@@ -1328,6 +1342,7 @@ GameObject:
   - component: {fileID: 351169852}
   - component: {fileID: 351169854}
   - component: {fileID: 351169853}
+  - component: {fileID: 351169855}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -1454,6 +1469,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 351169851}
   m_CullTransparentMesh: 1
+--- !u!114 &351169855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 351169851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 167485ba2a0d54449a2a96cb1f9a08c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Localization.LocalizedText
+  _key: hud.you_died
 --- !u!1 &395246509
 GameObject:
   m_ObjectHideFlags: 0
@@ -1586,7 +1614,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Scendi al livello 2
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1706,6 +1734,7 @@ MonoBehaviour:
   _itemCursor: {fileID: 1537484015}
   _hitStop: {fileID: 1360960571}
   _playerCamera: {fileID: 1669943979}
+  _strings: {fileID: 4900000, guid: 2fda7ed2ca7aa064bafe58a844401558, type: 3}
 --- !u!4 &429751714
 Transform:
   m_ObjectHideFlags: 0
@@ -2262,6 +2291,7 @@ GameObject:
   - component: {fileID: 609819658}
   - component: {fileID: 609819660}
   - component: {fileID: 609819659}
+  - component: {fileID: 609819661}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -2388,6 +2418,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 609819657}
   m_CullTransparentMesh: 1
+--- !u!114 &609819661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 609819657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 167485ba2a0d54449a2a96cb1f9a08c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Localization.LocalizedText
+  _key: hud.shield
 --- !u!1 &615250346
 GameObject:
   m_ObjectHideFlags: 0
@@ -2530,6 +2573,7 @@ GameObject:
   - component: {fileID: 660707476}
   - component: {fileID: 660707478}
   - component: {fileID: 660707477}
+  - component: {fileID: 660707479}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -2656,6 +2700,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 660707475}
   m_CullTransparentMesh: 1
+--- !u!114 &660707479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660707475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 167485ba2a0d54449a2a96cb1f9a08c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Localization.LocalizedText
+  _key: hud.restart
 --- !u!1 &689323848
 GameObject:
   m_ObjectHideFlags: 0
@@ -4999,6 +5056,7 @@ GameObject:
   - component: {fileID: 1465814972}
   - component: {fileID: 1465814974}
   - component: {fileID: 1465814973}
+  - component: {fileID: 1465814975}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -5125,6 +5183,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1465814971}
   m_CullTransparentMesh: 1
+--- !u!114 &1465814975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1465814971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 167485ba2a0d54449a2a96cb1f9a08c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Localization.LocalizedText
+  _key: hud.weapon
 --- !u!1 &1494557141
 GameObject:
   m_ObjectHideFlags: 0
@@ -5788,6 +5859,7 @@ GameObject:
   - component: {fileID: 1666698301}
   - component: {fileID: 1666698303}
   - component: {fileID: 1666698302}
+  - component: {fileID: 1666698304}
   m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
@@ -5914,6 +5986,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1666698300}
   m_CullTransparentMesh: 1
+--- !u!114 &1666698304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1666698300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 167485ba2a0d54449a2a96cb1f9a08c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Localization.LocalizedText
+  _key: hud.inventory
 --- !u!1 &1669943976
 GameObject:
   m_ObjectHideFlags: 0
@@ -6392,6 +6477,7 @@ GameObject:
   - component: {fileID: 1749202486}
   - component: {fileID: 1749202488}
   - component: {fileID: 1749202487}
+  - component: {fileID: 1749202489}
   m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
@@ -6518,6 +6604,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1749202485}
   m_CullTransparentMesh: 1
+--- !u!114 &1749202489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749202485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 167485ba2a0d54449a2a96cb1f9a08c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Localization.LocalizedText
+  _key: hud.character
 --- !u!1 &1765101943
 GameObject:
   m_ObjectHideFlags: 0

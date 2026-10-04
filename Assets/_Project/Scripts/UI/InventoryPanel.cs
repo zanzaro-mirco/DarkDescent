@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DarkDescent.Items;
+using DarkDescent.Localization;
 using DarkDescent.Player;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,6 +41,7 @@ namespace DarkDescent.UI
         private EquipSlot _hoveredSlot = EquipSlot.None;
         private PlayerInventory _inventory;
         private PlayerInputReader _reader;
+        private Localizer _localizer;
         private bool _subscribed;
 
         public bool IsOpen => _window.activeSelf;
@@ -65,11 +67,12 @@ namespace DarkDescent.UI
         }
 
         /// <summary>Come la sfera: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
-        public void Bind(PlayerInventory inventory, PlayerInputReader reader)
+        public void Bind(PlayerInventory inventory, PlayerInputReader reader, Localizer localizer)
         {
             Unsubscribe();
             _inventory = inventory;
             _reader = reader;
+            _localizer = localizer;
             if (isActiveAndEnabled)
             {
                 Subscribe();
@@ -166,6 +169,7 @@ namespace DarkDescent.UI
             _inventory.Inventory.Grid.Changed += RefreshGrid;
             _inventory.Equipment.Changed += RefreshSlot;
             _inventory.Inventory.HeldChanged += HandleHeldChanged;
+            _localizer.LanguageChanged += RefreshTooltip;
             _subscribed = true;
 
             RefreshGrid();
@@ -185,6 +189,7 @@ namespace DarkDescent.UI
             _inventory.Inventory.Grid.Changed -= RefreshGrid;
             _inventory.Equipment.Changed -= RefreshSlot;
             _inventory.Inventory.HeldChanged -= HandleHeldChanged;
+            _localizer.LanguageChanged -= RefreshTooltip;
             _subscribed = false;
         }
 
@@ -282,7 +287,7 @@ namespace DarkDescent.UI
                 return;
             }
 
-            _tooltip.Show(item.Definition, _inventory.Equipment.MeetsRequirements(item.Definition), target);
+            _tooltip.Show(item.Definition, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target);
         }
     }
 }

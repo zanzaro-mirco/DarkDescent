@@ -204,9 +204,9 @@ namespace DarkDescent.Tests
 
             yield return HoverScreen(CellOnScreen(new Vector2Int(0, 1)));
             Assert.IsTrue(tooltip.IsShowing, "sopra la lama");
-            StringAssert.Contains("Lama dello scheletro", tooltip.Text);
-            StringAssert.Contains("Danno: 8–12", tooltip.Text);
-            StringAssert.Contains("Forza richiesta: 25", tooltip.Text);
+            StringAssert.Contains("Skeleton Blade", tooltip.Text);
+            StringAssert.Contains("Damage: 8–12", tooltip.Text);
+            StringAssert.Contains("Required Strength: 25", tooltip.Text);
             StringAssert.DoesNotContain("<color", tooltip.Text, "Forza 30: il requisito non è in rosso");
             AssertInsideScreen(tooltip.Box);
 
@@ -235,8 +235,8 @@ namespace DarkDescent.Tests
 
             yield return HoverScreen(CenterOnScreen((RectTransform)SlotView(EquipSlot.Weapon).transform));
             Assert.IsTrue(tooltip.IsShowing);
-            StringAssert.Contains("Spada corta", tooltip.Text);
-            StringAssert.Contains("Danno: 6–9", tooltip.Text);
+            StringAssert.Contains("Short Sword", tooltip.Text);
+            StringAssert.Contains("Damage: 6–9", tooltip.Text);
             AssertInsideScreen(tooltip.Box);
 
             _panel.SetOpen(false);
@@ -259,7 +259,7 @@ namespace DarkDescent.Tests
             {
                 target.anchorMin = target.anchorMax = target.pivot = corner;
                 target.anchoredPosition = Vector2.zero;
-                tooltip.Show(definition, true, target);
+                tooltip.Show(definition, true, Localizer, target);
                 AssertInsideScreen(tooltip.Box);
             }
 

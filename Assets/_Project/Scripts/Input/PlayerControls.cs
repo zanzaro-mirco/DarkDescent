@@ -133,6 +133,16 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""CycleLanguage"",
+                    ""type"": ""Button"",
+                    ""id"": ""c1dff042-bf23-4660-8a88-aadcc77f8765"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -179,6 +189,17 @@ namespace DarkDescent.Input
                     ""action"": ""ToggleCharacter"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""376bdc7f-391a-4bc0-8bd9-ac6a9fd31125"",
+                    ""path"": ""<Keyboard>/f9"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CycleLanguage"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -191,6 +212,7 @@ namespace DarkDescent.Input
             m_Gameplay_Point = m_Gameplay.FindAction("Point", throwIfNotFound: true);
             m_Gameplay_ToggleInventory = m_Gameplay.FindAction("ToggleInventory", throwIfNotFound: true);
             m_Gameplay_ToggleCharacter = m_Gameplay.FindAction("ToggleCharacter", throwIfNotFound: true);
+            m_Gameplay_CycleLanguage = m_Gameplay.FindAction("CycleLanguage", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -275,6 +297,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_Point;
         private readonly InputAction m_Gameplay_ToggleInventory;
         private readonly InputAction m_Gameplay_ToggleCharacter;
+        private readonly InputAction m_Gameplay_CycleLanguage;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -302,6 +325,10 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/ToggleCharacter".
             /// </summary>
             public InputAction @ToggleCharacter => m_Wrapper.m_Gameplay_ToggleCharacter;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/CycleLanguage".
+            /// </summary>
+            public InputAction @CycleLanguage => m_Wrapper.m_Gameplay_CycleLanguage;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -340,6 +367,9 @@ namespace DarkDescent.Input
                 @ToggleCharacter.started += instance.OnToggleCharacter;
                 @ToggleCharacter.performed += instance.OnToggleCharacter;
                 @ToggleCharacter.canceled += instance.OnToggleCharacter;
+                @CycleLanguage.started += instance.OnCycleLanguage;
+                @CycleLanguage.performed += instance.OnCycleLanguage;
+                @CycleLanguage.canceled += instance.OnCycleLanguage;
             }
 
             /// <summary>
@@ -363,6 +393,9 @@ namespace DarkDescent.Input
                 @ToggleCharacter.started -= instance.OnToggleCharacter;
                 @ToggleCharacter.performed -= instance.OnToggleCharacter;
                 @ToggleCharacter.canceled -= instance.OnToggleCharacter;
+                @CycleLanguage.started -= instance.OnCycleLanguage;
+                @CycleLanguage.performed -= instance.OnCycleLanguage;
+                @CycleLanguage.canceled -= instance.OnCycleLanguage;
             }
 
             /// <summary>
@@ -431,6 +464,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnToggleCharacter(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "CycleLanguage" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnCycleLanguage(InputAction.CallbackContext context);
         }
     }
 }

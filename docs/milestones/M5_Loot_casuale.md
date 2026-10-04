@@ -170,6 +170,29 @@ non c'è; ogni chiave usata da scene, codice e definizioni esiste; ogni lingua h
 righe; cambiare lingua ridisegna pannello del personaggio, tooltip ed etichetta a terra; `F9`
 passa da inglese a italiano e la scelta resta dopo un nuovo avvio di `Core`.
 
+**Com'è andata (4 ott 2026).** `StringTable` legge `Data/Localization/Strings.csv`
+(intestazione `key,en,it`, virgolette, virgolette raddoppiate, `
+`, commenti con `#`) e
+rifiuta chiavi ripetute e virgolette non chiuse. `Localizer` (logica pura) tiene la lingua
+attiva, ricade sull'inglese, restituisce `#chiave` per una chiave che non c'è e manda
+`LanguageChanged`; `Format` usa sempre le cifre invarianti. Le chiavi del codice stanno in
+`TextKeys`. Nessun singleton (ADR-007): il `CompositionRoot` crea il `Localizer` dalla
+tabella, legge `-lang` (`CommandLine`, che servirà anche per `-seed`) o la preferenza in
+`PlayerPrefs`, e lo passa a etichette, numeri di danno, etichetta sotto il cursore e
+inventario. **Etichette fisse:** uno script di editor ha messo `LocalizedText` sulle otto
+etichette dell'HUD (titoli, slot, nomi delle statistiche, schermata di morte). **Oggetti:**
+`_displayName` è diventato `_nameKey` (`item.short_sword`…), armi dei nemici comprese.
+**Nomi sotto il cursore:** `Interactable` tiene una chiave e un argomento (le scale:
+`exit.descend` con 2, livelli ricostruiti dal builder), oppure una sorgente che compone il
+nome da sé (`ILabelSource`): l'oggetto a terra, con "(inventory full)". Il nome si compone
+quando serve, nella lingua del momento. **F9:** azione `CycleLanguage`, import della
+classe generata in due tempi come alla M4; la scelta va in `PlayerPrefs`. I test girano in
+inglese (la fixture cancella la preferenza) e le asserzioni sui testi sono passate
+all'inglese. Test: 72 EditMode (`LocalizationTests`, `LocalizationCoverageTests`: chiavi del
+codice, degli oggetti, delle scene e dei prefab, lingue complete; `ItemDescriptionTests`
+anche in italiano) e 79 PlayMode (`LanguageSwitchTests`: F9, finestra chiusa al cambio,
+preferenza al riavvio di `Core`, tooltip e nome a terra riscritti) verdi.
+
 ## Passo 5.2 — Blocco con lo scudo
 
 1. Probabilità di blocco: blocco dello scudo + Destrezza / 2, al massimo 75 (logica pura in
@@ -317,7 +340,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D13 confermate
-- [ ] Lingue: inglese di default, italiano con `-lang it` e `F9`, testi di oggi tradotti
+- [x] Lingue: inglese di default, italiano con `-lang it` e `F9`, testi di oggi tradotti
 - [ ] Blocco con lo scudo, con animazione e suono
 - [ ] Affissi, rarità e generatore riproducibile
 - [ ] Statistiche nuove e vita massima variabile

@@ -1,0 +1,31 @@
+key,en,it
+# Tabella delle stringhe (D12 della M5): una riga per chiave, una colonna per lingua.
+# Una lingua nuova è una colonna in più. \n va a capo; i campi con virgole vanno tra virgolette.
+
+# HUD
+hud.inventory,Inventory,Inventario
+hud.weapon,Weapon,Arma
+hud.shield,Shield,Scudo
+hud.character,Knight,Cavaliere
+hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance (skeleton),Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire (scheletro)
+hud.you_died,YOU DIED,SEI MORTO
+hud.restart,Restart,Ricomincia
+
+# Combattimento
+combat.miss,Miss,Mancato
+
+# Oggetti a terra e scale
+exit.descend,Descend to level {0},Scendi al livello {0}
+ground.inventory_full,{0} (inventory full),{0} (inventario pieno)
+
+# Tooltip
+tooltip.damage,Damage: {0}–{1},Danno: {0}–{1}
+tooltip.armor,Armor: {0},Armatura: {0}
+tooltip.required_strength,Required Strength: {0},Forza richiesta: {0}
+
+# Oggetti
+item.short_sword,Short Sword,Spada corta
+item.skeleton_blade,Skeleton Blade,Lama dello scheletro
+item.badge_shield,Crest Shield,Scudo con stemma
+item.skeleton_strike,Skeleton Strike,Fendente dello scheletro
+item.unarmed,Fists,Pugni

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BadgeShield
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.ArmorDefinition
   _id: 9e796d2f41cc412f92285002e35ab437
-  _displayName: Scudo con stemma
+  _nameKey: item.badge_shield
   _icon: {fileID: 21300000, guid: 510086d2bf4b2ac4799c310300357a8b, type: 3}
   _size: {x: 2, y: 2}
   _model: {fileID: 919132149155446097, guid: 4a1cd819d72d4c8c8ed0809f6c6b08a7, type: 3}

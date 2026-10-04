@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DarkDescent.Combat;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Localization;
 using DarkDescent.Player;
 using DarkDescent.UI;
 using Unity.Cinemachine;
@@ -40,7 +41,17 @@ namespace DarkDescent.Core
 
         [SerializeField] private CinemachineCamera _playerCamera;
 
+        [Tooltip("La tabella delle stringhe: una colonna per lingua (D12 della M5).")]
+        [SerializeField] private TextAsset _strings;
+
+        /// <summary>Dove resta la lingua scelta tra un avvio e l'altro: è una preferenza, non la partita.</summary>
+        public const string LanguagePreference = "language";
+
+        private const string LanguageOption = "-lang";
+
         private MeleeAttack _playerAttack;
+        private PlayerInputReader _reader;
+        private Localizer _localizer;
 
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
         private IRandomSource _random;
@@ -51,22 +62,40 @@ namespace DarkDescent.Core
         // quelle già distrutte, di cui non si potrebbe più chiedere il componente all'EnemyAI
         private readonly List<Health> _trackedEnemies = new List<Health>();
 
+        /// <summary>La lingua del gioco: i test la leggono e la cambiano da qui.</summary>
+        public Localizer Localizer => _localizer;
+
         private void Awake()
         {
+            // la lingua per prima: chi viene collegato dopo mostra già il testo giusto. La riga di
+            // comando vince sulla preferenza salvata, che vince sull'inglese
+            _localizer = new Localizer(StringTable.Parse(_strings.text));
+            if (!CommandLine.TryGetValue(Environment.GetCommandLineArgs(), LanguageOption, out string language))
+            {
+                language = PlayerPrefs.GetString(LanguagePreference, Localizer.DefaultLanguage);
+            }
+
+            _localizer.SetLanguage(language);
+            foreach (var text in FindObjectsByType<LocalizedText>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                text.Bind(_localizer);
+            }
+
             _playerAttack = _player.GetComponent<MeleeAttack>();
             _random = new SystemRandomSource(Environment.TickCount);
             _playerAttack.SetRandomSource(_random);
 
             _healthOrb.Bind(_player);
             _deathScreen.Bind(_player);
+            _damageNumbers.SetLocalizer(_localizer);
             _damageNumbers.Track(_player, isPlayer: true);
-            _interactableLabel.Bind(_player.GetComponent<PlayerController>());
+            _interactableLabel.Bind(_player.GetComponent<PlayerController>(), _localizer);
 
             var inventory = _player.GetComponent<PlayerInventory>();
-            var reader = _player.GetComponent<PlayerInputReader>();
-            _inventoryPanel.Bind(inventory, reader);
-            _itemCursor.Bind(inventory, reader);
-            _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, reader);
+            _reader = _player.GetComponent<PlayerInputReader>();
+            _inventoryPanel.Bind(inventory, _reader, _localizer);
+            _itemCursor.Bind(inventory, _reader);
+            _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _reader);
         }
 
         private void OnEnable()
@@ -75,6 +104,7 @@ namespace DarkDescent.Core
             _playerAttack.HitLanded += HandlePlayerHitLanded;
             _levelManager.LevelLoaded += BindLevel;
             _levelManager.LevelUnloading += ReleaseLevel;
+            _reader.LanguageCycled += CycleLanguage;
         }
 
         private void OnDisable()
@@ -83,6 +113,15 @@ namespace DarkDescent.Core
             _playerAttack.HitLanded -= HandlePlayerHitLanded;
             _levelManager.LevelLoaded -= BindLevel;
             _levelManager.LevelUnloading -= ReleaseLevel;
+            _reader.LanguageCycled -= CycleLanguage;
+        }
+
+        // tasto provvisorio (D13 della M5): la scelta vera andrà nel menu delle opzioni della M10
+        private void CycleLanguage()
+        {
+            _localizer.CycleLanguage();
+            PlayerPrefs.SetString(LanguagePreference, _localizer.Language);
+            PlayerPrefs.Save();
         }
 
         private void BindLevel(LevelContext level)

@@ -3,6 +3,7 @@ using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
 using DarkDescent.Levels;
+using DarkDescent.Localization;
 using DarkDescent.Stats;
 using NUnit.Framework;
 using UnityEngine;
@@ -29,8 +30,19 @@ namespace DarkDescent.Tests
         /// Falso (default): resta attivo solo lo scheletro "Skeleton", così i test su un nemico non
         /// vengono disturbati dagli altri. Vero: la stanza com'è nella build.
         /// </param>
+        /// <summary>La lingua del gioco, creata dal CompositionRoot.</summary>
+        protected static Localizer Localizer => Object.FindFirstObjectByType<CompositionRoot>().Localizer;
+
+        // ogni test parte in inglese, la lingua di default: una scelta salvata da un test o da una
+        // prova nell'editor non deve cambiare i testi attesi
+        private static void ForgetLanguage()
+        {
+            PlayerPrefs.DeleteKey(CompositionRoot.LanguagePreference);
+        }
+
         protected IEnumerator LoadSandbox(bool allSkeletons = false)
         {
+            ForgetLanguage();
             Mouse = InputSystem.AddDevice<Mouse>();
 
             // Core e sandbox nello stesso frame: il LevelManager trova la sandbox già aperta e la usa
@@ -59,6 +71,7 @@ namespace DarkDescent.Tests
         /// <summary>Core da sola, come nella build: il LevelManager carica il primo livello.</summary>
         protected IEnumerator LoadCore()
         {
+            ForgetLanguage();
             Mouse = InputSystem.AddDevice<Mouse>();
             SceneManager.LoadScene("Core");
             yield return WaitForLevel();

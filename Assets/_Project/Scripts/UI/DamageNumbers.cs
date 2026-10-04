@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DarkDescent.Combat;
+using DarkDescent.Localization;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -32,8 +33,6 @@ namespace DarkDescent.UI
         [Tooltip("Vuoto = Camera.main, risolta in Awake.")]
         [SerializeField] private Camera _camera;
 
-        private const string MissText = "Mancato";
-
         // per ogni Health seguita, i suoi handler: servono gli stessi delegati per il -=
         private readonly Dictionary<Health, (Action<DamageInfo, float> damaged, Action<DamageInfo> evaded)> _handlers =
             new Dictionary<Health, (Action<DamageInfo, float>, Action<DamageInfo>)>();
@@ -41,6 +40,7 @@ namespace DarkDescent.UI
         private ObjectPool<DamageNumber> _pool;
         private RectTransform _container;
         private Canvas _canvas;
+        private Localizer _localizer;
         private bool _subscribed;
 
         public int ActiveCount => _active.Count;
@@ -63,6 +63,12 @@ namespace DarkDescent.UI
                 actionOnRelease: number => number.gameObject.SetActive(false),
                 actionOnDestroy: number => Destroy(number.gameObject),
                 defaultCapacity: 8);
+        }
+
+        /// <summary>Le scritte come "Miss" si chiedono qui, nella lingua del momento.</summary>
+        public void SetLocalizer(Localizer localizer)
+        {
+            _localizer = localizer;
         }
 
         /// <summary>
@@ -151,7 +157,7 @@ namespace DarkDescent.UI
         private void SpawnMiss(Transform owner)
         {
             var number = _pool.Get();
-            number.ShowText(owner.position + Vector3.up * _spawnHeight, MissText, _missColor);
+            number.ShowText(owner.position + Vector3.up * _spawnHeight, _localizer.Get(TextKeys.Miss), _missColor);
             Activate(number);
         }
 

@@ -1,4 +1,5 @@
 using DarkDescent.Interaction;
+using DarkDescent.Localization;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -7,11 +8,12 @@ namespace DarkDescent.Items
     /// <summary>
     /// Un oggetto a terra: il suo modello disteso sul pavimento, una piccola luce per trovarlo nel
     /// buio, un collider per il click. Si clicca come le scale (un Interactable); raggiunto, va
-    /// nell'inventario di chi lo usa, oppure resta e l'etichetta dice che non c'è posto.
+    /// nell'inventario di chi lo usa, oppure resta e l'etichetta dice che non c'è posto. Il nome lo
+    /// compone lui, nella lingua che l'HUD gli chiede.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Interactable), typeof(BoxCollider))]
-    public class GroundItem : MonoBehaviour
+    public class GroundItem : MonoBehaviour, ILabelSource
     {
         [Tooltip("L'oggetto messo nella scena dalla mappa. Vuoto per quelli creati a runtime con Spawn.")]
         [SerializeField] private ItemDefinition _definition;
@@ -19,11 +21,10 @@ namespace DarkDescent.Items
         [Tooltip("Dimensione minima del collider: un pugnale deve restare facile da cliccare.")]
         [SerializeField, Min(0.1f)] private float _minClickSize = 0.6f;
 
-        private const string FullSuffix = " (inventario pieno)";
-
         private Interactable _interactable;
         private ItemInstance _item;
         private GameObject _model;
+        private bool _inventoryFull;
 
         public ItemInstance Item => _item;
 
@@ -44,9 +45,21 @@ namespace DarkDescent.Items
             return ground;
         }
 
+        public string GetLabel(Localizer localizer)
+        {
+            if (_item == null)
+            {
+                return string.Empty;
+            }
+
+            string name = localizer.Get(_item.Definition.NameKey);
+            return _inventoryFull ? localizer.Format(TextKeys.InventoryFull, name) : name;
+        }
+
         private void Awake()
         {
             _interactable = GetComponent<Interactable>();
+            _interactable.SetLabelSource(this);
         }
 
         private void Start()
@@ -71,7 +84,8 @@ namespace DarkDescent.Items
         private void Show(ItemInstance item)
         {
             _item = item;
-            _interactable.SetLabel(item.Definition.DisplayName);
+            _inventoryFull = false;
+            _interactable.NotifyLabelChanged();
 
             if (_model != null)
             {
@@ -116,7 +130,8 @@ namespace DarkDescent.Items
             }
             else
             {
-                _interactable.SetLabel(_item.Definition.DisplayName + FullSuffix);
+                _inventoryFull = true;
+                _interactable.NotifyLabelChanged();
             }
         }
     }

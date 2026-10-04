@@ -1,11 +1,13 @@
+using System.Globalization;
 using System.Text;
 using DarkDescent.Items;
+using DarkDescent.Localization;
 
 namespace DarkDescent.UI
 {
     /// <summary>
     /// Il testo del tooltip di un oggetto, in rich text di TextMesh Pro: nome, danno o Armatura,
-    /// requisiti. Logica pura, così il formato si prova senza scena.
+    /// requisiti, nella lingua attiva. Logica pura, così il formato si prova senza scena.
     /// </summary>
     public static class ItemDescription
     {
@@ -16,15 +18,15 @@ namespace DarkDescent.UI
         /// Scrive la descrizione in <paramref name="builder"/>, dopo averlo svuotato.
         /// <paramref name="meetsRequirements"/> colora di rosso la Forza richiesta quando è false.
         /// </summary>
-        public static void Write(StringBuilder builder, ItemDefinition definition, bool meetsRequirements)
+        public static void Write(StringBuilder builder, ItemDefinition definition, bool meetsRequirements, Localizer localizer)
         {
             builder.Clear();
-            builder.Append("<b>").Append(definition.DisplayName).Append("</b>");
+            builder.Append("<b>").Append(localizer.Get(definition.NameKey)).Append("</b>");
 
             switch (definition)
             {
                 case WeaponDefinition weapon:
-                    builder.Append("\nDanno: ").Append(weapon.MinDamage).Append('–').Append(weapon.MaxDamage);
+                    builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipDamage), weapon.MinDamage, weapon.MaxDamage);
                     if (weapon.RequiredStrength > 0)
                     {
                         builder.Append('\n');
@@ -33,7 +35,7 @@ namespace DarkDescent.UI
                             builder.Append("<color=").Append(UnmetColor).Append('>');
                         }
 
-                        builder.Append("Forza richiesta: ").Append(weapon.RequiredStrength);
+                        builder.AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipRequiredStrength), weapon.RequiredStrength);
                         if (!meetsRequirements)
                         {
                             builder.Append("</color>");
@@ -43,7 +45,7 @@ namespace DarkDescent.UI
                     break;
 
                 case ArmorDefinition armor:
-                    builder.Append("\nArmatura: ").Append(armor.Armor);
+                    builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipArmor), armor.Armor);
                     break;
             }
         }

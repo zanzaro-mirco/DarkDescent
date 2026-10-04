@@ -1,4 +1,5 @@
 using System;
+using DarkDescent.Localization;
 using UnityEngine;
 
 namespace DarkDescent.Interaction
@@ -16,8 +17,13 @@ namespace DarkDescent.Interaction
         [Tooltip("Dove il player si ferma per usarlo, sul NavMesh. Vuoto = la posizione di questo oggetto.")]
         [SerializeField] private Transform _approachPoint;
 
-        [Tooltip("Il nome mostrato nell'HUD quando il cursore ci passa sopra.")]
-        [SerializeField] private string _label;
+        [Tooltip("La chiave del nome mostrato nell'HUD quando il cursore ci passa sopra. Vuota = nessun nome.")]
+        [SerializeField] private string _labelKey;
+
+        [Tooltip("Il valore per il segnaposto {0} del nome, come il numero del livello di una scala. Vuoto = nessuno.")]
+        [SerializeField] private string _labelArgument;
+
+        private ILabelSource _labelSource;
 
         /// <summary>Acceso o spento: il cursore è arrivato o se n'è andato.</summary>
         public event Action<bool> HighlightChanged;
@@ -30,18 +36,36 @@ namespace DarkDescent.Interaction
 
         public Vector3 ApproachPoint => _approachPoint != null ? _approachPoint.position : transform.position;
 
-        public string Label => _label;
+        public string LabelKey => _labelKey;
 
         public bool IsHighlighted { get; private set; }
 
-        public void SetLabel(string label)
+        /// <summary>Il nome nella lingua attiva; vuoto se non ne ha. Si chiede quando serve, mai a ogni frame.</summary>
+        public string GetLabel(Localizer localizer)
         {
-            if (label == _label)
+            if (_labelSource != null)
             {
-                return;
+                return _labelSource.GetLabel(localizer);
             }
 
-            _label = label;
+            if (string.IsNullOrEmpty(_labelKey))
+            {
+                return string.Empty;
+            }
+
+            return string.IsNullOrEmpty(_labelArgument) ? localizer.Get(_labelKey) : localizer.Format(_labelKey, _labelArgument);
+        }
+
+        /// <summary>Un nome composto dal codice, come quello di un oggetto a terra, al posto della chiave.</summary>
+        public void SetLabelSource(ILabelSource source)
+        {
+            _labelSource = source;
+            NotifyLabelChanged();
+        }
+
+        /// <summary>Il nome è cambiato senza cambiare sorgente ("inventario pieno"): chi lo mostra lo rilegge.</summary>
+        public void NotifyLabelChanged()
+        {
             LabelChanged?.Invoke(this);
         }
 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Unarmed
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.WeaponDefinition
   _id: 7a7bf2052f2849de95232a1b305a342e
-  _displayName: Pugni
+  _nameKey: item.unarmed
   _icon: {fileID: 0}
   _size: {x: 1, y: 1}
   _model: {fileID: 0}

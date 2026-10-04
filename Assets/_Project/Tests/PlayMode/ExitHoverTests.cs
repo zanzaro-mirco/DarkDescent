@@ -42,7 +42,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(_interactable.IsHighlighted);
             Assert.IsTrue(_highlight.IsShowing, "la scala si accende");
             Assert.IsTrue(_label.IsShown);
-            Assert.AreEqual("Scendi al livello 2", _label.Text);
+            Assert.AreEqual("Descend to level 2", _label.Text);
 
             PointAt(_interactable.ApproachPoint + _exit.transform.forward * 3f);
             yield return null;

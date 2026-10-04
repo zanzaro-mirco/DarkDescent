@@ -56,7 +56,7 @@ namespace DarkDescent.Tests
         {
             foreach (var item in Database.Items)
             {
-                Assert.IsFalse(string.IsNullOrEmpty(item.DisplayName), $"{item.name} senza nome");
+                Assert.IsFalse(string.IsNullOrEmpty(item.NameKey), $"{item.name} senza chiave del nome");
                 Assert.IsNotNull(item.Icon, $"{item.name} senza icona");
                 Assert.IsNotNull(item.Model, $"{item.name} senza modello");
                 Assert.GreaterOrEqual(item.Size.x, 1);

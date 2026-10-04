@@ -13,7 +13,8 @@ namespace DarkDescent.Items
         [Tooltip("Generato alla creazione e mai più cambiato: è quello che salvano le istanze. Duplicando l'asset va rigenerato.")]
         [SerializeField] private string _id;
 
-        [SerializeField] private string _displayName;
+        [Tooltip("La chiave del nome nella tabella delle stringhe, come item.short_sword: il nome dipende dalla lingua.")]
+        [SerializeField] private string _nameKey;
 
         [Tooltip("Icona per inventario e tooltip, generata dal modello (DarkDescent → Oggetti → Rigenera le icone).")]
         [SerializeField] private Sprite _icon;
@@ -34,7 +35,7 @@ namespace DarkDescent.Items
         [SerializeField] private Vector3 _heldRotation;
 
         public string Id => _id;
-        public string DisplayName => _displayName;
+        public string NameKey => _nameKey;
         public Sprite Icon => _icon;
         public Vector2Int Size => _size;
         public GameObject Model => _model;

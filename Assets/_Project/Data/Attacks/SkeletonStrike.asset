@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SkeletonStrike
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.WeaponDefinition
   _id: d4f73847ead44e5588708bf68f59c0af
-  _displayName: Fendente dello scheletro
+  _nameKey: item.skeleton_strike
   _icon: {fileID: 0}
   _size: {x: 1, y: 3}
   _model: {fileID: 919132149155446097, guid: da85e36e56e0daf448adc9f0c64f607d, type: 3}

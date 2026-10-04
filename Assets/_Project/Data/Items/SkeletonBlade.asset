@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SkeletonBlade
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.WeaponDefinition
   _id: e50e34d6fbb2421281eaa0b0e15ddd3f
-  _displayName: Lama dello scheletro
+  _nameKey: item.skeleton_blade
   _icon: {fileID: 21300000, guid: 5c49687c104967a4aac0cf4caec9f06a, type: 3}
   _size: {x: 1, y: 3}
   _model: {fileID: 919132149155446097, guid: da85e36e56e0daf448adc9f0c64f607d, type: 3}
