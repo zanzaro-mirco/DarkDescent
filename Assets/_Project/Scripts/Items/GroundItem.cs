@@ -57,7 +57,7 @@ namespace DarkDescent.Items
             }
 
             // il colore della rarità sul nome, come in Diablo; "(inventario pieno)" resta del colore dell'etichetta
-            string name = "<color=" + RarityColors.TextHex(_item.Rarity) + ">" + localizer.Get(_item.Definition.NameKey) + "</color>";
+            string name = "<color=" + RarityColors.TextHex(_item.Rarity) + ">" + ItemNamer.Name(_item, localizer) + "</color>";
             return _inventoryFull ? localizer.Format(TextKeys.InventoryFull, name) : name;
         }
 

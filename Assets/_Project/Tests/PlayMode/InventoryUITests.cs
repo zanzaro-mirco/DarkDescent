@@ -196,7 +196,7 @@ namespace DarkDescent.Tests
         public IEnumerator Tooltip_ShowsBlade_HidesWhenCursorLeaves()
         {
             yield return LoadUI();
-            var tooltip = Object.FindFirstObjectByType<ItemTooltip>();
+            var tooltip = _panel.Tooltip;
             _inventory.TryPickUp(Item("SkeletonBlade"));
             _panel.SetOpen(true);
             yield return null;
@@ -207,7 +207,7 @@ namespace DarkDescent.Tests
             StringAssert.Contains("Skeleton Blade", tooltip.Text);
             StringAssert.Contains("Damage: 8–12", tooltip.Text);
             StringAssert.Contains("Required Strength: 25", tooltip.Text);
-            StringAssert.DoesNotContain("<color", tooltip.Text, "Forza 30: il requisito non è in rosso");
+            StringAssert.DoesNotContain(ItemDescription.UnmetColor, tooltip.Text, "Forza 30: il requisito non è in rosso");
             AssertInsideScreen(tooltip.Box);
 
             yield return HoverScreen(CellOnScreen(new Vector2Int(5, 2)));
@@ -229,7 +229,7 @@ namespace DarkDescent.Tests
         public IEnumerator Tooltip_OnWeaponSlot_HidesOnClose()
         {
             yield return LoadUI();
-            var tooltip = Object.FindFirstObjectByType<ItemTooltip>();
+            var tooltip = _panel.Tooltip;
             _panel.SetOpen(true);
             yield return null;
 
@@ -247,8 +247,8 @@ namespace DarkDescent.Tests
         public IEnumerator Tooltip_NearScreenEdges_StaysInside()
         {
             yield return LoadUI();
-            var tooltip = Object.FindFirstObjectByType<ItemTooltip>();
-            var definition = Item("SkeletonBlade").Definition;
+            var tooltip = _panel.Tooltip;
+            var blade = Item("SkeletonBlade");
 
             // un bersaglio finto grande quanto una cella, in ognuno dei quattro angoli
             var target = new GameObject("Target", typeof(RectTransform)).GetComponent<RectTransform>();
@@ -259,11 +259,47 @@ namespace DarkDescent.Tests
             {
                 target.anchorMin = target.anchorMax = target.pivot = corner;
                 target.anchoredPosition = Vector2.zero;
-                tooltip.Show(definition, true, Localizer, target);
+                tooltip.Show(blade, true, Localizer, target);
                 AssertInsideScreen(tooltip.Box);
             }
 
             Object.Destroy(target.gameObject);
+        }
+
+        [UnityTest, Description("Passando su uno scudo della griglia con lo scudo equipaggiato compaiono due riquadri affiancati, dentro lo schermo; sulla lama no")]
+        public IEnumerator Tooltip_ComparesWithEquippedItem()
+        {
+            yield return LoadUI();
+            _inventory.Equipment.TryEquip(Item("BadgeShield"), out _);
+            _inventory.TryPickUp(Item("RoundShield"));
+            _panel.SetOpen(true);
+            yield return null;
+            var tooltip = _panel.Tooltip;
+            var compare = _panel.CompareTooltip;
+
+            yield return HoverScreen(CellOnScreen(new Vector2Int(0, 0)));
+
+            Assert.IsTrue(tooltip.IsShowing);
+            Assert.IsTrue(compare.IsShowing, "lo scudo equipaggiato accanto");
+            StringAssert.Contains("Round Shield", tooltip.Text);
+            StringAssert.Contains("Equipped", compare.Text);
+            StringAssert.Contains("Crest Shield", compare.Text);
+            AssertInsideScreen(tooltip.Box);
+            AssertInsideScreen(compare.Box);
+            var a = new Vector3[4];
+            var b = new Vector3[4];
+            tooltip.Box.GetWorldCorners(a);
+            compare.Box.GetWorldCorners(b);
+            bool overlap = a[0].x < b[2].x && b[0].x < a[2].x && a[0].y < b[2].y && b[0].y < a[2].y;
+            Assert.IsFalse(overlap, "i due riquadri non si sovrappongono");
+
+            _inventory.Equipment.Unequip(EquipSlot.Offhand);
+            yield return null;
+            Assert.IsFalse(compare.IsShowing, "senza scudo equipaggiato niente confronto");
+
+            _panel.SetOpen(false);
+            Assert.IsFalse(tooltip.IsShowing);
+            Assert.IsFalse(compare.IsShowing);
         }
 
         [UnityTest, Description("Chiudendo l'inventario con un oggetto sul cursore, l'oggetto torna nella griglia")]

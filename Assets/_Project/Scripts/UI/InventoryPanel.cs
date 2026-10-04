@@ -33,9 +33,15 @@ namespace DarkDescent.UI
         [Tooltip("La descrizione dell'oggetto sotto il cursore.")]
         [SerializeField] private ItemTooltip _tooltip;
 
+        [Tooltip("L'oggetto equipaggiato nello stesso slot, accanto al primo per il confronto (D9 della M5).")]
+        [SerializeField] private ItemTooltip _compareTooltip;
+
         [SerializeField, Min(8f)] private float _cellSize = 56f;
 
         private readonly List<Image> _itemViews = new List<Image>();
+
+        // lo sfondo di ogni immagine, nel colore della rarità: creato insieme a lei, quindi dietro
+        private readonly List<Image> _itemBackgrounds = new List<Image>();
         private readonly Dictionary<ItemInstance, Image> _viewByItem = new Dictionary<ItemInstance, Image>();
         private Vector2Int? _hoveredCell;
         private EquipSlot _hoveredSlot = EquipSlot.None;
@@ -47,6 +53,12 @@ namespace DarkDescent.UI
         public bool IsOpen => _window.activeSelf;
 
         public float CellSize => _cellSize;
+
+        /// <summary>Il tooltip dell'oggetto sotto il cursore.</summary>
+        public ItemTooltip Tooltip => _tooltip;
+
+        /// <summary>Il tooltip dell'oggetto equipaggiato, accanto al primo.</summary>
+        public ItemTooltip CompareTooltip => _compareTooltip;
 
         /// <summary>Le immagini degli oggetti nella griglia attualmente visibili.</summary>
         public int VisibleItemCount
@@ -202,17 +214,20 @@ namespace DarkDescent.UI
                 // le immagini si riusano: se ne crea una nuova solo quando gli oggetti aumentano
                 if (index == _itemViews.Count)
                 {
+                    var background = Instantiate(_itemTemplate, _grid);
+                    background.sprite = null;
+                    _itemBackgrounds.Add(background);
                     _itemViews.Add(Instantiate(_itemTemplate, _grid));
                 }
 
-                Image view = _itemViews[index++];
+                Image view = _itemViews[index];
+                Image back = _itemBackgrounds[index++];
                 RectInt area = pair.Value;
-                var rect = view.rectTransform;
-                rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
-                rect.pivot = new Vector2(0f, 1f);
-                rect.anchoredPosition = new Vector2(area.x * _cellSize, -area.y * _cellSize);
-                rect.sizeDelta = new Vector2(area.width * _cellSize, area.height * _cellSize);
+                Lay(view.rectTransform, area);
+                Lay(back.rectTransform, area);
                 view.sprite = pair.Key.Definition.Icon;
+                back.color = RarityColors.Cell(pair.Key.Rarity);
+                back.gameObject.SetActive(true);
                 view.gameObject.SetActive(true);
                 _viewByItem[pair.Key] = view;
             }
@@ -220,9 +235,18 @@ namespace DarkDescent.UI
             for (int i = index; i < _itemViews.Count; i++)
             {
                 _itemViews[i].gameObject.SetActive(false);
+                _itemBackgrounds[i].gameObject.SetActive(false);
             }
 
             RefreshTooltip();
+        }
+
+        private void Lay(RectTransform rect, RectInt area)
+        {
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(area.x * _cellSize, -area.y * _cellSize);
+            rect.sizeDelta = new Vector2(area.width * _cellSize, area.height * _cellSize);
         }
 
         private void RefreshSlot(EquipSlot slot)
@@ -284,10 +308,22 @@ namespace DarkDescent.UI
             if (item == null)
             {
                 _tooltip.Hide();
+                _compareTooltip.Hide();
                 return;
             }
 
-            _tooltip.Show(item.Definition, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target);
+            _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target);
+
+            // dalla griglia, accanto c'è quello che si toglierebbe equipaggiandolo
+            var equipped = _hoveredCell.HasValue && item.Definition.Slot != EquipSlot.None ? _inventory.Equipment.Get(item.Definition.Slot) : null;
+            if (equipped != null)
+            {
+                _compareTooltip.ShowBeside(equipped, _inventory.Equipment.MeetsRequirements(equipped.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquipped));
+            }
+            else
+            {
+                _compareTooltip.Hide();
+            }
         }
     }
 }

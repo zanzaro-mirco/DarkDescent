@@ -7,9 +7,9 @@ using UnityEngine;
 namespace DarkDescent.UI
 {
     /// <summary>
-    /// Il riquadro con la descrizione dell'oggetto sotto il cursore. Sta sopra l'oggetto, o sotto se
-    /// sopra non c'è spazio, e non esce mai dallo schermo. Lo accende e lo spegne l'inventario: da
-    /// solo non guarda niente.
+    /// Il riquadro con la descrizione di un oggetto. Sta sopra l'oggetto, o sotto se sopra non c'è
+    /// spazio, oppure accanto a un altro tooltip per il confronto (D9 della M5), e non esce mai
+    /// dallo schermo. Lo accende e lo spegne l'inventario: da solo non guarda niente.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RectTransform))]
@@ -23,10 +23,10 @@ namespace DarkDescent.UI
         [Tooltip("Spazio tra il testo e il bordo del riquadro, in pixel di riferimento.")]
         [SerializeField] private Vector2 _padding = new Vector2(14f, 10f);
 
-        [Tooltip("Distanza tra il riquadro e l'oggetto descritto.")]
+        [Tooltip("Distanza tra il riquadro e l'oggetto descritto, o l'altro riquadro.")]
         [SerializeField, Min(0f)] private float _gap = 6f;
 
-        private readonly StringBuilder _builder = new StringBuilder(96);
+        private readonly StringBuilder _builder = new StringBuilder(160);
         private readonly Vector3[] _corners = new Vector3[4];
         private RectTransform _container;
 
@@ -38,15 +38,19 @@ namespace DarkDescent.UI
         public RectTransform Box => _box;
 
         /// <summary>Descrive l'oggetto accanto a <paramref name="target"/>, il rettangolo che lo mostra.</summary>
-        public void Show(ItemDefinition definition, bool meetsRequirements, Localizer localizer, RectTransform target)
+        public void Show(ItemInstance item, bool meetsRequirements, Localizer localizer, RectTransform target)
         {
-            ItemDescription.Write(_builder, definition, meetsRequirements, localizer);
-            _text.SetText(_builder);
-            _box.gameObject.SetActive(true);
+            Fill(item, meetsRequirements, localizer, null);
+            GetLocalRect(target, out Vector2 min, out Vector2 max);
+            PlaceAround(min, max);
+        }
 
-            // misurato dal testo: niente layout group da ricostruire
-            _box.sizeDelta = _text.GetPreferredValues() + 2f * _padding;
-            Place(target);
+        /// <summary>Descrive l'oggetto accanto a un altro tooltip, a sinistra o a destra, con un titolo.</summary>
+        public void ShowBeside(ItemInstance item, bool meetsRequirements, Localizer localizer, ItemTooltip anchor, string header)
+        {
+            Fill(item, meetsRequirements, localizer, header);
+            GetLocalRect(anchor.Box, out Vector2 min, out Vector2 max);
+            PlaceBeside(min, max);
         }
 
         public void Hide()
@@ -62,13 +66,26 @@ namespace DarkDescent.UI
             Hide();
         }
 
-        private void Place(RectTransform target)
+        private void Fill(ItemInstance item, bool meetsRequirements, Localizer localizer, string header)
         {
-            // gli angoli del bersaglio nello spazio del contenitore: vale in Overlay e con una camera
-            target.GetWorldCorners(_corners);
-            Vector2 min = _container.InverseTransformPoint(_corners[0]);
-            Vector2 max = _container.InverseTransformPoint(_corners[2]);
+            ItemDescription.Write(_builder, item, meetsRequirements, localizer, header);
+            _text.SetText(_builder);
+            _box.gameObject.SetActive(true);
 
+            // misurato dal testo: niente layout group da ricostruire
+            _box.sizeDelta = _text.GetPreferredValues() + 2f * _padding;
+        }
+
+        // gli angoli di un rettangolo nello spazio del contenitore: vale in Overlay e con una camera
+        private void GetLocalRect(RectTransform target, out Vector2 min, out Vector2 max)
+        {
+            target.GetWorldCorners(_corners);
+            min = _container.InverseTransformPoint(_corners[0]);
+            max = _container.InverseTransformPoint(_corners[2]);
+        }
+
+        private void PlaceAround(Vector2 min, Vector2 max)
+        {
             Rect bounds = _container.rect;
             Vector2 half = _box.sizeDelta / 2f;
 
@@ -79,7 +96,28 @@ namespace DarkDescent.UI
                 y = min.y - _gap - half.y;
             }
 
-            float x = (min.x + max.x) / 2f;
+            Place((min.x + max.x) / 2f, y);
+        }
+
+        private void PlaceBeside(Vector2 min, Vector2 max)
+        {
+            Rect bounds = _container.rect;
+            Vector2 half = _box.sizeDelta / 2f;
+
+            // a sinistra dell'altro, allineato in alto; se a sinistra non c'è spazio, a destra
+            float x = min.x - _gap - half.x;
+            if (x - half.x < bounds.xMin)
+            {
+                x = max.x + _gap + half.x;
+            }
+
+            Place(x, max.y - half.y);
+        }
+
+        private void Place(float x, float y)
+        {
+            Rect bounds = _container.rect;
+            Vector2 half = _box.sizeDelta / 2f;
             x = Mathf.Clamp(x, bounds.xMin + half.x, Mathf.Max(bounds.xMin + half.x, bounds.xMax - half.x));
             y = Mathf.Clamp(y, bounds.yMin + half.y, Mathf.Max(bounds.yMin + half.y, bounds.yMax - half.y));
 

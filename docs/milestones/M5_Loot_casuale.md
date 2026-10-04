@@ -361,6 +361,27 @@ il tooltip di una spada corta "Sharp" (+40%) mostra 8–12 invece di 6–9; pass
 con lo scudo equipaggiato compaiono due riquadri che non si sovrappongono e non escono dallo
 schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 
+**Com'è andata (4 ott 2026).** `ItemNamer` compone il nome dallo schema della lingua
+(`item.name.pattern`: "{prefix} {base} {suffix}" in inglese, "{base} {prefix} {suffix}"
+in italiano), con il primo prefisso nella forma del genere della base (`.f` per le basi
+femminili) e il primo suffisso; un pezzo che manca non lascia spazi doppi. Lo usano
+l'etichetta a terra e il tooltip. `ItemDescription` ora descrive un `ItemInstance`: nome
+nel colore della rarità, danno, Armatura e **blocco** già con gli affissi, Forza richiesta,
+poi una riga blu per affisso ("+40% damage", "+9 vita"), con le righe degli effetti nella
+tabella (una chiave per effetto, un test lo controlla). **Confronto:** un secondo
+`ItemTooltip` (`CompareTooltip`, duplicato del primo nell'HUD da uno script di editor)
+compare quando dalla griglia si passa su un oggetto il cui slot è occupato, intitolato
+"Equipped"/"Equipaggiato" in piccolo; si mette a sinistra del primo, allineato in alto, o a
+destra se a sinistra non c'è spazio, sempre dentro lo schermo. Il pannello espone i due
+tooltip ai test: con due nella scena, "il primo che si trova" non vuol dire più niente.
+**Celle:** ogni oggetto della griglia ha dietro uno sfondo nel colore della rarità, creato
+insieme alla sua immagine (quindi dietro). La prima foto li mostrava accesi come pieni:
+in color space lineare la trasparenza della UI si mescola in lineare e un colore al 30%
+schiarisce molto. Ora sono scuri apposta. Test: 97 EditMode (`ItemNamerTests`: accordo,
+schema, pezzi mancanti, raro; `ItemDescriptionTests` su istanze, con affissi, blocco e
+italiano) e 89 PlayMode (confronto con lo scudo equipaggiato: due riquadri dentro lo
+schermo che non si sovrappongono, nessun confronto senza scudo, chiusura) verdi.
+
 ## Passo 5.8 — Chiusura
 
 1. GIF del README: una serie di uccisioni con oggetti di più colori, un raro raccolto e
@@ -441,7 +462,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 - [x] Statistiche nuove e vita massima variabile
 - [x] Basi nuove con modelli, icone e riga in `CREDITS.md`
 - [x] Loot table, profondità e seme da riga di comando
-- [ ] Nomi composti per lingua, colori, tooltip con confronto
+- [x] Nomi composti per lingua, colori, tooltip con confronto
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] Punto di controllo misurato

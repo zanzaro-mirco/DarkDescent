@@ -75,7 +75,7 @@ namespace DarkDescent.Tests
             var inventory = Player.GetComponent<PlayerInventory>();
             inventory.TryPickUp(new ItemInstance(blade));
             var panel = Object.FindFirstObjectByType<InventoryPanel>();
-            var tooltip = Object.FindFirstObjectByType<ItemTooltip>();
+            var tooltip = panel.Tooltip;
             panel.SetOpen(true);
             yield return null;
             panel.HoverCell(new Vector2Int(0, 1));
