@@ -19,5 +19,7 @@ namespace DarkDescent.Items
         public int BlockChance => _blockChance;
 
         public override EquipSlot Slot => EquipSlot.Offhand;
+
+        public override AffixTargets AffixTarget => AffixTargets.Shield;
     }
 }

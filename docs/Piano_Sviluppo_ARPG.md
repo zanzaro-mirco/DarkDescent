@@ -459,9 +459,9 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 **Concetti:** estrazione pesata; `System.Random` con **seed riproducibile** — "rigenera il drop 4711" invece di "riprova finché non ricapita".
 
-**Test:** stesso seed, stesso oggetto, sempre; gli affissi rispettano l'item level; su 10.000 estrazioni le rarità restano entro una tolleranza dalle probabilità previste.
+**Test:** stesso seed, stesso oggetto, sempre; gli affissi rispettano l'item level; su 100.000 estrazioni le rarità restano entro una tolleranza dalle probabilità previste.
 
-**Definition of Done:** in build, con il seed fissato lo stesso nemico lascia sempre lo stesso oggetto; senza seed, in poche partite compaiono normali, magici e rari (le probabilità le verifica un test su 10.000 estrazioni: otto scheletri per partita sono pochi). Lo scudo blocca. Il gioco parte in inglese e passa all'italiano. Test verdi.
+**Definition of Done:** in build, con il seed fissato lo stesso nemico lascia sempre lo stesso oggetto; senza seed, in poche partite compaiono normali, magici e rari (le probabilità le verifica un test su 100.000 estrazioni: otto scheletri per partita sono pochi). Lo scudo blocca. Il gioco parte in inglese e passa all'italiano. Test verdi.
 
 **Punto di controllo** (§ 1.3).
 

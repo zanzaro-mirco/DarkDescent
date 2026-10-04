@@ -30,3 +30,21 @@ item.skeleton_blade,Skeleton Blade,Lama dello scheletro
 item.badge_shield,Crest Shield,Scudo con stemma
 item.skeleton_strike,Skeleton Strike,Fendente dello scheletro
 item.unarmed,Fists,Pugni
+
+# Affissi: i prefissi hanno la forma femminile in .f (D4 della M5); in inglese è la stessa
+affix.sharp,Sharp,Affilato
+affix.sharp.f,Sharp,Affilata
+affix.savage,Savage,Feroce
+affix.savage.f,Savage,Feroce
+affix.accurate,Accurate,Preciso
+affix.accurate.f,Accurate,Precisa
+affix.sturdy,Sturdy,Robusto
+affix.sturdy.f,Sturdy,Robusta
+affix.massive,Massive,Massiccio
+affix.massive.f,Massive,Massiccia
+affix.of_strength,of Strength,della Forza
+affix.of_dexterity,of Dexterity,della Destrezza
+affix.of_vitality,of Vitality,della Vitalità
+affix.of_the_bear,of the Bear,dell'Orso
+affix.of_the_griffin,of the Griffin,del Grifone
+affix.of_blocking,of Blocking,della Parata

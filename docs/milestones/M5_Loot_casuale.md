@@ -231,8 +231,32 @@ animazione, nessun blocco senza scudo, colpo del cavaliere annullato) verdi.
 3. `ItemInstance` con rarità, livello, seme e affissi, e il ritorno da JSON.
 
 **Test:** stesso seme, stesso oggetto, sempre; un oggetto di livello 1 non ha mai "Savage" né
-"of the Griffin"; mai due affissi dello stesso gruppo; su 10.000 estrazioni le rarità restano
+"of the Griffin"; mai due affissi dello stesso gruppo; su 100.000 estrazioni le rarità restano
 entro l'1% da 65/28/7; il magico ha al più un prefisso e un suffisso; JSON e ritorno.
+
+**Com'è andata (4 ott 2026).** `SplitMix64Source` (in `Core`, dietro `IRandomSource`, con
+`NextUInt64` e i 53 bit alti per `NextDouble`; il test confronta i primi tre valori di
+riferimento del seme 0). `Rarity`, `AffixKind`, `AffixEffect` (danno e Armatura in
+percentuale e blocco sono dell'oggetto; Armatura, a colpire, attributi e vita del
+personaggio), `AffixTargets` (flag: armi, scudi; le classi future aggiungeranno valori).
+`ItemDefinition` dichiara il suo `AffixTarget`. `AffixDefinition`: ID stabile, chiave del
+nome, tipo, effetto, intervallo intero, livello minimo, oggetti ammessi, gruppo.
+`AffixDatabase` come quello degli oggetti, riempito dallo stesso menu *Aggiorna il
+database*. `RarityTable` con i pesi 65/28/7. `ItemGenerator`: rarità, numero di affissi
+(magico 1–2, raro 3–4), poi a ogni giro gli affissi ammessi con il tipo ancora libero e il
+gruppo non usato, scelta e valore; liste riusate, un drop non crea liste nuove. Se il pool
+non basta, l'oggetto ha gli affissi che ci sono. Un secondo `Generate` riceve la rarità da
+fuori, per i test e per gli oggetti messi a mano. `ItemInstance` aggiunge rarità, livello,
+seme e `ItemAffix` (ID e valore); `Resolve` con i due database. Undici affissi in
+`Data/Affixes/` (creati da uno script di editor) e i loro nomi nella tabella, con la forma
+femminile dei prefissi in `.f`. **Il test delle rarità** chiedeva l'1% su 10.000
+estrazioni, ma su 10.000 lo scarto normale sul 65% è mezzo punto: con il seme scelto usciva
+63,9%, un caso da due sigma e mezzo, non un difetto (lo stesso conto in Python dà gli
+stessi numeri). Il test ora estrae 100.000 volte, con l'1% che vale quasi sette sigma.
+Test: 81 EditMode (`ItemGeneratorTests`: valori di riferimento di SplitMix64, stesso seme
+stesso oggetto su 300 semi, rarità su 100.000 estrazioni, livello minimo, limiti per
+rarità, gruppi e oggetti ammessi su 1000 semi, JSON con affissi e seme, database completo;
+nomi degli affissi nella copertura delle lingue) e 83 PlayMode verdi.
 
 ## Passo 5.4 — Statistiche nuove e vita massima variabile
 
@@ -317,7 +341,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
    fotografato e controllato.
 10. **Le probabilità basse si verificano male a occhio:** il 7% dei rari, con il 70% di drop
     e otto scheletri per partita, vuol dire un raro ogni due o tre partite. La verifica vera è
-    il test sulle 10.000 estrazioni; in build si guarda che compaiano tutte e tre le rarità.
+    il test sulle 100.000 estrazioni; in build si guarda che compaiano tutte e tre le rarità.
 11. **Testi più lunghi in un'altra lingua:** l'italiano è più lungo dell'inglese, e lingue
     future come il tedesco lo sono ancora di più. Le etichette dei pannelli vanno provate in
     tutte e due le lingue, con lo spazio per il 30% in più.
@@ -341,7 +365,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 | `LocalizationCoverageTests` (EditMode) | Ogni chiave usata da scene, codice e definizioni esiste; ogni lingua ha tutte le righe |
 | `ItemNamerTests` (EditMode) | Schema inglese e italiano, accordo di genere, forma di riserva |
 | `ItemGeneratorTests` (EditMode) | Stesso seme stesso oggetto, livello minimo, gruppi, limiti di prefissi e suffissi per rarità |
-| `RarityTableTests` (EditMode) | 10.000 estrazioni entro l'1% dalle probabilità |
+| `RarityTableTests` (EditMode) | 100.000 estrazioni entro l'1% dalle probabilità |
 | `SeedTests` (EditMode) | SplitMix64 con valori noti, semi dei nemici diversi e stabili |
 | `ItemInstanceTests` (EditMode) | JSON e ritorno con affissi e valori |
 | `StatSheetTests`, `HealthModelTests` (EditMode) | A colpire e vita, vita massima che cambia con la regola di D10 |
@@ -357,7 +381,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 - [x] Decisioni D1–D13 confermate
 - [x] Lingue: inglese di default, italiano con `-lang it` e `F9`, testi di oggi tradotti
 - [x] Blocco con lo scudo, con animazione e suono
-- [ ] Affissi, rarità e generatore riproducibile
+- [x] Affissi, rarità e generatore riproducibile
 - [ ] Statistiche nuove e vita massima variabile
 - [ ] Basi nuove con modelli, icone e riga in `CREDITS.md`
 - [ ] Loot table, profondità e seme da riga di comando

@@ -51,6 +51,23 @@ namespace DarkDescent.Tests
             }
         }
 
+        [Test, Description("Ogni affisso ha il nome nella tabella; i prefissi anche la forma femminile")]
+        public void AffixNameKeys_Exist()
+        {
+            var table = Table;
+            var guids = AssetDatabase.FindAssets("t:AffixDefinition", new[] { "Assets/_Project/Data" });
+            Assert.IsNotEmpty(guids);
+            foreach (var guid in guids)
+            {
+                var affix = AssetDatabase.LoadAssetAtPath<AffixDefinition>(AssetDatabase.GUIDToAssetPath(guid));
+                Assert.IsTrue(table.Contains(affix.NameKey), $"{affix.name}: chiave {affix.NameKey} mancante");
+                if (affix.Kind == AffixKind.Prefix)
+                {
+                    Assert.IsTrue(table.Contains(affix.NameKey + ".f"), $"{affix.name}: manca la forma femminile");
+                }
+            }
+        }
+
         [Test, Description("Ogni chiave scritta nelle scene e nei prefab è nella tabella, e ce n'è almeno una")]
         public void SerializedKeys_Exist()
         {

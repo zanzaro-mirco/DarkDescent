@@ -46,6 +46,8 @@ namespace DarkDescent.Items
 
         public override EquipSlot Slot => EquipSlot.Weapon;
 
+        public override AffixTargets AffixTarget => AffixTargets.Weapon;
+
         protected override void OnValidate()
         {
             base.OnValidate();

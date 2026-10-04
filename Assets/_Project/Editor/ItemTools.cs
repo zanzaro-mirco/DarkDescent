@@ -19,6 +19,8 @@ namespace DarkDescent.Editor
     {
         public const string ItemsFolder = "Assets/_Project/Data/Items";
         public const string DatabasePath = "Assets/_Project/Data/ItemDatabase.asset";
+        public const string AffixesFolder = "Assets/_Project/Data/Affixes";
+        public const string AffixDatabasePath = "Assets/_Project/Data/AffixDatabase.asset";
         public const string IconsFolder = "Assets/_Project/Art/Icons";
 
         /// <summary>Pixel per cella dell'inventario: il doppio di come si vede a 1920×1080, per restare nitide.</summary>
@@ -52,6 +54,35 @@ namespace DarkDescent.Editor
             serialized.ApplyModifiedPropertiesWithoutUndo();
             AssetDatabase.SaveAssets();
             Debug.Log($"[ItemTools] database: {items.Count} oggetti");
+            UpdateAffixDatabase();
+        }
+
+        /// <summary>Il database degli affissi: le definizioni in Data/Affixes, in ordine di nome.</summary>
+        public static void UpdateAffixDatabase()
+        {
+            var database = AssetDatabase.LoadAssetAtPath<AffixDatabase>(AffixDatabasePath);
+            if (database == null)
+            {
+                database = ScriptableObject.CreateInstance<AffixDatabase>();
+                AssetDatabase.CreateAsset(database, AffixDatabasePath);
+            }
+
+            var affixes = AssetDatabase.FindAssets("t:AffixDefinition", new[] { AffixesFolder })
+                .Select(guid => AssetDatabase.LoadAssetAtPath<AffixDefinition>(AssetDatabase.GUIDToAssetPath(guid)))
+                .Where(affix => affix != null)
+                .OrderBy(affix => affix.name)
+                .ToList();
+            var serialized = new SerializedObject(database);
+            var list = serialized.FindProperty("_affixes");
+            list.arraySize = affixes.Count;
+            for (int i = 0; i < affixes.Count; i++)
+            {
+                list.GetArrayElementAtIndex(i).objectReferenceValue = affixes[i];
+            }
+
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[ItemTools] database: {affixes.Count} affissi");
         }
 
         [MenuItem("DarkDescent/Oggetti/Rigenera le icone")]

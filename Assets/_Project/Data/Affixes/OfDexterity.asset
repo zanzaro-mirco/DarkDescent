@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51d7c7bf1c86d704fbaca69e6de210a5, type: 3}
+  m_Name: OfDexterity
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.AffixDefinition
+  _id: ec799446ec90481ca02f4c8803ffa9d7
+  _nameKey: affix.of_dexterity
+  _kind: 1
+  _effect: 6
+  _min: 2
+  _max: 5
+  _minItemLevel: 1
+  _targets: 3
+  _group: dexterity

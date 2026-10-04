@@ -46,6 +46,9 @@ namespace DarkDescent.Items
         /// <summary>Lo slot in cui va equipaggiato; None per gli oggetti che non si indossano.</summary>
         public abstract EquipSlot Slot { get; }
 
+        /// <summary>Che tipo di oggetto è per gli affissi: quali possono comparirci.</summary>
+        public abstract AffixTargets AffixTarget { get; }
+
         protected virtual void OnValidate()
         {
             EnsureId();

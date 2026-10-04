@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51d7c7bf1c86d704fbaca69e6de210a5, type: 3}
+  m_Name: Accurate
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.AffixDefinition
+  _id: b85437849df14500a88b05f50b64d39e
+  _nameKey: affix.accurate
+  _kind: 0
+  _effect: 4
+  _min: 5
+  _max: 10
+  _minItemLevel: 1
+  _targets: 1
+  _group: to_hit
