@@ -24,9 +24,13 @@ namespace DarkDescent.Items
         private Interactable _interactable;
         private ItemInstance _item;
         private GameObject _model;
+        private Light _glow;
         private bool _inventoryFull;
 
         public ItemInstance Item => _item;
+
+        /// <summary>Il colore della luce a terra: quello della rarità.</summary>
+        public Color GlowColor => _glow != null ? _glow.color : Color.clear;
 
         /// <summary>
         /// Mette a terra un oggetto vicino a <paramref name="near"/>, sul NavMesh: altrimenti potrebbe
@@ -52,7 +56,8 @@ namespace DarkDescent.Items
                 return string.Empty;
             }
 
-            string name = localizer.Get(_item.Definition.NameKey);
+            // il colore della rarità sul nome, come in Diablo; "(inventario pieno)" resta del colore dell'etichetta
+            string name = "<color=" + RarityColors.TextHex(_item.Rarity) + ">" + localizer.Get(_item.Definition.NameKey) + "</color>";
             return _inventoryFull ? localizer.Format(TextKeys.InventoryFull, name) : name;
         }
 
@@ -60,6 +65,7 @@ namespace DarkDescent.Items
         {
             _interactable = GetComponent<Interactable>();
             _interactable.SetLabelSource(this);
+            _glow = GetComponentInChildren<Light>(true);
         }
 
         private void Start()
@@ -86,6 +92,10 @@ namespace DarkDescent.Items
             _item = item;
             _inventoryFull = false;
             _interactable.NotifyLabelChanged();
+            if (_glow != null)
+            {
+                _glow.color = RarityColors.Light(item.Rarity);
+            }
 
             if (_model != null)
             {

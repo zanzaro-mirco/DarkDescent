@@ -1,5 +1,6 @@
 // Livello 1: la cripta. Cinque stanze, quattro scheletri, la scala in fondo a est.
 // 'i' è un oggetto a terra: quale, lo dice @items, nell'ordine in cui si leggono le 'i'.
+@depth 1
 @entrance Start
 @exit Level_02 FromAbove
 @items BadgeShield

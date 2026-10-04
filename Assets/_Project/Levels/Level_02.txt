@@ -1,4 +1,5 @@
 // Livello 2: sotto la scala. Due stanze, due scheletri, nessuna uscita (per ora).
+@depth 2
 @entrance FromAbove
 ###############
 #T..T.###.T.b.#

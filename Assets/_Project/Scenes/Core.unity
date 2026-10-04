@@ -1735,6 +1735,7 @@ MonoBehaviour:
   _hitStop: {fileID: 1360960571}
   _playerCamera: {fileID: 1669943979}
   _strings: {fileID: 4900000, guid: 2fda7ed2ca7aa064bafe58a844401558, type: 3}
+  _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
 --- !u!4 &429751714
 Transform:
   m_ObjectHideFlags: 0
@@ -1803,6 +1804,7 @@ MonoBehaviour:
   _enemyDamageColor: {r: 1, g: 0.88, b: 0.55, a: 1}
   _playerDamageColor: {r: 1, g: 0.25, b: 0.2, a: 1}
   _missColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  _blockColor: {r: 0.72, g: 0.8, b: 0.95, a: 1}
   _spawnHeight: 2.3
   _rise: 1
   _lifetime: 0.8

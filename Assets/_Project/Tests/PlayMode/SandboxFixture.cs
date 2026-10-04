@@ -2,6 +2,7 @@ using System.Collections;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
+using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Localization;
 using DarkDescent.Stats;
@@ -89,6 +90,27 @@ namespace DarkDescent.Tests
             // tiri fissi (D3 della M4): ogni colpo va a segno con il danno minimo, come i colpi
             // sempre uguali della M2 che questi test verificano
             UseRandom(0.0);
+        }
+
+        /// <summary>
+        /// Cerca dal seme 1 in su il primo seme della partita con cui il nemico lascia un oggetto che va
+        /// bene a <paramref name="wanted"/> (qualsiasi, se null), lo usa e restituisce l'oggetto atteso.
+        /// </summary>
+        protected static ItemInstance UseLootSeedWithDrop(LootDrop drop, System.Func<ItemInstance, bool> wanted = null)
+        {
+            var root = Object.FindFirstObjectByType<CompositionRoot>();
+            for (ulong seed = 1; seed < 5000; seed++)
+            {
+                root.UseLootSeed(seed);
+                var item = drop.Preview();
+                if (item != null && (wanted == null || wanted(item)))
+                {
+                    return item;
+                }
+            }
+
+            Assert.Fail($"nessun seme fa cadere l'oggetto cercato da {drop.name}");
+            return null;
         }
 
         /// <summary>I tiri del combattimento restituiscono questi valori, in ciclo.</summary>

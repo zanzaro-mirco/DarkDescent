@@ -327,6 +327,27 @@ minimo per le basi non serve ancora: quale base cade lo decidono i pesi della lo
 uccisi in ordine inverso; seme diverso, oggetti diversi; nel livello 2 gli oggetti hanno
 livello 2; la luce dell'oggetto raro è gialla.
 
+**Com'è andata (4 ott 2026).** `@depth` nelle due mappe, letta dal builder in
+`LevelContext.Depth` (livelli ricostruiti). `LootTable` (ScriptableObject): probabilità di
+drop e righe `LootEntry` con base e peso; quella dello scheletro (`Data/Loot/SkeletonLoot`)
+ha il 70% e le otto basi, con la lama più pesante. `SeedMixer` mescola seme della partita,
+profondità e cella di partenza (in decimetri, presa in `Awake`: il nemico si muove, il suo
+seme no) con il finale di SplitMix64. `LootRoller` (logica pura) tira drop e base con il
+seme del nemico e passa al generatore un seme nuovo per l'oggetto; il livello dell'oggetto è
+la profondità. `LootDrop` ora ha la loot table al posto dell'oggetto fisso, e un `Preview`
+che dice cosa lascerà senza cambiare niente. Il `CompositionRoot` legge `-seed`, altrimenti
+usa l'orologio, scrive il seme nel log ("per rigiocarla: -seed …"), crea generatore e
+`LootRoller` con il database degli affissi e collega i `LootDrop` di ogni livello;
+`UseLootSeed` lo cambia per i test. **A terra:** nome nel colore della rarità (bianco, blu,
+giallo) e luce dello stesso colore, più satura (`RarityColors`). Nei test un aiuto della
+fixture cerca il primo seme con cui un nemico lascia l'oggetto voluto, e i test del loot
+della M4 confrontano il drop con la previsione invece della lama fissa. Test: 92 EditMode
+(`LootTests`: seme del nemico stabile e sparso, stessi drop in ordine inverso e diversi con
+un altro seme, 70% di drop e lama più frequente su 10.000 nemici, la loot table al limite)
+e 88 PlayMode (`LootSeedTests`: seme 4711 nel livello 1 con gli scheletri uccisi in ordine
+inverso e un nuovo avvio di `Core` uguale, raro con nome e luce gialli, profondità 2 e
+oggetti di livello 2) verdi.
+
 ## Passo 5.7 — Nomi, colori e tooltip con confronto
 
 1. `ItemNamer` con schema e genere; colore della rarità nel tooltip, nell'etichetta a terra e
@@ -419,7 +440,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 - [x] Affissi, rarità e generatore riproducibile
 - [x] Statistiche nuove e vita massima variabile
 - [x] Basi nuove con modelli, icone e riga in `CREDITS.md`
-- [ ] Loot table, profondità e seme da riga di comando
+- [x] Loot table, profondità e seme da riga di comando
 - [ ] Nomi composti per lingua, colori, tooltip con confronto
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI

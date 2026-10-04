@@ -79,6 +79,10 @@ namespace DarkDescent.Editor
 
             var level = new GameObject("Level");
             var context = level.AddComponent<LevelContext>();
+            var depth = map.GetDirective("depth");
+            var contextSo = new SerializedObject(context);
+            contextSo.FindProperty("_depth").intValue = depth.Count > 0 ? int.Parse(depth[0]) : 1;
+            contextSo.ApplyModifiedPropertiesWithoutUndo();
 
             var floors = new GameObject("Floors").transform;
             var walls = CreateNotWalkableGroup("Walls");

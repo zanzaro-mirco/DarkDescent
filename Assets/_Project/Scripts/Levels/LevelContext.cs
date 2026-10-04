@@ -13,6 +13,9 @@ namespace DarkDescent.Levels
     [DisallowMultipleComponent]
     public class LevelContext : MonoBehaviour
     {
+        [Tooltip("La profondità del livello, dalla direttiva @depth della mappa: è il livello degli oggetti che ci cadono.")]
+        [SerializeField, Min(1)] private int _depth = 1;
+
         private readonly List<LevelEntrance> _entrances = new List<LevelEntrance>();
         private readonly List<LevelExit> _exits = new List<LevelExit>();
         private readonly List<EnemyAI> _enemies = new List<EnemyAI>();
@@ -26,6 +29,8 @@ namespace DarkDescent.Levels
         public IReadOnlyList<LevelExit> Exits => _exits;
 
         public int EntranceCount => _entrances.Count;
+
+        public int Depth => _depth;
 
         private void Awake()
         {

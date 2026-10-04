@@ -267,6 +267,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c8707ec5c8934304d99921e26407d95d, type: 3}
   _deathClips:
   - {fileID: 8300000, guid: a77c9d43b49eeab46b96d6ac4e131c67, type: 3}
+  _blockClips: []
   _pitchVariation: 0.06
 --- !u!114 &5267768890862529430
 MonoBehaviour:
@@ -310,7 +311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ada986fbde9ee414d970cfc5947bc6fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.LootDrop
-  _item: {fileID: 11400000, guid: 02b6800f1674534418a06c4cbe658b3b, type: 2}
+  _lootTable: {fileID: 11400000, guid: e0ca5f6279f12c44ca7ac7c0745a71e8, type: 2}
   _groundItemPrefab: {fileID: 733407215090042755, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
   _forwardOffset: 0.9
 --- !u!1001 &8531279894515779573
@@ -471,6 +472,7 @@ MonoBehaviour:
   _health: {fileID: 0}
   _hitRecovery: {fileID: 0}
   _attack: {fileID: 0}
+  _shieldBlock: {fileID: 0}
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05
 --- !u!114 &6512745034588951292

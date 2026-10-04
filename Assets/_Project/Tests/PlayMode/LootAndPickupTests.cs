@@ -14,6 +14,7 @@ namespace DarkDescent.Tests
     public class LootAndPickupTests : SandboxFixture
     {
         private PlayerInventory _inventory;
+        private ItemInstance _expected;
 
         private static GroundItem[] GroundItems() => Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None);
 
@@ -25,7 +26,10 @@ namespace DarkDescent.Tests
         {
             yield return LoadSandbox(allSkeletons: true);
             _inventory = Player.GetComponent<PlayerInventory>();
-            GameObject.Find(SkeletonName).GetComponent<Health>().TakeDamage(new DamageInfo(1000f, DamageType.Physical, null));
+            var skeleton = GameObject.Find(SkeletonName);
+            // un seme con cui lo scheletro lascia qualcosa: con il 30% non lascerebbe niente
+            _expected = UseLootSeedWithDrop(skeleton.GetComponent<LootDrop>());
+            skeleton.GetComponent<Health>().TakeDamage(new DamageInfo(1000f, DamageType.Physical, null));
             yield return null;
         }
 
@@ -39,20 +43,24 @@ namespace DarkDescent.Tests
             }
         }
 
-        [UnityTest, Description("Lo scheletro morto lascia la sua lama davanti al corpo, sul NavMesh")]
-        public IEnumerator SkeletonDeath_DropsBlade()
+        [UnityTest, Description("Lo scheletro morto lascia l'oggetto della sua loot table davanti al corpo, sul NavMesh, con il nome nel colore della rarità")]
+        public IEnumerator SkeletonDeath_DropsItsLoot()
         {
             yield return KillSkeleton();
 
             var drops = GroundItems();
             Assert.AreEqual(1, drops.Length);
-            Assert.AreEqual("SkeletonBlade", drops[0].Item.Definition.name);
-            Assert.AreEqual("Skeleton Blade", drops[0].GetComponent<Interactable>().GetLabel(Localizer));
+            Assert.AreSame(_expected.Definition, drops[0].Item.Definition);
+            Assert.AreEqual(_expected.Rarity, drops[0].Item.Rarity);
+            Assert.AreEqual(_expected.Affixes.Count, drops[0].Item.Affixes.Count);
+            string label = drops[0].GetComponent<Interactable>().GetLabel(Localizer);
+            StringAssert.Contains(Localizer.Get(_expected.Definition.NameKey), label);
+            StringAssert.Contains(RarityColors.TextHex(_expected.Rarity), label);
             Assert.Less(FlatDistance(drops[0].transform.position, GameObject.Find(SkeletonName).transform.position), 2f);
             Assert.IsTrue(NavMesh.SamplePosition(drops[0].transform.position, out _, 0.2f, NavMesh.AllAreas), "deve stare dove il cavaliere arriva");
         }
 
-        [UnityTest, Description("Un click sulla lama: il cavaliere la raggiunge e la mette nell'inventario")]
+        [UnityTest, Description("Un click sull'oggetto caduto: il cavaliere lo raggiunge e lo mette nell'inventario")]
         public IEnumerator ClickOnGroundItem_PicksItUp()
         {
             yield return KillSkeleton();
@@ -62,12 +70,12 @@ namespace DarkDescent.Tests
             ClickAt(drop.transform.position + Vector3.up * 0.1f);
             yield return WaitUntil(() => drop == null, 8f);
 
-            Assert.IsTrue(drop == null, "raccolta, la lama sparisce da terra");
+            Assert.IsTrue(drop == null, "raccolto, sparisce da terra");
             Assert.IsTrue(_inventory.Inventory.Grid.TryGetPlacement(item, out var area), "ed entra nella griglia");
             Assert.AreEqual(new Vector2Int(0, 0), area.position);
         }
 
-        [UnityTest, Description("Con l'inventario pieno la lama resta a terra e l'etichetta lo dice")]
+        [UnityTest, Description("Con l'inventario pieno l'oggetto resta a terra e l'etichetta lo dice")]
         public IEnumerator FullInventory_ItemStaysOnGround()
         {
             yield return KillSkeleton();
@@ -76,7 +84,7 @@ namespace DarkDescent.Tests
 #else
             ItemDefinition sword = null;
 #endif
-            // dieci spade riempiono le prime tre righe: una lama da tre celle non entra più
+            // dieci spade riempiono le prime tre righe: nella quarta non entra nessuna base, alte almeno due celle
             for (int i = 0; i < 10; i++)
             {
                 Assert.IsTrue(_inventory.TryPickUp(new ItemInstance(sword)));

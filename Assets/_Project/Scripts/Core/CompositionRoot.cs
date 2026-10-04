@@ -44,14 +44,20 @@ namespace DarkDescent.Core
         [Tooltip("La tabella delle stringhe: una colonna per lingua (D12 della M5).")]
         [SerializeField] private TextAsset _strings;
 
+        [Tooltip("Gli affissi che il generatore può tirare (D3 della M5).")]
+        [SerializeField] private AffixDatabase _affixes;
+
         /// <summary>Dove resta la lingua scelta tra un avvio e l'altro: è una preferenza, non la partita.</summary>
         public const string LanguagePreference = "language";
 
         private const string LanguageOption = "-lang";
 
+        private const string SeedOption = "-seed";
+
         private MeleeAttack _playerAttack;
         private PlayerInputReader _reader;
         private Localizer _localizer;
+        private LootRoller _loot;
 
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
         private IRandomSource _random;
@@ -64,6 +70,9 @@ namespace DarkDescent.Core
 
         /// <summary>La lingua del gioco: i test la leggono e la cambiano da qui.</summary>
         public Localizer Localizer => _localizer;
+
+        /// <summary>Il seme della partita, da cui viene ogni drop (D5 della M5).</summary>
+        public ulong LootSeed => _loot.RunSeed;
 
         private void Awake()
         {
@@ -80,6 +89,17 @@ namespace DarkDescent.Core
             {
                 text.Bind(_localizer);
             }
+
+            // il seme del loot: da riga di comando per rigiocare una partita, altrimenti dall'orologio.
+            // Separato dai tiri del combattimento: un colpo mancato in più non cambia i drop (D5)
+            if (!CommandLine.TryGetValue(Environment.GetCommandLineArgs(), SeedOption, out string seedText)
+                || !ulong.TryParse(seedText, out ulong seed))
+            {
+                seed = (ulong)DateTime.UtcNow.Ticks;
+            }
+
+            _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed);
+            Debug.Log($"[DarkDescent] seme della partita: {seed} (per rigiocarla: -seed {seed})");
 
             _playerAttack = _player.GetComponent<MeleeAttack>();
             _random = new SystemRandomSource(Environment.TickCount);
@@ -146,6 +166,10 @@ namespace DarkDescent.Core
                 var health = enemy.GetComponent<Health>();
                 _damageNumbers.Track(health, isPlayer: false);
                 _trackedEnemies.Add(health);
+                if (enemy.TryGetComponent(out LootDrop loot))
+                {
+                    loot.Bind(_loot, level.Depth);
+                }
             }
         }
 
@@ -158,6 +182,12 @@ namespace DarkDescent.Core
 
             _trackedEnemies.Clear();
             _enemyAttacks.Clear();
+        }
+
+        /// <summary>Cambia il seme della partita: per i test e per rigiocare un seme senza riavviare.</summary>
+        public void UseLootSeed(ulong seed)
+        {
+            _loot.RunSeed = seed;
         }
 
         /// <summary>

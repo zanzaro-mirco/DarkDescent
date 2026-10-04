@@ -91,9 +91,9 @@ namespace DarkDescent.Tests
             yield return null;
             panel.ClickCell(new Vector2Int(0, 0));
             var dropped = inventory.DropHeld();
-            Assert.AreEqual("Lama dello scheletro", dropped.GetComponent<Interactable>().GetLabel(Localizer));
+            StringAssert.Contains(">Lama dello scheletro<", dropped.GetComponent<Interactable>().GetLabel(Localizer));
             Localizer.SetLanguage("en");
-            Assert.AreEqual("Skeleton Blade", dropped.GetComponent<Interactable>().GetLabel(Localizer));
+            StringAssert.Contains(">Skeleton Blade<", dropped.GetComponent<Interactable>().GetLabel(Localizer));
         }
     }
 }
