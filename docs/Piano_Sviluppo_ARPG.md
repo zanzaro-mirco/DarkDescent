@@ -20,7 +20,7 @@
 | v2.9 | 3 ott 2026 | Prima build pubblica su itch.io spostata da M3 a M10, quando il gioco è finibile: decisione di Mirco. A M3 resta la prova della build Web dall'artifact della CI |
 | v2.10 | 3 ott 2026 | M3 chiusa (tag `m3`), con le lezioni · § 4.3 decisa (ADR-014) · build Web provata e tenuta (ADR-019) · ADR-014…019 |
 | v2.11 | 4 ott 2026 | M4 chiusa (tag `m4`), con le lezioni · attributi e formula del colpo confermati (§ 2, ADR-020) · inventario a click-e-click invece del drag & drop (ADR-023) · ADR-020…024 |
-| v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), rarità **leggendaria**, **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
+| v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
 
 ---
 
@@ -455,13 +455,13 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 È il cuore del genere, e merita una milestone sua.
 
-**Contenuto:** `AffixDefinition` per prefissi e suffissi · pool filtrati per *item level* e tipo di oggetto · quattro rarità, dal normale al **leggendario** (arancione) · generazione del nome, composto secondo la lingua · loot table per nemico · confronto nel tooltip · **blocco** con lo scudo, legato alla Destrezza (§ 2) · **lingue**: inglese di default e italiano, con una tabella delle stringhe a cui una lingua nuova aggiunge solo una colonna. Dettagli e decisioni: `docs/milestones/M5_Loot_casuale.md`.
+**Contenuto:** `AffixDefinition` per prefissi e suffissi · pool filtrati per *item level* e tipo di oggetto · rarità normale, magica e rara · generazione del nome, composto secondo la lingua · loot table per nemico · confronto nel tooltip · **blocco** con lo scudo, legato alla Destrezza (§ 2) · **lingue**: inglese di default e italiano, con una tabella delle stringhe a cui una lingua nuova aggiunge solo una colonna. Dettagli e decisioni: `docs/milestones/M5_Loot_casuale.md`.
 
 **Concetti:** estrazione pesata; `System.Random` con **seed riproducibile** — "rigenera il drop 4711" invece di "riprova finché non ricapita".
 
 **Test:** stesso seed, stesso oggetto, sempre; gli affissi rispettano l'item level; su 10.000 estrazioni le rarità restano entro una tolleranza dalle probabilità previste.
 
-**Definition of Done:** in build, con il seed fissato lo stesso nemico lascia sempre lo stesso oggetto; senza seed, in poche partite compaiono normali, magici e rari (che ci siano tutte e quattro le rarità lo verifica un test su 10.000 estrazioni: otto scheletri per partita sono pochi). Lo scudo blocca. Il gioco parte in inglese e passa all'italiano. Test verdi.
+**Definition of Done:** in build, con il seed fissato lo stesso nemico lascia sempre lo stesso oggetto; senza seed, in poche partite compaiono normali, magici e rari (le probabilità le verifica un test su 10.000 estrazioni: otto scheletri per partita sono pochi). Lo scudo blocca. Il gioco parte in inglese e passa all'italiano. Test verdi.
 
 **Punto di controllo** (§ 1.3).
 

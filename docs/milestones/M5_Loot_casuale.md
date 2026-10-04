@@ -3,8 +3,7 @@
 **Cosa deve succedere (Definition of Done):** in una **build prodotta dalla CI** avviata con
 `-seed 4711`, il primo scheletro del livello 1 lascia sempre lo stesso oggetto: stesso nome,
 stessi affissi, in due avvii diversi. Senza seme, in poche partite compaiono oggetti
-normali, magici e rari, ognuno con il nome e la luce del suo colore; i leggendari sono rari
-apposta, e la loro esistenza la garantisce un test. Il tooltip di un oggetto magico ne
+normali, magici e rari, ognuno con il nome e la luce del suo colore. Il tooltip di un oggetto magico ne
 mostra gli affissi e lo mette accanto a quello equipaggiato. Equipaggiato, gli affissi
 cambiano il pannello del personaggio; tolto, tutto torna com'era. Con uno scudo, una parte
 dei colpi degli scheletri viene **bloccata**, con animazione e suono. Il gioco parte in
@@ -44,20 +43,20 @@ della M2 (3 ott 2026) contro le 42 h di M2.5–M5 a 6 h a settimana.
 
 ## Decisioni
 
-Confermate da Mirco il 4 ottobre 2026: D1, D3, D5, D6, D8, D9, D10, D11. D2, D4 e D7 sono
-riscritte secondo le sue indicazioni; D12 e D13 sono nuove e vanno confermate.
+Tutte confermate da Mirco il 4 ottobre 2026. D4 e D7 sono riscritte secondo le sue
+indicazioni; D12 e D13 sono nate dalla richiesta delle lingue. Lo zip di D11 lo scarico io.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
 | D1 | **Blocco** (richiesto da Mirco) | Solo con uno scudo. Probabilità = blocco dello scudo + Destrezza / 2, al massimo 75%. Scudo con stemma 10, quindi **20%** per il cavaliere. Si tira **dopo** il colpo a segno: il colpo bloccato non fa danno, sopra il cavaliere compare "Bloccato" e parte `Melee_Block_Hit` con un suono metallico. Il blocco interrompe il colpo che il cavaliere stava dando, come in Diablo 1. Gli scheletri non bloccano | Con lo scudo il cavaliere subisce il 60% dei colpi invece dell'80%: si sente. La Destrezza ottiene un secondo uso, come dice il § 2. L'interruzione è il prezzo del blocco in Diablo e lo rende una scelta, non un bonus gratis |
-| D2 | **Rarità** (con il leggendario chiesto da Mirco) | Quattro. **Normale** (bianco, nessun affisso). **Magico** (blu, 1–2 affissi: al più un prefisso e un suffisso). **Raro** (giallo, 3–4 affissi, al più due prefissi e due suffissi). **Leggendario** (arancione `#FF8000`, 5 affissi, al più tre prefissi e tre suffissi, valori sempre nella **metà alta** del loro intervallo). Al drop: **63% / 28% / 7% / 2%**. Se il pool di un oggetto non ha abbastanza affissi, ne prende quanti ce ne sono. Gli unici scritti a mano restano fuori | Il leggendario si distingue dal raro per numero e forza degli affissi, non solo per il colore. Le probabilità sono generose perché nei due livelli fatti a mano ci sono otto scheletri: un leggendario ogni nove partite circa, un raro ogni due o tre. Si ritarano alla M10, con il gioco completo |
+| D2 | **Rarità** | Tre. **Normale** (bianco, nessun affisso). **Magico** (blu, 1–2 affissi: al più un prefisso e un suffisso). **Raro** (giallo, 3–4 affissi, al più due prefissi e due suffissi). Al drop: **65% / 28% / 7%**. Se il pool di un oggetto non ha abbastanza affissi, ne prende quanti ce ne sono. Gli unici restano fuori | Le probabilità sono generose perché nei due livelli fatti a mano ci sono otto scheletri: un raro ogni due o tre partite. Si ritarano alla M10, con il gioco completo. Gli unici vogliono oggetti scritti a mano uno per uno, che oggi non ci sono |
 | D3 | **Affissi** | Undici, ciascuno con un intervallo di valori interi, un livello minimo, i tipi di oggetto ammessi e un **gruppo**: due affissi dello stesso gruppo non stanno sullo stesso oggetto ("Affilato" e "Feroce"). Il danno e l'Armatura in percentuale sono **dell'oggetto** e cambiano i numeri dell'arma o dello scudo; gli altri sono **del personaggio** e passano dallo `StatSheet` | Come in Diablo: "+40% danno" cambia il danno della spada, non quello dei pugni. Valori interi: niente virgole nel tooltip e nessun problema di cultura (lezione della M4) |
-| D4 | **Nomi degli oggetti in più lingue** | Il nome si compone con uno **schema per lingua**: in inglese "Savage Short Sword of the Griffin" (prefisso prima, suffisso dopo), in italiano "Spada corta Feroce del Grifone" (prefisso dopo il nome). Ogni base ha un **genere per lingua** (in inglese nessuno, in italiano m/f; altre lingue potranno usare anche il neutro); i prefissi hanno una forma per genere, con la forma senza genere come riserva. Il raro e il leggendario si chiamano come il magico, con il primo prefisso e il primo suffisso, nel loro colore; il tooltip mostra tutti gli affissi | L'ordine delle parole e l'accordo cambiano da lingua a lingua: un nome incollato con il `+` funziona solo in inglese. Con schema e genere nella tabella delle stringhe, una lingua nuova è una colonna in più, senza codice |
+| D4 | **Nomi degli oggetti in più lingue** | Il nome si compone con uno **schema per lingua**: in inglese "Savage Short Sword of the Griffin" (prefisso prima, suffisso dopo), in italiano "Spada corta Feroce del Grifone" (prefisso dopo il nome). Ogni base ha un **genere per lingua** (in inglese nessuno, in italiano m/f; altre lingue potranno usare anche il neutro); i prefissi hanno una forma per genere, con la forma senza genere come riserva. Il raro si chiama come il magico, con il primo prefisso e il primo suffisso, in giallo; il tooltip mostra tutti gli affissi | L'ordine delle parole e l'accordo cambiano da lingua a lingua: un nome incollato con il `+` funziona solo in inglese. Con schema e genere nella tabella delle stringhe, una lingua nuova è una colonna in più, senza codice |
 | D5 | **Seme** | Un seme di partita: da riga di comando (`-seed 4711`), altrimenti casuale e scritto nel log. Ogni nemico riceve un seme suo, ricavato da seme di partita, livello e posizione nella mappa, quindi lo stesso nemico lascia lo stesso oggetto **in qualunque ordine** si uccidano. Il generatore usa un **PRNG nostro** (SplitMix64) dietro `IRandomSource`, separato da quello del combattimento | Con una sorgente sola, un colpo mancato in più cambierebbe il loot. `System.Random` non promette lo stesso algoritmo tra versioni di .NET e `string.GetHashCode` cambia tra runtime: il seme deve dare lo stesso oggetto anche in build Web e dopo un aggiornamento |
 | D6 | **Cosa salva un oggetto** | `ItemInstance` aggiunge rarità, livello dell'oggetto, seme e la lista degli affissi con il **valore tirato** (ID dell'affisso + numero). **Mai il nome**: si compone nella lingua attiva ogni volta che serve | Il seme basta a rigenerare l'oggetto, ma se alla M10 si ritarano gli intervalli, gli oggetti già salvati cambierebbero. Con i valori salvati restano quelli trovati. Un nome salvato resterebbe nella lingua in cui è caduto l'oggetto |
 | D7 | **Basi di questa milestone** | Otto oggetti a una mano. Armi: **Pugnale** (`dagger`, 1×2, 3–6), **Spada corta** (1×3), **Ascia** (`axe_1handed`, 2×3, 7–11, Forza 30), **Lama dello scheletro** (1×3). Scudi: **con stemma** (2×2, Armatura 5, blocco 10), **tondo** (`shield_round`, 2×2, 4, 15), **quadrato** (`shield_square`, 2×3, 8, 10), **chiodato** (`shield_spikes`, 2×2, 6, 5). Armi a due mani, bacchette, bastoni, archi e balestre arrivano **con le classi nuove**: sono un compito scritto nel piano (§ 5, "Dopo la v1.0"), come chiesto da Mirco. Da qui il codice tiene il **tipo di arma** come dato della definizione (enum `WeaponKind`), così un tipo nuovo non cambia la struttura | Scelte diverse sul serio: l'ascia chiede Forza, lo scudo tondo blocca e quello quadrato para. Con il tipo d'arma come dato, affissi e loot table già filtrano per tipo, e le armi a due mani della classe nuova dovranno aggiungere solo la regola sullo slot dello scudo |
-| D8 | **Loot table e livello dell'oggetto** | Uno ScriptableObject `LootTable` per nemico: probabilità di lasciare qualcosa (scheletro **70%**) e basi pesate. Livello dell'oggetto = profondità del livello (1 o 2), scritta nella mappa con `@depth`. Lo scudo del livello 1 resta messo dalla mappa, normale. Gli oggetti a terra prendono il colore della rarità nel nome e nella luce | Il drop fisso della M4 serviva a tenere tutto deterministico; ora il determinismo lo dà il seme. La luce colorata a terra è il segnale più forte del genere: un bagliore arancione si riconosce da lontano |
-| D9 | **Confronto nel tooltip** | Passando su un oggetto della griglia che va in uno slot occupato, accanto al suo tooltip ne compare un secondo con l'oggetto equipaggiato, intitolato "Equipaggiato" | Due riquadri si leggono senza fare conti, e riusano `ItemTooltip`. Le differenze in verde e rosso su ogni riga diventano illeggibili con 3–5 affissi |
+| D8 | **Loot table e livello dell'oggetto** | Uno ScriptableObject `LootTable` per nemico: probabilità di lasciare qualcosa (scheletro **70%**) e basi pesate. Livello dell'oggetto = profondità del livello (1 o 2), scritta nella mappa con `@depth`. Lo scudo del livello 1 resta messo dalla mappa, normale. Gli oggetti a terra prendono il colore della rarità nel nome e nella luce | Il drop fisso della M4 serviva a tenere tutto deterministico; ora il determinismo lo dà il seme. La luce colorata a terra è il segnale più forte del genere: un bagliore giallo si riconosce da lontano |
+| D9 | **Confronto nel tooltip** | Passando su un oggetto della griglia che va in uno slot occupato, accanto al suo tooltip ne compare un secondo con l'oggetto equipaggiato, intitolato "Equipaggiato" | Due riquadri si leggono senza fare conti, e riusano `ItemTooltip`. Le differenze in verde e rosso su ogni riga diventano illeggibili con 3–4 affissi |
 | D10 | **Vita massima che cambia** (trappola 8 della M4) | Quando la vita massima sale, la vita attuale sale della stessa quantità; quando scende, scende della stessa quantità ma mai sotto 1 | È il comportamento di Diablo 1: togliere un oggetto della Vitalità non uccide mai, e indossarlo non è una cura gratis |
 | D11 | **Download** | Lo zip di Kenney *Impact Sounds* (CC0, da `kenney.nl`, circa 1 MB: misura esatta prima di scaricarlo) per `impactMetal`. Lo riscarica Mirco, o lo scarico io con il suo via | Il blocco vuole un suono metallico; quelli importati sono pugni e colpi sordi |
 | D12 | **Sistema delle lingue** (nuova) | **Un sistema nostro, piccolo.** Una tabella CSV nel repo (`Data/Localization/Strings.csv`): una riga per chiave, **una colonna per lingua** (`key,en,it`). `Localizer` (logica pura) la legge, risponde con la lingua attiva e, se manca una traduzione, ricade sull'inglese. Le etichette delle scene hanno un componente `LocalizedText` con la chiave; il codice chiede le stringhe per chiave. Cambiare lingua manda un evento: chi mostra testo si ridisegna, nessuno controlla a ogni frame. Le definizioni (oggetti, affissi) tengono una **chiave**, non più un nome. Un test controlla che ogni chiave usata esista e che ogni lingua abbia tutte le righe | Il pacchetto *Unity Localization* è lo standard e farebbe bella figura nel CV, ma porta con sé Addressables, carica le tabelle in modo asincrono (in build Web non si può aspettarle in modo sincrono) e aggiunge un passaggio di build alla CI. Per due lingue e qualche centinaio di righe, una tabella CSV si rivede in un diff, si passa a un traduttore così com'è e una lingua nuova è una colonna. Se un giorno servisse il pacchetto, le chiavi restano le stesse |
@@ -80,9 +79,7 @@ riscritte secondo le sue indicazioni; D12 e D13 sono nuove e vanno confermate.
 | Suffisso | of Blocking | della Parata | +5–10% blocco | scudi | 1 | blocco |
 
 Servono due statistiche nuove del personaggio: **a colpire** (si somma alla probabilità di
-colpire) e **vita** (si somma alla vita massima). Il blocco dello scudo è dell'oggetto. Con
-undici affissi un leggendario di livello 1 ne ha al più cinque su un'arma e quattro su uno
-scudo: il pool cresce alla M8 con anelli e amuleti.
+colpire) e **vita** (si somma alla vita massima). Il blocco dello scudo è dell'oggetto.
 
 ---
 
@@ -144,7 +141,7 @@ Livelli
   genere `item.<base>.gender`, prefisso `affix.<id>.<genere>` o `affix.<id>`.
 - **`ItemGenerator.Generate(ItemDefinition base, int itemLevel, ulong seed)`**: stesso
   ingresso, stesso oggetto. Sceglie la rarità, poi gli affissi ammessi (tipo, livello,
-  gruppo libero), poi i valori (nella metà alta per il leggendario).
+  gruppo libero), poi i valori.
 - **`ItemInstance`**: in più `Rarity`, `ItemLevel`, `Seed`, `Affixes` (lista di ID e valori);
   resta serializzabile con `JsonUtility`.
 - **`Equipment`**: per ogni affisso del personaggio un modificatore con l'oggetto come
@@ -197,8 +194,7 @@ ogni tiro di blocco riuscirebbe.
 
 **Test:** stesso seme, stesso oggetto, sempre; un oggetto di livello 1 non ha mai "Savage" né
 "of the Griffin"; mai due affissi dello stesso gruppo; su 10.000 estrazioni le rarità restano
-entro l'1% da 63/28/7/2; il magico ha al più un prefisso e un suffisso; i valori del
-leggendario stanno nella metà alta; JSON e ritorno.
+entro l'1% da 65/28/7; il magico ha al più un prefisso e un suffisso; JSON e ritorno.
 
 ## Passo 5.4 — Statistiche nuove e vita massima variabile
 
@@ -208,7 +204,7 @@ leggendario stanno nella metà alta; JSON e ritorno.
 3. La sfera della vita e il pannello del personaggio si aggiornano dagli eventi.
 
 **Test:** "+10 vita" alza massimo e attuale di 10; tolto, li abbassa ma mai sotto 1; "of
-Vitality" passa dalla formula 50 + 2 × Vitalità; equipaggia e togli un oggetto con cinque
+Vitality" passa dalla formula 50 + 2 × Vitalità; equipaggia e togli un oggetto con quattro
 affissi riporta ogni statistica a prima.
 
 ## Passo 5.5 — Basi nuove: modelli, definizioni e icone
@@ -232,7 +228,7 @@ nome in ogni lingua e genere in italiano; ogni scudo ha un blocco tra 0 e 75.
 
 **Test:** stesso seme di partita, gli stessi scheletri lasciano gli stessi oggetti anche
 uccisi in ordine inverso; seme diverso, oggetti diversi; nel livello 2 gli oggetti hanno
-livello 2; la luce dell'oggetto leggendario è arancione.
+livello 2; la luce dell'oggetto raro è gialla.
 
 ## Passo 5.7 — Nomi, colori e tooltip con confronto
 
@@ -281,9 +277,9 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
    interi nella tabella, non composti da "della" + nome.
 9. **Le icone hanno ognuna il suo verso** (lezione della M4): ogni scudo nuovo va
    fotografato e controllato.
-10. **Le probabilità basse si verificano male a occhio:** il 2% dei leggendari, con il 70% di drop e otto
-    scheletri per partita, vuol dire uno ogni nove partite circa. La verifica vera è il test
-    sulle 10.000 estrazioni; in build si guarda che compaiano normali, magici e rari.
+10. **Le probabilità basse si verificano male a occhio:** il 7% dei rari, con il 70% di drop
+    e otto scheletri per partita, vuol dire un raro ogni due o tre partite. La verifica vera è
+    il test sulle 10.000 estrazioni; in build si guarda che compaiano tutte e tre le rarità.
 11. **Testi più lunghi in un'altra lingua:** l'italiano è più lungo dell'inglese, e lingue
     future come il tedesco lo sono ancora di più. Le etichette dei pannelli vanno provate in
     tutte e due le lingue, con lo spazio per il 30% in più.
@@ -306,7 +302,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 | `StringTableTests` (EditMode) | Lettura del CSV con virgole, virgolette e accenti; ricaduta sull'inglese; `#chiave` |
 | `LocalizationCoverageTests` (EditMode) | Ogni chiave usata da scene, codice e definizioni esiste; ogni lingua ha tutte le righe |
 | `ItemNamerTests` (EditMode) | Schema inglese e italiano, accordo di genere, forma di riserva |
-| `ItemGeneratorTests` (EditMode) | Stesso seme stesso oggetto, livello minimo, gruppi, limiti di prefissi e suffissi per rarità, leggendario nella metà alta |
+| `ItemGeneratorTests` (EditMode) | Stesso seme stesso oggetto, livello minimo, gruppi, limiti di prefissi e suffissi per rarità |
 | `RarityTableTests` (EditMode) | 10.000 estrazioni entro l'1% dalle probabilità |
 | `SeedTests` (EditMode) | SplitMix64 con valori noti, semi dei nemici diversi e stabili |
 | `ItemInstanceTests` (EditMode) | JSON e ritorno con affissi e valori |
@@ -320,10 +316,10 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D13 confermate
+- [x] Decisioni D1–D13 confermate
 - [ ] Lingue: inglese di default, italiano con `-lang it` e `F9`, testi di oggi tradotti
 - [ ] Blocco con lo scudo, con animazione e suono
-- [ ] Affissi, rarità (leggendario compreso) e generatore riproducibile
+- [ ] Affissi, rarità e generatore riproducibile
 - [ ] Statistiche nuove e vita massima variabile
 - [ ] Basi nuove con modelli, icone e riga in `CREDITS.md`
 - [ ] Loot table, profondità e seme da riga di comando
