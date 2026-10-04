@@ -18,6 +18,7 @@ namespace DarkDescent.Characters
         private static readonly int SpeedHash = Animator.StringToHash("Speed");
         private static readonly int AttackStateHash = Animator.StringToHash("Attack");
         private static readonly int HitStateHash = Animator.StringToHash("Hit");
+        private static readonly int BlockStateHash = Animator.StringToHash("Block");
         private static readonly int DeathStateHash = Animator.StringToHash("Death");
 
         private const int BaseLayer = 0;
@@ -33,6 +34,9 @@ namespace DarkDescent.Characters
 
         [Tooltip("Vuoto = MeleeAttack del parent, risolto in Awake. L'animazione d'attacco parte dal suo evento.")]
         [SerializeField] private MeleeAttack _attack;
+
+        [Tooltip("Vuoto = ShieldBlock del parent, risolto in Awake, se c'è. Il blocco parte dal suo evento.")]
+        [SerializeField] private ShieldBlock _shieldBlock;
 
         [Tooltip("Smorzamento del parametro Speed, in secondi. Evita gli scatti tra idle e movimento.")]
         [SerializeField, Min(0f)] private float _speedDampTime = 0.1f;
@@ -67,6 +71,11 @@ namespace DarkDescent.Characters
             {
                 _hitRecovery = GetComponentInParent<HitRecovery>();
             }
+
+            if (_shieldBlock == null)
+            {
+                _shieldBlock = GetComponentInParent<ShieldBlock>();
+            }
         }
 
         // i componenti di combattimento possono mancare (un modello senza combattimento): ci si iscrive a quel che c'è
@@ -86,6 +95,11 @@ namespace DarkDescent.Characters
             {
                 _hitRecovery.Staggered += PlayHit;
             }
+
+            if (_shieldBlock != null)
+            {
+                _shieldBlock.Blocked += PlayBlock;
+            }
         }
 
         private void OnDisable()
@@ -104,6 +118,11 @@ namespace DarkDescent.Characters
             {
                 _hitRecovery.Staggered -= PlayHit;
             }
+
+            if (_shieldBlock != null)
+            {
+                _shieldBlock.Blocked -= PlayBlock;
+            }
         }
 
         private void Update()
@@ -119,6 +138,11 @@ namespace DarkDescent.Characters
         public void PlayHit()
         {
             PlayOneShot(HitStateHash);
+        }
+
+        public void PlayBlock(DamageInfo info)
+        {
+            PlayOneShot(BlockStateHash);
         }
 
         public void PlayDeath()

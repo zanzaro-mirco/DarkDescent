@@ -28,6 +28,7 @@ namespace DarkDescent.UI
         private CharacterStats _stats;
         private PlayerInventory _inventory;
         private PlayerInputReader _reader;
+        private ShieldBlock _block;
         private bool _subscribed;
 
         public bool IsOpen => _window.activeSelf;
@@ -39,6 +40,7 @@ namespace DarkDescent.UI
             Unsubscribe();
             _stats = stats;
             _inventory = inventory;
+            _block = stats.GetComponent<ShieldBlock>();
             _reader = reader;
             if (isActiveAndEnabled)
             {
@@ -89,6 +91,11 @@ namespace DarkDescent.UI
             _reader.CharacterToggled += Toggle;
             _stats.Sheet.Changed += Refresh;
             _inventory.Equipment.Changed += HandleEquipmentChanged;
+            if (_block != null)
+            {
+                _block.ShieldChanged += Refresh;
+            }
+
             _subscribed = true;
             Refresh();
         }
@@ -103,6 +110,11 @@ namespace DarkDescent.UI
             _reader.CharacterToggled -= Toggle;
             _stats.Sheet.Changed -= Refresh;
             _inventory.Equipment.Changed -= HandleEquipmentChanged;
+            if (_block != null)
+            {
+                _block.ShieldChanged -= Refresh;
+            }
+
             _subscribed = false;
         }
 
@@ -126,7 +138,8 @@ namespace DarkDescent.UI
             _builder.Append(Mathf.RoundToInt(CombatFormulas.MaxLife(_stats.Vitality))).Append('\n');
             _builder.Append(Mathf.RoundToInt(_stats.Armor)).Append('\n');
             _builder.Append(min).Append('–').Append(max).Append('\n');
-            _builder.Append(Mathf.RoundToInt(hitChance)).Append('%');
+            _builder.Append(Mathf.RoundToInt(hitChance)).Append("%\n");
+            _builder.Append(_block != null ? Mathf.RoundToInt(_block.BlockChance) : 0).Append('%');
             _values.SetText(_builder);
         }
     }

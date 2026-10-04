@@ -312,6 +312,7 @@ GameObject:
   - component: {fileID: 4556274574701756022}
   - component: {fileID: 4422278451469514746}
   - component: {fileID: 954267181143827798}
+  - component: {fileID: 9037448413650542344}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -594,6 +595,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: fa321a5a0e1241148a86f705549417c2, type: 3}
   _deathClips:
   - {fileID: 8300000, guid: 6bfab967a1104eb4183dd41e76027eb0, type: 3}
+  _blockClips:
+  - {fileID: 8300000, guid: 9caa150e7746ed04889a73c75f10f5ab, type: 3}
+  - {fileID: 8300000, guid: 9d0d634a39b7c204f940b6fa27ba7afe, type: 3}
+  - {fileID: 8300000, guid: 1eb1fc5f4c87136489b6d53677ccc143, type: 3}
   _pitchVariation: 0.06
 --- !u!114 &8189815453064965116
 MonoBehaviour:
@@ -713,6 +718,19 @@ MonoBehaviour:
   _offHand: {fileID: 5799765090521825100}
   _layerSource: {fileID: 1810784277820584832}
   _hitFlash: {fileID: 8665827698380722836}
+--- !u!114 &9037448413650542344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93a9d545777742e44960fc743ef444b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.ShieldBlock
+  _recovery: 0.45
 --- !u!1001 &3774719917804294499
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -856,6 +874,7 @@ MonoBehaviour:
   _health: {fileID: 0}
   _hitRecovery: {fileID: 0}
   _attack: {fileID: 0}
+  _shieldBlock: {fileID: 0}
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05
 --- !u!114 &8665827698380722836

@@ -21,6 +21,7 @@ namespace DarkDescent.UI
         [SerializeField] private Color _enemyDamageColor = new Color(1f, 0.88f, 0.55f);
         [SerializeField] private Color _playerDamageColor = new Color(1f, 0.25f, 0.2f);
         [SerializeField] private Color _missColor = new Color(0.7f, 0.7f, 0.7f);
+        [SerializeField] private Color _blockColor = new Color(0.72f, 0.8f, 0.95f);
 
         [Tooltip("Altezza sopra i piedi da cui parte il numero.")]
         [SerializeField, Min(0f)] private float _spawnHeight = 2.3f;
@@ -33,9 +34,10 @@ namespace DarkDescent.UI
         [Tooltip("Vuoto = Camera.main, risolta in Awake.")]
         [SerializeField] private Camera _camera;
 
-        // per ogni Health seguita, i suoi handler: servono gli stessi delegati per il -=
-        private readonly Dictionary<Health, (Action<DamageInfo, float> damaged, Action<DamageInfo> evaded)> _handlers =
-            new Dictionary<Health, (Action<DamageInfo, float>, Action<DamageInfo>)>();
+        // per ogni Health seguita, i suoi handler e lo scudo, se ne ha uno: servono gli stessi
+        // delegati per il -=
+        private readonly Dictionary<Health, (Action<DamageInfo, float> damaged, Action<DamageInfo> evaded, Action<DamageInfo> blocked, ShieldBlock block)> _handlers =
+            new Dictionary<Health, (Action<DamageInfo, float>, Action<DamageInfo>, Action<DamageInfo>, ShieldBlock)>();
         private readonly List<DamageNumber> _active = new List<DamageNumber>();
         private ObjectPool<DamageNumber> _pool;
         private RectTransform _container;
@@ -84,13 +86,16 @@ namespace DarkDescent.UI
 
             Color color = isPlayer ? _playerDamageColor : _enemyDamageColor;
             Transform owner = health.transform;
-            Action<DamageInfo, float> damaged = (info, applied) => Spawn(owner, applied, color);
-            Action<DamageInfo> evaded = info => SpawnMiss(owner);
-            _handlers.Add(health, (damaged, evaded));
+            var handlers = (
+                damaged: (Action<DamageInfo, float>)((info, applied) => Spawn(owner, applied, color)),
+                evaded: (Action<DamageInfo>)(info => SpawnText(owner, TextKeys.Miss, _missColor)),
+                blocked: (Action<DamageInfo>)(info => SpawnText(owner, TextKeys.Blocked, _blockColor)),
+                block: health.GetComponent<ShieldBlock>());
+            _handlers.Add(health, handlers);
 
             if (_subscribed)
             {
-                Subscribe(health, damaged, evaded);
+                Subscribe(health, handlers);
             }
         }
 
@@ -108,7 +113,7 @@ namespace DarkDescent.UI
 
             if (_subscribed)
             {
-                Unsubscribe(health, handlers.damaged, handlers.evaded);
+                Unsubscribe(health, handlers);
             }
 
             _handlers.Remove(health);
@@ -118,7 +123,7 @@ namespace DarkDescent.UI
         {
             foreach (var pair in _handlers)
             {
-                Subscribe(pair.Key, pair.Value.damaged, pair.Value.evaded);
+                Subscribe(pair.Key, pair.Value);
             }
 
             _subscribed = true;
@@ -129,22 +134,31 @@ namespace DarkDescent.UI
             // una Health distrutta (scheletro sparito) ha portato con sé i suoi delegati: il -= è innocuo
             foreach (var pair in _handlers)
             {
-                Unsubscribe(pair.Key, pair.Value.damaged, pair.Value.evaded);
+                Unsubscribe(pair.Key, pair.Value);
             }
 
             _subscribed = false;
         }
 
-        private static void Subscribe(Health health, Action<DamageInfo, float> damaged, Action<DamageInfo> evaded)
+        private static void Subscribe(Health health, (Action<DamageInfo, float> damaged, Action<DamageInfo> evaded, Action<DamageInfo> blocked, ShieldBlock block) handlers)
         {
-            health.Damaged += damaged;
-            health.Evaded += evaded;
+            health.Damaged += handlers.damaged;
+            health.Evaded += handlers.evaded;
+            if (handlers.block != null)
+            {
+                handlers.block.Blocked += handlers.blocked;
+            }
         }
 
-        private static void Unsubscribe(Health health, Action<DamageInfo, float> damaged, Action<DamageInfo> evaded)
+        private static void Unsubscribe(Health health, (Action<DamageInfo, float> damaged, Action<DamageInfo> evaded, Action<DamageInfo> blocked, ShieldBlock block) handlers)
         {
-            health.Damaged -= damaged;
-            health.Evaded -= evaded;
+            health.Damaged -= handlers.damaged;
+            health.Evaded -= handlers.evaded;
+            // ReferenceEquals: lo scudo di un personaggio distrutto va lasciato lo stesso
+            if (!ReferenceEquals(handlers.block, null))
+            {
+                handlers.block.Blocked -= handlers.blocked;
+            }
         }
 
         private void Spawn(Transform owner, float amount, Color color)
@@ -154,10 +168,10 @@ namespace DarkDescent.UI
             Activate(number);
         }
 
-        private void SpawnMiss(Transform owner)
+        private void SpawnText(Transform owner, string key, Color color)
         {
             var number = _pool.Get();
-            number.ShowText(owner.position + Vector3.up * _spawnHeight, _localizer.Get(TextKeys.Miss), _missColor);
+            number.ShowText(owner.position + Vector3.up * _spawnHeight, _localizer.Get(key), color);
             Activate(number);
         }
 

@@ -21,3 +21,4 @@ MonoBehaviour:
   _heldPosition: {x: 0, y: 0, z: 0.15}
   _heldRotation: {x: 0, y: 0, z: 0}
   _armor: 5
+  _blockChance: 10

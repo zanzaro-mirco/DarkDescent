@@ -7,12 +7,13 @@ hud.inventory,Inventory,Inventario
 hud.weapon,Weapon,Arma
 hud.shield,Shield,Scudo
 hud.character,Knight,Cavaliere
-hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance (skeleton),Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire (scheletro)
+hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance (skeleton)\nBlock chance,Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire (scheletro)\nBlocco
 hud.you_died,YOU DIED,SEI MORTO
 hud.restart,Restart,Ricomincia
 
 # Combattimento
 combat.miss,Miss,Mancato
+combat.blocked,Blocked,Bloccato
 
 # Oggetti a terra e scale
 exit.descend,Descend to level {0},Scendi al livello {0}

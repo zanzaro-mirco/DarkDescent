@@ -207,6 +207,21 @@ bloccato non toglie vita e interrompe l'attacco del cavaliere. I test che contan
 ricevuti restano verdi perché il cavaliere parte senza scudo: con la sorgente fissa a 0,0
 ogni tiro di blocco riuscirebbe.
 
+**Com'è andata (4 ott 2026).** `CombatFormulas.BlockChance` (scudo + Destrezza / 2, tra 0
+e 75) e `RollBlock`. `ArmorDefinition` ha il suo `_blockChance` (scudo con stemma 10, quindi
+20% per il cavaliere). `ShieldBlock` sul cavaliere: lo scudo glielo dà `PlayerInventory`
+quando cambia lo slot, come l'arma a `MeleeAttack`. `MeleeAttack` tira nell'ordine colpito,
+bloccato, danno, con la sorgente del combattimento; il colpo bloccato non tira il danno.
+Bloccato: `Interrupt` del colpo del cavaliere (0,45 s), evento `Blocked`, a cui ascoltano
+`CharacterAnimatorDriver` (stato `Block` nuovo nel controller, clip `Melee_Block_Hit` da
+1,07 s, uscite come `Hit`), `CharacterAudio` (tre `impactMetal_light` da *Impact Sounds*,
+riga in `CREDITS.md`) e `DamageNumbers` ("Blocked"/"Bloccato" in azzurro). Il pannello del
+personaggio mostra il blocco su una riga nuova e si aggiorna con `ShieldChanged`: con
+l'evento dell'equipaggiamento, l'ordine tra il suo handler e quello dell'inventario non è
+garantito. Test: 73 EditMode (`BlockChance_ClampedTo75`) e 83 PlayMode (`ShieldBlockTests`:
+blocco 0 e 20% anche nel pannello, colpi dello scheletro bloccati senza danno con scritta e
+animazione, nessun blocco senza scudo, colpo del cavaliere annullato) verdi.
+
 ## Passo 5.3 — Affissi, rarità e generatore
 
 1. `AffixDefinition`, `Rarity`, `RarityTable`, `ItemGenerator`, `SplitMix64Source`, tutto
@@ -341,7 +356,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 
 - [x] Decisioni D1–D13 confermate
 - [x] Lingue: inglese di default, italiano con `-lang it` e `F9`, testi di oggi tradotti
-- [ ] Blocco con lo scudo, con animazione e suono
+- [x] Blocco con lo scudo, con animazione e suono
 - [ ] Affissi, rarità e generatore riproducibile
 - [ ] Statistiche nuove e vita massima variabile
 - [ ] Basi nuove con modelli, icone e riga in `CREDITS.md`

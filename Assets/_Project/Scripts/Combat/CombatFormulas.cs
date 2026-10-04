@@ -11,6 +11,7 @@ namespace DarkDescent.Combat
     {
         public const float MinHitChance = 5f;
         public const float MaxHitChance = 95f;
+        public const float MaxBlockChance = 75f;
 
         private const float BaseHitChance = 75f;
         private const float BaseLife = 50f;
@@ -26,6 +27,17 @@ namespace DarkDescent.Combat
         public static bool RollHit(float hitChance, IRandomSource random)
         {
             return random.NextDouble() * 100.0 < hitChance;
+        }
+
+        /// <summary>Probabilità di bloccare con uno scudo: blocco dello scudo + Destrezza / 2, tra 0 e 75 (D1 della M5).</summary>
+        public static float BlockChance(float shieldBlock, float dexterity)
+        {
+            return Math.Min(MaxBlockChance, Math.Max(0f, shieldBlock + dexterity / 2f));
+        }
+
+        public static bool RollBlock(float blockChance, IRandomSource random)
+        {
+            return random.NextDouble() * 100.0 < blockChance;
         }
 
         /// <summary>Moltiplicatore del danno dato dalla Forza: 1 + Forza / 100.</summary>

@@ -7,7 +7,7 @@ namespace DarkDescent.Items
     /// <summary>
     /// Guscio Unity di <see cref="Items.Inventory"/>: griglia, equipaggiamento e oggetto sul cursore
     /// del cavaliere. Tiene l'arma di MeleeAttack allineata a quella equipaggiata (senza arma, i
-    /// pugni) e mette a terra gli oggetti lasciati.
+    /// pugni), il blocco allineato allo scudo, e mette a terra gli oggetti lasciati.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterStats), typeof(MeleeAttack))]
@@ -26,6 +26,7 @@ namespace DarkDescent.Items
         [SerializeField] private GroundItem _groundItemPrefab;
 
         private MeleeAttack _attack;
+        private ShieldBlock _block;
         private Inventory _inventory;
 
         // Creato al primo accesso: modelli in mano e pannelli si iscrivono in OnEnable, e l'ordine
@@ -63,6 +64,8 @@ namespace DarkDescent.Items
         private void Awake()
         {
             _attack = GetComponent<MeleeAttack>();
+            // facoltativo: senza, lo scudo dà solo Armatura
+            _block = GetComponent<ShieldBlock>();
         }
 
         private void OnEnable()
@@ -94,6 +97,11 @@ namespace DarkDescent.Items
             {
                 var weapon = Equipment.Get(EquipSlot.Weapon)?.Definition as WeaponDefinition;
                 _attack.SetWeapon(weapon != null ? weapon : _unarmed);
+            }
+            else if (slot == EquipSlot.Offhand && _block != null)
+            {
+                var shield = Equipment.Get(EquipSlot.Offhand)?.Definition as ArmorDefinition;
+                _block.SetShield(shield != null, shield != null ? shield.BlockChance : 0);
             }
         }
     }

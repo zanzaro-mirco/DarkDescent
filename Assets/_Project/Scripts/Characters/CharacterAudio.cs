@@ -4,7 +4,8 @@ using UnityEngine;
 namespace DarkDescent.Characters
 {
     /// <summary>
-    /// Suoni di un personaggio: fendente quando parte un colpo, impatto quando ne riceve uno, morte.
+    /// Suoni di un personaggio: fendente quando parte un colpo, impatto quando ne riceve uno, scudo
+    /// quando lo blocca, morte.
     /// Ogni personaggio ha i suoi: le ossa dello scheletro non suonano come l'armatura del cavaliere.
     /// </summary>
     [DisallowMultipleComponent]
@@ -15,18 +16,23 @@ namespace DarkDescent.Characters
         [SerializeField] private AudioClip[] _hitClips;
         [SerializeField] private AudioClip[] _deathClips;
 
+        [Tooltip("Colpo fermato dallo scudo: metallo, non carne.")]
+        [SerializeField] private AudioClip[] _blockClips;
+
         [Tooltip("Variazione casuale dell'intonazione, per non sentire lo stesso suono identico a ogni colpo.")]
         [SerializeField, Range(0f, 0.3f)] private float _pitchVariation = 0.06f;
 
         private AudioSource _source;
         private Health _health;
         private MeleeAttack _attack;
+        private ShieldBlock _shieldBlock;
 
         private void Awake()
         {
             _source = GetComponent<AudioSource>();
             _health = GetComponent<Health>();
             _attack = GetComponent<MeleeAttack>();
+            _shieldBlock = GetComponent<ShieldBlock>();
         }
 
         private void OnEnable()
@@ -40,6 +46,11 @@ namespace DarkDescent.Characters
             if (_attack != null)
             {
                 _attack.SwingStarted += HandleSwingStarted;
+            }
+
+            if (_shieldBlock != null)
+            {
+                _shieldBlock.Blocked += HandleBlocked;
             }
         }
 
@@ -55,6 +66,11 @@ namespace DarkDescent.Characters
             {
                 _attack.SwingStarted -= HandleSwingStarted;
             }
+
+            if (_shieldBlock != null)
+            {
+                _shieldBlock.Blocked -= HandleBlocked;
+            }
         }
 
         private void HandleSwingStarted()
@@ -65,6 +81,11 @@ namespace DarkDescent.Characters
         private void HandleDamaged(DamageInfo info, float applied)
         {
             PlayRandom(_hitClips);
+        }
+
+        private void HandleBlocked(DamageInfo info)
+        {
+            PlayRandom(_blockClips);
         }
 
         private void HandleDied()

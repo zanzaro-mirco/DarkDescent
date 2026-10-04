@@ -8,6 +8,7 @@ namespace DarkDescent.Localization
     public static class TextKeys
     {
         public const string Miss = "combat.miss";
+        public const string Blocked = "combat.blocked";
         public const string ExitDescend = "exit.descend";
         public const string InventoryFull = "ground.inventory_full";
         public const string TooltipDamage = "tooltip.damage";

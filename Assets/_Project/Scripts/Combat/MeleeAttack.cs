@@ -42,6 +42,11 @@ namespace DarkDescent.Combat
         private Transform _swingTransform;
         private float _swingTargetRadius;
         private CharacterStats _swingTargetStats;
+
+        // lo scudo del bersaglio, se ne ha uno che sa bloccare: il cavaliere sì, gli scheletri no
+        private ShieldBlock _targetBlock;
+        private ShieldBlock _swingTargetBlock;
+
         private bool _hitPending;
         private float _hitTimer;
 
@@ -117,6 +122,7 @@ namespace DarkDescent.Combat
                 _targetTransform = component.transform;
                 _targetRadius = RadiusOf(component);
                 _targetStats = component.GetComponent<CharacterStats>();
+                _targetBlock = component.GetComponent<ShieldBlock>();
                 _repathTimer = 0f;
             }
 
@@ -238,6 +244,7 @@ namespace DarkDescent.Combat
             _swingTransform = _targetTransform;
             _swingTargetRadius = _targetRadius;
             _swingTargetStats = _targetStats;
+            _swingTargetBlock = _targetBlock;
 
             SwingStarted?.Invoke();
         }
@@ -262,19 +269,20 @@ namespace DarkDescent.Combat
                     CharacterStats.ValueOf(_stats, StatType.Dexterity),
                     CharacterStats.ValueOf(_swingTargetStats, StatType.Armor));
 
-                if (CombatFormulas.RollHit(hitChance, _random))
+                // l'ordine dei tiri: colpito, poi bloccato, poi danno. Un colpo bloccato non tira il danno
+                if (!CombatFormulas.RollHit(hitChance, _random))
+                {
+                    var info = new DamageInfo(0f, _weapon.DamageType, gameObject);
+                    _swingTarget.Evade(info);
+                    Missed?.Invoke(info);
+                }
+                else if (_swingTargetBlock == null || !_swingTargetBlock.TryBlock(new DamageInfo(0f, _weapon.DamageType, gameObject), _random))
                 {
                     float amount = CombatFormulas.RollDamage(_weapon.MinDamage, _weapon.MaxDamage,
                         CharacterStats.ValueOf(_stats, StatType.Strength), _random);
                     var info = new DamageInfo(amount, _weapon.DamageType, gameObject);
                     _swingTarget.TakeDamage(info);
                     HitLanded?.Invoke(info);
-                }
-                else
-                {
-                    var info = new DamageInfo(0f, _weapon.DamageType, gameObject);
-                    _swingTarget.Evade(info);
-                    Missed?.Invoke(info);
                 }
             }
 
@@ -299,6 +307,7 @@ namespace DarkDescent.Combat
             _target = null;
             _targetTransform = null;
             _targetStats = null;
+            _targetBlock = null;
             _attackRequested = false;
             _inRange = false;
         }
@@ -308,6 +317,7 @@ namespace DarkDescent.Combat
             _swingTarget = null;
             _swingTransform = null;
             _swingTargetStats = null;
+            _swingTargetBlock = null;
         }
 
         private static float RadiusOf(Component target)

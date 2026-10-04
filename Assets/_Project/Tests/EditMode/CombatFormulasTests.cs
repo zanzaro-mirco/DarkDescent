@@ -62,5 +62,17 @@ namespace DarkDescent.Tests
             Assert.AreEqual(100f, CombatFormulas.MaxLife(25f));
             Assert.AreEqual(50f, CombatFormulas.MaxLife(0f));
         }
+
+        [Test, Description("Blocco: scudo + Destrezza / 2, tra 0 e 75; il tiro blocca sotto la probabilità")]
+        public void BlockChance_ClampedTo75()
+        {
+            Assert.AreEqual(20f, CombatFormulas.BlockChance(10f, 20f), "scudo con stemma e cavaliere");
+            Assert.AreEqual(75f, CombatFormulas.BlockChance(60f, 40f));
+            Assert.AreEqual(0f, CombatFormulas.BlockChance(0f, 0f));
+
+            Assert.IsTrue(CombatFormulas.RollBlock(20f, new FixedRandomSource(0.19)));
+            Assert.IsFalse(CombatFormulas.RollBlock(20f, new FixedRandomSource(0.2)));
+            Assert.IsFalse(CombatFormulas.RollBlock(0f, new FixedRandomSource(0.0)), "senza probabilità mai");
+        }
     }
 }
