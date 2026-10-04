@@ -32,6 +32,8 @@ namespace DarkDescent.Stats
         public float Magic => Sheet.Get(StatType.Magic);
         public float Vitality => Sheet.Get(StatType.Vitality);
         public float Armor => Sheet.Get(StatType.Armor);
+        public float ToHit => Sheet.Get(StatType.ToHit);
+        public float Life => Sheet.Get(StatType.Life);
 
         /// <summary>Il valore di <paramref name="stat"/> di <paramref name="stats"/>, o 0 se manca (o è distrutto).</summary>
         public static float ValueOf(CharacterStats stats, StatType stat)

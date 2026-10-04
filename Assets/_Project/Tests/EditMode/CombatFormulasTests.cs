@@ -63,6 +63,17 @@ namespace DarkDescent.Tests
             Assert.AreEqual(50f, CombatFormulas.MaxLife(0f));
         }
 
+        [Test, Description("Il bonus a colpire degli affissi si somma, sempre dentro 5–95; le percentuali degli oggetti arrotondano per difetto")]
+        public void ToHitBonus_AndItemPercent()
+        {
+            Assert.AreEqual(80f, CombatFormulas.HitChance(20f, 10f, 5f), "75 + 10 − 10 + 5");
+            Assert.AreEqual(95f, CombatFormulas.HitChance(20f, 0f, 40f));
+            Assert.AreEqual(8, CombatFormulas.ApplyPercent(6, 40));
+            Assert.AreEqual(12, CombatFormulas.ApplyPercent(9, 40));
+            Assert.AreEqual(7, CombatFormulas.ApplyPercent(5, 50));
+            Assert.AreEqual(9, CombatFormulas.ApplyPercent(9, 0));
+        }
+
         [Test, Description("Blocco: scudo + Destrezza / 2, tra 0 e 75; il tiro blocca sotto la probabilità")]
         public void BlockChance_ClampedTo75()
         {

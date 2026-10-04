@@ -15,7 +15,7 @@ namespace DarkDescent.Combat
         public event Action Died;
 
         public float Current { get; private set; }
-        public float Max { get; }
+        public float Max { get; private set; }
         public bool IsDead { get; private set; }
 
         public HealthModel(float max)
@@ -28,6 +28,33 @@ namespace DarkDescent.Combat
 
             Max = max;
             Current = max;
+        }
+
+        /// <summary>
+        /// Cambia la vita massima (D10 della M5): la vita attuale si sposta della stessa quantità,
+        /// ma togliendo un oggetto non scende mai sotto 1, e indossandolo non è una cura. Da morto
+        /// cambia solo il massimo.
+        /// </summary>
+        public void SetMax(float max)
+        {
+            if (float.IsNaN(max) || max <= 0f)
+            {
+                throw new ArgumentOutOfRangeException(nameof(max), max, "La vita massima deve essere positiva");
+            }
+
+            if (max == Max)
+            {
+                return;
+            }
+
+            float delta = max - Max;
+            Max = max;
+            if (!IsDead)
+            {
+                Current = Math.Min(Max, Math.Max(1f, Current + delta));
+            }
+
+            Changed?.Invoke(Current, Max);
         }
 
         /// <summary>Applica il danno e restituisce quanto ne è stato assorbito davvero (0 se già morto).</summary>

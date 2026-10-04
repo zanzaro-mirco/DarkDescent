@@ -86,11 +86,24 @@ namespace DarkDescent.Items
 
         private void AddModifiers(ItemInstance item)
         {
-            // le armi non toccano le statistiche: il loro danno lo legge MeleeAttack. Con la M5 gli
-            // affissi aggiungeranno modificatori a qualsiasi oggetto.
-            if (item.Definition is ArmorDefinition armor && armor.Armor != 0)
+            // il danno dell'arma e il blocco dello scudo li leggono MeleeAttack e ShieldBlock; qui
+            // l'Armatura dello scudo, con il suo "+%", e gli affissi del personaggio. Tutto con
+            // l'oggetto come sorgente: toglierlo toglie tutto insieme.
+            if (item.Definition is ArmorDefinition)
             {
-                _stats.AddModifier(new StatModifier(StatType.Armor, ModifierKind.Flat, armor.Armor, item));
+                int armor = ItemStats.ShieldArmor(item);
+                if (armor != 0)
+                {
+                    _stats.AddModifier(new StatModifier(StatType.Armor, ModifierKind.Flat, armor, item));
+                }
+            }
+
+            foreach (var affix in item.Affixes)
+            {
+                if (affix.Definition != null && ItemStats.TryGetCharacterStat(affix.Definition.Effect, out StatType stat))
+                {
+                    _stats.AddModifier(new StatModifier(stat, ModifierKind.Flat, affix.Value, item));
+                }
             }
         }
     }

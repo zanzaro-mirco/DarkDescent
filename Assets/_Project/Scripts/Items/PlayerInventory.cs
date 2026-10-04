@@ -95,13 +95,21 @@ namespace DarkDescent.Items
         {
             if (slot == EquipSlot.Weapon)
             {
-                var weapon = Equipment.Get(EquipSlot.Weapon)?.Definition as WeaponDefinition;
-                _attack.SetWeapon(weapon != null ? weapon : _unarmed);
+                var item = Equipment.Get(EquipSlot.Weapon);
+                if (item?.Definition is WeaponDefinition weapon)
+                {
+                    _attack.SetWeapon(weapon, ItemStats.Sum(item, AffixEffect.WeaponDamagePercent));
+                }
+                else
+                {
+                    _attack.SetWeapon(_unarmed);
+                }
             }
             else if (slot == EquipSlot.Offhand && _block != null)
             {
-                var shield = Equipment.Get(EquipSlot.Offhand)?.Definition as ArmorDefinition;
-                _block.SetShield(shield != null, shield != null ? shield.BlockChance : 0);
+                var item = Equipment.Get(EquipSlot.Offhand);
+                bool isShield = item?.Definition is ArmorDefinition;
+                _block.SetShield(isShield, isShield ? ItemStats.ShieldBlock(item) : 0);
             }
         }
     }

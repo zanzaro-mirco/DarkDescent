@@ -269,6 +269,24 @@ nomi degli affissi nella copertura delle lingue) e 83 PlayMode verdi.
 Vitality" passa dalla formula 50 + 2 × Vitalità; equipaggia e togli un oggetto con quattro
 affissi riporta ogni statistica a prima.
 
+**Com'è andata (4 ott 2026).** `StatType` aggiunge `ToHit` e `Life` in fondo (i valori
+fanno da indice). `CombatFormulas.HitChance` somma il bonus a colpire, sempre tra 5 e 95;
+`ApplyPercent` arrotonda per difetto le percentuali degli oggetti (spada corta +40%: 8–12).
+`ItemStats` (logica pura) fa i conti di un oggetto con i suoi affissi: danno dell'arma,
+Armatura e blocco dello scudo, e quali effetti vanno sul personaggio. `Equipment` mette sullo
+`StatSheet` l'Armatura dello scudo già con il suo "+%" e un modificatore per ogni affisso
+del personaggio, sempre con l'oggetto come sorgente. `MeleeAttack.SetWeapon` riceve il "+%
+danno" e tiene il danno effettivo (`MinDamage`, `MaxDamage`); `ShieldBlock` riceve il
+blocco con l'affisso. **Vita massima:** `HealthModel.SetMax` con la regola di D10 (sale e
+scende della stessa quantità, mai sotto 1, da morto cambia solo il massimo); `Health`
+ascolta lo `StatSheet` e ricalcola 50 + 2 × Vitalità + vita, e la sfera si aggiorna dal suo
+evento. Il pannello del personaggio calcola il danno dall'oggetto equipaggiato e non da
+`MeleeAttack`: i due ascoltano lo stesso evento e l'ordine non è garantito (lo stesso
+motivo di `ShieldChanged` nel 5.2). Test: 86 EditMode (`SetMax` in salita, in discesa e da
+morto; bonus a colpire e percentuali; scudo con quattro affissi che toglie tutto;
+`ItemStats`) e 85 PlayMode (scudo della Vitalità e dell'Orso: vita da 100 a 120 e ritorno,
+con 30 di danno in mezzo; spada Affilata: `MeleeAttack` 8–12 e pannello 10–16) verdi.
+
 ## Passo 5.5 — Basi nuove: modelli, definizioni e icone
 
 1. Dallo zip di *Adventurers*: `dagger`, `axe_1handed`, `shield_round`, `shield_square`,
@@ -382,7 +400,7 @@ schermo; cambiando lingua il nome di un oggetto già nell'inventario cambia.
 - [x] Lingue: inglese di default, italiano con `-lang it` e `F9`, testi di oggi tradotti
 - [x] Blocco con lo scudo, con animazione e suono
 - [x] Affissi, rarità e generatore riproducibile
-- [ ] Statistiche nuove e vita massima variabile
+- [x] Statistiche nuove e vita massima variabile
 - [ ] Basi nuove con modelli, icone e riga in `CREDITS.md`
 - [ ] Loot table, profondità e seme da riga di comando
 - [ ] Nomi composti per lingua, colori, tooltip con confronto

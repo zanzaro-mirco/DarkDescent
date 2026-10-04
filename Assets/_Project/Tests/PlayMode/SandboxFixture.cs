@@ -101,7 +101,7 @@ namespace DarkDescent.Tests
         protected static float MinHitDamage(MeleeAttack attack)
         {
             float strength = CharacterStats.ValueOf(attack.GetComponent<CharacterStats>(), StatType.Strength);
-            return attack.Weapon.MinDamage * CombatFormulas.StrengthMultiplier(strength);
+            return attack.MinDamage * CombatFormulas.StrengthMultiplier(strength);
         }
 
         /// <summary>Aspetta che un livello sia caricato e il player sopra, con un limite di tempo.</summary>

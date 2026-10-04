@@ -53,17 +53,17 @@ namespace DarkDescent.UI
             _window.SetActive(!_window.activeSelf);
         }
 
-        /// <summary>Danno minimo e massimo dell'arma attuale, con la Forza: quello che il pannello mostra.</summary>
+        /// <summary>Danno minimo e massimo dell'arma attuale, con i suoi affissi e la Forza: quello che il pannello mostra.</summary>
         public (int min, int max) DamageRange()
         {
-            var weapon = _inventory.Equipment.Get(EquipSlot.Weapon)?.Definition as WeaponDefinition;
-            if (weapon == null)
-            {
-                weapon = _inventory.Unarmed;
-            }
+            // dall'oggetto e non da MeleeAttack: l'ordine tra il suo aggiornamento e questo non è garantito
+            var item = _inventory.Equipment.Get(EquipSlot.Weapon);
+            var (min, max) = item?.Definition is WeaponDefinition
+                ? ItemStats.WeaponDamage(item)
+                : (_inventory.Unarmed.MinDamage, _inventory.Unarmed.MaxDamage);
 
             float multiplier = CombatFormulas.StrengthMultiplier(_stats.Strength);
-            return (Mathf.RoundToInt(weapon.MinDamage * multiplier), Mathf.RoundToInt(weapon.MaxDamage * multiplier));
+            return (Mathf.RoundToInt(min * multiplier), Mathf.RoundToInt(max * multiplier));
         }
 
         private void Awake()
@@ -127,7 +127,7 @@ namespace DarkDescent.UI
         private void Refresh()
         {
             var (min, max) = DamageRange();
-            float hitChance = CombatFormulas.HitChance(_stats.Dexterity, _referenceArmor);
+            float hitChance = CombatFormulas.HitChance(_stats.Dexterity, _referenceArmor, _stats.ToHit);
 
             // l'ordine segue la colonna dei nomi nella scena
             _builder.Clear();
@@ -135,7 +135,7 @@ namespace DarkDescent.UI
             _builder.Append(Mathf.RoundToInt(_stats.Dexterity)).Append('\n');
             _builder.Append(Mathf.RoundToInt(_stats.Magic)).Append('\n');
             _builder.Append(Mathf.RoundToInt(_stats.Vitality)).Append("\n\n");
-            _builder.Append(Mathf.RoundToInt(CombatFormulas.MaxLife(_stats.Vitality))).Append('\n');
+            _builder.Append(Mathf.RoundToInt(CombatFormulas.MaxLife(_stats.Vitality) + _stats.Life)).Append('\n');
             _builder.Append(Mathf.RoundToInt(_stats.Armor)).Append('\n');
             _builder.Append(min).Append('–').Append(max).Append('\n');
             _builder.Append(Mathf.RoundToInt(hitChance)).Append("%\n");

@@ -15,6 +15,7 @@ namespace DarkDescent.Combat
         [SerializeField, Min(1f)] private float _maxHealth = 100f;
 
         private HealthModel _model;
+        private CharacterStats _stats;
 
         /// <summary>Vita corrente e massima, dopo ogni danno applicato.</summary>
         public event Action<float, float> HealthChanged;
@@ -68,8 +69,40 @@ namespace DarkDescent.Combat
         private float MaxLife()
         {
             return TryGetComponent(out CharacterStats stats) && stats.LifeFromVitality
-                ? CombatFormulas.MaxLife(stats.Vitality)
+                ? CombatFormulas.MaxLife(stats.Vitality) + stats.Life
                 : _maxHealth;
+        }
+
+        private void Awake()
+        {
+            TryGetComponent(out _stats);
+        }
+
+        private void OnEnable()
+        {
+            if (_stats != null && _stats.LifeFromVitality)
+            {
+                _stats.Sheet.Changed += HandleStatsChanged;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (_stats != null && _stats.LifeFromVitality)
+            {
+                _stats.Sheet.Changed -= HandleStatsChanged;
+            }
+        }
+
+        // un oggetto della Vitalità o della vita: il massimo cambia con la regola di D10
+        private void HandleStatsChanged()
+        {
+            float before = Model.Max;
+            Model.SetMax(MaxLife());
+            if (Model.Max != before)
+            {
+                HealthChanged?.Invoke(Model.Current, Model.Max);
+            }
         }
     }
 }

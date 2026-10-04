@@ -47,6 +47,9 @@ namespace DarkDescent.Combat
         private ShieldBlock _targetBlock;
         private ShieldBlock _swingTargetBlock;
 
+        private int _minDamage;
+        private int _maxDamage;
+
         private bool _hitPending;
         private float _hitTimer;
 
@@ -66,6 +69,11 @@ namespace DarkDescent.Combat
 
         public WeaponDefinition Weapon => _weapon;
 
+        /// <summary>Il danno minimo dell'arma con i suoi affissi, prima della Forza.</summary>
+        public int MinDamage => _minDamage;
+
+        public int MaxDamage => _maxDamage;
+
         public bool HasTarget => _targetTransform != null;
 
         /// <summary>Vero dall'inizio del colpo al danno: in questo intervallo il colpo non si annulla.</summary>
@@ -82,12 +90,21 @@ namespace DarkDescent.Combat
             _agent = GetComponent<NavMeshAgent>();
             // senza statistiche (un bersaglio di prova) si tira con Forza e Destrezza a zero
             TryGetComponent(out _stats);
+            if (_weapon != null)
+            {
+                SetWeapon(_weapon);
+            }
         }
 
-        /// <summary>Cambia l'arma, per esempio quando il cavaliere ne equipaggia un'altra.</summary>
-        public void SetWeapon(WeaponDefinition weapon)
+        /// <summary>
+        /// Cambia l'arma, per esempio quando il cavaliere ne equipaggia un'altra.
+        /// <paramref name="damagePercent"/> è il "+% danno" dei suoi affissi.
+        /// </summary>
+        public void SetWeapon(WeaponDefinition weapon, int damagePercent = 0)
         {
             _weapon = weapon != null ? weapon : throw new ArgumentNullException(nameof(weapon));
+            _minDamage = CombatFormulas.ApplyPercent(weapon.MinDamage, damagePercent);
+            _maxDamage = CombatFormulas.ApplyPercent(weapon.MaxDamage, damagePercent);
         }
 
         /// <summary>Da dove vengono i tiri: lo passa il CompositionRoot (D3 della M4).</summary>
@@ -267,7 +284,8 @@ namespace DarkDescent.Combat
 
                 float hitChance = CombatFormulas.HitChance(
                     CharacterStats.ValueOf(_stats, StatType.Dexterity),
-                    CharacterStats.ValueOf(_swingTargetStats, StatType.Armor));
+                    CharacterStats.ValueOf(_swingTargetStats, StatType.Armor),
+                    CharacterStats.ValueOf(_stats, StatType.ToHit));
 
                 // l'ordine dei tiri: colpito, poi bloccato, poi danno. Un colpo bloccato non tira il danno
                 if (!CombatFormulas.RollHit(hitChance, _random))
@@ -278,7 +296,7 @@ namespace DarkDescent.Combat
                 }
                 else if (_swingTargetBlock == null || !_swingTargetBlock.TryBlock(new DamageInfo(0f, _weapon.DamageType, gameObject), _random))
                 {
-                    float amount = CombatFormulas.RollDamage(_weapon.MinDamage, _weapon.MaxDamage,
+                    float amount = CombatFormulas.RollDamage(_minDamage, _maxDamage,
                         CharacterStats.ValueOf(_stats, StatType.Strength), _random);
                     var info = new DamageInfo(amount, _weapon.DamageType, gameObject);
                     _swingTarget.TakeDamage(info);

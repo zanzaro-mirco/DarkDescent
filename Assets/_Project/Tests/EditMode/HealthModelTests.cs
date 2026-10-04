@@ -90,6 +90,40 @@ namespace DarkDescent.Tests
             Assert.AreEqual(80f, reportedMax);
         }
 
+        [Test, Description("Vita massima che sale: l'attuale sale della stessa quantità e lo dice")]
+        public void SetMax_Up_RaisesCurrentBySameAmount()
+        {
+            var model = new HealthModel(100f);
+            model.ApplyDamage(30f);
+            float reportedMax = 0f;
+            model.Changed += (current, max) => reportedMax = max;
+
+            model.SetMax(120f);
+
+            Assert.AreEqual(90f, model.Current);
+            Assert.AreEqual(120f, model.Max);
+            Assert.AreEqual(120f, reportedMax);
+        }
+
+        [Test, Description("Vita massima che scende: l'attuale scende della stessa quantità ma mai sotto 1, e non resuscita")]
+        public void SetMax_Down_NeverKills()
+        {
+            var model = new HealthModel(120f);
+            model.SetMax(100f);
+            Assert.AreEqual(100f, model.Current);
+
+            model.ApplyDamage(95f);
+            model.SetMax(80f);
+            Assert.AreEqual(1f, model.Current, "togliere un oggetto non uccide");
+            Assert.IsFalse(model.IsDead);
+
+            model.ApplyDamage(10f);
+            model.SetMax(150f);
+            Assert.IsTrue(model.IsDead);
+            Assert.AreEqual(0f, model.Current, "da morto cambia solo il massimo");
+            Assert.Throws<ArgumentOutOfRangeException>(() => model.SetMax(0f));
+        }
+
         [TestCase(0f)]
         [TestCase(-1f)]
         [TestCase(float.NaN)]

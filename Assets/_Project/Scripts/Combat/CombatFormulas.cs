@@ -17,10 +17,13 @@ namespace DarkDescent.Combat
         private const float BaseLife = 50f;
         private const float LifePerVitality = 2f;
 
-        /// <summary>Probabilità di colpire, in punti percentuali: 75 + Destrezza / 2 − Armatura, tra 5 e 95.</summary>
-        public static float HitChance(float dexterity, float armor)
+        /// <summary>
+        /// Probabilità di colpire, in punti percentuali: 75 + Destrezza / 2 − Armatura, più il bonus
+        /// a colpire degli affissi, tra 5 e 95.
+        /// </summary>
+        public static float HitChance(float dexterity, float armor, float toHitBonus = 0f)
         {
-            float chance = BaseHitChance + dexterity / 2f - armor;
+            float chance = BaseHitChance + dexterity / 2f - armor + toHitBonus;
             return Math.Min(MaxHitChance, Math.Max(MinHitChance, chance));
         }
 
@@ -38,6 +41,15 @@ namespace DarkDescent.Combat
         public static bool RollBlock(float blockChance, IRandomSource random)
         {
             return random.NextDouble() * 100.0 < blockChance;
+        }
+
+        /// <summary>
+        /// Un valore dell'oggetto con un affisso in percentuale ("+40% danno"), arrotondato per
+        /// difetto: la spada corta 6–9 con +40% fa 8–12.
+        /// </summary>
+        public static int ApplyPercent(int value, int percent)
+        {
+            return value * (100 + percent) / 100;
         }
 
         /// <summary>Moltiplicatore del danno dato dalla Forza: 1 + Forza / 100.</summary>

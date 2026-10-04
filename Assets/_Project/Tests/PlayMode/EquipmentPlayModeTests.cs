@@ -2,6 +2,7 @@ using System.Collections;
 using DarkDescent.Combat;
 using DarkDescent.Items;
 using DarkDescent.Stats;
+using DarkDescent.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -16,7 +17,7 @@ namespace DarkDescent.Tests
         private MeleeAttack _attack;
         private CharacterStats _stats;
 
-        private static T Load<T>(string path) where T : ItemDefinition
+        private static T Load<T>(string path) where T : Object
         {
 #if UNITY_EDITOR
             return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
@@ -109,6 +110,55 @@ namespace DarkDescent.Tests
             Assert.AreSame(_inventory.Unarmed, _attack.Weapon);
             Assert.AreEqual((1, 3), (_attack.Weapon.MinDamage, _attack.Weapon.MaxDamage));
             Assert.IsNull(_visuals.MainHandModel);
+        }
+    
+        private static AffixDefinition Affix(string name)
+        {
+            return Load<AffixDefinition>($"Assets/_Project/Data/Affixes/{name}.asset");
+        }
+
+        [UnityTest, Description("Uno scudo della Vitalità e dell'Orso: vita da 100 a 120, sfera e pannello compresi; tolto, torna 100")]
+        public IEnumerator LifeAffixes_ChangeMaxLife_AndBack()
+        {
+            yield return LoadKnight();
+            var health = Player.GetComponent<Health>();
+            var character = Object.FindFirstObjectByType<CharacterPanel>();
+            var shield = new ItemInstance(Load<ArmorDefinition>("Assets/_Project/Data/Items/BadgeShield.asset"), Rarity.Magic, 1, 1UL, new[]
+            {
+                new ItemAffix(Affix("OfVitality"), 5),
+                new ItemAffix(Affix("OfTheBear"), 10),
+            });
+
+            Assert.IsTrue(_inventory.Equipment.TryEquip(shield, out _));
+            yield return null;
+
+            Assert.AreEqual(120f, health.Max, "50 + 2 × 30 + 10");
+            Assert.AreEqual(120f, health.Current, "indossarlo non è una cura, ma la vita sale con il massimo");
+            StringAssert.Contains("\n120\n", character.ValuesText);
+
+            health.TakeDamage(new DamageInfo(30f, DamageType.Physical, null));
+            _inventory.Equipment.Unequip(EquipSlot.Offhand);
+            yield return null;
+
+            Assert.AreEqual(100f, health.Max);
+            Assert.AreEqual(70f, health.Current, "scende della stessa quantità");
+        }
+
+        [UnityTest, Description("Una spada corta Affilata +40%: MeleeAttack tira 8–12, e il pannello mostra 10–16 con la Forza")]
+        public IEnumerator SharpSword_RaisesAttackDamage()
+        {
+            yield return LoadKnight();
+            var character = Object.FindFirstObjectByType<CharacterPanel>();
+            var sword = new ItemInstance(Load<WeaponDefinition>("Assets/_Project/Data/Items/ShortSword.asset"), Rarity.Magic, 1, 1UL, new[]
+            {
+                new ItemAffix(Affix("Sharp"), 40),
+            });
+
+            Assert.IsTrue(_inventory.Equipment.TryEquip(sword, out _));
+            yield return null;
+
+            Assert.AreEqual((8, 12), (_attack.MinDamage, _attack.MaxDamage));
+            Assert.AreEqual((10, 16), character.DamageRange());
         }
     }
 }
