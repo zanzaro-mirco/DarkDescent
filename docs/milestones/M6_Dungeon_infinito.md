@@ -67,7 +67,7 @@ Mirco lo stesso giorno; per la mappa ha chiesto entrambe le viste, da cambiare c
 
 | # | Decisione | Proposta confermata | Perché |
 |---|---|---|---|
-| D13 | **Morte, fino alla M8** | "Ricomincia" riporta all'**ingresso del livello in cui si è morti**, nella stessa cripta (stesso seme), con nemici e casse rimessi, la vita piena e l'**inventario com'era entrando** nel livello: un'istantanea in JSON (il formato di `ItemInstance`, ADR-022) presa all'ingresso. Alla M8 le regole definitive, con il salvataggio | Ricominciare da capo senza niente toglie la voglia di scendere. L'istantanea evita di morire apposta per riaprire la stessa cassa |
+| D13 | **Morte, fino alla M8** | "Ricomincia" riporta all'**ingresso del livello in cui si è morti**, nella stessa cripta (stesso seme), con nemici e casse rimessi, la vita piena, l'**inventario com'era entrando** nel livello e la **mappa scoperta** che resta (aggiunta di Mirco al passo 6.9): un'istantanea in JSON (il formato di `ItemInstance`, ADR-022) presa all'ingresso. Alla M8 le regole definitive, con il salvataggio | Ricominciare da capo senza niente toglie la voglia di scendere. L'istantanea evita di morire apposta per riaprire la stessa cassa |
 | D14 | **Pozioni e cintura** | **Pozione di cura** da 1 × 1: rende il **50% della vita massima**, subito, e la vita non si rigenera da sola, come in Diablo 1. **Cintura** da 8 posti sotto la sfera della vita, **tasti 1–8**; una pozione raccolta va nella cintura se c'è posto, altrimenti nell'inventario, dove si beve con il **click destro**. Cadono dal **25%** degli scheletri e dal **50%** delle casse, con tiri a parte e un seme loro, senza cambiare gli oggetti già legati al seme. Si parte con **2 pozioni** nella cintura. Mana alla M9, mercante alla M10 | Senza cure quattro livelli non si finiscono. La cintura con i tasti numerici è il gesto di Diablo; il click destro nell'inventario è il suo |
 | D15 | **Automappa, anticipata dalla M7** | Le celle si **scoprono** entro qualche metro dal cavaliere. Un tasto solo, **`M`**, scorre le modalità: **minimappa** nell'angolo, vista **sovrapposta** al gioco (trasparente, a linee, come in Diablo), spenta, e da capo. *Aggiornata il 5 ott 2026 su richiesta di Mirco, provato il 6.8: prima erano `Tab` per mostrarla e `F` per cambiare vista.* Muri, scala, casse e il punto del cavaliere. Alla M7 si estende alle caverne | La griglia della cripta c'è già. Le due viste le ha chieste Mirco: la sovrapposta non copre niente quando è chiusa, l'angolo si legge giocando |
 | D16 | **Tooltip delle statistiche** | Passando su una riga del pannello del personaggio, un tooltip dice a cosa serve, con la formula in parole: Forza (danno e requisiti), Destrezza (a colpire e blocco), Magia (dalla M9), Vitalità (vita), Vita, Armatura, Danno, A colpire, Blocco. Testi nella tabella delle lingue | Chi gioca deve sapere perché alzare un attributo, senza leggere il piano |
@@ -404,13 +404,18 @@ e l'inventario torna com'era: nessuno scheletro può colpirlo mentre si rialza. 
   (editor, test) l'ingresso arriva nello `Start` del LevelManager, prima che il cavaliere abbia
   equipaggiato la spada. Per ritrovare gli oggetti dall'ID ora conosce anche l'`ItemDatabase`.
 
-L'automappa del livello ricaricato riparte da capo, come i nemici e le casse. Test: istantanea
+L'automappa invece **resta**: nella prima versione ripartiva da capo come nemici e casse, ma
+Mirco preferisce tenere la mappa scoperta. Il livello ricaricato è la stessa cripta, quindi
+`ExplorationTracker.SetLevel(map, keepExplored)` copia le celle viste dall'esplorazione di prima
+(`Exploration.CopyExplored`, solo se le misure coincidono); il CompositionRoot lo chiede tra
+"Ricomincia" e il livello ricaricato, e in quel tempo non spegne l'automappa. Test: istantanea
 passata per JSON (posizioni, equipaggiamento, cintura, affissi; quello raccolto dopo sparisce;
 oggetto sul cursore) e `Revive` del modello. In gioco: morte alla profondità 2 dopo aver bevuto
-una pozione, raccolto un pugnale e aperto la cassa; "Ricomincia" riporta allo stesso ingresso
+una pozione, raccolto un pugnale, aperto la cassa e scoperta una cella lontana; "Ricomincia" riporta allo stesso ingresso
 della stessa cripta, con la pozione di nuovo nella cintura, niente pugnale, la cassa chiusa, gli
-scheletri a vita piena, il cavaliere in piedi e `timeScale` a 1; poi si può morire di nuovo.
-129 EditMode e 102 PlayMode verdi.
+scheletri a vita piena, la mappa scoperta com'era, il cavaliere in piedi e `timeScale` a 1;
+poi si può morire di nuovo. Più la copia delle celle viste in EditMode. 130 EditMode e 102
+PlayMode verdi.
 
 ## Passo 6.10 — Tooltip delle statistiche
 

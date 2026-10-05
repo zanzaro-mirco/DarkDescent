@@ -59,6 +59,23 @@ namespace DarkDescent.Tests
             Assert.IsFalse(exploration.IsExplored(1, 6), "dal corridoio alla stanza sotto si passa per la cella davanti, non per lo spigolo");
         }
 
+        [Test, Description("Lo stesso livello ricostruito riprende le celle viste; una mappa di altra misura no")]
+        public void CopyExplored_KeepsTheSeenCells()
+        {
+            var before = new Exploration(LevelMap.Parse(Sample));
+            before.Reveal(new Vector2Int(6, 2), 3);
+            var after = new Exploration(LevelMap.Parse(Sample));
+
+            Assert.IsTrue(after.CopyExplored(before));
+            Assert.AreEqual(before.ExploredCount, after.ExploredCount);
+            Assert.IsTrue(after.IsExplored(6, 2));
+            Assert.IsFalse(after.IsExplored(2, 2));
+
+            var other = new Exploration(LevelMap.Parse("#####\n#.<.#\n#####\n"));
+            Assert.IsFalse(other.CopyExplored(before));
+            Assert.AreEqual(0, other.ExploredCount);
+        }
+
         [Test, Description("La cella di un punto del mondo: centri sui multipli di 4 metri, le righe verso -Z")]
         public void CellAt_MatchesTheBuilder()
         {

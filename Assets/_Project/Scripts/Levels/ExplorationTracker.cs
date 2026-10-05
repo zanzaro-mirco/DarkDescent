@@ -33,10 +33,16 @@ namespace DarkDescent.Levels
             _player = player;
         }
 
-        /// <summary>Un livello nuovo: si riparte da niente, e si scopre subito attorno all'ingresso.</summary>
-        public void SetLevel(LevelMap map)
+        /// <summary>
+        /// Un livello nuovo: si riparte da niente, e si scopre subito attorno all'ingresso. Con
+        /// <paramref name="keepExplored"/> lo stesso livello ricostruito dopo Ricomincia: la mappa
+        /// scoperta resta.
+        /// </summary>
+        public void SetLevel(LevelMap map, bool keepExplored = false)
         {
+            var previous = keepExplored ? Exploration : null;
             Exploration = map != null ? new Exploration(map) : null;
+            Exploration?.CopyExplored(previous);
             LevelChanged?.Invoke();
             if (Exploration != null && _player != null)
             {

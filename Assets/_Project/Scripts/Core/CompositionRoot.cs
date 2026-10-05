@@ -72,6 +72,9 @@ namespace DarkDescent.Core
         // l'inventario com'era entrando nel livello, in JSON: Ricomincia lo rimette (D13 della M6)
         private string _entrySnapshot;
 
+        // vero tra Ricomincia e il livello ricaricato: la mappa scoperta resta
+        private bool _restarting;
+
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
         private IRandomSource _random;
 
@@ -197,7 +200,8 @@ namespace DarkDescent.Core
             }
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
-            _exploration.SetLevel(level.Map);
+            _exploration.SetLevel(level.Map, keepExplored: _restarting);
+            _restarting = false;
             StartCoroutine(CaptureEntrySnapshot());
         }
 
@@ -210,7 +214,10 @@ namespace DarkDescent.Core
 
             _trackedEnemies.Clear();
             _enemyAttacks.Clear();
-            _exploration.SetLevel(null);
+            if (!_restarting)
+            {
+                _exploration.SetLevel(null);
+            }
         }
 
         /// <summary>Cambia il seme della partita: per i test e per rigiocare un seme senza riavviare.</summary>
@@ -258,6 +265,8 @@ namespace DarkDescent.Core
         {
             // un hit stop o una pausa rimasti a metà farebbero ripartire il gioco rallentato o fermo
             Time.timeScale = 1f;
+            // come RestartLevel: durante un cambio di livello, o senza livello, non ricomincia niente
+            _restarting = !_levelManager.IsTransitioning && _levelManager.CurrentLevel != null;
             _levelManager.RestartLevel(RestoreAndRevive);
         }
 

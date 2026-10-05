@@ -89,6 +89,17 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, inventory.Inventory.Grid.Placements.Count);
             var chest = manager.CurrentLevel.Chests[0];
             chest.GetComponent<Interactable>().Use(Player.gameObject);
+
+            // e un giro lontano dall'ingresso: la mappa scoperta deve restare (D13)
+            var exploration = Object.FindFirstObjectByType<ExplorationTracker>();
+            var far = FarUnexploredCell(exploration.Exploration);
+            PlayerAgent.Warp(LevelMap.CellCenter(far.x, far.y));
+            yield return null;
+            yield return null;
+            PlayerAgent.Warp(entrance);
+            yield return null;
+            Assert.IsTrue(exploration.Exploration.IsExplored(far.x, far.y));
+            int explored = exploration.Exploration.ExploredCount;
             Assert.IsTrue(chest.IsOpen);
             var oldLevel = manager.CurrentLevel;
 
@@ -132,6 +143,9 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0, inventory.Inventory.Grid.Placements.Count, "il pugnale raccolto dopo l'ingresso no");
             Assert.AreEqual(sword, inventory.Equipment.Get(EquipSlot.Weapon).Definition);
             Assert.IsFalse(manager.CurrentLevel.Chests[0].IsOpen, "la cassa è di nuovo chiusa");
+            Assert.AreSame(manager.CurrentLevel.Map, exploration.Exploration.Map, "l'automappa segue il livello ricaricato");
+            Assert.IsTrue(exploration.Exploration.IsExplored(far.x, far.y), "la mappa scoperta resta");
+            Assert.AreEqual(explored, exploration.Exploration.ExploredCount);
             foreach (var enemy in manager.CurrentLevel.Enemies)
             {
                 var enemyHealth = enemy.GetComponent<Health>();
@@ -143,6 +157,34 @@ namespace DarkDescent.Tests
             health.TakeDamage(Damage(1000f));
             Assert.IsTrue(Player.GetComponentInChildren<CharacterAnimatorDriver>().IsDead);
             Assert.IsFalse(Player.GetComponent<PlayerController>().enabled);
+        }
+
+        // una cella di pavimento libero ancora da scoprire, lontana dalla scala e dal suo trigger
+        private static Vector2Int FarUnexploredCell(Exploration exploration)
+        {
+            var map = exploration.Map;
+            for (int y = 0; y < map.Height; y++)
+            {
+                for (int x = 0; x < map.Width; x++)
+                {
+                    bool nearStairs = false;
+                    for (int dy = -2; dy <= 2; dy++)
+                    {
+                        for (int dx = -2; dx <= 2; dx++)
+                        {
+                            nearStairs |= map.GetSymbol(x + dx, y + dy) == DungeonGenerator.StairsSymbol;
+                        }
+                    }
+
+                    if (map.GetSymbol(x, y) == LevelMap.Floor && !exploration.IsExplored(x, y) && !nearStairs)
+                    {
+                        return new Vector2Int(x, y);
+                    }
+                }
+            }
+
+            Assert.Fail("nessuna cella da scoprire");
+            return default;
         }
 
         private static IEnumerator WaitForDepth(LevelManager manager, int depth)

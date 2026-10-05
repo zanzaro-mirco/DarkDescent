@@ -43,6 +43,23 @@ namespace DarkDescent.Levels
         }
 
         /// <summary>
+        /// Riprende le celle viste da un'esplorazione dello stesso livello, ricostruito: dopo
+        /// Ricomincia la cripta è la stessa, e la mappa scoperta resta. False, senza toccare niente,
+        /// se le due mappe non hanno la stessa misura.
+        /// </summary>
+        public bool CopyExplored(Exploration other)
+        {
+            if (other == null || other._map.Width != _map.Width || other._map.Height != _map.Height)
+            {
+                return false;
+            }
+
+            Array.Copy(other._explored, _explored, _explored.Length);
+            ExploredCount = other.ExploredCount;
+            return true;
+        }
+
+        /// <summary>
         /// Scopre le celle di pavimento raggiungibili da <paramref name="from"/> in al più
         /// <paramref name="steps"/> passi. True se se n'è scoperta almeno una nuova.
         /// </summary>
