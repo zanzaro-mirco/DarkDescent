@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.13**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.14**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -20,6 +20,7 @@
 | v2.9 | 3 ott 2026 | Prima build pubblica su itch.io spostata da M3 a M10, quando il gioco è finibile: decisione di Mirco. A M3 resta la prova della build Web dall'artifact della CI |
 | v2.10 | 3 ott 2026 | M3 chiusa (tag `m3`), con le lezioni · § 4.3 decisa (ADR-014) · build Web provata e tenuta (ADR-019) · ADR-014…019 |
 | v2.11 | 4 ott 2026 | M4 chiusa (tag `m4`), con le lezioni · attributi e formula del colpo confermati (§ 2, ADR-020) · inventario a click-e-click invece del drag & drop (ADR-023) · ADR-020…024 |
+| v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
 | v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
 
@@ -92,7 +93,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 98–143 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco). Per le milestone ancora aperte restano 85–130 ore: a 6–10 h a settimana sono 9–22 settimane di lavoro effettivo; con pause e settimane saltate, **3–6 mesi di calendario**.
+**Totale stimato:** circa 103–148 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco; v2.14: la M6 sale di 6 ore per pozioni, automappa, ripartenza e tooltip, la M7 ne perde una con l'automappa). Per le milestone ancora aperte restano 85–130 ore: a 6–10 h a settimana sono 9–22 settimane di lavoro effettivo; con pause e settimane saltate, **3–6 mesi di calendario**.
 
 **Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Il prossimo, se serve, si fissa alla chiusura della M8.
 
@@ -241,8 +242,8 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, build Web provata | 9–14 | ✅ 3 ott |
 | M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | ✅ 4 ott |
 | M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | ✅ 5 ott |
-| M6 | "Dungeon infinito" | cripta procedurale | 10–13 | |
-| M7 | "Le profondità" | caverne, nuovi nemici, automappa | 11–16 | |
+| M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | |
+| M7 | "Le profondità" | caverne, nuovi nemici, automappa delle caverne | 10–15 | |
 | M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 6–9 | |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza | 8–11 | |
 | M10 | "Città e loop completo" | il gioco è finibile, **prima build pubblica** | 10–14 | |
@@ -482,7 +483,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M6 — "Dungeon infinito" · 10–13 h
+### M6 — "Dungeon infinito" · 16–19 h
 
 **A schermo:** i livelli 1–4 sono cripte generate a ogni partita, sempre percorribili dall'ingresso all'uscita; nemici e casse aumentano con la profondità.
 
@@ -493,6 +494,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 - Nemici e casse distribuiti in base alla profondità
 - Seed riproducibile per ogni livello
 - **Tool dell'editor:** una finestra che genera e disegna il dungeon senza entrare in Play Mode. Circa 150 righe, ore di iterazione risparmiate, e "ho scritto tool per l'editor" pesa a un colloquio
+- Aggiunti dopo la prova della build (v2.14): **pozioni di cura** con la cintura a 8 posti, **automappa** che si scopre esplorando (sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte con l'inventario di quando ci si era entrati, **tooltip** sulle statistiche del personaggio
 
 **Decisioni da prendere:** NavMesh o A* su griglia, con dati reali alla mano (tempi di bake, comportamento nei corridoi stretti) — un A* scritto da te dà pieno controllo su costi e occupazione delle celle, e insegna il pathfinding sul serio; divisione dell'asmdef per area (§ 4.5).
 
@@ -504,7 +506,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M7 — "Le profondità" · 11–16 h
+### M7 — "Le profondità" · 10–15 h
 
 **A schermo:** dal livello 5 il dungeon cambia: caverne organiche e nemici nuovi — uno sciame veloce, un bruto che carica colpi telegrafati. Un'automappa mostra ciò che hai esplorato.
 
@@ -517,7 +519,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 - **Reazione al colpo del cavaliere:** `HitRecovery` anche sul player, con una soglia tarata sui colpi del bruto. Il bruto deve poter interrompere un attacco, lo sciame no (ADR-010)
 - **Limite di voci audio** per lo sciame: con dieci nemici che colpiscono insieme, una sola clip d'impatto per frame e per tipo, e una priorità più bassa per i nemici lontani
 - **Refactoring dell'IA** da `enum` e `switch` a classi di stato: ora i tipi sono tre e il bisogno è reale. Documentato in un ADR, è materiale da portfolio
-- Stato di esplorazione delle celle e **automappa**
+- **Automappa** estesa alle caverne (l'automappa della cripta è arrivata alla M6, v2.14)
 - Tabelle di spawn per profondità, con il giusto mix di archetipi
 
 **Test:** gli stessi test di connettività di M6, sul nuovo algoritmo.

@@ -5,10 +5,15 @@
 scala, e nessuna stanza resta irraggiungibile. Più si scende, più scheletri e casse ci
 sono; una cassa si apre con un click e lascia un oggetto. Avviata con `-seed 4711`, la
 partita genera **lo stesso dungeon** due volte di fila, con gli stessi nemici e gli stessi
-oggetti. Nell'editor una finestra genera e disegna un livello per seme e profondità senza
-entrare in Play Mode. Test verdi in CI.
+oggetti. Le **pozioni** cadono da scheletri e casse, vanno nella cintura e si bevono con i
+tasti 1–8. Con `Tab` si apre l'**automappa**, che si scopre camminando, sovrapposta al gioco
+o nell'angolo (`F` cambia). Morendo si riparte dall'ingresso del livello, con l'inventario
+di quando ci si era entrati. Passando sulle statistiche del pannello del personaggio, un
+tooltip dice a cosa servono. Nell'editor una finestra genera e disegna un livello per seme e
+profondità senza entrare in Play Mode. Test verdi in CI.
 
-**Tempo stimato:** 10–13 h (piano v2.13). **Prerequisito:** M5 chiusa (tag `m5`).
+**Tempo stimato:** 16–19 h (piano v2.14: 10–13 h, più pozioni, automappa, ripartenza e
+tooltip delle statistiche chiesti da Mirco dopo la prova della build del 5 ottobre). **Prerequisito:** M5 chiusa (tag `m5`).
 
 **Come si lavora:** come alla M5, il codice e i passaggi nell'editor li faccio io, in
 batchmode a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in Play Mode e
@@ -52,7 +57,20 @@ Tutte confermate da Mirco il 5 ottobre 2026.
 | D9 | **Come si carica un livello generato** | Una scena `Level_Crypt`, costruita una volta dallo strumento dell'editor, con l'atmosfera, il volume del post-processing e un `DungeonLevel` che genera e costruisce all'avvio. Il `LevelManager` la carica come oggi, con una **profondità**: l'uscita del livello N porta a `Level_Crypt` con profondità N + 1. Il livello 4 per ora **non ha la scala** (le caverne arrivano alla M7) | Il piano § 4.3 prevedeva proprio "la scena vuota in cui il generatore costruisce il dungeon". Atmosfera e luci restano impostazioni di scena, come alla M3 |
 | D10 | **Finestra dell'editor** | *DarkDescent → Generatore di dungeon*, in **UI Toolkit**: seme, profondità, pulsanti "genera" e "seme successivo", la mappa disegnata a celle colorate (pavimento, muro, ingresso, scala, nemici, casse) e i numeri del livello (stanze, celle, distanza tra ingresso e scala). Un pulsante salva la mappa generata in `Levels/` come testo | Si vedono cento livelli in un minuto, senza Play Mode. Salvare un livello generato come mappa trasforma un caso strano in un livello di prova per i test |
 | D11 | **Divisione dell'asmdef** (piano § 4.5) | **Rimandata.** Al passo 6.7 scrivo il grafo delle dipendenze tra le cartelle di `Scripts/` e, se non ci sono cicli da rompere, divido solo la logica pura (`DarkDescent.Core`: griglia, generatore, semi, formule) da quella con i `MonoBehaviour`. Se ci sono cicli, resta un assembly e l'ADR dice perché | Oggi un assembly compila in pochi secondi. Dividere per area vuol dire rompere le dipendenze incrociate tra le cartelle, se ci sono, con interfacce che servono solo alla divisione. La logica pura è già separata (piano § 4.1): spostarla in un assembly suo costa poco e garantisce che non tocchi Unity |
-| D12 | **Riavvio dopo la morte** | Resta com'è: un seme nuovo, quindi un dungeon nuovo, a meno di `-seed` | È il comportamento di Diablo, e con `-seed` si rigioca lo stesso dungeon per provare |
+| D12 | **Riavvio dopo la morte** | ~~Resta com'è: un seme nuovo, quindi un dungeon nuovo, a meno di `-seed`~~ Sostituita da D13 | ~~È il comportamento di Diablo, e con `-seed` si rigioca lo stesso dungeon per provare~~ Provando la build, Mirco ha chiesto da dove si ricomincia: dal livello 1 di una cripta nuova, senza niente |
+
+### Decisioni nate dalla prova della build (5 ottobre 2026)
+
+Provata la build di `45cfc6d`, Mirco ha chiesto una mappa per orientarsi, le pozioni per
+arrivare in fondo e una regola per la morte, poi un tooltip sulle statistiche. Confermate da
+Mirco lo stesso giorno; per la mappa ha chiesto entrambe le viste, da cambiare con un tasto.
+
+| # | Decisione | Proposta confermata | Perché |
+|---|---|---|---|
+| D13 | **Morte, fino alla M8** | "Ricomincia" riporta all'**ingresso del livello in cui si è morti**, nella stessa cripta (stesso seme), con nemici e casse rimessi, la vita piena e l'**inventario com'era entrando** nel livello: un'istantanea in JSON (il formato di `ItemInstance`, ADR-022) presa all'ingresso. Alla M8 le regole definitive, con il salvataggio | Ricominciare da capo senza niente toglie la voglia di scendere. L'istantanea evita di morire apposta per riaprire la stessa cassa |
+| D14 | **Pozioni e cintura** | **Pozione di cura** da 1 × 1: rende il **50% della vita massima**, subito, e la vita non si rigenera da sola, come in Diablo 1. **Cintura** da 8 posti sotto la sfera della vita, **tasti 1–8**; una pozione raccolta va nella cintura se c'è posto, altrimenti nell'inventario, dove si beve con il **click destro**. Cadono dal **25%** degli scheletri e dal **50%** delle casse, con tiri a parte e un seme loro, senza cambiare gli oggetti già legati al seme. Si parte con **2 pozioni** nella cintura. Mana alla M9, mercante alla M10 | Senza cure quattro livelli non si finiscono. La cintura con i tasti numerici è il gesto di Diablo; il click destro nell'inventario è il suo |
+| D15 | **Automappa, anticipata dalla M7** | Le celle si **scoprono** entro qualche metro dal cavaliere. **`Tab`** la mostra e la nasconde; **`F`** passa tra la vista **sovrapposta** al gioco (trasparente, a linee, come in Diablo) e la **minimappa** fissa nell'angolo. Muri, scala, casse e il punto del cavaliere. Alla M7 si estende alle caverne | La griglia della cripta c'è già. Le due viste le ha chieste Mirco: la sovrapposta non copre niente quando è chiusa, l'angolo si legge giocando |
+| D16 | **Tooltip delle statistiche** | Passando su una riga del pannello del personaggio, un tooltip dice a cosa serve, con la formula in parole: Forza (danno e requisiti), Destrezza (a colpire e blocco), Magia (dalla M9), Vitalità (vita), Vita, Armatura, Danno, A colpire, Blocco. Testi nella tabella delle lingue | Chi gioca deve sapere perché alzare un attributo, senza leggere il piano |
 
 ---
 
@@ -66,8 +84,12 @@ Tutte confermate da Mirco il 5 ottobre 2026.
 | 6.4 | Scena `Level_Crypt`, NavMesh a runtime, `LevelManager` con la profondità, misura del bake | 2 |
 | 6.5 | Casse che si aprono, con loot table e suono | 1–1,5 |
 | 6.6 | Finestra dell'editor | 1–1,5 |
-| 6.7 | Dipendenze tra le cartelle e asmdef | 0,5 |
-| 6.8 | Chiusura: build da provare, GIF, ADR, tag `m6` | 0,5 |
+| 6.7 | Pozioni e cintura (D14) | 2 |
+| 6.8 | Automappa sovrapposta e nell'angolo (D15) | 2–2,5 |
+| 6.9 | Ripartenza dall'ingresso del livello (D13) | 1 |
+| 6.10 | Tooltip delle statistiche (D16) | 0,5–1 |
+| 6.11 | Dipendenze tra le cartelle e asmdef | 0,5 |
+| 6.12 | Chiusura: build da provare, GIF, ADR, tag `m6` | 0,5 |
 
 ---
 
@@ -253,15 +275,43 @@ l'oggetto previsto dal seme, un secondo click non fa niente). 108 EditMode e 95 
 2. Disegno della mappa in una texture, una cella per pixel ingrandita.
 3. Salvataggio della mappa in `Levels/`.
 
-## Passo 6.7 — Dipendenze e asmdef
+## Passo 6.7 — Pozioni e cintura
+
+1. `PotionDefinition` (oggetto 1 × 1, quanto cura in percentuale della vita massima) e la
+   pozione di cura, con icona e nome nelle due lingue.
+2. `Belt`, logica pura: 8 posti, raccolta che preferisce la cintura, uso per posto. Il
+   cavaliere parte con 2 pozioni.
+3. Barra della cintura sotto la sfera della vita, tasti 1–8 nell'Input System (due passaggi,
+   lezione della M4), click destro nell'inventario per bere.
+4. Tiri delle pozioni a parte nel loot di scheletri e casse, con un seme loro.
+
+## Passo 6.8 — Automappa
+
+1. Stato di esplorazione delle celle (logica pura), aggiornato da dove sta il cavaliere.
+2. Disegno della mappa scoperta in una texture: muri, scala, casse, il punto del cavaliere.
+3. Vista sovrapposta e minimappa nell'angolo; `Tab` e `F` nell'Input System.
+
+## Passo 6.9 — Ripartenza dall'ingresso del livello
+
+1. Istantanea dell'inventario e dell'equipaggiamento all'ingresso di ogni livello.
+2. "Ricomincia" ricarica lo stesso livello (stesso seme e profondità), rimette l'istantanea,
+   vita piena.
+
+## Passo 6.10 — Tooltip delle statistiche
+
+1. Una zona del cursore per ogni riga del pannello del personaggio, con il tooltip degli
+   oggetti riusato e i testi nella tabella delle lingue.
+
+## Passo 6.11 — Dipendenze e asmdef
 
 1. Grafo delle dipendenze tra le cartelle di `Scripts/`, dagli `using` e dai tipi usati.
 2. Decisione secondo D11, con l'ADR.
 
-## Passo 6.8 — Chiusura
+## Passo 6.12 — Chiusura
 
-1. Build della CI da provare: quattro livelli di fila, stesso dungeon con `-seed 4711`.
-2. GIF del README: la discesa attraverso due livelli generati, con una cassa aperta.
+1. Build della CI da provare: quattro livelli di fila, stesso dungeon con `-seed 4711`,
+   pozioni, automappa nelle due viste, ripartenza dopo la morte.
+2. GIF del README: la discesa attraverso due livelli generati, con una cassa aperta e la mappa.
 3. ADR: builder unico, BSP, NavMesh a runtime dai collider, contenuto per profondità, seme
    del livello, asmdef. Lezioni nel piano, tabella dello stato, tag `m6`.
 
@@ -319,7 +369,12 @@ l'oggetto previsto dal seme, un secondo click non fa niente). 108 EditMode e 95 
 - [x] Contenuto per profondità
 - [x] Livelli generati nel gioco, NavMesh a runtime misurato (in build: da leggere nel `Player.log`)
 - [x] Casse
+- [x] Decisioni D13–D16 confermate (dopo la prova della build)
 - [ ] Finestra dell'editor
+- [ ] Pozioni e cintura
+- [ ] Automappa nelle due viste
+- [ ] Ripartenza dall'ingresso del livello
+- [ ] Tooltip delle statistiche
 - [ ] Dipendenze e asmdef
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
