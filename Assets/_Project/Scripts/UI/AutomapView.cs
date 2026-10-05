@@ -7,9 +7,9 @@ namespace DarkDescent.UI
     /// <summary>
     /// L'automappa (D15 della scheda M6): una texture disegnata dalle celle scoperte e due viste che
     /// la mostrano, la minimappa nell'angolo e la mappa sovrapposta al gioco, tutte e due centrate
-    /// sul cavaliere. <c>Tab</c> la mostra e
-    /// la nasconde, <c>F</c> passa da una vista all'altra. Si ridisegna solo quando si scopre una cella;
-    /// per frame si sposta soltanto il punto del cavaliere, e solo con una vista accesa.
+    /// sul cavaliere. Il tasto <c>M</c> scorre le modalità: angolo, sovrapposta, spenta, e da capo.
+    /// Si ridisegna solo quando si scopre una cella; per frame si sposta soltanto il punto del
+    /// cavaliere, e solo con una vista accesa.
     /// </summary>
     [DisallowMultipleComponent]
     public class AutomapView : MonoBehaviour
@@ -27,11 +27,8 @@ namespace DarkDescent.UI
         private Color32[] _pixels;
         private bool _subscribed;
 
-        /// <summary>Se l'automappa è accesa (<c>Tab</c>). Lo resta anche passando per un livello senza mappa.</summary>
-        public bool IsShown { get; private set; } = true;
-
-        /// <summary>Vista sovrapposta (vero) o minimappa nell'angolo (falso), con <c>F</c>.</summary>
-        public bool IsOverlay { get; private set; }
+        /// <summary>La modalità scelta con <c>M</c>; si parte dalla minimappa. Resta anche passando per un livello senza mappa.</summary>
+        public AutomapMode Mode { get; private set; } = AutomapMode.Corner;
 
         public AutomapFrame Corner => _corner;
 
@@ -54,17 +51,10 @@ namespace DarkDescent.UI
             }
         }
 
-        public void Toggle()
+        /// <summary>Passa alla modalità dopo: angolo, sovrapposta, spenta, e di nuovo angolo.</summary>
+        public void Cycle()
         {
-            IsShown = !IsShown;
-            RefreshVisibility();
-        }
-
-        /// <summary>Cambia vista; da spenta, la accende già nell'altra.</summary>
-        public void CycleView()
-        {
-            IsOverlay = !IsOverlay;
-            IsShown = true;
+            Mode = Mode == AutomapMode.Corner ? AutomapMode.Overlay : Mode == AutomapMode.Overlay ? AutomapMode.Hidden : AutomapMode.Corner;
             RefreshVisibility();
         }
 
@@ -98,8 +88,7 @@ namespace DarkDescent.UI
 
             _tracker.LevelChanged += HandleLevelChanged;
             _tracker.Explored += Repaint;
-            _reader.MapToggled += Toggle;
-            _reader.MapViewCycled += CycleView;
+            _reader.MapCycled += Cycle;
             _subscribed = true;
 
             HandleLevelChanged();
@@ -115,8 +104,7 @@ namespace DarkDescent.UI
 
             _tracker.LevelChanged -= HandleLevelChanged;
             _tracker.Explored -= Repaint;
-            _reader.MapToggled -= Toggle;
-            _reader.MapViewCycled -= CycleView;
+            _reader.MapCycled -= Cycle;
             _subscribed = false;
         }
 
@@ -158,8 +146,8 @@ namespace DarkDescent.UI
         private void RefreshVisibility()
         {
             bool hasMap = _tracker != null && _tracker.Exploration != null;
-            _corner.SetVisible(hasMap && IsShown && !IsOverlay);
-            _overlay.SetVisible(hasMap && IsShown && IsOverlay);
+            _corner.SetVisible(hasMap && Mode == AutomapMode.Corner);
+            _overlay.SetVisible(hasMap && Mode == AutomapMode.Overlay);
             PlaceDot();
         }
 

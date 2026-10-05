@@ -73,23 +73,17 @@ namespace DarkDescent.Tests
             }
         }
 
-        [UnityTest, Description("Tab nasconde e mostra, F passa alla vista sovrapposta, dove il cavaliere resta al centro e la mappa scorre")]
-        public IEnumerator Keys_ToggleAndSwitchViews()
+        [UnityTest, Description("M scorre le modalità: dall'angolo alla vista sovrapposta, dove il cavaliere resta al centro e la mappa scorre, poi spenta, poi di nuovo nell'angolo")]
+        public IEnumerator M_CyclesTheModes()
         {
             yield return LoadGeneratedCore();
             var keyboard = InputSystem.AddDevice<Keyboard>();
             var view = View;
+            Assert.AreEqual(AutomapMode.Corner, view.Mode);
 
-            PressAndRelease(keyboard.tabKey);
+            PressAndRelease(keyboard.mKey);
             yield return null;
-            Assert.IsFalse(view.Corner.IsShowing || view.Overlay.IsShowing, "Tab la nasconde");
-
-            PressAndRelease(keyboard.tabKey);
-            yield return null;
-            Assert.IsTrue(view.Corner.IsShowing, "e la rimostra nell'angolo");
-
-            PressAndRelease(keyboard.fKey);
-            yield return null;
+            Assert.AreEqual(AutomapMode.Overlay, view.Mode);
             Assert.IsTrue(view.Overlay.IsShowing);
             Assert.IsFalse(view.Corner.IsShowing);
             Assert.AreEqual(-view.Overlay.Dot.anchoredPosition, view.Overlay.MapImage.rectTransform.anchoredPosition, "il punto del cavaliere cade al centro");
@@ -98,20 +92,19 @@ namespace DarkDescent.Tests
             yield return null;
             Assert.AreEqual(-view.Overlay.Dot.anchoredPosition, view.Overlay.MapImage.rectTransform.anchoredPosition, "anche dopo un passo");
 
-            PressAndRelease(keyboard.tabKey);
+            PressAndRelease(keyboard.mKey);
             yield return null;
-            PressAndRelease(keyboard.tabKey);
-            yield return null;
-            Assert.IsTrue(view.Overlay.IsShowing, "riaccesa, resta nella vista scelta");
+            Assert.AreEqual(AutomapMode.Hidden, view.Mode);
+            Assert.IsFalse(view.Corner.IsShowing || view.Overlay.IsShowing, "spenta");
 
-            PressAndRelease(keyboard.tabKey);
+            PressAndRelease(keyboard.mKey);
             yield return null;
-            PressAndRelease(keyboard.fKey);
-            yield return null;
-            Assert.IsTrue(view.Corner.IsShowing, "F da spenta la riaccende nell'altra vista");
+            Assert.AreEqual(AutomapMode.Corner, view.Mode);
+            Assert.IsTrue(view.Corner.IsShowing, "e di nuovo nell'angolo");
+            Assert.IsFalse(view.Overlay.IsShowing);
         }
 
-        [UnityTest, Description("Un livello fatto a mano non ha la mappa a runtime: l'automappa resta spenta e Tab non rompe niente")]
+        [UnityTest, Description("Un livello fatto a mano non ha la mappa a runtime: l'automappa resta spenta e M non rompe niente")]
         public IEnumerator HandmadeLevel_HasNoAutomap()
         {
             yield return LoadCore();
@@ -119,8 +112,7 @@ namespace DarkDescent.Tests
 
             Assert.IsNull(Tracker.Exploration);
             Assert.IsFalse(View.Corner.IsShowing || View.Overlay.IsShowing);
-            PressAndRelease(keyboard.tabKey);
-            PressAndRelease(keyboard.fKey);
+            PressAndRelease(keyboard.mKey);
             yield return null;
             Assert.IsFalse(View.Corner.IsShowing || View.Overlay.IsShowing);
         }

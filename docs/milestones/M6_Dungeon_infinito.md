@@ -6,8 +6,8 @@ scala, e nessuna stanza resta irraggiungibile. Più si scende, più scheletri e 
 sono; una cassa si apre con un click e lascia un oggetto. Avviata con `-seed 4711`, la
 partita genera **lo stesso dungeon** due volte di fila, con gli stessi nemici e gli stessi
 oggetti. Le **pozioni** cadono da scheletri e casse, vanno nella cintura e si bevono con i
-tasti 1–8. Con `Tab` si apre l'**automappa**, che si scopre camminando, sovrapposta al gioco
-o nell'angolo (`F` cambia). Morendo si riparte dall'ingresso del livello, con l'inventario
+tasti 1–8. L'**automappa** si scopre camminando; il tasto `M` la passa dall'angolo alla vista
+sovrapposta al gioco, poi la spegne, poi di nuovo nell'angolo. Morendo si riparte dall'ingresso del livello, con l'inventario
 di quando ci si era entrati. Passando sulle statistiche del pannello del personaggio, un
 tooltip dice a cosa servono. Nell'editor una finestra genera e disegna un livello per seme e
 profondità senza entrare in Play Mode. Test verdi in CI.
@@ -69,7 +69,7 @@ Mirco lo stesso giorno; per la mappa ha chiesto entrambe le viste, da cambiare c
 |---|---|---|---|
 | D13 | **Morte, fino alla M8** | "Ricomincia" riporta all'**ingresso del livello in cui si è morti**, nella stessa cripta (stesso seme), con nemici e casse rimessi, la vita piena e l'**inventario com'era entrando** nel livello: un'istantanea in JSON (il formato di `ItemInstance`, ADR-022) presa all'ingresso. Alla M8 le regole definitive, con il salvataggio | Ricominciare da capo senza niente toglie la voglia di scendere. L'istantanea evita di morire apposta per riaprire la stessa cassa |
 | D14 | **Pozioni e cintura** | **Pozione di cura** da 1 × 1: rende il **50% della vita massima**, subito, e la vita non si rigenera da sola, come in Diablo 1. **Cintura** da 8 posti sotto la sfera della vita, **tasti 1–8**; una pozione raccolta va nella cintura se c'è posto, altrimenti nell'inventario, dove si beve con il **click destro**. Cadono dal **25%** degli scheletri e dal **50%** delle casse, con tiri a parte e un seme loro, senza cambiare gli oggetti già legati al seme. Si parte con **2 pozioni** nella cintura. Mana alla M9, mercante alla M10 | Senza cure quattro livelli non si finiscono. La cintura con i tasti numerici è il gesto di Diablo; il click destro nell'inventario è il suo |
-| D15 | **Automappa, anticipata dalla M7** | Le celle si **scoprono** entro qualche metro dal cavaliere. **`Tab`** la mostra e la nasconde; **`F`** passa tra la vista **sovrapposta** al gioco (trasparente, a linee, come in Diablo) e la **minimappa** fissa nell'angolo. Muri, scala, casse e il punto del cavaliere. Alla M7 si estende alle caverne | La griglia della cripta c'è già. Le due viste le ha chieste Mirco: la sovrapposta non copre niente quando è chiusa, l'angolo si legge giocando |
+| D15 | **Automappa, anticipata dalla M7** | Le celle si **scoprono** entro qualche metro dal cavaliere. Un tasto solo, **`M`**, scorre le modalità: **minimappa** nell'angolo, vista **sovrapposta** al gioco (trasparente, a linee, come in Diablo), spenta, e da capo. *Aggiornata il 5 ott 2026 su richiesta di Mirco, provato il 6.8: prima erano `Tab` per mostrarla e `F` per cambiare vista.* Muri, scala, casse e il punto del cavaliere. Alla M7 si estende alle caverne | La griglia della cripta c'è già. Le due viste le ha chieste Mirco: la sovrapposta non copre niente quando è chiusa, l'angolo si legge giocando |
 | D16 | **Tooltip delle statistiche** | Passando su una riga del pannello del personaggio, un tooltip dice a cosa serve, con la formula in parole: Forza (danno e requisiti), Destrezza (a colpire e blocco), Magia (dalla M9), Vitalità (vita), Vita, Armatura, Danno, A colpire, Blocco. Testi nella tabella delle lingue | Chi gioca deve sapere perché alzare un attributo, senza leggere il piano |
 
 ---
@@ -341,7 +341,7 @@ disegna in una RenderTexture, come per la prima anteprima della sfera.
 
 1. Stato di esplorazione delle celle (logica pura), aggiornato da dove sta il cavaliere.
 2. Disegno della mappa scoperta in una texture: muri, scala, casse, il punto del cavaliere.
-3. Vista sovrapposta e minimappa nell'angolo; `Tab` e `F` nell'Input System.
+3. Vista sovrapposta e minimappa nell'angolo; il tasto nell'Input System (`M`, D15 aggiornata).
 
 **Com'è andata (5 ott 2026).** `Exploration` (logica pura) tiene le celle viste e le scopre con
 una visita sul pavimento: 3 passi dalla cella del cavaliere, anche in diagonale, così attorno a
@@ -362,15 +362,16 @@ cella) ha una maschera e il bordo della sfera; la vista sovrapposta (56 pixel pe
 quinto del mondo) è trasparente all'80%. Le misure vengono da tre giri di screenshot: a 22 pixel
 la vista sovrapposta era un francobollo, e la minimappa ferma mostrava solo un angolo. Le linee
 sono un decimo di cella, così restano visibili nell'angolo senza diventare strisce al centro.
-`Tab` mostra e nasconde, `F` cambia vista e, da spenta, la riaccende nell'altra. Si parte con la
-minimappa accesa. Le azioni `ToggleMap` e `CycleMapView` sono nate con i due passaggi in batch,
-come le pozioni. Nessuna immagine dell'automappa prende i raggi: coprirebbe il mondo e
+Si parte con la minimappa accesa. Il tasto `M` scorre le modalità (`AutomapMode`): angolo,
+sovrapposta, spenta, e da capo. La prima versione usava `Tab` per mostrarla e `F` per cambiare
+vista; Mirco ha chiesto un tasto solo. L'azione `CycleMap` è nata con i due passaggi in batch,
+come le pozioni: prima aggiunta e rigenerata, poi il codice e la rimozione delle azioni vecchie. Nessuna immagine dell'automappa prende i raggi: coprirebbe il mondo e
 ruberebbe i click; un test lo controlla. Test: visita per passi, stanza dietro il muro, spigoli,
 cella di un punto del mondo, disegno (muri, pavimento, scala, cassa, trasparenza del non visto).
 In gioco: la cripta parte con l'ingresso scoperto e la minimappa accesa; spostando il cavaliere
-si scopre la scala e la texture si ridisegna, e da fermo no; `Tab` e `F` veri, con il punto del
-cavaliere sempre al centro; il livello fatto a mano non ha automappa. 126 EditMode e 103
-PlayMode verdi.
+si scopre la scala e la texture si ridisegna, e da fermo no; `M` vero per le tre modalità, con
+il punto del cavaliere sempre al centro; il livello fatto a mano non ha automappa. 126 EditMode e
+102 PlayMode verdi.
 
 ## Passo 6.9 — Ripartenza dall'ingresso del livello
 
