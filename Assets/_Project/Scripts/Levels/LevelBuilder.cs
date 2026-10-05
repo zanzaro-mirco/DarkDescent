@@ -74,7 +74,7 @@ namespace DarkDescent.Levels
             level.SetActive(false);
             var context = level.AddComponent<LevelContext>();
             var depth = map.GetDirective("depth");
-            context.Configure(depth.Count > 0 ? int.Parse(depth[0]) : 1);
+            context.Configure(depth.Count > 0 ? int.Parse(depth[0]) : 1, map);
 
             var floors = new GameObject("Floors").transform;
             var walls = CreateNotWalkableGroup("Walls");

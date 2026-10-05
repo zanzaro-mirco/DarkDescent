@@ -343,6 +343,35 @@ disegna in una RenderTexture, come per la prima anteprima della sfera.
 2. Disegno della mappa scoperta in una texture: muri, scala, casse, il punto del cavaliere.
 3. Vista sovrapposta e minimappa nell'angolo; `Tab` e `F` nell'Input System.
 
+**Com'è andata (5 ott 2026).** `Exploration` (logica pura) tiene le celle viste e le scopre con
+una visita sul pavimento: 3 passi dalla cella del cavaliere, anche in diagonale, così attorno a
+lui si scopre un quadrato e non una croce (la prima versione, a passi ortogonali, lasciava fuori
+gli angoli delle stanze). La diagonale non taglia lo spigolo di un muro, e la stanza dietro un
+muro resta nascosta finché non ci si arriva: a raggio, una cella di là dal muro si sarebbe vista.
+`ExplorationTracker` sta in Core. A ogni frame confronta due celle, e solo quando il cavaliere
+cambia cella scopre e avvisa. Il CompositionRoot gli dà la mappa di ogni livello caricato, che
+ora `LevelContext` espone. Esiste solo per i livelli costruiti a runtime: nelle scene salvate non
+si serializza, e nei livelli fatti a mano l'automappa resta spenta. `MapPainter.PaintExplored`
+disegna in una texture da 20 pixel per cella, con un buffer riusato, il pavimento appena
+accennato, una linea su ogni lato che confina con la roccia, la scala piena e un quadratino per
+casse e ingresso. Nemici e oggetti di scena non compaiono, come in Diablo. Le due viste
+(`AutomapFrame`) sono la stessa texture dentro un genitore ruotato di 45° e uno schiacciato a
+metà: la camera guarda da 45° e 30°, quindi il nord della mappa cade dove cade sullo schermo.
+Tutte e due sono centrate sul cavaliere, e scorre la mappa. La minimappa (240 × 140, 12 pixel per
+cella) ha una maschera e il bordo della sfera; la vista sovrapposta (56 pixel per cella, circa un
+quinto del mondo) è trasparente all'80%. Le misure vengono da tre giri di screenshot: a 22 pixel
+la vista sovrapposta era un francobollo, e la minimappa ferma mostrava solo un angolo. Le linee
+sono un decimo di cella, così restano visibili nell'angolo senza diventare strisce al centro.
+`Tab` mostra e nasconde, `F` cambia vista e, da spenta, la riaccende nell'altra. Si parte con la
+minimappa accesa. Le azioni `ToggleMap` e `CycleMapView` sono nate con i due passaggi in batch,
+come le pozioni. Nessuna immagine dell'automappa prende i raggi: coprirebbe il mondo e
+ruberebbe i click; un test lo controlla. Test: visita per passi, stanza dietro il muro, spigoli,
+cella di un punto del mondo, disegno (muri, pavimento, scala, cassa, trasparenza del non visto).
+In gioco: la cripta parte con l'ingresso scoperto e la minimappa accesa; spostando il cavaliere
+si scopre la scala e la texture si ridisegna, e da fermo no; `Tab` e `F` veri, con il punto del
+cavaliere sempre al centro; il livello fatto a mano non ha automappa. 126 EditMode e 103
+PlayMode verdi.
+
 ## Passo 6.9 — Ripartenza dall'ingresso del livello
 
 1. Istantanea dell'inventario e dell'equipaggiamento all'ingresso di ogni livello.
@@ -424,7 +453,7 @@ disegna in una RenderTexture, come per la prima anteprima della sfera.
 - [x] Decisioni D13–D16 confermate (dopo la prova della build)
 - [x] Finestra dell'editor
 - [x] Pozioni e cintura
-- [ ] Automappa nelle due viste
+- [x] Automappa nelle due viste
 - [ ] Ripartenza dall'ingresso del livello
 - [ ] Tooltip delle statistiche
 - [ ] Dipendenze e asmdef

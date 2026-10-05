@@ -153,6 +153,26 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleMap"",
+                    ""type"": ""Button"",
+                    ""id"": ""e341234b-9a3d-48dc-9eae-173584d69907"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""CycleMapView"",
+                    ""type"": ""Button"",
+                    ""id"": ""d16b0e0b-c09c-42c1-a744-050d10b48ad7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -298,6 +318,28 @@ namespace DarkDescent.Input
                     ""action"": ""UseBelt"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cd8da47b-a05c-4e07-a8b8-187c91e76922"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ad30033d-fe17-4904-b454-b53aa685ad05"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CycleMapView"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -312,6 +354,8 @@ namespace DarkDescent.Input
             m_Gameplay_ToggleCharacter = m_Gameplay.FindAction("ToggleCharacter", throwIfNotFound: true);
             m_Gameplay_CycleLanguage = m_Gameplay.FindAction("CycleLanguage", throwIfNotFound: true);
             m_Gameplay_UseBelt = m_Gameplay.FindAction("UseBelt", throwIfNotFound: true);
+            m_Gameplay_ToggleMap = m_Gameplay.FindAction("ToggleMap", throwIfNotFound: true);
+            m_Gameplay_CycleMapView = m_Gameplay.FindAction("CycleMapView", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -398,6 +442,8 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_ToggleCharacter;
         private readonly InputAction m_Gameplay_CycleLanguage;
         private readonly InputAction m_Gameplay_UseBelt;
+        private readonly InputAction m_Gameplay_ToggleMap;
+        private readonly InputAction m_Gameplay_CycleMapView;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -433,6 +479,14 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/UseBelt".
             /// </summary>
             public InputAction @UseBelt => m_Wrapper.m_Gameplay_UseBelt;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/ToggleMap".
+            /// </summary>
+            public InputAction @ToggleMap => m_Wrapper.m_Gameplay_ToggleMap;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/CycleMapView".
+            /// </summary>
+            public InputAction @CycleMapView => m_Wrapper.m_Gameplay_CycleMapView;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -477,6 +531,12 @@ namespace DarkDescent.Input
                 @UseBelt.started += instance.OnUseBelt;
                 @UseBelt.performed += instance.OnUseBelt;
                 @UseBelt.canceled += instance.OnUseBelt;
+                @ToggleMap.started += instance.OnToggleMap;
+                @ToggleMap.performed += instance.OnToggleMap;
+                @ToggleMap.canceled += instance.OnToggleMap;
+                @CycleMapView.started += instance.OnCycleMapView;
+                @CycleMapView.performed += instance.OnCycleMapView;
+                @CycleMapView.canceled += instance.OnCycleMapView;
             }
 
             /// <summary>
@@ -506,6 +566,12 @@ namespace DarkDescent.Input
                 @UseBelt.started -= instance.OnUseBelt;
                 @UseBelt.performed -= instance.OnUseBelt;
                 @UseBelt.canceled -= instance.OnUseBelt;
+                @ToggleMap.started -= instance.OnToggleMap;
+                @ToggleMap.performed -= instance.OnToggleMap;
+                @ToggleMap.canceled -= instance.OnToggleMap;
+                @CycleMapView.started -= instance.OnCycleMapView;
+                @CycleMapView.performed -= instance.OnCycleMapView;
+                @CycleMapView.canceled -= instance.OnCycleMapView;
             }
 
             /// <summary>
@@ -588,6 +654,20 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnUseBelt(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleMap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleMap(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "CycleMapView" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnCycleMapView(InputAction.CallbackContext context);
         }
     }
 }

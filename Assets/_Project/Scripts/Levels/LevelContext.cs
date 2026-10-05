@@ -37,10 +37,17 @@ namespace DarkDescent.Levels
 
         public int Depth => _depth;
 
+        /// <summary>
+        /// La mappa da cui è nato il livello, per l'automappa (D15 della M6). C'è solo per i livelli
+        /// costruiti a runtime: in quelli salvati come scena non si serializza, e l'automappa resta spenta.
+        /// </summary>
+        public LevelMap Map { get; private set; }
+
         /// <summary>Per chi costruisce il livello (<see cref="LevelBuilder"/>), prima che si accenda.</summary>
-        public void Configure(int depth)
+        public void Configure(int depth, LevelMap map = null)
         {
             _depth = Mathf.Max(1, depth);
+            Map = map;
         }
 
         private void Awake()

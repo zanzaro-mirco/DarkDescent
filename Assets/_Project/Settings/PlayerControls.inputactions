@@ -58,6 +58,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleMap",
+                    "type": "Button",
+                    "id": "e341234b-9a3d-48dc-9eae-173584d69907",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "CycleMapView",
+                    "type": "Button",
+                    "id": "d16b0e0b-c09c-42c1-a744-050d10b48ad7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -201,6 +219,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "UseBelt",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cd8da47b-a05c-4e07-a8b8-187c91e76922",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ad30033d-fe17-4904-b454-b53aa685ad05",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CycleMapView",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

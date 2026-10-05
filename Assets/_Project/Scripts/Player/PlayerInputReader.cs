@@ -28,6 +28,12 @@ namespace DarkDescent.Player
         /// <summary>Un tasto da 1 a 8: il posto della cintura da bere, da 0 (D14 della M6).</summary>
         public event Action<int> BeltSlotUsed;
 
+        /// <summary>Tab: mostra o nasconde l'automappa (D15 della M6).</summary>
+        public event Action MapToggled;
+
+        /// <summary>F: l'automappa passa dall'angolo alla vista sovrapposta e viceversa.</summary>
+        public event Action MapViewCycled;
+
         public bool IsMoveCommandHeld { get; private set; }
 
         public Vector2 PointerScreenPosition => _controls.Gameplay.Point.ReadValue<Vector2>();
@@ -49,6 +55,8 @@ namespace DarkDescent.Player
             _controls.Gameplay.ToggleCharacter.performed += HandleCharacterPerformed;
             _controls.Gameplay.CycleLanguage.performed += HandleLanguagePerformed;
             _controls.Gameplay.UseBelt.performed += HandleBeltPerformed;
+            _controls.Gameplay.ToggleMap.performed += HandleMapPerformed;
+            _controls.Gameplay.CycleMapView.performed += HandleMapViewPerformed;
             _controls.Gameplay.Enable();
         }
 
@@ -63,6 +71,8 @@ namespace DarkDescent.Player
             _controls.Gameplay.ToggleCharacter.performed -= HandleCharacterPerformed;
             _controls.Gameplay.CycleLanguage.performed -= HandleLanguagePerformed;
             _controls.Gameplay.UseBelt.performed -= HandleBeltPerformed;
+            _controls.Gameplay.ToggleMap.performed -= HandleMapPerformed;
+            _controls.Gameplay.CycleMapView.performed -= HandleMapViewPerformed;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
@@ -110,6 +120,16 @@ namespace DarkDescent.Player
             {
                 UseBeltSlot(key.keyCode - Key.Digit1);
             }
+        }
+
+        private void HandleMapPerformed(InputAction.CallbackContext context)
+        {
+            MapToggled?.Invoke();
+        }
+
+        private void HandleMapViewPerformed(InputAction.CallbackContext context)
+        {
+            MapViewCycled?.Invoke();
         }
 
         /// <summary>Come premere il tasto del posto (da 0): per i test, che non hanno una tastiera.</summary>

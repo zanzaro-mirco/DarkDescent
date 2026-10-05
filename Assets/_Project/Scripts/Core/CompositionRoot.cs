@@ -37,6 +37,10 @@ namespace DarkDescent.Core
 
         [SerializeField] private BeltView _beltView;
 
+        [SerializeField] private ExplorationTracker _exploration;
+
+        [SerializeField] private AutomapView _automap;
+
         [SerializeField] private ItemCursor _itemCursor;
 
         [SerializeField] private HitStop _hitStop;
@@ -121,6 +125,8 @@ namespace DarkDescent.Core
             _itemCursor.Bind(inventory, _reader);
             _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _reader);
             _beltView.Bind(inventory);
+            _exploration.Bind(_player.transform);
+            _automap.Bind(_exploration, _reader);
         }
 
         private void OnEnable()
@@ -181,6 +187,9 @@ namespace DarkDescent.Core
             {
                 chest.Bind(_loot, level.Depth);
             }
+
+            // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
+            _exploration.SetLevel(level.Map);
         }
 
         private void ReleaseLevel(LevelContext level)
@@ -192,6 +201,7 @@ namespace DarkDescent.Core
 
             _trackedEnemies.Clear();
             _enemyAttacks.Clear();
+            _exploration.SetLevel(null);
         }
 
         /// <summary>Cambia il seme della partita: per i test e per rigiocare un seme senza riavviare.</summary>
