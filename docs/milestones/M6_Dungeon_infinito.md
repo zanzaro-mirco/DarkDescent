@@ -56,7 +56,7 @@ Tutte confermate da Mirco il 5 ottobre 2026.
 | D8 | **Seme del livello** | `SeedMixer.ForLevel(seme della partita, profondità)`: lo stesso seme dà lo stesso dungeon, livello per livello, anche tornando a giocare dopo una morte con `-seed`. Il generatore usa `SplitMix64Source` (ADR-029) | Lo stesso principio della M5: un seme per cosa, ricavato e non condiviso, così il loot non cambia la mappa e la mappa non cambia il loot |
 | D9 | **Come si carica un livello generato** | Una scena `Level_Crypt`, costruita una volta dallo strumento dell'editor, con l'atmosfera, il volume del post-processing e un `DungeonLevel` che genera e costruisce all'avvio. Il `LevelManager` la carica come oggi, con una **profondità**: l'uscita del livello N porta a `Level_Crypt` con profondità N + 1. Il livello 4 per ora **non ha la scala** (le caverne arrivano alla M7) | Il piano § 4.3 prevedeva proprio "la scena vuota in cui il generatore costruisce il dungeon". Atmosfera e luci restano impostazioni di scena, come alla M3 |
 | D10 | **Finestra dell'editor** | *DarkDescent → Generatore di dungeon*, in **UI Toolkit**: seme, profondità, pulsanti "genera" e "seme successivo", la mappa disegnata a celle colorate (pavimento, muro, ingresso, scala, nemici, casse) e i numeri del livello (stanze, celle, distanza tra ingresso e scala). Un pulsante salva la mappa generata in `Levels/` come testo | Si vedono cento livelli in un minuto, senza Play Mode. Salvare un livello generato come mappa trasforma un caso strano in un livello di prova per i test |
-| D11 | **Divisione dell'asmdef** (piano § 4.5) | **Rimandata.** Al passo 6.11 scrivo il grafo delle dipendenze tra le cartelle di `Scripts/` e, se non ci sono cicli da rompere, divido solo la logica pura (`DarkDescent.Core`: griglia, generatore, semi, formule) da quella con i `MonoBehaviour`. Se ci sono cicli, resta un assembly e l'ADR dice perché | Oggi un assembly compila in pochi secondi. Dividere per area vuol dire rompere le dipendenze incrociate tra le cartelle, se ci sono, con interfacce che servono solo alla divisione. La logica pura è già separata (piano § 4.1): spostarla in un assembly suo costa poco e garantisce che non tocchi Unity |
+| D11 | **Divisione dell'asmdef** (piano § 4.5) | **Decisa al passo 6.11: a strati, `DarkDescent.Core` e `DarkDescent` (ADR-032).** **Rimandata.** Al passo 6.11 scrivo il grafo delle dipendenze tra le cartelle di `Scripts/` e, se non ci sono cicli da rompere, divido solo la logica pura (`DarkDescent.Core`: griglia, generatore, semi, formule) da quella con i `MonoBehaviour`. Se ci sono cicli, resta un assembly e l'ADR dice perché | Oggi un assembly compila in pochi secondi. Dividere per area vuol dire rompere le dipendenze incrociate tra le cartelle, se ci sono, con interfacce che servono solo alla divisione. La logica pura è già separata (piano § 4.1): spostarla in un assembly suo costa poco e garantisce che non tocchi Unity |
 | D12 | **Riavvio dopo la morte** | ~~Resta com'è: un seme nuovo, quindi un dungeon nuovo, a meno di `-seed`~~ Sostituita da D13 | ~~È il comportamento di Diablo, e con `-seed` si rigioca lo stesso dungeon per provare~~ Provando la build, Mirco ha chiesto da dove si ricomincia: dal livello 1 di una cripta nuova, senza niente |
 
 ### Decisioni nate dalla prova della build (5 ottobre 2026)
@@ -444,6 +444,23 @@ il cursore e si chiude con il pannello. 131 EditMode e 103 PlayMode verdi.
 1. Grafo delle dipendenze tra le cartelle di `Scripts/`, dagli `using` e dai tipi usati.
 2. Decisione secondo D11, con l'ADR.
 
+**Com'è andata (5 ott 2026).** Il grafo l'ha ricavato uno script dai tipi dichiarati in ogni
+cartella e usati nelle altre, non solo dagli `using`. Per cartelle è un unico groviglio: tutte le
+aree tranne Audio, Input, Rendering e Stats stanno in un ciclo. Molto passa dal CompositionRoot,
+ma restano cicli veri: Combat e Items, Levels e UI. Qualche falso positivo va scartato a mano: la
+costante `TextKeys.Chest` scambiata per la classe `Chest`, il metodo `ItemStats.ShieldBlock`. La
+domanda di D11 però è un'altra: il codice senza MonoBehaviour usa mai componenti di scena? No,
+con un'eccezione sola, `LevelBuilder`, che non è un componente ma monta le scene. Quindi
+**si divide a strati** (ADR-032): `DarkDescent.Core` in `Scripts/Core/<Area>/`, con logica e dati
+(56 file spostati con `git mv`, GUID invariati), e `DarkDescent` con i componenti, che lo
+referenzia. Il primo tentativo ha portato in `Core` anche `LevelTileset`, che usa `VolumeProfile`
+della render pipeline: lo usa solo il runtime, ed è tornato indietro con `MarkerPrefab`, così
+`Core` dipende solo da UnityEngine. CompositionRoot e HitStop, gli unici componenti della vecchia
+`Core`, sono in `Composition/`. Un assembly senza UnityEngine è scartato: griglia, inventario e
+generatori usano `Vector2Int`, `RectInt` e le definizioni ScriptableObject, e ci sarebbero stati
+solo una ventina di file. La regola su dove va un file nuovo è nelle convenzioni (11). Test:
+`Core` non contiene MonoBehaviour e non referenzia `DarkDescent`. 132 EditMode e 103 PlayMode verdi.
+
 ## Passo 6.12 — Chiusura
 
 1. Build della CI da provare: quattro livelli di fila, stesso dungeon con `-seed 4711`,
@@ -512,7 +529,7 @@ il cursore e si chiude con il pannello. 131 EditMode e 103 PlayMode verdi.
 - [x] Automappa nelle due viste
 - [x] Ripartenza dall'ingresso del livello
 - [x] Tooltip delle statistiche
-- [ ] Dipendenze e asmdef
+- [x] Dipendenze e asmdef
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m6`

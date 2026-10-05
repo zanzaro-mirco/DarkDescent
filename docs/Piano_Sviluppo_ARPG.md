@@ -36,7 +36,7 @@
 | **Engine** | Unity 6.3 LTS — **6000.3.24f1**, bloccata per tutto il progetto (ADR-001) |
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
-| **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
+| **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
 | **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) |
 | **Milestone corrente** | **M6 — "Dungeon infinito"** → `docs/milestones/M6_Dungeon_infinito.md` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
@@ -226,6 +226,8 @@ Senza questo, in M8 si scopre che un riferimento a uno ScriptableObject non sopr
 ### 4.5 Assembly definition
 
 Oggi c'è un solo `DarkDescent.asmdef` (ADR-003). Da M2 si aggiunge `DarkDescent.Tests.EditMode`, che referenzia `DarkDescent` e il Test Framework — possibile proprio perché il codice non sta in `Assembly-CSharp`. La divisione per area (Player, Combat, Items…) si valuta in M6, sulle dipendenze reali.
+
+**Decisa alla M6 (ADR-032):** non per area, perché tra le aree ci sono cicli veri (Combat e Items, Levels e UI), ma a strati. `DarkDescent.Core` ha logica e dati senza MonoBehaviour, `DarkDescent` i componenti; un test controlla che `Core` resti senza componenti.
 
 ---
 

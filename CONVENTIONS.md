@@ -26,6 +26,7 @@
 8. **ScriptableObject = dati immutabili.** Mai stato runtime dentro un SO: in editor sembra funzionare, in build si rompe.
 9. **Un file, una classe.** Il nome del file coincide con il nome della classe.
 10. **Namespace** `DarkDescent.<Area>` — es. `DarkDescent.Combat`, `DarkDescent.Items`.
+11. **Due assembly (ADR-032).** Logica e dati senza componenti di scena in `Scripts/Core/<Area>/` (assembly `DarkDescent.Core`, solo UnityEngine); MonoBehaviour e codice che usa i pacchetti in `Scripts/<Area>/` (assembly `DarkDescent`). Il namespace segue l'area, non l'assembly.
 
 ## Commenti
 

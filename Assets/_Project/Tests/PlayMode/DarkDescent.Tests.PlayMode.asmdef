@@ -3,6 +3,7 @@
     "rootNamespace": "DarkDescent.Tests",
     "references": [
         "DarkDescent",
+        "DarkDescent.Core",
         "Unity.InputSystem",
         "UnityEngine.UI",
         "Unity.TextMeshPro",

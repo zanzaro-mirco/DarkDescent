@@ -1,15 +1,7 @@
 {
-    "name": "DarkDescent",
+    "name": "DarkDescent.Core",
     "rootNamespace": "DarkDescent",
-    "references": [
-        "DarkDescent.Core",
-        "Unity.InputSystem",
-        "UnityEngine.UI",
-        "Unity.TextMeshPro",
-        "Unity.Cinemachine",
-        "Unity.AI.Navigation",
-        "Unity.RenderPipelines.Core.Runtime"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
