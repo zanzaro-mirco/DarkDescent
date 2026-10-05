@@ -20,6 +20,18 @@ namespace DarkDescent.Localization
         public const string TooltipHeal = "tooltip.heal";
         public const string TooltipDrink = "tooltip.drink";
 
+        // le spiegazioni delle righe del pannello del personaggio (D16 della M6), con i titoli dalle sue righe
+        public const string StatNames = "hud.stat_names";
+        public const string TipStrength = "stat.tip.strength";
+        public const string TipDexterity = "stat.tip.dexterity";
+        public const string TipMagic = "stat.tip.magic";
+        public const string TipVitality = "stat.tip.vitality";
+        public const string TipLife = "stat.tip.life";
+        public const string TipArmor = "stat.tip.armor";
+        public const string TipDamage = "stat.tip.damage";
+        public const string TipHitChance = "stat.tip.hit_chance";
+        public const string TipBlock = "stat.tip.block";
+
         // le righe degli affissi nel tooltip, una per effetto
         public const string EffectWeaponDamagePercent = "affix.effect.weapon_damage_percent";
         public const string EffectArmorPercent = "affix.effect.armor_percent";

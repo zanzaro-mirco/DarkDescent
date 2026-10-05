@@ -422,6 +422,23 @@ PlayMode verdi.
 1. Una zona del cursore per ogni riga del pannello del personaggio, con il tooltip degli
    oggetti riusato e i testi nella tabella delle lingue.
 
+**Com'è andata (5 ott 2026).** Non una zona per riga: una sola zona invisibile (`StatLinesView`)
+sopra le due colonne, che dal punto del cursore ricava la riga della colonna dei nomi con
+`TMP_TextUtilities.FindIntersectingLine`, come la griglia dell'inventario ricava la cella; il
+pannello agisce solo quando la riga cambia. Il riquadro è lo stesso componente dei tooltip degli
+oggetti, con un metodo in più per un testo libero (`ItemTooltip.ShowText`), messo a destra della
+finestra e centrato sulla riga, così non copre le altre righe. È una **copia sua** nella HUD
+(`StatTooltip`): con quello dell'inventario, un ridisegno dell'inventario aperto l'avrebbe
+spento. Titolo e spiegazione vengono tutti e due dalla tabella delle lingue (`hud.stat_names` e
+nove chiavi `stat.tip.*`), con le formule in parole (Forza: +1% di danno a punto; Destrezza: ogni
+2 punti +1% a colpire e di blocco; Vitalità: 2 punti vita; Armatura: −1% alla probabilità dei
+nemici di colpirti; la formula del colpo e quella del blocco). Il titolo non si legge dalla
+colonna dei nomi: al cambio di lingua quella si traduce da sé, e poteva arrivare dopo il tooltip.
+`CharacterPanel.LineTips` lega le righe alle chiavi, con null per la riga vuota. Test: righe e
+spiegazioni coincidono nelle due lingue; in gioco il tooltip compare sulla Forza, a destra della
+finestra, cambia sull'Armatura, sparisce sulla riga vuota e fuori, segue la lingua senza muovere
+il cursore e si chiude con il pannello. 131 EditMode e 103 PlayMode verdi.
+
 ## Passo 6.11 — Dipendenze e asmdef
 
 1. Grafo delle dipendenze tra le cartelle di `Scripts/`, dagli `using` e dai tipi usati.
@@ -494,7 +511,7 @@ PlayMode verdi.
 - [x] Pozioni e cintura
 - [x] Automappa nelle due viste
 - [x] Ripartenza dall'ingresso del livello
-- [ ] Tooltip delle statistiche
+- [x] Tooltip delle statistiche
 - [ ] Dipendenze e asmdef
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI

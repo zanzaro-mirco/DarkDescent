@@ -9,7 +9,8 @@ namespace DarkDescent.UI
     /// <summary>
     /// Il riquadro con la descrizione di un oggetto. Sta sopra l'oggetto, o sotto se sopra non c'è
     /// spazio, oppure accanto a un altro tooltip per il confronto (D9 della M5), e non esce mai
-    /// dallo schermo. Lo accende e lo spegne l'inventario: da solo non guarda niente.
+    /// dallo schermo. Lo accende e lo spegne chi lo usa: da solo non guarda niente. Dalla M6 mostra
+    /// anche un testo libero, per le righe del pannello del personaggio (D16).
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RectTransform))]
@@ -53,6 +54,19 @@ namespace DarkDescent.UI
             PlaceBeside(min, max);
         }
 
+        /// <summary>
+        /// Un testo già pronto, in rich text, a destra di <paramref name="beside"/> e centrato in
+        /// altezza su <paramref name="worldPoint"/>: le righe del pannello del personaggio.
+        /// </summary>
+        public void ShowText(string text, RectTransform beside, Vector3 worldPoint)
+        {
+            _text.SetText(text);
+            Resize();
+            GetLocalRect(beside, out _, out Vector2 max);
+            Vector2 point = _container.InverseTransformPoint(worldPoint);
+            Place(max.x + _gap + _box.sizeDelta.x / 2f, point.y);
+        }
+
         public void Hide()
         {
             _box.gameObject.SetActive(false);
@@ -70,9 +84,13 @@ namespace DarkDescent.UI
         {
             ItemDescription.Write(_builder, item, meetsRequirements, localizer, header);
             _text.SetText(_builder);
-            _box.gameObject.SetActive(true);
+            Resize();
+        }
 
-            // misurato dal testo: niente layout group da ricostruire
+        // misurato dal testo: niente layout group da ricostruire
+        private void Resize()
+        {
+            _box.gameObject.SetActive(true);
             _box.sizeDelta = _text.GetPreferredValues() + 2f * _padding;
         }
 

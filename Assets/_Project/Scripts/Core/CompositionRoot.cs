@@ -134,7 +134,7 @@ namespace DarkDescent.Core
             _reader = _player.GetComponent<PlayerInputReader>();
             _inventoryPanel.Bind(inventory, _reader, _localizer);
             _itemCursor.Bind(inventory, _reader);
-            _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _reader);
+            _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _reader, _localizer);
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _automap.Bind(_exploration, _reader);
