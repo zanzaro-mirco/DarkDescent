@@ -49,7 +49,7 @@ Tutte confermate da Mirco il 5 ottobre 2026.
 | D1 | **Quali livelli si generano** | Tutti e quattro i livelli della cripta. `Level_01` e `Level_02` escono dal percorso del gioco ma **restano nel repo** come livelli di prova: i test che hanno bisogno di una stanza nota continuano a usarli, e il loro builder è lo stesso del generatore (D3) | Un primo livello sempre uguale si impara a memoria alla seconda partita. Tenere le mappe a mano costa poco e dà ai test un terreno che non cambia |
 | D2 | **Algoritmo** | **BSP** sulla griglia di celle da 4 m: il rettangolo del livello (circa **28 × 28 celle**) si divide finché i pezzi sono piccoli, in ogni foglia una stanza da 3 × 3 a 7 × 7 celle, poi corridoi larghi una cella tra le stanze sorelle, risalendo l'albero. Ingresso nella stanza di partenza; scala nella stanza **più lontana** dall'ingresso, contando le celle con una visita in ampiezza. Torce sui muri alti, una ogni tante celle di muro | È l'algoritmo del piano. Collegando le sorelle, il livello è connesso per costruzione: il flood fill lo verifica senza doverlo aggiustare. La scala lontana obbliga ad attraversare il livello |
 | D3 | **Un builder solo, a runtime** | La costruzione esce da `LevelMapBuilder` e diventa `LevelBuilder`, nell'assembly del gioco: prende una `LevelMap` e istanzia i moduli con `Instantiate`. Lo usano il generatore a runtime e lo strumento dell'editor per le mappe a mano | Due builder divergerebbero alla prima correzione. Con uno solo, un livello generato e uno a mano sono identici per luci, muri, click e NavMesh, e quello che è stato provato alla M3 vale anche qui |
-| D4 | **NavMesh o A\*** (il piano chiede di decidere con i dati) | **NavMesh a runtime**, con `NavMeshSurface.BuildNavMesh()` dopo la costruzione. Al passo 6.4 si **misura** il tempo del bake in build: se supera **1 s** dietro la dissolvenza, o se i corridoi larghi una cella bloccano gli scheletri, si torna qui con i numeri | Movimento del cavaliere, inseguimento, evitamento tra scheletri e click sul pavimento si basano tutti sul `NavMeshAgent` dalla M1. Un A\* nostro darebbe controllo sui costi, ma vorrebbe anche un movimento e un evitamento nostri: settimane, senza un problema da risolvere |
+| D4 | **NavMesh o A\*** (il piano chiede di decidere con i dati) | **Chiusa il 5 ott 2026 con i numeri della build: 12–44 ms a livello, NavMesh compreso (passo 6.4).** **NavMesh a runtime**, con `NavMeshSurface.BuildNavMesh()` dopo la costruzione. Al passo 6.4 si **misura** il tempo del bake in build: se supera **1 s** dietro la dissolvenza, o se i corridoi larghi una cella bloccano gli scheletri, si torna qui con i numeri | Movimento del cavaliere, inseguimento, evitamento tra scheletri e click sul pavimento si basano tutti sul `NavMeshAgent` dalla M1. Un A\* nostro darebbe controllo sui costi, ma vorrebbe anche un movimento e un evitamento nostri: settimane, senza un problema da risolvere |
 | D5 | **Da cosa si cuoce il NavMesh** | Dai **collider** dei moduli (`PhysicsColliders`), non dalle mesh renderizzate. I collider ci sono già, perché il click usa il raggio | In build una mesh senza Read/Write non si può leggere dalla CPU, e il NavMesh verrebbe vuoto: nell'editor funziona, in build no. Abilitare Read/Write su tutti i modelli raddoppia la loro memoria |
 | D6 | **Contenuto per profondità** | Scheletri: **3 + 2 × profondità** (5 al livello 1, 11 al livello 4), mai nella stanza d'ingresso, a gruppi di 1–3 per stanza. Casse: **1 + profondità / 2** (1, 2, 2, 3). Barili, casse di legno e pilastri come scenografia, qualcuno per stanza. Numeri in uno ScriptableObject `DungeonSettings`, per ritararli senza codice | Il primo livello resta morbido, il quarto è pieno. Con 5–11 scheletri per livello i rari della M5 escono più spesso: lo si guarda in build e si ritara alla M10 |
 | D7 | **Casse** | Una cassa è un'`Interactable`: con un click il cavaliere ci va, la cassa si apre (il coperchio ruota, se il modello lo ha separato, altrimenti cambia modello) con un suono e lascia **un oggetto** da una `LootTable` sua: cade sempre, e la rarità si tira come per i nemici. Seme della cassa ricavato come quello dei nemici, dalla cella | Riusa interazione, loot table e seme della M5. Una cassa che dà sempre qualcosa è il premio di una stanza in fondo al corridoio |
@@ -232,8 +232,11 @@ fa costruire il livello: a schermo già nero, perché la dissolvenza viene prima
 (trappola 6). L'uscita porta la profondità di arrivo (`LevelExit.TargetDepth`; per le mappe a
 mano, se manca, la successiva), e l'etichetta "Descend to level N" la usa. `Core` parte ora da
 `Level_Crypt`. **Misura (D4):** nei test, nell'editor, un livello costa 30–50 ms in tutto
-(generazione 0–7, costruzione 5–17, NavMesh 11–25): molto sotto il secondo. Il numero della
-build si legge nel `Player.log` della prova. **Test** (trappola 10): `LoadCore` dei test carica
+(generazione 0–7, costruzione 5–17, NavMesh 11–25): molto sotto il secondo. **In build**
+(`Player.log` della prova di Mirco, 5 ott 2026, RTX 5070 Ti Laptop): il primo livello della
+partita 44 ms (generazione 10, costruzione 18, NavMesh 16), da freddo; i successivi 15 ms
+(1 + 3 + 11) e 12 ms (0 + 4 + 8). Un livello costa al più il 4,4% del secondo concesso da D4,
+quindi D4 si chiude: NavMesh a runtime. **Test** (trappola 10): `LoadCore` dei test carica
 `Core` con `Level_01` nello stesso frame, come faceva la sandbox, e i test che cercano la stanza
 dello scudo o il primo scheletro restano com'erano; `LoadGeneratedCore` parte dalla cripta.
 Aggiornati i tre test che si aspettavano `Level_01` come primo livello (avvio, riavvio dopo la
@@ -449,7 +452,7 @@ il punto del cavaliere sempre al centro; il livello fatto a mano non ha automapp
 - [x] Builder a runtime, mappe a mano ricostruite uguali
 - [x] Generatore con i test sui 500 semi
 - [x] Contenuto per profondità
-- [x] Livelli generati nel gioco, NavMesh a runtime misurato (in build: da leggere nel `Player.log`)
+- [x] Livelli generati nel gioco, NavMesh a runtime misurato (in build 12–44 ms a livello: D4 chiusa)
 - [x] Casse
 - [x] Decisioni D13–D16 confermate (dopo la prova della build)
 - [x] Finestra dell'editor
