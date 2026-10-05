@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.12**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.13**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -20,11 +20,12 @@
 | v2.9 | 3 ott 2026 | Prima build pubblica su itch.io spostata da M3 a M10, quando il gioco è finibile: decisione di Mirco. A M3 resta la prova della build Web dall'artifact della CI |
 | v2.10 | 3 ott 2026 | M3 chiusa (tag `m3`), con le lezioni · § 4.3 decisa (ADR-014) · build Web provata e tenuta (ADR-019) · ADR-014…019 |
 | v2.11 | 4 ott 2026 | M4 chiusa (tag `m4`), con le lezioni · attributi e formula del colpo confermati (§ 2, ADR-020) · inventario a click-e-click invece del drag & drop (ADR-023) · ADR-020…024 |
+| v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
 | v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
 
 ---
 
-## Stato del progetto — aggiornato al 4 ottobre 2026
+## Stato del progetto — aggiornato al 5 ottobre 2026
 
 | | |
 |---|---|
@@ -35,11 +36,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.asmdef` in `Assets/_Project/Scripts/` (ADR-003) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) |
-| **Milestone corrente** | **M5 — "Loot casuale"** → `docs/milestones/M5_Loot_casuale.md` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) |
+| **Milestone corrente** | **M6 — "Dungeon infinito"** → `docs/milestones/M6_Dungeon_infinito.md` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…024) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…031) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -93,7 +94,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 
 **Totale stimato:** circa 98–143 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco). Per le milestone ancora aperte restano 85–130 ore: a 6–10 h a settimana sono 9–22 settimane di lavoro effettivo; con pause e settimane saltate, **3–6 mesi di calendario**.
 
-**Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1.
+**Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Il prossimo, se serve, si fissa alla chiusura della M8.
 
 ### 1.4 Proprietà intellettuale e licenze degli asset
 
@@ -239,7 +240,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M2.5 | Pipeline automatica | test e build in CI | 2–4 | ✅ 3 ott |
 | M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, build Web provata | 9–14 | ✅ 3 ott |
 | M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | ✅ 4 ott |
-| M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | |
+| M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | ✅ 5 ott |
 | M6 | "Dungeon infinito" | cripta procedurale | 10–13 | |
 | M7 | "Le profondità" | caverne, nuovi nemici, automappa | 11–16 | |
 | M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 6–9 | |
@@ -321,6 +322,18 @@ Chiusa il 4 ottobre 2026: 62 test EditMode e 77 PlayMode verdi, build Windows de
 - **Nella UI conta quando arriva l'evento:** il click di uGUI arriva al rilascio, quindi prendere un oggetto usa la pressione. Una finestra spenta non riceve l'uscita del cursore, e chi la chiude deve dimenticare cella e slot sotto il cursore. Un fondo trasparente acceso solo con un oggetto preso impedisce al click di arrivare al mondo.
 - **Le icone si fanno dai modelli** (ADR-024): un oggetto nuovo ha l'icona con un click, ma ogni modello ha il suo verso, e lo scudo fotografato da davanti mostrava il retro.
 - **`git mv` di un asset tiene il GUID ma non il nome interno:** `m_Name` va corretto, altrimenti l'Inspector e i log mostrano il nome vecchio.
+
+### M5 — "Loot casuale" ✅
+
+Chiusa il 5 ottobre 2026: 98 test EditMode e 89 PlayMode verdi, build Windows della CI provata da Mirco con `-seed 4711`. Lezioni emerse:
+
+- **Le lingue vanno per prime** (ADR-025): ogni testo nuovo della milestone è nato con la sua chiave. I test che confrontavano frasi italiane sono passati all'inglese, con la preferenza della lingua cancellata prima di ogni scena; un test di copertura trova le chiavi che mancano prima che lo faccia un giocatore.
+- **Una prova statistica va dimensionata sulla varianza:** su 10.000 estrazioni il 65% dei normali è uscito 63,9%, a 2,4 deviazioni standard, e la tolleranza dell'1% non reggeva. Con 100.000 la deviazione scende a 0,15 punti.
+- **Il seme va legato a qualcosa che non cambia** (ADR-029): la cella del nemico, presa in `Awake`, rende il drop indipendente dall'ordine delle uccisioni. Il `Preview` del drop permette ai test di cercare il seme che fa cadere l'oggetto che serve, invece di scriverlo a mano.
+- **Il danno con la virgola si vede solo in build** (ADR-031): nei test i tiri fissi davano valori tondi, e il "0" all'ultimo colpo l'ha trovato Mirco giocando.
+- **In color space lineare la trasparenza della UI schiarisce molto:** uno sfondo al 30% sembra quasi pieno, e i colori delle celle vanno scelti scuri e controllati in foto.
+- **Due componenti uguali nella scena rendono ambiguo `FindFirstObjectByType`:** con il secondo tooltip del confronto, il pannello espone i suoi due riferimenti ai test.
+- **Le asserzioni sui testi colorati** cercano il testo tra i tag (`>Lama dello scheletro<`) o la costante del colore, non la frase intera.
 
 ---
 

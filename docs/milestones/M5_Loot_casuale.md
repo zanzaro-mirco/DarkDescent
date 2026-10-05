@@ -400,6 +400,17 @@ personaggio, e il risultato è sempre un intero, almeno 1. Così la vita resta i
 l'ultimo colpo mostra quanto toglie davvero. Test: 98 EditMode (danno sempre intero con la
 Forza, almeno 1) e 89 PlayMode verdi.
 
+**Com'è andata (5 ott 2026).** Test verdi anche in CI sul commit della correzione. GIF del
+README (`docs/media/m5_loot.gif`, 800 × 450, 2,1 MB in LFS) registrata da un test usa e
+getta nel livello 1: due scheletri, uno magico e uno raro, una parata, poi nell'inventario
+il tooltip di una spada magica e di un pugnale raro accanto alla spada equipaggiata. La
+palette della GIF tiene da parte i colori delle rarità: scelta solo per frequenza, perdeva
+blu e oro, cioè proprio quello che la GIF deve mostrare. ADR-025…031 in `DECISIONS.md`
+(ADR-020 rimanda al danno intero). **Punto di controllo:** dalla chiusura della M2 (3 ott)
+alla chiusura della M5 (5 ott) sono passati 2 giorni di calendario contro le circa 7
+settimane delle 42 h stimate per M2.5–M5: rapporto 0,04, nessun taglio. Lezioni nel piano
+(v2.13), tabella dello stato aggiornata.
+
 ---
 
 ## Trappole note
@@ -474,7 +485,7 @@ Forza, almeno 1) e 89 PlayMode verdi.
 - [x] Loot table, profondità e seme da riga di comando
 - [x] Nomi composti per lingua, colori, tooltip con confronto
 - [x] Scenario della Definition of Done provato in build
-- [ ] Test verdi in CI
-- [ ] Punto di controllo misurato
+- [x] Test verdi in CI
+- [x] Punto di controllo misurato
 - [ ] GIF, ADR, lezioni nel piano, tag `m5`
 - [ ] Scheda della M6 scritta prima di cominciarla

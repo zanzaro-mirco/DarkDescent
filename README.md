@@ -5,19 +5,23 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Loot: lo scheletro cade e lascia la sua lama, il cavaliere la raccoglie, la equipaggia dall'inventario e il danno sale](docs/media/m4_loot.gif)
+![Loot casuale: due scheletri lasciano un oggetto magico e uno raro, il cavaliere para un colpo con lo scudo, e nell'inventario il pugnale raro si confronta con la spada equipaggiata](docs/media/m5_loot.gif)
 
 ## Stato
 
-**M4 — "Raccolgo roba"** chiusa il 4 ottobre 2026 (tag `m4`): attributi alla Diablo
-(Forza, Destrezza, Magia, Vitalità) e una formula del colpo con colpi mancati e danno
-variabile. Gli scheletri lasciano la loro lama, uno scudo aspetta nella prima stanza: un
-click e il cavaliere li raccoglie. Inventario a griglia 10 × 4 con oggetti su più celle,
-presi e posati con un click come in Diablo 1, slot di arma e scudo visibili in mano al
-cavaliere, tooltip con danno e requisiti, pannello del personaggio che si aggiorna.
-Prossima: **M5 — "Loot casuale"**.
+**M5 — "Loot casuale"** chiusa il 5 ottobre 2026 (tag `m5`): oggetti normali, magici
+e rari, con nome e luce del loro colore, da otto basi e undici affissi (danno, Armatura,
+blocco, attributi, vita). I nomi si compongono secondo la lingua ("Sturdy Axe", "Ascia
+Robusta"), il tooltip mostra gli affissi e mette accanto l'oggetto equipaggiato. Lo scudo
+blocca una parte dei colpi. Il gioco è in inglese e in italiano. Con lo stesso seme gli
+stessi nemici lasciano gli stessi oggetti, in qualunque ordine si uccidano.
+Prossima: **M6 — "Dungeon infinito"**.
 
 Milestone precedenti:
+
+- **M4 — "Raccolgo roba"** (tag `m4`): attributi alla Diablo e formula del colpo, oggetti
+  a terra, inventario a griglia a click-e-click, arma e scudo in mano, pannello del
+  personaggio ([GIF](docs/media/m4_loot.gif)).
 
 - **M3 — "Un dungeon fatto a mano"** (tag `m3`): due livelli di una cripta buia da mappe
   di testo, torce, scala per scendere, camera Cinemachine, audio posizionale, build Web
@@ -40,6 +44,13 @@ Milestone precedenti:
 - `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
   con un oggetto preso, un click fuori dalle finestre lo lascia a terra
 - `C` pannello del personaggio
+- `F9` cambia lingua (inglese, italiano); la scelta resta per gli avvii successivi
+
+**Opzioni da riga di comando:**
+
+- `-lang it` avvia in italiano (`en` per l'inglese)
+- `-seed 4711` usa quel seme per il loot; senza, il seme è casuale e si legge nel log
+  (`Player.log`), con il comando per rigiocarlo
 
 ## CI
 
