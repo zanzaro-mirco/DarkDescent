@@ -89,7 +89,8 @@ namespace DarkDescent.Tests
 
             var runtime = SceneManager.CreateScene("RuntimeLevel");
             SceneManager.SetActiveScene(runtime);
-            var context = RuntimeBuilder().Build(Map("Level_01"));
+            // come DungeonLevel: i nemici si accendono dopo il NavMesh, o i loro agent nascono senza appoggio
+            var context = RuntimeBuilder().Build(Map("Level_01"), activateEnemies: false);
             yield return null;
 
             Assert.AreEqual(runtime, context.gameObject.scene, "il livello nasce nella scena attiva");
@@ -111,6 +112,9 @@ namespace DarkDescent.Tests
             var surface = context.GetComponentInChildren<NavMeshSurface>();
             surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             surface.BuildNavMesh();
+            context.transform.Find(LevelBuilder.EnemiesGroup).gameObject.SetActive(true);
+            yield return null;
+            Assert.IsTrue(context.Enemies.All(e => e.GetComponent<NavMeshAgent>().isOnNavMesh), "gli scheletri sul NavMesh");
             Vector3 entrance = context.GetComponentInChildren<LevelEntrance>().transform.position;
             Assert.IsTrue(NavMesh.SamplePosition(entrance, out _, 0.5f, NavMesh.AllAreas), "l'ingresso sta sul NavMesh cotto a runtime");
         }

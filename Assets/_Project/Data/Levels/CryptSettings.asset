@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c74e9dbdb448ed64691eec5fc3b48263, type: 3}
+  m_Name: CryptSettings
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Levels.DungeonSettings
+  _width: 28
+  _height: 28
+  _minLeaf: 6
+  _maxLeaf: 11
+  _minRoom: 3
+  _maxRoom: 7
+  _lastDepth: 4
+  _enemiesBase: 3
+  _enemiesPerDepth: 2
+  _minGroup: 1
+  _maxGroup: 3
+  _chestsBase: 1
+  _depthsPerChest: 2
+  _maxPropsPerRoom: 2
+  _cellsPerTorch: 4

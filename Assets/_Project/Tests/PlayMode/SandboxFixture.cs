@@ -69,8 +69,24 @@ namespace DarkDescent.Tests
             FindPlayer();
         }
 
-        /// <summary>Core da sola, come nella build: il LevelManager carica il primo livello.</summary>
+        /// <summary>
+        /// Core con il livello 1 fatto a mano, caricato nello stesso frame: il LevelManager usa quello
+        /// invece della cripta generata. Per i test che cercano una stanza o uno scheletro precisi
+        /// (trappola 10 della M6).
+        /// </summary>
         protected IEnumerator LoadCore()
+        {
+            ForgetLanguage();
+            Mouse = InputSystem.AddDevice<Mouse>();
+            SceneManager.LoadScene("Core");
+            SceneManager.LoadScene("Level_01", LoadSceneMode.Additive);
+            yield return WaitForLevel();
+            yield return null;
+            FindPlayer();
+        }
+
+        /// <summary>Core da sola, come nella build: il LevelManager genera il primo livello della cripta.</summary>
+        protected IEnumerator LoadGeneratedCore()
         {
             ForgetLanguage();
             Mouse = InputSystem.AddDevice<Mouse>();

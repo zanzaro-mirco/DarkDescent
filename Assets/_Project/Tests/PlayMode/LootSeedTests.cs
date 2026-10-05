@@ -54,7 +54,9 @@ namespace DarkDescent.Tests
                 Assert.AreEqual(expected[name], fresh.Length == 0 ? "niente" : Describe(fresh.Single().Item), name);
             }
 
+            // lo stesso livello fatto a mano, come LoadCore
             SceneManager.LoadScene("Core");
+            SceneManager.LoadScene("Level_01", LoadSceneMode.Additive);
             yield return WaitForLevel();
             Root.UseLootSeed(4711UL);
             CollectionAssert.AreEquivalent(expected, Previews(), "stesso seme, stessa partita");

@@ -16,8 +16,8 @@ namespace DarkDescent.Levels
     [DisallowMultipleComponent]
     public class LevelManager : MonoBehaviour
     {
-        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto. Ricomincia riparte da qui (D8).")]
-        [SerializeField] private string _firstLevel = "Level_01";
+        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto, alla profondità 1. Ricomincia riparte da qui (D8). Dalla M6 è la cripta generata.")]
+        [SerializeField] private string _firstLevel = "Level_Crypt";
 
         [SerializeField] private string _firstEntrance = "Start";
 
@@ -40,6 +40,12 @@ namespace DarkDescent.Levels
 
         public bool IsTransitioning { get; private set; }
 
+        /// <summary>
+        /// Il seme della partita, da cui ogni livello generato ricava il suo (D8 della M6). Lo imposta
+        /// il composition root prima del primo caricamento; i test lo cambiano per rigiocare un dungeon.
+        /// </summary>
+        public ulong RunSeed { get; set; }
+
         private void Awake()
         {
             _playerAgent = _player.GetComponent<NavMeshAgent>();
@@ -58,7 +64,7 @@ namespace DarkDescent.Levels
                 return;
             }
 
-            LoadLevel(_firstLevel, _firstEntrance);
+            LoadLevel(_firstLevel, _firstEntrance, 1);
         }
 
         private void OnDisable()
@@ -69,14 +75,15 @@ namespace DarkDescent.Levels
             }
         }
 
-        public void LoadLevel(string sceneName, string entranceId)
+        /// <param name="depth">La profondità del livello: conta per i livelli generati, quelli fatti a mano hanno la loro.</param>
+        public void LoadLevel(string sceneName, string entranceId, int depth)
         {
             if (IsTransitioning)
             {
                 return;
             }
 
-            StartCoroutine(Transition(sceneName, entranceId));
+            StartCoroutine(Transition(sceneName, entranceId, depth));
         }
 
         private void HandleExitRequested(LevelExit exit)
@@ -84,11 +91,11 @@ namespace DarkDescent.Levels
             // un morto che scivola sulle scale non cambia livello
             if (!_playerHealth.IsDead)
             {
-                LoadLevel(exit.TargetScene, exit.TargetEntrance);
+                LoadLevel(exit.TargetScene, exit.TargetEntrance, exit.TargetDepth > 0 ? exit.TargetDepth : CurrentLevel.Depth + 1);
             }
         }
 
-        private IEnumerator Transition(string sceneName, string entranceId)
+        private IEnumerator Transition(string sceneName, string entranceId, int depth)
         {
             IsTransitioning = true;
 
@@ -121,7 +128,8 @@ namespace DarkDescent.Levels
 
             yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 
-            if (!TryGetContext(SceneManager.GetSceneByName(sceneName), out LevelContext context))
+            // un livello generato si costruisce qui, a schermo nero (trappola 6)
+            if (!TryGetContext(SceneManager.GetSceneByName(sceneName), depth, out LevelContext context))
             {
                 Debug.LogError($"La scena {sceneName} non ha un LevelContext alla radice.", this);
                 IsTransitioning = false;
@@ -162,7 +170,7 @@ namespace DarkDescent.Levels
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
                 Scene scene = SceneManager.GetSceneAt(i);
-                if (scene != gameObject.scene && scene.isLoaded && TryGetContext(scene, out context))
+                if (scene != gameObject.scene && scene.isLoaded && TryGetContext(scene, 1, out context))
                 {
                     return true;
                 }
@@ -172,7 +180,9 @@ namespace DarkDescent.Levels
             return false;
         }
 
-        private static bool TryGetContext(Scene scene, out LevelContext context)
+        // Il contesto alla radice della scena; in una scena di livello generato, il livello lo costruisce
+        // il suo DungeonLevel, alla profondità chiesta.
+        private bool TryGetContext(Scene scene, int depth, out LevelContext context)
         {
             context = null;
             if (!scene.IsValid() || !scene.isLoaded)
@@ -184,6 +194,15 @@ namespace DarkDescent.Levels
             {
                 if (root.TryGetComponent(out context))
                 {
+                    return true;
+                }
+            }
+
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (root.TryGetComponent(out DungeonLevel dungeon))
+                {
+                    context = dungeon.Build(RunSeed, depth);
                     return true;
                 }
             }

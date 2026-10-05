@@ -25,7 +25,7 @@ namespace DarkDescent.Tests
             PlayerAgent.Warp(new Vector3(30f, 0f, 30f));
             yield return new WaitForSeconds(1.5f);
 
-            Object.FindFirstObjectByType<LevelManager>().LoadLevel(SandboxScene, "Start");
+            Object.FindFirstObjectByType<LevelManager>().LoadLevel(SandboxScene, "Start", 1);
             yield return WaitForLevel();
             yield return null;
 

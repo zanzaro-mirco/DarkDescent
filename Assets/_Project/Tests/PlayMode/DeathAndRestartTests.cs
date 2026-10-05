@@ -98,7 +98,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(player.GetComponent<PlayerController>().enabled);
             Assert.IsTrue(player.GetComponent<NavMeshAgent>().isOnNavMesh);
 
-            Assert.AreEqual("Level_01", Object.FindFirstObjectByType<LevelManager>().CurrentLevel.gameObject.scene.name, "si riparte dal primo livello (D8)");
+            Assert.AreEqual("Level_Crypt", Object.FindFirstObjectByType<LevelManager>().CurrentLevel.gameObject.scene.name, "si riparte dal primo livello (D8), la cripta generata");
             var enemies = Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
             Assert.IsNotEmpty(enemies);
             foreach (var enemy in enemies)

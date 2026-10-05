@@ -16,14 +16,15 @@ namespace DarkDescent.Tests
     {
         private static LevelManager Manager => Object.FindFirstObjectByType<LevelManager>();
 
-        [UnityTest, Description("Core da sola carica il primo livello, lo rende scena attiva e ci mette il player sull'ingresso")]
+        [UnityTest, Description("Core da sola carica il primo livello, dalla M6 la cripta generata alla profondità 1, lo rende scena attiva e ci mette il player sull'ingresso")]
         public IEnumerator Core_Alone_LoadsFirstLevel()
         {
             SceneManager.LoadScene("Core");
             yield return WaitForLevel();
 
             var level = Manager.CurrentLevel;
-            Assert.AreEqual("Level_01", level.gameObject.scene.name);
+            Assert.AreEqual("Level_Crypt", level.gameObject.scene.name);
+            Assert.AreEqual(1, level.Depth);
             Assert.AreEqual(level.gameObject.scene, SceneManager.GetActiveScene(), "il livello deve essere la scena attiva");
 
             var player = GameObject.Find("Player");
@@ -41,7 +42,7 @@ namespace DarkDescent.Tests
             health.TakeDamage(new DamageInfo(30f, DamageType.Physical, null));
             float before = health.Current;
 
-            Manager.LoadLevel(SandboxScene, "Start");
+            Manager.LoadLevel(SandboxScene, "Start", 1);
             yield return WaitForLevel();
 
             Assert.AreEqual(before, health.Current, "la vita deve sopravvivere al cambio di livello");
@@ -61,7 +62,7 @@ namespace DarkDescent.Tests
             Object.Destroy(GameObject.Find("Skeleton_B"));
             yield return null;
 
-            Manager.LoadLevel(SandboxScene, "Start");
+            Manager.LoadLevel(SandboxScene, "Start", 1);
             yield return WaitForLevel();
 
             Assert.AreEqual(4, numbers.TrackedCount, "i numeri seguono solo player e scheletri del livello nuovo");
@@ -84,7 +85,7 @@ namespace DarkDescent.Tests
             yield return LoadSandbox();
             var controller = Player.GetComponent<PlayerController>();
 
-            Manager.LoadLevel(SandboxScene, "Start");
+            Manager.LoadLevel(SandboxScene, "Start", 1);
 
             Assert.IsTrue(Manager.IsTransitioning);
             Assert.IsFalse(controller.enabled);

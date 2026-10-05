@@ -99,6 +99,8 @@ namespace DarkDescent.Core
             }
 
             _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed);
+            // lo stesso seme fa anche i livelli generati: ognuno ne ricava uno suo (D8 della M6)
+            _levelManager.RunSeed = seed;
             Debug.Log($"[DarkDescent] seme della partita: {seed} (per rigiocarla: -seed {seed})");
 
             _playerAttack = _player.GetComponent<MeleeAttack>();

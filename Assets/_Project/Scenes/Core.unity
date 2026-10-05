@@ -6931,7 +6931,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bbb3c26d7c18a94c9533e72e920a592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Levels.LevelManager
-  _firstLevel: Level_01
+  _firstLevel: Level_Crypt
   _firstEntrance: Start
   _player: {fileID: 8349156090714357716}
   _fader: {fileID: 1200855724}

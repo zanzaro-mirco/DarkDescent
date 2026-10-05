@@ -28,6 +28,9 @@ namespace DarkDescent.Levels
         [Tooltip("Lato massimo di una stanza, in celle.")]
         [SerializeField, Min(3)] private int _maxRoom = 7;
 
+        [Tooltip("L'ultima profondità della cripta: lì la scala non c'è (le caverne arrivano alla M7).")]
+        [SerializeField, Min(1)] private int _lastDepth = 4;
+
         [Header("Contenuto (D6)")]
         [Tooltip("Scheletri = base + per profondità × profondità: 5 al livello 1, 11 al livello 4.")]
         [SerializeField, Min(0)] private int _enemiesBase = 3;
@@ -61,6 +64,8 @@ namespace DarkDescent.Levels
         public int MinRoom => _minRoom;
 
         public int MaxRoom => _maxRoom;
+
+        public int LastDepth => _lastDepth;
 
         public int MinGroup => _minGroup;
 

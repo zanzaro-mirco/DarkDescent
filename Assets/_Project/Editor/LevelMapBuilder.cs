@@ -20,6 +20,8 @@ namespace DarkDescent.Editor
         private const string ScenesFolder = "Assets/_Project/Scenes/Levels";
         private const string TilesetPath = "Assets/_Project/Data/Levels/DungeonTileset.asset";
         private const string ItemsFolder = "Assets/_Project/Data/Items";
+        private const string CryptScenePath = "Assets/_Project/Scenes/Level_Crypt.unity";
+        private const string CryptSettingsPath = "Assets/_Project/Data/Levels/CryptSettings.asset";
 
         [MenuItem("DarkDescent/Ricostruisci i livelli dalle mappe")]
         public static void BuildAllFromMenu()
@@ -49,6 +51,53 @@ namespace DarkDescent.Editor
             }
 
             SyncBuildSettings(built);
+        }
+
+        [MenuItem("DarkDescent/Ricostruisci la scena della cripta")]
+        public static void BuildCryptFromMenu()
+        {
+            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                BuildCrypt();
+            }
+        }
+
+        /// <summary>
+        /// La scena dei livelli generati (D9 della M6): vuota, con le impostazioni di luce della cripta e
+        /// un DungeonLevel che costruisce il livello a runtime. Crea anche i numeri della cripta, se mancano.
+        /// </summary>
+        public static void BuildCrypt()
+        {
+            // la scena nuova prima degli asset: aprendola, Unity scarica gli oggetti caricati prima, e i
+            // riferimenti salvati resterebbero vuoti
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var settings = AssetDatabase.LoadAssetAtPath<DungeonSettings>(CryptSettingsPath);
+            if (settings == null)
+            {
+                settings = ScriptableObject.CreateInstance<DungeonSettings>();
+                AssetDatabase.CreateAsset(settings, CryptSettingsPath);
+            }
+
+            var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>(TilesetPath);
+            LevelBuilder.ApplyRenderSettings(tileset);
+            var dungeon = new GameObject("Dungeon").AddComponent<DungeonLevel>();
+            var so = new SerializedObject(dungeon);
+            so.FindProperty("_settings").objectReferenceValue = settings;
+            so.FindProperty("_tileset").objectReferenceValue = tileset;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorSceneManager.SaveScene(scene, CryptScenePath);
+
+            // subito dopo Core e la sandbox, prima dei livelli fatti a mano
+            var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+            if (!scenes.Exists(s => s.path == CryptScenePath))
+            {
+                int index = scenes.FindIndex(s => s.path.StartsWith(ScenesFolder + "/"));
+                scenes.Insert(index < 0 ? scenes.Count : index, new EditorBuildSettingsScene(CryptScenePath, true));
+                EditorBuildSettings.scenes = scenes.ToArray();
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"Scena della cripta costruita: {CryptScenePath}, numeri in {CryptSettingsPath}.");
         }
 
         public static void Build(LevelMap map, LevelTileset tileset, string scenePath)

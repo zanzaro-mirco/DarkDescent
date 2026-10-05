@@ -194,6 +194,33 @@ contenuto). 108 EditMode e 90 PlayMode verdi.
 4. Misura del tempo di generazione e bake in build, scritta nel log; D4 si chiude con quel
    numero.
 
+**Com'è andata (5 ott 2026).** `Level_Crypt` sta in `Scenes/`, accanto a `Core`: contiene solo
+le impostazioni di luce della cripta e un `DungeonLevel` con i numeri (`Data/Levels/CryptSettings.asset`)
+e il tileset. La costruisce il menu *DarkDescent → Ricostruisci la scena della cripta*, che la
+mette nei Build Profiles prima dei livelli fatti a mano. Primo giro con i riferimenti vuoti:
+gli asset caricati prima di aprire la scena nuova vengono scaricati dal cambio di scena, quindi
+ora la scena si apre per prima. **`DungeonLevel.Build(seme, profondità)`** rende attiva la sua
+scena (trappola 4), genera con `SeedMixer.ForLevel`, aggiunge le direttive (ingresso `Start` al
+livello 1, `FromAbove` sotto; uscita verso la stessa scena alla profondità successiva, tolta
+all'ultima con la sua scala), costruisce con i nemici spenti, cuoce il NavMesh **dai collider**
+(D5) e solo allora accende i nemici, che si agganciano al NavMesh appena cotto. Scrive i tempi
+nel log. **`LevelManager`** riceve il seme dal composition root (`RunSeed`), carica con una
+profondità, e se la scena caricata non ha un `LevelContext` alla radice ma un `DungeonLevel`, gli
+fa costruire il livello: a schermo già nero, perché la dissolvenza viene prima del caricamento
+(trappola 6). L'uscita porta la profondità di arrivo (`LevelExit.TargetDepth`; per le mappe a
+mano, se manca, la successiva), e l'etichetta "Descend to level N" la usa. `Core` parte ora da
+`Level_Crypt`. **Misura (D4):** nei test, nell'editor, un livello costa 30–50 ms in tutto
+(generazione 0–7, costruzione 5–17, NavMesh 11–25): molto sotto il secondo. Il numero della
+build si legge nel `Player.log` della prova. **Test** (trappola 10): `LoadCore` dei test carica
+`Core` con `Level_01` nello stesso frame, come faceva la sandbox, e i test che cercano la stanza
+dello scudo o il primo scheletro restano com'erano; `LoadGeneratedCore` parte dalla cripta.
+Aggiornati i tre test che si aspettavano `Level_01` come primo livello (avvio, riavvio dopo la
+morte, seme dopo un nuovo avvio). Nuovo `DungeonDescentTests`: avvio con il livello 1 generato
+(buio, una sola luce con le ombre, 5 scheletri sul NavMesh, scala per il livello 2), discesa
+fino al 4 che non ha la scala, stesso seme della partita stesso livello con gli stessi drop e
+seme diverso livello diverso. `LevelBuilderTests` accende i nemici dopo il NavMesh, come il
+gioco: niente più "Failed to create agent" nel log. 108 EditMode e 93 PlayMode verdi.
+
 ## Passo 6.5 — Casse
 
 1. `Chest`: interazione, apertura una volta sola, suono di Kenney (da `Downloads`, se c'è,
@@ -272,7 +299,7 @@ contenuto). 108 EditMode e 90 PlayMode verdi.
 - [x] Builder a runtime, mappe a mano ricostruite uguali
 - [x] Generatore con i test sui 500 semi
 - [x] Contenuto per profondità
-- [ ] Livelli generati nel gioco, NavMesh a runtime misurato
+- [x] Livelli generati nel gioco, NavMesh a runtime misurato (in build: da leggere nel `Player.log`)
 - [ ] Casse
 - [ ] Finestra dell'editor
 - [ ] Dipendenze e asmdef

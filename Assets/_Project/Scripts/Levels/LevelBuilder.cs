@@ -19,6 +19,9 @@ namespace DarkDescent.Levels
     /// </summary>
     public sealed class LevelBuilder
     {
+        /// <summary>Il gruppo dei nemici, figlio della radice del livello.</summary>
+        public const string EnemiesGroup = "Enemies";
+
         private const char EntranceSymbol = '<';
         private const char StairsDownSymbol = '>';
         private const char TorchSymbol = 'T';
@@ -63,7 +66,9 @@ namespace DarkDescent.Levels
         /// spenta e si accende alla fine: a runtime gli Awake partono a livello finito, e il contesto
         /// trova ingressi, uscite e nemici (trappola 1 della M6).
         /// </summary>
-        public LevelContext Build(LevelMap map)
+        /// <param name="activateEnemies">False a runtime: il gruppo dei nemici resta spento finché non c'è
+        /// il NavMesh, altrimenti i loro agent nascono senza appoggio.</param>
+        public LevelContext Build(LevelMap map, bool activateEnemies = true)
         {
             var level = new GameObject("Level");
             level.SetActive(false);
@@ -75,7 +80,8 @@ namespace DarkDescent.Levels
             var walls = CreateNotWalkableGroup("Walls");
             var props = CreateNotWalkableGroup("Props");
             var torches = new GameObject("Torches").transform;
-            var enemies = new GameObject("Enemies").transform;
+            var enemies = new GameObject(EnemiesGroup).transform;
+            enemies.gameObject.SetActive(activateEnemies);
             foreach (var group in new[] { floors, walls, props, torches, enemies })
             {
                 group.SetParent(level.transform, false);
@@ -96,10 +102,11 @@ namespace DarkDescent.Levels
 
         // Niente sole e niente cielo: ambiente quasi nero a colore unico, il resto lo fanno torce,
         // scala e cavaliere (D4 della M3). Valgono solo se il livello è la scena attiva: lo fa il LevelManager.
-        private void ApplyAtmosphere(Transform level)
+        /// <summary>Le impostazioni di luce della scena attiva: anche per la scena della cripta, costruita vuota.</summary>
+        public static void ApplyRenderSettings(LevelTileset tileset)
         {
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = _tileset.AmbientColor;
+            RenderSettings.ambientLight = tileset.AmbientColor;
             RenderSettings.skybox = null;
             RenderSettings.sun = null;
             RenderSettings.fog = false;
@@ -107,6 +114,11 @@ namespace DarkDescent.Levels
             // senza cielo anche i riflessi devono essere neri, o i materiali luccicano nel buio
             RenderSettings.defaultReflectionMode = DefaultReflectionMode.Custom;
             RenderSettings.customReflectionTexture = null;
+        }
+
+        private void ApplyAtmosphere(Transform level)
+        {
+            ApplyRenderSettings(_tileset);
 
             var post = new GameObject("PostProcessing");
             post.transform.SetParent(level, false);
@@ -250,26 +262,16 @@ namespace DarkDescent.Levels
                 return;
             }
 
-            var exit = CreateExit(level, cellCenter, toEntry, exitInfo[0], exitInfo[1]);
+            // la profondità di arrivo: dalla direttiva se c'è (livelli generati), altrimenti la successiva
+            var depth = map.GetDirective("depth");
+            int targetDepth = exitInfo.Count > 2 ? int.Parse(exitInfo[2]) : (depth.Count > 0 ? int.Parse(depth[0]) : 1) + 1;
+            var exit = CreateExit(level, cellCenter, toEntry, exitInfo[0], exitInfo[1], targetDepth);
             AddHighlight(exit, stairs);
         }
 
         private static bool IsFloorToward(LevelMap map, MapMarker marker, Vector3 dir)
         {
             return map.IsFloor(marker.X + Mathf.RoundToInt(dir.x), marker.Y - Mathf.RoundToInt(dir.z));
-        }
-
-        // "Level_02" diventa 2, il segnaposto di "Descend to level {0}": il numero è quello in fondo
-        // al nome della scena; vuoto se non ce n'è
-        private static string ExitLevelNumber(string targetScene)
-        {
-            int start = targetScene.Length;
-            while (start > 0 && char.IsDigit(targetScene[start - 1]))
-            {
-                start--;
-            }
-
-            return start < targetScene.Length ? int.Parse(targetScene.Substring(start)).ToString() : string.Empty;
         }
 
         // Sotto il cursore si accendono la scala e le balaustre, e il bagliore si alza. Lo stendardo
@@ -281,7 +283,7 @@ namespace DarkDescent.Levels
         }
 
         // L'uscita guarda verso la cella da cui si arriva (+Z locale = verso l'ingresso della scala).
-        private static GameObject CreateExit(Transform level, Vector3 cellCenter, Vector3 toEntry, string targetScene, string targetEntrance)
+        private static GameObject CreateExit(Transform level, Vector3 cellCenter, Vector3 toEntry, string targetScene, string targetEntrance, int targetDepth)
         {
             var go = new GameObject("Exit");
             go.transform.SetParent(level, false);
@@ -294,7 +296,7 @@ namespace DarkDescent.Levels
             trigger.size = new Vector3(LevelMap.CellSize, 2f, LevelMap.CellSize + ExitTriggerReach);
             go.AddComponent<Rigidbody>().isKinematic = true;
 
-            go.AddComponent<LevelExit>().Configure(targetScene, targetEntrance);
+            go.AddComponent<LevelExit>().Configure(targetScene, targetEntrance, targetDepth);
 
             // il collider del click è separato dal trigger: il raggio del click ignora i trigger.
             // Alto quanto le balaustre, così il cursore prende la scala anche passando sopra di loro.
@@ -308,7 +310,8 @@ namespace DarkDescent.Levels
             var approach = new GameObject("ApproachPoint").transform;
             approach.SetParent(go.transform, false);
             approach.localPosition = new Vector3(0f, 0f, ApproachDistance);
-            go.AddComponent<Interactable>().Configure(approach, TextKeys.ExitDescend, ExitLevelNumber(targetScene));
+            // "Descend to level {0}": il numero è la profondità di arrivo
+            go.AddComponent<Interactable>().Configure(approach, TextKeys.ExitDescend, targetDepth.ToString());
 
             Debug.Assert(ApproachDistance > half && ApproachDistance < half + ExitTriggerReach, "il punto d'arrivo deve stare nel trigger");
             return go;
