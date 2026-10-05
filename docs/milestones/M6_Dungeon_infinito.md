@@ -469,6 +469,17 @@ solo una ventina di file. La regola su dove va un file nuovo è nelle convenzion
 3. ADR: builder unico, BSP, NavMesh a runtime dai collider, contenuto per profondità, seme
    del livello, asmdef. Lezioni nel piano, tabella dello stato, tag `m6`.
 
+**Com'è andata (5 ott 2026).** GIF del README (`docs/media/m6_descent.gif`, 640 × 360, 3,7 MB
+in LFS) registrata da un test usa e getta nella cripta del seme 1137, scelto tra 1500 perché ha
+la cassa vicina all'ingresso e la scala a una ventina di passi: la cassa aperta e l'oggetto
+raccolto, la vista sovrapposta dell'automappa che si scopre mentre il cavaliere combatte due
+scheletri verso la scala, la discesa al livello 2. A 20 fotogrammi al secondo e 800 × 450 pesava
+8,6 MB, perché con la camera che segue cambia quasi tutto lo schermo a ogni fotogramma: ora è a
+10 al secondo, con il tragitto verso la scala accelerato. ADR-033…038 in `DECISIONS.md` (builder
+unico, BSP e seme del livello, NavMesh dai collider, ripartenza, pozioni, automappa), oltre
+all'ADR-032 del passo 6.11. Lezioni nel piano (v2.15), tabella dello stato aggiornata, README con
+i comandi nuovi. Scheda della M7 scritta. Restano la prova della build della CI e il tag `m6`.
+
 ---
 
 ## Trappole note
@@ -533,4 +544,4 @@ solo una ventina di file. La regola su dove va un file nuovo è nelle convenzion
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m6`
-- [ ] Scheda della M7 scritta prima di cominciarla
+- [x] Scheda della M7 scritta prima di cominciarla

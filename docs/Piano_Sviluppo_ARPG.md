@@ -20,6 +20,7 @@
 | v2.9 | 3 ott 2026 | Prima build pubblica su itch.io spostata da M3 a M10, quando il gioco è finibile: decisione di Mirco. A M3 resta la prova della build Web dall'artifact della CI |
 | v2.10 | 3 ott 2026 | M3 chiusa (tag `m3`), con le lezioni · § 4.3 decisa (ADR-014) · build Web provata e tenuta (ADR-019) · ADR-014…019 |
 | v2.11 | 4 ott 2026 | M4 chiusa (tag `m4`), con le lezioni · attributi e formula del colpo confermati (§ 2, ADR-020) · inventario a click-e-click invece del drag & drop (ADR-023) · ADR-020…024 |
+| v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
 | v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
@@ -37,11 +38,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) |
-| **Milestone corrente** | **M6 — "Dungeon infinito"** → `docs/milestones/M6_Dungeon_infinito.md` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) |
+| **Milestone corrente** | **M7 — "Le profondità"** → `docs/milestones/M7_Le_profondita.md` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…031) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…038) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -244,7 +245,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M3 | "Un dungeon fatto a mano" | due livelli, atmosfera, build Web provata | 9–14 | ✅ 3 ott |
 | M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | ✅ 4 ott |
 | M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | ✅ 5 ott |
-| M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | |
+| M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | ✅ 5 ott |
 | M7 | "Le profondità" | caverne, nuovi nemici, automappa delle caverne | 10–15 | |
 | M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 6–9 | |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza | 8–11 | |
@@ -337,6 +338,19 @@ Chiusa il 5 ottobre 2026: 98 test EditMode e 89 PlayMode verdi, build Windows de
 - **In color space lineare la trasparenza della UI schiarisce molto:** uno sfondo al 30% sembra quasi pieno, e i colori delle celle vanno scelti scuri e controllati in foto.
 - **Due componenti uguali nella scena rendono ambiguo `FindFirstObjectByType`:** con il secondo tooltip del confronto, il pannello espone i suoi due riferimenti ai test.
 - **Le asserzioni sui testi colorati** cercano il testo tra i tag (`>Lama dello scheletro<`) o la costante del colore, non la frase intera.
+
+### M6 — "Dungeon infinito" ✅
+
+Chiusa il 5 ottobre 2026: 132 test EditMode e 103 PlayMode verdi, build Windows della CI provata da Mirco. Lezioni emerse:
+
+- **Un refactor che sposta codice si verifica con una descrizione, non a occhio** (ADR-033): prima di portare il builder a runtime, uno script ha descritto le due scene a mano oggetto per oggetto; ricostruite, la descrizione era identica riga per riga.
+- **Il bake dalle mesh renderizzate funziona nell'editor e viene vuoto in build** (ADR-035): i modelli senza Read/Write non si leggono dalla CPU. L'ha segnalato Unity al primo test del builder, prima di arrivare in build. Il bake dai collider costa 8–16 ms a livello.
+- **I messaggi delle asserzioni si compongono anche quando passano:** il test sui 500 semi impiegava cinque secondi e mezzo per una mappa stampata a ogni controllo. Composto solo quando serve, mezzo secondo.
+- **Un seme per dominio rende gratuite le novità casuali** (ADR-037): le pozioni hanno un tiro e un seme loro, e gli oggetti del seme 4711, già provati in build, sono rimasti identici.
+- **Lo stato che deve sopravvivere a un cambio di scena si evita, non si salva** (ADR-036): "Ricomincia" non ricarica più `Core` ma solo il livello, e una richiamata a schermo nero rimette vita e inventario. Niente singleton né `DontDestroyOnLoad`.
+- **Il grafo delle dipendenze si ricava dai tipi usati, non dagli `using`** (ADR-032): per cartelle era un unico ciclo, ma il codice di logica non usava mai componenti di scena. La divisione giusta era per strati, non per aree.
+- **L'ordine nella gerarchia della HUD decide chi prende il click:** la cintura sotto il fondo trasparente dell'inventario perdeva i click con un oggetto sul cursore.
+- **Una GIF con la camera che segue costa il triplo:** a ogni fotogramma cambia quasi tutto lo schermo. Quella della M6 è a 10 fotogrammi al secondo e 640 × 360, con il tragitto verso la scala accelerato.
 
 ---
 

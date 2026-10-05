@@ -5,19 +5,23 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Loot casuale: due scheletri lasciano un oggetto magico e uno raro, il cavaliere para un colpo con lo scudo, e nell'inventario il pugnale raro si confronta con la spada equipaggiata](docs/media/m5_loot.gif)
+![Dungeon infinito: il cavaliere apre una cassa in una cripta generata, la mappa sovrapposta si scopre mentre combatte verso la scala, poi scende al livello 2](docs/media/m6_descent.gif)
 
 ## Stato
 
-**M5 — "Loot casuale"** chiusa il 5 ottobre 2026 (tag `m5`): oggetti normali, magici
-e rari, con nome e luce del loro colore, da otto basi e undici affissi (danno, Armatura,
-blocco, attributi, vita). I nomi si compongono secondo la lingua ("Sturdy Axe", "Ascia
-Robusta"), il tooltip mostra gli affissi e mette accanto l'oggetto equipaggiato. Lo scudo
-blocca una parte dei colpi. Il gioco è in inglese e in italiano. Con lo stesso seme gli
-stessi nemici lasciano gli stessi oggetti, in qualunque ordine si uccidano.
-Prossima: **M6 — "Dungeon infinito"**.
+**M6 — "Dungeon infinito"** chiusa il 5 ottobre 2026 (tag `m6`): i livelli 1–4 sono
+cripte generate a ogni partita con un BSP, sempre percorribili, con più scheletri e casse
+a ogni profondità; con lo stesso seme torna lo stesso dungeon. Le casse si aprono con un
+click. Pozioni di cura nella cintura, automappa che si scopre camminando, nell'angolo o
+sovrapposta al gioco. Morendo si riparte dall'ingresso del livello con l'inventario di
+quando ci si era entrati. Nell'editor una finestra genera e disegna i livelli senza Play
+Mode. Prossima: **M7 — "Le profondità"**.
 
 Milestone precedenti:
+
+- **M5 — "Loot casuale"** (tag `m5`): oggetti magici e rari con affissi, nomi composti
+  secondo la lingua, blocco con lo scudo, inglese e italiano, loot legato al seme
+  ([GIF](docs/media/m5_loot.gif)).
 
 - **M4 — "Raccolgo roba"** (tag `m4`): attributi alla Diablo e formula del colpo, oggetti
   a terra, inventario a griglia a click-e-click, arma e scudo in mano, pannello del
@@ -40,17 +44,20 @@ Milestone precedenti:
 - click sinistro sul pavimento per muoversi; tenendo premuto, il personaggio segue il cursore
 - click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo
 - click sinistro sulla scala per scendere al livello successivo
-- click sinistro su un oggetto a terra per raccoglierlo
+- click sinistro su un oggetto a terra per raccoglierlo, su una cassa per aprirla
+- `1`–`8` bevono la pozione in quel posto della cintura; click destro su una pozione,
+  nella cintura o nell'inventario, per berla
 - `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
   con un oggetto preso, un click fuori dalle finestre lo lascia a terra
-- `C` pannello del personaggio
+- `C` pannello del personaggio; passando su una statistica, un tooltip dice a cosa serve
+- `M` automappa: nell'angolo, sovrapposta al gioco, spenta
 - `F9` cambia lingua (inglese, italiano); la scelta resta per gli avvii successivi
 
 **Opzioni da riga di comando:**
 
 - `-lang it` avvia in italiano (`en` per l'inglese)
-- `-seed 4711` usa quel seme per il loot; senza, il seme è casuale e si legge nel log
-  (`Player.log`), con il comando per rigiocarlo
+- `-seed 4711` usa quel seme per dungeon e loot; senza, il seme è casuale e si legge nel
+  log (`Player.log`), con il comando per rigiocarlo
 
 ## CI
 
