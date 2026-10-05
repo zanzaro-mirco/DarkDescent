@@ -43,6 +43,41 @@ namespace DarkDescent.Tests
             }
         }
 
+        private static Bounds ModelBounds(GroundItem drop)
+        {
+            var renderers = drop.GetComponentsInChildren<Renderer>();
+            Bounds bounds = renderers[0].bounds;
+            foreach (var renderer in renderers)
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+
+            return bounds;
+        }
+
+        [UnityTest, Description("Quello che cade vola dal corpo con una capriola e si posa dov'è il suo click: in volo la luce è spenta, a terra si accende e il modello è disteso sul pavimento")]
+        public IEnumerator Drop_FliesFromTheBodyAndLands()
+        {
+            yield return KillSkeleton();
+            var drop = GroundItems().Single();
+            var glow = drop.GetComponentInChildren<Light>(true);
+            bool landed = false;
+            drop.Landed += () => landed = true;
+
+            Assert.IsTrue(drop.IsFlying);
+            Assert.IsFalse(glow.enabled, "in volo la luce è spenta");
+            Assert.Greater(ModelBounds(drop).center.y, 0.5f, "parte dal petto dello scheletro, non da terra");
+
+            yield return WaitUntil(() => landed, 2f);
+            Assert.IsTrue(landed, "deve posarsi in meno di due secondi");
+            Assert.IsFalse(drop.IsFlying);
+            Assert.IsTrue(glow.enabled, "a terra la luce si accende");
+            Bounds bounds = ModelBounds(drop);
+            Assert.AreEqual(drop.transform.position.y + 0.02f, bounds.min.y, 0.02f, "appoggiato al pavimento");
+            Assert.AreEqual(drop.transform.position.x, bounds.center.x, 0.02f, "centrato sul suo click");
+            Assert.AreEqual(drop.transform.position.z, bounds.center.z, 0.02f, "centrato sul suo click");
+        }
+
         [UnityTest, Description("Lo scheletro morto lascia l'oggetto della sua loot table davanti al corpo, sul NavMesh, con il nome nel colore della rarità")]
         public IEnumerator SkeletonDeath_DropsItsLoot()
         {

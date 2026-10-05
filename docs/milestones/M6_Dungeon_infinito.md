@@ -480,6 +480,24 @@ unico, BSP e seme del livello, NavMesh dai collider, ripartenza, pozioni, automa
 all'ADR-032 del passo 6.11. Lezioni nel piano (v2.15), tabella dello stato aggiornata, README con
 i comandi nuovi. Scheda della M7 scritta. Restano la prova della build della CI e il tag `m6`.
 
+**Prova in build (5 ott 2026).** Il primo run dei test del 6.11 è caduto per un guasto di GitHub
+Actions (nessun runner disponibile), non per il codice; rilanciata, la build di `88901ef` è verde.
+Provandola, Mirco ha chiesto un'animazione per gli oggetti che cadono e ha visto la scala accesa
+**anche sotto il terreno**. Il modello della scala scende fino a −3,94 m, e le celle di roccia
+non hanno geometria: dalla camera le pareti esterne del pozzo si vedono oltre i muri bassi.
+Spente sono nere sul nero, accese brillano. Ora il prefab ha un anello nero non illuminato
+appena sotto i pavimenti, attorno alla cella delle scale e largo 10 m: sotto le stanze lo coprono
+le piastrelle, sopra la roccia è nero come lo sfondo, e l'evidenziazione non lo tocca. Una foto
+in batch con la roccia accanto alla scala lo conferma. **Caduta degli oggetti:** come in Diablo,
+quello che lascia uno scheletro esce dal petto, quello di una cassa dalla cassa, quello lasciato
+dal cursore dalla mano del cavaliere. Vola in arco con una capriola, rimbalza appena e si posa, in
+0,55 s. Solo il modello si muove: click, etichetta e punto d'arrivo stanno già dove atterra. La
+luce della rarità si accende all'atterraggio, con un suono di metallo (di vetro per le pozioni),
+dai suoni di Kenney già nel progetto. La traiettoria è logica pura (`DropArc`, in `Core`). Test:
+arco, rimbalzo e capriola in EditMode; in gioco, la lama dello scheletro parte dal petto con la
+luce spenta e si posa centrata sul suo click con la luce accesa; la scala accesa lascia nero
+l'anello. 136 EditMode e 104 PlayMode verdi.
+
 ---
 
 ## Trappole note

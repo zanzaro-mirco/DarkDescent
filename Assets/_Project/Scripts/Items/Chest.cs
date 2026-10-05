@@ -39,6 +39,9 @@ namespace DarkDescent.Items
         [Tooltip("Quanto di lato all'oggetto cade la pozione, se c'è.")]
         [SerializeField, Min(0f)] private float _potionSideOffset = 0.7f;
 
+        [Tooltip("Da che altezza partono gli oggetti in volo.")]
+        [SerializeField, Min(0f)] private float _dropHeight = 0.7f;
+
         [SerializeField] private AudioSource _audio;
 
         [SerializeField] private AudioClip[] _openClips;
@@ -118,16 +121,19 @@ namespace DarkDescent.Items
 
             GroundItem dropped = null;
             Vector3 front = transform.position + transform.forward * _dropDistance;
+
+            // gli oggetti saltano fuori dalla cassa aperta
+            Vector3 from = transform.position + Vector3.up * _dropHeight;
             var item = Preview();
             if (item != null && _groundItemPrefab != null)
             {
-                dropped = GroundItem.Spawn(_groundItemPrefab, item, front);
+                dropped = GroundItem.Spawn(_groundItemPrefab, item, front, from);
             }
 
             var potion = PreviewPotion();
             if (potion != null && _groundItemPrefab != null)
             {
-                GroundItem.Spawn(_groundItemPrefab, potion, front + transform.right * _potionSideOffset);
+                GroundItem.Spawn(_groundItemPrefab, potion, front + transform.right * _potionSideOffset, from);
             }
 
             Opened?.Invoke(dropped);

@@ -26,6 +26,9 @@ namespace DarkDescent.Items
         [Tooltip("Il prefab degli oggetti a terra, per quelli lasciati dal cursore.")]
         [SerializeField] private GroundItem _groundItemPrefab;
 
+        [Tooltip("Da che altezza cade un oggetto lasciato dal cursore: la mano.")]
+        [SerializeField, Min(0f)] private float _dropHeight = 1.1f;
+
         [Tooltip("Messe nella cintura all'avvio (D14 della M6).")]
         [SerializeField] private PotionDefinition _startingPotion;
 
@@ -59,7 +62,7 @@ namespace DarkDescent.Items
         public GroundItem DropHeld()
         {
             ItemInstance item = Inventory.ReleaseHeld();
-            return item != null ? GroundItem.Spawn(_groundItemPrefab, item, transform.position) : null;
+            return item != null ? GroundItem.Spawn(_groundItemPrefab, item, transform.position, transform.position + Vector3.up * _dropHeight) : null;
         }
 
         /// <summary>Beve la pozione di un posto della cintura (da 0); false se è vuoto, se è morto o se ha la vita piena.</summary>

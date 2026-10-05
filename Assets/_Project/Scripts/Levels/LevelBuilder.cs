@@ -26,6 +26,7 @@ namespace DarkDescent.Levels
         private const char StairsDownSymbol = '>';
         private const char TorchSymbol = 'T';
         private const char ItemSymbol = 'i';
+        private const string StairsOccluder = "Occluder";
 
         private const float WallHalfThickness = 0.5f;
         private const float TorchHeight = 2.2f;
@@ -287,11 +288,14 @@ namespace DarkDescent.Levels
         }
 
         // Sotto il cursore si accendono la scala e le balaustre, e il bagliore si alza. Lo stendardo
-        // resta com'è: acceso d'ambra perderebbe il rosso che lo fa riconoscere da lontano.
+        // resta com'è: acceso d'ambra perderebbe il rosso che lo fa riconoscere da lontano. L'anello
+        // nero sotto i pavimenti resta nero: nasconde la parte sepolta del pozzo, che accesa si
+        // vedrebbe attraverso le celle di roccia.
         private void AddHighlight(GameObject exit, GameObject stairs)
         {
-            exit.AddComponent<InteractableHighlight>().Configure(
-                stairs.GetComponentsInChildren<Renderer>(), _tileset.HighlightMaterial, stairs.GetComponentInChildren<Light>());
+            var occluder = stairs.transform.Find(StairsOccluder);
+            var renderers = Array.FindAll(stairs.GetComponentsInChildren<Renderer>(), r => occluder == null || !r.transform.IsChildOf(occluder));
+            exit.AddComponent<InteractableHighlight>().Configure(renderers, _tileset.HighlightMaterial, stairs.GetComponentInChildren<Light>());
         }
 
         // L'uscita guarda verso la cella da cui si arriva (+Z locale = verso l'ingresso della scala).

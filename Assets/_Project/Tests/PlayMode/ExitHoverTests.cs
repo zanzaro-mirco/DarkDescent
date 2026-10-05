@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using DarkDescent.Combat;
 using DarkDescent.Interaction;
 using DarkDescent.Levels;
@@ -43,6 +44,14 @@ namespace DarkDescent.Tests
             Assert.IsTrue(_highlight.IsShowing, "la scala si accende");
             Assert.IsTrue(_label.IsShown);
             Assert.AreEqual("Descend to level 2", _label.Text);
+
+            // l'anello sotto i pavimenti resta nero: acceso, la parte sepolta del pozzo si vedrebbe dalla roccia
+            var occluder = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None)
+                .First(t => t.name == "Occluder" && FlatDistance(t.position, _exit.transform.position) < 3f);
+            foreach (var renderer in occluder.GetComponentsInChildren<Renderer>())
+            {
+                Assert.AreEqual("M_Occluder", renderer.sharedMaterial.name, $"{renderer.name} non deve accendersi");
+            }
 
             PointAt(_interactable.ApproachPoint + _exit.transform.forward * 3f);
             yield return null;

@@ -22,6 +22,9 @@ namespace DarkDescent.Items
         [Tooltip("Quanto di lato all'oggetto cade la pozione, se c'è: i due non si coprono.")]
         [SerializeField, Min(0f)] private float _potionSideOffset = 0.7f;
 
+        [Tooltip("Da che altezza partono gli oggetti in volo.")]
+        [SerializeField, Min(0f)] private float _dropHeight = 1f;
+
         // la cella di partenza in decimetri: il nemico si muove, il suo seme no
         private const float CellsPerMeter = 10f;
 
@@ -76,16 +79,19 @@ namespace DarkDescent.Items
             }
 
             Vector3 front = transform.position + transform.forward * _forwardOffset;
+
+            // gli oggetti escono dal corpo, all'altezza del petto
+            Vector3 from = transform.position + Vector3.up * _dropHeight;
             var item = Preview();
             if (item != null)
             {
-                GroundItem.Spawn(_groundItemPrefab, item, front);
+                GroundItem.Spawn(_groundItemPrefab, item, front, from);
             }
 
             var potion = PreviewPotion();
             if (potion != null)
             {
-                GroundItem.Spawn(_groundItemPrefab, potion, front + transform.right * _potionSideOffset);
+                GroundItem.Spawn(_groundItemPrefab, potion, front + transform.right * _potionSideOffset, from);
             }
         }
     }
