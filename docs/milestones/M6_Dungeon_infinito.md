@@ -37,7 +37,7 @@ si fissa alla chiusura della M8).
 
 ## Decisioni
 
-Da confermare con Mirco prima di cominciare.
+Tutte confermate da Mirco il 5 ottobre 2026.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -81,6 +81,27 @@ Da confermare con Mirco prima di cominciare.
    `LevelBuilder`, cuoce il NavMesh, salva.
 3. Ricostruiti `Level_01` e `Level_02`: un test confronta il numero di oggetti per tipo con
    quello di prima (pavimenti, muri, torce, nemici), e i PlayMode esistenti restano verdi.
+
+**Com'è andata (5 ott 2026).** `LevelBuilder` sta in `Scripts/Levels/` e riceve tre funzioni:
+come istanziare un prefab (l'editor tiene il legame con il prefab, a runtime basta
+`Instantiate`), come trovare un oggetto di `@items` e chi avvisare quando cambia un campo di
+un'istanza di prefab (l'editor lo registra, o al salvataggio si perde). I campi che lo script
+di editor scriveva con `SerializedObject` passano da `Configure` su `LevelContext`,
+`LevelEntrance`, `LevelExit`, `Interactable`, `InteractableHighlight` e `GroundItem`. Tutto nasce
+sotto la radice del livello spenta, che si accende alla fine: a runtime gli `Awake` partono a
+livello finito, e il contesto trova ingressi, uscite e nemici (trappola 1). `LevelMapBuilder`
+è sceso da 460 a un centinaio di righe: crea la scena, chiama il builder, cuoce e salva il
+NavMesh. L'assembly del gioco ora referenzia `Unity.AI.Navigation`. **Verifica:** prima del
+refactor uno script usa e getta ha descritto le due scene oggetto per oggetto (nome, layer,
+posizione, rotazione, prefab, ogni campo serializzato); ricostruite con il builder nuovo, la
+descrizione è identica riga per riga. Le scene nel repo restano quelle di prima, perché
+ricostruirle cambia solo gli identificativi interni. **Test nuovo** (`LevelBuilderTests`): il
+livello 1 costruito a runtime ha la stessa firma di quello dell'editor (gruppi, posizioni,
+contesto, uscita, ingresso), l'oggetto a terra, la scala che si accende sotto il cursore e un
+NavMesh cotto a runtime sotto l'ingresso. Il test ha trovato subito la trappola 2: dalle mesh
+renderizzate Unity segnala che in build il NavMesh verrebbe vuoto, quindi cuoce dai collider
+come dice D5; il builder passerà ai collider al passo 6.4, con la misura. 98 EditMode e 90
+PlayMode verdi.
 
 ## Passo 6.2 — Generatore
 
@@ -183,8 +204,8 @@ Da confermare con Mirco prima di cominciare.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D12 confermate
-- [ ] Builder a runtime, mappe a mano ricostruite uguali
+- [x] Decisioni D1–D12 confermate
+- [x] Builder a runtime, mappe a mano ricostruite uguali
 - [ ] Generatore con i test sui 500 semi
 - [ ] Contenuto per profondità
 - [ ] Livelli generati nel gioco, NavMesh a runtime misurato

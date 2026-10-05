@@ -32,6 +32,12 @@ namespace DarkDescent.Levels
 
         public int Depth => _depth;
 
+        /// <summary>Per chi costruisce il livello (<see cref="LevelBuilder"/>), prima che si accenda.</summary>
+        public void Configure(int depth)
+        {
+            _depth = Mathf.Max(1, depth);
+        }
+
         private void Awake()
         {
             // tutta la scena, non solo i figli: nemici e ingressi non devono stare sotto questo oggetto

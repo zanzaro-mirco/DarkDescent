@@ -13,6 +13,12 @@ namespace DarkDescent.Levels
 
         public string Id => _id;
 
+        /// <summary>Per chi costruisce il livello (<see cref="LevelBuilder"/>).</summary>
+        public void Configure(string id)
+        {
+            _id = id;
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.cyan;

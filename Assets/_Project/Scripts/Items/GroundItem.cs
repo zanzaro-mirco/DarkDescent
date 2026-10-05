@@ -49,6 +49,12 @@ namespace DarkDescent.Items
             return ground;
         }
 
+        /// <summary>L'oggetto messo dalla mappa: per chi costruisce il livello, prima di Start.</summary>
+        public void Configure(ItemDefinition definition)
+        {
+            _definition = definition;
+        }
+
         public string GetLabel(Localizer localizer)
         {
             if (_item == null)

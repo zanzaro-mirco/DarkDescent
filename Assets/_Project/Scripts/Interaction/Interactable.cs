@@ -56,6 +56,14 @@ namespace DarkDescent.Interaction
             return string.IsNullOrEmpty(_labelArgument) ? localizer.Get(_labelKey) : localizer.Format(_labelKey, _labelArgument);
         }
 
+        /// <summary>Per chi lo crea da codice, come il costruttore dei livelli, prima che si accenda.</summary>
+        public void Configure(Transform approachPoint, string labelKey, string labelArgument)
+        {
+            _approachPoint = approachPoint;
+            _labelKey = labelKey;
+            _labelArgument = labelArgument;
+        }
+
         /// <summary>Un nome composto dal codice, come quello di un oggetto a terra, al posto della chiave.</summary>
         public void SetLabelSource(ILabelSource source)
         {

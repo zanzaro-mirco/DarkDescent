@@ -21,6 +21,13 @@ namespace DarkDescent.Levels
 
         public string TargetEntrance => _targetEntrance;
 
+        /// <summary>Per chi costruisce il livello (<see cref="LevelBuilder"/>).</summary>
+        public void Configure(string targetScene, string targetEntrance)
+        {
+            _targetScene = targetScene;
+            _targetEntrance = targetEntrance;
+        }
+
         private void Reset()
         {
             // il player si muove con l'agent, senza Rigidbody: i messaggi dei trigger arrivano solo se

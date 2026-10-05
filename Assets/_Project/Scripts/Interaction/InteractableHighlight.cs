@@ -28,6 +28,17 @@ namespace DarkDescent.Interaction
 
         public bool IsShowing { get; private set; }
 
+        /// <summary>
+        /// Per chi lo crea da codice, come il costruttore dei livelli: va chiamato prima che l'oggetto
+        /// si accenda, perché Awake prepara i materiali da questi renderer.
+        /// </summary>
+        public void Configure(Renderer[] renderers, Material highlightMaterial, Light light)
+        {
+            _renderers = renderers;
+            _highlightMaterial = highlightMaterial;
+            _light = light;
+        }
+
         private void Awake()
         {
             _interactable = GetComponent<Interactable>();
