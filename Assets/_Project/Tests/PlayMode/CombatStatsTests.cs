@@ -75,11 +75,11 @@ namespace DarkDescent.Tests
             CollectionAssert.Contains(texts, "Miss");
         }
 
-        [UnityTest, Description("Un colpo a segno toglie il danno tirato: arma per Forza")]
+        [UnityTest, Description("Un colpo a segno toglie il danno tirato: arma per Forza, arrotondato")]
         public IEnumerator Hit_DealsRolledDamage()
         {
             yield return LoadArena();
-            // 0,7: colpito (70 < 75) e tiro 6 + 2 = 8, per 1,3 di Forza
+            // 0,7: colpito (70 < 75) e tiro 6 + 2 = 8, per 1,3 di Forza = 10,4, cioè 10
             UseRandom(0.7);
 
             ClickAt(_skeleton.transform.position + Vector3.up);
@@ -90,7 +90,7 @@ namespace DarkDescent.Tests
                 yield return null;
             }
 
-            Assert.AreEqual(_skeletonHealth.Max - 8f * 1.3f, _skeletonHealth.Current, 0.001f);
+            Assert.AreEqual(_skeletonHealth.Max - 10f, _skeletonHealth.Current, 0.001f);
         }
     }
 }

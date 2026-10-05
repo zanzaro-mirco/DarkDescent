@@ -390,6 +390,16 @@ schermo che non si sovrappongono, nessun confronto senza scudo, chiusura) verdi.
    (D4), seme e PRNG nostro (D5, D6), loot table (D8).
 3. Punto di controllo, lezioni nel piano, tabella dello stato, tag `m5`.
 
+**Prova in build (5 ott 2026).** Mirco ha provato la build di `b9814e8` con `-seed 4711`:
+stessi oggetti rigiocando, rarità, confronto, blocco e lingua a posto. Ogni tanto però un
+numero di danno mostrava **0**. Il danno era un numero con la virgola (la lama 8–12 per la
+Forza 25 fa 10, 11,25, 12,5, 13,75 o 15), quindi la vita dello scheletro restava
+frazionaria: se all'ultimo colpo gli restava 0,25, il numero mostrava il danno assorbito
+arrotondato, cioè 0. Ora `RollDamage` arrotonda il danno come già faceva il pannello del
+personaggio, e il risultato è sempre un intero, almeno 1. Così la vita resta intera e
+l'ultimo colpo mostra quanto toglie davvero. Test: 98 EditMode (danno sempre intero con la
+Forza, almeno 1) e 89 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -463,7 +473,7 @@ schermo che non si sovrappongono, nessun confronto senza scudo, chiusura) verdi.
 - [x] Basi nuove con modelli, icone e riga in `CREDITS.md`
 - [x] Loot table, profondità e seme da riga di comando
 - [x] Nomi composti per lingua, colori, tooltip con confronto
-- [ ] Scenario della Definition of Done provato in build
+- [x] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] Punto di controllo misurato
 - [ ] GIF, ADR, lezioni nel piano, tag `m5`

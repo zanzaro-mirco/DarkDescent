@@ -32,12 +32,25 @@ namespace DarkDescent.Tests
             Assert.IsFalse(CombatFormulas.RollHit(95f, new FixedRandomSource(0.99)), "con il 95% qualcosa va sempre a vuoto");
         }
 
-        [Test, Description("Il danno è un intero tra minimo e massimo dell'arma, estremi compresi, per 1 + Forza / 100")]
+        [Test, Description("Il danno è un intero tra minimo e massimo dell'arma, estremi compresi, per 1 + Forza / 100, arrotondato")]
         public void RollDamage_CoversRangeTimesStrength()
         {
-            Assert.AreEqual(6f * 1.3f, CombatFormulas.RollDamage(6, 9, 30f, new FixedRandomSource(0.0)), 0.0001f);
-            Assert.AreEqual(9f * 1.3f, CombatFormulas.RollDamage(6, 9, 30f, new FixedRandomSource(0.9999999)), 0.0001f);
-            Assert.AreEqual(7f, CombatFormulas.RollDamage(6, 9, 0f, new FixedRandomSource(0.25)), 0.0001f);
+            Assert.AreEqual(8f, CombatFormulas.RollDamage(6, 9, 30f, new FixedRandomSource(0.0)), "6 × 1,3 = 7,8");
+            Assert.AreEqual(12f, CombatFormulas.RollDamage(6, 9, 30f, new FixedRandomSource(0.9999999)), "9 × 1,3 = 11,7");
+            Assert.AreEqual(7f, CombatFormulas.RollDamage(6, 9, 0f, new FixedRandomSource(0.25)));
+        }
+
+        [Test, Description("Con la Forza il danno resta intero e almeno 1: la vita non resta mai frazionaria, e l'ultimo colpo non mostra 0")]
+        public void RollDamage_IsAlwaysWholeAndPositive()
+        {
+            var random = new SystemRandomSource(4711);
+            for (int i = 0; i < 2000; i++)
+            {
+                float damage = CombatFormulas.RollDamage(8, 12, 25f, random);
+                Assert.AreEqual(Math.Floor(damage), damage, "intero anche con la Forza 25");
+            }
+
+            Assert.AreEqual(1f, CombatFormulas.RollDamage(0, 0, 0f, new FixedRandomSource(0.0)), "almeno 1");
         }
 
         [Test, Description("Su molti tiri il danno non esce mai dall'intervallo e prende tutti i valori")]

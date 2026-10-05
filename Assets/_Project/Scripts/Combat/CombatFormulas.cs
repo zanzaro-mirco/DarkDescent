@@ -58,13 +58,17 @@ namespace DarkDescent.Combat
             return 1f + strength / 100f;
         }
 
-        /// <summary>Un tiro intero tra minimo e massimo dell'arma, estremi compresi, moltiplicato per la Forza.</summary>
+        /// <summary>
+        /// Un tiro intero tra minimo e massimo dell'arma, estremi compresi, moltiplicato per la Forza
+        /// e arrotondato come nel pannello del personaggio; almeno 1.
+        /// </summary>
         public static float RollDamage(int minDamage, int maxDamage, float strength, IRandomSource random)
         {
             int span = maxDamage - minDamage + 1;
             // il Min protegge dall'arrotondamento di un NextDouble vicinissimo a 1
             int roll = Math.Min(maxDamage, minDamage + (int)(random.NextDouble() * span));
-            return roll * StrengthMultiplier(strength);
+            // intero: con i decimali la vita restava frazionaria e l'ultimo colpo poteva mostrare "0"
+            return Math.Max(1f, (float)Math.Round(roll * StrengthMultiplier(strength)));
         }
 
         /// <summary>Vita massima: 50 + 2 × Vitalità. Con la Vitalità 25 del cavaliere, 100.</summary>

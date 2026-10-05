@@ -133,7 +133,7 @@ La v2.0 era tutta tecnica. Ma già M2 deve sapere come si calcola un colpo, e M4
 | Magia | mana, danno degli incantesimi |
 | Vitalità | punti vita |
 
-**Formula del colpo**, confermata alla M4 (ADR-020): probabilità di colpire = 75 + Destrezza / 2 − Armatura del bersaglio, limitata tra il 5% e il 95%; il danno è un tiro tra minimo e massimo dell'arma, moltiplicato per (1 + Forza/100).
+**Formula del colpo**, confermata alla M4 (ADR-020): probabilità di colpire = 75 + Destrezza / 2 − Armatura del bersaglio, limitata tra il 5% e il 95%; il danno è un tiro tra minimo e massimo dell'arma, moltiplicato per (1 + Forza/100) e arrotondato all'intero, almeno 1 (dalla M5: con i decimali l'ultimo colpo poteva mostrare 0).
 
 **Archetipi di nemico**, definiti per *comportamento*, perché è il comportamento che costa lavoro, non il modello:
 
