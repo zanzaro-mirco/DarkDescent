@@ -9,7 +9,8 @@ namespace DarkDescent.Levels
     /// La cripta generata (D2 della scheda M6): BSP sulla griglia di celle da 4 m, una stanza per
     /// zona, corridoi tra le stanze più vicine dei due rami di ogni divisione. Collegando così ogni
     /// coppia di rami, il livello è connesso per costruzione. Ingresso in una stanza scelta dal seme,
-    /// scala contro il muro nord della stanza più lontana a piedi. Logica pura e solo interi:
+    /// scala contro il muro nord della stanza più lontana a piedi, poi il contenuto della profondità
+    /// (<see cref="DungeonPopulator"/>), con lo stesso seme. Logica pura e solo interi:
     /// stesso seme, stessa cripta, anche in build Web (trappola 8).
     /// </summary>
     public sealed class DungeonGenerator
@@ -31,7 +32,7 @@ namespace DarkDescent.Levels
             _settings = settings != null ? settings : throw new ArgumentNullException(nameof(settings));
         }
 
-        public DungeonLayout Generate(ulong seed)
+        public DungeonLayout Generate(ulong seed, int depth = 1)
         {
             _random = new SplitMix64Source(seed);
             _cells = new char[_settings.Width, _settings.Height];
@@ -53,7 +54,9 @@ namespace DarkDescent.Levels
             Vector2Int stairs = PlaceStairs(_rooms[exit], entrance);
             _cells[entrance.x, entrance.y] = EntranceSymbol;
 
-            return new DungeonLayout(_cells, _rooms, start, exit, entrance, stairs);
+            var layout = new DungeonLayout(_cells, _rooms, start, exit, entrance, stairs);
+            new DungeonPopulator(_settings).Populate(layout, depth, _random);
+            return layout;
         }
 
         // Divide la zona finché è più grande di MaxLeaf; restituisce le stanze del ramo, già collegate tra loro.

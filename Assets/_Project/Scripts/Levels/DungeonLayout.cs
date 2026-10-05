@@ -57,6 +57,15 @@ namespace DarkDescent.Levels
             return true;
         }
 
+        /// <summary>Toglie un marcatore messo con <see cref="TryPlace"/>: la cella torna pavimento.</summary>
+        public void Remove(int x, int y)
+        {
+            if (IsFloor(x, y))
+            {
+                _cells[x, y] = LevelMap.Floor;
+            }
+        }
+
         /// <summary>La mappa da costruire, con le direttive (profondità, ingresso, uscita).</summary>
         public LevelMap ToMap(IReadOnlyDictionary<string, string[]> directives)
         {

@@ -167,6 +167,24 @@ passava (trappola 9). 103 EditMode e 90 PlayMode verdi.
    un test lo controlla con il flood fill che considera bloccate le celle occupate).
 3. Torce sui muri alti, distanziate.
 
+**Com'è andata (5 ott 2026).** `DungeonPopulator` mette il contenuto come marcatori della
+mappa, gli stessi delle mappe a mano (`T`, `S`, `c`, `b`, `x`, `p`), con lo stesso seme del
+generatore subito dopo la pianta: `Generate(seme, profondità)` restituisce la cripta già
+piena. I numeri sono in `DungeonSettings`: scheletri 3 + 2 × profondità (5, 7, 9, 11) a gruppi
+da 1 a 3 in stanze diverse da quella d'ingresso; casse 1 + profondità / 2 (1, 2, 2, 3), una
+per stanza; da 0 a 2 tra barili, casse di legno e pilastri per stanza. **Torce:** ogni stanza
+ne ha almeno una, sulla riga nord con la roccia oltre (o sul muro est, se a nord passano solo
+corridoi), più una ogni 4 celle di larghezza, distribuite. **Ostacoli** (casse e scenografia)
+solo sul bordo delle stanze, mai su una cella che dà su un corridoio né accanto; dopo ogni posa
+una visita in ampiezza controlla che dall'ingresso si arrivi ancora dappertutto, altrimenti
+l'ostacolo si toglie. Restano sempre libere la cella davanti alla scala, le due ai suoi lati
+(le balaustre) e le quattro attorno all'ingresso: nelle prime mappe stampate c'erano una
+cassa di legno attaccata alla scala e un barile addosso al punto in cui compare il cavaliere.
+Test: `DungeonContentTests` su 200 semi per ognuna delle quattro profondità (numeri di D6,
+nessuno scheletro nella stanza d'ingresso, nessun passaggio chiuso, una torcia per stanza su
+un muro alto, ostacoli contro i muri e lontani da scala e ingresso, stesso seme stesso
+contenuto). 108 EditMode e 90 PlayMode verdi.
+
 ## Passo 6.4 — Livelli generati nel gioco
 
 1. Scena `Level_Crypt` costruita dallo strumento dell'editor (atmosfera, volume, `DungeonLevel`).
@@ -253,7 +271,7 @@ passava (trappola 9). 103 EditMode e 90 PlayMode verdi.
 - [x] Decisioni D1–D12 confermate
 - [x] Builder a runtime, mappe a mano ricostruite uguali
 - [x] Generatore con i test sui 500 semi
-- [ ] Contenuto per profondità
+- [x] Contenuto per profondità
 - [ ] Livelli generati nel gioco, NavMesh a runtime misurato
 - [ ] Casse
 - [ ] Finestra dell'editor

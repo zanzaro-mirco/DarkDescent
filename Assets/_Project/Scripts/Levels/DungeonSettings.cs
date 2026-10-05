@@ -4,7 +4,8 @@ namespace DarkDescent.Levels
 {
     /// <summary>
     /// I numeri della cripta generata (D2 e D6 della scheda M6): misure del livello, delle zone del
-    /// BSP e delle stanze. Dati immutabili: si ritarano qui, senza toccare il generatore.
+    /// BSP e delle stanze, quanti nemici, casse e oggetti di scena. Dati immutabili: si ritarano
+    /// qui, senza toccare il generatore.
     /// </summary>
     [CreateAssetMenu(menuName = "DarkDescent/Dungeon Settings", fileName = "DungeonSettings")]
     public class DungeonSettings : ScriptableObject
@@ -27,6 +28,28 @@ namespace DarkDescent.Levels
         [Tooltip("Lato massimo di una stanza, in celle.")]
         [SerializeField, Min(3)] private int _maxRoom = 7;
 
+        [Header("Contenuto (D6)")]
+        [Tooltip("Scheletri = base + per profondità × profondità: 5 al livello 1, 11 al livello 4.")]
+        [SerializeField, Min(0)] private int _enemiesBase = 3;
+
+        [SerializeField, Min(0)] private int _enemiesPerDepth = 2;
+
+        [Tooltip("Gli scheletri arrivano a gruppi, uno per stanza: da quanti a quanti.")]
+        [SerializeField, Min(1)] private int _minGroup = 1;
+
+        [SerializeField, Min(1)] private int _maxGroup = 3;
+
+        [Tooltip("Casse = base + profondità / ogni quante profondità: 1, 2, 2, 3.")]
+        [SerializeField, Min(0)] private int _chestsBase = 1;
+
+        [SerializeField, Min(1)] private int _depthsPerChest = 2;
+
+        [Tooltip("Barili, casse di legno e pilastri: al più tanti per stanza, contro i muri.")]
+        [SerializeField, Min(0)] private int _maxPropsPerRoom = 2;
+
+        [Tooltip("Una torcia in più ogni tante celle di larghezza della stanza, oltre la prima.")]
+        [SerializeField, Min(2)] private int _cellsPerTorch = 4;
+
         public int Width => _width;
 
         public int Height => _height;
@@ -38,5 +61,23 @@ namespace DarkDescent.Levels
         public int MinRoom => _minRoom;
 
         public int MaxRoom => _maxRoom;
+
+        public int MinGroup => _minGroup;
+
+        public int MaxGroup => _maxGroup;
+
+        public int MaxPropsPerRoom => _maxPropsPerRoom;
+
+        public int CellsPerTorch => _cellsPerTorch;
+
+        public int EnemyCount(int depth)
+        {
+            return _enemiesBase + _enemiesPerDepth * depth;
+        }
+
+        public int ChestCount(int depth)
+        {
+            return _chestsBase + depth / _depthsPerChest;
+        }
     }
 }
