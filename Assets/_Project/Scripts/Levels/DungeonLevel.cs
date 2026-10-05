@@ -29,6 +29,32 @@ namespace DarkDescent.Levels
         /// <summary>Quanto è costato l'ultimo livello, in millisecondi: generazione, costruzione, NavMesh (D4).</summary>
         public (long generate, long build, long bake) Timings { get; private set; }
 
+        /// <summary>
+        /// La mappa del livello di una partita a una profondità, con le direttive: la stessa che il gioco
+        /// costruisce. La usa anche la finestra del generatore nell'editor, per vedere il livello di un seme.
+        /// </summary>
+        public static LevelMap CreateMap(DungeonSettings settings, ulong runSeed, int depth, string sceneName, out DungeonLayout layout)
+        {
+            layout = new DungeonGenerator(settings).Generate(SeedMixer.ForLevel(runSeed, depth), depth);
+            var directives = new Dictionary<string, string[]>
+            {
+                ["depth"] = new[] { depth.ToString() },
+                ["entrance"] = new[] { depth == 1 ? FirstEntrance : EntranceFromAbove },
+            };
+
+            // l'ultima profondità della cripta non ha la scala: le caverne arrivano alla M7
+            if (depth < settings.LastDepth)
+            {
+                directives["exit"] = new[] { sceneName, EntranceFromAbove, (depth + 1).ToString() };
+            }
+            else
+            {
+                layout.Remove(layout.Stairs.x, layout.Stairs.y);
+            }
+
+            return layout.ToMap(directives);
+        }
+
         /// <summary>Costruisce il livello alla profondità chiesta, una volta sola; le chiamate dopo la prima restituiscono quello.</summary>
         public LevelContext Build(ulong runSeed, int depth)
         {
@@ -42,24 +68,7 @@ namespace DarkDescent.Levels
             var watch = Stopwatch.StartNew();
 
             ulong seed = SeedMixer.ForLevel(runSeed, depth);
-            var layout = new DungeonGenerator(_settings).Generate(seed, depth);
-            var directives = new Dictionary<string, string[]>
-            {
-                ["depth"] = new[] { depth.ToString() },
-                ["entrance"] = new[] { depth == 1 ? FirstEntrance : EntranceFromAbove },
-            };
-
-            // l'ultima profondità della cripta non ha la scala: le caverne arrivano alla M7
-            if (depth < _settings.LastDepth)
-            {
-                directives["exit"] = new[] { gameObject.scene.name, EntranceFromAbove, (depth + 1).ToString() };
-            }
-            else
-            {
-                layout.Remove(layout.Stairs.x, layout.Stairs.y);
-            }
-
-            var map = layout.ToMap(directives);
+            var map = CreateMap(_settings, runSeed, depth, gameObject.scene.name, out var layout);
             long generated = watch.ElapsedMilliseconds;
 
             _context = new LevelBuilder(_tileset).Build(map, activateEnemies: false);

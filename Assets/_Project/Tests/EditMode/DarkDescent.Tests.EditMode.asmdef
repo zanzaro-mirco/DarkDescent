@@ -3,6 +3,7 @@
     "rootNamespace": "DarkDescent.Tests",
     "references": [
         "DarkDescent",
+        "DarkDescent.Editor",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

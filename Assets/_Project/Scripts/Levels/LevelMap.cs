@@ -143,6 +143,44 @@ namespace DarkDescent.Levels
             return map;
         }
 
+        /// <summary>
+        /// La mappa come testo, nello stesso formato che legge <see cref="Parse"/>: un commento facoltativo,
+        /// le direttive in ordine alfabetico, la griglia. Per salvare un livello generato come mappa a mano.
+        /// </summary>
+        public string ToText(string comment = null)
+        {
+            var sb = new System.Text.StringBuilder();
+            if (!string.IsNullOrEmpty(comment))
+            {
+                sb.Append("// ").Append(comment).Append('\n');
+            }
+
+            var keys = new List<string>(_directives.Keys);
+            keys.Sort(StringComparer.Ordinal);
+            foreach (var key in keys)
+            {
+                sb.Append('@').Append(key);
+                foreach (var value in _directives[key])
+                {
+                    sb.Append(' ').Append(value);
+                }
+
+                sb.Append('\n');
+            }
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    sb.Append(_cells[x, y]);
+                }
+
+                sb.Append('\n');
+            }
+
+            return sb.ToString();
+        }
+
         /// <summary>Fuori dalla griglia è tutto roccia: i bordi della mappa non vanno chiusi a mano.</summary>
         public bool IsFloor(int x, int y)
         {

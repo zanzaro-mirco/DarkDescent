@@ -275,6 +275,23 @@ l'oggetto previsto dal seme, un secondo click non fa niente). 108 EditMode e 95 
 2. Disegno della mappa in una texture, una cella per pixel ingrandita.
 3. Salvataggio della mappa in `Levels/`.
 
+**Com'è andata (5 ott 2026).** *DarkDescent → Generatore di dungeon* apre la finestra, in UI
+Toolkit e senza UXML: i numeri della cripta (`CryptSettings`), il **seme della partita** e la
+profondità, i pulsanti per il seme precedente e il successivo, e la mappa a quadretti da 14
+pixel per cella, con sotto stanze, celle di pavimento, scheletri, casse e passi a piedi
+dall'ingresso alla scala. Il seme è quello di `-seed`, non quello del livello: la finestra usa
+`DungeonLevel.CreateMap`, lo stesso metodo del gioco, quindi mostra proprio il livello che si
+gioca con quel seme a quella profondità (all'ultima, senza la scala). Il disegno sta in
+`MapPainter`, nell'assembly del gioco, perché lo riuserà l'automappa (D15): un pixel per cella, il
+nord in alto, un colore per simbolo, e le celle non scoperte trasparenti. "Salva come mappa"
+scrive `Levels/Crypt_<seme>_<profondità>.txt` con `LevelMap.ToText` (direttive in ordine e
+griglia, lo stesso formato che si legge); la ricostruzione dei livelli ne fa una scena di prova.
+`CreateGUI` può arrivare dopo `GetWindow`, quindi la finestra si costruisce alla prima chiamata
+che ne ha bisogno. Test (`MapPainterTests`, con il riferimento all'assembly dell'editor): una
+mappa scritta e riletta resta uguale, i colori finiscono nelle celle giuste con il nord in alto,
+e la finestra con seme 4711 e profondità 2 disegna la stessa mappa del gioco. 111 EditMode e 95
+PlayMode verdi.
+
 ## Passo 6.7 — Pozioni e cintura
 
 1. `PotionDefinition` (oggetto 1 × 1, quanto cura in percentuale della vita massima) e la
@@ -370,7 +387,7 @@ l'oggetto previsto dal seme, un secondo click non fa niente). 108 EditMode e 95 
 - [x] Livelli generati nel gioco, NavMesh a runtime misurato (in build: da leggere nel `Player.log`)
 - [x] Casse
 - [x] Decisioni D13–D16 confermate (dopo la prova della build)
-- [ ] Finestra dell'editor
+- [x] Finestra dell'editor
 - [ ] Pozioni e cintura
 - [ ] Automappa nelle due viste
 - [ ] Ripartenza dall'ingresso del livello
