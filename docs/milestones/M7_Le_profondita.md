@@ -39,7 +39,7 @@ in build e la revisione degli ADR.
 
 ## Decisioni
 
-Da confermare con Mirco prima di cominciare.
+Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle da 4 m, settore rosso a terra, stati in `Core`.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -82,6 +82,57 @@ Da confermare con Mirco prima di cominciare.
    il 45%, niente celle di roccia isolate in mezzo al pavimento, scala ad almeno metà della
    distanza massima, mappa dentro i bordi, stesso seme stessa mappa. Gli stessi controlli della
    cripta, quindi le funzioni di verifica si condividono.
+
+**Com'è andata (6 ott 2026).** `CaveGenerator` (logica pura, `Core/Levels`) produce lo stesso
+`DungeonLayout` della cripta, senza stanze. Le impostazioni scelgono l'algoritmo:
+`DungeonSettings.CreateGenerator()` dà il BSP, `CaveSettings` (che ne eredita misure e contenuto)
+lo sostituisce con il random walk, attraverso l'interfaccia `ILevelGenerator`; `DungeonLevel` non sa
+più quale generatore usa. La visita in ampiezza della cripta è passata in `LevelGrid`, comune ai
+due, e le mappe della cripta non sono cambiate. **Algoritmo:** quattro camminatori partono dal
+centro e scavano a turno finché il pavimento è il 37% dell'area dentro il bordo; ogni tanto uno
+riparte da una cella già scavata, ogni tanto scava un quadrato di 2 × 2. La prima versione, a passi
+del tutto casuali, faceva una macchia unica, più una sala che una caverna: ora ogni camminatore
+tiene la direzione due volte su tre, e scava cunicoli che si allargano dove si incrociano. Poi due
+passate di smussatura (la roccia con sei vicini di pavimento su otto si riempie, le punte si
+tolgono), le celle unite solo in diagonale si collegano (trappola 2), i pilastri di una cella si
+riempiono (trappola 3) e resta la regione connessa più grande. L'ingresso è la cella aperta (otto
+vicini di pavimento) più lontana dal centro, la scala la cella più lontana dall'ingresso con la
+roccia a nord e il pavimento a sud, come nella cripta. Su 500 semi il pavimento va dal 36,4 al
+42,9%, e la scala è ad almeno 24 passi. Il seme 4711:
+
+```
+####>.........#####.......##
+####.####.....#####.......##
+####.####.....##########..##
+####.####.....##########..##
+####.####.....##########..##
+###............#########..##
+####..###......#########..##
+####..####.....####.......##
+####..####.............##..#
+####..####.......##...###..#
+####.######......##..####.##
+####.#####...........####..#
+####.................####..#
+###.................#####..#
+###..................#######
+#######...###........#######
+#######..#####......########
+#######..#####......########
+#######..#####....<.########
+#######..####.......########
+#######..###....############
+#######..####..#############
+#######..####..#############
+#######...###..#############
+#######..###################
+```
+
+(senza le righe di sola roccia). Test: `CaveGeneratorTests`, sei test, quelli su 500 semi in 0,6 s
+in tutto (impostazioni che scelgono l'algoritmo, tutto raggiungibile, pavimento tra 35 e 45%,
+niente pilastri né contatti solo in diagonale, ingresso aperto e scala lontana verso sud, stesso
+seme stessa caverna). Le visite dei test sono in `MapChecks`, comune con quelli della cripta. 142
+EditMode e 104 PlayMode verdi.
 
 ## Passo 7.2 — Caverne nel gioco
 
@@ -176,8 +227,8 @@ Da confermare con Mirco prima di cominciare.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D11 confermate
-- [ ] Generatore delle caverne con i test sui 500 semi
+- [x] Decisioni D1–D11 confermate
+- [x] Generatore delle caverne con i test sui 500 semi
 - [ ] Caverne nel gioco
 - [ ] IA a classi di stato, scheletro invariato
 - [ ] Sciame

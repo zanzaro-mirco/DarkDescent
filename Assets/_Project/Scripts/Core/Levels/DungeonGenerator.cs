@@ -13,12 +13,10 @@ namespace DarkDescent.Levels
     /// (<see cref="DungeonPopulator"/>), con lo stesso seme. Logica pura e solo interi:
     /// stesso seme, stessa cripta, anche in build Web (trappola 8).
     /// </summary>
-    public sealed class DungeonGenerator
+    public sealed class DungeonGenerator : ILevelGenerator
     {
         public const char EntranceSymbol = '<';
         public const char StairsSymbol = '>';
-
-        private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
         private readonly DungeonSettings _settings;
 
@@ -231,60 +229,12 @@ namespace DarkDescent.Levels
 
         private bool AllFloorReachable(Vector2Int from)
         {
-            int[,] distances = Distances(from);
-            for (int y = 0; y < _settings.Height; y++)
-            {
-                for (int x = 0; x < _settings.Width; x++)
-                {
-                    if (_cells[x, y] != LevelMap.Rock && _cells[x, y] != StairsSymbol && distances[x, y] < 0)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
+            return LevelGrid.AllFloorReachable(_cells, from);
         }
 
-        // Passi a piedi da una cella a tutte le altre, in quattro direzioni; -1 dove non si arriva.
-        // La scala non si attraversa.
         private int[,] Distances(Vector2Int from)
         {
-            var distances = new int[_settings.Width, _settings.Height];
-            for (int y = 0; y < _settings.Height; y++)
-            {
-                for (int x = 0; x < _settings.Width; x++)
-                {
-                    distances[x, y] = -1;
-                }
-            }
-
-            var queue = new Queue<Vector2Int>();
-            distances[from.x, from.y] = 0;
-            queue.Enqueue(from);
-            while (queue.Count > 0)
-            {
-                var cell = queue.Dequeue();
-                foreach (var step in Steps)
-                {
-                    var next = cell + step;
-                    if (next.x < 0 || next.y < 0 || next.x >= _settings.Width || next.y >= _settings.Height)
-                    {
-                        continue;
-                    }
-
-                    char c = _cells[next.x, next.y];
-                    if (c == LevelMap.Rock || c == StairsSymbol || distances[next.x, next.y] >= 0)
-                    {
-                        continue;
-                    }
-
-                    distances[next.x, next.y] = distances[cell.x, cell.y] + 1;
-                    queue.Enqueue(next);
-                }
-            }
-
-            return distances;
+            return LevelGrid.Distances(_cells, from);
         }
 
         private static Vector2Int Center(RectInt room)

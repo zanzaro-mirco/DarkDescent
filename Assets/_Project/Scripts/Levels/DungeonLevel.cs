@@ -35,7 +35,7 @@ namespace DarkDescent.Levels
         /// </summary>
         public static LevelMap CreateMap(DungeonSettings settings, ulong runSeed, int depth, string sceneName, out DungeonLayout layout)
         {
-            layout = new DungeonGenerator(settings).Generate(SeedMixer.ForLevel(runSeed, depth), depth);
+            layout = settings.CreateGenerator().Generate(SeedMixer.ForLevel(runSeed, depth), depth);
             var directives = new Dictionary<string, string[]>
             {
                 ["depth"] = new[] { depth.ToString() },

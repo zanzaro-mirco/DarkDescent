@@ -84,5 +84,11 @@ namespace DarkDescent.Levels
         {
             return _chestsBase + depth / _depthsPerChest;
         }
+
+        /// <summary>L'algoritmo di questi numeri: la cripta a BSP; le caverne lo cambiano.</summary>
+        public virtual ILevelGenerator CreateGenerator()
+        {
+            return new DungeonGenerator(this);
+        }
     }
 }

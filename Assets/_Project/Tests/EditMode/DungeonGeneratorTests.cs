@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using DarkDescent.Core;
 using DarkDescent.Levels;
 using NUnit.Framework;
@@ -34,44 +33,9 @@ namespace DarkDescent.Tests
             return layout.ToMap(new Dictionary<string, string[]>());
         }
 
-        private static string Text(LevelMap map)
-        {
-            var sb = new StringBuilder();
-            for (int y = 0; y < map.Height; y++)
-            {
-                for (int x = 0; x < map.Width; x++)
-                {
-                    sb.Append(map.GetSymbol(x, y));
-                }
+        private static string Text(LevelMap map) => MapChecks.Text(map);
 
-                sb.Append('\n');
-            }
-
-            return sb.ToString();
-        }
-
-        // passi a piedi dall'ingresso, scritta qui e non presa dal generatore: la scala non si attraversa
-        private static Dictionary<Vector2Int, int> Walk(LevelMap map, Vector2Int from)
-        {
-            var distances = new Dictionary<Vector2Int, int> { [from] = 0 };
-            var queue = new Queue<Vector2Int>();
-            queue.Enqueue(from);
-            while (queue.Count > 0)
-            {
-                var cell = queue.Dequeue();
-                foreach (var step in new[] { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left })
-                {
-                    var next = cell + step;
-                    if (map.IsFloor(next.x, next.y) && map.GetSymbol(next.x, next.y) != DungeonGenerator.StairsSymbol && !distances.ContainsKey(next))
-                    {
-                        distances[next] = distances[cell] + 1;
-                        queue.Enqueue(next);
-                    }
-                }
-            }
-
-            return distances;
-        }
+        private static Dictionary<Vector2Int, int> Walk(LevelMap map, Vector2Int from) => MapChecks.Walk(map, from);
 
         [Test, Description("Su 500 semi ogni pavimento si raggiunge a piedi dall'ingresso, e la scala ha accanto un pavimento raggiunto")]
         public void EveryFloor_IsReachableFromTheEntrance()
