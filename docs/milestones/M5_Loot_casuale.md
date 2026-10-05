@@ -409,7 +409,8 @@ blu e oro, cioè proprio quello che la GIF deve mostrare. ADR-025…031 in `DECI
 (ADR-020 rimanda al danno intero). **Punto di controllo:** dalla chiusura della M2 (3 ott)
 alla chiusura della M5 (5 ott) sono passati 2 giorni di calendario contro le circa 7
 settimane delle 42 h stimate per M2.5–M5: rapporto 0,04, nessun taglio. Lezioni nel piano
-(v2.13), tabella dello stato aggiornata.
+(v2.13), tabella dello stato aggiornata. Tag `m5` pushato il 5 ottobre 2026: build del tag
+verde (test e Windows).
 
 ---
 
@@ -487,5 +488,5 @@ settimane delle 42 h stimate per M2.5–M5: rapporto 0,04, nessun taglio. Lezion
 - [x] Scenario della Definition of Done provato in build
 - [x] Test verdi in CI
 - [x] Punto di controllo misurato
-- [ ] GIF, ADR, lezioni nel piano, tag `m5`
-- [ ] Scheda della M6 scritta prima di cominciarla
+- [x] GIF, ADR, lezioni nel piano, tag `m5`
+- [x] Scheda della M6 scritta prima di cominciarla
