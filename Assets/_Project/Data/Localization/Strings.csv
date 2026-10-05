@@ -24,6 +24,7 @@ tooltip.damage,Damage: {0}–{1},Danno: {0}–{1}
 tooltip.armor,Armor: {0},Armatura: {0}
 tooltip.required_strength,Required Strength: {0},Forza richiesta: {0}
 tooltip.block,Block chance: {0}%,Blocco: {0}%
+chest,Chest,Cassa
 tooltip.equipped,Equipped,Equipaggiato
 
 # Righe degli affissi nel tooltip

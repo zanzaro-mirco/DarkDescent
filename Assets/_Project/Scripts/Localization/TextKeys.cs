@@ -15,6 +15,7 @@ namespace DarkDescent.Localization
         public const string TooltipArmor = "tooltip.armor";
         public const string TooltipRequiredStrength = "tooltip.required_strength";
         public const string TooltipBlock = "tooltip.block";
+        public const string Chest = "chest";
         public const string TooltipEquipped = "tooltip.equipped";
 
         // le righe degli affissi nel tooltip, una per effetto

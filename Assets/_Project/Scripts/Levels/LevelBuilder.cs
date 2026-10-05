@@ -213,7 +213,8 @@ namespace DarkDescent.Levels
                         }
 
                         bool isEnemy = prefab.GetComponentInChildren<EnemyAI>() != null;
-                        var placed = Place(prefab, isEnemy ? enemies : props, center, Quaternion.LookRotation(Vector3.back));
+                        var facing = isEnemy ? Vector3.back : AwayFromWall(map, marker);
+                        var placed = Place(prefab, isEnemy ? enemies : props, center, Quaternion.LookRotation(facing));
                         if (isEnemy)
                         {
                             placed.name = $"{prefab.name}_{++enemyCount:00}";
@@ -223,6 +224,17 @@ namespace DarkDescent.Levels
                     }
                 }
             }
+        }
+
+        // Un oggetto di scena contro un muro guarda la stanza: una cassa si apre dal davanti, e lì il
+        // cavaliere deve poter arrivare. Senza muri accanto guarda la camera, come prima della M6.
+        private static Vector3 AwayFromWall(LevelMap map, MapMarker marker)
+        {
+            if (!map.IsFloor(marker.X, marker.Y - 1)) return Vector3.back;
+            if (!map.IsFloor(marker.X, marker.Y + 1)) return Vector3.forward;
+            if (!map.IsFloor(marker.X - 1, marker.Y)) return Vector3.right;
+            if (!map.IsFloor(marker.X + 1, marker.Y)) return Vector3.left;
+            return Vector3.back;
         }
 
         // Il prefab della scala ha l'origine al centro della cella, all'altezza del pavimento, e il +Z

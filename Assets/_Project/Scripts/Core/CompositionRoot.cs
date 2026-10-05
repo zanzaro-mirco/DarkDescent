@@ -173,6 +173,11 @@ namespace DarkDescent.Core
                     loot.Bind(_loot, level.Depth);
                 }
             }
+
+            foreach (var chest in level.Chests)
+            {
+                chest.Bind(_loot, level.Depth);
+            }
         }
 
         private void ReleaseLevel(LevelContext level)

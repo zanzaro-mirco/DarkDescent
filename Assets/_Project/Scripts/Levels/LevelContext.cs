@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DarkDescent.Enemies;
+using DarkDescent.Items;
 using UnityEngine;
 
 namespace DarkDescent.Levels
@@ -19,6 +20,7 @@ namespace DarkDescent.Levels
         private readonly List<LevelEntrance> _entrances = new List<LevelEntrance>();
         private readonly List<LevelExit> _exits = new List<LevelExit>();
         private readonly List<EnemyAI> _enemies = new List<EnemyAI>();
+        private readonly List<Chest> _chests = new List<Chest>();
 
         /// <summary>Il player ha raggiunto un'uscita.</summary>
         public event Action<LevelExit> ExitRequested;
@@ -27,6 +29,9 @@ namespace DarkDescent.Levels
         public IReadOnlyList<EnemyAI> Enemies => _enemies;
 
         public IReadOnlyList<LevelExit> Exits => _exits;
+
+        /// <summary>Le casse da aprire (dalla M6): il loot le collega come i nemici.</summary>
+        public IReadOnlyList<Chest> Chests => _chests;
 
         public int EntranceCount => _entrances.Count;
 
@@ -44,6 +49,7 @@ namespace DarkDescent.Levels
             var entrances = new List<LevelEntrance>();
             var exits = new List<LevelExit>();
             var enemies = new List<EnemyAI>();
+            var chests = new List<Chest>();
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
                 root.GetComponentsInChildren(true, entrances);
@@ -52,6 +58,8 @@ namespace DarkDescent.Levels
                 _exits.AddRange(exits);
                 root.GetComponentsInChildren(true, enemies);
                 _enemies.AddRange(enemies);
+                root.GetComponentsInChildren(true, chests);
+                _chests.AddRange(chests);
             }
         }
 

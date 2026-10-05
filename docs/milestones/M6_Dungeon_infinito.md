@@ -229,6 +229,24 @@ gioco: niente più "Failed to create agent" nel log. 108 EditMode e 93 PlayMode 
 3. Test PlayMode: click sulla cassa, apertura, oggetto a terra, un secondo click non fa
    niente.
 
+**Com'è andata (5 ott 2026).** Il modello `chest` di KayKit ha il coperchio separato
+(`chest_lid`), con il perno già sulla cerniera dietro: `Chest` lo ruota di 110° attorno a X in
+0,35 s, e il bordo davanti sale. Il componente sta sul prefab della cassa, quindi vale anche per
+quella del livello 1 fatto a mano: `Interactable` con l'etichetta "Chest"/"Cassa" e il punto
+d'arrivo 1,7 m davanti, un collider del click sul layer `Interactable` poco più grande di quello
+dell'ostacolo (il raggio prende prima lui), l'evidenziazione con il materiale acceso del
+dungeon, una `AudioSource` sul mixer SFX con le stesse impostazioni 3D degli scheletri e tre
+`impactPlank_medium` di Kenney, presi dallo zip *Impact Sounds* già scaricato alla M5 (riga in
+`CREDITS.md`). Aperta, spegne il collider del click: il cursore non la vede più, niente nome né
+evidenziazione. `Data/Loot/ChestLoot.asset` cade sempre (probabilità 1) e pesa allo stesso modo
+le otto basi; il seme è quello della cella, come per i nemici, attraverso `LootRoller`. Le casse
+le raccoglie `LevelContext.Chests` e le collega il composition root con la profondità. **Verso:**
+il builder ora gira gli oggetti di scena con il davanti verso la stanza, lontano dal muro che
+hanno accanto, altrimenti una cassa contro il muro sud si sarebbe aperta verso il muro. Una
+foto usa e getta ha confermato coperchio e verso. Test: `ChestTests` (le casse della cripta sono
+collegate, si raggiungono e si chiamano "Chest"; il click le apre, il coperchio sale, cade
+l'oggetto previsto dal seme, un secondo click non fa niente). 108 EditMode e 95 PlayMode verdi.
+
 ## Passo 6.6 — Finestra dell'editor
 
 1. `DungeonGeneratorWindow` in UI Toolkit, nell'assembly dell'editor.
@@ -300,7 +318,7 @@ gioco: niente più "Failed to create agent" nel log. 108 EditMode e 93 PlayMode 
 - [x] Generatore con i test sui 500 semi
 - [x] Contenuto per profondità
 - [x] Livelli generati nel gioco, NavMesh a runtime misurato (in build: da leggere nel `Player.log`)
-- [ ] Casse
+- [x] Casse
 - [ ] Finestra dell'editor
 - [ ] Dipendenze e asmdef
 - [ ] Scenario della Definition of Done provato in build
