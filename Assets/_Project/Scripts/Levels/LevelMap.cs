@@ -18,9 +18,9 @@ namespace DarkDescent.Levels
     {
         public const float CellSize = 4f;
 
-        private const char Rock = '#';
+        public const char Rock = '#';
         private const char Empty = ' ';
-        private const char Floor = '.';
+        public const char Floor = '.';
 
         private readonly char[,] _cells;
         private readonly List<MapMarker> _markers = new List<MapMarker>();
@@ -81,20 +81,15 @@ namespace DarkDescent.Levels
 
             // righe più corte completate con roccia: un editor di testo toglie volentieri gli spazi in coda
             var cells = new char[width, rows.Count];
-            var map = new LevelMap(cells);
             for (int y = 0; y < rows.Count; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    char c = x < rows[y].Length ? rows[y][x] : Rock;
-                    cells[x, y] = c == Empty ? Rock : c;
-                    if (c != Rock && c != Empty && c != Floor)
-                    {
-                        map._markers.Add(new MapMarker(c, x, y));
-                    }
+                    cells[x, y] = x < rows[y].Length ? rows[y][x] : Rock;
                 }
             }
 
+            var parsed = new Dictionary<string, string[]>();
             foreach (var directive in directives)
             {
                 if (directive.Length == 0)
@@ -104,7 +99,45 @@ namespace DarkDescent.Levels
 
                 var values = new string[directive.Length - 1];
                 Array.Copy(directive, 1, values, 0, values.Length);
-                map._directives[directive[0]] = values;
+                parsed[directive[0]] = values;
+            }
+
+            return FromCells(cells, parsed);
+        }
+
+        /// <summary>
+        /// Una mappa fatta dal codice, come quella del generatore della M6: stessi simboli e stesse
+        /// regole del testo. La griglia viene copiata, chi la passa può continuare a usarla.
+        /// </summary>
+        public static LevelMap FromCells(char[,] source, IReadOnlyDictionary<string, string[]> directives = null)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            int width = source.GetLength(0);
+            int height = source.GetLength(1);
+            var map = new LevelMap(new char[width, height]);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    char c = source[x, y];
+                    map._cells[x, y] = c == Empty ? Rock : c;
+                    if (c != Rock && c != Empty && c != Floor)
+                    {
+                        map._markers.Add(new MapMarker(c, x, y));
+                    }
+                }
+            }
+
+            if (directives != null)
+            {
+                foreach (var pair in directives)
+                {
+                    map._directives[pair.Key] = pair.Value;
+                }
             }
 
             return map;

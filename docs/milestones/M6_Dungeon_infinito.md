@@ -114,6 +114,52 @@ PlayMode verdi.
    sovrapposta a un'altra né a contatto, scala ad almeno metà della distanza massima, mappa
    dentro i bordi, stesso seme stessa mappa.
 
+**Com'è andata (5 ott 2026).** `DungeonGenerator` (logica pura, solo interi) prende un
+`DungeonSettings` e un seme e restituisce un `DungeonLayout`: griglia, stanze, stanza di
+partenza e di arrivo, ingresso e scala. Il layout accetta marcatori su celle di pavimento
+libere (`TryPlace`, per il passo 6.3) e diventa una `LevelMap` con le direttive, attraverso il
+nuovo `LevelMap.FromCells`, che ora usa anche la lettura del testo. Il BSP divide il
+rettangolo dentro il bordo di roccia finché una zona supera 11 celle, mai sotto 6; ogni zona
+ha una stanza da 3 a 7 celle per lato con almeno una cella di roccia attorno, quindi due
+stanze non si toccano mai. Risalendo, i due rami di ogni divisione si collegano con un
+corridoio a L tra le loro stanze più vicine. La scala va nella stanza più lontana a piedi,
+sulla riga nord, con la roccia oltre (lo stendardo) e il pavimento davanti (da dove si
+arriva): tra le celle candidate si scarta quella che taglierebbe fuori un pezzo di livello.
+`SeedMixer` è passato da `Items` a `Core`, con `ForLevel`: il seme di un livello non coincide
+mai con quello di un nemico. Su 500 semi le cripte hanno da 9 a 16 stanze. Il seme 4711:
+
+```
+############################
+##......####################
+##.............#############
+##......##.....######....###
+##########.....######....###
+############...........<.###
+#####################....###
+#######################.####
+#######################.####
+#############....##.......##
+#############....##.......##
+######.>.####....##.......##
+######...####.............##
+######...####....##.......##
+######...####....##.......##
+######...######.############
+######...######.############
+#######.#######.####....####
+#######.#######.####....####
+#####......###...###....####
+#####...................####
+#####......###...###....####
+####################....####
+############################
+```
+
+(senza le righe di sola roccia in alto e in basso). Test: `DungeonGeneratorTests`, cinque
+test su 500 semi in meno di mezzo secondo in tutto. Il primo giro ne impiegava cinque e mezzo:
+il messaggio di errore con la mappa intera si componeva a ogni asserzione, anche quando
+passava (trappola 9). 103 EditMode e 90 PlayMode verdi.
+
 ## Passo 6.3 — Contenuto
 
 1. Nemici e casse dai numeri di D6, scelti tra le celle delle stanze con il seme del livello.
@@ -206,7 +252,7 @@ PlayMode verdi.
 
 - [x] Decisioni D1–D12 confermate
 - [x] Builder a runtime, mappe a mano ricostruite uguali
-- [ ] Generatore con i test sui 500 semi
+- [x] Generatore con i test sui 500 semi
 - [ ] Contenuto per profondità
 - [ ] Livelli generati nel gioco, NavMesh a runtime misurato
 - [ ] Casse

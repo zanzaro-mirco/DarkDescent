@@ -1,9 +1,10 @@
-namespace DarkDescent.Items
+namespace DarkDescent.Core
 {
     /// <summary>
-    /// Mescola il seme della partita con la profondità e il punto di partenza di un nemico (D5 della
-    /// M5): ogni nemico ha un seme suo, sempre lo stesso, in qualunque ordine si uccidano. Funzione
-    /// nostra e non GetHashCode, che cambia tra runtime.
+    /// Ricava dal seme della partita un seme per ogni cosa che ne ha bisogno (ADR-029): ogni nemico
+    /// dalla profondità e dal punto di partenza (D5 della M5), ogni livello generato dalla profondità
+    /// (D8 della M6). Semi ricavati e non una sequenza condivisa: il loot non cambia la mappa e la
+    /// mappa non cambia il loot. Funzione nostra e non GetHashCode, che cambia tra runtime.
     /// </summary>
     public static class SeedMixer
     {
@@ -12,6 +13,15 @@ namespace DarkDescent.Items
             ulong seed = Mix(runSeed ^ (ulong)(uint)depth);
             seed = Mix(seed ^ (ulong)(uint)cellX);
             return Mix(seed ^ ((ulong)(uint)cellZ << 32));
+        }
+
+        // "LEVEL" in ASCII: il seme di un livello non coincide mai con quello di un nemico
+        private const ulong LevelDomain = 0x4C4556454CUL;
+
+        public static ulong ForLevel(ulong runSeed, int depth)
+        {
+            ulong seed = Mix(runSeed ^ LevelDomain);
+            return Mix(seed ^ (ulong)(uint)depth);
         }
 
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
