@@ -61,7 +61,7 @@ namespace DarkDescent.Tests
                 Assert.IsNotNull(item.Model, $"{item.name} senza modello");
                 Assert.GreaterOrEqual(item.Size.x, 1);
                 Assert.GreaterOrEqual(item.Size.y, 1);
-                Assert.AreNotEqual(EquipSlot.None, item.Slot, $"{item.name}: per ora ogni oggetto si equipaggia");
+                Assert.IsTrue(item.Slot != EquipSlot.None || item is PotionDefinition, $"{item.name}: per ora ogni oggetto si equipaggia o si beve");
             }
         }
 
@@ -110,10 +110,11 @@ namespace DarkDescent.Tests
             Assert.AreEqual(EquipSlot.Offhand, shield.Slot);
         }
     
-        [Test, Description("Le basi della M5 hanno i valori della scheda (D7): otto oggetti a una mano")]
+        [Test, Description("Le basi della M5 hanno i valori della scheda (D7): otto oggetti a una mano, più la pozione della M6")]
         public void M5Bases_MatchTheScheda()
         {
-            Assert.AreEqual(8, Database.Items.Count);
+            Assert.AreEqual(8, Database.Items.Count(item => item.Slot != EquipSlot.None));
+            Assert.AreEqual(1, Database.Items.Count(item => item is PotionDefinition));
 
             var dagger = Item<WeaponDefinition>("Dagger");
             Assert.AreEqual((3, 6, 0, WeaponKind.Dagger), (dagger.MinDamage, dagger.MaxDamage, dagger.RequiredStrength, dagger.Kind));

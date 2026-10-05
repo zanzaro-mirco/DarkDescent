@@ -599,6 +599,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 9caa150e7746ed04889a73c75f10f5ab, type: 3}
   - {fileID: 8300000, guid: 9d0d634a39b7c204f940b6fa27ba7afe, type: 3}
   - {fileID: 8300000, guid: 1eb1fc5f4c87136489b6d53677ccc143, type: 3}
+  _healClips:
+  - {fileID: 8300000, guid: 3df37aee39a6d3f49854db44a946dc09, type: 3}
+  - {fileID: 8300000, guid: fe58997c728c8ec40ad722f5018c5344, type: 3}
+  - {fileID: 8300000, guid: 1864650ab85b97245923042e85e7afb3, type: 3}
   _pitchVariation: 0.06
 --- !u!114 &8189815453064965116
 MonoBehaviour:
@@ -701,6 +705,8 @@ MonoBehaviour:
   _startingWeapon: {fileID: 11400000, guid: edb5aa48207955b4ba8f40a78873892f, type: 2}
   _unarmed: {fileID: 11400000, guid: 4dba6ef1102b3e448b62876c452e8951, type: 2}
   _groundItemPrefab: {fileID: 733407215090042755, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
+  _startingPotion: {fileID: 11400000, guid: c94daa5854b2b2f48851de7b3d27463c, type: 2}
+  _startingPotions: 2
 --- !u!114 &954267181143827798
 MonoBehaviour:
   m_ObjectHideFlags: 0

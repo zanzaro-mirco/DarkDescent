@@ -143,6 +143,16 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""UseBelt"",
+                    ""type"": ""Button"",
+                    ""id"": ""a132ec13-e080-4603-b839-8eabc18c4ef7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -200,6 +210,94 @@ namespace DarkDescent.Input
                     ""action"": ""CycleLanguage"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""da489143-da98-4ba2-af25-3cf80dd1f0a8"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseBelt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dff6a3b1-25f8-4a68-a33a-337ccca40c49"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseBelt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""271bdb8c-e6f3-432a-a76a-4dc560d08c7e"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseBelt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aee7ad13-1534-469d-92d4-c87d78973bc8"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseBelt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""57ab867a-7577-4a3e-9231-68827f888657"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseBelt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""89ecd3d2-916e-44b0-8b0b-b5f4735fe692"",
+                    ""path"": ""<Keyboard>/6"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseBelt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2edf4925-5d17-450c-a467-9728704978a3"",
+                    ""path"": ""<Keyboard>/7"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseBelt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""be771e1f-6fe1-4500-8385-7bcd38a7173d"",
+                    ""path"": ""<Keyboard>/8"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseBelt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -213,6 +311,7 @@ namespace DarkDescent.Input
             m_Gameplay_ToggleInventory = m_Gameplay.FindAction("ToggleInventory", throwIfNotFound: true);
             m_Gameplay_ToggleCharacter = m_Gameplay.FindAction("ToggleCharacter", throwIfNotFound: true);
             m_Gameplay_CycleLanguage = m_Gameplay.FindAction("CycleLanguage", throwIfNotFound: true);
+            m_Gameplay_UseBelt = m_Gameplay.FindAction("UseBelt", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -298,6 +397,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_ToggleInventory;
         private readonly InputAction m_Gameplay_ToggleCharacter;
         private readonly InputAction m_Gameplay_CycleLanguage;
+        private readonly InputAction m_Gameplay_UseBelt;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -329,6 +429,10 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/CycleLanguage".
             /// </summary>
             public InputAction @CycleLanguage => m_Wrapper.m_Gameplay_CycleLanguage;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/UseBelt".
+            /// </summary>
+            public InputAction @UseBelt => m_Wrapper.m_Gameplay_UseBelt;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -370,6 +474,9 @@ namespace DarkDescent.Input
                 @CycleLanguage.started += instance.OnCycleLanguage;
                 @CycleLanguage.performed += instance.OnCycleLanguage;
                 @CycleLanguage.canceled += instance.OnCycleLanguage;
+                @UseBelt.started += instance.OnUseBelt;
+                @UseBelt.performed += instance.OnUseBelt;
+                @UseBelt.canceled += instance.OnUseBelt;
             }
 
             /// <summary>
@@ -396,6 +503,9 @@ namespace DarkDescent.Input
                 @CycleLanguage.started -= instance.OnCycleLanguage;
                 @CycleLanguage.performed -= instance.OnCycleLanguage;
                 @CycleLanguage.canceled -= instance.OnCycleLanguage;
+                @UseBelt.started -= instance.OnUseBelt;
+                @UseBelt.performed -= instance.OnUseBelt;
+                @UseBelt.canceled -= instance.OnUseBelt;
             }
 
             /// <summary>
@@ -471,6 +581,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnCycleLanguage(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "UseBelt" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnUseBelt(InputAction.CallbackContext context);
         }
     }
 }

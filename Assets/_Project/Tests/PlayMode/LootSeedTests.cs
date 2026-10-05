@@ -31,7 +31,8 @@ namespace DarkDescent.Tests
 
         private static Dictionary<string, string> Previews()
         {
-            return Skeletons().ToDictionary(d => d.name, d => Describe(d.Preview()));
+            // dalla M6 la pozione ha un tiro suo: fa parte del drop previsto (D14)
+            return Skeletons().ToDictionary(d => d.name, d => Describe(d.Preview()) + (d.PreviewPotion() != null ? " + pozione" : ""));
         }
 
         [UnityTest, Description("Con il seme 4711 gli scheletri del livello 1 lasciano gli oggetti previsti anche uccisi in ordine inverso, e un nuovo avvio con lo stesso seme li rifà uguali")]
@@ -51,7 +52,10 @@ namespace DarkDescent.Tests
                 yield return null;
 
                 var fresh = Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).Where(g => !before.Contains(g)).ToArray();
-                Assert.AreEqual(expected[name], fresh.Length == 0 ? "niente" : Describe(fresh.Single().Item), name);
+                var items = fresh.Where(g => !(g.Item.Definition is PotionDefinition)).ToArray();
+                string actual = (items.Length == 0 ? "niente" : Describe(items.Single().Item))
+                    + (fresh.Any(g => g.Item.Definition is PotionDefinition) ? " + pozione" : "");
+                Assert.AreEqual(expected[name], actual, name);
             }
 
             // lo stesso livello fatto a mano, come LoadCore

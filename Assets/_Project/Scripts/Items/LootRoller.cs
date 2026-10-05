@@ -39,5 +39,20 @@ namespace DarkDescent.Items
             // il livello dell'oggetto è la profondità del livello (D8)
             return _generator.Generate(item, depth, random.NextUInt64());
         }
+
+        /// <summary>
+        /// La pozione che lascia in più il nemico, o la cassa, partito da questa cella; null se non ne
+        /// lascia. Un tiro a parte con un seme suo: non cambia l'oggetto di <see cref="Roll"/>.
+        /// </summary>
+        public ItemInstance RollPotion(LootTable table, int depth, int cellX, int cellZ)
+        {
+            if (table == null || table.Potion == null)
+            {
+                return null;
+            }
+
+            var random = new SplitMix64Source(SeedMixer.ForPotion(RunSeed, depth, cellX, cellZ));
+            return random.NextDouble() < table.PotionChance ? new ItemInstance(table.Potion) : null;
+        }
     }
 }

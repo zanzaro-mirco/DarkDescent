@@ -4,9 +4,9 @@ using UnityEngine;
 namespace DarkDescent.Items
 {
     /// <summary>
-    /// Tutto quello che il cavaliere porta: la griglia, l'equipaggiamento e l'oggetto preso sul
-    /// cursore. Qui sta il click-e-click di Diablo 1 (D5 della M4): un click prende, un click posa,
-    /// e se sotto c'è un oggetto solo i due si scambiano. Logica pura: la UI la chiama e basta.
+    /// Tutto quello che il cavaliere porta: la griglia, l'equipaggiamento, la cintura e l'oggetto
+    /// preso sul cursore. Qui sta il click-e-click di Diablo 1 (D5 della M4): un click prende, un
+    /// click posa, e se sotto c'è un oggetto solo i due si scambiano. Logica pura: la UI la chiama e basta.
     /// </summary>
     public sealed class Inventory
     {
@@ -23,13 +23,19 @@ namespace DarkDescent.Items
 
         public Equipment Equipment { get; }
 
+        /// <summary>Le pozioni a portata di tasto (D14 della M6).</summary>
+        public Belt Belt { get; } = new Belt();
+
         /// <summary>L'oggetto preso con il cursore, o null.</summary>
         public ItemInstance Held { get; private set; }
 
-        /// <summary>Raccoglie un oggetto da terra nel primo posto libero; false se non c'è spazio.</summary>
+        /// <summary>
+        /// Raccoglie un oggetto da terra nel primo posto libero; false se non c'è spazio. Una pozione
+        /// va nella cintura se c'è posto, altrimenti nella griglia (D14 della M6).
+        /// </summary>
         public bool TryPickUp(ItemInstance item)
         {
-            return Grid.TryAutoPlace(item);
+            return Belt.TryAdd(item) || Grid.TryAutoPlace(item);
         }
 
         /// <summary>
@@ -87,6 +93,46 @@ namespace DarkDescent.Items
             return true;
         }
 
+        /// <summary>
+        /// Un click su un posto della cintura, come su una cella: a mani vuote prende la pozione,
+        /// con una pozione in mano la posa e prende quella che c'era. Gli altri oggetti non ci vanno.
+        /// </summary>
+        public bool ClickBelt(int slot)
+        {
+            if (Held == null)
+            {
+                ItemInstance item = Belt.Take(slot);
+                if (item == null)
+                {
+                    return false;
+                }
+
+                SetHeld(item);
+                return true;
+            }
+
+            if (!Belt.TryPlaceOrSwap(slot, Held, out ItemInstance displaced))
+            {
+                return false;
+            }
+
+            SetHeld(displaced);
+            return true;
+        }
+
+        /// <summary>Toglie la pozione di un posto della cintura per berla; null se lì non c'è una pozione.</summary>
+        public PotionDefinition TakePotionFromBelt(int slot)
+        {
+            return Belt.Get(slot)?.Definition is PotionDefinition potion && Belt.Take(slot) != null ? potion : null;
+        }
+
+        /// <summary>Toglie la pozione che occupa una cella della griglia per berla; null se lì non c'è una pozione.</summary>
+        public PotionDefinition TakePotionAt(Vector2Int cell)
+        {
+            ItemInstance item = Grid.ItemAt(cell);
+            return item?.Definition is PotionDefinition potion && Grid.Remove(item) ? potion : null;
+        }
+
         /// <summary>Lascia l'oggetto preso: chi lo chiama lo mette a terra.</summary>
         public ItemInstance ReleaseHeld()
         {
@@ -99,10 +145,13 @@ namespace DarkDescent.Items
             return item;
         }
 
-        /// <summary>Rimette nella griglia l'oggetto preso, se c'è posto (per esempio chiudendo l'inventario).</summary>
+        /// <summary>
+        /// Rimette a posto l'oggetto preso, se c'è spazio (per esempio chiudendo l'inventario): come
+        /// raccogliendolo, una pozione torna prima nella cintura.
+        /// </summary>
         public bool TryStoreHeld()
         {
-            if (Held == null || !Grid.TryAutoPlace(Held))
+            if (Held == null || !TryPickUp(Held))
             {
                 return false;
             }

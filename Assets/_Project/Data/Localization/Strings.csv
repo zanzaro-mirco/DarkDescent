@@ -26,6 +26,8 @@ tooltip.required_strength,Required Strength: {0},Forza richiesta: {0}
 tooltip.block,Block chance: {0}%,Blocco: {0}%
 chest,Chest,Cassa
 tooltip.equipped,Equipped,Equipaggiato
+tooltip.heal,Restores {0}% of life,Rende il {0}% della vita
+tooltip.drink,Right-click or 1–8 on the belt to drink,Click destro o 1–8 dalla cintura per bere
 
 # Righe degli affissi nel tooltip
 affix.effect.weapon_damage_percent,+{0}% damage,+{0}% danno
@@ -50,6 +52,7 @@ item.axe,Axe,Ascia
 item.round_shield,Round Shield,Scudo tondo
 item.square_shield,Square Shield,Scudo quadrato
 item.spiked_shield,Spiked Shield,Scudo chiodato
+item.healing_potion,Healing Potion,Pozione di cura
 
 # Genere grammaticale delle basi (D4 della M5): sceglie la forma del prefisso.
 # n = senza genere (inglese), m e f; altre lingue potranno usare anche n
@@ -61,6 +64,7 @@ item.badge_shield.gender,n,m
 item.round_shield.gender,n,m
 item.square_shield.gender,n,m
 item.spiked_shield.gender,n,m
+item.healing_potion.gender,n,f
 
 # Affissi: i prefissi hanno la forma femminile in .f (D4 della M5); in inglese è la stessa
 affix.sharp,Sharp,Affilato

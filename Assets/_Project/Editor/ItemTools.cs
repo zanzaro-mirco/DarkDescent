@@ -88,27 +88,33 @@ namespace DarkDescent.Editor
         [MenuItem("DarkDescent/Oggetti/Rigenera le icone")]
         public static void RenderIcons()
         {
-            Directory.CreateDirectory(IconsFolder);
             foreach (var item in FindItems())
             {
-                if (item.Model == null)
-                {
-                    Debug.LogWarning($"[ItemTools] {item.name}: senza modello, niente icona");
-                    continue;
-                }
-
-                string path = $"{IconsFolder}/{item.name}.png";
-                File.WriteAllBytes(path, Render(item));
-                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-                ConfigureSprite(path);
-
-                var serialized = new SerializedObject(item);
-                serialized.FindProperty("_icon").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(path);
-                serialized.ApplyModifiedPropertiesWithoutUndo();
+                RenderIcon(item);
             }
 
             AssetDatabase.SaveAssets();
             UpdateDatabase();
+        }
+
+        /// <summary>Fa l'icona di un oggetto solo e la assegna: per un oggetto nuovo, senza rifare le altre.</summary>
+        public static void RenderIcon(ItemDefinition item)
+        {
+            if (item.Model == null)
+            {
+                Debug.LogWarning($"[ItemTools] {item.name}: senza modello, niente icona");
+                return;
+            }
+
+            Directory.CreateDirectory(IconsFolder);
+            string path = $"{IconsFolder}/{item.name}.png";
+            File.WriteAllBytes(path, Render(item));
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            ConfigureSprite(path);
+
+            var serialized = new SerializedObject(item);
+            serialized.FindProperty("_icon").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>Gli oggetti che si possono trovare: le definizioni in Data/Items, in ordine di nome.</summary>

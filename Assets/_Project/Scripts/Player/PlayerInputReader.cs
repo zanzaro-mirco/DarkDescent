@@ -2,6 +2,7 @@ using System;
 using DarkDescent.Input;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 namespace DarkDescent.Player
 {
@@ -24,6 +25,9 @@ namespace DarkDescent.Player
         /// <summary>Il tasto provvisorio delle lingue (F9), finché non c'è il menu delle opzioni.</summary>
         public event Action LanguageCycled;
 
+        /// <summary>Un tasto da 1 a 8: il posto della cintura da bere, da 0 (D14 della M6).</summary>
+        public event Action<int> BeltSlotUsed;
+
         public bool IsMoveCommandHeld { get; private set; }
 
         public Vector2 PointerScreenPosition => _controls.Gameplay.Point.ReadValue<Vector2>();
@@ -44,6 +48,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.ToggleInventory.performed += HandleInventoryPerformed;
             _controls.Gameplay.ToggleCharacter.performed += HandleCharacterPerformed;
             _controls.Gameplay.CycleLanguage.performed += HandleLanguagePerformed;
+            _controls.Gameplay.UseBelt.performed += HandleBeltPerformed;
             _controls.Gameplay.Enable();
         }
 
@@ -57,6 +62,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.ToggleInventory.performed -= HandleInventoryPerformed;
             _controls.Gameplay.ToggleCharacter.performed -= HandleCharacterPerformed;
             _controls.Gameplay.CycleLanguage.performed -= HandleLanguagePerformed;
+            _controls.Gameplay.UseBelt.performed -= HandleBeltPerformed;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
@@ -95,6 +101,21 @@ namespace DarkDescent.Player
         private void HandleLanguagePerformed(InputAction.CallbackContext context)
         {
             LanguageCycled?.Invoke();
+        }
+
+        // un'azione sola con otto tasti: il posto si ricava dal tasto premuto, da 1 a 8 consecutivi nell'enum
+        private void HandleBeltPerformed(InputAction.CallbackContext context)
+        {
+            if (context.control is KeyControl key)
+            {
+                UseBeltSlot(key.keyCode - Key.Digit1);
+            }
+        }
+
+        /// <summary>Come premere il tasto del posto (da 0): per i test, che non hanno una tastiera.</summary>
+        public void UseBeltSlot(int slot)
+        {
+            BeltSlotUsed?.Invoke(slot);
         }
     }
 }

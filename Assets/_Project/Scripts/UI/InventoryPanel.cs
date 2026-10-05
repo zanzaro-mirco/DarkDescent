@@ -118,6 +118,15 @@ namespace DarkDescent.UI
             _inventory.Inventory.ClickCell(cell);
         }
 
+        /// <summary>Click destro su una cella: beve la pozione che c'è, se il cursore è libero.</summary>
+        public void UseCell(Vector2Int cell)
+        {
+            if (_inventory.Inventory.Held == null)
+            {
+                _inventory.DrinkAt(cell);
+            }
+        }
+
         public void ClickSlot(EquipSlot slot)
         {
             _inventory.Inventory.ClickSlot(slot);

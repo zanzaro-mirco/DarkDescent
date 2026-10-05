@@ -35,6 +35,8 @@ namespace DarkDescent.Core
 
         [SerializeField] private CharacterPanel _characterPanel;
 
+        [SerializeField] private BeltView _beltView;
+
         [SerializeField] private ItemCursor _itemCursor;
 
         [SerializeField] private HitStop _hitStop;
@@ -118,6 +120,7 @@ namespace DarkDescent.Core
             _inventoryPanel.Bind(inventory, _reader, _localizer);
             _itemCursor.Bind(inventory, _reader);
             _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _reader);
+            _beltView.Bind(inventory);
         }
 
         private void OnEnable()

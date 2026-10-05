@@ -8,7 +8,8 @@ namespace DarkDescent.UI
     /// <summary>
     /// Il testo del tooltip di un oggetto, in rich text di TextMesh Pro, nella lingua attiva: nome
     /// composto nel colore della rarità, danno o Armatura e blocco già con gli affissi, requisiti,
-    /// poi una riga per affisso in blu, come in Diablo. Logica pura, così il formato si prova senza scena.
+    /// poi una riga per affisso in blu, come in Diablo; per le pozioni la cura e come berle. Logica
+    /// pura, così il formato si prova senza scena.
     /// </summary>
     public static class ItemDescription
     {
@@ -19,6 +20,9 @@ namespace DarkDescent.UI
         public const string AffixColor = "#7F9CFF";
 
         private const string HeaderColor = "#A09A8C";
+
+        // il suggerimento sotto la pozione: più spento del testo, come un'istruzione e non un valore
+        private const string HintColor = "#8C8577";
 
         /// <summary>
         /// Scrive la descrizione in <paramref name="builder"/>, dopo averlo svuotato.
@@ -61,6 +65,11 @@ namespace DarkDescent.UI
                 case ArmorDefinition _:
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipArmor), ItemStats.ShieldArmor(item));
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipBlock), ItemStats.ShieldBlock(item));
+                    break;
+
+                case PotionDefinition potion:
+                    builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipHeal), (int)System.Math.Round(potion.HealFraction * 100f));
+                    builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipDrink)).Append("</color></size>");
                     break;
             }
 

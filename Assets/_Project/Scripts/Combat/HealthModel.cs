@@ -57,6 +57,23 @@ namespace DarkDescent.Combat
             Changed?.Invoke(Current, Max);
         }
 
+        /// <summary>
+        /// Rende vita fino al massimo e restituisce quanta ne è tornata davvero: 0 da morto, a vita
+        /// piena o con una quantità non positiva. Una cura non riporta in vita.
+        /// </summary>
+        public float Heal(float amount)
+        {
+            if (IsDead || float.IsNaN(amount) || amount <= 0f || Current >= Max)
+            {
+                return 0f;
+            }
+
+            float applied = Math.Min(amount, Max - Current);
+            Current += applied;
+            Changed?.Invoke(Current, Max);
+            return applied;
+        }
+
         /// <summary>Applica il danno e restituisce quanto ne è stato assorbito davvero (0 se già morto).</summary>
         public float ApplyDamage(float amount)
         {

@@ -19,6 +19,9 @@ namespace DarkDescent.Items
         [Tooltip("Quanto davanti al corpo cade l'oggetto: sotto il corpo non si vedrebbe e non si cliccherebbe.")]
         [SerializeField, Min(0f)] private float _forwardOffset = 0.9f;
 
+        [Tooltip("Quanto di lato all'oggetto cade la pozione, se c'è: i due non si coprono.")]
+        [SerializeField, Min(0f)] private float _potionSideOffset = 0.7f;
+
         // la cella di partenza in decimetri: il nemico si muove, il suo seme no
         private const float CellsPerMeter = 10f;
 
@@ -42,6 +45,12 @@ namespace DarkDescent.Items
             return _roller?.Roll(_lootTable, _depth, _cellX, _cellZ);
         }
 
+        /// <summary>La pozione che lascerà in più alla morte, senza cambiare niente; null se non ne lascia.</summary>
+        public ItemInstance PreviewPotion()
+        {
+            return _roller?.RollPotion(_lootTable, _depth, _cellX, _cellZ);
+        }
+
         private void Awake()
         {
             _health = GetComponent<Health>();
@@ -61,10 +70,22 @@ namespace DarkDescent.Items
 
         private void HandleDied()
         {
-            var item = Preview();
-            if (item != null && _groundItemPrefab != null)
+            if (_groundItemPrefab == null)
             {
-                GroundItem.Spawn(_groundItemPrefab, item, transform.position + transform.forward * _forwardOffset);
+                return;
+            }
+
+            Vector3 front = transform.position + transform.forward * _forwardOffset;
+            var item = Preview();
+            if (item != null)
+            {
+                GroundItem.Spawn(_groundItemPrefab, item, front);
+            }
+
+            var potion = PreviewPotion();
+            if (potion != null)
+            {
+                GroundItem.Spawn(_groundItemPrefab, potion, front + transform.right * _potionSideOffset);
             }
         }
     }

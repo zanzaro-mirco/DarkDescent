@@ -56,7 +56,7 @@ Tutte confermate da Mirco il 5 ottobre 2026.
 | D8 | **Seme del livello** | `SeedMixer.ForLevel(seme della partita, profondità)`: lo stesso seme dà lo stesso dungeon, livello per livello, anche tornando a giocare dopo una morte con `-seed`. Il generatore usa `SplitMix64Source` (ADR-029) | Lo stesso principio della M5: un seme per cosa, ricavato e non condiviso, così il loot non cambia la mappa e la mappa non cambia il loot |
 | D9 | **Come si carica un livello generato** | Una scena `Level_Crypt`, costruita una volta dallo strumento dell'editor, con l'atmosfera, il volume del post-processing e un `DungeonLevel` che genera e costruisce all'avvio. Il `LevelManager` la carica come oggi, con una **profondità**: l'uscita del livello N porta a `Level_Crypt` con profondità N + 1. Il livello 4 per ora **non ha la scala** (le caverne arrivano alla M7) | Il piano § 4.3 prevedeva proprio "la scena vuota in cui il generatore costruisce il dungeon". Atmosfera e luci restano impostazioni di scena, come alla M3 |
 | D10 | **Finestra dell'editor** | *DarkDescent → Generatore di dungeon*, in **UI Toolkit**: seme, profondità, pulsanti "genera" e "seme successivo", la mappa disegnata a celle colorate (pavimento, muro, ingresso, scala, nemici, casse) e i numeri del livello (stanze, celle, distanza tra ingresso e scala). Un pulsante salva la mappa generata in `Levels/` come testo | Si vedono cento livelli in un minuto, senza Play Mode. Salvare un livello generato come mappa trasforma un caso strano in un livello di prova per i test |
-| D11 | **Divisione dell'asmdef** (piano § 4.5) | **Rimandata.** Al passo 6.7 scrivo il grafo delle dipendenze tra le cartelle di `Scripts/` e, se non ci sono cicli da rompere, divido solo la logica pura (`DarkDescent.Core`: griglia, generatore, semi, formule) da quella con i `MonoBehaviour`. Se ci sono cicli, resta un assembly e l'ADR dice perché | Oggi un assembly compila in pochi secondi. Dividere per area vuol dire rompere le dipendenze incrociate tra le cartelle, se ci sono, con interfacce che servono solo alla divisione. La logica pura è già separata (piano § 4.1): spostarla in un assembly suo costa poco e garantisce che non tocchi Unity |
+| D11 | **Divisione dell'asmdef** (piano § 4.5) | **Rimandata.** Al passo 6.11 scrivo il grafo delle dipendenze tra le cartelle di `Scripts/` e, se non ci sono cicli da rompere, divido solo la logica pura (`DarkDescent.Core`: griglia, generatore, semi, formule) da quella con i `MonoBehaviour`. Se ci sono cicli, resta un assembly e l'ADR dice perché | Oggi un assembly compila in pochi secondi. Dividere per area vuol dire rompere le dipendenze incrociate tra le cartelle, se ci sono, con interfacce che servono solo alla divisione. La logica pura è già separata (piano § 4.1): spostarla in un assembly suo costa poco e garantisce che non tocchi Unity |
 | D12 | **Riavvio dopo la morte** | ~~Resta com'è: un seme nuovo, quindi un dungeon nuovo, a meno di `-seed`~~ Sostituita da D13 | ~~È il comportamento di Diablo, e con `-seed` si rigioca lo stesso dungeon per provare~~ Provando la build, Mirco ha chiesto da dove si ricomincia: dal livello 1 di una cripta nuova, senza niente |
 
 ### Decisioni nate dalla prova della build (5 ottobre 2026)
@@ -302,6 +302,41 @@ PlayMode verdi.
    lezione della M4), click destro nell'inventario per bere.
 4. Tiri delle pozioni a parte nel loot di scheletri e casse, con un seme loro.
 
+**Com'è andata (5 ott 2026).** La pozione di cura è una `PotionDefinition` da 1 × 1 che rende il
+50% della vita massima, arrotondato a un intero come i danni (ADR-031). Il modello è la bottiglia
+con l'etichetta del Dungeon Pack: esiste solo verde o marrone, quindi una copia della texture ha il
+vetro ricolorato di rosso (`dungeon_texture_red.png`, materiale `M_Potion`). Il prefab la dimezza:
+alta 0,89 m, a terra sembrava una damigiana. `HealthModel.Heal` rende vita fino al massimo, non
+riporta in vita e a vita piena non fa niente. `Health` la inoltra con `HealthChanged`, così la
+sfera si aggiorna da sola, e con `Healed`, su cui `CharacterAudio` suona il vetro
+(`impactGlass_light` di Kenney). La `Belt` sta dentro `Inventory`: 8 posti che accettano solo
+pozioni. La raccolta, e il ritorno di un oggetto dal cursore alla chiusura dell'inventario,
+provano prima la cintura e poi la griglia. `ClickBelt` fa il click-e-click come le celle.
+Scostamento da Diablo: **a vita piena la pozione non si beve**, mentre in Diablo 1 si sprecava;
+un tasto premuto per sbaglio non deve costare una pozione. I tasti 1–8 sono un'azione sola
+`UseBelt` con otto binding: il posto si ricava dal tasto premuto (`Key.Digit1` e seguenti sono
+consecutivi). Con il primo passaggio in batch Unity ha rigenerato `PlayerControls`, e solo dopo è
+arrivato il codice che la usa (lezione della M1). Li ascolta `PlayerInventory`, che ora dipende
+dal `PlayerInputReader` dello stesso oggetto: è una dipendenza nuova da Items a Player, da mettere
+nel grafo del passo 6.11. La cintura a schermo (`BeltView`, `BeltSlotView`) è una fila di otto
+posti con il bordo del colore della sfera e il numero nell'angolo. La sfera è salita di 52 pixel ed è
+passata da 190 a 176, così resta sotto la finestra del personaggio. Il click destro beve dalla cintura
+e dalla griglia; il sinistro sposta le pozioni nella cintura solo con l'inventario aperto,
+altrimenti l'oggetto preso non avrebbe dove andare. Trappola: la cintura deve stare **dopo**
+l'inventario nella gerarchia della HUD, sopra il fondo trasparente che lascia a terra gli oggetti,
+altrimenti con un oggetto sul cursore i click della cintura li prende lui. Il loot ha due campi
+in più, pozione e probabilità (scheletri 0,25, casse 0,5). `LootRoller.RollPotion` tira con
+`SeedMixer.ForPotion`, che mescola il seme del nemico con un dominio suo ("POTION"): gli oggetti
+del seme 4711 sono rimasti identici, e il test lo conferma. La pozione cade di lato all'oggetto,
+così i due non si coprono. Test: cura e suoi limiti; cintura (riempimento, presa e scambio,
+raccolta che la preferisce, ritorno dal cursore, bere solo pozioni); probabilità su 10.000 tiri;
+tiro della pozione scollegato da quello dell'oggetto; tooltip nelle due lingue. In gioco: due
+pozioni alla partenza, il tasto 2 beve il secondo posto e non spreca a vita piena; click destro
+e sinistro veri; la pozione dello scheletro va nella cintura; la cassa la lascia. Il test del
+seme 4711 ora conta anche la pozione prevista. 122 EditMode e 99 PlayMode verdi. Per guardare la
+HUD in batch, `ScreenCapture` non funziona: la Canvas passa a Screen Space Camera e la camera
+disegna in una RenderTexture, come per la prima anteprima della sfera.
+
 ## Passo 6.8 — Automappa
 
 1. Stato di esplorazione delle celle (logica pura), aggiornato da dove sta il cavaliere.
@@ -388,7 +423,7 @@ PlayMode verdi.
 - [x] Casse
 - [x] Decisioni D13–D16 confermate (dopo la prova della build)
 - [x] Finestra dell'editor
-- [ ] Pozioni e cintura
+- [x] Pozioni e cintura
 - [ ] Automappa nelle due viste
 - [ ] Ripartenza dall'ingresso del livello
 - [ ] Tooltip delle statistiche

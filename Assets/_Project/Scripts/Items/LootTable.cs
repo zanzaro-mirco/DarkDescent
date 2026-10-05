@@ -6,7 +6,8 @@ namespace DarkDescent.Items
 {
     /// <summary>
     /// Cosa lascia un nemico (D8 della M5), immutabile: la probabilità di lasciare qualcosa e le
-    /// basi pesate. Rarità e affissi li decide poi il generatore.
+    /// basi pesate. Rarità e affissi li decide poi il generatore. La pozione ha un tiro suo, in più
+    /// dell'oggetto (D14 della M6).
     /// </summary>
     [CreateAssetMenu(fileName = "LootTable", menuName = "DarkDescent/Items/Loot Table")]
     public sealed class LootTable : ScriptableObject
@@ -16,9 +17,19 @@ namespace DarkDescent.Items
 
         [SerializeField] private List<LootEntry> _entries = new List<LootEntry>();
 
+        [Tooltip("La pozione che può lasciare in più dell'oggetto. Vuoto: niente pozioni.")]
+        [SerializeField] private PotionDefinition _potion;
+
+        [Tooltip("Probabilità di lasciare anche la pozione, tra 0 e 1: 0,25 gli scheletri, 0,5 le casse.")]
+        [SerializeField, Range(0f, 1f)] private float _potionChance;
+
         public float DropChance => _dropChance;
 
         public IReadOnlyList<LootEntry> Entries => _entries;
+
+        public PotionDefinition Potion => _potion;
+
+        public float PotionChance => _potionChance;
 
         /// <summary>Tira il drop: false se il nemico non lascia niente, altrimenti la base estratta per peso.</summary>
         public bool TryRoll(IRandomSource random, out ItemDefinition item)

@@ -124,6 +124,34 @@ namespace DarkDescent.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => model.SetMax(0f));
         }
 
+        [Test, Description("La cura rende vita fino al massimo, dice quanta ne è tornata e avvisa; a vita piena, da morto o con valori non positivi non fa niente")]
+        public void Heal_StopsAtMaxAndNeverRevives()
+        {
+            var model = new HealthModel(100f);
+            int changes = 0;
+            model.Changed += (_, _) => changes++;
+
+            Assert.AreEqual(0f, model.Heal(50f), "a vita piena");
+            model.ApplyDamage(70f);
+            changes = 0;
+
+            Assert.AreEqual(50f, model.Heal(50f));
+            Assert.AreEqual(80f, model.Current);
+            Assert.AreEqual(20f, model.Heal(50f), "solo fino al massimo");
+            Assert.AreEqual(100f, model.Current);
+            Assert.AreEqual(2, changes);
+
+            model.ApplyDamage(10f);
+            Assert.AreEqual(0f, model.Heal(0f));
+            Assert.AreEqual(0f, model.Heal(-5f));
+            Assert.AreEqual(0f, model.Heal(float.NaN));
+
+            model.ApplyDamage(500f);
+            Assert.AreEqual(0f, model.Heal(50f), "una cura non riporta in vita");
+            Assert.IsTrue(model.IsDead);
+            Assert.AreEqual(0f, model.Current);
+        }
+
         [TestCase(0f)]
         [TestCase(-1f)]
         [TestCase(float.NaN)]

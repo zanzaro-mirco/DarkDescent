@@ -15,17 +15,22 @@ namespace DarkDescent.UI
 
         // alla pressione e non al click: il click di uGUI arriva al rilascio, e prendere un oggetto
         // deve essere immediato come in Diablo
+        // Il destro beve la pozione sotto il cursore (D14 della M6)
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (eventData.button != PointerEventData.InputButton.Left)
+            var rect = (RectTransform)transform;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position, eventData.pressEventCamera, out Vector2 local))
             {
                 return;
             }
 
-            var rect = (RectTransform)transform;
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position, eventData.pressEventCamera, out Vector2 local))
+            if (eventData.button == PointerEventData.InputButton.Left)
             {
                 _panel.ClickCell(CellAt(local, rect, _panel.CellSize));
+            }
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                _panel.UseCell(CellAt(local, rect, _panel.CellSize));
             }
         }
 

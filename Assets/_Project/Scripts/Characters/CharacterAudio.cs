@@ -5,7 +5,7 @@ namespace DarkDescent.Characters
 {
     /// <summary>
     /// Suoni di un personaggio: fendente quando parte un colpo, impatto quando ne riceve uno, scudo
-    /// quando lo blocca, morte.
+    /// quando lo blocca, vetro quando beve una pozione, morte.
     /// Ogni personaggio ha i suoi: le ossa dello scheletro non suonano come l'armatura del cavaliere.
     /// </summary>
     [DisallowMultipleComponent]
@@ -18,6 +18,9 @@ namespace DarkDescent.Characters
 
         [Tooltip("Colpo fermato dallo scudo: metallo, non carne.")]
         [SerializeField] private AudioClip[] _blockClips;
+
+        [Tooltip("Una cura, cioè una pozione bevuta: la boccetta di vetro.")]
+        [SerializeField] private AudioClip[] _healClips;
 
         [Tooltip("Variazione casuale dell'intonazione, per non sentire lo stesso suono identico a ogni colpo.")]
         [SerializeField, Range(0f, 0.3f)] private float _pitchVariation = 0.06f;
@@ -41,6 +44,7 @@ namespace DarkDescent.Characters
             {
                 _health.Damaged += HandleDamaged;
                 _health.Died += HandleDied;
+                _health.Healed += HandleHealed;
             }
 
             if (_attack != null)
@@ -60,6 +64,7 @@ namespace DarkDescent.Characters
             {
                 _health.Damaged -= HandleDamaged;
                 _health.Died -= HandleDied;
+                _health.Healed -= HandleHealed;
             }
 
             if (_attack != null)
@@ -91,6 +96,11 @@ namespace DarkDescent.Characters
         private void HandleDied()
         {
             PlayRandom(_deathClips);
+        }
+
+        private void HandleHealed(float amount)
+        {
+            PlayRandom(_healClips);
         }
 
         private void PlayRandom(AudioClip[] clips)

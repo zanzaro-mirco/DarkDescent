@@ -30,3 +30,5 @@ MonoBehaviour:
     _weight: 1
   - _item: {fileID: 11400000, guid: d631c2d532f69a142a518ccd4f266c23, type: 2}
     _weight: 1
+  _potion: {fileID: 11400000, guid: c94daa5854b2b2f48851de7b3d27463c, type: 2}
+  _potionChance: 0.25

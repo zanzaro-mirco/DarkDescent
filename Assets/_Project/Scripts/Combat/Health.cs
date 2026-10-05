@@ -26,6 +26,9 @@ namespace DarkDescent.Combat
         /// <summary>Emesso una sola volta.</summary>
         public event Action Died;
 
+        /// <summary>La vita tornata con una cura, dopo HealthChanged.</summary>
+        public event Action<float> Healed;
+
         /// <summary>Un colpo mancato: nessun danno, nessun lampo, solo la scritta.</summary>
         public event Action<DamageInfo> Evaded;
 
@@ -56,6 +59,19 @@ namespace DarkDescent.Combat
             {
                 Died?.Invoke();
             }
+        }
+
+        /// <summary>Rende vita fino al massimo; restituisce quanta ne è tornata, 0 da morto o a vita piena.</summary>
+        public float Heal(float amount)
+        {
+            float applied = Model.Heal(amount);
+            if (applied > 0f)
+            {
+                HealthChanged?.Invoke(Model.Current, Model.Max);
+                Healed?.Invoke(applied);
+            }
+
+            return applied;
         }
 
         public void Evade(in DamageInfo info)

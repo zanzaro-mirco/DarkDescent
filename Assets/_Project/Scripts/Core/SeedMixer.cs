@@ -3,8 +3,9 @@ namespace DarkDescent.Core
     /// <summary>
     /// Ricava dal seme della partita un seme per ogni cosa che ne ha bisogno (ADR-029): ogni nemico
     /// dalla profondità e dal punto di partenza (D5 della M5), ogni livello generato dalla profondità
-    /// (D8 della M6). Semi ricavati e non una sequenza condivisa: il loot non cambia la mappa e la
-    /// mappa non cambia il loot. Funzione nostra e non GetHashCode, che cambia tra runtime.
+    /// (D8 della M6), la pozione di ogni nemico e cassa dal seme del suo oggetto (D14 della M6).
+    /// Semi ricavati e non una sequenza condivisa: il loot non cambia la mappa e la mappa non cambia
+    /// il loot. Funzione nostra e non GetHashCode, che cambia tra runtime.
     /// </summary>
     public static class SeedMixer
     {
@@ -13,6 +14,14 @@ namespace DarkDescent.Core
             ulong seed = Mix(runSeed ^ (ulong)(uint)depth);
             seed = Mix(seed ^ (ulong)(uint)cellX);
             return Mix(seed ^ ((ulong)(uint)cellZ << 32));
+        }
+
+        // "POTION" in ASCII: il tiro della pozione è a parte, e gli oggetti già legati al seme non cambiano
+        private const ulong PotionDomain = 0x504F54494F4EUL;
+
+        public static ulong ForPotion(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ PotionDomain);
         }
 
         // "LEVEL" in ASCII: il seme di un livello non coincide mai con quello di un nemico
