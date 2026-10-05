@@ -7,6 +7,8 @@ namespace DarkDescent.Player
     /// <summary>
     /// Alla morte del player spegne tutto ciò che agisce: input, controller, attacco e agent.
     /// L'animazione di morte la fa partire il driver, la schermata la mostra l'HUD: qui solo il corpo.
+    /// Tornato in vita (D13 della M6) riaccende input e attacco; controller e agent li riaccende il
+    /// LevelManager entrando nel livello, come a ogni cambio.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Health))]
@@ -32,11 +34,13 @@ namespace DarkDescent.Player
         private void OnEnable()
         {
             _health.Died += HandleDied;
+            _health.Revived += HandleRevived;
         }
 
         private void OnDisable()
         {
             _health.Died -= HandleDied;
+            _health.Revived -= HandleRevived;
         }
 
         private void HandleDied()
@@ -52,6 +56,12 @@ namespace DarkDescent.Player
 
             // come per i nemici: il corpo non spinge gli altri agent
             _agent.enabled = false;
+        }
+
+        private void HandleRevived()
+        {
+            _input.enabled = true;
+            _attack.enabled = true;
         }
     }
 }

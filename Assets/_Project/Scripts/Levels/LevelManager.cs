@@ -16,7 +16,7 @@ namespace DarkDescent.Levels
     [DisallowMultipleComponent]
     public class LevelManager : MonoBehaviour
     {
-        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto, alla profondità 1. Ricomincia riparte da qui (D8). Dalla M6 è la cripta generata.")]
+        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto, alla profondità 1. Dalla M6 è la cripta generata, e Ricomincia ricarica il livello in cui si è morti (D13).")]
         [SerializeField] private string _firstLevel = "Level_Crypt";
 
         [SerializeField] private string _firstEntrance = "Start";
@@ -29,6 +29,7 @@ namespace DarkDescent.Levels
         private MeleeAttack _playerAttack;
         private Health _playerHealth;
         private Scene _currentScene;
+        private string _currentEntrance;
 
         /// <summary>Livello pronto, player già sull'ingresso: è il momento di collegare i nemici.</summary>
         public event Action<LevelContext> LevelLoaded;
@@ -83,7 +84,23 @@ namespace DarkDescent.Levels
                 return;
             }
 
-            StartCoroutine(Transition(sceneName, entranceId, depth));
+            StartCoroutine(Transition(sceneName, entranceId, depth, null));
+        }
+
+        /// <summary>
+        /// Ricarica il livello corrente dallo stesso ingresso e alla stessa profondità: con lo stesso
+        /// seme della partita è la stessa cripta, con nemici e casse rimessi (D13 della M6).
+        /// <paramref name="whileDark"/> parte a schermo nero, con il livello vecchio già scaricato e
+        /// il nuovo non ancora caricato: lì si rimette a posto il player, senza nemici attorno.
+        /// </summary>
+        public void RestartLevel(Action whileDark)
+        {
+            if (IsTransitioning || CurrentLevel == null)
+            {
+                return;
+            }
+
+            StartCoroutine(Transition(_currentScene.name, _currentEntrance, CurrentLevel.Depth, whileDark));
         }
 
         private void HandleExitRequested(LevelExit exit)
@@ -95,7 +112,7 @@ namespace DarkDescent.Levels
             }
         }
 
-        private IEnumerator Transition(string sceneName, string entranceId, int depth)
+        private IEnumerator Transition(string sceneName, string entranceId, int depth, Action whileDark)
         {
             IsTransitioning = true;
 
@@ -126,6 +143,8 @@ namespace DarkDescent.Levels
                 yield return SceneManager.UnloadSceneAsync(_currentScene);
             }
 
+            whileDark?.Invoke();
+
             yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 
             // un livello generato si costruisce qui, a schermo nero (trappola 6)
@@ -142,6 +161,7 @@ namespace DarkDescent.Levels
         private void Enter(LevelContext context, string entranceId)
         {
             _currentScene = context.gameObject.scene;
+            _currentEntrance = entranceId;
 
             // luci, ambiente e nebbia vengono dalla scena attiva, e lì finiscono gli Instantiate (trappola 1)
             SceneManager.SetActiveScene(_currentScene);

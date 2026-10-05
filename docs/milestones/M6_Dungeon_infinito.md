@@ -382,6 +382,36 @@ il punto del cavaliere sempre al centro; il livello fatto a mano non ha automapp
 2. "Ricomincia" ricarica lo stesso livello (stesso seme e profondità), rimette l'istantanea,
    vita piena.
 
+**Com'è andata (5 ott 2026).** Prima "Ricomincia" ricaricava tutta `Core`, e con lei cavaliere e
+HUD nuovi: l'istantanea avrebbe dovuto sopravvivere al cambio di scena in un oggetto
+`DontDestroyOnLoad` o in un campo statico, cioè proprio lo stato globale che ADR-007 esclude.
+Così ora `Core` resta caricata e si ricarica solo il livello, come per le scale. A schermo nero,
+con il livello vecchio già scaricato e il nuovo non ancora caricato, il cavaliere torna in vita
+e l'inventario torna com'era: nessuno scheletro può colpirlo mentre si rialza. Le parti nuove:
+- `LevelManager.RestartLevel` ripete l'ultimo ingresso, con la stessa scena, la stessa
+  profondità e lo stesso seme della partita, quindi la stessa cripta con nemici e casse rimessi.
+  Riceve una richiamata da eseguire nel buio.
+- `HealthModel.Revive` e `Health.Revive` riportano la vita piena; con l'evento `Revived`,
+  `PlayerDeath` riaccende input e attacco. Controller e agent li riaccende il LevelManager
+  entrando nel livello, come a ogni cambio.
+- `CharacterAnimatorDriver` rimette l'animator in piedi con `Rebind`, e `DeathScreen` si chiude.
+- `InventorySnapshot` (logica pura) copia griglia con le posizioni, equipaggiamento, cintura e
+  l'oggetto sul cursore, e passa per JSON con le istanze così come sono (ADR-022). È una copia
+  che niente in gioco può cambiare, e alla M8 è già il formato del salvataggio. `Restore` svuota
+  l'inventario (`Inventory.Clear`) e rimette prima l'equipaggiamento, i cui bonus possono servire
+  ai requisiti, poi griglia e cintura; quello che non va più al suo posto finisce nella griglia.
+- Il CompositionRoot prende l'istantanea un frame dopo ogni ingresso: con un livello già aperto
+  (editor, test) l'ingresso arriva nello `Start` del LevelManager, prima che il cavaliere abbia
+  equipaggiato la spada. Per ritrovare gli oggetti dall'ID ora conosce anche l'`ItemDatabase`.
+
+L'automappa del livello ricaricato riparte da capo, come i nemici e le casse. Test: istantanea
+passata per JSON (posizioni, equipaggiamento, cintura, affissi; quello raccolto dopo sparisce;
+oggetto sul cursore) e `Revive` del modello. In gioco: morte alla profondità 2 dopo aver bevuto
+una pozione, raccolto un pugnale e aperto la cassa; "Ricomincia" riporta allo stesso ingresso
+della stessa cripta, con la pozione di nuovo nella cintura, niente pugnale, la cassa chiusa, gli
+scheletri a vita piena, il cavaliere in piedi e `timeScale` a 1; poi si può morire di nuovo.
+129 EditMode e 102 PlayMode verdi.
+
 ## Passo 6.10 — Tooltip delle statistiche
 
 1. Una zona del cursore per ogni riga del pannello del personaggio, con il tooltip degli
@@ -458,7 +488,7 @@ il punto del cavaliere sempre al centro; il livello fatto a mano non ha automapp
 - [x] Finestra dell'editor
 - [x] Pozioni e cintura
 - [x] Automappa nelle due viste
-- [ ] Ripartenza dall'ingresso del livello
+- [x] Ripartenza dall'ingresso del livello
 - [ ] Tooltip delle statistiche
 - [ ] Dipendenze e asmdef
 - [ ] Scenario della Definition of Done provato in build

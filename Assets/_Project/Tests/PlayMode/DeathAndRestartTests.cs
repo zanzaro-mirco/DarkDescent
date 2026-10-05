@@ -2,6 +2,8 @@ using System.Collections;
 using DarkDescent.Characters;
 using DarkDescent.Combat;
 using DarkDescent.Enemies;
+using DarkDescent.Interaction;
+using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Player;
 using DarkDescent.UI;
@@ -60,17 +62,40 @@ namespace DarkDescent.Tests
             Assert.IsTrue(FindDeathScreen().IsShown);
         }
 
-        [UnityTest, Description("Ricomincia ricarica Core e riparte dal primo livello: vita piena, scheletri vivi e fermi, timeScale a 1")]
-        public IEnumerator Restart_ReloadsCleanScene()
+        [UnityTest, Description("Ricomincia riporta all'ingresso del livello in cui si è morti: stessa cripta e profondità, nemici e casse rimessi, vita piena, inventario com'era entrando, timeScale a 1 (D13 della M6)")]
+        public IEnumerator Restart_ReloadsTheSameLevelWithTheEntryInventory()
         {
-            yield return LoadSandbox();
-            GameObject.Find("Skeleton").GetComponent<Health>().TakeDamage(Damage(10f));
+            yield return LoadGeneratedCore();
+            var manager = Object.FindFirstObjectByType<LevelManager>();
+            manager.LoadLevel("Level_Crypt", "FromAbove", 2);
+            yield return WaitForDepth(manager, 2);
+
+            // l'istantanea si prende un frame dopo l'ingresso
+            yield return null;
+            yield return null;
+            string map = manager.CurrentLevel.Map.ToText();
+            Vector3 entrance = Player.position;
+            var inventory = Player.GetComponent<PlayerInventory>();
+            var health = Player.GetComponent<Health>();
+            var sword = inventory.Equipment.Get(EquipSlot.Weapon).Definition;
+            int potions = inventory.Belt.Count;
+
+            // dopo l'ingresso: una pozione bevuta, un pugnale raccolto, la cassa aperta
+            health.TakeDamage(Damage(Mathf.Round(health.Max * 0.6f)));
+            Assert.IsTrue(inventory.DrinkFromBelt(0));
+#if UNITY_EDITOR
+            inventory.TryPickUp(new ItemInstance(UnityEditor.AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/Dagger.asset")));
+#endif
+            Assert.AreEqual(1, inventory.Inventory.Grid.Placements.Count);
+            var chest = manager.CurrentLevel.Chests[0];
+            chest.GetComponent<Interactable>().Use(Player.gameObject);
+            Assert.IsTrue(chest.IsOpen);
+            var oldLevel = manager.CurrentLevel;
+
             yield return KillPlayerAndWaitForScreen();
 
             // un hit stop rimasto a metà non deve sopravvivere al riavvio (trappola 6)
             Time.timeScale = 0.3f;
-
-            var oldPlayer = Player.gameObject;
             var button = GameObject.Find("RestartButton").GetComponent<RectTransform>();
             Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, button.TransformPoint(button.rect.center));
             Move(Mouse.position, screen);
@@ -79,37 +104,57 @@ namespace DarkDescent.Tests
             Press(Mouse.leftButton);
             Release(Mouse.leftButton);
 
-            // il click arriva al bottone al frame dopo, Core si ricarica a quello dopo ancora: si
-            // aspetta che il player vecchio sparisca, poi che il LevelManager nuovo carichi il livello
             float elapsed = 0f;
-            while (oldPlayer != null && elapsed < 5f)
+            while ((manager.CurrentLevel == oldLevel || manager.CurrentLevel == null || manager.IsTransitioning) && elapsed < 10f)
             {
                 elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
-            Assert.IsTrue(oldPlayer == null, "Ricomincia deve ricaricare Core");
-            yield return WaitForLevel();
 
+            Assert.AreNotSame(oldLevel, manager.CurrentLevel, "il livello si è ricaricato");
             Assert.AreEqual(1f, Time.timeScale, "timeScale va rimesso a 1");
-            var player = GameObject.Find("Player");
-            var playerHealth = player.GetComponent<Health>();
-            Assert.IsFalse(playerHealth.IsDead);
-            Assert.AreEqual(playerHealth.Max, playerHealth.Current);
-            Assert.IsTrue(player.GetComponent<PlayerController>().enabled);
-            Assert.IsTrue(player.GetComponent<NavMeshAgent>().isOnNavMesh);
+            Assert.AreEqual("Level_Crypt", manager.CurrentLevel.gameObject.scene.name);
+            Assert.AreEqual(2, manager.CurrentLevel.Depth, "la profondità in cui si è morti, non la prima");
+            Assert.AreEqual(map, manager.CurrentLevel.Map.ToText(), "la stessa cripta: stesso seme");
+            Assert.Less(FlatDistance(entrance, Player.position), 0.1f, "dallo stesso ingresso");
 
-            Assert.AreEqual("Level_Crypt", Object.FindFirstObjectByType<LevelManager>().CurrentLevel.gameObject.scene.name, "si riparte dal primo livello (D8), la cripta generata");
-            var enemies = Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
-            Assert.IsNotEmpty(enemies);
-            foreach (var enemy in enemies)
+            Assert.IsFalse(health.IsDead);
+            Assert.AreEqual(health.Max, health.Current);
+            Assert.IsTrue(Player.GetComponent<PlayerController>().enabled);
+            Assert.IsTrue(Player.GetComponent<PlayerInputReader>().enabled);
+            Assert.IsTrue(Player.GetComponent<MeleeAttack>().enabled);
+            Assert.IsTrue(PlayerAgent.isOnNavMesh);
+            Assert.IsFalse(Player.GetComponentInChildren<CharacterAnimatorDriver>().IsDead, "di nuovo in piedi");
+            Assert.IsFalse(FindDeathScreen().IsShown, "la schermata sparisce");
+            Assert.AreEqual(1f, Object.FindFirstObjectByType<HealthOrb>().FillAmount, 0.001f);
+
+            Assert.AreEqual(potions, inventory.Belt.Count, "la pozione bevuta è tornata");
+            Assert.AreEqual(0, inventory.Inventory.Grid.Placements.Count, "il pugnale raccolto dopo l'ingresso no");
+            Assert.AreEqual(sword, inventory.Equipment.Get(EquipSlot.Weapon).Definition);
+            Assert.IsFalse(manager.CurrentLevel.Chests[0].IsOpen, "la cassa è di nuovo chiusa");
+            foreach (var enemy in manager.CurrentLevel.Enemies)
             {
                 var enemyHealth = enemy.GetComponent<Health>();
                 Assert.AreEqual(enemyHealth.Max, enemyHealth.Current, $"{enemy.name} riparte con la vita piena");
                 Assert.AreEqual(EnemyState.Idle, enemy.State);
             }
 
-            Assert.IsFalse(FindDeathScreen().IsShown, "dopo il riavvio la schermata è nascosta");
-            Assert.AreEqual(1f, Object.FindFirstObjectByType<HealthOrb>().FillAmount, 0.001f);
+            // si può morire di nuovo
+            health.TakeDamage(Damage(1000f));
+            Assert.IsTrue(Player.GetComponentInChildren<CharacterAnimatorDriver>().IsDead);
+            Assert.IsFalse(Player.GetComponent<PlayerController>().enabled);
+        }
+
+        private static IEnumerator WaitForDepth(LevelManager manager, int depth)
+        {
+            float elapsed = 0f;
+            while (elapsed < 10f && (manager.IsTransitioning || manager.CurrentLevel == null || manager.CurrentLevel.Depth != depth))
+            {
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            Assert.AreEqual(depth, manager.CurrentLevel.Depth);
         }
 
         [UnityTest, Description("Il corpo dello scheletro resta qualche secondo, poi sparisce")]

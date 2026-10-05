@@ -152,6 +152,24 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0f, model.Current);
         }
 
+        [Test, Description("Revive riporta in vita a vita piena e avvisa; dopo si può di nuovo morire")]
+        public void Revive_RestoresFullLife()
+        {
+            var model = new HealthModel(80f);
+            model.ApplyDamage(200f);
+            int changes = 0, deaths = 0;
+            model.Changed += (_, _) => changes++;
+            model.Died += () => deaths++;
+
+            model.Revive();
+
+            Assert.IsFalse(model.IsDead);
+            Assert.AreEqual(80f, model.Current);
+            Assert.AreEqual(1, changes);
+            model.ApplyDamage(200f);
+            Assert.AreEqual(1, deaths, "la seconda morte scatta di nuovo");
+        }
+
         [TestCase(0f)]
         [TestCase(-1f)]
         [TestCase(float.NaN)]

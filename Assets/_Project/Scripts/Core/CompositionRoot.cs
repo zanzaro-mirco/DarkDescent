@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DarkDescent.Combat;
 using DarkDescent.Items;
@@ -8,7 +9,6 @@ using DarkDescent.Player;
 using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace DarkDescent.Core
 {
@@ -53,6 +53,9 @@ namespace DarkDescent.Core
         [Tooltip("Gli affissi che il generatore può tirare (D3 della M5).")]
         [SerializeField] private AffixDatabase _affixes;
 
+        [Tooltip("Gli oggetti, per ritrovare dall'ID quelli dell'istantanea presa all'ingresso del livello (D13 della M6).")]
+        [SerializeField] private ItemDatabase _items;
+
         /// <summary>Dove resta la lingua scelta tra un avvio e l'altro: è una preferenza, non la partita.</summary>
         public const string LanguagePreference = "language";
 
@@ -64,6 +67,10 @@ namespace DarkDescent.Core
         private PlayerInputReader _reader;
         private Localizer _localizer;
         private LootRoller _loot;
+        private PlayerInventory _inventory;
+
+        // l'inventario com'era entrando nel livello, in JSON: Ricomincia lo rimette (D13 della M6)
+        private string _entrySnapshot;
 
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
         private IRandomSource _random;
@@ -120,6 +127,7 @@ namespace DarkDescent.Core
             _interactableLabel.Bind(_player.GetComponent<PlayerController>(), _localizer);
 
             var inventory = _player.GetComponent<PlayerInventory>();
+            _inventory = inventory;
             _reader = _player.GetComponent<PlayerInputReader>();
             _inventoryPanel.Bind(inventory, _reader, _localizer);
             _itemCursor.Bind(inventory, _reader);
@@ -190,6 +198,7 @@ namespace DarkDescent.Core
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
             _exploration.SetLevel(level.Map);
+            StartCoroutine(CaptureEntrySnapshot());
         }
 
         private void ReleaseLevel(LevelContext level)
@@ -234,14 +243,32 @@ namespace DarkDescent.Core
             _hitStop.Trigger();
         }
 
+        // un frame dopo l'ingresso: con un livello già aperto (l'editor, i test) l'ingresso arriva nello
+        // Start del LevelManager, e lo Start del cavaliere, che equipaggia la spada, può non esserci ancora stato
+        private IEnumerator CaptureEntrySnapshot()
+        {
+            yield return null;
+            _entrySnapshot = InventorySnapshot.Capture(_inventory.Inventory).ToJson();
+        }
+
+        // D13 della M6: lo stesso livello dallo stesso ingresso, a vita piena, con l'inventario
+        // dell'ingresso. Core resta caricata: si ricarica solo il livello, e il cavaliere torna in
+        // vita a schermo nero, quando i nemici del livello vecchio non ci sono più
         private void Restart()
         {
-            // timeScale sopravvive al caricamento della scena (trappola 6 della M2): un hit stop o una
-            // pausa rimasti a metà farebbero ripartire il gioco rallentato o fermo
+            // un hit stop o una pausa rimasti a metà farebbero ripartire il gioco rallentato o fermo
             Time.timeScale = 1f;
+            _levelManager.RestartLevel(RestoreAndRevive);
+        }
 
-            // Core in modalità singola scarica anche il livello; il LevelManager riparte dal primo (D8)
-            SceneManager.LoadScene(gameObject.scene.name);
+        private void RestoreAndRevive()
+        {
+            if (_entrySnapshot != null)
+            {
+                InventorySnapshot.FromJson(_entrySnapshot).Restore(_inventory.Inventory, _items, _affixes);
+            }
+
+            _player.Revive();
         }
     }
 }

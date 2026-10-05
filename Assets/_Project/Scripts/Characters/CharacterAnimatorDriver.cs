@@ -84,6 +84,7 @@ namespace DarkDescent.Characters
             if (_health != null)
             {
                 _health.Died += PlayDeath;
+                _health.Revived += HandleRevived;
             }
 
             if (_attack != null)
@@ -107,6 +108,7 @@ namespace DarkDescent.Characters
             if (_health != null)
             {
                 _health.Died -= PlayDeath;
+                _health.Revived -= HandleRevived;
             }
 
             if (_attack != null)
@@ -154,6 +156,14 @@ namespace DarkDescent.Characters
 
             IsDead = true;
             _animator.CrossFadeInFixedTime(DeathStateHash, _oneShotFadeTime, BaseLayer, 0f);
+        }
+
+        // tornato in vita: Rebind riporta l'animator allo stato iniziale, in piedi, e Update(0) lo applica subito
+        private void HandleRevived()
+        {
+            IsDead = false;
+            _animator.Rebind();
+            _animator.Update(0f);
         }
 
         // CrossFade sullo stato e non trigger: un trigger arrivato durante una transizione resta

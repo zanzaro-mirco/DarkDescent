@@ -29,6 +29,9 @@ namespace DarkDescent.Combat
         /// <summary>La vita tornata con una cura, dopo HealthChanged.</summary>
         public event Action<float> Healed;
 
+        /// <summary>Tornato in vita con Ricomincia (D13 della M6), dopo HealthChanged.</summary>
+        public event Action Revived;
+
         /// <summary>Un colpo mancato: nessun danno, nessun lampo, solo la scritta.</summary>
         public event Action<DamageInfo> Evaded;
 
@@ -72,6 +75,14 @@ namespace DarkDescent.Combat
             }
 
             return applied;
+        }
+
+        /// <summary>Riporta in vita a vita piena; chi si era spento alla morte si riaccende con <see cref="Revived"/>.</summary>
+        public void Revive()
+        {
+            Model.Revive();
+            HealthChanged?.Invoke(Model.Current, Model.Max);
+            Revived?.Invoke();
         }
 
         public void Evade(in DamageInfo info)

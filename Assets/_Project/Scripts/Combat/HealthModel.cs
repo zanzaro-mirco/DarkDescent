@@ -74,6 +74,16 @@ namespace DarkDescent.Combat
             return applied;
         }
 
+        /// <summary>
+        /// Riporta in vita a vita piena: per ricominciare il livello (D13 della M6). Da vivo riempie la vita.
+        /// </summary>
+        public void Revive()
+        {
+            IsDead = false;
+            Current = Max;
+            Changed?.Invoke(Current, Max);
+        }
+
         /// <summary>Applica il danno e restituisce quanto ne è stato assorbito davvero (0 se già morto).</summary>
         public float ApplyDamage(float amount)
         {

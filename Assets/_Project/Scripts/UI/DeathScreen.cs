@@ -9,6 +9,7 @@ namespace DarkDescent.UI
     /// <summary>
     /// Schermata di morte: compare quando il player muore, dopo il tempo dell'animazione, e offre
     /// di ricominciare. Non ricarica niente da sé: annuncia la richiesta, chi collega la scena decide.
+    /// Sparisce quando il player torna in vita.
     /// </summary>
     [DisallowMultipleComponent]
     public class DeathScreen : MonoBehaviour
@@ -73,6 +74,7 @@ namespace DarkDescent.UI
             }
 
             _health.Died += HandleDied;
+            _health.Revived += HandleRevived;
             _subscribed = true;
 
             // morto mentre la schermata era spenta: si mostra subito
@@ -90,6 +92,7 @@ namespace DarkDescent.UI
             }
 
             _health.Died -= HandleDied;
+            _health.Revived -= HandleRevived;
             _subscribed = false;
         }
 
@@ -104,6 +107,17 @@ namespace DarkDescent.UI
             yield return new WaitForSecondsRealtime(_showDelay);
             _panel.SetActive(true);
             _showRoutine = null;
+        }
+
+        private void HandleRevived()
+        {
+            if (_showRoutine != null)
+            {
+                StopCoroutine(_showRoutine);
+                _showRoutine = null;
+            }
+
+            _panel.SetActive(false);
         }
 
         private void HandleRestartClicked()

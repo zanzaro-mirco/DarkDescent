@@ -2316,6 +2316,7 @@ MonoBehaviour:
   _playerCamera: {fileID: 1669943979}
   _strings: {fileID: 4900000, guid: 2fda7ed2ca7aa064bafe58a844401558, type: 3}
   _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
+  _items: {fileID: 11400000, guid: be8dcda66dcc39645ad4c3fca0b208ce, type: 2}
 --- !u!4 &429751714
 Transform:
   m_ObjectHideFlags: 0

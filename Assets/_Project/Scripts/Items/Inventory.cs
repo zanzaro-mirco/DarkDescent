@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DarkDescent.Items
@@ -131,6 +132,33 @@ namespace DarkDescent.Items
         {
             ItemInstance item = Grid.ItemAt(cell);
             return item?.Definition is PotionDefinition potion && Grid.Remove(item) ? potion : null;
+        }
+
+        /// <summary>Toglie tutto, cursore compreso: per rimettere un'istantanea (D13 della M6).</summary>
+        public void Clear()
+        {
+            if (Held != null)
+            {
+                SetHeld(null);
+            }
+
+            foreach (var item in new List<ItemInstance>(Grid.Placements.Keys))
+            {
+                Grid.Remove(item);
+            }
+
+            foreach (EquipSlot slot in Enum.GetValues(typeof(EquipSlot)))
+            {
+                if (slot != EquipSlot.None)
+                {
+                    Equipment.Unequip(slot);
+                }
+            }
+
+            for (int slot = 0; slot < Belt.Size; slot++)
+            {
+                Belt.Take(slot);
+            }
         }
 
         /// <summary>Lascia l'oggetto preso: chi lo chiama lo mette a terra.</summary>
