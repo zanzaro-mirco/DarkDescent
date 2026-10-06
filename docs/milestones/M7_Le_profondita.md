@@ -6,13 +6,16 @@ a ogni partita con un **random walk**, sempre percorribili dall'ingresso alla sc
 aspetto loro (terra, roccia, macerie). Ci vivono due nemici nuovi: lo **sciame**, veloce e
 fragile, che arriva in gruppo, e il **bruto**, lento e resistente, che carica un colpo
 **telegrafato** da cui ci si può spostare in tempo. Un colpo del bruto **interrompe**
-l'attacco del cavaliere, uno dello sciame no. Lo scheletro si comporta come prima, ma la sua
-IA è fatta di **classi di stato**. Con dieci nemici che colpiscono insieme l'audio non si
-satura. L'automappa si riempie anche nelle caverne. Nel buio suonano una musica cupa e un fondo di
-vento e gocce, diversi tra cripta e caverne, e ogni tanto un verso lontano. Con `-seed 4711`
-le caverne tornano uguali. Test verdi in CI.
+l'attacco del cavaliere, uno dello sciame no. Un **colpo critico** del cavaliere fa il
+doppio del danno, si riconosce dal numero e fa urlare il nemico con un **verso suo**, diverso
+per tipo. Lo scheletro si comporta come prima, ma la sua IA è fatta di **classi di stato**.
+Con dieci nemici che colpiscono insieme l'audio non si satura. L'automappa si riempie anche
+nelle caverne. Nel buio suonano una musica cupa e un fondo di vento e gocce, diversi tra
+cripta e caverne, e ogni tanto un verso lontano. Con `-seed 4711` le caverne tornano uguali.
+Test verdi in CI.
 
-**Tempo stimato:** 12–18 h (piano v2.16: 2–3 h in più per il passo 7.0). **Prerequisito:** M6 chiusa (tag `m6`).
+**Tempo stimato:** 13–20 h (piano v2.17: 2–3 h in più per il passo 7.0, 1–1,5 h per il
+7.7). **Prerequisito:** M6 chiusa (tag `m6`).
 
 **Come si lavora:** come alla M6, il codice e i passaggi nell'editor li faccio io, in
 batchmode a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in Play Mode e
@@ -55,6 +58,7 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | D9 | **Limite di voci audio** | Un `SfxLimiter` nella scena `Core`: al più **una clip per tipo di suono per fotogramma** (impatto, morte, colpo a vuoto), e oltre **12 voci** in tutto si scartano le più lontane. Priorità dell'`AudioSource` dalla distanza dal cavaliere | Dieci colpi dello sciame nello stesso fotogramma suonano come uno più forte, e con il limite Unity non toglie a caso quelli vicini |
 | D10 | **Nemici per profondità** | Una `SpawnTable` nelle impostazioni del livello: per ogni profondità quanti **gruppi** e di che tipo, con un peso. Caverne: profondità 5 circa 5 scheletri, uno sciame e un bruto; profondità 8 circa 4 scheletri, tre sciami e tre bruti. Numeri in `CaveSettings`, ritarati alla M10 | Il mix cambia scendendo, e il bruto arriva quando il cavaliere ha già trovato qualche oggetto. I numeri fuori dal codice si cambiano provando la build |
 | D12 | **Musica e rumori d'ambiente** (aggiunta il 6 ott, su richiesta di Mirco dopo la prova della M6; anticipati dalla M11) | Un profilo per tipo di livello nel tileset: musica cupa e fondo di vento e gocce in loop, versi singoli ogni 20–50 s da un punto a caso a 10–18 m dal cavaliere. Tracce CC0 da OpenGameArt, ispirate a Diablo ma niente musica originale (piano § 1.1). Dissolvenza tra profili diversi, la musica continua tra livelli con lo stesso profilo | Il buio fa paura se si sente qualcosa che non si vede. In 3D e oltre la luce del cavaliere, il verso arriva da una direzione dove non c'è niente da guardare |
+| D13 | **Colpi critici e versi dei nemici** (aggiunta il 6 ott su richiesta di Mirco, **da confermare**) | Solo il cavaliere, solo sui colpi a segno: probabilità **5% + Destrezza / 10**, al massimo 50% (7% con la Destrezza 20 di partenza), **danno doppio**. Il tiro va dopo quello del danno, e il critico esce dalla parte **alta** dell'intervallo (trappola 9). `DamageInfo.IsCritical` c'è dalla M2 e non è mai stato usato. A schermo: numero più grande, giallo-arancio, con un punto esclamativo, e un hit stop un po' più lungo. A orecchio: ogni `EnemyArchetype` (D8) ha i suoi **versi del critico**, scelti a caso senza ripetere il precedente. Scheletro: un verso secco, intonazione 1,1–1,2. Sciame: uno stridio, 1,4–1,6. Bruto: un ruggito basso, 0,6–0,7. Per cominciare sono ritagliati dai versi delle tracce CC0 già nel progetto. Se non convincono, si cerca un pacchetto CC0 di versi di mostri, da scaricare con il permesso di Mirco. Niente affissi sul critico per ora: un affisso nuovo cambia il loot dei semi provati (trappola 10) | Il critico dà un picco nel ritmo del combattimento, e il verso dice subito *chi* l'ha preso anche nel buio. La Destrezza oggi conta per colpire e bloccare: con il critico pesa anche sul danno. Danno doppio come il guerriero di Diablo 1 |
 | D11 | **Loot dei nemici nuovi** | Una `LootTable` per tipo: sciame **20%** di lasciare un oggetto e 10% una pozione; bruto **sempre** un oggetto e 50% una pozione. Basi e rarità come lo scheletro, livello dell'oggetto dalla profondità | Lo sciame è tanti nemici piccoli: con la probabilità dello scheletro il pavimento si riempirebbe. Il bruto è un premio |
 
 ---
@@ -70,9 +74,10 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | 7.4 | Sciame | 1–1,5 |
 | 7.5 | Bruto e colpo telegrafato | 1,5–2 |
 | 7.6 | Reazione al colpo del cavaliere | 0,5–1 |
-| 7.7 | Limite di voci audio | 0,5–1 |
-| 7.8 | Nemici e loot per profondità | 1 |
-| 7.9 | Chiusura: build da provare, GIF, ADR, tag `m7` | 0,5 |
+| 7.7 | Colpi critici e versi dei nemici (D13) | 1–1,5 |
+| 7.8 | Limite di voci audio | 0,5–1 |
+| 7.9 | Nemici e loot per profondità | 1 |
+| 7.10 | Chiusura: build da provare, GIF, ADR, tag `m7` | 0,5 |
 
 ---
 
@@ -204,24 +209,37 @@ EditMode e 104 PlayMode verdi.
 1. `HitRecovery` sul cavaliere con la soglia di D7; animazione e interruzione del click.
 2. Test: il colpo del bruto interrompe l'attacco, quello dello scheletro no.
 
-## Passo 7.7 — Limite di voci audio
+## Passo 7.7 — Colpi critici e versi dei nemici
 
-1. `SfxLimiter` e la priorità dalla distanza; `CharacterAudio` gli chiede il permesso.
+1. `CombatFormulas.CritChance` e `RollCrit` in `Core`; `MeleeAttack` del cavaliere tira il
+   critico dopo il danno, raddoppia e riempie `DamageInfo.IsCritical`.
+2. Numero del danno grande e colorato, hit stop un po' più lungo.
+3. Versi del critico nell'`EnemyArchetype` di scheletro, sciame e bruto; `CharacterAudio` li
+   suona al posto dell'impatto quando il colpo è critico.
+4. Pannello del personaggio: la probabilità di critico tra le statistiche, con il suo tooltip
+   (stile del passo 6.10), in inglese e in italiano.
+5. Test: la formula ai bordi, critico solo dalla parte alta del tiro, danno doppio, verso
+   giusto per tipo di nemico, i test dei colpi esistenti invariati.
+
+## Passo 7.8 — Limite di voci audio
+
+1. `SfxLimiter` e la priorità dalla distanza; `CharacterAudio` gli chiede il permesso. Il
+   verso del critico passa prima dell'impatto dello stesso nemico.
 2. Test: dieci impatti nello stesso fotogramma suonano una volta; oltre il limite cade il più
    lontano.
 
-## Passo 7.8 — Nemici e loot per profondità
+## Passo 7.9 — Nemici e loot per profondità
 
 1. `SpawnTable` in `CaveSettings`, loot table di sciame e bruto.
 2. Test su 200 semi per profondità: numeri della tabella, nessun nemico nella zona
    d'ingresso; probabilità dei drop su 10.000 tiri.
 
-## Passo 7.9 — Chiusura
+## Passo 7.10 — Chiusura
 
 1. Build della CI da provare: discesa fino all'8, sciame e bruto, colpo schivato e colpo
-   preso, stesso seme stessa caverna.
+   preso, critici con i versi dei tre nemici, stesso seme stessa caverna.
 2. GIF del README: un bruto che carica e il cavaliere che si sposta, uno sciame in caverna.
-3. ADR: caverne, generatori per tipo di livello, IA a stati, telegrafare, limite di voci.
+3. ADR: caverne, generatori per tipo di livello, IA a stati, telegrafare, critici, limite di voci.
    Lezioni nel piano, tabella dello stato, tag `m7`.
 
 ---
@@ -246,6 +264,14 @@ EditMode e 104 PlayMode verdi.
    classe, o i semi provati della cripta cambiano.
 8. **I modelli nuovi devono stare su `Rig_Medium`:** se un modello dello zip avesse un rig
    diverso, il controller condiviso (ADR-009) non basterebbe. Si controlla all'import.
+9. **Il tiro del critico e i test con i tiri fissi:** `SandboxFixture` usa `FixedRandomSource(0.0)`,
+   cioè ogni colpo a segno con il danno minimo. Se il critico uscisse con un tiro basso, ogni
+   colpo dei test diventerebbe critico e il danno atteso raddoppierebbe. Il critico esce dalla
+   parte alta (tiro ≥ 1 − probabilità) e si tira per ultimo: con 0,0 non c'è mai, e i tiri di
+   colpire e del danno restano dove sono. I test con più valori in ciclo vanno ricontati.
+10. **Un affisso nuovo cambia il loot dei semi provati:** il generatore sceglie tra tutti gli
+    affissi del database, quindi un "+% critico" sposterebbe gli oggetti del seme 4711.
+    Rimandato; se arriva, con un test che fissi i drop del seme.
 
 ---
 
@@ -259,6 +285,8 @@ EditMode e 104 PlayMode verdi.
 | `EnemyStateTests` (EditMode) | Gli stati con un corpo finto: percezione, inseguimento, attacco, carica e recupero, morte |
 | `CaveDescentTests` (PlayMode) | Dal livello 4 al 5 e all'8, nemici sul NavMesh, stesso seme stessa caverna |
 | `SwarmTests`, `BruteTests` (PlayMode) | Attivazione di gruppo; colpo telegrafato schivato e preso; interruzione dell'attacco del cavaliere |
+| `CombatFormulasTests` (EditMode) | Probabilità di critico ai bordi (0, 20, 450 di Destrezza), critico solo dalla parte alta del tiro |
+| `CriticalHitTests` (PlayMode) | Danno doppio e `IsCritical`, numero del critico, verso giusto per scheletro, sciame e bruto, nessun critico con i tiri fissi a 0 |
 | `SfxLimiterTests` (PlayMode) | Un suono per tipo e per fotogramma, limite di voci |
 
 ---
@@ -266,6 +294,7 @@ EditMode e 104 PlayMode verdi.
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D11 confermate, D12 aggiunta il 6 ott
+- [ ] D13 (colpi critici) confermata
 - [x] Musica e rumori d'ambiente (7.0)
 - [x] Generatore delle caverne con i test sui 500 semi
 - [ ] Caverne nel gioco
@@ -273,6 +302,7 @@ EditMode e 104 PlayMode verdi.
 - [ ] Sciame
 - [ ] Bruto e colpo telegrafato
 - [ ] Reazione al colpo del cavaliere
+- [ ] Colpi critici e versi dei nemici
 - [ ] Limite di voci audio
 - [ ] Nemici e loot per profondità
 - [ ] Scenario della Definition of Done provato in build
