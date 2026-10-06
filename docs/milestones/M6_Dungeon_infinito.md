@@ -559,7 +559,7 @@ l'anello. 136 EditMode e 104 PlayMode verdi.
 - [x] Ripartenza dall'ingresso del livello
 - [x] Tooltip delle statistiche
 - [x] Dipendenze e asmdef
-- [ ] Scenario della Definition of Done provato in build
-- [ ] Test verdi in CI
-- [ ] GIF, ADR, lezioni nel piano, tag `m6`
+- [x] Scenario della Definition of Done provato in build
+- [x] Test verdi in CI
+- [x] GIF, ADR, lezioni nel piano, tag `m6`
 - [x] Scheda della M7 scritta prima di cominciarla
