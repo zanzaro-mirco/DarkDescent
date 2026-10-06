@@ -255,6 +255,34 @@ test della finestra. 152 EditMode e 111 PlayMode verdi.
 3. I test di `EnemyAITests` restano verdi senza cambiare; test EditMode degli stati con un corpo
    finto (vede, insegue, attacca a distanza, perde il bersaglio, muore).
 
+**Com'è andata (6 ott 2026).** In `Core/Enemies/`:
+- `IEnemyBody` con sei domande e comandi: il bersaglio è vivo, a portata, un colpo è in volo,
+  si vede il bersaglio, chiedi il colpo, lascia il bersaglio;
+- `EnemyStateBase`, con `Enter` e un `Tick` che restituisce lo stato successivo;
+- `IdleState`, `ChaseState`, `AttackState` e `DeadState`;
+- `EnemyBrain`, che tiene uno stato per ogni `EnemyState` e avvisa con `StateChanged`;
+- `EnemyArchetype`.
+
+L'enum `EnemyState` resta come nome dello stato, e i test e il resto del gioco continuano a
+leggere `EnemyAI.State`.
+
+`EnemyAI` è sceso a un corpo: implementa `IEnemyBody` (vista con un raggio, colpo chiesto a
+`MeleeAttack`), passa il tempo al cervello e tiene quello che succede al corpo da morto. I
+numeri (aggro 8 m, occhi a 1,5 m, uno sguardo ogni 0,2 s, corpo a terra 5 s) sono passati dal
+prefab a `Data/Enemies/Skeleton.asset`; i layer che bloccano la vista restano sul componente,
+perché sono fisica della scena e non del tipo di nemico.
+
+L'ordine delle decisioni è quello dello `switch` (trappola 4): il cambio di stato vale dal
+frame dopo, e il conto della percezione resta tra un'entrata e l'altra in `Idle`. Unica
+differenza: morendo il nemico lascia anche il bersaglio, cosa che prima faceva solo spegnendo
+`MeleeAttack`; non cambia niente a schermo.
+
+Test: `EnemyStateTests` (7 casi, EditMode, con un corpo finto che conta sguardi e richieste).
+Uno sguardo ogni 0,2 s e non a ogni frame; vede, insegue, attacca, torna a inseguire; un colpo
+in volo porta all'attacco; bersaglio morto, sia inseguendo sia attaccando; morte da qualsiasi
+stato e una volta sola; stati separati per ogni nemico. I test PlayMode dello scheletro sono
+tutti verdi senza toccarli. 159 EditMode e 111 PlayMode verdi.
+
 ## Passo 7.4 — Sciame
 
 1. Prefab dello sciame, archetipo, attivazione di gruppo.
@@ -366,7 +394,7 @@ test della finestra. 152 EditMode e 111 PlayMode verdi.
 - [x] Musica e rumori d'ambiente (7.0)
 - [x] Generatore delle caverne con i test sui 500 semi
 - [x] Caverne nel gioco
-- [ ] IA a classi di stato, scheletro invariato
+- [x] IA a classi di stato, scheletro invariato
 - [ ] Sciame
 - [ ] Bruto e colpo telegrafato
 - [ ] Reazione al colpo del cavaliere

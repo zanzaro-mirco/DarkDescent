@@ -142,13 +142,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b91e88b8a5ef624daa568fc7282b3ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Enemies.EnemyAI
-  _aggroRange: 8
+  _archetype: {fileID: 11400000, guid: 547f882409ba69e4b90163f16b426329, type: 2}
   _sightBlockers:
     serializedVersion: 2
     m_Bits: 128
-  _eyeHeight: 1.5
-  _perceptionInterval: 0.2
-  _corpseLifetime: 5
 --- !u!82 &3025011650240641013
 AudioSource:
   m_ObjectHideFlags: 0
@@ -268,6 +265,7 @@ MonoBehaviour:
   _deathClips:
   - {fileID: 8300000, guid: a77c9d43b49eeab46b96d6ac4e131c67, type: 3}
   _blockClips: []
+  _healClips: []
   _pitchVariation: 0.06
 --- !u!114 &5267768890862529430
 MonoBehaviour:
@@ -314,6 +312,8 @@ MonoBehaviour:
   _lootTable: {fileID: 11400000, guid: e0ca5f6279f12c44ca7ac7c0745a71e8, type: 2}
   _groundItemPrefab: {fileID: 733407215090042755, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
   _forwardOffset: 0.9
+  _potionSideOffset: 0.7
+  _dropHeight: 1
 --- !u!1001 &8531279894515779573
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -5,37 +5,36 @@ using UnityEngine.AI;
 namespace DarkDescent.Enemies
 {
     /// <summary>
-    /// IA da mischia: una enum e uno switch. Fermo finché non vede il bersaglio, poi lo insegue e lo
-    /// colpisce fino alla morte di uno dei due. Avvicinamento e colpi li fa MeleeAttack: l'IA sceglie
-    /// solo chi colpire. Una state machine a classi arriva alla M7, con più tipi di nemico.
+    /// Il corpo di un nemico (D8 della M7): le decisioni le prende un <see cref="EnemyBrain"/> con gli
+    /// stati del suo <see cref="EnemyArchetype"/>, qui ci sono gli occhi (un raggio), le gambe e le
+    /// braccia (MeleeAttack, che si avvicina e colpisce da solo) e quello che succede al corpo da morto.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NavMeshAgent), typeof(MeleeAttack), typeof(Health))]
-    public class EnemyAI : MonoBehaviour
+    public class EnemyAI : MonoBehaviour, IEnemyBody
     {
-        [Tooltip("Distanza entro cui il bersaglio viene notato, se non c'è un ostacolo in mezzo.")]
-        [SerializeField, Min(0f)] private float _aggroRange = 8f;
+        [Tooltip("Il tipo di nemico: numeri e stati.")]
+        [SerializeField] private EnemyArchetype _archetype;
 
         [Tooltip("Layer che bloccano la vista: dietro un ostacolo il bersaglio non viene notato.")]
         [SerializeField] private LayerMask _sightBlockers;
-
-        [Tooltip("Altezza degli occhi per il controllo della vista, dal pivot ai piedi.")]
-        [SerializeField, Min(0f)] private float _eyeHeight = 1.5f;
-
-        [Tooltip("Ogni quanti secondi, da fermo, si controlla se il bersaglio è visibile.")]
-        [SerializeField, Min(0.02f)] private float _perceptionInterval = 0.2f;
-
-        [Tooltip("Secondi in cui il corpo resta a terra prima di sparire.")]
-        [SerializeField, Min(0f)] private float _corpseLifetime = 5f;
 
         private NavMeshAgent _agent;
         private MeleeAttack _attack;
         private Health _health;
         private Collider _collider;
         private Health _target;
-        private float _perceptionTimer;
+        private EnemyBrain _brain;
 
-        public EnemyState State { get; private set; } = EnemyState.Idle;
+        public EnemyState State => _brain.State;
+
+        public EnemyArchetype Archetype => _archetype;
+
+        bool IEnemyBody.IsTargetAlive => IsTargetAlive();
+
+        bool IEnemyBody.IsTargetInRange => _attack.IsTargetInRange;
+
+        bool IEnemyBody.IsSwinging => _attack.IsSwinging;
 
         private void Awake()
         {
@@ -43,6 +42,7 @@ namespace DarkDescent.Enemies
             _attack = GetComponent<MeleeAttack>();
             _health = GetComponent<Health>();
             _collider = GetComponent<Collider>();
+            _brain = new EnemyBrain(this, _archetype.CreateStates());
         }
 
         private void OnEnable()
@@ -63,79 +63,36 @@ namespace DarkDescent.Enemies
 
         private void Update()
         {
-            switch (State)
-            {
-                case EnemyState.Idle:
-                    UpdateIdle();
-                    break;
-                case EnemyState.Chase:
-                    UpdateChase();
-                    break;
-                case EnemyState.Attack:
-                    UpdateAttack();
-                    break;
-                case EnemyState.Dead:
-                    break;
-            }
+            _brain.Tick(Time.deltaTime);
         }
 
-        private void UpdateIdle()
+        bool IEnemyBody.CanSeeTarget()
         {
-            _perceptionTimer -= Time.deltaTime;
-            if (_perceptionTimer > 0f)
+            Vector3 eye = transform.position + Vector3.up * _archetype.EyeHeight;
+            Vector3 targetEye = _target.transform.position + Vector3.up * _archetype.EyeHeight;
+            Vector3 flat = targetEye - eye;
+            flat.y = 0f;
+            if (flat.sqrMagnitude > _archetype.AggroRange * _archetype.AggroRange)
             {
-                return;
+                return false;
             }
 
-            _perceptionTimer = _perceptionInterval;
-            if (IsTargetAlive() && CanSeeTarget())
-            {
-                State = EnemyState.Chase;
-            }
+            return !Physics.Linecast(eye, targetEye, _sightBlockers, QueryTriggerInteraction.Ignore);
         }
 
-        // Chase e Attack chiedono entrambi il colpo a MeleeAttack, che si avvicina da solo se serve.
-        // Restano due stati perché dicono cose diverse a chi guarda (test, animazioni, suoni alla 2.8).
-        private void UpdateChase()
+        void IEnemyBody.Engage()
         {
-            if (!IsTargetAlive())
-            {
-                ReturnToIdle();
-                return;
-            }
-
             _attack.SetTarget(_target);
-            if (_attack.IsTargetInRange || _attack.IsSwinging)
-            {
-                State = EnemyState.Attack;
-            }
         }
 
-        private void UpdateAttack()
-        {
-            if (!IsTargetAlive())
-            {
-                ReturnToIdle();
-                return;
-            }
-
-            // richiesto a ogni frame: finito un colpo ne parte un altro appena l'arma è pronta
-            _attack.SetTarget(_target);
-            if (!_attack.IsTargetInRange && !_attack.IsSwinging)
-            {
-                State = EnemyState.Chase;
-            }
-        }
-
-        private void ReturnToIdle()
+        void IEnemyBody.Disengage()
         {
             _attack.ClearTarget();
-            State = EnemyState.Idle;
         }
 
         private void HandleDied()
         {
-            State = EnemyState.Dead;
+            _brain.Die();
 
             // MeleeAttack spento annulla anche un colpo in volo
             _attack.enabled = false;
@@ -152,27 +109,13 @@ namespace DarkDescent.Enemies
             }
 
             // chi lo teneva come bersaglio lo controlla con il null di Unity: la distruzione è sicura
-            Destroy(gameObject, _corpseLifetime);
+            Destroy(gameObject, _archetype.CorpseLifetime);
         }
 
         // _target è un tipo Unity: il confronto con null vede anche un player distrutto
         private bool IsTargetAlive()
         {
             return _target != null && !_target.IsDead;
-        }
-
-        private bool CanSeeTarget()
-        {
-            Vector3 eye = transform.position + Vector3.up * _eyeHeight;
-            Vector3 targetEye = _target.transform.position + Vector3.up * _eyeHeight;
-            Vector3 flat = targetEye - eye;
-            flat.y = 0f;
-            if (flat.sqrMagnitude > _aggroRange * _aggroRange)
-            {
-                return false;
-            }
-
-            return !Physics.Linecast(eye, targetEye, _sightBlockers, QueryTriggerInteraction.Ignore);
         }
     }
 }
