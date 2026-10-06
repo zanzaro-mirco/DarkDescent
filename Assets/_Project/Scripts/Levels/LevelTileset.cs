@@ -1,3 +1,4 @@
+using DarkDescent.Audio;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -37,6 +38,9 @@ namespace DarkDescent.Levels
         [Tooltip("Post-processing del livello: tonemapping, bloom, vignetta. Volume globale nella scena del livello.")]
         [SerializeField] private VolumeProfile _postProcessing;
 
+        [Tooltip("Musica, fondo e versi nel buio del livello (passo 7.0 della M7).")]
+        [SerializeField] private AmbienceProfile _ambience;
+
         [Tooltip("Il prefab degli oggetti a terra: i marcatori 'i', con l'oggetto preso dalla direttiva @items.")]
         [SerializeField] private GameObject _groundItem;
 
@@ -62,6 +66,8 @@ namespace DarkDescent.Levels
         public Color AmbientColor => _ambientColor;
 
         public VolumeProfile PostProcessing => _postProcessing;
+
+        public AmbienceProfile Ambience => _ambience;
 
         public GameObject GetMarkerPrefab(char symbol)
         {

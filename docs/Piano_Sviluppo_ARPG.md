@@ -23,11 +23,12 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.16 | 6 ott 2026 | Dopo la prova della M6, su richiesta di Mirco: **musica e rumori d'ambiente** anticipati dalla M11 alla M7 (passo 7.0): un profilo per tipo di livello, tracce CC0 · M7 da 10–15 a 12–18 h · ADR-039 |
 | v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
 
 ---
 
-## Stato del progetto — aggiornato al 5 ottobre 2026
+## Stato del progetto — aggiornato al 6 ottobre 2026
 
 | | |
 |---|---|
@@ -41,8 +42,8 @@
 | **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) |
 | **Milestone corrente** | **M7 — "Le profondità"** → `docs/milestones/M7_Le_profondita.md` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
-| **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney. Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…038) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…039) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -94,7 +95,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 103–148 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco; v2.14: la M6 sale di 6 ore per pozioni, automappa, ripartenza e tooltip, la M7 ne perde una con l'automappa). Per le milestone ancora aperte restano 85–130 ore: a 6–10 h a settimana sono 9–22 settimane di lavoro effettivo; con pause e settimane saltate, **3–6 mesi di calendario**.
+**Totale stimato:** circa 105–151 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco; v2.14: la M6 sale di 6 ore per pozioni, automappa, ripartenza e tooltip, la M7 ne perde una con l'automappa; v2.16: la M7 sale di 2–3 ore per musica e rumori d'ambiente). Per le milestone ancora aperte, M7–M11 al 6 ott 2026, restano 51–77 ore: a 6–10 h a settimana sono 5–13 settimane di lavoro effettivo; con pause e settimane saltate, **2–4 mesi di calendario**.
 
 **Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Il prossimo, se serve, si fissa alla chiusura della M8.
 
@@ -246,7 +247,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M4 | "Raccolgo roba" | drop, inventario, equipaggiamento | 8–12 | ✅ 4 ott |
 | M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | ✅ 5 ott |
 | M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | ✅ 5 ott |
-| M7 | "Le profondità" | caverne, nuovi nemici, automappa delle caverne | 10–15 | |
+| M7 | "Le profondità" | caverne, nuovi nemici, automappa delle caverne, musica e rumori d'ambiente | 12–18 | |
 | M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 6–9 | |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza | 8–11 | |
 | M10 | "Città e loop completo" | il gioco è finibile, **prima build pubblica** | 10–14 | |
@@ -522,7 +523,7 @@ Una milestone piccola, ma con un posto preciso: nella v2.0 la CI stava "verso M3
 
 ---
 
-### M7 — "Le profondità" · 10–15 h
+### M7 — "Le profondità" · 12–18 h
 
 **A schermo:** dal livello 5 il dungeon cambia: caverne organiche e nemici nuovi — uno sciame veloce, un bruto che carica colpi telegrafati. Un'automappa mostra ciò che hai esplorato.
 
@@ -536,6 +537,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 - **Limite di voci audio** per lo sciame: con dieci nemici che colpiscono insieme, una sola clip d'impatto per frame e per tipo, e una priorità più bassa per i nemici lontani
 - **Refactoring dell'IA** da `enum` e `switch` a classi di stato: ora i tipi sono tre e il bisogno è reale. Documentato in un ADR, è materiale da portfolio
 - **Automappa** estesa alle caverne (l'automappa della cripta è arrivata alla M6, v2.14)
+- **Musica e rumori d'ambiente** (anticipati dalla M11, v2.16): una traccia cupa e un fondo di vento e gocce per tipo di livello, e ogni tanto un verso lontano nel buio attorno al cavaliere
 - Tabelle di spawn per profondità, con il giusto mix di archetipi
 
 **Test:** gli stessi test di connettività di M6, sul nuovo algoritmo.
@@ -588,7 +590,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ### M11 — "Look, feel e release" · 15–25 h (percorso base)
 
-**Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · musica ambientale e audio posizionale, con un mixer a gruppi · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · pagina itch.io definitiva e release **v1.0**.
+**Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · rifinitura dell'audio (musica, rumori d'ambiente, audio posizionale e mixer a gruppi ci sono già: M3 e M7) · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · pagina itch.io definitiva e release **v1.0**.
 
 **Estensione opzionale — Blender.** Sostituire gli asset CC0 con modelli propri è **fuori** dalle 15–25 h: la sola modellazione, partendo da zero con Blender, vale facilmente 80–100 h, e lì il lavoro resta tutto di Mirco. Si valuta a M11 chiusa, con la v1.0 già pubblicata, e semmai diventa una v1.1. Non è un taglio: è il percorso base che non la prevede.
 

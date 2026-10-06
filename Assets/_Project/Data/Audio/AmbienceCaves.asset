@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3872c273d5a9c14e977c842e9cea841, type: 3}
+  m_Name: AmbienceCaves
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Audio.AmbienceProfile
+  _music: {fileID: 8300000, guid: e96569cf6c1054741aac2ff782abd4b4, type: 3}
+  _musicVolume: 0.08
+  _bed: {fileID: 8300000, guid: 61c6e2db1a36c7e4ebc57922cb26bf65, type: 3}
+  _bedVolume: 0.15
+  _stingers:
+  - {fileID: 8300000, guid: 950e03162924ed442a5fce27f06d3c5c, type: 3}
+  - {fileID: 8300000, guid: 574b969740aa118449557e121ad9f05a, type: 3}
+  - {fileID: 8300000, guid: d1edfd4eeed68e042b50cfb755734873, type: 3}
+  - {fileID: 8300000, guid: b28a31de1ab99834e9082c64795f3e39, type: 3}
+  - {fileID: 8300000, guid: 160a2bb1b83f28241b4a9d8c8ff5f193, type: 3}
+  - {fileID: 8300000, guid: 56e295740e850b24eb6d1009311ae90c, type: 3}
+  - {fileID: 8300000, guid: f9e2682e96f5df84cb8ab530c6aee262, type: 3}
+  - {fileID: 8300000, guid: b856f9ccef601814f8425281fd4f75a9, type: 3}
+  _stingerVolume: 0.6
+  _stingerInterval: {x: 30, y: 70}
+  _stingerDistance: {x: 10, y: 18}
+  _stingerPitch: {x: 0.75, y: 1.05}

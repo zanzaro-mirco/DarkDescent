@@ -21,6 +21,7 @@ MonoBehaviour:
   _highlightMaterial: {fileID: 2100000, guid: 4b16f4eed1b106d4aad33a68e8cce2d4, type: 2}
   _ambientColor: {r: 0.24, g: 0.24, b: 0.3, a: 1}
   _postProcessing: {fileID: 11400000, guid: 9929bcb3021807643ad1c3e1fad1cc1d, type: 2}
+  _ambience: {fileID: 11400000, guid: ccdcb357fa80ded4abfb0450c33c7380, type: 2}
   _groundItem: {fileID: 6645038298707495754, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
   _markers:
   - _symbol: 83

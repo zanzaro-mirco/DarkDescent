@@ -8,10 +8,11 @@ fragile, che arriva in gruppo, e il **bruto**, lento e resistente, che carica un
 **telegrafato** da cui ci si può spostare in tempo. Un colpo del bruto **interrompe**
 l'attacco del cavaliere, uno dello sciame no. Lo scheletro si comporta come prima, ma la sua
 IA è fatta di **classi di stato**. Con dieci nemici che colpiscono insieme l'audio non si
-satura. L'automappa si riempie anche nelle caverne. Con `-seed 4711` le caverne tornano
-uguali. Test verdi in CI.
+satura. L'automappa si riempie anche nelle caverne. Nel buio suonano una musica cupa e un fondo di
+vento e gocce, diversi tra cripta e caverne, e ogni tanto un verso lontano. Con `-seed 4711`
+le caverne tornano uguali. Test verdi in CI.
 
-**Tempo stimato:** 10–15 h (piano v2.14). **Prerequisito:** M6 chiusa (tag `m6`).
+**Tempo stimato:** 12–18 h (piano v2.16: 2–3 h in più per il passo 7.0). **Prerequisito:** M6 chiusa (tag `m6`).
 
 **Come si lavora:** come alla M6, il codice e i passaggi nell'editor li faccio io, in
 batchmode a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in Play Mode e
@@ -53,6 +54,7 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | D8 | **IA a classi di stato** | `EnemyAI` diventa un componente sottile che esegue uno **stato** alla volta. Gli stati (`Idle`, `Chase`, `Attack`, `WindUp`, `Recover`, `Dead`) sono classi di logica in `Core` che parlano con il nemico attraverso un'interfaccia (`IEnemyBody`: dove sta, dove va, colpisce, vede il bersaglio). Scheletro, sciame e bruto sono **combinazioni di stati e numeri** in uno ScriptableObject `EnemyArchetype`. Prima il refactor con lo scheletro identico, verificato dai test che ci sono, poi i nemici nuovi | Con tre comportamenti lo `switch` cresce in tutti i rami; con le classi un comportamento nuovo è uno stato nuovo. In `Core` gli stati si provano in EditMode con un corpo finto, senza scene. È il refactor "guidato da un bisogno reale" del piano |
 | D9 | **Limite di voci audio** | Un `SfxLimiter` nella scena `Core`: al più **una clip per tipo di suono per fotogramma** (impatto, morte, colpo a vuoto), e oltre **12 voci** in tutto si scartano le più lontane. Priorità dell'`AudioSource` dalla distanza dal cavaliere | Dieci colpi dello sciame nello stesso fotogramma suonano come uno più forte, e con il limite Unity non toglie a caso quelli vicini |
 | D10 | **Nemici per profondità** | Una `SpawnTable` nelle impostazioni del livello: per ogni profondità quanti **gruppi** e di che tipo, con un peso. Caverne: profondità 5 circa 5 scheletri, uno sciame e un bruto; profondità 8 circa 4 scheletri, tre sciami e tre bruti. Numeri in `CaveSettings`, ritarati alla M10 | Il mix cambia scendendo, e il bruto arriva quando il cavaliere ha già trovato qualche oggetto. I numeri fuori dal codice si cambiano provando la build |
+| D12 | **Musica e rumori d'ambiente** (aggiunta il 6 ott, su richiesta di Mirco dopo la prova della M6; anticipati dalla M11) | Un profilo per tipo di livello nel tileset: musica cupa e fondo di vento e gocce in loop, versi singoli ogni 20–50 s da un punto a caso a 10–18 m dal cavaliere. Tracce CC0 da OpenGameArt, ispirate a Diablo ma niente musica originale (piano § 1.1). Dissolvenza tra profili diversi, la musica continua tra livelli con lo stesso profilo | Il buio fa paura se si sente qualcosa che non si vede. In 3D e oltre la luce del cavaliere, il verso arriva da una direzione dove non c'è niente da guardare |
 | D11 | **Loot dei nemici nuovi** | Una `LootTable` per tipo: sciame **20%** di lasciare un oggetto e 10% una pozione; bruto **sempre** un oggetto e 50% una pozione. Basi e rarità come lo scheletro, livello dell'oggetto dalla profondità | Lo sciame è tanti nemici piccoli: con la probabilità dello scheletro il pavimento si riempirebbe. Il bruto è un premio |
 
 ---
@@ -61,6 +63,7 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 
 | # | Passo | Ore |
 |---|---|---|
+| 7.0 | Musica e rumori d'ambiente (D12) | 2–3 |
 | 7.1 | Generatore delle caverne (logica pura) e test sui 500 semi | 1,5–2 |
 | 7.2 | Caverne nel gioco: tileset, scena `Level_Caves`, scala dal livello 4, finestra dell'editor | 1,5–2 |
 | 7.3 | IA a classi di stato, scheletro invariato | 1,5–2 |
@@ -72,6 +75,38 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | 7.9 | Chiusura: build da provare, GIF, ADR, tag `m7` | 0,5 |
 
 ---
+
+## Passo 7.0 — Musica e rumori nel buio
+
+1. Tracce CC0 da OpenGameArt, con l'autorizzazione di Mirco al download: una musica per la
+   cripta, una per le caverne, un fondo in loop. Righe in `CREDITS.md`.
+2. Versi singoli ritagliati dalle tracce dove il segnale esce dal fondo.
+3. `AmbienceProfile` (dati) e `StingerSchedule` (logica pura) in `Core`, `AmbiencePlayer` in
+   `Core.unity`, profilo nel `LevelTileset` e nel `LevelContext`.
+4. Test: profili completi, musica e fondo nella cripta, musica che continua scendendo,
+   dissolvenza tra profili, versi in 3D alla distanza giusta e mai uguali di fila.
+
+**Com'è andata (6 ott 2026).** Tre tracce, 4,5 MB. Per la cripta *Dungeon Ambience* di yd:
+206 s, molto bassa (mediana −43 dB, picco −19 dB), con le sue dissolvenze in testa e in coda.
+Per le caverne la versione in loop di *Dark Cavern Ambient* di Paul Wortmann: 120 s, forte
+(mediana −17 dB), con dentro versi di mostri. Sotto a tutte e due il fondo di *Loopable
+Dungeon Ambience* di JaggedStone (vento basso e gocce, mediana −30 dB), che copre anche il
+silenzio quando la musica della cripta ricomincia. Un'analisi in batch dell'inviluppo, a
+finestre di 50 ms contro la mediana mobile, ha trovato dieci picchi; ne sono rimasti otto:
+uno si sovrapponeva a un altro, uno usciva dal fondo di soli 9 dB. Sono ritagliati in WAV
+mono, da 1,25 a 5,85 s, con dissolvenze di 0,15 e 0,6 s e normalizzati a −3 dB. Volumi: il
+gruppo `Music` del mixer è a +14 dB, la musica della cripta a 1, quella delle caverne a 0,08,
+il fondo a 0,15; così le due musiche hanno la mediana tra −29 e −26 dB in uscita. I versi
+nel buio partono ogni 20–50 s nella cripta e ogni 30–70 s nelle caverne, dove la musica ne ha
+già. Ogni verso nasce a 10–18 m dal cavaliere, oltre la sua luce, nel gruppo `SFX`, con un
+passa-basso a 2,2 kHz che lo fa suonare dietro la roccia e l'intonazione tra 0,75 e 1,05.
+La cripta ha il suo profilo dal `DungeonTileset`; `AmbienceCaves` è pronto per il tileset
+delle caverne del passo 7.2. I livelli fatti a mano e la sandbox usano il profilo predefinito
+dell'`AmbiencePlayer`, quello della cripta. `StingerSchedule.NextIndex` all'inizio non poteva
+scegliere l'ultimo verso: un test sui bordi l'ha trovato prima del commit. ADR-039. Test:
+`StingerScheduleTests` (4) e `AmbienceTests` (5). In batchmode le sorgenti suonano davvero,
+e il test verifica che la musica vada avanti tra il livello 1 e il 2. 146 EditMode e 109
+PlayMode verdi.
 
 ## Passo 7.1 — Generatore delle caverne
 
@@ -141,7 +176,8 @@ EditMode e 104 PlayMode verdi.
 2. Scena `Level_Caves` costruita dallo strumento dell'editor, con atmosfera e luce sue.
 3. Scala del livello 4 verso la profondità 5; il livello 8 senza scala.
 4. Finestra dell'editor: scelta tra cripta e caverne.
-5. Test: discesa dal 4 al 5 e fino all'8, nemici sul NavMesh, stesso seme stessa caverna;
+5. Il tileset delle caverne riceve `AmbienceCaves` (passo 7.0).
+6. Test: discesa dal 4 al 5 e fino all'8, nemici sul NavMesh, stesso seme stessa caverna;
    l'automappa disegna le caverne.
 
 ## Passo 7.3 — IA a classi di stato
@@ -217,6 +253,8 @@ EditMode e 104 PlayMode verdi.
 
 | Classe | Cosa verifica |
 |---|---|
+| `StingerScheduleTests` (EditMode) | Attese, intonazione e distanze negli intervalli, versi da tutte le direzioni, mai lo stesso di fila, bordi |
+| `AmbienceTests` (PlayMode) | Profili completi, musica e fondo della cripta, musica che continua scendendo, dissolvenza, versi in 3D attorno al cavaliere |
 | `CaveGeneratorTests` (EditMode) | 500 semi: connessa, pavimento tra 35 e 45%, niente pilastri isolati, scala lontana, dentro i bordi, stesso seme stessa mappa |
 | `EnemyStateTests` (EditMode) | Gli stati con un corpo finto: percezione, inseguimento, attacco, carica e recupero, morte |
 | `CaveDescentTests` (PlayMode) | Dal livello 4 al 5 e all'8, nemici sul NavMesh, stesso seme stessa caverna |
@@ -227,7 +265,8 @@ EditMode e 104 PlayMode verdi.
 
 ## Checklist di chiusura
 
-- [x] Decisioni D1–D11 confermate
+- [x] Decisioni D1–D11 confermate, D12 aggiunta il 6 ott
+- [x] Musica e rumori d'ambiente (7.0)
 - [x] Generatore delle caverne con i test sui 500 semi
 - [ ] Caverne nel gioco
 - [ ] IA a classi di stato, scheletro invariato

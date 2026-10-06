@@ -2361,6 +2361,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395246509}
   m_CullTransparentMesh: 1
+--- !u!1 &397583099
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 397583101}
+  - component: {fileID: 397583100}
+  m_Layer: 0
+  m_Name: Ambience
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &397583100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 397583099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad8e7db18188bc74ca826af0b190b880, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Audio.AmbiencePlayer
+  _defaultProfile: {fileID: 11400000, guid: ccdcb357fa80ded4abfb0450c33c7380, type: 2}
+  _musicGroup: {fileID: -7001357198044373345, guid: 384598ecd767db34bb10f9ed9ea00557, type: 2}
+  _stingerGroup: {fileID: -8380571030766219416, guid: 384598ecd767db34bb10f9ed9ea00557, type: 2}
+  _fadeTime: 2.5
+  _stingerVoices: 2
+  _stingerCutoff: 2200
+  _stingerMinDistance: 5
+  _stingerMaxDistance: 40
+--- !u!4 &397583101
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 397583099}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &414604679
 GameObject:
   m_ObjectHideFlags: 0
@@ -2541,6 +2593,7 @@ MonoBehaviour:
   _itemCursor: {fileID: 1537484015}
   _hitStop: {fileID: 1360960571}
   _playerCamera: {fileID: 1669943979}
+  _ambience: {fileID: 397583100}
   _strings: {fileID: 4900000, guid: 2fda7ed2ca7aa064bafe58a844401558, type: 3}
   _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
   _items: {fileID: 11400000, guid: be8dcda66dcc39645ad4c3fca0b208ce, type: 2}
@@ -12334,3 +12387,4 @@ SceneRoots:
   - {fileID: 1765101945}
   - {fileID: 1669943980}
   - {fileID: 615250349}
+  - {fileID: 397583101}

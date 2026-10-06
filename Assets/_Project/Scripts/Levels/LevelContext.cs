@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DarkDescent.Audio;
 using DarkDescent.Enemies;
 using DarkDescent.Items;
 using UnityEngine;
@@ -16,6 +17,9 @@ namespace DarkDescent.Levels
     {
         [Tooltip("La profondità del livello, dalla direttiva @depth della mappa: è il livello degli oggetti che ci cadono.")]
         [SerializeField, Min(1)] private int _depth = 1;
+
+        [Tooltip("Il suono del livello (passo 7.0 della M7). Vuoto: quello predefinito di Core.")]
+        [SerializeField] private AmbienceProfile _ambience;
 
         private readonly List<LevelEntrance> _entrances = new List<LevelEntrance>();
         private readonly List<LevelExit> _exits = new List<LevelExit>();
@@ -37,6 +41,8 @@ namespace DarkDescent.Levels
 
         public int Depth => _depth;
 
+        public AmbienceProfile Ambience => _ambience;
+
         /// <summary>
         /// La mappa da cui è nato il livello, per l'automappa (D15 della M6). C'è solo per i livelli
         /// costruiti a runtime: in quelli salvati come scena non si serializza, e l'automappa resta spenta.
@@ -44,10 +50,11 @@ namespace DarkDescent.Levels
         public LevelMap Map { get; private set; }
 
         /// <summary>Per chi costruisce il livello (<see cref="LevelBuilder"/>), prima che si accenda.</summary>
-        public void Configure(int depth, LevelMap map = null)
+        public void Configure(int depth, LevelMap map = null, AmbienceProfile ambience = null)
         {
             _depth = Mathf.Max(1, depth);
             Map = map;
+            _ambience = ambience;
         }
 
         private void Awake()

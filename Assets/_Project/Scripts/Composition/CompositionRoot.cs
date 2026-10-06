@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DarkDescent.Audio;
 using DarkDescent.Combat;
 using DarkDescent.Items;
 using DarkDescent.Levels;
@@ -46,6 +47,9 @@ namespace DarkDescent.Core
         [SerializeField] private HitStop _hitStop;
 
         [SerializeField] private CinemachineCamera _playerCamera;
+
+        [Tooltip("Musica, fondo e versi nel buio: cambiano con il livello (passo 7.0 della M7).")]
+        [SerializeField] private AmbiencePlayer _ambience;
 
         [Tooltip("La tabella delle stringhe: una colonna per lingua (D12 della M5).")]
         [SerializeField] private TextAsset _strings;
@@ -138,6 +142,8 @@ namespace DarkDescent.Core
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _automap.Bind(_exploration, _reader);
+            // un generatore suo: i versi nel buio non spostano i tiri del combattimento
+            _ambience.Bind(_player.transform, new SystemRandomSource(Environment.TickCount ^ 0x5EED));
         }
 
         private void OnEnable()
@@ -172,6 +178,7 @@ namespace DarkDescent.Core
             // smorzamento, attraversando la mappa (trappola 3). Invalidato lo stato, al prossimo
             // LateUpdate si posiziona direttamente sul bersaglio.
             _playerCamera.PreviousStateIsValid = false;
+            _ambience.Play(level.Ambience);
 
             foreach (var enemy in level.Enemies)
             {
