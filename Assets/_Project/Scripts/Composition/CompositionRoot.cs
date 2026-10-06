@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DarkDescent.Audio;
+using DarkDescent.Characters;
 using DarkDescent.Combat;
 using DarkDescent.Enemies;
 using DarkDescent.Items;
@@ -51,6 +52,9 @@ namespace DarkDescent.Core
 
         [Tooltip("Musica, fondo e versi nel buio: cambiano con il livello (passo 7.0 della M7).")]
         [SerializeField] private AmbiencePlayer _ambience;
+
+        [Tooltip("Il limite di voci dei personaggi (D9 della M7): cavaliere e nemici gli chiedono il permesso.")]
+        [SerializeField] private SfxLimiter _sfxLimiter;
 
         [Tooltip("La tabella delle stringhe: una colonna per lingua (D12 della M5).")]
         [SerializeField] private TextAsset _strings;
@@ -148,6 +152,7 @@ namespace DarkDescent.Core
             _automap.Bind(_exploration, _reader);
             // un generatore suo: i versi nel buio non spostano i tiri del combattimento
             _ambience.Bind(_player.transform, new SystemRandomSource(Environment.TickCount ^ 0x5EED));
+            _player.GetComponent<CharacterAudio>().Bind(_sfxLimiter);
         }
 
         private void OnEnable()
@@ -193,6 +198,10 @@ namespace DarkDescent.Core
                 }
 
                 enemy.Bind(_player);
+                if (enemy.TryGetComponent(out CharacterAudio audio))
+                {
+                    audio.Bind(_sfxLimiter);
+                }
                 var attack = enemy.GetComponent<MeleeAttack>();
                 attack.SetRandomSource(_random);
                 _enemyAttacks.Add(attack);

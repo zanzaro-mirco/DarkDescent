@@ -2594,6 +2594,7 @@ MonoBehaviour:
   _hitStop: {fileID: 1360960571}
   _playerCamera: {fileID: 1669943979}
   _ambience: {fileID: 397583100}
+  _sfxLimiter: {fileID: 681326279}
   _strings: {fileID: 4900000, guid: 2fda7ed2ca7aa064bafe58a844401558, type: 3}
   _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
   _items: {fileID: 11400000, guid: be8dcda66dcc39645ad4c3fca0b208ce, type: 2}
@@ -2666,6 +2667,8 @@ MonoBehaviour:
   _playerDamageColor: {r: 1, g: 0.25, b: 0.2, a: 1}
   _missColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   _blockColor: {r: 0.72, g: 0.8, b: 0.95, a: 1}
+  _criticalColor: {r: 1, g: 0.62, b: 0.12, a: 1}
+  _criticalScale: 1.5
   _spawnHeight: 2.3
   _rise: 1
   _lifetime: 0.8
@@ -4102,6 +4105,52 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -6, y: -6}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &681326278
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 681326280}
+  - component: {fileID: 681326279}
+  m_Layer: 0
+  m_Name: SfxLimiter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &681326279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 681326278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39a94fc7dfc810c45bcd8e9f815b3bd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Audio.SfxLimiter
+  _listener: {fileID: 615250349}
+  _maxVoices: 12
+--- !u!4 &681326280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 681326278}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &681807096
 GameObject:
   m_ObjectHideFlags: 0
@@ -7086,6 +7135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Core.HitStop
   _duration: 0.05
+  _criticalDuration: 0.12
 --- !u!4 &1360960572
 Transform:
   m_ObjectHideFlags: 0
@@ -12388,3 +12438,4 @@ SceneRoots:
   - {fileID: 1669943980}
   - {fileID: 615250349}
   - {fileID: 397583101}
+  - {fileID: 681326280}

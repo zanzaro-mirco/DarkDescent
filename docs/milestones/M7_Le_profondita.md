@@ -475,6 +475,27 @@ spiega il critico. La foto in batch mostra che la finestra la contiene.
 2. Test: dieci impatti nello stesso fotogramma suonano una volta; oltre il limite cade il più
    lontano.
 
+**Com'è andata (6 ott 2026).** La regola sta in `SfxBudget`, in `Core`: logica pura, con
+fotogramma, tempo e distanza passati da fuori, e nessuna allocazione dopo la costruzione.
+- Al più un suono per tipo (`SfxKind`) per fotogramma.
+- Al più 12 voci insieme. Oltre, un suono nuovo passa solo se è più vicino del più lontano tra
+  quelli in corso, e ne prende il posto; un suono finito libera il suo.
+- La priorità di Unity va da 64 a un passo dal cavaliere a 255 lontano: se Unity deve togliere
+  una voce, toglie quella lontana.
+
+`SfxLimiter`, in `Core.unity`, misura la distanza dall'`AudioListener` sulla testa del
+cavaliere e conta il tempo reale, perché durante l'hit stop il gioco è fermo ma i suoni no.
+`CharacterAudio` gli chiede il permesso per fendente, impatto, morte, blocco, pozione e verso
+del critico; il composition root lo collega al cavaliere e ai nemici di ogni livello. Senza
+limite collegato, in una scena di prova, si suona come prima. Il verso del critico è un tipo a
+sé: passa anche nel fotogramma in cui un altro nemico fa un impatto. Musica, fondo e versi nel
+buio hanno sorgenti loro e non contano tra le 12 voci (ADR-039).
+
+Test: `SfxBudgetTests` (EditMode, 4) e `SfxLimiterTests` (PlayMode, 2). Il primo PlayMode
+mostra dieci dello sciame colpiti nello stesso fotogramma: dieci richieste e un impatto solo,
+e il fotogramma dopo l'impatto passa. Il secondo mostra la sorgente vicina con priorità più
+alta di quella lontana, e il cavaliere collegato al limite. 170 EditMode e 124 PlayMode verdi.
+
 ## Passo 7.9 — Nemici e loot per profondità
 
 1. `SpawnTable` in `CaveSettings`, loot table di sciame e bruto.
@@ -540,7 +561,8 @@ spiega il critico. La foto in batch mostra che la finestra la contiene.
 | `BruteTests` (PlayMode) | Colpo telegrafato schivato e preso; interruzione dell'attacco del cavaliere |
 | `CombatFormulasTests` (EditMode) | Probabilità di critico ai bordi (0, 20, 450 di Destrezza), critico solo dalla parte alta del tiro |
 | `CriticalHitTests` (PlayMode) | Danno doppio e `IsCritical`, numero del critico, verso giusto per scheletro, sciame e bruto, nessun critico con i tiri fissi a 0 |
-| `SfxLimiterTests` (PlayMode) | Un suono per tipo e per fotogramma, limite di voci |
+| `SfxBudgetTests` (EditMode) | Un suono per tipo e per fotogramma, oltre il limite cade il più lontano, i suoni finiti liberano il posto, priorità dalla distanza |
+| `SfxLimiterTests` (PlayMode) | Dieci impatti nello stesso fotogramma, priorità delle sorgenti, cavaliere collegato |
 
 ---
 
@@ -556,7 +578,7 @@ spiega il critico. La foto in batch mostra che la finestra la contiene.
 - [x] Bruto e colpo telegrafato
 - [x] Reazione al colpo del cavaliere
 - [x] Colpi critici e versi dei nemici
-- [ ] Limite di voci audio
+- [x] Limite di voci audio
 - [ ] Nemici e loot per profondità
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
