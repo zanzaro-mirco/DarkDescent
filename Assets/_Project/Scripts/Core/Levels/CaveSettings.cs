@@ -52,6 +52,18 @@ namespace DarkDescent.Levels
 
         [SerializeField, Min(1)] private int _maxSwarm = 6;
 
+        [Header("Bruto (7.5)")]
+        [Tooltip("Bruti alla prima profondità delle caverne; crescono fino al valore dell'ultima (D10).")]
+        [SerializeField, Min(0)] private int _brutesFirst = 1;
+
+        [SerializeField, Min(0)] private int _brutesLast = 3;
+
+        /// <summary>I bruti a una profondità, come i gruppi di sciame: dalla prima all'ultima in linea retta.</summary>
+        public int Brutes(int depth)
+        {
+            return Interpolate(_brutesFirst, _brutesLast, depth);
+        }
+
         public int MinSwarm => _minSwarm;
 
         public int MaxSwarm => _maxSwarm;
@@ -59,9 +71,14 @@ namespace DarkDescent.Levels
         /// <summary>I gruppi di sciame a una profondità: dalla prima all'ultima crescono in linea retta, arrotondati.</summary>
         public int SwarmGroups(int depth)
         {
+            return Interpolate(_swarmGroupsFirst, _swarmGroupsLast, depth);
+        }
+
+        private int Interpolate(int first, int last, int depth)
+        {
             int span = Mathf.Max(1, LastDepth - FirstDepth);
             float t = Mathf.Clamp01((depth - FirstDepth) / (float)span);
-            return Mathf.RoundToInt(Mathf.Lerp(_swarmGroupsFirst, _swarmGroupsLast, t));
+            return Mathf.RoundToInt(Mathf.Lerp(first, last, t));
         }
 
         public int FloorPerCandle => _floorPerCandle;

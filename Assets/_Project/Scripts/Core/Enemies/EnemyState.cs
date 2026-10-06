@@ -5,6 +5,12 @@ namespace DarkDescent.Enemies
         Idle,
         Chase,
         Attack,
+
+        /// <summary>Carica un colpo telegrafato: fermo, il settore a terra (il bruto, D6).</summary>
+        WindUp,
+
+        /// <summary>Dopo il colpo resta fermo: la finestra per colpirlo (D6).</summary>
+        Recover,
         Dead
     }
 }

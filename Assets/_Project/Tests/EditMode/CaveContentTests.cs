@@ -100,12 +100,14 @@ namespace DarkDescent.Tests
             var settings = Caves;
             foreach (var (seed, depth, layout) in Levels())
             {
-                var enemies = Find(layout, c => c == DungeonPopulator.EnemySymbol || c == CavePopulator.SwarmSymbol);
+                var enemies = Find(layout, CavePopulator.IsEnemy);
                 int swarm = enemies.Count(c => layout[c.x, c.y] == CavePopulator.SwarmSymbol);
+                int brutes = enemies.Count(c => layout[c.x, c.y] == CavePopulator.BruteSymbol);
+                Assert.AreEqual(settings.Brutes(depth), brutes, $"seme {seed}, profondità {depth}: bruti");
                 int groups = settings.SwarmGroups(depth);
                 Assert.That(swarm, Is.InRange(groups * settings.MinSwarm, groups * settings.MaxSwarm), $"seme {seed}, profondità {depth}: sciame");
                 var chests = Find(layout, c => c == DungeonPopulator.ChestSymbol);
-                Assert.AreEqual(settings.EnemyCount(depth), enemies.Count - swarm, $"seme {seed}, profondità {depth}: scheletri");
+                Assert.AreEqual(settings.EnemyCount(depth), enemies.Count - swarm - brutes, $"seme {seed}, profondità {depth}: scheletri");
                 Assert.AreEqual(settings.ChestCount(depth), chests.Count, $"seme {seed}, profondità {depth}: casse");
 
                 // senza ostacoli: i passi della caverna com'è, non i giri attorno alle casse
@@ -141,11 +143,12 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("I gruppi di sciame crescono con la profondità: 1 al 5, 3 all'8")]
+        [Test, Description("Gruppi di sciame e bruti crescono con la profondità: 1 al 5, 3 all'8")]
         public void SwarmGroups_GrowWithDepth()
         {
             var settings = Caves;
             CollectionAssert.AreEqual(new[] { 1, 2, 2, 3 }, Enumerable.Range(5, 4).Select(settings.SwarmGroups).ToArray());
+            CollectionAssert.AreEqual(new[] { 1, 2, 2, 3 }, Enumerable.Range(5, 4).Select(settings.Brutes).ToArray(), "i bruti come D10: 1 al 5, 3 all'8");
             Assert.AreEqual(5, settings.EnemyCount(5));
             Assert.AreEqual(5, settings.EnemyCount(8));
         }

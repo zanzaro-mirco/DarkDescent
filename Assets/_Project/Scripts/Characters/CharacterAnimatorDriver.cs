@@ -20,6 +20,7 @@ namespace DarkDescent.Characters
         private static readonly int HitStateHash = Animator.StringToHash("Hit");
         private static readonly int BlockStateHash = Animator.StringToHash("Block");
         private static readonly int DeathStateHash = Animator.StringToHash("Death");
+        private static readonly int AttackSpeedHash = Animator.StringToHash("AttackSpeed");
 
         private const int BaseLayer = 0;
 
@@ -44,7 +45,11 @@ namespace DarkDescent.Characters
         [Tooltip("Dissolvenza verso attacco, colpo subito e morte, in secondi.")]
         [SerializeField, Min(0f)] private float _oneShotFadeTime = 0.05f;
 
+        [Tooltip("Velocità dell'animazione d'attacco: sotto 1 il colpo si carica piano e l'ascia cade insieme al danno (il bruto, D6 della M7). Vale se il controller ha il parametro AttackSpeed.")]
+        [SerializeField, Range(0.1f, 2f)] private float _attackSpeed = 1f;
+
         private Animator _animator;
+        private bool _hasAttackSpeed;
 
         /// <summary>Dopo la morte il driver ignora ogni altro comando: l'animazione resta sull'ultimo fotogramma.</summary>
         public bool IsDead { get; private set; }
@@ -52,6 +57,10 @@ namespace DarkDescent.Characters
         private void Awake()
         {
             _animator = GetComponent<Animator>();
+            foreach (var parameter in _animator.parameters)
+            {
+                _hasAttackSpeed |= parameter.nameHash == AttackSpeedHash;
+            }
             if (_agent == null)
             {
                 _agent = GetComponentInParent<NavMeshAgent>();
@@ -134,6 +143,12 @@ namespace DarkDescent.Characters
 
         public void PlayAttack()
         {
+            // a ogni colpo: Rebind, alla ripartenza, riporta i parametri ai valori del controller
+            if (_hasAttackSpeed)
+            {
+                _animator.SetFloat(AttackSpeedHash, _attackSpeed);
+            }
+
             PlayOneShot(AttackStateHash);
         }
 

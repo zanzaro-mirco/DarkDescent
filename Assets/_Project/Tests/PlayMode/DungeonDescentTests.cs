@@ -106,9 +106,9 @@ namespace DarkDescent.Tests
                 Assert.IsTrue(PlayerAgent.isOnNavMesh, $"profondità {depth + 1}: cavaliere fuori dal NavMesh");
                 bool caves = depth + 1 > 4;
                 Assert.AreEqual(caves ? "Level_Caves" : CryptScene, Manager.CurrentLevel.gameObject.scene.name);
-                // nelle caverne scheletri e sciame sono quanti ne ha messi il popolatore: si contano sulla mappa
+                // nelle caverne scheletri, sciame e bruti sono quanti ne ha messi il popolatore: si contano sulla mappa
                 var map = Manager.CurrentLevel.Map;
-                int marked = map.Markers.Count(m => m.Symbol == DungeonPopulator.EnemySymbol || m.Symbol == CavePopulator.SwarmSymbol);
+                int marked = map.Markers.Count(m => CavePopulator.IsEnemy(m.Symbol));
                 Assert.AreEqual(caves ? marked : 3 + 2 * (depth + 1), Manager.CurrentLevel.Enemies.Count);
             }
 

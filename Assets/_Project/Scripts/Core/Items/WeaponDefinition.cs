@@ -37,6 +37,9 @@ namespace DarkDescent.Items
         [Tooltip("Secondi tra l'inizio dell'animazione e il danno: il momento in cui la lama arriva sul bersaglio.")]
         [SerializeField, Min(0f)] private float _hitDelay = 0.6f;
 
+        [Tooltip("Ampiezza del colpo in gradi, davanti a chi colpisce: al momento del danno il bersaglio dev'essere ancora lì dentro. 360: tutto attorno, cioè conta solo la distanza (il bruto, D6 della M7).")]
+        [SerializeField, Range(10f, 360f)] private float _arc = 360f;
+
         public int MinDamage => _minDamage;
         public int MaxDamage => _maxDamage;
         public DamageType DamageType => _damageType;
@@ -46,6 +49,7 @@ namespace DarkDescent.Items
         public float RangeTolerance => _rangeTolerance;
         public float AttackInterval => _attackInterval;
         public float HitDelay => _hitDelay;
+        public float Arc => _arc;
 
         public override EquipSlot Slot => EquipSlot.Weapon;
 

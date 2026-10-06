@@ -67,6 +67,12 @@ namespace DarkDescent.Combat
         /// <summary>Il colpo è arrivato a portata ma il tiro l'ha mancato: niente danno né hit stop.</summary>
         public event Action<DamageInfo> Missed;
 
+        /// <summary>
+        /// Il colpo partito è finito: arrivato, mancato, a vuoto o annullato. Il settore del bruto si
+        /// spegne qui (D6 della M7).
+        /// </summary>
+        public event Action SwingEnded;
+
         public WeaponDefinition Weapon => _weapon;
 
         /// <summary>Il danno minimo dell'arma con i suoi affissi, prima della Forza.</summary>
@@ -116,6 +122,11 @@ namespace DarkDescent.Combat
         private void OnDisable()
         {
             // spento a metà colpo (per esempio alla morte): il danno non deve arrivare più tardi
+            if (_hitPending)
+            {
+                SwingEnded?.Invoke();
+            }
+
             _hitPending = false;
             _lockTimer = 0f;
             ForgetTarget();
@@ -163,6 +174,11 @@ namespace DarkDescent.Combat
         /// </summary>
         public void Interrupt(float lockDuration)
         {
+            if (_hitPending)
+            {
+                SwingEnded?.Invoke();
+            }
+
             _hitPending = false;
             ForgetSwingTarget();
             _lockTimer = Mathf.Max(_lockTimer, lockDuration);
@@ -273,7 +289,8 @@ namespace DarkDescent.Combat
             _hitPending = false;
             bool inReach = _swingTransform != null
                 && _swingTarget.IsAlive()
-                && EdgeDistance(Flat(_swingTransform.position - transform.position), _swingTargetRadius) <= _weapon.Range + _weapon.RangeTolerance;
+                && EdgeDistance(Flat(_swingTransform.position - transform.position), _swingTargetRadius) <= _weapon.Range + _weapon.RangeTolerance
+                && InArc(Flat(_swingTransform.position - transform.position));
 
             if (inReach)
             {
@@ -305,6 +322,19 @@ namespace DarkDescent.Combat
             }
 
             ForgetSwingTarget();
+            SwingEnded?.Invoke();
+        }
+
+        // Il bersaglio è ancora davanti, dentro l'arco dell'arma: chi gli è passato di lato o dietro
+        // durante la carica non viene colpito (D6 della M7). Con 360 gradi conta solo la distanza.
+        private bool InArc(Vector3 flatOffset)
+        {
+            if (_weapon.Arc >= 360f || flatOffset.sqrMagnitude < 0.0001f)
+            {
+                return true;
+            }
+
+            return Vector3.Angle(Flat(transform.forward), flatOffset) <= _weapon.Arc * 0.5f;
         }
 
         private float EdgeDistance(Vector3 flatOffset, float targetRadius)

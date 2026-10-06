@@ -57,7 +57,9 @@ namespace DarkDescent.Tests
             int swarm = level.Map.Markers.Count(m => m.Symbol == CavePopulator.SwarmSymbol);
             Assert.AreEqual(5, skeletons, "5 scheletri fino alla tabella del 7.9");
             Assert.That(swarm, Is.InRange(4, 6), "un gruppo di sciame al 5");
-            Assert.AreEqual(skeletons + swarm, level.Enemies.Count);
+            int brutes = level.Map.Markers.Count(m => m.Symbol == CavePopulator.BruteSymbol);
+            Assert.AreEqual(1, brutes, "un bruto al 5");
+            Assert.AreEqual(skeletons + swarm + brutes, level.Enemies.Count);
             foreach (var enemy in level.Enemies)
             {
                 Assert.IsTrue(enemy.GetComponent<NavMeshAgent>().isOnNavMesh, $"{enemy.name} fuori dal NavMesh");

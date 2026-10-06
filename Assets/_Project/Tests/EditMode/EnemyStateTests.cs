@@ -182,6 +182,88 @@ namespace DarkDescent.Tests
             Assert.AreEqual(EnemyState.Dead, otherBrain.State);
         }
 
+        [Test, Description("Il bruto: partito il colpo carica finché il colpo non finisce, poi resta fermo senza chiedere colpi per il tempo di recupero, poi torna a inseguire")]
+        public void Brute_WindsUpThenRecovers()
+        {
+            var brute = ScriptableObject.CreateInstance<EnemyArchetype>();
+            try
+            {
+                JsonUtility.FromJsonOverwrite("{\"_recoverTime\":0.6}", brute);
+                Assert.IsTrue(brute.IsTelegraphed);
+                var body = new FakeBody { Sees = true, InRange = true };
+                var brain = new EnemyBrain(body, brute.CreateStates());
+                Run(brain, 2);
+                Assert.AreEqual(EnemyState.Attack, brain.State);
+
+                body.Swinging = true;
+                Run(brain, 1);
+                Assert.AreEqual(EnemyState.WindUp, brain.State, "partito il colpo, carica");
+                int engages = body.Engages;
+                Run(brain, 40);
+                Assert.AreEqual(EnemyState.WindUp, brain.State, "carica finché il colpo è in volo");
+                Assert.AreEqual(engages, body.Engages, "caricando non chiede altri colpi");
+
+                body.Swinging = false;
+                Run(brain, 1);
+                Assert.AreEqual(EnemyState.Recover, brain.State);
+                Assert.AreEqual(1, body.Disengages, "fermo: lascia il bersaglio");
+                Run(brain, 29);
+                Assert.AreEqual(EnemyState.Recover, brain.State, "0,58 s dopo è ancora fermo");
+                Assert.AreEqual(engages, body.Engages);
+                Run(brain, 2);
+                Assert.AreEqual(EnemyState.Chase, brain.State, "passati 0,6 s riparte");
+            }
+            finally
+            {
+                Object.DestroyImmediate(brute);
+            }
+        }
+
+        [Test, Description("Un colpo del bruto annullato (il cavaliere lo interrompe) porta comunque al recupero; con il bersaglio morto dopo il recupero si ferma")]
+        public void Brute_InterruptedStillRecovers()
+        {
+            var brute = ScriptableObject.CreateInstance<EnemyArchetype>();
+            try
+            {
+                JsonUtility.FromJsonOverwrite("{\"_recoverTime\":0.2}", brute);
+                var body = new FakeBody { Sees = true, InRange = true };
+                var brain = new EnemyBrain(body, brute.CreateStates());
+                Run(brain, 2);
+                body.Swinging = true;
+                Run(brain, 2);
+                Assert.AreEqual(EnemyState.WindUp, brain.State);
+                body.Swinging = false;
+                body.TargetAlive = false;
+                Run(brain, 1);
+                Assert.AreEqual(EnemyState.Recover, brain.State);
+                Run(brain, 20);
+                Assert.AreEqual(EnemyState.Idle, brain.State);
+            }
+            finally
+            {
+                Object.DestroyImmediate(brute);
+            }
+        }
+
+        [Test, Description("Lo scheletro non carica: un colpo in volo resta un attacco")]
+        public void Skeleton_NeverWindsUp()
+        {
+            Assert.IsFalse(_archetype.IsTelegraphed);
+            _body.Sees = true;
+            _body.InRange = true;
+            _body.Swinging = true;
+            Run(10);
+            Assert.AreEqual(EnemyState.Attack, _brain.State);
+        }
+
+        private static void Run(EnemyBrain brain, int frames)
+        {
+            for (int i = 0; i < frames; i++)
+            {
+                brain.Tick(Frame);
+            }
+        }
+
         [Test, Description("Ogni nemico ha i suoi stati: il conto della percezione di uno non sposta quello dell'altro; senza Idle o Dead il cervello non parte")]
         public void States_ArePerEnemy()
         {

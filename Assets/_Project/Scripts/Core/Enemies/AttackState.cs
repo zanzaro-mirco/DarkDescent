@@ -7,6 +7,14 @@ namespace DarkDescent.Enemies
     /// </summary>
     public sealed class AttackState : EnemyStateBase
     {
+        private readonly bool _telegraphed;
+
+        /// <param name="telegraphed">Vero per il bruto: partito il colpo, si passa alla carica (D6).</param>
+        public AttackState(bool telegraphed = false)
+        {
+            _telegraphed = telegraphed;
+        }
+
         public override EnemyState Id => EnemyState.Attack;
 
         public override EnemyState Tick(IEnemyBody body, float deltaTime)
@@ -18,6 +26,11 @@ namespace DarkDescent.Enemies
             }
 
             body.Engage();
+            if (_telegraphed && body.IsSwinging)
+            {
+                return EnemyState.WindUp;
+            }
+
             return !body.IsTargetInRange && !body.IsSwinging ? EnemyState.Chase : Id;
         }
     }

@@ -20,6 +20,15 @@ namespace DarkDescent.Levels
         /// <summary>Un nemico dello sciame (D5): arriva a gruppi.</summary>
         public const char SwarmSymbol = 'w';
 
+        /// <summary>Un bruto (D6): da solo, grosso e lento.</summary>
+        public const char BruteSymbol = 'B';
+
+        /// <summary>Un simbolo di nemico delle caverne: scheletro, sciame o bruto.</summary>
+        public static bool IsEnemy(char symbol)
+        {
+            return symbol == DungeonPopulator.EnemySymbol || symbol == SwarmSymbol || symbol == BruteSymbol;
+        }
+
         private const string PropSymbols = "bxp";
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
@@ -153,6 +162,12 @@ namespace DarkDescent.Levels
             {
                 int size = Range(random, _settings.MinSwarm, _settings.MaxSwarm);
                 PlaceGroup(layout, random, steps, reserved, centers, used, ref next, CavePopulator.SwarmSymbol, size);
+            }
+
+            // i bruti da soli, ognuno con il suo centro: lontani tra loro e dai gruppi
+            for (int b = 0; b < _settings.Brutes(depth); b++)
+            {
+                PlaceGroup(layout, random, steps, reserved, centers, used, ref next, CavePopulator.BruteSymbol, 1);
             }
 
             int remaining = _settings.EnemyCount(depth);

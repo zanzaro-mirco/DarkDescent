@@ -30,9 +30,17 @@ namespace DarkDescent.Enemies
         [Tooltip("La priorità di evitamento dell'agent varia di tanto in più o in meno da un nemico all'altro: in un corridoio uno cede il passo invece di spingere (trappola 5).")]
         [SerializeField, Range(0, 49)] private int _avoidanceSpread;
 
+        [Header("Colpo telegrafato (D6 della M7)")]
+        [Tooltip("Secondi fermo dopo un colpo, la finestra per colpirlo. Zero: nessuna carica né recupero, come lo scheletro. La carica dura quanto il ritardo dell'arma.")]
+        [SerializeField, Min(0f)] private float _recoverTime;
+
         public float PackRadius => _packRadius;
 
         public int AvoidanceSpread => _avoidanceSpread;
+
+        public float RecoverTime => _recoverTime;
+
+        public bool IsTelegraphed => _recoverTime > 0f;
 
         public float AggroRange => _aggroRange;
 
@@ -45,7 +53,16 @@ namespace DarkDescent.Enemies
         /// <summary>Gli stati di un nemico di questo tipo: nuovi a ogni chiamata, perché ogni nemico ha i suoi.</summary>
         public IEnumerable<EnemyStateBase> CreateStates()
         {
-            return new EnemyStateBase[] { new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new DeadState() };
+            if (!IsTelegraphed)
+            {
+                return new EnemyStateBase[] { new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new DeadState() };
+            }
+
+            return new EnemyStateBase[]
+            {
+                new IdleState(_perceptionInterval), new ChaseState(), new AttackState(telegraphed: true),
+                new WindUpState(), new RecoverState(_recoverTime), new DeadState(),
+            };
         }
     }
 }

@@ -342,6 +342,53 @@ prefab ne vuole uno; il 7.9 lo ricontrolla con le probabilità su 10.000 tiri.
 2. Test: fuori dal settore alla fine della carica il colpo non arriva, dentro sì; dopo il
    colpo il bruto resta fermo.
 
+**Com'è andata (6 ott 2026).**
+
+*Il colpo telegrafato* è il colpo di sempre, con due aggiunte:
+- `WeaponDefinition` ha un arco in gradi (360 per tutte le armi di prima, quindi niente cambia);
+- `MeleeAttack`, al momento del danno, ricontrolla anche l'angolo e avvisa con `SwingEnded` quando
+  un colpo finisce, a vuoto o annullato.
+
+Durante la carica `MeleeAttack` già non insegue e non gira, quindi chi passa di lato o dietro
+ne esce davvero. Gli stati nuovi sono `WindUpState`, che aspetta la fine del colpo, e
+`RecoverState`, fermo per il tempo dell'archetipo e senza chiedere colpi. `AttackState` del
+bruto passa alla carica appena il colpo parte. Un archetipo con un tempo di recupero è
+telegrafato e prende questi stati; lo scheletro e lo sciame no.
+
+*Il bruto.* `Brute` è lo scheletro con `Skeleton_Warrior` (stesse ossa, trappola 8) a scala 1,3
+e `Skeleton_Axe` in mano:
+- velocità 1,8, cioè 0,6 volte lo scheletro (D6), accelerazione 12, rotazione lenta (300°/s);
+- vita 90, tre volte lo scheletro;
+- `BruteStrike`: 12–18 danni, portata 1 m + 0,4, arco 100°, carica 0,9 s, un colpo ogni 2,4 s;
+- recupero 0,6 s;
+- Destrezza 5, Armatura 20;
+- `BruteLoot` già con i numeri di D11: sempre un oggetto, metà delle volte una pozione.
+
+L'animazione d'attacco del controller condiviso prende la velocità dal parametro nuovo
+`AttackSpeed`, che vale 1 per tutti; il bruto la porta a 0,47, così l'ascia si alza piano e
+cade insieme al danno.
+
+*Il settore.* `TelegraphSector` costruisce in `Awake` un ventaglio dell'arco dell'arma, di
+raggio pari alla portata vera (raggio del bruto + portata + margine + corpo del cavaliere,
+2,45 m). Il settore appare con `SwingStarted`, si riempie dal centro durante la carica e
+sparisce con `SwingEnded`. I due materiali, `M_Telegraph` e `M_TelegraphFill`, sono URP Unlit
+trasparenti: si leggono nel buio delle caverne, e la foto in batch lo conferma (trappola 6).
+
+*Popolatore.* I bruti sono da soli, ognuno con il suo centro, da 1 al 5 a 3 all'8 come in D10
+(1, 2, 2, 3).
+
+*Test.*
+- `BruteTests` (PlayMode), su una mappa di prova con una stanza:
+  - numeri contro lo scheletro;
+  - il cavaliere passa dietro il bruto durante la carica: dentro la portata ma fuori dall'arco,
+    il colpo va a vuoto, il settore sparisce, e il bruto resta fermo e girato per tutto il
+    recupero;
+  - chi resta nel settore prende almeno 12.
+- `EnemyStateTests`: carica e recupero, colpo annullato, lo scheletro che non carica.
+- `CaveContentTests`: i bruti su 200 semi × 4 profondità.
+
+164 EditMode e 117 PlayMode verdi.
+
 ## Passo 7.6 — Reazione al colpo del cavaliere
 
 1. `HitRecovery` sul cavaliere con la soglia di D7; animazione e interruzione del click.
@@ -444,7 +491,7 @@ prefab ne vuole uno; il 7.9 lo ricontrolla con le probabilità su 10.000 tiri.
 - [x] Caverne nel gioco
 - [x] IA a classi di stato, scheletro invariato
 - [x] Sciame
-- [ ] Bruto e colpo telegrafato
+- [x] Bruto e colpo telegrafato
 - [ ] Reazione al colpo del cavaliere
 - [ ] Colpi critici e versi dei nemici
 - [ ] Limite di voci audio
