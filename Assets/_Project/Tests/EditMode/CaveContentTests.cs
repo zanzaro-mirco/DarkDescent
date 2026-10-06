@@ -100,9 +100,12 @@ namespace DarkDescent.Tests
             var settings = Caves;
             foreach (var (seed, depth, layout) in Levels())
             {
-                var enemies = Find(layout, c => c == DungeonPopulator.EnemySymbol);
+                var enemies = Find(layout, c => c == DungeonPopulator.EnemySymbol || c == CavePopulator.SwarmSymbol);
+                int swarm = enemies.Count(c => layout[c.x, c.y] == CavePopulator.SwarmSymbol);
+                int groups = settings.SwarmGroups(depth);
+                Assert.That(swarm, Is.InRange(groups * settings.MinSwarm, groups * settings.MaxSwarm), $"seme {seed}, profondità {depth}: sciame");
                 var chests = Find(layout, c => c == DungeonPopulator.ChestSymbol);
-                Assert.AreEqual(settings.EnemyCount(depth), enemies.Count, $"seme {seed}, profondità {depth}: scheletri");
+                Assert.AreEqual(settings.EnemyCount(depth), enemies.Count - swarm, $"seme {seed}, profondità {depth}: scheletri");
                 Assert.AreEqual(settings.ChestCount(depth), chests.Count, $"seme {seed}, profondità {depth}: casse");
 
                 // senza ostacoli: i passi della caverna com'è, non i giri attorno alle casse
@@ -136,6 +139,15 @@ namespace DarkDescent.Tests
                     Assert.IsFalse(northSouth || eastWest, $"seme {seed}, profondità {depth}: ostacolo in un cunicolo in {cell}");
                 }
             }
+        }
+
+        [Test, Description("I gruppi di sciame crescono con la profondità: 1 al 5, 3 all'8")]
+        public void SwarmGroups_GrowWithDepth()
+        {
+            var settings = Caves;
+            CollectionAssert.AreEqual(new[] { 1, 2, 2, 3 }, Enumerable.Range(5, 4).Select(settings.SwarmGroups).ToArray());
+            Assert.AreEqual(5, settings.EnemyCount(5));
+            Assert.AreEqual(5, settings.EnemyCount(8));
         }
 
         [Test, Description("Su 200 semi per profondità le candele ci sono, stanno contro la roccia e distanti tra loro")]

@@ -140,7 +140,7 @@ namespace DarkDescent.Editor
 
         private static string Describe(LevelMap map, DungeonLayout layout)
         {
-            int floor = 0, enemies = 0, chests = 0;
+            int floor = 0, enemies = 0, swarm = 0, chests = 0;
             for (int y = 0; y < map.Height; y++)
             {
                 for (int x = 0; x < map.Width; x++)
@@ -148,6 +148,7 @@ namespace DarkDescent.Editor
                     char c = map.GetSymbol(x, y);
                     floor += map.IsFloor(x, y) ? 1 : 0;
                     enemies += c == DungeonPopulator.EnemySymbol ? 1 : 0;
+                    swarm += c == CavePopulator.SwarmSymbol ? 1 : 0;
                     chests += c == DungeonPopulator.ChestSymbol ? 1 : 0;
                 }
             }
@@ -157,7 +158,8 @@ namespace DarkDescent.Editor
                 ? $"scala a {steps} passi dall'ingresso"
                 : "nessuna scala (ultima profondità)";
             string rooms = layout.Rooms.Count > 0 ? $"{layout.Rooms.Count} stanze · " : "";
-            return $"{rooms}{floor} celle di pavimento · {enemies} scheletri · {chests} casse · {stairs}";
+            string swarms = swarm > 0 ? $" · {swarm} dello sciame" : "";
+            return $"{rooms}{floor} celle di pavimento · {enemies} scheletri{swarms} · {chests} casse · {stairs}";
         }
 
         // passi a piedi, girando attorno a casse e scenografia

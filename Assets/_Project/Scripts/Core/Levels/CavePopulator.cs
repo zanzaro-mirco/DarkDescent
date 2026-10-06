@@ -17,6 +17,9 @@ namespace DarkDescent.Levels
     {
         public const char CandleSymbol = 'l';
 
+        /// <summary>Un nemico dello sciame (D5): arriva a gruppi.</summary>
+        public const char SwarmSymbol = 'w';
+
         private const string PropSymbols = "bxp";
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
@@ -143,20 +146,36 @@ namespace DarkDescent.Levels
 
             centers = Shuffled(centers, random);
             var used = new List<Vector2Int>();
-            int remaining = _settings.EnemyCount(depth);
-            foreach (var center in centers)
-            {
-                if (remaining <= 0)
-                {
-                    break;
-                }
+            int next = 0;
 
+            // prima lo sciame, che arriva a gruppi interi e vuole spazio; poi gli scheletri
+            for (int g = 0; g < _settings.SwarmGroups(depth); g++)
+            {
+                int size = Range(random, _settings.MinSwarm, _settings.MaxSwarm);
+                PlaceGroup(layout, random, steps, reserved, centers, used, ref next, CavePopulator.SwarmSymbol, size);
+            }
+
+            int remaining = _settings.EnemyCount(depth);
+            while (remaining > 0 && next < centers.Count)
+            {
+                int size = Math.Min(remaining, Range(random, _settings.MinGroup, _settings.MaxGroup));
+                remaining -= PlaceGroup(layout, random, steps, reserved, centers, used, ref next, DungeonPopulator.EnemySymbol, size);
+            }
+        }
+
+        // Un gruppo intero attorno al prossimo centro libero, ad almeno 4 celle dagli altri gruppi: nelle
+        // 3 × 3 celle attorno, quelle libere e lontane dall'ingresso. Restituisce quanti ne ha messi.
+        private int PlaceGroup(DungeonLayout layout, IRandomSource random, int[,] steps, HashSet<Vector2Int> reserved,
+            List<Vector2Int> centers, List<Vector2Int> used, ref int next, char symbol, int size)
+        {
+            while (next < centers.Count)
+            {
+                var center = centers[next++];
                 if (used.Exists(c => Chebyshev(c, center) < 4))
                 {
                     continue;
                 }
 
-                used.Add(center);
                 var near = new List<Vector2Int>();
                 for (int dy = -1; dy <= 1; dy++)
                 {
@@ -170,15 +189,25 @@ namespace DarkDescent.Levels
                     }
                 }
 
-                int group = Math.Min(remaining, Range(random, _settings.MinGroup, _settings.MaxGroup));
-                for (int g = 0; g < group && near.Count > 0; g++)
+                // in un cunicolo il gruppo non ci sta: si cerca un centro più aperto
+                if (near.Count < size)
+                {
+                    continue;
+                }
+
+                used.Add(center);
+                int placed = 0;
+                for (; placed < size && near.Count > 0; placed++)
                 {
                     int pick = Range(random, 0, near.Count - 1);
-                    layout.TryPlace(DungeonPopulator.EnemySymbol, near[pick].x, near[pick].y);
+                    layout.TryPlace(symbol, near[pick].x, near[pick].y);
                     near.RemoveAt(pick);
-                    remaining--;
                 }
+
+                return placed;
             }
+
+            return 0;
         }
 
         // Passi a piedi dall'ingresso sul pavimento della caverna appena generata; -1 dove non si arriva.

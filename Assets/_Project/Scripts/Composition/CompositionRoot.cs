@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DarkDescent.Audio;
 using DarkDescent.Combat;
+using DarkDescent.Enemies;
 using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Localization;
@@ -83,6 +84,9 @@ namespace DarkDescent.Core
         private IRandomSource _random;
 
         private readonly List<MeleeAttack> _enemyAttacks = new List<MeleeAttack>();
+
+        // i branchi del livello corrente: chi vede il cavaliere sveglia i compagni (D5 della M7)
+        private EnemyPack _pack;
 
         // le Health dei nemici seguite dai numeri di danno: al cambio di livello vanno lasciate, anche
         // quelle già distrutte, di cui non si potrebbe più chiedere il componente all'EnemyAI
@@ -206,6 +210,8 @@ namespace DarkDescent.Core
                 chest.Bind(_loot, level.Depth);
             }
 
+            _pack = new EnemyPack(level.Enemies);
+
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
             _exploration.SetLevel(level.Map, keepExplored: _restarting);
             _restarting = false;
@@ -214,6 +220,8 @@ namespace DarkDescent.Core
 
         private void ReleaseLevel(LevelContext level)
         {
+            _pack?.Release();
+            _pack = null;
             foreach (var health in _trackedEnemies)
             {
                 _damageNumbers.Untrack(health);

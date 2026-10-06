@@ -53,7 +53,11 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, shadowLights, "le ombre le fa solo la luce del cavaliere, non le candele");
             Assert.IsNotNull(Object.FindFirstObjectByType<UnityEngine.Rendering.Volume>(), "post-processing delle caverne");
 
-            Assert.AreEqual(10, level.Enemies.Count, "2 × profondità");
+            int skeletons = level.Map.Markers.Count(m => m.Symbol == DungeonPopulator.EnemySymbol);
+            int swarm = level.Map.Markers.Count(m => m.Symbol == CavePopulator.SwarmSymbol);
+            Assert.AreEqual(5, skeletons, "5 scheletri fino alla tabella del 7.9");
+            Assert.That(swarm, Is.InRange(4, 6), "un gruppo di sciame al 5");
+            Assert.AreEqual(skeletons + swarm, level.Enemies.Count);
             foreach (var enemy in level.Enemies)
             {
                 Assert.IsTrue(enemy.GetComponent<NavMeshAgent>().isOnNavMesh, $"{enemy.name} fuori dal NavMesh");

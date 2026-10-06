@@ -23,6 +23,17 @@ namespace DarkDescent.Enemies
         [Tooltip("Secondi in cui il corpo resta a terra prima di sparire.")]
         [SerializeField, Min(0f)] private float _corpseLifetime = 5f;
 
+        [Header("Branco (D5 della M7)")]
+        [Tooltip("Chi vede il bersaglio avvisa i compagni dello stesso tipo entro questi metri, che lo inseguono anche senza vederlo. Zero: ognuno per conto suo.")]
+        [SerializeField, Min(0f)] private float _packRadius;
+
+        [Tooltip("La priorità di evitamento dell'agent varia di tanto in più o in meno da un nemico all'altro: in un corridoio uno cede il passo invece di spingere (trappola 5).")]
+        [SerializeField, Range(0, 49)] private int _avoidanceSpread;
+
+        public float PackRadius => _packRadius;
+
+        public int AvoidanceSpread => _avoidanceSpread;
+
         public float AggroRange => _aggroRange;
 
         public float EyeHeight => _eyeHeight;

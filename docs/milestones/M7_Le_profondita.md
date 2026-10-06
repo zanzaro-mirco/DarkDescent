@@ -289,6 +289,53 @@ tutti verdi senza toccarli. 159 EditMode e 111 PlayMode verdi.
 2. Gruppi nel popolatore delle caverne.
 3. Test: un gruppo si attiva insieme, nessuno resta incastrato in un corridoio largo una cella.
 
+**Com'è andata (6 ott 2026).**
+
+*Il prefab.* `Swarm` è lo scheletro con un altro modello, ricavato da uno script come i pezzi
+delle caverne:
+- `Skeleton_Rogue` (cappuccio rosso e mantello) a scala 0,85, con la lama dello scheletro
+  accorciata a pugnale nella stessa mano;
+- vita 10 contro 30;
+- velocità 4,8 contro 3 e accelerazione 30;
+- agent e capsula di raggio 0,35 invece di 0,45;
+- colpo `SwarmStrike` da 1–3 ogni 0,9 s (lo scheletro 4–6 ogni 1,6 s);
+- Destrezza 15, Armatura 5.
+
+Il rig del Rogue ha le stesse ossa del Minion (trappola 8), quindi controller e animazioni
+sono quelli dello scheletro. La sagoma rossa si distingue dagli scheletri anche nel buio.
+
+*L'archetipo `Swarm`* aggiunge due numeri a `EnemyArchetype`:
+- il raggio del branco, 12 m (allo scheletro 0);
+- la variazione della priorità di evitamento, ±15 attorno a 50, scelta dall'istanza così che
+  in un corridoio uno ceda il passo (trappola 5).
+
+*Attivazione di gruppo.* `EnemyAI` avvisa con `Spotted` solo quando vede il cavaliere con i suoi
+occhi. `EnemyPack`, creato dal composition root a ogni livello e rilasciato all'uscita, sveglia
+i compagni dello stesso tipo entro il raggio con `EnemyBrain.Alert`, che vale solo da fermi e
+con il bersaglio vivo. Chi è avvisato non avvisa a sua volta: si sveglia il gruppo, non la
+caverna.
+
+*Popolatore.* `CavePopulator` mette prima i gruppi di sciame (`w`), interi e da 4 a 6, attorno
+a centri con abbastanza celle libere: il primo tentativo li metteva anche in un cunicolo, e un
+test su 200 semi ha trovato un gruppo di 6 invece di 8–12. I gruppi crescono da 1 al 5 a 3
+all'8 (1, 2, 2, 3); gli scheletri sono 5 a ogni profondità finché la tabella del 7.9 non dà i
+numeri di D10.
+
+*Bottino.* `SwarmLoot` c'è già con i numeri di D11 (20% un oggetto, 10% una pozione), perché il
+prefab ne vuole uno; il 7.9 lo ricontrolla con le probabilità su 10.000 tiri.
+
+*Test.*
+- `SwarmTests` (PlayMode) usa una mappa di prova costruita nel test: sei dello sciame, un
+  cunicolo largo una cella, la stanza del cavaliere e altri tre chiusi nella roccia. Il gruppo
+  si sveglia tutto anche se a vederlo sono stati uno o due; quello chiuso resta fermo; i sei
+  passano il cunicolo e raggiungono il cavaliere in 6,5 s. Un terzo test confronta i numeri
+  con lo scheletro.
+- `EnemyStateTests` ha un caso in più, l'avviso.
+- `CaveContentTests` controlla i gruppi di sciame su 200 semi × 4 profondità e la loro crescita
+  con la profondità.
+
+161 EditMode e 115 PlayMode verdi.
+
 ## Passo 7.5 — Bruto
 
 1. Prefab del bruto, stati `WindUp` e `Recover`, settore a terra.
@@ -380,7 +427,8 @@ tutti verdi senza toccarli. 159 EditMode e 111 PlayMode verdi.
 | `CaveGeneratorTests` (EditMode) | 500 semi: connessa, pavimento tra 35 e 45%, niente pilastri isolati, scala lontana, dentro i bordi, stesso seme stessa mappa |
 | `EnemyStateTests` (EditMode) | Gli stati con un corpo finto: percezione, inseguimento, attacco, carica e recupero, morte |
 | `CaveDescentTests` (PlayMode) | Aspetto, luce e suono delle caverne, nemici sul NavMesh, stesso seme stessa caverna; la discesa dall'1 all'8 è in `DungeonDescentTests` |
-| `SwarmTests`, `BruteTests` (PlayMode) | Attivazione di gruppo; colpo telegrafato schivato e preso; interruzione dell'attacco del cavaliere |
+| `SwarmTests` (PlayMode) | Numeri dello sciame contro lo scheletro, attivazione di gruppo su una mappa di prova, sei dello sciame da un cunicolo largo una cella |
+| `BruteTests` (PlayMode) | Colpo telegrafato schivato e preso; interruzione dell'attacco del cavaliere |
 | `CombatFormulasTests` (EditMode) | Probabilità di critico ai bordi (0, 20, 450 di Destrezza), critico solo dalla parte alta del tiro |
 | `CriticalHitTests` (PlayMode) | Danno doppio e `IsCritical`, numero del critico, verso giusto per scheletro, sciame e bruto, nessun critico con i tiri fissi a 0 |
 | `SfxLimiterTests` (PlayMode) | Un suono per tipo e per fotogramma, limite di voci |
@@ -395,7 +443,7 @@ tutti verdi senza toccarli. 159 EditMode e 111 PlayMode verdi.
 - [x] Generatore delle caverne con i test sui 500 semi
 - [x] Caverne nel gioco
 - [x] IA a classi di stato, scheletro invariato
-- [ ] Sciame
+- [x] Sciame
 - [ ] Bruto e colpo telegrafato
 - [ ] Reazione al colpo del cavaliere
 - [ ] Colpi critici e versi dei nemici

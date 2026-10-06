@@ -41,6 +41,29 @@ namespace DarkDescent.Levels
         [Tooltip("Nessuno scheletro e nessuna cassa a meno di tanti passi dall'ingresso.")]
         [SerializeField, Min(1)] private int _quietSteps = 6;
 
+        [Header("Sciame (7.4)")]
+        [Tooltip("Gruppi di sciame alla prima profondità delle caverne; crescono fino al valore dell'ultima.")]
+        [SerializeField, Min(0)] private int _swarmGroupsFirst = 1;
+
+        [SerializeField, Min(0)] private int _swarmGroupsLast = 3;
+
+        [Tooltip("Quanti in un gruppo di sciame: da quanti a quanti (D5).")]
+        [SerializeField, Min(1)] private int _minSwarm = 4;
+
+        [SerializeField, Min(1)] private int _maxSwarm = 6;
+
+        public int MinSwarm => _minSwarm;
+
+        public int MaxSwarm => _maxSwarm;
+
+        /// <summary>I gruppi di sciame a una profondità: dalla prima all'ultima crescono in linea retta, arrotondati.</summary>
+        public int SwarmGroups(int depth)
+        {
+            int span = Mathf.Max(1, LastDepth - FirstDepth);
+            float t = Mathf.Clamp01((depth - FirstDepth) / (float)span);
+            return Mathf.RoundToInt(Mathf.Lerp(_swarmGroupsFirst, _swarmGroupsLast, t));
+        }
+
         public int FloorPerCandle => _floorPerCandle;
 
         public int CandleSpacing => _candleSpacing;

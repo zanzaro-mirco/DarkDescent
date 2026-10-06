@@ -22,8 +22,8 @@ MonoBehaviour:
   _firstDepth: 5
   _lastDepth: 8
   _nextScene: 
-  _enemiesBase: 0
-  _enemiesPerDepth: 2
+  _enemiesBase: 5
+  _enemiesPerDepth: 0
   _minGroup: 2
   _maxGroup: 4
   _chestsBase: 0

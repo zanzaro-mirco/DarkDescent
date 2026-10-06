@@ -163,6 +163,25 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, _changes.FindAll(c => c.to == EnemyState.Dead).Count, "morto una volta sola");
         }
 
+        [Test, Description("Avvisato da un compagno, chi è fermo insegue senza aver visto; chi insegue, è morto o ha il bersaglio morto non cambia")]
+        public void Alert_WakesOnlyTheIdle()
+        {
+            Assert.IsTrue(_brain.Alert());
+            Assert.AreEqual(EnemyState.Chase, _brain.State);
+            Assert.AreEqual(0, _body.Looks, "non ha guardato");
+            Assert.IsFalse(_brain.Alert(), "inseguendo non cambia niente");
+
+            var other = new FakeBody { TargetAlive = false };
+            var otherBrain = new EnemyBrain(other, _archetype.CreateStates());
+            Assert.IsFalse(otherBrain.Alert(), "bersaglio già morto");
+            Assert.AreEqual(EnemyState.Idle, otherBrain.State);
+
+            other.TargetAlive = true;
+            otherBrain.Die();
+            Assert.IsFalse(otherBrain.Alert(), "da morto");
+            Assert.AreEqual(EnemyState.Dead, otherBrain.State);
+        }
+
         [Test, Description("Ogni nemico ha i suoi stati: il conto della percezione di uno non sposta quello dell'altro; senza Idle o Dead il cervello non parte")]
         public void States_ArePerEnemy()
         {

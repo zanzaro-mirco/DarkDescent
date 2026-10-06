@@ -44,6 +44,21 @@ namespace DarkDescent.Enemies
             }
         }
 
+        /// <summary>
+        /// Un compagno ha visto il bersaglio (lo sciame, D5): chi è fermo comincia a inseguire senza
+        /// averlo visto. Negli altri stati, o con il bersaglio già morto, non cambia niente.
+        /// </summary>
+        public bool Alert()
+        {
+            if (_current.Id != EnemyState.Idle || !_body.IsTargetAlive || !_states.ContainsKey(EnemyState.Chase))
+            {
+                return false;
+            }
+
+            Switch(EnemyState.Chase);
+            return true;
+        }
+
         /// <summary>La morte arriva da fuori (la vita), non da uno stato: vale subito, da qualsiasi stato.</summary>
         public void Die()
         {

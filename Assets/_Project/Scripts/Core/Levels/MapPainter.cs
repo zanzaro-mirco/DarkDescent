@@ -34,6 +34,7 @@ namespace DarkDescent.Levels
                 case DungeonGenerator.EntranceSymbol: return Entrance;
                 case DungeonGenerator.StairsSymbol: return Stairs;
                 case DungeonPopulator.EnemySymbol: return Enemy;
+                case CavePopulator.SwarmSymbol: return Enemy;
                 case DungeonPopulator.ChestSymbol: return Chest;
                 case DungeonPopulator.TorchSymbol: return Torch;
                 case CavePopulator.CandleSymbol: return Torch;
