@@ -20,8 +20,8 @@ MonoBehaviour:
   _iconRotation: {x: 0, y: 0, z: 0}
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
-  _minDamage: 12
-  _maxDamage: 18
+  _minDamage: 20
+  _maxDamage: 28
   _damageType: 0
   _kind: 2
   _requiredStrength: 0

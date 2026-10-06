@@ -183,6 +183,12 @@ namespace DarkDescent.Combat
             ForgetSwingTarget();
             _lockTimer = Mathf.Max(_lockTimer, lockDuration);
             StopAgent();
+
+            // fermo subito, senza la frenata dell'agent: il colpo l'ha preso adesso (D7 della M7)
+            if (_agent.enabled && _agent.isOnNavMesh)
+            {
+                _agent.velocity = Vector3.zero;
+            }
         }
 
         private void Update()

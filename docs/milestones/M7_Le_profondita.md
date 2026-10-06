@@ -394,6 +394,33 @@ trasparenti: si leggono nel buio delle caverne, e la foto in batch lo conferma (
 1. `HitRecovery` sul cavaliere con la soglia di D7; animazione e interruzione del click.
 2. Test: il colpo del bruto interrompe l'attacco, quello dello scheletro no.
 
+**Com'è andata (6 ott 2026).** Il cavaliere ha ora `HitRecovery`, con soglia 20% della vita
+massima e blocco di 0,4 s (D7). A partire da 100 di vita la soglia è 20.
+
+*Il danno del bruto.* Con i 12–18 messi al 7.5 il bruto non l'avrebbe mai superata, e D7 dice
+che il bruto la supera: `BruteStrike` passa a **20–28**. Così un colpo del bruto toglie un
+quarto della vita, il prezzo di non essersi spostati dal settore. Scheletro (4–6) e sciame
+(1–3) restano sotto. Un test lo controlla sui dati, così un ritocco ai numeri che rompe la
+regola si vede subito.
+
+*Cosa succede quando il colpo supera la soglia.* Il fendente in corso viene annullato e il suo
+danno non arriva. L'animazione è quella del colpo subito, già agganciata a `Staggered`. Il
+cavaliere si ferma.
+
+*Cosa cambia nel codice.* `PlayerController` mette in coda il click di movimento anche durante
+il blocco, non solo durante un fendente, e lo fa partire alla fine. In più
+`MeleeAttack.Interrupt` azzera la velocità dell'agent: il primo test ha misurato 31 cm di
+scivolata per la frenata, ora il cavaliere si ferma sul posto. Vale anche per i nemici fermati
+da un colpo forte.
+
+*Test.* `PlayerHitRecoveryTests` (PlayMode, 3):
+- la soglia separa il bruto dagli altri, sui dati dei prefab;
+- un colpo da 6 durante il fendente non lo ferma, uno da 24 lo annulla e il danno non arriva;
+- fermato mentre cammina, il cavaliere resta fermo entro 5 cm per 0,3 s anche con un click, e
+  finito il blocco parte verso il punto cliccato.
+
+164 EditMode e 120 PlayMode verdi.
+
 ## Passo 7.7 — Colpi critici e versi dei nemici
 
 1. `CombatFormulas.CritChance` e `RollCrit` in `Core`; `MeleeAttack` del cavaliere tira il
@@ -492,7 +519,7 @@ trasparenti: si leggono nel buio delle caverne, e la foto in batch lo conferma (
 - [x] IA a classi di stato, scheletro invariato
 - [x] Sciame
 - [x] Bruto e colpo telegrafato
-- [ ] Reazione al colpo del cavaliere
+- [x] Reazione al colpo del cavaliere
 - [ ] Colpi critici e versi dei nemici
 - [ ] Limite di voci audio
 - [ ] Nemici e loot per profondità

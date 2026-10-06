@@ -313,6 +313,7 @@ GameObject:
   - component: {fileID: 4422278451469514746}
   - component: {fileID: 954267181143827798}
   - component: {fileID: 9037448413650542344}
+  - component: {fileID: 4619349021389252605}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -705,6 +706,7 @@ MonoBehaviour:
   _startingWeapon: {fileID: 11400000, guid: edb5aa48207955b4ba8f40a78873892f, type: 2}
   _unarmed: {fileID: 11400000, guid: 4dba6ef1102b3e448b62876c452e8951, type: 2}
   _groundItemPrefab: {fileID: 733407215090042755, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
+  _dropHeight: 1.1
   _startingPotion: {fileID: 11400000, guid: c94daa5854b2b2f48851de7b3d27463c, type: 2}
   _startingPotions: 2
 --- !u!114 &954267181143827798
@@ -737,6 +739,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.ShieldBlock
   _recovery: 0.45
+--- !u!114 &4619349021389252605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21adbae2e80e59441b5d00c8603f36a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.HitRecovery
+  _threshold: 0.2
+  _duration: 0.4
 --- !u!1001 &3774719917804294499
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -883,6 +899,7 @@ MonoBehaviour:
   _shieldBlock: {fileID: 0}
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05
+  _attackSpeed: 1
 --- !u!114 &8665827698380722836
 MonoBehaviour:
   m_ObjectHideFlags: 0

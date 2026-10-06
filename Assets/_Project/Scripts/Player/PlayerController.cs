@@ -47,7 +47,8 @@ namespace DarkDescent.Player
         // ovunque vada il cursore, come in Diablo
         private IDamageable _heldTarget;
 
-        // movimento chiesto durante un colpo: parte appena il colpo è arrivato
+        // movimento chiesto durante un colpo, o mentre un colpo forte tiene fermo il cavaliere (D7 della
+        // M7): parte appena il colpo è arrivato o il blocco è finito
         private bool _hasQueuedMove;
         private Vector3 _queuedMove;
 
@@ -99,7 +100,7 @@ namespace DarkDescent.Player
             UpdateHover();
             UpdatePendingUse();
 
-            if (_hasQueuedMove && !_attack.IsSwinging)
+            if (_hasQueuedMove && !IsBusy)
             {
                 _hasQueuedMove = false;
                 Walk(_queuedMove);
@@ -277,8 +278,9 @@ namespace DarkDescent.Player
             // un comando nuovo dimentica l'oggetto che si stava andando a usare
             _pendingUse = null;
 
-            // il colpo partito si finisce: il movimento resta in coda e parte subito dopo
-            if (_attack.IsSwinging)
+            // il colpo partito si finisce, e un colpo forte subito tiene fermi: il movimento resta in
+            // coda e parte subito dopo
+            if (IsBusy)
             {
                 _queuedMove = point;
                 _hasQueuedMove = true;
@@ -288,6 +290,8 @@ namespace DarkDescent.Player
             _hasQueuedMove = false;
             Walk(point);
         }
+
+        private bool IsBusy => _attack.IsSwinging || _attack.IsInterrupted;
 
         private void Walk(Vector3 point)
         {
