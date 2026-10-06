@@ -502,6 +502,45 @@ alta di quella lontana, e il cavaliere collegato al limite. 170 EditMode e 124 P
 2. Test su 200 semi per profondità: numeri della tabella, nessun nemico nella zona
    d'ingresso; probabilità dei drop su 10.000 tiri.
 
+**Com'è andata (6 ott 2026).** `SpawnTable` è in `CaveSettings`. Ogni riga (`SpawnRow`) vale
+dalla sua profondità in giù e dice da quanti a quanti gruppi di scheletri e di sciame, e quanti
+bruti.
+
+*Differenza da D10.* Intervalli invece dei pesi: con i pesi un livello 5 poteva uscire senza
+bruto o con tre, mentre il primo bruto deve arrivare al 5.
+
+*Le righe:*
+
+| Profondità | Gruppi di scheletri | Gruppi di sciame | Bruti |
+|---|---|---|---|
+| 5 | 2 | 1 | 1 |
+| 6 | 2 | 1–2 | 1–2 |
+| 7 | 1–2 | 2 | 2 |
+| 8 | 1–2 | 3 | 3 |
+
+I gruppi di scheletri delle caverne sono da 2 a 3. Il popolatore tira gli intervalli e mette
+prima lo sciame, poi i bruti, poi gli scheletri; il conto per profondità della 7.4 è tolto.
+Medie su 200 semi:
+- al 5: 4,9 scheletri, 5,0 dello sciame (un gruppo), 1 bruto;
+- all'8: 3,7 scheletri, 15,1 dello sciame (tre gruppi), 3 bruti.
+
+Sono i numeri di D10.
+
+*Bottino.* Le tabelle di sciame e bruto erano già nate con i loro prefab (7.4 e 7.5); su 10.000
+tiri danno:
+- sciame: 20% un oggetto, 10% una pozione;
+- bruto: sempre un oggetto, metà delle volte una pozione.
+
+Il livello dell'oggetto è la profondità.
+
+*Test.*
+- `CaveContentTests`: ogni tipo negli intervalli della sua riga su 200 semi × 4 profondità, le
+  medie di D10, la riga giusta per ogni profondità.
+- `LootTests`: le probabilità di D11 su 10.000 tiri.
+- `CaveDescentTests`: il livello 5 accetta da 4 a 6 scheletri.
+
+172 EditMode e 124 PlayMode verdi.
+
 ## Passo 7.10 — Chiusura
 
 1. Build della CI da provare: discesa fino all'8, sciame e bruto, colpo schivato e colpo
@@ -579,7 +618,7 @@ alta di quella lontana, e il cavaliere collegato al limite. 170 EditMode e 124 P
 - [x] Reazione al colpo del cavaliere
 - [x] Colpi critici e versi dei nemici
 - [x] Limite di voci audio
-- [ ] Nemici e loot per profondità
+- [x] Nemici e loot per profondità
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m7`

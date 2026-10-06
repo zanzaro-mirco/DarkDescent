@@ -87,5 +87,30 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Skeleton.TryRoll(new FixedRandomSource(0.0, 0.999), out var last));
             Assert.AreEqual("SpikedShield", last.name, "l'ultima della lista");
         }
+
+        [Test, Description("Su 10.000 nemici delle caverne (D11): lo sciame lascia un oggetto il 20% delle volte e una pozione il 10%, il bruto sempre un oggetto e una pozione la metà delle volte; il livello dell'oggetto è la profondità")]
+        public void CaveEnemies_DropAsD11()
+        {
+            var roller = Roller(4711UL);
+            foreach (var (name, items, potions) in new[] { ("SwarmLoot", 0.2, 0.1), ("BruteLoot", 1.0, 0.5) })
+            {
+                var table = AssetDatabase.LoadAssetAtPath<LootTable>($"Assets/_Project/Data/Loot/{name}.asset");
+                int dropped = 0, drunk = 0;
+                for (int i = 0; i < 10000; i++)
+                {
+                    var item = roller.Roll(table, 6, i, -3 * i);
+                    if (item != null)
+                    {
+                        dropped++;
+                        Assert.AreEqual(6, item.ItemLevel);
+                    }
+
+                    drunk += roller.RollPotion(table, 6, i, -3 * i) != null ? 1 : 0;
+                }
+
+                Assert.AreEqual(items, dropped / 10000.0, 0.015, $"{name}: oggetti");
+                Assert.AreEqual(potions, drunk / 10000.0, 0.015, $"{name}: pozioni");
+            }
+        }
     }
 }

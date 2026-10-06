@@ -157,24 +157,29 @@ namespace DarkDescent.Levels
             var used = new List<Vector2Int>();
             int next = 0;
 
-            // prima lo sciame, che arriva a gruppi interi e vuole spazio; poi gli scheletri
-            for (int g = 0; g < _settings.SwarmGroups(depth); g++)
+            // quanti di ogni tipo dice la tabella della profondità (D10)
+            var row = _settings.SpawnTable.For(depth);
+            int swarms = Range(random, row.SwarmGroups.x, row.SwarmGroups.y);
+            int brutes = Range(random, row.Brutes.x, row.Brutes.y);
+            int skeletons = Range(random, row.SkeletonGroups.x, row.SkeletonGroups.y);
+
+            // prima lo sciame, che arriva a gruppi interi e vuole spazio; poi i bruti, da soli e
+            // lontani tra loro e dai gruppi; per ultimi gli scheletri
+            for (int g = 0; g < swarms; g++)
             {
                 int size = Range(random, _settings.MinSwarm, _settings.MaxSwarm);
                 PlaceGroup(layout, random, steps, reserved, centers, used, ref next, CavePopulator.SwarmSymbol, size);
             }
 
-            // i bruti da soli, ognuno con il suo centro: lontani tra loro e dai gruppi
-            for (int b = 0; b < _settings.Brutes(depth); b++)
+            for (int b = 0; b < brutes; b++)
             {
                 PlaceGroup(layout, random, steps, reserved, centers, used, ref next, CavePopulator.BruteSymbol, 1);
             }
 
-            int remaining = _settings.EnemyCount(depth);
-            while (remaining > 0 && next < centers.Count)
+            for (int g = 0; g < skeletons; g++)
             {
-                int size = Math.Min(remaining, Range(random, _settings.MinGroup, _settings.MaxGroup));
-                remaining -= PlaceGroup(layout, random, steps, reserved, centers, used, ref next, DungeonPopulator.EnemySymbol, size);
+                int size = Range(random, _settings.MinGroup, _settings.MaxGroup);
+                PlaceGroup(layout, random, steps, reserved, centers, used, ref next, DungeonPopulator.EnemySymbol, size);
             }
         }
 

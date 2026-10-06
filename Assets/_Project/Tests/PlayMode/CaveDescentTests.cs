@@ -55,7 +55,7 @@ namespace DarkDescent.Tests
 
             int skeletons = level.Map.Markers.Count(m => m.Symbol == DungeonPopulator.EnemySymbol);
             int swarm = level.Map.Markers.Count(m => m.Symbol == CavePopulator.SwarmSymbol);
-            Assert.AreEqual(5, skeletons, "5 scheletri fino alla tabella del 7.9");
+            Assert.That(skeletons, Is.InRange(4, 6), "due gruppi di scheletri da 2 a 3 al 5 (D10)");
             Assert.That(swarm, Is.InRange(4, 6), "un gruppo di sciame al 5");
             int brutes = level.Map.Markers.Count(m => m.Symbol == CavePopulator.BruteSymbol);
             Assert.AreEqual(1, brutes, "un bruto al 5");

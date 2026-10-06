@@ -94,20 +94,22 @@ namespace DarkDescent.Tests
             CollectionAssert.AreEqual(new[] { "FromAbove" }, last.GetDirective("entrance"));
         }
 
-        [Test, Description("Su 200 semi per profondità: quanti scheletri e casse dicono i numeri, e nessuno vicino all'ingresso")]
+        [Test, Description("Su 200 semi per profondità: scheletri, sciame e bruti negli intervalli della tabella, le casse dei numeri, e nessuno vicino all'ingresso")]
         public void EnemiesAndChests_AreAllThereAndAwayFromTheEntrance()
         {
             var settings = Caves;
             foreach (var (seed, depth, layout) in Levels())
             {
+                var row = settings.SpawnTable.For(depth);
                 var enemies = Find(layout, CavePopulator.IsEnemy);
                 int swarm = enemies.Count(c => layout[c.x, c.y] == CavePopulator.SwarmSymbol);
                 int brutes = enemies.Count(c => layout[c.x, c.y] == CavePopulator.BruteSymbol);
-                Assert.AreEqual(settings.Brutes(depth), brutes, $"seme {seed}, profondità {depth}: bruti");
-                int groups = settings.SwarmGroups(depth);
-                Assert.That(swarm, Is.InRange(groups * settings.MinSwarm, groups * settings.MaxSwarm), $"seme {seed}, profondità {depth}: sciame");
+                int skeletons = enemies.Count - swarm - brutes;
+                string where = $"seme {seed}, profondità {depth}";
+                Assert.That(brutes, Is.InRange(row.Brutes.x, row.Brutes.y), $"{where}: bruti");
+                Assert.That(swarm, Is.InRange(row.SwarmGroups.x * settings.MinSwarm, row.SwarmGroups.y * settings.MaxSwarm), $"{where}: sciame");
+                Assert.That(skeletons, Is.InRange(row.SkeletonGroups.x * settings.MinGroup, row.SkeletonGroups.y * settings.MaxGroup), $"{where}: scheletri");
                 var chests = Find(layout, c => c == DungeonPopulator.ChestSymbol);
-                Assert.AreEqual(settings.EnemyCount(depth), enemies.Count - swarm - brutes, $"seme {seed}, profondità {depth}: scheletri");
                 Assert.AreEqual(settings.ChestCount(depth), chests.Count, $"seme {seed}, profondità {depth}: casse");
 
                 // senza ostacoli: i passi della caverna com'è, non i giri attorno alle casse
@@ -143,14 +145,41 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("Gruppi di sciame e bruti crescono con la profondità: 1 al 5, 3 all'8")]
-        public void SwarmGroups_GrowWithDepth()
+        [Test, Description("In media su 200 semi i numeri di D10: al 5 circa cinque scheletri, uno sciame e un bruto; all'8 circa quattro scheletri, tre sciami e tre bruti")]
+        public void Averages_MatchD10()
         {
             var settings = Caves;
-            CollectionAssert.AreEqual(new[] { 1, 2, 2, 3 }, Enumerable.Range(5, 4).Select(settings.SwarmGroups).ToArray());
-            CollectionAssert.AreEqual(new[] { 1, 2, 2, 3 }, Enumerable.Range(5, 4).Select(settings.Brutes).ToArray(), "i bruti come D10: 1 al 5, 3 all'8");
-            Assert.AreEqual(5, settings.EnemyCount(5));
-            Assert.AreEqual(5, settings.EnemyCount(8));
+            var sums = new Dictionary<int, (float skeletons, float swarm, float brutes)>();
+            foreach (var (_, depth, layout) in Levels())
+            {
+                var enemies = Find(layout, CavePopulator.IsEnemy).Select(c => layout[c.x, c.y]).ToList();
+                sums.TryGetValue(depth, out var sum);
+                sums[depth] = (sum.skeletons + enemies.Count(c => c == DungeonPopulator.EnemySymbol),
+                    sum.swarm + enemies.Count(c => c == CavePopulator.SwarmSymbol),
+                    sum.brutes + enemies.Count(c => c == CavePopulator.BruteSymbol));
+            }
+
+            var at5 = (sums[5].skeletons / Seeds, sums[5].swarm / Seeds, sums[5].brutes / Seeds);
+            var at8 = (sums[8].skeletons / Seeds, sums[8].swarm / Seeds, sums[8].brutes / Seeds);
+            Debug.Log($"in media al 5: {at5}; all'8: {at8}");
+            Assert.AreEqual(5f, at5.Item1, 0.5f, "scheletri al 5");
+            Assert.AreEqual(5f, at5.Item2, 0.5f, "un gruppo di sciame al 5, da 4 a 6");
+            Assert.AreEqual(1f, at5.Item3, 0.001f, "un bruto al 5");
+            Assert.AreEqual(4f, at8.Item1, 0.5f, "scheletri all'8");
+            Assert.AreEqual(15f, at8.Item2, 1f, "tre gruppi di sciame all'8");
+            Assert.AreEqual(3f, at8.Item3, 0.001f, "tre bruti all'8");
+        }
+
+        [Test, Description("Una riga della tabella vale dalla sua profondità in giù; prima della prima vale la prima")]
+        public void SpawnTable_RowForDepth()
+        {
+            var table = SpawnTable.Caves();
+            Assert.AreEqual(5, table.For(3).Depth);
+            Assert.AreEqual(5, table.For(5).Depth);
+            Assert.AreEqual(6, table.For(6).Depth);
+            Assert.AreEqual(8, table.For(8).Depth);
+            Assert.AreEqual(8, table.For(12).Depth);
+            Assert.Throws<InvalidOperationException>(() => new SpawnTable().For(5));
         }
 
         [Test, Description("Su 200 semi per profondità le candele ci sono, stanno contro la roccia e distanti tra loro")]

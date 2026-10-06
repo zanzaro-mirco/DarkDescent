@@ -25,7 +25,7 @@ MonoBehaviour:
   _enemiesBase: 5
   _enemiesPerDepth: 0
   _minGroup: 2
-  _maxGroup: 4
+  _maxGroup: 3
   _chestsBase: 0
   _depthsPerChest: 3
   _maxPropsPerRoom: 2
@@ -40,3 +40,23 @@ MonoBehaviour:
   _candleSpacing: 3
   _floorPerProp: 30
   _quietSteps: 6
+  _spawnTable:
+    _rows:
+    - _depth: 5
+      _skeletonGroups: {x: 2, y: 2}
+      _swarmGroups: {x: 1, y: 1}
+      _brutes: {x: 1, y: 1}
+    - _depth: 6
+      _skeletonGroups: {x: 2, y: 2}
+      _swarmGroups: {x: 1, y: 2}
+      _brutes: {x: 1, y: 2}
+    - _depth: 7
+      _skeletonGroups: {x: 1, y: 2}
+      _swarmGroups: {x: 2, y: 2}
+      _brutes: {x: 2, y: 2}
+    - _depth: 8
+      _skeletonGroups: {x: 1, y: 2}
+      _swarmGroups: {x: 3, y: 3}
+      _brutes: {x: 3, y: 3}
+  _minSwarm: 4
+  _maxSwarm: 6
