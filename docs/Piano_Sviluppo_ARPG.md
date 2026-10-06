@@ -23,7 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
-| v2.17 | 6 ott 2026 | Su richiesta di Mirco: **colpi critici** del cavaliere, con un verso proprio per ogni tipo di nemico colpito, nella M7 (passo 7.7, D13 da confermare) · formula nel § 2 · M7 da 12–18 a 13–20 h |
+| v2.17 | 6 ott 2026 | Su richiesta di Mirco: **colpi critici** del cavaliere, con un verso proprio per ogni tipo di nemico colpito, nella M7 (passo 7.7, D13 confermata) · formula nel § 2 · M7 da 12–18 a 13–20 h |
 | v2.16 | 6 ott 2026 | Dopo la prova della M6, su richiesta di Mirco: **musica e rumori d'ambiente** anticipati dalla M11 alla M7 (passo 7.0): un profilo per tipo di livello, tracce CC0 · M7 da 10–15 a 12–18 h · ADR-039 |
 | v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
 
@@ -140,7 +140,7 @@ La v2.0 era tutta tecnica. Ma già M2 deve sapere come si calcola un colpo, e M4
 
 **Formula del colpo**, confermata alla M4 (ADR-020): probabilità di colpire = 75 + Destrezza / 2 − Armatura del bersaglio, limitata tra il 5% e il 95%; il danno è un tiro tra minimo e massimo dell'arma, moltiplicato per (1 + Forza/100) e arrotondato all'intero, almeno 1 (dalla M5: con i decimali l'ultimo colpo poteva mostrare 0).
 
-**Colpo critico**, proposto nella v2.17 e da confermare alla M7. Lo fa solo il cavaliere, e solo con un colpo a segno. La probabilità è 5% + Destrezza / 10, al massimo il 50%: con la Destrezza 20 del cavaliere è il 7%. Il danno è doppio. Il nemico colpito di critico emette un verso suo, diverso per archetipo, e il numero del danno è più grande e di un altro colore. I nemici non fanno critici, come in Diablo 1.
+**Colpo critico**, confermato il 6 ott 2026 (v2.17, D13 della M7). Lo fa solo il cavaliere, e solo con un colpo a segno. La probabilità è 5% + Destrezza / 10, al massimo il 50%: con la Destrezza 20 del cavaliere è il 7%. Il danno è doppio. Il nemico colpito di critico emette un verso suo, diverso per archetipo, e il numero del danno è più grande e di un altro colore. I nemici non fanno critici, come in Diablo 1.
 
 **Archetipi di nemico**, definiti per *comportamento*, perché è il comportamento che costa lavoro, non il modello:
 
