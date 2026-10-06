@@ -36,6 +36,7 @@ namespace DarkDescent.Levels
                 case DungeonPopulator.EnemySymbol: return Enemy;
                 case DungeonPopulator.ChestSymbol: return Chest;
                 case DungeonPopulator.TorchSymbol: return Torch;
+                case CavePopulator.CandleSymbol: return Torch;
                 default: return DungeonPopulator.IsObstacle(symbol) ? Obstacle : Floor;
             }
         }

@@ -28,6 +28,27 @@ namespace DarkDescent.Levels
         [Tooltip("Passate di smussatura: roccia isolata riempita, punte di pavimento tolte.")]
         [SerializeField, Min(0)] private int _smoothPasses = 2;
 
+        [Header("Contenuto delle caverne (7.2)")]
+        [Tooltip("Una candela a terra ogni tante celle di pavimento: niente torce nelle caverne (D4).")]
+        [SerializeField, Min(4)] private int _floorPerCandle = 14;
+
+        [Tooltip("Tra due candele almeno tante celle, in ogni direzione.")]
+        [SerializeField, Min(1)] private int _candleSpacing = 3;
+
+        [Tooltip("Un mucchio di sassi, una colonna o un tavolo rotto ogni tante celle di pavimento.")]
+        [SerializeField, Min(4)] private int _floorPerProp = 30;
+
+        [Tooltip("Nessuno scheletro e nessuna cassa a meno di tanti passi dall'ingresso.")]
+        [SerializeField, Min(1)] private int _quietSteps = 6;
+
+        public int FloorPerCandle => _floorPerCandle;
+
+        public int CandleSpacing => _candleSpacing;
+
+        public int FloorPerProp => _floorPerProp;
+
+        public int QuietSteps => _quietSteps;
+
         public float FloorFraction => _floorFraction;
 
         public int Walkers => _walkers;

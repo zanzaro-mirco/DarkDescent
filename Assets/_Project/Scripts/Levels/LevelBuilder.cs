@@ -147,7 +147,7 @@ namespace DarkDescent.Levels
                     // dove c'è la scala che scende il pavimento manca: si scende nel buio
                     if (map.IsFloor(x, y) && map.GetSymbol(x, y) != StairsDownSymbol)
                     {
-                        Place(_tileset.Floor, parent, LevelMap.CellCenter(x, y), Quaternion.identity);
+                        Place(Pick(_tileset.Floor, _tileset.FloorVariant, x, y, 0), parent, LevelMap.CellCenter(x, y), Quaternion.identity);
                     }
                 }
             }
@@ -160,7 +160,7 @@ namespace DarkDescent.Levels
             foreach (var (x, y, side) in map.BoundaryEdges())
             {
                 bool far = side == MapDirection.North || side == MapDirection.East;
-                var prefab = far ? _tileset.Wall : _tileset.LowWall;
+                var prefab = far ? Pick(_tileset.Wall, _tileset.WallVariant, x, y, 1 + (int)side) : _tileset.LowWall;
                 Vector3 position = LevelMap.CellCenter(x, y) + LevelMap.ToWorld(side) * (LevelMap.CellSize * 0.5f);
 
                 // i moduli di muro sono lunghi lungo X: ruotati di 90° per i lati est e ovest
@@ -169,6 +169,22 @@ namespace DarkDescent.Levels
                     : Quaternion.Euler(0f, 90f, 0f);
                 Place(prefab, parent, position, rotation);
             }
+        }
+
+        // La variante su una parte dei pezzi, scelta da una mescola della cella e del lato: niente
+        // generatore di numeri, quindi lo stesso livello ha gli stessi pezzi anche costruito dall'editor.
+        private GameObject Pick(GameObject basePrefab, GameObject variant, int x, int y, int salt)
+        {
+            if (variant == null)
+            {
+                return basePrefab;
+            }
+
+            uint hash = unchecked((uint)(x * 73856093) ^ (uint)(y * 19349663) ^ (uint)(salt * 83492791));
+            hash ^= hash >> 13;
+            hash = unchecked(hash * 0x5bd1e995);
+            hash ^= hash >> 15;
+            return (hash % 1000) < _tileset.VariantChance * 1000f ? variant : basePrefab;
         }
 
         private void BuildMarkers(LevelMap map, Transform level, Transform props, Transform torches, Transform enemies)

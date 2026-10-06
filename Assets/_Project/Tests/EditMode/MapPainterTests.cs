@@ -56,7 +56,7 @@ namespace DarkDescent.Tests
             {
                 window.Generate(4711, 2);
                 var settings = AssetDatabase.LoadAssetAtPath<DungeonSettings>("Assets/_Project/Data/Levels/CryptSettings.asset");
-                var expected = DungeonLevel.CreateMap(settings, 4711, 2, "Level_Crypt", out _);
+                var expected = DungeonLevel.CreateMap(settings, 4711, 2, out _);
 
                 Assert.AreEqual(expected.ToText(), window.Map.ToText());
                 Assert.AreEqual(expected.Width, window.Preview.width);
@@ -64,6 +64,13 @@ namespace DarkDescent.Tests
                 StringAssert.Contains("scala a", window.Stats);
 
                 window.Generate(4711, settings.LastDepth);
+                StringAssert.Contains("scala a", window.Stats, "dall'ultima cripta si scende nelle caverne");
+
+                window.Use(DungeonGeneratorWindow.CaveSettingsPath);
+                var caves = AssetDatabase.LoadAssetAtPath<CaveSettings>(DungeonGeneratorWindow.CaveSettingsPath);
+                Assert.AreEqual(DungeonLevel.CreateMap(caves, 4711, 5, out _).ToText(), window.Map.ToText(), "le caverne dalla profondità 5");
+                StringAssert.DoesNotContain("stanze", window.Stats);
+                window.Generate(4711, caves.LastDepth);
                 StringAssert.Contains("nessuna scala", window.Stats);
             }
             finally

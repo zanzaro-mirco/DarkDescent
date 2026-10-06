@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc128f4e63ceba54e96d92479b0da6fc, type: 3}
+  m_Name: CaveSettings
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Levels.CaveSettings
+  _width: 28
+  _height: 28
+  _minLeaf: 6
+  _maxLeaf: 11
+  _minRoom: 3
+  _maxRoom: 7
+  _sceneName: Level_Caves
+  _firstDepth: 5
+  _lastDepth: 8
+  _nextScene: 
+  _enemiesBase: 0
+  _enemiesPerDepth: 2
+  _minGroup: 2
+  _maxGroup: 4
+  _chestsBase: 0
+  _depthsPerChest: 3
+  _maxPropsPerRoom: 2
+  _cellsPerTorch: 4
+  _floorFraction: 0.37
+  _walkers: 4
+  _straightChance: 0.65
+  _jumpChance: 0.02
+  _wideChance: 0.15
+  _smoothPasses: 2
+  _floorPerCandle: 14
+  _candleSpacing: 3
+  _floorPerProp: 30
+  _quietSteps: 6

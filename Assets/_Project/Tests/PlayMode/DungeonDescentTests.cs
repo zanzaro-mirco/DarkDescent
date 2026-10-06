@@ -39,7 +39,7 @@ namespace DarkDescent.Tests
 
         // la cripta in breve: gruppi con quanti figli e dove (somma delle posizioni in pianta), e cosa
         // lascerà ogni nemico
-        private static string Signature(LevelContext context)
+        internal static string Signature(LevelContext context)
         {
             var sb = new StringBuilder();
             foreach (Transform group in context.transform)
@@ -90,11 +90,11 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, shadowLights, "le ombre le fa solo la luce del cavaliere");
         }
 
-        [UnityTest, Description("Dalla scala si scende di livello generato in livello generato fino al 4, che non ha la scala")]
-        public IEnumerator Descent_ReachesTheFourthLevel()
+        [UnityTest, Description("Dalla scala si scende di livello generato in livello generato: la cripta fino al 4, dal 4 le caverne fino all'8, che non ha la scala")]
+        public IEnumerator Descent_ReachesTheEighthLevel()
         {
             yield return LoadGeneratedCore();
-            for (int depth = 1; depth < 4; depth++)
+            for (int depth = 1; depth < 8; depth++)
             {
                 var exit = Manager.CurrentLevel.Exits[0];
                 PlayerAgent.Warp(exit.GetComponent<Interactable>().ApproachPoint);
@@ -104,10 +104,12 @@ namespace DarkDescent.Tests
                 Debug.Log($"profondità {depth + 1}: generazione {dungeon.Timings.generate} ms, costruzione {dungeon.Timings.build} ms, NavMesh {dungeon.Timings.bake} ms");
                 Assert.AreEqual(2, SceneManager.sceneCount, "Core più un livello solo");
                 Assert.IsTrue(PlayerAgent.isOnNavMesh, $"profondità {depth + 1}: cavaliere fuori dal NavMesh");
-                Assert.AreEqual(3 + 2 * (depth + 1), Manager.CurrentLevel.Enemies.Count);
+                bool caves = depth + 1 > 4;
+                Assert.AreEqual(caves ? "Level_Caves" : CryptScene, Manager.CurrentLevel.gameObject.scene.name);
+                Assert.AreEqual(caves ? 2 * (depth + 1) : 3 + 2 * (depth + 1), Manager.CurrentLevel.Enemies.Count);
             }
 
-            Assert.AreEqual(0, Manager.CurrentLevel.Exits.Count, "il livello 4 non ha la scala: le caverne arrivano alla M7");
+            Assert.AreEqual(0, Manager.CurrentLevel.Exits.Count, "l'ottavo livello non ha la scala: il boss arriva alla M10");
         }
 
         [UnityTest, Description("Con lo stesso seme della partita lo stesso livello torna uguale, nemici e oggetti compresi; con un altro seme no")]

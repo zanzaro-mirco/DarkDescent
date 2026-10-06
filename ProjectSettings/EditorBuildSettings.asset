@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/Level_Crypt.unity
     guid: ef38214a515eae54fb0eaeded990ced2
   - enabled: 1
+    path: Assets/_Project/Scenes/Level_Caves.unity
+    guid: 99828da720f97f14aa8e4e5c0745cf49
+  - enabled: 1
     path: Assets/_Project/Scenes/Levels/Level_01.unity
     guid: d9f50022ad84929499cd1a5bbcffb9b1
   - enabled: 1

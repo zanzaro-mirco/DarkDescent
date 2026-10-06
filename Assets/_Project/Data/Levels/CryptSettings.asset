@@ -18,7 +18,10 @@ MonoBehaviour:
   _maxLeaf: 11
   _minRoom: 3
   _maxRoom: 7
+  _sceneName: Level_Crypt
+  _firstDepth: 1
   _lastDepth: 4
+  _nextScene: Level_Caves
   _enemiesBase: 3
   _enemiesPerDepth: 2
   _minGroup: 1

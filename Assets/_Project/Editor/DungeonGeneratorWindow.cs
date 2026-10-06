@@ -9,15 +9,15 @@ using UnityEngine.UIElements;
 namespace DarkDescent.Editor
 {
     /// <summary>
-    /// Genera e disegna una cripta senza entrare in Play Mode (D10 della scheda M6): seme della partita
-    /// e profondità, gli stessi di <c>-seed</c> in build, quindi si vede proprio il livello del gioco.
-    /// Un livello strano si salva come mappa di testo e diventa un livello di prova.
+    /// Genera e disegna una cripta o una caverna senza entrare in Play Mode (D10 della scheda M6, passo
+    /// 7.2 della M7): seme della partita e profondità, gli stessi di <c>-seed</c> in build, quindi si vede
+    /// proprio il livello del gioco. Un livello strano si salva come mappa di testo e diventa un livello di prova.
     /// </summary>
     public class DungeonGeneratorWindow : EditorWindow
     {
-        private const string SettingsPath = "Assets/_Project/Data/Levels/CryptSettings.asset";
+        public const string CryptSettingsPath = "Assets/_Project/Data/Levels/CryptSettings.asset";
+        public const string CaveSettingsPath = "Assets/_Project/Data/Levels/CaveSettings.asset";
         private const string MapsFolder = "Assets/_Project/Levels";
-        private const string CryptScene = "Level_Crypt";
         private const int PixelsPerCell = 14;
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
@@ -60,10 +60,10 @@ namespace DarkDescent.Editor
             var root = rootVisualElement;
             root.style.paddingLeft = root.style.paddingRight = root.style.paddingTop = 6;
 
-            _settingsField = new ObjectField("Numeri della cripta")
+            _settingsField = new ObjectField("Numeri del livello")
             {
                 objectType = typeof(DungeonSettings),
-                value = AssetDatabase.LoadAssetAtPath<DungeonSettings>(SettingsPath),
+                value = AssetDatabase.LoadAssetAtPath<DungeonSettings>(CryptSettingsPath),
             };
             _seedField = new LongField("Seme della partita") { value = 4711 };
             _depthField = new IntegerField("Profondità") { value = 1 };
@@ -76,16 +76,31 @@ namespace DarkDescent.Editor
             buttons.Add(new Button(() => _seedField.value += 1) { text = "Seme successivo ▶" });
             buttons.Add(new Button(Save) { text = "Salva come mappa" });
 
+            var kinds = new VisualElement { style = { flexDirection = FlexDirection.Row, marginTop = 4 } };
+            kinds.Add(new Button(() => Use(CryptSettingsPath)) { text = "Cripta (1–4)" });
+            kinds.Add(new Button(() => Use(CaveSettingsPath)) { text = "Caverne (5–8)" });
+
             _stats = new Label { style = { marginBottom = 4, whiteSpace = WhiteSpace.Normal } };
             _image = new Image { scaleMode = ScaleMode.ScaleToFit };
 
+            root.Add(kinds);
             root.Add(_settingsField);
             root.Add(_seedField);
             root.Add(_depthField);
             root.Add(buttons);
             root.Add(_stats);
-            root.Add(new Label("Verde l'ingresso, giallo la scala, rosso gli scheletri, arancio le casse, chiaro le torce, marrone barili e pilastri."));
+            root.Add(new Label("Verde l'ingresso, giallo la scala, rosso gli scheletri, arancio le casse, chiaro le torce, marrone la scenografia."));
             root.Add(_image);
+            Generate();
+        }
+
+        /// <summary>Le impostazioni di un tipo di livello, dalla prima profondità: per i pulsanti e per i test.</summary>
+        public void Use(string settingsPath)
+        {
+            EnsureGUI();
+            var settings = AssetDatabase.LoadAssetAtPath<DungeonSettings>(settingsPath);
+            _settingsField.SetValueWithoutNotify(settings);
+            _depthField.SetValueWithoutNotify(settings.FirstDepth);
             Generate();
         }
 
@@ -107,8 +122,8 @@ namespace DarkDescent.Editor
                 return;
             }
 
-            int depth = Mathf.Clamp(_depthField.value, 1, settings.LastDepth);
-            Map = DungeonLevel.CreateMap(settings, (ulong)_seedField.value, depth, CryptScene, out var layout);
+            int depth = Mathf.Clamp(_depthField.value, settings.FirstDepth, settings.LastDepth);
+            Map = DungeonLevel.CreateMap(settings, (ulong)_seedField.value, depth, out var layout);
 
             if (_texture == null || _texture.width != Map.Width || _texture.height != Map.Height)
             {
@@ -140,8 +155,9 @@ namespace DarkDescent.Editor
             int steps = StepsToStairs(map, layout.Entrance, layout.Stairs);
             string stairs = map.GetSymbol(layout.Stairs.x, layout.Stairs.y) == DungeonGenerator.StairsSymbol
                 ? $"scala a {steps} passi dall'ingresso"
-                : "nessuna scala (ultima profondità della cripta)";
-            return $"{layout.Rooms.Count} stanze · {floor} celle di pavimento · {enemies} scheletri · {chests} casse · {stairs}";
+                : "nessuna scala (ultima profondità)";
+            string rooms = layout.Rooms.Count > 0 ? $"{layout.Rooms.Count} stanze · " : "";
+            return $"{rooms}{floor} celle di pavimento · {enemies} scheletri · {chests} casse · {stairs}";
         }
 
         // passi a piedi, girando attorno a casse e scenografia
@@ -180,8 +196,9 @@ namespace DarkDescent.Editor
                 return;
             }
 
-            string path = $"{MapsFolder}/Crypt_{_seedField.value}_{_depthField.value}.txt";
-            File.WriteAllText(path, Map.ToText($"Cripta generata: seme della partita {_seedField.value}, profondità {_depthField.value}."));
+            string kind = _settingsField.value != null ? _settingsField.value.name.Replace("Settings", "") : "Level";
+            string path = $"{MapsFolder}/{kind}_{_seedField.value}_{_depthField.value}.txt";
+            File.WriteAllText(path, Map.ToText($"{kind} generato: seme della partita {_seedField.value}, profondità {_depthField.value}."));
             AssetDatabase.ImportAsset(path);
             Debug.Log($"Mappa salvata in {path}.");
         }

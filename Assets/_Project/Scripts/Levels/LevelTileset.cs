@@ -20,6 +20,15 @@ namespace DarkDescent.Levels
         [Tooltip("Muro basso, sui lati sud e ovest: quelli tra la camera e il cavaliere (D5).")]
         [SerializeField] private GameObject _lowWall;
 
+        [Tooltip("Variante del pavimento, su alcune celle (le caverne: terra con i sassi). Vuoto: nessuna.")]
+        [SerializeField] private GameObject _floorVariant;
+
+        [Tooltip("Variante del muro alto, su alcuni lati (le caverne: muro rotto). Vuoto: nessuna.")]
+        [SerializeField] private GameObject _wallVariant;
+
+        [Tooltip("Su quanti pezzi va la variante. Scelta dalla posizione: stesso livello, stessi pezzi.")]
+        [SerializeField, Range(0f, 1f)] private float _variantChance = 0.25f;
+
         [Tooltip("Torcia da muro, appesa al muro alto più vicino della sua cella.")]
         [SerializeField] private GameObject _wallTorch;
 
@@ -48,6 +57,12 @@ namespace DarkDescent.Levels
         [SerializeField] private MarkerPrefab[] _markers;
 
         public GameObject Floor => _floor;
+
+        public GameObject FloorVariant => _floorVariant;
+
+        public GameObject WallVariant => _wallVariant;
+
+        public float VariantChance => _variantChance;
 
         public GameObject GroundItem => _groundItem;
 

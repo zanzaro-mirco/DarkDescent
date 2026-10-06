@@ -185,6 +185,69 @@ EditMode e 104 PlayMode verdi.
 6. Test: discesa dal 4 al 5 e fino all'8, nemici sul NavMesh, stesso seme stessa caverna;
    l'automappa disegna le caverne.
 
+**Com'è andata (6 ott 2026).**
+
+*Concatenazione.* Le profondità si concatenano dalle impostazioni. `DungeonSettings` sa la sua
+scena, la prima e l'ultima profondità e la scena dopo: la cripta va dall'1 al 4 e poi a
+`Level_Caves`, le caverne dal 5 all'8 e poi a nessuna. `DungeonLevel.CreateMap` non riceve
+più il nome della scena: prima dell'ultima profondità la scala riporta nella stessa scena,
+all'ultima porta alla scena dopo, e senza una scena dopo la scala sparisce.
+
+*Contenuto.* Lo mette `CavePopulator` (trappola 7). Ragiona su passi e celle, perché le
+caverne non hanno stanze:
+- candele (`l`) contro la roccia, una ogni 14 celle e ad almeno 3 celle l'una dall'altra:
+  da 16 in su per caverna su 800 livelli provati;
+- casse e scenografia contro la roccia, mai in un cunicolo largo una cella e mai dove chiudono
+  il cammino;
+- scheletri a gruppi da 2 a 4 attorno a centri distanti almeno 4 celle tra loro;
+- casse e scheletri ad almeno 6 passi dall'ingresso.
+
+Gli scheletri sono 2 × profondità (10 al 5, 16 all'8), le casse 1 al 5 e 2 dal 6. I numeri
+veri, con sciame e bruto, arrivano al 7.9. I simboli di barile, casse e pilastro sono quelli
+della cripta: il tileset delle caverne ci mette mucchi di sassi, un tavolo rotto e una colonna
+rotta. Mappa, builder, automappa e finestra non cambiano.
+
+*Tileset.* `CaveTileset` è una copia di quello della cripta con:
+- terra (`floor_dirt_large`, e la variante con i sassi sul 30% delle celle);
+- muri alti crepati (`wall_cracked`, variante `wall_broken`);
+- macerie basse;
+- ambiente un po' più freddo (0,20/0,22/0,30);
+- il profilo sonoro `AmbienceCaves`.
+
+Le varianti le sceglie il builder con una mescola della posizione, senza generatore di numeri:
+lo stesso livello ha gli stessi pezzi anche costruito dall'editor. La candela è la torcia da
+muro con `candle_triple` al posto del modello, 1,3 m verso la roccia, con una luce da 5 e
+raggio 7 senza ombre.
+
+*Correzione a D4.* `rubble_half` è un mucchio alto 3,5 m, non un muro basso. Schiacciato a
+1,1 m lungo il lato fa le macerie basse; dimezzato fa il mucchio di sassi. Dallo zip sono
+entrati tre modelli: i due pavimenti di terra e la candela tripla. Gli altri erano già nel
+progetto dalla M3.
+
+*Scena e finestra.* `Level_Caves` è la copia di `Level_Crypt` con impostazioni e tileset delle
+caverne, nella build dopo la cripta. La finestra del generatore ha due pulsanti, *Cripta (1–4)*
+e *Caverne (5–8)*, e limita la profondità a quelle del tipo scelto.
+
+*Tempi.* Nei test la discesa dall'1 all'8 costa per livello 1–2 ms di generazione, 18–21 di
+costruzione e 35–40 di NavMesh, poco più della cripta.
+
+*Due intoppi, scoperti con le foto in batch.* Il primo (trappola 11): il pavimento non si
+vedeva, e il cavaliere galleggiava nel nero. I tre FBX nuovi hanno la radice ruotata di −90°
+su X e scalata 100 volte, quelli della M3 no; lo script li aveva forzati a rotazione zero e
+scala 1, cioè un quadrato di 4 cm in piedi. Tolte le due sostituzioni dai prefab, e un test
+controlla ora la misura vera di ogni pezzo del tileset. Il secondo: i riferimenti della scena
+nuova si sono salvati vuoti. Gli asset creati poco prima nello stesso script erano stati
+reimportati da `SaveAssets`, e i riferimenti in memoria non valevano più; scritti a mano nel
+file della scena.
+
+*Test.* `CaveContentTests` (6): concatenazione delle profondità; scheletri e casse quanti
+dicono i numeri e lontani dall'ingresso; nessun ostacolo che tagli la caverna; candele contro
+la roccia e distanti tra loro; misure del tileset; stesso seme stesso contenuto, senza cambiare
+la forma. Gli ultimi quattro girano su 200 semi × 4 profondità. `CaveDescentTests` (2):
+aspetto, luce, suono, automappa, nemici sul NavMesh e uscita verso il 6; stesso seme stessa
+caverna. Aggiornati la discesa della cripta, che ora arriva all'8 attraverso le caverne, e il
+test della finestra. 152 EditMode e 111 PlayMode verdi.
+
 ## Passo 7.3 — IA a classi di stato
 
 1. `IEnemyBody` e gli stati in `Core/Enemies/`, `EnemyAI` che li esegue.
@@ -272,6 +335,10 @@ EditMode e 104 PlayMode verdi.
 10. **Un affisso nuovo cambia il loot dei semi provati:** il generatore sceglie tra tutti gli
     affissi del database, quindi un "+% critico" sposterebbe gli oggetti del seme 4711.
     Rimandato; se arriva, con un test che fissi i drop del seme.
+11. **Gli FBX del pacchetto non sono tutti esportati allo stesso modo:** quelli usati dalla M3
+    hanno la radice a rotazione zero e scala 1, i pavimenti di terra e la candela tripla a −90°
+    su X e scala 100. Uno script che mette un modello in un prefab non deve forzare rotazione e
+    scala della radice; il test sulle misure del tileset lo controlla.
 
 ---
 
@@ -281,9 +348,10 @@ EditMode e 104 PlayMode verdi.
 |---|---|
 | `StingerScheduleTests` (EditMode) | Attese, intonazione e distanze negli intervalli, versi da tutte le direzioni, mai lo stesso di fila, bordi |
 | `AmbienceTests` (PlayMode) | Profili completi, musica e fondo della cripta, musica che continua scendendo, dissolvenza, versi in 3D attorno al cavaliere |
+| `CaveContentTests` (EditMode) | Profondità concatenate, contenuto su 200 semi × 4 profondità (numeri, distanza dall'ingresso, cammino libero, candele), misure del tileset |
 | `CaveGeneratorTests` (EditMode) | 500 semi: connessa, pavimento tra 35 e 45%, niente pilastri isolati, scala lontana, dentro i bordi, stesso seme stessa mappa |
 | `EnemyStateTests` (EditMode) | Gli stati con un corpo finto: percezione, inseguimento, attacco, carica e recupero, morte |
-| `CaveDescentTests` (PlayMode) | Dal livello 4 al 5 e all'8, nemici sul NavMesh, stesso seme stessa caverna |
+| `CaveDescentTests` (PlayMode) | Aspetto, luce e suono delle caverne, nemici sul NavMesh, stesso seme stessa caverna; la discesa dall'1 all'8 è in `DungeonDescentTests` |
 | `SwarmTests`, `BruteTests` (PlayMode) | Attivazione di gruppo; colpo telegrafato schivato e preso; interruzione dell'attacco del cavaliere |
 | `CombatFormulasTests` (EditMode) | Probabilità di critico ai bordi (0, 20, 450 di Destrezza), critico solo dalla parte alta del tiro |
 | `CriticalHitTests` (PlayMode) | Danno doppio e `IsCritical`, numero del critico, verso giusto per scheletro, sciame e bruto, nessun critico con i tiri fissi a 0 |
@@ -297,7 +365,7 @@ EditMode e 104 PlayMode verdi.
 - [x] D13 (colpi critici) confermata il 6 ott
 - [x] Musica e rumori d'ambiente (7.0)
 - [x] Generatore delle caverne con i test sui 500 semi
-- [ ] Caverne nel gioco
+- [x] Caverne nel gioco
 - [ ] IA a classi di stato, scheletro invariato
 - [ ] Sciame
 - [ ] Bruto e colpo telegrafato

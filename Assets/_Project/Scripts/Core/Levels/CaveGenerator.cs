@@ -58,7 +58,11 @@ namespace DarkDescent.Levels
             Vector2Int entrance = FarthestOpenCell(anchor);
             Vector2Int stairs = PlaceStairs(entrance);
             _cells[entrance.x, entrance.y] = DungeonGenerator.EntranceSymbol;
-            return new DungeonLayout(_cells, new List<RectInt>(), -1, -1, entrance, stairs);
+            var layout = new DungeonLayout(_cells, new List<RectInt>(), -1, -1, entrance, stairs);
+
+            // il contenuto con lo stesso generatore di numeri, dopo la forma: stessa caverna, stesso contenuto
+            new CavePopulator(_settings).Populate(layout, depth, _random);
+            return layout;
         }
 
         private void Walk()

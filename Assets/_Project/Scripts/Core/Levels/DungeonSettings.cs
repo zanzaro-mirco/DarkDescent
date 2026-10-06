@@ -28,8 +28,18 @@ namespace DarkDescent.Levels
         [Tooltip("Lato massimo di una stanza, in celle.")]
         [SerializeField, Min(3)] private int _maxRoom = 7;
 
-        [Tooltip("L'ultima profondità della cripta: lì la scala non c'è (le caverne arrivano alla M7).")]
+        [Header("Profondità (D3 della M7)")]
+        [Tooltip("La scena che genera questi livelli: le scale tra due profondità di questo tipo riportano qui.")]
+        [SerializeField] private string _sceneName = "Level_Crypt";
+
+        [Tooltip("La prima profondità di questo tipo di livello.")]
+        [SerializeField, Min(1)] private int _firstDepth = 1;
+
+        [Tooltip("L'ultima profondità di questo tipo: da qui la scala porta alla scena dopo, o non c'è.")]
         [SerializeField, Min(1)] private int _lastDepth = 4;
+
+        [Tooltip("Dove porta la scala dell'ultima profondità, alla profondità successiva. Vuoto: la scala non c'è.")]
+        [SerializeField] private string _nextScene = "";
 
         [Header("Contenuto (D6)")]
         [Tooltip("Scheletri = base + per profondità × profondità: 5 al livello 1, 11 al livello 4.")]
@@ -65,7 +75,13 @@ namespace DarkDescent.Levels
 
         public int MaxRoom => _maxRoom;
 
+        public string SceneName => _sceneName;
+
+        public int FirstDepth => _firstDepth;
+
         public int LastDepth => _lastDepth;
+
+        public string NextScene => _nextScene;
 
         public int MinGroup => _minGroup;
 
