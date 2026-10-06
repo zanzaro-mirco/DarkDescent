@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.18 | 6 ott 2026 | Su richiesta di Mirco: **zoom e rotazione della visuale** attorno al cavaliere, nella M8 (proposta: zoom con la rotella, rotazione a scatti di 90° con i muri bassi che seguono la camera; da confermare nella scheda della M8, poi un ADR che aggiorna ADR-017) · M8 da 6–9 a 8–12 h |
 | v2.17 | 6 ott 2026 | Su richiesta di Mirco: **colpi critici** del cavaliere, con un verso proprio per ogni tipo di nemico colpito, nella M7 (passo 7.7, D13 confermata) · formula nel § 2 · M7 da 12–18 a 13–20 h |
 | v2.16 | 6 ott 2026 | Dopo la prova della M6, su richiesta di Mirco: **musica e rumori d'ambiente** anticipati dalla M11 alla M7 (passo 7.0): un profilo per tipo di livello, tracce CC0 · M7 da 10–15 a 12–18 h · ADR-039 |
 | v2.12 | 4 ott 2026 | Decisioni di Mirco sulla M5: **lingue** entrano nella v1.0 (inglese di default, italiano, predisposizione per altre), **blocco** con lo scudo · M5 da 6–9 a 9–12 h · menu delle opzioni con la lingua alla M10 · nuova sezione "Dopo la v1.0" con le armi delle classi future |
@@ -96,7 +97,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 106–153 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco; v2.14: la M6 sale di 6 ore per pozioni, automappa, ripartenza e tooltip, la M7 ne perde una con l'automappa; v2.16: la M7 sale di 2–3 ore per musica e rumori d'ambiente; v2.17: altre 1–2 ore per i colpi critici). Per le milestone ancora aperte, M7–M11 al 6 ott 2026, restano 52–79 ore: a 6–10 h a settimana sono 6–14 settimane di lavoro effettivo; con pause e settimane saltate, **2–4 mesi di calendario**.
+**Totale stimato:** circa 108–156 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco; v2.14: la M6 sale di 6 ore per pozioni, automappa, ripartenza e tooltip, la M7 ne perde una con l'automappa; v2.16: la M7 sale di 2–3 ore per musica e rumori d'ambiente; v2.17: altre 1–2 ore per i colpi critici; v2.18: la M8 sale di 2–3 ore per la visuale). Per le milestone ancora aperte, M7–M11 al 6 ott 2026, restano 54–82 ore: a 6–10 h a settimana sono 6–14 settimane di lavoro effettivo; con pause e settimane saltate, **2–4 mesi di calendario**.
 
 **Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Il prossimo, se serve, si fissa alla chiusura della M8.
 
@@ -251,7 +252,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | ✅ 5 ott |
 | M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | ✅ 5 ott |
 | M7 | "Le profondità" | caverne, nuovi nemici, colpi critici, automappa delle caverne, musica e rumori d'ambiente | 13–20 | |
-| M8 | "Progressione e persistenza" | livelli, attributi, salvataggio | 6–9 | |
+| M8 | "Progressione e persistenza" | livelli, attributi, salvataggio, zoom e rotazione della visuale | 8–12 | |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza | 8–11 | |
 | M10 | "Città e loop completo" | il gioco è finibile, **prima build pubblica** | 10–14 | |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 15–25 | |
@@ -552,11 +553,18 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M8 — "Progressione e persistenza" · 6–9 h
+### M8 — "Progressione e persistenza" · 8–12 h
 
-**A schermo:** uccidi, sali di livello, distribuisci punti negli attributi. Chiudi il gioco, lo riapri, e sei dove eri, con lo stesso equipaggiamento.
+**A schermo:** uccidi, sali di livello, distribuisci punti negli attributi. Chiudi il gioco, lo riapri, e sei dove eri, con lo stesso equipaggiamento. La visuale si avvicina e si allontana con la rotella, e gira attorno al cavaliere.
 
-**Contenuto:** esperienza e curva di livello · punti attributo · **salvataggio e caricamento** in JSON, con un **formato versionato fin dal primo salvataggio** · regole della morte (cosa si perde).
+**Contenuto:** esperienza e curva di livello · punti attributo · **salvataggio e caricamento** in JSON, con un **formato versionato fin dal primo salvataggio** · regole della morte (cosa si perde) · **zoom e rotazione della visuale** (v2.18, richiesta di Mirco), descritti sotto.
+
+**Visuale: zoom e rotazione** (proposta, da confermare nella scheda della M8):
+
+- **Zoom** con la rotella, tra circa il 60% e il 140% della distanza di oggi, con uno smorzamento breve. Si salva tra le preferenze, come la lingua. Il limite in avvicinamento tiene il cavaliere e i nemici vicini nell'inquadratura; quello in allontanamento non deve mostrare troppo oltre il raggio della sua luce.
+- **Rotazione a scatti di 90°** con due tasti (Q ed E, o la rotella premuta), animata in circa 0,4 s. A scatti e non libera, perché i muri bassi (ADR-017) stanno sui lati verso la camera: a ogni scatto ogni lato del livello sceglie di nuovo tra muro alto e muro basso. Il builder mette su ogni lato i due pezzi, e uno solo è acceso; il cambio avviene a metà rotazione, su un evento della camera, senza controlli a ogni frame. Con la rotazione libera servirebbero muri sempre alti che si dissolvono tra la camera e il cavaliere: uno shader apposta, che il piano lascia alla M11.
+- **Cosa deve seguire la camera.** Le torce e gli stendardi appesi a un lato che diventa basso. L'automappa, che è ruotata come la camera (ADR-038). La parte sepolta della scala, che oggi si nasconde dietro il muro nord. Il listener e la luce del cavaliere seguono già l'orientamento della camera.
+- **Alla fine** un ADR che aggiorna ADR-017. Test: zoom nei limiti; dopo ogni scatto, tra la camera e il cavaliere nessun muro alto.
 
 **Test:** salvare e ricaricare restituisce uno stato identico; un salvataggio nel formato 1 si carica con il codice del formato 2 (migrazione).
 
