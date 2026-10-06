@@ -12,6 +12,9 @@ namespace DarkDescent.Core
         [Tooltip("Durata di default, in secondi reali.")]
         [SerializeField, Min(0f)] private float _duration = 0.05f;
 
+        [Tooltip("Durata per un colpo critico del cavaliere (D13 della M7): il colpo pesa di più.")]
+        [SerializeField, Min(0f)] private float _criticalDuration = 0.12f;
+
         private float _remaining;
         private float _previousTimeScale = 1f;
 
@@ -20,6 +23,11 @@ namespace DarkDescent.Core
         public void Trigger()
         {
             Trigger(_duration);
+        }
+
+        public void TriggerCritical()
+        {
+            Trigger(_criticalDuration);
         }
 
         /// <summary>

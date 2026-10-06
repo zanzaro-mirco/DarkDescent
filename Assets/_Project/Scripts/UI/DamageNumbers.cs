@@ -23,6 +23,11 @@ namespace DarkDescent.UI
         [SerializeField] private Color _missColor = new Color(0.7f, 0.7f, 0.7f);
         [SerializeField] private Color _blockColor = new Color(0.72f, 0.8f, 0.95f);
 
+        [Tooltip("Il colpo critico del cavaliere (D13 della M7): giallo-arancio, più grande, con il punto esclamativo.")]
+        [SerializeField] private Color _criticalColor = new Color(1f, 0.62f, 0.12f);
+
+        [SerializeField, Min(1f)] private float _criticalScale = 1.5f;
+
         [Tooltip("Altezza sopra i piedi da cui parte il numero.")]
         [SerializeField, Min(0f)] private float _spawnHeight = 2.3f;
 
@@ -87,7 +92,7 @@ namespace DarkDescent.UI
             Color color = isPlayer ? _playerDamageColor : _enemyDamageColor;
             Transform owner = health.transform;
             var handlers = (
-                damaged: (Action<DamageInfo, float>)((info, applied) => Spawn(owner, applied, color)),
+                damaged: (Action<DamageInfo, float>)((info, applied) => Spawn(owner, applied, info.IsCritical ? _criticalColor : color, info.IsCritical)),
                 evaded: (Action<DamageInfo>)(info => SpawnText(owner, TextKeys.Miss, _missColor)),
                 blocked: (Action<DamageInfo>)(info => SpawnText(owner, TextKeys.Blocked, _blockColor)),
                 block: health.GetComponent<ShieldBlock>());
@@ -161,10 +166,10 @@ namespace DarkDescent.UI
             }
         }
 
-        private void Spawn(Transform owner, float amount, Color color)
+        private void Spawn(Transform owner, float amount, Color color, bool critical)
         {
             var number = _pool.Get();
-            number.Show(owner.position + Vector3.up * _spawnHeight, amount, color);
+            number.Show(owner.position + Vector3.up * _spawnHeight, amount, color, critical ? _criticalScale : 1f, critical);
             Activate(number);
         }
 

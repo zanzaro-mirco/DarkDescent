@@ -18,3 +18,8 @@ MonoBehaviour:
   _corpseLifetime: 4
   _packRadius: 12
   _avoidanceSpread: 15
+  _recoverTime: 0
+  _criticalVoices:
+  - {fileID: 8300000, guid: 56e295740e850b24eb6d1009311ae90c, type: 3}
+  - {fileID: 8300000, guid: d1edfd4eeed68e042b50cfb755734873, type: 3}
+  _criticalPitch: {x: 1.4, y: 1.6}

@@ -19,3 +19,7 @@ MonoBehaviour:
   _packRadius: 0
   _avoidanceSpread: 0
   _recoverTime: 0.6
+  _criticalVoices:
+  - {fileID: 8300000, guid: 56e295740e850b24eb6d1009311ae90c, type: 3}
+  - {fileID: 8300000, guid: 574b969740aa118449557e121ad9f05a, type: 3}
+  _criticalPitch: {x: 0.6, y: 0.7}

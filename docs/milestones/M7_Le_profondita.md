@@ -433,6 +433,41 @@ da un colpo forte.
 5. Test: la formula ai bordi, critico solo dalla parte alta del tiro, danno doppio, verso
    giusto per tipo di nemico, i test dei colpi esistenti invariati.
 
+**Com'è andata (6 ott 2026).**
+
+*Tiro e danno.* `CombatFormulas.CritChance` dà 5% + Destrezza / 10, al massimo 50%;
+`RollCrit` esce dalla parte alta del tiro (trappola 9). `MeleeAttack` ha `_canCrit`, acceso
+solo sul prefab del cavaliere: dopo il tiro del danno tira il critico, raddoppia e riempie
+`DamageInfo.IsCritical`, il campo che aspettava dalla M2. Tutti i test dei colpi già scritti
+sono passati senza cambiare un numero.
+
+*A schermo.* Il numero del critico è arancio, una volta e mezza più grande, con il punto
+esclamativo. Il numero torna dal pool, quindi la scala si rimette a ogni uso. L'hit stop del
+critico dura 0,12 s invece di 0,05.
+
+*I versi.* Sono nell'`EnemyArchetype`. Per ora sono i versi più brevi tra quelli ritagliati
+al 7.0 dalle tracce CC0, senza altri download, con l'intonazione del tipo:
+- scheletro: 1,1–1,2;
+- sciame: 1,4–1,6, uno stridio;
+- bruto: 0,6–0,7, un ruggito lungo.
+
+`CharacterAudio` li suona al posto dell'impatto, mai lo stesso due volte di fila. Se a
+orecchio non convincono, il passo dopo è un pacchetto CC0 di versi, con il permesso di Mirco.
+
+*Il pannello del personaggio.* Una riga in più, *Critical chance* / *Critico*, tra la
+probabilità di colpire e il blocco, con il suo tooltip; anche il tooltip della Destrezza
+spiega il critico. La foto in batch mostra che la finestra la contiene.
+
+*Test.*
+- `CombatFormulasTests`: probabilità ai bordi e tiro dalla parte alta.
+- `CriticalHitTests` (PlayMode): solo il cavaliere fa critici, ogni nemico ha i suoi versi
+  con le intonazioni in ordine. Un critico vero sullo scheletro: danno doppio, uno dei suoi
+  versi con l'intonazione giusta, il numero con il punto esclamativo e più grande, l'hit stop
+  ancora attivo dopo 0,08 s, il 7% nel pannello.
+- Il test dei tooltip passa da 10 a 11 righe.
+
+166 EditMode e 122 PlayMode verdi.
+
 ## Passo 7.8 — Limite di voci audio
 
 1. `SfxLimiter` e la priorità dalla distanza; `CharacterAudio` gli chiede il permesso. Il
@@ -520,7 +555,7 @@ da un colpo forte.
 - [x] Sciame
 - [x] Bruto e colpo telegrafato
 - [x] Reazione al colpo del cavaliere
-- [ ] Colpi critici e versi dei nemici
+- [x] Colpi critici e versi dei nemici
 - [ ] Limite di voci audio
 - [ ] Nemici e loot per profondità
 - [ ] Scenario della Definition of Done provato in build

@@ -7,7 +7,7 @@ hud.inventory,Inventory,Inventario
 hud.weapon,Weapon,Arma
 hud.shield,Shield,Scudo
 hud.character,Knight,Cavaliere
-hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance (skeleton)\nBlock chance,Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire (scheletro)\nBlocco
+hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance (skeleton)\nCritical chance\nBlock chance,Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire (scheletro)\nCritico\nBlocco
 hud.you_died,YOU DIED,SEI MORTO
 hud.restart,Restart,Ricomincia
 
@@ -31,13 +31,14 @@ tooltip.drink,Right-click or 1–8 on the belt to drink,Click destro o 1–8 dal
 
 # Spiegazioni delle righe del pannello del personaggio (D16 della M6); il titolo è la riga stessa
 stat.tip.strength,Each point adds 1% weapon damage.\nHeavier weapons require more Strength.,Ogni punto aggiunge l'1% al danno dell'arma.\nLe armi più pesanti richiedono più Forza.
-stat.tip.dexterity,Every 2 points: +1% chance to hit\nand +1% block chance with a shield.,Ogni 2 punti: +1% a colpire\ne +1% di blocco con uno scudo.
+stat.tip.dexterity,Every 2 points: +1% chance to hit\nand +1% block chance with a shield.\nEvery 10 points: +1% critical chance.,Ogni 2 punti: +1% a colpire\ne +1% di blocco con uno scudo.\nOgni 10 punti: +1% di critico.
 stat.tip.magic,Not used yet: it will power spells.,Non ancora usata: servirà agli incantesimi.
 stat.tip.vitality,Each point adds 2 life.,Ogni punto aggiunge 2 punti vita.
 stat.tip.life,At zero you die. It does not regenerate:\ndrink potions (1–8 or right-click).,A zero si muore. Non si rigenera:\nbevi le pozioni (1–8 o click destro).
 stat.tip.armor,Each point lowers the enemies'\nchance to hit you by 1%.,Ogni punto toglie l'1% alla\nprobabilità dei nemici di colpirti.
 stat.tip.damage,Damage of each hit with your weapon:\nStrength and affixes included.,Il danno di ogni colpo con l'arma:\nForza e affissi compresi.
 stat.tip.hit_chance,75% + Dexterity / 2 − enemy Armor\n(between 5% and 95%). Shown against a skeleton.,75% + Destrezza / 2 − Armatura del nemico\n(tra 5% e 95%). Calcolato contro uno scheletro.
+stat.tip.critical,5% + Dexterity / 10 (up to 50%).\nA critical hit does double damage.,5% + Destrezza / 10 (fino al 50%).\nUn colpo critico fa il doppio del danno.
 stat.tip.block,Only with a shield: shield block + Dexterity / 2\n(up to 75%). A blocked hit does no damage.,Solo con uno scudo: blocco dello scudo + Destrezza / 2\n(fino al 75%). Un colpo bloccato non fa danno.
 
 # Righe degli affissi nel tooltip

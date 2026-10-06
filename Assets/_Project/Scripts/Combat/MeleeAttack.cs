@@ -26,6 +26,9 @@ namespace DarkDescent.Combat
         [Tooltip("Entro quanti gradi dalla direzione del bersaglio il colpo può partire.")]
         [SerializeField, Range(1f, 180f)] private float _facingTolerance = 30f;
 
+        [Tooltip("Può fare colpi critici: solo il cavaliere (D13 della M7). Il tiro va dopo quello del danno.")]
+        [SerializeField] private bool _canCrit;
+
         private NavMeshAgent _agent;
         private CharacterStats _stats;
         private IRandomSource _random;
@@ -321,7 +324,16 @@ namespace DarkDescent.Combat
                 {
                     float amount = CombatFormulas.RollDamage(_minDamage, _maxDamage,
                         CharacterStats.ValueOf(_stats, StatType.Strength), _random);
-                    var info = new DamageInfo(amount, _weapon.DamageType, gameObject);
+
+                    // il critico per ultimo: i tiri di colpire, bloccare e del danno restano dove sono
+                    bool critical = _canCrit && CombatFormulas.RollCrit(
+                        CombatFormulas.CritChance(CharacterStats.ValueOf(_stats, StatType.Dexterity)), _random);
+                    if (critical)
+                    {
+                        amount *= CombatFormulas.CritMultiplier;
+                    }
+
+                    var info = new DamageInfo(amount, _weapon.DamageType, gameObject, critical);
                     _swingTarget.TakeDamage(info);
                     HitLanded?.Invoke(info);
                 }

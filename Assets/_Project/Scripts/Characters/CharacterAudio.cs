@@ -1,5 +1,8 @@
+using System;
 using DarkDescent.Combat;
+using DarkDescent.Enemies;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace DarkDescent.Characters
 {
@@ -26,6 +29,8 @@ namespace DarkDescent.Characters
         [SerializeField, Range(0f, 0.3f)] private float _pitchVariation = 0.06f;
 
         private AudioSource _source;
+        private EnemyArchetype _archetype;
+        private int _lastVoice = -1;
         private Health _health;
         private MeleeAttack _attack;
         private ShieldBlock _shieldBlock;
@@ -36,7 +41,16 @@ namespace DarkDescent.Characters
             _health = GetComponent<Health>();
             _attack = GetComponent<MeleeAttack>();
             _shieldBlock = GetComponent<ShieldBlock>();
+
+            // i versi del critico sono del tipo di nemico: il cavaliere non ne ha
+            if (TryGetComponent(out EnemyAI enemy))
+            {
+                _archetype = enemy.Archetype;
+            }
         }
+
+        /// <summary>Un verso del critico è partito: per i test.</summary>
+        public event Action<AudioClip> CriticalVoicePlayed;
 
         private void OnEnable()
         {
@@ -85,7 +99,31 @@ namespace DarkDescent.Characters
 
         private void HandleDamaged(DamageInfo info, float applied)
         {
+            if (info.IsCritical && _archetype != null && _archetype.CriticalVoiceCount > 0)
+            {
+                PlayCriticalVoice();
+                return;
+            }
+
             PlayRandom(_hitClips);
+        }
+
+        // Al posto dell'impatto: il verso dice chi l'ha preso anche nel buio (D13). Mai lo stesso due
+        // volte di fila, con l'intonazione del tipo di nemico.
+        private void PlayCriticalVoice()
+        {
+            int count = _archetype.CriticalVoiceCount;
+            int index = Random.Range(0, count);
+            if (count > 1 && index == _lastVoice)
+            {
+                index = (index + 1) % count;
+            }
+
+            _lastVoice = index;
+            var clip = _archetype.GetCriticalVoice(index);
+            _source.pitch = Random.Range(_archetype.CriticalPitch.x, _archetype.CriticalPitch.y);
+            _source.PlayOneShot(clip);
+            CriticalVoicePlayed?.Invoke(clip);
         }
 
         private void HandleBlocked(DamageInfo info)

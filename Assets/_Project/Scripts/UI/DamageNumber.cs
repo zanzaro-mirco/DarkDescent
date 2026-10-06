@@ -22,14 +22,17 @@ namespace DarkDescent.UI
             _rect = (RectTransform)transform;
         }
 
-        public void Show(Vector3 worldPosition, float amount, Color color)
+        /// <param name="scale">Più grande per un critico; i numeri tornano dal pool, quindi si imposta sempre.</param>
+        /// <param name="exclaim">Il punto esclamativo del critico (D13 della M7).</param>
+        public void Show(Vector3 worldPosition, float amount, Color color, float scale = 1f, bool exclaim = false)
         {
             _worldPosition = worldPosition;
             _color = color;
             _age = 0f;
             // SetText con il formato non alloca stringhe, a differenza di ToString()
-            _text.SetText("{0}", Mathf.RoundToInt(amount));
+            _text.SetText(exclaim ? "{0}!" : "{0}", Mathf.RoundToInt(amount));
             _text.color = color;
+            _rect.localScale = Vector3.one * scale;
         }
 
         /// <summary>Come Show, con una scritta al posto del numero ("Mancato").</summary>
@@ -40,6 +43,7 @@ namespace DarkDescent.UI
             _age = 0f;
             _text.SetText(text);
             _text.color = color;
+            _rect.localScale = Vector3.one;
         }
 
         /// <summary>Avanza il numero; false quando ha finito e va restituito al pool.</summary>

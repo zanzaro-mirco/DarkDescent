@@ -39,7 +39,7 @@ namespace DarkDescent.UI
         public static readonly string[] LineTips =
         {
             TextKeys.TipStrength, TextKeys.TipDexterity, TextKeys.TipMagic, TextKeys.TipVitality, null,
-            TextKeys.TipLife, TextKeys.TipArmor, TextKeys.TipDamage, TextKeys.TipHitChance, TextKeys.TipBlock,
+            TextKeys.TipLife, TextKeys.TipArmor, TextKeys.TipDamage, TextKeys.TipHitChance, TextKeys.TipCritical, TextKeys.TipBlock,
         };
 
         private readonly StringBuilder _builder = new StringBuilder(128);
@@ -188,6 +188,7 @@ namespace DarkDescent.UI
             _builder.Append(Mathf.RoundToInt(_stats.Armor)).Append('\n');
             _builder.Append(min).Append('–').Append(max).Append('\n');
             _builder.Append(Mathf.RoundToInt(hitChance)).Append("%\n");
+            _builder.Append(Mathf.RoundToInt(CombatFormulas.CritChance(_stats.Dexterity))).Append("%\n");
             _builder.Append(_block != null ? Mathf.RoundToInt(_block.BlockChance) : 0).Append('%');
             _values.SetText(_builder);
         }

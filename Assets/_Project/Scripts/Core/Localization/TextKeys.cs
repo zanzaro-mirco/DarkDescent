@@ -31,6 +31,7 @@ namespace DarkDescent.Localization
         public const string TipDamage = "stat.tip.damage";
         public const string TipHitChance = "stat.tip.hit_chance";
         public const string TipBlock = "stat.tip.block";
+        public const string TipCritical = "stat.tip.critical";
 
         // le righe degli affissi nel tooltip, una per effetto
         public const string EffectWeaponDamagePercent = "affix.effect.weapon_damage_percent";

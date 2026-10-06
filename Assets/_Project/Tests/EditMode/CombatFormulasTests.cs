@@ -98,5 +98,26 @@ namespace DarkDescent.Tests
             Assert.IsFalse(CombatFormulas.RollBlock(20f, new FixedRandomSource(0.2)));
             Assert.IsFalse(CombatFormulas.RollBlock(0f, new FixedRandomSource(0.0)), "senza probabilità mai");
         }
+
+        [Test, Description("Critico: 5% + Destrezza / 10, al massimo 50% (D13 della M7); 7% con la Destrezza 20 del cavaliere")]
+        public void CritChance_FromDexterity()
+        {
+            Assert.AreEqual(5f, CombatFormulas.CritChance(0f));
+            Assert.AreEqual(7f, CombatFormulas.CritChance(20f), 0.0001f);
+            Assert.AreEqual(50f, CombatFormulas.CritChance(450f));
+            Assert.AreEqual(50f, CombatFormulas.CritChance(1000f), "il tetto");
+            Assert.AreEqual(2f, CombatFormulas.CritMultiplier, "danno doppio, come il guerriero di Diablo 1");
+        }
+
+        [Test, Description("Il critico esce dalla parte alta del tiro: con i tiri fissi a 0 dei test non c'è mai (trappola 9)")]
+        public void RollCrit_UsesTheTopOfTheRoll()
+        {
+            Assert.IsFalse(CombatFormulas.RollCrit(7f, new FixedRandomSource(0.0)), "il tiro dei test");
+            Assert.IsFalse(CombatFormulas.RollCrit(7f, new FixedRandomSource(0.9299)));
+            Assert.IsTrue(CombatFormulas.RollCrit(7f, new FixedRandomSource(0.93)));
+            Assert.IsTrue(CombatFormulas.RollCrit(7f, new FixedRandomSource(0.9999)));
+            Assert.IsFalse(CombatFormulas.RollCrit(0f, new FixedRandomSource(0.9999)), "senza probabilità mai");
+            Assert.IsTrue(CombatFormulas.RollCrit(50f, new FixedRandomSource(0.5)));
+        }
     }
 }

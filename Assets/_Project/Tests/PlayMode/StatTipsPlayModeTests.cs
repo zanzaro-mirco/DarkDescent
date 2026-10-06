@@ -42,6 +42,8 @@ namespace DarkDescent.Tests
             Assert.IsFalse(tooltip.IsShowing, "la riga vuota non ha spiegazione");
 
             yield return HoverLine(panel, 9);
+            StringAssert.Contains("critical hit", tooltip.Text, "la riga del critico (D13 della M7)");
+            yield return HoverLine(panel, 10);
             StringAssert.Contains("shield", tooltip.Text);
             Localizer.SetLanguage("it");
             yield return null;

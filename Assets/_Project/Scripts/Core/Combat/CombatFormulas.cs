@@ -12,8 +12,11 @@ namespace DarkDescent.Combat
         public const float MinHitChance = 5f;
         public const float MaxHitChance = 95f;
         public const float MaxBlockChance = 75f;
+        public const float MaxCritChance = 50f;
+        public const float CritMultiplier = 2f;
 
         private const float BaseHitChance = 75f;
+        private const float BaseCritChance = 5f;
         private const float BaseLife = 50f;
         private const float LifePerVitality = 2f;
 
@@ -41,6 +44,24 @@ namespace DarkDescent.Combat
         public static bool RollBlock(float blockChance, IRandomSource random)
         {
             return random.NextDouble() * 100.0 < blockChance;
+        }
+
+        /// <summary>
+        /// Probabilità di colpo critico, in punti percentuali: 5 + Destrezza / 10, al massimo 50 (D13
+        /// della M7). Con la Destrezza 20 del cavaliere, 7.
+        /// </summary>
+        public static float CritChance(float dexterity)
+        {
+            return Math.Min(MaxCritChance, Math.Max(0f, BaseCritChance + dexterity / 10f));
+        }
+
+        /// <summary>
+        /// Il critico esce dalla parte alta del tiro (trappola 9 della M7): con i tiri fissi a 0 dei
+        /// test non c'è mai, e i colpi dei test restano quelli di prima.
+        /// </summary>
+        public static bool RollCrit(float critChance, IRandomSource random)
+        {
+            return random.NextDouble() >= 1.0 - critChance / 100.0;
         }
 
         /// <summary>

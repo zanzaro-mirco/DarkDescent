@@ -34,6 +34,22 @@ namespace DarkDescent.Enemies
         [Tooltip("Secondi fermo dopo un colpo, la finestra per colpirlo. Zero: nessuna carica né recupero, come lo scheletro. La carica dura quanto il ritardo dell'arma.")]
         [SerializeField, Min(0f)] private float _recoverTime;
 
+        [Header("Versi del critico (D13 della M7)")]
+        [Tooltip("Il verso di questo tipo di nemico quando il cavaliere lo colpisce di critico, al posto dell'impatto.")]
+        [SerializeField] private AudioClip[] _criticalVoices;
+
+        [Tooltip("Intonazione del verso: bassa per il bruto, acuta per lo sciame.")]
+        [SerializeField] private Vector2 _criticalPitch = Vector2.one;
+
+        public int CriticalVoiceCount => _criticalVoices != null ? _criticalVoices.Length : 0;
+
+        public Vector2 CriticalPitch => _criticalPitch;
+
+        public AudioClip GetCriticalVoice(int index)
+        {
+            return _criticalVoices[index];
+        }
+
         public float PackRadius => _packRadius;
 
         public int AvoidanceSpread => _avoidanceSpread;

@@ -16,3 +16,10 @@ MonoBehaviour:
   _eyeHeight: 1.5
   _perceptionInterval: 0.2
   _corpseLifetime: 5
+  _packRadius: 0
+  _avoidanceSpread: 0
+  _recoverTime: 0
+  _criticalVoices:
+  - {fileID: 8300000, guid: 574b969740aa118449557e121ad9f05a, type: 3}
+  - {fileID: 8300000, guid: d1edfd4eeed68e042b50cfb755734873, type: 3}
+  _criticalPitch: {x: 1.1, y: 1.2}

@@ -453,6 +453,7 @@ MonoBehaviour:
   _weapon: {fileID: 11400000, guid: edb5aa48207955b4ba8f40a78873892f, type: 2}
   _chaseRepathInterval: 0.1
   _facingTolerance: 30
+  _canCrit: 1
 --- !u!114 &3870862040190096367
 MonoBehaviour:
   m_ObjectHideFlags: 0

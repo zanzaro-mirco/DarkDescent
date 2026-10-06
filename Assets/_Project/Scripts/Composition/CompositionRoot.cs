@@ -262,6 +262,12 @@ namespace DarkDescent.Core
         // solo i colpi del player fermano il tempo: con tre scheletri che colpiscono, il gioco singhiozzerebbe
         private void HandlePlayerHitLanded(DamageInfo info)
         {
+            if (info.IsCritical)
+            {
+                _hitStop.TriggerCritical();
+                return;
+            }
+
             _hitStop.Trigger();
         }
 
