@@ -29,6 +29,9 @@ namespace DarkDescent.Player
 
         [SerializeField, Min(1f)] private float _maxRayDistance = 100f;
 
+        [Tooltip("Un click sul pavimento a meno di tanti metri da un nemico vivo colpisce lui (prova della M7: lo sciame è piccolo e fitto, e il click finiva a terra).")]
+        [SerializeField, Min(0f)] private float _enemyClickTolerance = 0.6f;
+
         [Tooltip("A che distanza, in orizzontale, dal punto d'arrivo di un oggetto cliccato lo si usa (raccogliere, aprire).")]
         [SerializeField, Min(0.1f)] private float _useReach = 1f;
 
@@ -43,6 +46,9 @@ namespace DarkDescent.Player
 
         // i collider sotto il cursore, dal più vicino: riusato a ogni frame, niente allocazioni
         private readonly RaycastHit[] _hits = new RaycastHit[16];
+
+        // i nemici attorno al punto del pavimento cliccato
+        private readonly Collider[] _nearby = new Collider[8];
 
         private PlayerMotor _motor;
         private PlayerInputReader _input;
@@ -72,6 +78,11 @@ namespace DarkDescent.Player
 
         public Interactable Hovered { get; private set; }
 
+        /// <summary>Il nemico vivo sotto il cursore è cambiato; null = nessuno. L'HUD ne mostra nome e vita.</summary>
+        public event Action<Health> HoveredEnemyChanged;
+
+        public Health HoveredEnemy { get; private set; }
+
         private void Awake()
         {
             _motor = GetComponent<PlayerMotor>();
@@ -98,6 +109,7 @@ namespace DarkDescent.Player
 
             // spento il controller (morte, cambio di livello) niente resta evidenziato né da usare
             SetHovered(null);
+            SetHoveredEnemy(null);
             _pendingUse = null;
         }
 
@@ -181,16 +193,18 @@ namespace DarkDescent.Player
             }
 
             int layerBit = 1 << hit.collider.gameObject.layer;
+            // la tolleranza vale alla pressione: tenendo premuto e passando vicino a un nemico si
+            // continua a camminare dove punta il cursore
+            var enemy = allowAttack || (_enemyLayers.value & layerBit) != 0 ? EnemyUnderCursor(hit) : null;
 
-            if ((_enemyLayers.value & layerBit) != 0)
+            if (enemy != null)
             {
                 if (!allowAttack)
                 {
                     return;
                 }
 
-                // il collider può stare su un figlio del nemico: si risale fino a chi riceve i colpi
-                var target = hit.collider.GetComponentInParent<IDamageable>();
+                IDamageable target = enemy;
                 if (target.IsAlive())
                 {
                     _heldTarget = target;
@@ -226,13 +240,73 @@ namespace DarkDescent.Player
         private void UpdateHover()
         {
             Interactable hovered = null;
-            if (!IsPointerOverUI() && TryRaycastCursor(out RaycastHit hit)
-                && (_interactableLayers.value & (1 << hit.collider.gameObject.layer)) != 0)
+            Health enemy = null;
+            if (!IsPointerOverUI() && TryRaycastCursor(out RaycastHit hit))
             {
-                hovered = hit.collider.GetComponentInParent<Interactable>();
+                if ((_interactableLayers.value & (1 << hit.collider.gameObject.layer)) != 0)
+                {
+                    hovered = hit.collider.GetComponentInParent<Interactable>();
+                }
+                else
+                {
+                    enemy = EnemyUnderCursor(hit);
+                }
             }
 
             SetHovered(hovered);
+            SetHoveredEnemy(enemy);
+        }
+
+        // Il nemico vivo colpito dal raggio, oppure, se il raggio è finito sul pavimento, il nemico vivo
+        // più vicino al punto entro la tolleranza; null se non ce n'è.
+        private Health EnemyUnderCursor(RaycastHit hit)
+        {
+            int layerBit = 1 << hit.collider.gameObject.layer;
+            if ((_enemyLayers.value & layerBit) != 0)
+            {
+                // il collider può stare su un figlio del nemico: si risale fino a chi riceve i colpi
+                var health = hit.collider.GetComponentInParent<Health>();
+                return health != null && !health.IsDead ? health : null;
+            }
+
+            if ((_walkableLayers.value & layerBit) == 0 || _enemyClickTolerance <= 0f)
+            {
+                return null;
+            }
+
+            int count = Physics.OverlapSphereNonAlloc(hit.point, _enemyClickTolerance, _nearby, _enemyLayers, QueryTriggerInteraction.Ignore);
+            Health nearest = null;
+            float best = float.MaxValue;
+            for (int i = 0; i < count; i++)
+            {
+                var health = _nearby[i].GetComponentInParent<Health>();
+                if (health == null || health.IsDead)
+                {
+                    continue;
+                }
+
+                Vector3 offset = health.transform.position - hit.point;
+                offset.y = 0f;
+                if (offset.sqrMagnitude < best)
+                {
+                    best = offset.sqrMagnitude;
+                    nearest = health;
+                }
+            }
+
+            return nearest;
+        }
+
+        private void SetHoveredEnemy(Health enemy)
+        {
+            // ReferenceEquals: come per gli oggetti, un nemico distrutto deve comunque dare null a chi ascolta
+            if (ReferenceEquals(enemy, HoveredEnemy))
+            {
+                return;
+            }
+
+            HoveredEnemy = enemy;
+            HoveredEnemyChanged?.Invoke(enemy);
         }
 
         private void SetHovered(Interactable hovered)

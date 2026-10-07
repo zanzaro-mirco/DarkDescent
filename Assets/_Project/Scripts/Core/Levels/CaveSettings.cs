@@ -45,10 +45,10 @@ namespace DarkDescent.Levels
         [Tooltip("Per ogni profondità, quanti gruppi di scheletri e di sciame e quanti bruti (D10). La grandezza dei gruppi di scheletri è quella dei numeri della cripta.")]
         [SerializeField] private SpawnTable _spawnTable = SpawnTable.Caves();
 
-        [Tooltip("Quanti in un gruppo di sciame: da quanti a quanti (D5).")]
-        [SerializeField, Min(1)] private int _minSwarm = 4;
+        [Tooltip("Quanti in un gruppo di sciame: da quanti a quanti (D5; da 4–6 a 3–5 dopo la prova della M7).")]
+        [SerializeField, Min(1)] private int _minSwarm = 3;
 
-        [SerializeField, Min(1)] private int _maxSwarm = 6;
+        [SerializeField, Min(1)] private int _maxSwarm = 5;
 
         public SpawnTable SpawnTable => _spawnTable;
 

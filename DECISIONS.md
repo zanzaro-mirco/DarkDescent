@@ -193,6 +193,8 @@ Formato:
 - **Conseguenze:** una lingua nuova è una colonna, più lo schema dei nomi e il genere delle basi (ADR-028). Un test controlla che ogni chiave usata da scene, codice e definizioni esista e che ogni lingua abbia tutte le righe. I test girano in inglese, con la preferenza cancellata prima di ogni scena. Una lingua con un altro alfabeto vorrà un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ## ADR-026 — Blocco con lo scudo, tirato dopo il colpo a segno
+> Cambiato il 7 ottobre 2026 (ADR-049): il blocco non interrompe più il colpo del cavaliere.
+
 - **Data:** 2026-10-05
 - **Contesto:** alla M4 lo scudo dava solo Armatura, che abbassa la probabilità di essere colpiti di qualche punto: provandolo, Mirco non ha sentito differenza e ha chiesto il blocco (D1 della scheda M5).
 - **Decisione:** `ShieldBlock` sul cavaliere: probabilità = blocco dello scudo + Destrezza / 2, tra 0 e 75, e solo con uno scudo in mano. L'ordine dei tiri è colpito, poi bloccato, poi danno: un colpo bloccato non tira il danno. Il blocco mostra "Blocked" sopra il cavaliere, suona `impactMetal_light` di Kenney, fa partire `Melee_Block_Hit` e interrompe per 0,45 s il colpo che il cavaliere stava dando, come in Diablo 1. Gli scheletri non bloccano.
@@ -263,6 +265,8 @@ Formato:
 - **Conseguenze:** un livello costa al più il 4,4% del tempo concesso. I collider devono descrivere bene il calpestabile: un oggetto di scena senza collider non buca il NavMesh. Le caverne della M7 useranno lo stesso bake.
 
 ## ADR-036 — Ripartenza dall'ingresso del livello, con l'istantanea dell'inventario
+> Sostituito da ADR-048 il 7 ottobre 2026: il livello non si ricarica più.
+
 - **Data:** 2026-10-05
 - **Contesto:** dopo la prova della build Mirco ha chiesto che morendo si ripartisse dal livello in cui si è morti, con quello che si aveva entrando (D13 della scheda M6). Prima "Ricomincia" ricaricava `Core`, quindi cavaliere e HUD nuovi: l'istantanea avrebbe dovuto sopravvivere in un oggetto `DontDestroyOnLoad` o in un campo statico, lo stato globale che ADR-007 esclude.
 - **Decisione:** `Core` resta caricata e si ricarica solo il livello, come per le scale: stessa scena, stessa profondità, stesso seme, quindi la stessa cripta con nemici e casse rimessi. `LevelManager.RestartLevel` riceve una richiamata che gira a schermo nero, tra lo scarico del livello vecchio e il carico del nuovo: lì il cavaliere torna in vita (`Health.Revive`) e l'inventario torna com'era. L'istantanea (`InventorySnapshot`) è JSON con le istanze come sono (ADR-022), presa un frame dopo ogni ingresso. La mappa scoperta resta, su richiesta di Mirco.
@@ -345,3 +349,17 @@ Formato:
 - **Decisione:** una `SpawnTable` in `CaveSettings`, con una `SpawnRow` per profondità che vale dalla sua in giù. Ogni riga dà da quanti a quanti gruppi di scheletri e di sciame, e quanti bruti: al 5 due gruppi di scheletri, uno di sciame e un bruto; all'8 da uno a due gruppi di scheletri, tre di sciame e tre bruti. Il popolatore tira gli intervalli e mette prima lo sciame, poi i bruti, poi gli scheletri. Sciame e bruto hanno le loro `LootTable`: lo sciame lascia un oggetto il 20% delle volte e una pozione il 10%, il bruto sempre un oggetto e una pozione la metà delle volte. Il livello dell'oggetto è la profondità.
 - **Alternative scartate:** pesi per tipo di gruppo, con cui un livello 5 poteva uscire senza bruto o con tre; numeri calcolati dalla profondità nel codice, da ricompilare a ogni ritocco; la tabella dello scheletro per lo sciame, che riempie il pavimento di oggetti.
 - **Conseguenze:** su 200 semi le medie sono quelle di D10: al 5 circa 5 scheletri, 5 dello sciame e un bruto; all'8 circa 4 scheletri, 15 dello sciame e 3 bruti. I numeri si ritoccano nell'asset provando la build, e la M10 li ritara con le classi nuove. La cripta tiene il suo conto e i suoi semi.
+
+## ADR-048 — Morire non ricarica il livello
+- **Data:** 2026-10-07
+- **Contesto:** dalla M6 *Ricomincia* ricaricava il livello dallo stesso seme, con nemici e casse rimessi e l'inventario com'era entrando (ADR-036). Provando la build della M7, Mirco ha chiesto il contrario: alla morte si tiene tutto quello che c'era prima.
+- **Decisione:** `LevelManager.ReturnToEntrance` sostituisce `RestartLevel`. A schermo nero il cavaliere torna in vita a vita piena sull'ingresso da cui è entrato nel livello corrente, senza scaricare la scena. Restano inventario, pozioni bevute, casse aperte, oggetti a terra, nemici uccisi e mappa scoperta. I nemici vivi tornano fermi dove li aveva messi il livello (`EnemyAI.ReturnHome`, `EnemyBrain.Rest`) e tengono le loro ferite. Il pulsante dice *Continua*.
+- **Alternative scartate:** tornare in vita dove si è morti, con i nemici ancora addosso; tornare all'inizio della cripta; la ricarica della M6, che toglieva oggetti trovati e faceva rinascere i nemici uccisi.
+- **Conseguenze:** morire costa solo la strada fino al punto di prima, e un livello si può finire morendo più volte. L'istantanea dell'inventario all'ingresso non serve più al gioco; `InventorySnapshot` resta per il salvataggio della M8. Le regole della morte del piano per la M8 ("cosa si perde") sono decise: niente.
+
+## ADR-049 — Mira sui nemici: cosa c'è sotto il cursore, e un blocco che non ferma
+- **Data:** 2026-10-07
+- **Contesto:** nella prova della build M7, in mezzo allo sciame Mirco non riusciva a fare quasi niente e non capiva se lo fermavano i colpi o se non riusciva a selezionare il nemico. Erano tutte e due le cose: ogni blocco interrompeva il fendente per 0,45 s (ADR-026), i nemici piccoli e fitti erano difficili da cliccare, niente diceva quale era sotto il cursore, e gli agent dei nemici spingevano il cavaliere. Una colonna davanti a una cassa o a uno scheletro ne nascondeva il click.
+- **Decisione:** il blocco annulla il danno ma non ferma più il cavaliere. `PlayerController` tiene il nemico vivo sotto il cursore e lo annuncia: l'HUD ne mostra nome e vita in alto al centro (`EnemyBar`), e un cerchio rosso a terra lo segna (`TargetMarker`). Un click sul pavimento a meno di 0,6 m da un nemico vivo colpisce lui, solo alla pressione. Il raggio del cursore attraversa gli ostacoli bassi (colonne, barili, muri bassi) quando dietro c'è un nemico o una cosa da usare; i muri alti, con il tag `Wall`, lo fermano. Il cavaliere ha la priorità di evitamento più alta di tutti gli agent.
+- **Alternative scartate:** al più tre nemici dello sciame che attaccano insieme, proposto e non voluto da Mirco; un contorno sul modello del nemico, che litiga con il lampo bianco dei colpi (anche lui cambia i materiali); un raggio con uno spessore (SphereCast), che a ogni frame sceglierebbe nemici anche dove si vuole camminare.
+- **Conseguenze:** lo scudo resta utile ma non è più una trappola nei gruppi. Il nome dei nemici è un dato dell'archetipo, che la città e il boss della M10 useranno. Il cerchio e la barra seguono un nemico solo: con più bersagli (gli incantesimi della M9) andranno ripensati.

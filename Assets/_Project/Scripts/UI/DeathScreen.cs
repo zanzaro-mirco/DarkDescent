@@ -8,7 +8,7 @@ namespace DarkDescent.UI
 {
     /// <summary>
     /// Schermata di morte: compare quando il player muore, dopo il tempo dell'animazione, e offre
-    /// di ricominciare. Non ricarica niente da sé: annuncia la richiesta, chi collega la scena decide.
+    /// di continuare. Non fa niente da sé: annuncia la richiesta, chi collega la scena decide.
     /// Sparisce quando il player torna in vita.
     /// </summary>
     [DisallowMultipleComponent]
@@ -26,7 +26,7 @@ namespace DarkDescent.UI
         private bool _subscribed;
         private Coroutine _showRoutine;
 
-        /// <summary>Premuto Ricomincia.</summary>
+        /// <summary>Premuto Continua.</summary>
         public event Action RestartRequested;
 
         public bool IsShown => _panel.activeSelf;

@@ -62,50 +62,57 @@ namespace DarkDescent.Tests
             Assert.IsTrue(FindDeathScreen().IsShown);
         }
 
-        [UnityTest, Description("Ricomincia riporta all'ingresso del livello in cui si è morti: stessa cripta e profondità, nemici e casse rimessi, vita piena, inventario com'era entrando, timeScale a 1 (D13 della M6)")]
-        public IEnumerator Restart_ReloadsTheSameLevelWithTheEntryInventory()
+        [UnityTest, Description("Continua riporta in vita all'ingresso del livello in cui si è morti, senza ricaricarlo: inventario, pozione bevuta, cassa aperta, nemici uccisi e mappa scoperta restano; i nemici vivi tornano fermi dove li ha messi il livello, con la vita che avevano; timeScale a 1 (D15 della M7)")]
+        public IEnumerator Continue_KeepsTheLevelAsItWas()
         {
             yield return LoadGeneratedCore();
             var manager = Object.FindFirstObjectByType<LevelManager>();
             manager.LoadLevel("Level_Crypt", "FromAbove", 2);
             yield return WaitForDepth(manager, 2);
+            yield return null;
 
-            // l'istantanea si prende un frame dopo l'ingresso
-            yield return null;
-            yield return null;
-            string map = manager.CurrentLevel.Map.ToText();
+            var level = manager.CurrentLevel;
             Vector3 entrance = Player.position;
             var inventory = Player.GetComponent<PlayerInventory>();
             var health = Player.GetComponent<Health>();
             var sword = inventory.Equipment.Get(EquipSlot.Weapon).Definition;
             int potions = inventory.Belt.Count;
 
-            // dopo l'ingresso: una pozione bevuta, un pugnale raccolto, la cassa aperta
+            // prima di morire: una pozione bevuta, un pugnale raccolto, la cassa aperta
             health.TakeDamage(Damage(Mathf.Round(health.Max * 0.6f)));
             Assert.IsTrue(inventory.DrinkFromBelt(0));
 #if UNITY_EDITOR
             inventory.TryPickUp(new ItemInstance(UnityEditor.AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/Dagger.asset")));
 #endif
             Assert.AreEqual(1, inventory.Inventory.Grid.Placements.Count);
-            var chest = manager.CurrentLevel.Chests[0];
+            var chest = level.Chests[0];
             chest.GetComponent<Interactable>().Use(Player.gameObject);
+            Assert.IsTrue(chest.IsOpen);
 
-            // e un giro lontano dall'ingresso: la mappa scoperta deve restare (D13)
+            // un nemico ucciso, uno ferito e portato lontano da dove l'ha messo il livello
+            Assert.GreaterOrEqual(level.Enemies.Count, 2);
+            var killed = level.Enemies[0];
+            killed.GetComponent<Health>().TakeDamage(Damage(1000f));
+            var wounded = level.Enemies[1];
+            var woundedHealth = wounded.GetComponent<Health>();
+            Vector3 home = wounded.transform.position;
+            woundedHealth.TakeDamage(Damage(Mathf.Round(woundedHealth.Max * 0.5f)));
+            float woundedLife = woundedHealth.Current;
+            wounded.GetComponent<NavMeshAgent>().Warp(entrance + Vector3.right * 2f);
+            wounded.Alert();
+
+            // e un giro lontano dall'ingresso: la mappa scoperta resta
             var exploration = Object.FindFirstObjectByType<ExplorationTracker>();
             var far = FarUnexploredCell(exploration.Exploration);
             PlayerAgent.Warp(LevelMap.CellCenter(far.x, far.y));
             yield return null;
             yield return null;
-            PlayerAgent.Warp(entrance);
-            yield return null;
             Assert.IsTrue(exploration.Exploration.IsExplored(far.x, far.y));
             int explored = exploration.Exploration.ExploredCount;
-            Assert.IsTrue(chest.IsOpen);
-            var oldLevel = manager.CurrentLevel;
 
             yield return KillPlayerAndWaitForScreen();
 
-            // un hit stop rimasto a metà non deve sopravvivere al riavvio (trappola 6)
+            // un hit stop rimasto a metà non deve sopravvivere al ritorno (trappola 6 della M6)
             Time.timeScale = 0.3f;
             var button = GameObject.Find("RestartButton").GetComponent<RectTransform>();
             Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, button.TransformPoint(button.rect.center));
@@ -114,20 +121,18 @@ namespace DarkDescent.Tests
             yield return null;
             Press(Mouse.leftButton);
             Release(Mouse.leftButton);
+            yield return null;
 
             float elapsed = 0f;
-            while ((manager.CurrentLevel == oldLevel || manager.CurrentLevel == null || manager.IsTransitioning) && elapsed < 10f)
+            while ((manager.IsTransitioning || health.IsDead) && elapsed < 10f)
             {
                 elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
 
-            Assert.AreNotSame(oldLevel, manager.CurrentLevel, "il livello si è ricaricato");
+            Assert.AreSame(level, manager.CurrentLevel, "il livello non si è ricaricato");
             Assert.AreEqual(1f, Time.timeScale, "timeScale va rimesso a 1");
-            Assert.AreEqual("Level_Crypt", manager.CurrentLevel.gameObject.scene.name);
-            Assert.AreEqual(2, manager.CurrentLevel.Depth, "la profondità in cui si è morti, non la prima");
-            Assert.AreEqual(map, manager.CurrentLevel.Map.ToText(), "la stessa cripta: stesso seme");
-            Assert.Less(FlatDistance(entrance, Player.position), 0.1f, "dallo stesso ingresso");
+            Assert.Less(FlatDistance(entrance, Player.position), 0.1f, "all'ingresso da cui si è entrati");
 
             Assert.IsFalse(health.IsDead);
             Assert.AreEqual(health.Max, health.Current);
@@ -139,19 +144,16 @@ namespace DarkDescent.Tests
             Assert.IsFalse(FindDeathScreen().IsShown, "la schermata sparisce");
             Assert.AreEqual(1f, Object.FindFirstObjectByType<HealthOrb>().FillAmount, 0.001f);
 
-            Assert.AreEqual(potions, inventory.Belt.Count, "la pozione bevuta è tornata");
-            Assert.AreEqual(0, inventory.Inventory.Grid.Placements.Count, "il pugnale raccolto dopo l'ingresso no");
+            Assert.AreEqual(potions - 1, inventory.Belt.Count, "la pozione bevuta resta bevuta");
+            Assert.AreEqual(1, inventory.Inventory.Grid.Placements.Count, "il pugnale raccolto resta");
             Assert.AreEqual(sword, inventory.Equipment.Get(EquipSlot.Weapon).Definition);
-            Assert.IsFalse(manager.CurrentLevel.Chests[0].IsOpen, "la cassa è di nuovo chiusa");
-            Assert.AreSame(manager.CurrentLevel.Map, exploration.Exploration.Map, "l'automappa segue il livello ricaricato");
+            Assert.IsTrue(chest.IsOpen, "la cassa resta aperta");
+            Assert.IsTrue(killed == null || killed.State == EnemyState.Dead, "il nemico ucciso non rinasce");
+            Assert.AreEqual(woundedLife, woundedHealth.Current, "il ferito resta ferito");
+            Assert.Less(FlatDistance(home, wounded.transform.position), 0.1f, "ed è tornato dove l'ha messo il livello");
+            Assert.AreEqual(EnemyState.Idle, wounded.State, "fermo");
             Assert.IsTrue(exploration.Exploration.IsExplored(far.x, far.y), "la mappa scoperta resta");
             Assert.AreEqual(explored, exploration.Exploration.ExploredCount);
-            foreach (var enemy in manager.CurrentLevel.Enemies)
-            {
-                var enemyHealth = enemy.GetComponent<Health>();
-                Assert.AreEqual(enemyHealth.Max, enemyHealth.Current, $"{enemy.name} riparte con la vita piena");
-                Assert.AreEqual(EnemyState.Idle, enemy.State);
-            }
 
             // si può morire di nuovo
             health.TakeDamage(Damage(1000f));

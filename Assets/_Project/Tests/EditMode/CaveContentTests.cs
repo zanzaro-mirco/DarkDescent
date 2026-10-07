@@ -163,10 +163,10 @@ namespace DarkDescent.Tests
             var at8 = (sums[8].skeletons / Seeds, sums[8].swarm / Seeds, sums[8].brutes / Seeds);
             Debug.Log($"in media al 5: {at5}; all'8: {at8}");
             Assert.AreEqual(5f, at5.Item1, 0.5f, "scheletri al 5");
-            Assert.AreEqual(5f, at5.Item2, 0.5f, "un gruppo di sciame al 5, da 4 a 6");
+            Assert.AreEqual(4f, at5.Item2, 0.5f, "un gruppo di sciame al 5, da 3 a 5 (prova della M7)");
             Assert.AreEqual(1f, at5.Item3, 0.001f, "un bruto al 5");
             Assert.AreEqual(4f, at8.Item1, 0.5f, "scheletri all'8");
-            Assert.AreEqual(15f, at8.Item2, 1f, "tre gruppi di sciame all'8");
+            Assert.AreEqual(12f, at8.Item2, 1f, "tre gruppi di sciame all'8");
             Assert.AreEqual(3f, at8.Item3, 0.001f, "tre bruti all'8");
         }
 

@@ -59,6 +59,22 @@ namespace DarkDescent.Enemies
             return true;
         }
 
+        /// <summary>
+        /// Torna fermo da qualsiasi stato, lasciando il bersaglio: il cavaliere è tornato in vita
+        /// all'ingresso (D15 della M7). Da morto non cambia niente.
+        /// </summary>
+        public bool Rest()
+        {
+            if (_current.Id == EnemyState.Dead)
+            {
+                return false;
+            }
+
+            _body.Disengage();
+            Switch(EnemyState.Idle);
+            return true;
+        }
+
         /// <summary>La morte arriva da fuori (la vita), non da uno stato: vale subito, da qualsiasi stato.</summary>
         public void Die()
         {

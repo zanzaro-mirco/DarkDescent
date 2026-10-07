@@ -105,8 +105,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0, blocks);
         }
 
-        [UnityTest, Description("Il blocco interrompe il colpo che il cavaliere stava dando: il danno non arriva")]
-        public IEnumerator Block_InterruptsKnightSwing()
+        [UnityTest, Description("Il blocco non ferma il colpo che il cavaliere stava dando: il danno arriva (prova della M7, lo sciame lo teneva fermo)")]
+        public IEnumerator Block_DoesNotStopKnightSwing()
         {
             yield return LoadArena();
             EquipShield();
@@ -118,10 +118,10 @@ namespace DarkDescent.Tests
 
             Assert.IsTrue(_block.TryBlock(new DamageInfo(0f, DamageType.Physical, null), new FixedRandomSource(0.0)));
 
-            Assert.IsFalse(attack.IsSwinging, "il colpo in corso è annullato");
-            Assert.IsTrue(attack.IsInterrupted);
-            yield return new WaitForSeconds(0.6f);
-            Assert.AreEqual(_skeleton.Max, _skeleton.Current, "il danno del colpo annullato non arriva");
+            Assert.IsTrue(attack.IsSwinging, "il colpo in corso continua");
+            Assert.IsFalse(attack.IsInterrupted);
+            yield return WaitFor(() => _skeleton.Current < _skeleton.Max, 1f);
+            Assert.Less(_skeleton.Current, _skeleton.Max, "il danno del colpo arriva");
         }
     }
 }

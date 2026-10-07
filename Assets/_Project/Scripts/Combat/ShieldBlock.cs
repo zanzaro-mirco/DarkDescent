@@ -7,20 +7,17 @@ namespace DarkDescent.Combat
 {
     /// <summary>
     /// Il blocco con lo scudo (D1 della M5): un colpo già andato a segno viene fermato con
-    /// probabilità blocco dello scudo + Destrezza / 2, al massimo 75%. Bloccato, non fa danno e
-    /// interrompe il colpo che il personaggio stava dando, come in Diablo 1. Senza scudo non blocca
-    /// niente. Tira con la sorgente di chi attacca, quella del combattimento.
+    /// probabilità blocco dello scudo + Destrezza / 2, al massimo 75%. Bloccato, non fa danno. Dalla
+    /// prova della M7 non ferma più il personaggio né il colpo che stava dando: in mezzo allo sciame
+    /// un blocco al secondo lo teneva fermo, e non riusciva a colpire. Senza scudo non blocca niente.
+    /// Tira con la sorgente di chi attacca, quella del combattimento.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Health), typeof(CharacterStats))]
     public class ShieldBlock : MonoBehaviour
     {
-        [Tooltip("Secondi in cui il personaggio resta fermo dopo un blocco: vicino alla durata della clip.")]
-        [SerializeField, Min(0f)] private float _recovery = 0.45f;
-
         private Health _health;
         private CharacterStats _stats;
-        private MeleeAttack _attack;
         private bool _hasShield;
         private int _shieldBlock;
 
@@ -51,11 +48,6 @@ namespace DarkDescent.Combat
                 return false;
             }
 
-            if (_attack != null)
-            {
-                _attack.Interrupt(_recovery);
-            }
-
             Blocked?.Invoke(info);
             return true;
         }
@@ -64,7 +56,6 @@ namespace DarkDescent.Combat
         {
             _health = GetComponent<Health>();
             _stats = GetComponent<CharacterStats>();
-            _attack = GetComponent<MeleeAttack>();
         }
     }
 }

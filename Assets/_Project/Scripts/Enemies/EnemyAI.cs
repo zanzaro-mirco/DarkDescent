@@ -26,6 +26,10 @@ namespace DarkDescent.Enemies
         private Health _target;
         private EnemyBrain _brain;
 
+        // dove l'ha messo il livello: ci torna quando il cavaliere torna in vita (D15 della M7)
+        private Vector3 _homePosition;
+        private Quaternion _homeRotation;
+
         /// <summary>Ha visto il bersaglio con i suoi occhi, non avvisato da un compagno: il branco si sveglia (D5).</summary>
         public event System.Action<EnemyAI> Spotted;
 
@@ -48,6 +52,8 @@ namespace DarkDescent.Enemies
             _health = GetComponent<Health>();
             _collider = GetComponent<Collider>();
             _brain = new EnemyBrain(this, _archetype.CreateStates());
+            _homePosition = transform.position;
+            _homeRotation = transform.rotation;
 
             // priorità diverse da un nemico all'altro: nello stesso corridoio uno cede il passo (trappola 5)
             int spread = _archetype.AvoidanceSpread;
@@ -78,6 +84,29 @@ namespace DarkDescent.Enemies
         public void Alert()
         {
             _brain.Alert();
+        }
+
+        /// <summary>
+        /// Torna dove l'ha messo il livello, fermo e senza bersaglio, con la vita che ha: il cavaliere
+        /// è tornato in vita all'ingresso (D15 della M7). Un morto resta dov'è.
+        /// </summary>
+        public void ReturnHome()
+        {
+            if (!_brain.Rest())
+            {
+                return;
+            }
+
+            if (_agent.enabled && _agent.isOnNavMesh)
+            {
+                _agent.Warp(_homePosition);
+            }
+            else
+            {
+                transform.position = _homePosition;
+            }
+
+            transform.rotation = _homeRotation;
         }
 
         private void Update()

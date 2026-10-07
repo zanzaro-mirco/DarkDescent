@@ -27,5 +27,5 @@ MonoBehaviour:
   _requiredStrength: 0
   _range: 0.5
   _rangeTolerance: 0.5
-  _attackInterval: 0.9
+  _attackInterval: 1.2
   _hitDelay: 0.28

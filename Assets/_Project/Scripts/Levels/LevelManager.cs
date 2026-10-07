@@ -16,7 +16,7 @@ namespace DarkDescent.Levels
     [DisallowMultipleComponent]
     public class LevelManager : MonoBehaviour
     {
-        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto, alla profondità 1. Dalla M6 è la cripta generata, e Ricomincia ricarica il livello in cui si è morti (D13).")]
+        [Tooltip("Scena caricata all'avvio di Core, se nessun livello è già aperto, alla profondità 1. Dalla M6 è la cripta generata.")]
         [SerializeField] private string _firstLevel = "Level_Crypt";
 
         [SerializeField] private string _firstEntrance = "Start";
@@ -88,19 +88,42 @@ namespace DarkDescent.Levels
         }
 
         /// <summary>
-        /// Ricarica il livello corrente dallo stesso ingresso e alla stessa profondità: con lo stesso
-        /// seme della partita è la stessa cripta, con nemici e casse rimessi (D13 della M6).
-        /// <paramref name="whileDark"/> parte a schermo nero, con il livello vecchio già scaricato e
-        /// il nuovo non ancora caricato: lì si rimette a posto il player, senza nemici attorno.
+        /// Riporta il player all'ingresso da cui è entrato nel livello corrente, senza ricaricare
+        /// niente: nemici uccisi, casse aperte e oggetti a terra restano (D15 della M7, al posto della
+        /// ripartenza della M6). <paramref name="whileDark"/> parte a schermo nero, prima di spostare il
+        /// player: lì lo si rimette in vita e si rimandano a casa i nemici.
         /// </summary>
-        public void RestartLevel(Action whileDark)
+        public void ReturnToEntrance(Action whileDark)
         {
             if (IsTransitioning || CurrentLevel == null)
             {
                 return;
             }
 
-            StartCoroutine(Transition(_currentScene.name, _currentEntrance, CurrentLevel.Depth, whileDark));
+            StartCoroutine(Return(whileDark));
+        }
+
+        private IEnumerator Return(Action whileDark)
+        {
+            IsTransitioning = true;
+            _player.enabled = false;
+            _playerAttack.ClearTarget();
+            yield return _fader.FadeTo(1f);
+
+            whileDark?.Invoke();
+
+            // stesso NavMesh: spento, spostato, riacceso, come entrando
+            Transform entrance = CurrentLevel.GetEntrance(_currentEntrance);
+            _playerAgent.enabled = false;
+            _player.transform.SetPositionAndRotation(entrance.position, entrance.rotation);
+            if (!_playerHealth.IsDead)
+            {
+                _playerAgent.enabled = true;
+                _player.enabled = true;
+            }
+
+            IsTransitioning = false;
+            yield return _fader.FadeTo(0f);
         }
 
         private void HandleExitRequested(LevelExit exit)

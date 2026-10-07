@@ -11,6 +11,9 @@ namespace DarkDescent.Enemies
     [CreateAssetMenu(menuName = "DarkDescent/Enemy Archetype", fileName = "EnemyArchetype")]
     public class EnemyArchetype : ScriptableObject
     {
+        [Tooltip("Il nome nella tabella delle stringhe: lo mostra l'HUD quando il nemico è sotto il cursore.")]
+        [SerializeField] private string _nameKey;
+
         [Tooltip("Distanza entro cui il bersaglio viene notato, se non c'è un ostacolo in mezzo.")]
         [SerializeField, Min(0f)] private float _aggroRange = 8f;
 
@@ -49,6 +52,8 @@ namespace DarkDescent.Enemies
 
         [Tooltip("Più piano del critico: il critico deve restare il verso che si nota.")]
         [SerializeField, Range(0f, 1f)] private float _hurtVolume = 0.6f;
+
+        public string NameKey => _nameKey;
 
         public int HurtVoiceCount => _hurtVoices != null ? _hurtVoices.Length : 0;
 

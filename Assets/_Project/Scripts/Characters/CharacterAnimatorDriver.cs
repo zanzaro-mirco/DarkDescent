@@ -162,6 +162,12 @@ namespace DarkDescent.Characters
 
         public void PlayBlock(DamageInfo info)
         {
+            // il blocco non ferma il fendente (prova della M7): la sua animazione non lo copre
+            if (_attack != null && _attack.IsSwinging)
+            {
+                return;
+            }
+
             PlayOneShot(BlockStateHash);
         }
 

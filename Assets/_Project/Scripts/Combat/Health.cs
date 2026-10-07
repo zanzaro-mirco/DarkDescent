@@ -29,7 +29,7 @@ namespace DarkDescent.Combat
         /// <summary>La vita tornata con una cura, dopo HealthChanged.</summary>
         public event Action<float> Healed;
 
-        /// <summary>Tornato in vita con Ricomincia (D13 della M6), dopo HealthChanged.</summary>
+        /// <summary>Tornato in vita all'ingresso del livello (D15 della M7), dopo HealthChanged.</summary>
         public event Action Revived;
 
         /// <summary>Un colpo mancato: nessun danno, nessun lampo, solo la scritta.</summary>

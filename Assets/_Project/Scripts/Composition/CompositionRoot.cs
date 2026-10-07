@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using DarkDescent.Audio;
 using DarkDescent.Characters;
@@ -59,14 +58,17 @@ namespace DarkDescent.Core
         [Tooltip("La scritta del livello in cui si è: grande entrando, piccola sotto la minimappa.")]
         [SerializeField] private LevelTitle _levelTitle;
 
+        [Tooltip("Nome e vita del nemico sotto il cursore, in alto al centro.")]
+        [SerializeField] private EnemyBar _enemyBar;
+
+        [Tooltip("Il cerchio rosso a terra sotto il nemico che ha il cursore addosso.")]
+        [SerializeField] private Rendering.TargetMarker _targetMarker;
+
         [Tooltip("La tabella delle stringhe: una colonna per lingua (D12 della M5).")]
         [SerializeField] private TextAsset _strings;
 
         [Tooltip("Gli affissi che il generatore può tirare (D3 della M5).")]
         [SerializeField] private AffixDatabase _affixes;
-
-        [Tooltip("Gli oggetti, per ritrovare dall'ID quelli dell'istantanea presa all'ingresso del livello (D13 della M6).")]
-        [SerializeField] private ItemDatabase _items;
 
         /// <summary>Dove resta la lingua scelta tra un avvio e l'altro: è una preferenza, non la partita.</summary>
         public const string LanguagePreference = "language";
@@ -79,14 +81,7 @@ namespace DarkDescent.Core
         private PlayerInputReader _reader;
         private Localizer _localizer;
         private LootRoller _loot;
-        private PlayerInventory _inventory;
         private Footsteps _footsteps;
-
-        // l'inventario com'era entrando nel livello, in JSON: Ricomincia lo rimette (D13 della M6)
-        private string _entrySnapshot;
-
-        // vero tra Ricomincia e il livello ricaricato: la mappa scoperta resta
-        private bool _restarting;
 
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
         private IRandomSource _random;
@@ -146,7 +141,6 @@ namespace DarkDescent.Core
             _interactableLabel.Bind(_player.GetComponent<PlayerController>(), _localizer);
 
             var inventory = _player.GetComponent<PlayerInventory>();
-            _inventory = inventory;
             _reader = _player.GetComponent<PlayerInputReader>();
             _inventoryPanel.Bind(inventory, _reader, _localizer);
             _itemCursor.Bind(inventory, _reader);
@@ -160,6 +154,9 @@ namespace DarkDescent.Core
             _footsteps = _player.GetComponentInChildren<Footsteps>();
             _footsteps.Bind(_sfxLimiter);
             _levelTitle.Bind(_localizer);
+            var controller = _player.GetComponent<PlayerController>();
+            _enemyBar.Bind(controller, _localizer);
+            _targetMarker.Bind(controller);
         }
 
         private void OnEnable()
@@ -232,9 +229,7 @@ namespace DarkDescent.Core
             _pack = new EnemyPack(level.Enemies);
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
-            _exploration.SetLevel(level.Map, keepExplored: _restarting);
-            _restarting = false;
-            StartCoroutine(CaptureEntrySnapshot());
+            _exploration.SetLevel(level.Map);
         }
 
         private void ReleaseLevel(LevelContext level)
@@ -248,10 +243,7 @@ namespace DarkDescent.Core
 
             _trackedEnemies.Clear();
             _enemyAttacks.Clear();
-            if (!_restarting)
-            {
-                _exploration.SetLevel(null);
-            }
+            _exploration.SetLevel(null);
         }
 
         /// <summary>Cambia il seme della partita: per i test e per rigiocare un seme senza riavviare.</summary>
@@ -290,34 +282,28 @@ namespace DarkDescent.Core
             _hitStop.Trigger();
         }
 
-        // un frame dopo l'ingresso: con un livello già aperto (l'editor, i test) l'ingresso arriva nello
-        // Start del LevelManager, e lo Start del cavaliere, che equipaggia la spada, può non esserci ancora stato
-        private IEnumerator CaptureEntrySnapshot()
-        {
-            yield return null;
-            _entrySnapshot = InventorySnapshot.Capture(_inventory.Inventory).ToJson();
-        }
-
-        // D13 della M6: lo stesso livello dallo stesso ingresso, a vita piena, con l'inventario
-        // dell'ingresso. Core resta caricata: si ricarica solo il livello, e il cavaliere torna in
-        // vita a schermo nero, quando i nemici del livello vecchio non ci sono più
+        // D15 della M7, al posto della ripartenza della M6: il livello resta com'era al momento della
+        // morte, con l'inventario, i nemici uccisi, le casse aperte e la mappa scoperta. A schermo nero
+        // il cavaliere torna in vita all'ingresso, e i nemici vivi tornano fermi dove li ha messi il
+        // livello, con la vita che hanno
         private void Restart()
         {
             // un hit stop o una pausa rimasti a metà farebbero ripartire il gioco rallentato o fermo
             Time.timeScale = 1f;
-            // come RestartLevel: durante un cambio di livello, o senza livello, non ricomincia niente
-            _restarting = !_levelManager.IsTransitioning && _levelManager.CurrentLevel != null;
-            _levelManager.RestartLevel(RestoreAndRevive);
+            _levelManager.ReturnToEntrance(ReviveAndSendEnemiesHome);
         }
 
-        private void RestoreAndRevive()
+        private void ReviveAndSendEnemiesHome()
         {
-            if (_entrySnapshot != null)
-            {
-                InventorySnapshot.FromJson(_entrySnapshot).Restore(_inventory.Inventory, _items, _affixes);
-            }
-
             _player.Revive();
+            foreach (var enemy in _levelManager.CurrentLevel.Enemies)
+            {
+                // i morti sono già spariti, o stanno per
+                if (enemy != null)
+                {
+                    enemy.ReturnHome();
+                }
+            }
         }
     }
 }

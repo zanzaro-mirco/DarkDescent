@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 833b6cc625e6d0c4b9b122db26a91497, type: 3}
   m_Name: Skeleton
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Enemies.EnemyArchetype
+  _nameKey: enemy.skeleton
   _aggroRange: 8
   _eyeHeight: 1.5
   _perceptionInterval: 0.2

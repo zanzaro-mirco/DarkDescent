@@ -9,10 +9,13 @@ hud.shield,Shield,Scudo
 hud.character,Knight,Cavaliere
 hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance (skeleton)\nCritical chance\nBlock chance,Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire (scheletro)\nCritico\nBlocco
 hud.you_died,YOU DIED,SEI MORTO
-hud.restart,Restart,Ricomincia
+hud.restart,Continue,Continua
 hud.level_title,{0} – Level {1},{0} – Livello {1}
 level.crypt,Crypt,Cripta
 level.caves,Caves,Caverne
+enemy.skeleton,Skeleton,Scheletro
+enemy.swarm,Skeleton Rogue,Scheletro predone
+enemy.brute,Skeleton Brute,Bruto scheletrico
 
 # Combattimento
 combat.miss,Miss,Mancato

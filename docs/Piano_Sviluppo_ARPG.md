@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.20 | 7 ott 2026 | Dopo la stessa prova, su richiesta di Mirco: **alla morte non si perde niente** e il livello non si ricarica (ADR-048, regola che il piano lasciava alla M8) · sciame più leggero, blocco che non ferma, mira sui nemici (ADR-049) · nella M7 il passo 7.11 |
 | v2.19 | 7 ott 2026 | Dopo la prova della build M7, su richiesta di Mirco: **elmo, armatura, guanti, stivali, due anelli e amuleto** nella M8, prima del salvataggio, così il formato dei salvataggi nasce con tutti gli slot · M8 da 8–12 a 12–18 h · nella M7 il passo 7.10 di correzioni (D14 della scheda) |
 | v2.18 | 6 ott 2026 | Su richiesta di Mirco: **zoom e rotazione della visuale** attorno al cavaliere, nella M8 (proposta: zoom con la rotella, rotazione a scatti di 90° con i muri bassi che seguono la camera; da confermare nella scheda della M8, poi un ADR che aggiorna ADR-017) · M8 da 6–9 a 8–12 h |
 | v2.17 | 6 ott 2026 | Su richiesta di Mirco: **colpi critici** del cavaliere, con un verso proprio per ogni tipo di nemico colpito, nella M7 (passo 7.7, D13 confermata) · formula nel § 2 · M7 da 12–18 a 13–20 h |
@@ -558,7 +559,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 **A schermo:** uccidi, sali di livello, distribuisci punti negli attributi. Trovi un elmo, un anello, un amuleto e li indossi. Chiudi il gioco, lo riapri, e sei dove eri, con lo stesso equipaggiamento. La visuale si avvicina e si allontana con la rotella, e gira attorno al cavaliere.
 
-**Contenuto:** esperienza e curva di livello · punti attributo · **equipaggiamento completo** (v2.19, richiesta di Mirco), descritto sotto · **salvataggio e caricamento** in JSON, con un **formato versionato fin dal primo salvataggio** · regole della morte (cosa si perde) · **zoom e rotazione della visuale** (v2.18, richiesta di Mirco), descritti sotto.
+**Contenuto:** esperienza e curva di livello · punti attributo · **equipaggiamento completo** (v2.19, richiesta di Mirco), descritto sotto · **salvataggio e caricamento** in JSON, con un **formato versionato fin dal primo salvataggio** · regole della morte: decise alla M7, non si perde niente (ADR-048) · **zoom e rotazione della visuale** (v2.18, richiesta di Mirco), descritti sotto.
 
 **Equipaggiamento completo** (proposta, da confermare nella scheda della M8):
 
