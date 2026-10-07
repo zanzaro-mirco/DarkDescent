@@ -86,6 +86,12 @@ namespace DarkDescent.Enemies
 
         private void Show()
         {
+            // i colpi leggeri non si caricano: niente settore
+            if (_attack.IsQuickSwing)
+            {
+                return;
+            }
+
             _elapsed = 0f;
             _duration = _attack.Weapon.HitDelay;
             _fill.localScale = new Vector3(0f, 1f, 0f);

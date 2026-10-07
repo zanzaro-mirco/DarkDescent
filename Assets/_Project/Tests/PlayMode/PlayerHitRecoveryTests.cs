@@ -62,7 +62,7 @@ namespace DarkDescent.Tests
             _knight.TakeDamage(new DamageInfo(amount, DamageType.Physical, _skeleton.gameObject));
         }
 
-        [Test, Description("La soglia è un quinto della vita del cavaliere (D7): il colpo del bruto la supera sempre, quelli di scheletro e sciame mai")]
+        [Test, Description("La soglia è un quinto della vita del cavaliere (D7): il colpo forte del bruto la supera sempre, i suoi colpi leggeri e quelli di scheletro e sciame mai")]
         public void Threshold_SeparatesTheBruteFromTheRest()
         {
             var knight = Load<GameObject>("Assets/_Project/Prefabs/Player.prefab");
@@ -76,6 +76,8 @@ namespace DarkDescent.Tests
             Assert.GreaterOrEqual(Min("Brute"), threshold, "il bruto interrompe");
             Assert.Less(Max("Skeleton"), threshold, "lo scheletro no");
             Assert.Less(Max("Swarm"), threshold, "lo sciame no");
+            var quick = Load<GameObject>("Assets/_Project/Prefabs/Brute.prefab").GetComponent<MeleeAttack>().QuickWeapon;
+            Assert.Less(quick.MaxDamage, threshold, "i colpi leggeri del bruto no");
         }
 
         [UnityTest, Description("Un colpo debole durante il fendente non lo ferma; uno forte lo annulla, il danno non arriva e il cavaliere reagisce")]

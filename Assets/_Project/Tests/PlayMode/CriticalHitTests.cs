@@ -94,7 +94,7 @@ namespace DarkDescent.Tests
                 var archetype = skeleton.GetComponent<EnemyAI>().Archetype;
                 Assert.IsNotNull(voice, "il verso del critico");
                 Assert.IsTrue(Enumerable.Range(0, archetype.CriticalVoiceCount).Any(i => archetype.GetCriticalVoice(i) == voice));
-                Assert.That(skeleton.GetComponent<AudioSource>().pitch, Is.InRange(archetype.CriticalPitch.x, archetype.CriticalPitch.y));
+                Assert.That(skeleton.GetComponent<CharacterAudio>().VoiceSource.pitch, Is.InRange(archetype.CriticalPitch.x, archetype.CriticalPitch.y));
 
                 var number = Object.FindObjectsByType<DamageNumber>(FindObjectsSortMode.None)
                     .FirstOrDefault(n => n.GetComponent<TMP_Text>().text == $"{Mathf.RoundToInt(expected)}!");
@@ -112,6 +112,68 @@ namespace DarkDescent.Tests
             }
 
             StringAssert.Contains("%\n7%\n", Object.FindFirstObjectByType<CharacterPanel>().ValuesText, "critico 7% con la Destrezza 20");
+        }
+
+        [Test, Description("Ogni tipo di nemico ha anche i versi di quando viene colpito (prova della M7): più piano del critico, bassi per il bruto e acuti per lo sciame")]
+        public void EachEnemyHasItsHurtVoices()
+        {
+            foreach (var enemy in new[] { "Skeleton", "Swarm", "Brute" })
+            {
+                var archetype = Archetype(enemy);
+                Assert.Greater(archetype.HurtVoiceCount, 0, $"{enemy}: i versi quando viene colpito");
+                for (int i = 0; i < archetype.HurtVoiceCount; i++)
+                {
+                    Assert.IsNotNull(archetype.GetHurtVoice(i), $"{enemy}: verso {i}");
+                    Assert.Less(archetype.GetHurtVoice(i).length, 0.8f, $"{enemy}: verso {i} breve, arriva a ogni colpo");
+                }
+
+                Assert.Less(archetype.HurtVolume, 1f, $"{enemy}: più piano del critico");
+            }
+
+            Assert.Less(Archetype("Brute").HurtPitch.y, Archetype("Skeleton").HurtPitch.x, "il bruto più basso dello scheletro");
+            Assert.Less(Archetype("Skeleton").HurtPitch.y, Archetype("Swarm").HurtPitch.x, "lo sciame più acuto");
+        }
+
+        [UnityTest, Description("Un colpo normale sullo scheletro: insieme all'impatto il suo verso, su una sorgente sua; nessun verso del critico")]
+        public IEnumerator NormalHit_PlaysTheHurtVoice()
+        {
+            yield return LoadSandbox();
+
+            // colpisce, danno minimo, niente critico (tiro basso)
+            UseRandom(0.0);
+            var skeleton = GameObject.Find("Skeleton");
+            skeleton.GetComponent<MeleeAttack>().SetRandomSource(new FixedRandomSource(0.99));
+            var health = skeleton.GetComponent<Health>();
+            var attack = Player.GetComponent<MeleeAttack>();
+            var audio = skeleton.GetComponent<CharacterAudio>();
+
+            AudioClip hurt = null;
+            AudioClip critical = null;
+            void OnHurt(AudioClip clip) => hurt = clip;
+            void OnCritical(AudioClip clip) => critical = clip;
+            audio.HurtVoicePlayed += OnHurt;
+            audio.CriticalVoicePlayed += OnCritical;
+            try
+            {
+                for (float time = 0f; health.Current >= health.Max; time += Time.unscaledDeltaTime)
+                {
+                    Assert.Less(time, 6f, "il colpo non è arrivato");
+                    attack.SetTarget(health);
+                    yield return null;
+                }
+
+                var archetype = skeleton.GetComponent<EnemyAI>().Archetype;
+                Assert.IsNotNull(hurt, "il verso del colpo");
+                Assert.IsTrue(Enumerable.Range(0, archetype.HurtVoiceCount).Any(i => archetype.GetHurtVoice(i) == hurt));
+                Assert.That(audio.VoiceSource.pitch, Is.InRange(archetype.HurtPitch.x, archetype.HurtPitch.y));
+                Assert.AreNotSame(skeleton.GetComponent<AudioSource>(), audio.VoiceSource, "l'intonazione del verso non tocca l'impatto");
+                Assert.IsNull(critical, "non è un critico");
+            }
+            finally
+            {
+                audio.HurtVoicePlayed -= OnHurt;
+                audio.CriticalVoicePlayed -= OnCritical;
+            }
         }
     }
 }

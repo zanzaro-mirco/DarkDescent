@@ -29,6 +29,13 @@ namespace DarkDescent.Combat
         [Tooltip("Può fare colpi critici: solo il cavaliere (D13 della M7). Il tiro va dopo quello del danno.")]
         [SerializeField] private bool _canCrit;
 
+        [Header("Colpi leggeri (prova della M7)")]
+        [Tooltip("Un colpo rapido e debole da alternare a quello dell'arma: il bruto, dopo il colpo forte telegrafato, ne dà alcuni di questi. Vuoto: sempre l'arma.")]
+        [SerializeField] private WeaponDefinition _quickWeapon;
+
+        [Tooltip("Quanti colpi leggeri tra un colpo forte e l'altro: da quanti a quanti, a caso.")]
+        [SerializeField] private Vector2Int _quickBetween = new Vector2Int(1, 3);
+
         private NavMeshAgent _agent;
         private CharacterStats _stats;
         private IRandomSource _random;
@@ -52,6 +59,11 @@ namespace DarkDescent.Combat
 
         private int _minDamage;
         private int _maxDamage;
+
+        // il colpo in corso: l'arma, oppure il colpo leggero quando tocca a lui
+        private SwingPattern _pattern;
+        private WeaponDefinition _swingWeapon;
+        private bool _swingIsQuick;
 
         private bool _hitPending;
         private float _hitTimer;
@@ -94,6 +106,11 @@ namespace DarkDescent.Combat
         /// <summary>Vero durante il blocco dopo un'interruzione: niente inseguimento né colpi.</summary>
         public bool IsInterrupted => _lockTimer > 0f;
 
+        /// <summary>Il colpo in corso è uno leggero, senza carica né settore (il bruto).</summary>
+        public bool IsQuickSwing => _hitPending && _swingIsQuick;
+
+        public WeaponDefinition QuickWeapon => _quickWeapon;
+
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
@@ -102,6 +119,11 @@ namespace DarkDescent.Combat
             if (_weapon != null)
             {
                 SetWeapon(_weapon);
+            }
+
+            if (_quickWeapon != null)
+            {
+                _pattern = new SwingPattern(_quickBetween.x, _quickBetween.y);
             }
         }
 
@@ -277,10 +299,14 @@ namespace DarkDescent.Combat
 
         private void StartSwing()
         {
+            // senza tiri (un bersaglio di prova) sempre l'arma
+            _swingIsQuick = _pattern != null && _random != null && !_pattern.NextIsHeavy(_random);
+            _swingWeapon = _swingIsQuick ? _quickWeapon : _weapon;
+
             _attackRequested = false;
             _hitPending = true;
-            _hitTimer = _weapon.HitDelay;
-            _cooldown = _weapon.AttackInterval;
+            _hitTimer = _swingWeapon.HitDelay;
+            _cooldown = _swingWeapon.AttackInterval;
 
             _swingTarget = _target;
             _swingTransform = _targetTransform;
@@ -298,7 +324,7 @@ namespace DarkDescent.Combat
             _hitPending = false;
             bool inReach = _swingTransform != null
                 && _swingTarget.IsAlive()
-                && EdgeDistance(Flat(_swingTransform.position - transform.position), _swingTargetRadius) <= _weapon.Range + _weapon.RangeTolerance
+                && EdgeDistance(Flat(_swingTransform.position - transform.position), _swingTargetRadius) <= _swingWeapon.Range + _swingWeapon.RangeTolerance
                 && InArc(Flat(_swingTransform.position - transform.position));
 
             if (inReach)
@@ -316,13 +342,16 @@ namespace DarkDescent.Combat
                 // l'ordine dei tiri: colpito, poi bloccato, poi danno. Un colpo bloccato non tira il danno
                 if (!CombatFormulas.RollHit(hitChance, _random))
                 {
-                    var info = new DamageInfo(0f, _weapon.DamageType, gameObject);
+                    var info = new DamageInfo(0f, _swingWeapon.DamageType, gameObject);
                     _swingTarget.Evade(info);
                     Missed?.Invoke(info);
                 }
-                else if (_swingTargetBlock == null || !_swingTargetBlock.TryBlock(new DamageInfo(0f, _weapon.DamageType, gameObject), _random))
+                else if (_swingTargetBlock == null || !_swingTargetBlock.TryBlock(new DamageInfo(0f, _swingWeapon.DamageType, gameObject), _random))
                 {
-                    float amount = CombatFormulas.RollDamage(_minDamage, _maxDamage,
+                    // il colpo leggero ha i suoi danni; quello dell'arma, i danni con gli affissi
+                    float amount = CombatFormulas.RollDamage(
+                        _swingIsQuick ? _quickWeapon.MinDamage : _minDamage,
+                        _swingIsQuick ? _quickWeapon.MaxDamage : _maxDamage,
                         CharacterStats.ValueOf(_stats, StatType.Strength), _random);
 
                     // il critico per ultimo: i tiri di colpire, bloccare e del danno restano dove sono
@@ -333,7 +362,7 @@ namespace DarkDescent.Combat
                         amount *= CombatFormulas.CritMultiplier;
                     }
 
-                    var info = new DamageInfo(amount, _weapon.DamageType, gameObject, critical);
+                    var info = new DamageInfo(amount, _swingWeapon.DamageType, gameObject, critical);
                     _swingTarget.TakeDamage(info);
                     HitLanded?.Invoke(info);
                 }
@@ -347,12 +376,12 @@ namespace DarkDescent.Combat
         // durante la carica non viene colpito (D6 della M7). Con 360 gradi conta solo la distanza.
         private bool InArc(Vector3 flatOffset)
         {
-            if (_weapon.Arc >= 360f || flatOffset.sqrMagnitude < 0.0001f)
+            if (_swingWeapon.Arc >= 360f || flatOffset.sqrMagnitude < 0.0001f)
             {
                 return true;
             }
 
-            return Vector3.Angle(Flat(transform.forward), flatOffset) <= _weapon.Arc * 0.5f;
+            return Vector3.Angle(Flat(transform.forward), flatOffset) <= _swingWeapon.Arc * 0.5f;
         }
 
         private float EdgeDistance(Vector3 flatOffset, float targetRadius)

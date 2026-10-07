@@ -39,6 +39,8 @@ namespace DarkDescent.Enemies
 
         bool IEnemyBody.IsSwinging => _attack.IsSwinging;
 
+        bool IEnemyBody.IsTelegraphedSwing => _attack.IsSwinging && !_attack.IsQuickSwing;
+
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();

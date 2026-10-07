@@ -86,12 +86,13 @@ namespace DarkDescent.Tests
             yield return null;
             _requests.Clear();
 
-            // impatto da vicino e morte da lontano: tipi diversi, passano tutti e due
+            // impatto e verso da vicino, morte da lontano: tipi diversi, passano tutti e tre; l'impatto
+            // del lontano, nello stesso fotogramma, no
             var near = swarm[0];
             var far = swarm[9];
             near.GetComponent<Health>().TakeDamage(new DamageInfo(1f, DamageType.Physical, Player.gameObject));
             far.GetComponent<Health>().TakeDamage(new DamageInfo(100f, DamageType.Physical, Player.gameObject));
-            Assert.AreEqual(2, _requests.FindAll(r => r.allowed).Count);
+            Assert.AreEqual(3, _requests.FindAll(r => r.allowed).Count);
             Assert.Less(near.GetComponent<AudioSource>().priority, far.GetComponent<AudioSource>().priority);
 
             yield return null;

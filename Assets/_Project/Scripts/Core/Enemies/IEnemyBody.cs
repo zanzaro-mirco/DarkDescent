@@ -16,6 +16,9 @@ namespace DarkDescent.Enemies
         /// <summary>Un colpo è partito e non è ancora finito.</summary>
         bool IsSwinging { get; }
 
+        /// <summary>Il colpo in corso è quello forte, da caricare (D6 della M7); i colpi leggeri del bruto no.</summary>
+        bool IsTelegraphedSwing { get; }
+
         /// <summary>Il bersaglio è entro la distanza di aggro e niente si mette in mezzo. Costa un raggio: si chiede di rado.</summary>
         bool CanSeeTarget();
 

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using DarkDescent.Combat;
 using DarkDescent.Interaction;
@@ -110,7 +111,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(new Vector2Int(0, 0), area.position);
         }
 
-        [UnityTest, Description("Con l'inventario pieno l'oggetto resta a terra e l'etichetta lo dice")]
+        [UnityTest, Description("Con l'inventario pieno l'oggetto resta a terra e l'etichetta lo dice; liberato un posto, l'etichetta torna il solo nome")]
         public IEnumerator FullInventory_ItemStaysOnGround()
         {
             yield return KillSkeleton();
@@ -120,9 +121,11 @@ namespace DarkDescent.Tests
             ItemDefinition sword = null;
 #endif
             // dieci spade riempiono le prime tre righe: nella quarta non entra nessuna base, alte almeno due celle
+            var swords = new List<ItemInstance>();
             for (int i = 0; i < 10; i++)
             {
-                Assert.IsTrue(_inventory.TryPickUp(new ItemInstance(sword)));
+                swords.Add(new ItemInstance(sword));
+                Assert.IsTrue(_inventory.TryPickUp(swords[i]));
             }
 
             var drop = GroundItems()[0];
@@ -132,6 +135,10 @@ namespace DarkDescent.Tests
 
             Assert.IsTrue(drop != null, "deve restare a terra");
             StringAssert.Contains("inventory full", drop.GetComponent<Interactable>().GetLabel(Localizer));
+
+            // la prova di Mirco del 7 ott: liberato un posto, la scritta restava
+            Assert.IsTrue(_inventory.Inventory.Grid.Remove(swords[0]));
+            StringAssert.DoesNotContain("inventory full", drop.GetComponent<Interactable>().GetLabel(Localizer));
         }
 
         [UnityTest, Description("Nel livello 1 lo scudo è a terra; scendendo, gli oggetti a terra se ne vanno con il livello")]

@@ -15,6 +15,9 @@ MonoBehaviour:
   _floor: {fileID: 7644195409379622112, guid: 632ddd45a2a11104295a7565e2c35ca2, type: 3}
   _wall: {fileID: 9174721791238790967, guid: 9f17c6f9a33612a41a4de89503fbd8a0, type: 3}
   _lowWall: {fileID: 4631418959423265132, guid: 881427301ec7ca542a57f8b942f8b404, type: 3}
+  _floorVariant: {fileID: 0}
+  _wallVariant: {fileID: 0}
+  _variantChance: 0.25
   _wallTorch: {fileID: 7056847793620555119, guid: 6e970fac7631258408fbe395a40143b7, type: 3}
   _stairsDown: {fileID: 2354004079276962870, guid: 5aa31967817d4a04b94de8242e7c8403, type: 3}
   _exitBanner: {fileID: 7684724433698735442, guid: 64c4626053a6e8345b294f0729766217, type: 3}
@@ -22,6 +25,13 @@ MonoBehaviour:
   _ambientColor: {r: 0.24, g: 0.24, b: 0.3, a: 1}
   _postProcessing: {fileID: 11400000, guid: 9929bcb3021807643ad1c3e1fad1cc1d, type: 2}
   _ambience: {fileID: 11400000, guid: ccdcb357fa80ded4abfb0450c33c7380, type: 2}
+  _footsteps:
+  - {fileID: 8300000, guid: 472b0b680a5215b47b4af275cef8e6a9, type: 3}
+  - {fileID: 8300000, guid: 0a05646a413e71149b40d1132317df34, type: 3}
+  - {fileID: 8300000, guid: aa00a992fd7d05840b49e06a098fb142, type: 3}
+  - {fileID: 8300000, guid: 08d70cf2539b6054c82ea5ec34518541, type: 3}
+  - {fileID: 8300000, guid: 0bd579580eec1d841931b9f6afd8c299, type: 3}
+  _nameKey: level.crypt
   _groundItem: {fileID: 6645038298707495754, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
   _markers:
   - _symbol: 83

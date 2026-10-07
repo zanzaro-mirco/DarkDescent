@@ -48,6 +48,9 @@ namespace DarkDescent.Characters
         [Tooltip("Velocità dell'animazione d'attacco: sotto 1 il colpo si carica piano e l'ascia cade insieme al danno (il bruto, D6 della M7). Vale se il controller ha il parametro AttackSpeed.")]
         [SerializeField, Range(0.1f, 2f)] private float _attackSpeed = 1f;
 
+        [Tooltip("Velocità dell'animazione dei colpi leggeri, quelli rapidi tra un colpo forte e l'altro.")]
+        [SerializeField, Range(0.1f, 2f)] private float _quickAttackSpeed = 1f;
+
         private Animator _animator;
         private bool _hasAttackSpeed;
 
@@ -146,7 +149,7 @@ namespace DarkDescent.Characters
             // a ogni colpo: Rebind, alla ripartenza, riporta i parametri ai valori del controller
             if (_hasAttackSpeed)
             {
-                _animator.SetFloat(AttackSpeedHash, _attackSpeed);
+                _animator.SetFloat(AttackSpeedHash, _attack != null && _attack.IsQuickSwing ? _quickAttackSpeed : _attackSpeed);
             }
 
             PlayOneShot(AttackStateHash);

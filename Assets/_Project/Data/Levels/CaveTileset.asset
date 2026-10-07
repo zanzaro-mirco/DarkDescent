@@ -25,6 +25,13 @@ MonoBehaviour:
   _ambientColor: {r: 0.2, g: 0.22, b: 0.3, a: 1}
   _postProcessing: {fileID: 11400000, guid: 9929bcb3021807643ad1c3e1fad1cc1d, type: 2}
   _ambience: {fileID: 11400000, guid: 78759507528950f4595fb14f2bf5e366, type: 2}
+  _footsteps:
+  - {fileID: 8300000, guid: baa511dd709adcd408f4a934023d63ef, type: 3}
+  - {fileID: 8300000, guid: 885e2d47dce085943b3186d13edd142a, type: 3}
+  - {fileID: 8300000, guid: f945a8d0486efa345a5da5c8ccb203b5, type: 3}
+  - {fileID: 8300000, guid: f29b8f9b88faca74d9f74a9b5e12c90e, type: 3}
+  - {fileID: 8300000, guid: cfb655b0d5d6571479cf06cf9db14802, type: 3}
+  _nameKey: level.caves
   _groundItem: {fileID: 6645038298707495754, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
   _markers:
   - _symbol: 83

@@ -49,6 +49,9 @@ namespace DarkDescent.Items
         private GameObject _model;
         private Light _glow;
         private bool _inventoryFull;
+
+        // l'inventario che non aveva posto: quando cambia, "inventario pieno" può non valere più
+        private Inventory _fullInventory;
         private Vector3 _restPosition;
         private Quaternion _restRotation;
         private Vector3 _restCenter;
@@ -133,12 +136,13 @@ namespace DarkDescent.Items
         private void OnDisable()
         {
             _interactable.Used -= HandleUsed;
+            ForgetFullInventory();
         }
 
         private void Show(ItemInstance item)
         {
             _item = item;
-            _inventoryFull = false;
+            ForgetFullInventory();
             _interactable.NotifyLabelChanged();
             if (_glow != null)
             {
@@ -238,11 +242,39 @@ namespace DarkDescent.Items
                 _item = null;
                 Destroy(gameObject);
             }
-            else
+            else if (!_inventoryFull)
             {
+                // si resta in ascolto finché l'inventario non cambia: liberato un posto, l'etichetta
+                // torna il solo nome anche senza riprovare a raccoglierlo
                 _inventoryFull = true;
+                _fullInventory = inventory.Inventory;
+                _fullInventory.Grid.Changed += HandleInventoryChanged;
+                _fullInventory.Belt.Changed += HandleBeltChanged;
                 _interactable.NotifyLabelChanged();
             }
+        }
+
+        private void HandleInventoryChanged()
+        {
+            ForgetFullInventory();
+            _interactable.NotifyLabelChanged();
+        }
+
+        private void HandleBeltChanged(int slot)
+        {
+            HandleInventoryChanged();
+        }
+
+        private void ForgetFullInventory()
+        {
+            if (_fullInventory != null)
+            {
+                _fullInventory.Grid.Changed -= HandleInventoryChanged;
+                _fullInventory.Belt.Changed -= HandleBeltChanged;
+                _fullInventory = null;
+            }
+
+            _inventoryFull = false;
         }
     }
 }

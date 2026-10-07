@@ -23,3 +23,11 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 574b969740aa118449557e121ad9f05a, type: 3}
   - {fileID: 8300000, guid: d1edfd4eeed68e042b50cfb755734873, type: 3}
   _criticalPitch: {x: 1.1, y: 1.2}
+  _hurtVoices:
+  - {fileID: 8300000, guid: 682fe2c23867ab647af8d4df22e249b0, type: 3}
+  - {fileID: 8300000, guid: 6ac72c70d23a2d843afa96027701f8f7, type: 3}
+  - {fileID: 8300000, guid: e25396ee969da5b49a89da1866228325, type: 3}
+  - {fileID: 8300000, guid: bf3b4b2281d07174eb3e677979d2ad1b, type: 3}
+  - {fileID: 8300000, guid: 63577f2cbeb2b0e4a9bae3eed72c35d5, type: 3}
+  _hurtPitch: {x: 0.95, y: 1.05}
+  _hurtVolume: 0.6

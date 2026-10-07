@@ -117,6 +117,9 @@ MonoBehaviour:
   _weapon: {fileID: 11400000, guid: 3cdd1dd57f02f864eb0b87ed3e751657, type: 2}
   _chaseRepathInterval: 0.1
   _facingTolerance: 30
+  _canCrit: 0
+  _quickWeapon: {fileID: 11400000, guid: 49425cd4acdce854e8a21ddf25f80418, type: 2}
+  _quickBetween: {x: 1, y: 3}
 --- !u!114 &270753828133027644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -444,6 +447,7 @@ MonoBehaviour:
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05
   _attackSpeed: 0.46666667
+  _quickAttackSpeed: 1
 --- !u!114 &2656149454514861902
 MonoBehaviour:
   m_ObjectHideFlags: 0

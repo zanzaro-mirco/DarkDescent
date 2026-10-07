@@ -18,6 +18,7 @@ namespace DarkDescent.Tests
             public bool Sees { get; set; }
             public bool InRange { get; set; }
             public bool Swinging { get; set; }
+            public bool Quick { get; set; }
             public int Looks { get; private set; }
             public int Engages { get; private set; }
             public int Disengages { get; private set; }
@@ -27,6 +28,8 @@ namespace DarkDescent.Tests
             public bool IsTargetInRange => InRange;
 
             public bool IsSwinging => Swinging;
+
+            public bool IsTelegraphedSwing => Swinging && !Quick;
 
             public bool CanSeeTarget()
             {
@@ -238,6 +241,33 @@ namespace DarkDescent.Tests
                 Assert.AreEqual(EnemyState.Recover, brain.State);
                 Run(brain, 20);
                 Assert.AreEqual(EnemyState.Idle, brain.State);
+            }
+            finally
+            {
+                Object.DestroyImmediate(brute);
+            }
+        }
+
+        [Test, Description("I colpi leggeri del bruto non si caricano: restano un attacco, senza recupero; quello forte dopo carica")]
+        public void Brute_QuickSwingsStayInAttack()
+        {
+            var brute = ScriptableObject.CreateInstance<EnemyArchetype>();
+            try
+            {
+                JsonUtility.FromJsonOverwrite("{\"_recoverTime\":0.6}", brute);
+                var body = new FakeBody { Sees = true, InRange = true, Swinging = true, Quick = true };
+                var brain = new EnemyBrain(body, brute.CreateStates());
+                Run(brain, 20);
+                Assert.AreEqual(EnemyState.Attack, brain.State, "il colpo leggero non carica");
+
+                body.Swinging = false;
+                Run(brain, 1);
+                Assert.AreEqual(EnemyState.Attack, brain.State, "finito, niente recupero");
+
+                body.Swinging = true;
+                body.Quick = false;
+                Run(brain, 1);
+                Assert.AreEqual(EnemyState.WindUp, brain.State, "il colpo forte sì");
             }
             finally
             {

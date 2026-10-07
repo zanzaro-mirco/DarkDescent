@@ -9,7 +9,7 @@ namespace DarkDescent.Enemies
     {
         private readonly bool _telegraphed;
 
-        /// <param name="telegraphed">Vero per il bruto: partito il colpo, si passa alla carica (D6).</param>
+        /// <param name="telegraphed">Vero per il bruto: partito il colpo forte, si passa alla carica (D6); i colpi leggeri restano qui.</param>
         public AttackState(bool telegraphed = false)
         {
             _telegraphed = telegraphed;
@@ -26,7 +26,7 @@ namespace DarkDescent.Enemies
             }
 
             body.Engage();
-            if (_telegraphed && body.IsSwinging)
+            if (_telegraphed && body.IsTelegraphedSwing)
             {
                 return EnemyState.WindUp;
             }

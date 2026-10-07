@@ -55,6 +55,10 @@ namespace DarkDescent.Tests
             var surface = context.GetComponentInChildren<NavMeshSurface>();
             surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             surface.BuildNavMesh();
+
+            // il cavaliere resterebbe dove l'ha lasciato la cripta, che cambia a ogni avvio: a volte in
+            // vista del gruppo ovest prima del test. Nella stanza a est, lontano da tutti
+            PlaceKnight(9, 2);
             context.transform.Find(LevelBuilder.EnemiesGroup).gameObject.SetActive(true);
 
             var knight = Player.GetComponent<Health>();

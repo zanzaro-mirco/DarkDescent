@@ -18,8 +18,8 @@ namespace DarkDescent.Levels
         [Tooltip("La profondità del livello, dalla direttiva @depth della mappa: è il livello degli oggetti che ci cadono.")]
         [SerializeField, Min(1)] private int _depth = 1;
 
-        [Tooltip("Il suono del livello (passo 7.0 della M7). Vuoto: quello predefinito di Core.")]
-        [SerializeField] private AmbienceProfile _ambience;
+        [Tooltip("I moduli da cui è costruito: suono, passi e nome del livello. Vuoto in una scena di prova: suono predefinito di Core, niente passi né nome.")]
+        [SerializeField] private LevelTileset _tileset;
 
         private readonly List<LevelEntrance> _entrances = new List<LevelEntrance>();
         private readonly List<LevelExit> _exits = new List<LevelExit>();
@@ -41,7 +41,9 @@ namespace DarkDescent.Levels
 
         public int Depth => _depth;
 
-        public AmbienceProfile Ambience => _ambience;
+        public LevelTileset Tileset => _tileset;
+
+        public AmbienceProfile Ambience => _tileset != null ? _tileset.Ambience : null;
 
         /// <summary>
         /// La mappa da cui è nato il livello, per l'automappa (D15 della M6). C'è solo per i livelli
@@ -50,11 +52,11 @@ namespace DarkDescent.Levels
         public LevelMap Map { get; private set; }
 
         /// <summary>Per chi costruisce il livello (<see cref="LevelBuilder"/>), prima che si accenda.</summary>
-        public void Configure(int depth, LevelMap map = null, AmbienceProfile ambience = null)
+        public void Configure(int depth, LevelMap map = null, LevelTileset tileset = null)
         {
             _depth = Mathf.Max(1, depth);
             Map = map;
-            _ambience = ambience;
+            _tileset = tileset;
         }
 
         private void Awake()

@@ -20,6 +20,11 @@ namespace DarkDescent.Localization
         public const string TooltipHeal = "tooltip.heal";
         public const string TooltipDrink = "tooltip.drink";
 
+        // dove si trova il cavaliere (prova della M7): "{tipo} – Livello {profondità}"
+        public const string LevelTitle = "hud.level_title";
+        public const string LevelCrypt = "level.crypt";
+        public const string LevelCaves = "level.caves";
+
         // le spiegazioni delle righe del pannello del personaggio (D16 della M6), con i titoli dalle sue righe
         public const string StatNames = "hud.stat_names";
         public const string TipStrength = "stat.tip.strength";

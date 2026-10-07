@@ -18,7 +18,7 @@ namespace DarkDescent.Player
         [Tooltip("Layer su cui un click fa camminare.")]
         [SerializeField] private LayerMask _walkableLayers;
 
-        [Tooltip("Layer che fermano il raggio senza essere camminabili: un click su di essi non fa nulla.")]
+        [Tooltip("Layer degli ostacoli: muri, colonne, barili, muri bassi. Un click su di essi non fa nulla, ma il raggio li attraversa, tranne i muri alti (tag Wall), per arrivare a un nemico o a una cassa dietro.")]
         [SerializeField] private LayerMask _blockingLayers;
 
         [Tooltip("Layer dei nemici: un click su di essi attacca.")]
@@ -37,6 +37,12 @@ namespace DarkDescent.Player
 
         [Tooltip("Vuoto = Camera.main, risolta una volta in Awake.")]
         [SerializeField] private Camera _camera;
+
+        /// <summary>Il tag dei muri alti: fermano il raggio del cursore, gli altri ostacoli no.</summary>
+        public const string WallTag = "Wall";
+
+        // i collider sotto il cursore, dal più vicino: riusato a ogni frame, niente allocazioni
+        private readonly RaycastHit[] _hits = new RaycastHit[16];
 
         private PlayerMotor _motor;
         private PlayerInputReader _input;
@@ -216,7 +222,7 @@ namespace DarkDescent.Player
             }
         }
 
-        // Lo stesso raggio del click: un muro davanti alla scala la nasconde anche al cursore
+        // Lo stesso raggio del click: un muro alto davanti alla scala la nasconde anche al cursore
         private void UpdateHover()
         {
             Interactable hovered = null;
@@ -300,7 +306,10 @@ namespace DarkDescent.Player
         }
 
         // Il raggio usa camminabili + bloccanti + nemici + interagibili e decide sul primo collider
-        // colpito. Con i soli camminabili attraverserebbe cubi e nemici e colpirebbe il pavimento dietro.
+        // colpito. Con una sola eccezione (prova della M7): se il primo è un ostacolo basso (colonna,
+        // barile, muro basso) e dietro c'è un nemico o una cosa da usare, vince quello, così la cassa o
+        // lo scheletro dietro una colonna si cliccano. Un muro alto o il pavimento fermano la ricerca:
+        // niente click in un'altra stanza. Un click sulla sola colonna, come prima, non fa nulla.
         private bool TryRaycastCursor(out RaycastHit hit)
         {
             hit = default;
@@ -311,7 +320,50 @@ namespace DarkDescent.Player
 
             Ray ray = _camera.ScreenPointToRay(_input.PointerScreenPosition);
             int mask = _walkableLayers | _blockingLayers | _enemyLayers | _interactableLayers;
-            return Physics.Raycast(ray, out hit, _maxRayDistance, mask, QueryTriggerInteraction.Ignore);
+            int count = Physics.RaycastNonAlloc(ray, _hits, _maxRayDistance, mask, QueryTriggerInteraction.Ignore);
+            if (count == 0)
+            {
+                return false;
+            }
+
+            SortByDistance(count);
+            int targets = _enemyLayers | _interactableLayers;
+            for (int i = 0; i < count; i++)
+            {
+                var collider = _hits[i].collider;
+                int layerBit = 1 << collider.gameObject.layer;
+                if ((targets & layerBit) != 0)
+                {
+                    hit = _hits[i];
+                    return true;
+                }
+
+                bool lowObstacle = (_blockingLayers.value & layerBit) != 0 && !collider.CompareTag(WallTag);
+                if (!lowObstacle)
+                {
+                    break;
+                }
+            }
+
+            hit = _hits[0];
+            return true;
+        }
+
+        // RaycastNonAlloc non ordina: pochi elementi, un ordinamento per inserimento senza allocare
+        private void SortByDistance(int count)
+        {
+            for (int i = 1; i < count; i++)
+            {
+                var current = _hits[i];
+                int j = i - 1;
+                while (j >= 0 && _hits[j].distance > current.distance)
+                {
+                    _hits[j + 1] = _hits[j];
+                    j--;
+                }
+
+                _hits[j + 1] = current;
+            }
         }
     }
 }

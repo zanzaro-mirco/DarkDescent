@@ -50,6 +50,12 @@ namespace DarkDescent.Levels
         [Tooltip("Musica, fondo e versi nel buio del livello (passo 7.0 della M7).")]
         [SerializeField] private AmbienceProfile _ambience;
 
+        [Tooltip("I passi del cavaliere su questo pavimento: pietra nella cripta, terra nelle caverne.")]
+        [SerializeField] private AudioClip[] _footsteps;
+
+        [Tooltip("Il nome del tipo di livello nella tabella delle stringhe, per la scritta \"Cripta – Livello 3\".")]
+        [SerializeField] private string _nameKey;
+
         [Tooltip("Il prefab degli oggetti a terra: i marcatori 'i', con l'oggetto preso dalla direttiva @items.")]
         [SerializeField] private GameObject _groundItem;
 
@@ -83,6 +89,10 @@ namespace DarkDescent.Levels
         public VolumeProfile PostProcessing => _postProcessing;
 
         public AmbienceProfile Ambience => _ambience;
+
+        public AudioClip[] Footsteps => _footsteps;
+
+        public string NameKey => _nameKey;
 
         public GameObject GetMarkerPrefab(char symbol)
         {

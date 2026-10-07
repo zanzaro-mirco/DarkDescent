@@ -5,8 +5,8 @@ namespace DarkDescent.Enemies
 {
     /// <summary>
     /// Un tipo di nemico come combinazione di stati e numeri (D8 della M7). Lo scheletro ha fermo,
-    /// inseguimento, attacco e morte; sciame e bruto aggiungeranno numeri e stati loro (passi 7.4 e
-    /// 7.5), i versi del critico arriveranno al 7.7. Dati immutabili.
+    /// inseguimento, attacco e morte; sciame e bruto aggiungono numeri e stati loro, e ognuno ha i suoi
+    /// versi: quando viene colpito e quando il colpo è critico. Dati immutabili.
     /// </summary>
     [CreateAssetMenu(menuName = "DarkDescent/Enemy Archetype", fileName = "EnemyArchetype")]
     public class EnemyArchetype : ScriptableObject
@@ -40,6 +40,26 @@ namespace DarkDescent.Enemies
 
         [Tooltip("Intonazione del verso: bassa per il bruto, acuta per lo sciame.")]
         [SerializeField] private Vector2 _criticalPitch = Vector2.one;
+
+        [Header("Versi quando viene colpito (prova della M7)")]
+        [Tooltip("Il verso di questo tipo di nemico a ogni colpo che non sia critico, insieme all'impatto.")]
+        [SerializeField] private AudioClip[] _hurtVoices;
+
+        [SerializeField] private Vector2 _hurtPitch = Vector2.one;
+
+        [Tooltip("Più piano del critico: il critico deve restare il verso che si nota.")]
+        [SerializeField, Range(0f, 1f)] private float _hurtVolume = 0.6f;
+
+        public int HurtVoiceCount => _hurtVoices != null ? _hurtVoices.Length : 0;
+
+        public Vector2 HurtPitch => _hurtPitch;
+
+        public float HurtVolume => _hurtVolume;
+
+        public AudioClip GetHurtVoice(int index)
+        {
+            return _hurtVoices[index];
+        }
 
         public int CriticalVoiceCount => _criticalVoices != null ? _criticalVoices.Length : 0;
 

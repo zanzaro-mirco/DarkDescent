@@ -12,5 +12,7 @@ namespace DarkDescent.Audio
         Block,
         Heal,
         CriticalVoice,
+        HurtVoice,
+        Footstep,
     }
 }

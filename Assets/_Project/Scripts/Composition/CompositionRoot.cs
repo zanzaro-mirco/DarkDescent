@@ -56,6 +56,9 @@ namespace DarkDescent.Core
         [Tooltip("Il limite di voci dei personaggi (D9 della M7): cavaliere e nemici gli chiedono il permesso.")]
         [SerializeField] private SfxLimiter _sfxLimiter;
 
+        [Tooltip("La scritta del livello in cui si è: grande entrando, piccola sotto la minimappa.")]
+        [SerializeField] private LevelTitle _levelTitle;
+
         [Tooltip("La tabella delle stringhe: una colonna per lingua (D12 della M5).")]
         [SerializeField] private TextAsset _strings;
 
@@ -77,6 +80,7 @@ namespace DarkDescent.Core
         private Localizer _localizer;
         private LootRoller _loot;
         private PlayerInventory _inventory;
+        private Footsteps _footsteps;
 
         // l'inventario com'era entrando nel livello, in JSON: Ricomincia lo rimette (D13 della M6)
         private string _entrySnapshot;
@@ -153,6 +157,9 @@ namespace DarkDescent.Core
             // un generatore suo: i versi nel buio non spostano i tiri del combattimento
             _ambience.Bind(_player.transform, new SystemRandomSource(Environment.TickCount ^ 0x5EED));
             _player.GetComponent<CharacterAudio>().Bind(_sfxLimiter);
+            _footsteps = _player.GetComponentInChildren<Footsteps>();
+            _footsteps.Bind(_sfxLimiter);
+            _levelTitle.Bind(_localizer);
         }
 
         private void OnEnable()
@@ -188,6 +195,9 @@ namespace DarkDescent.Core
             // LateUpdate si posiziona direttamente sul bersaglio.
             _playerCamera.PreviousStateIsValid = false;
             _ambience.Play(level.Ambience);
+            var tileset = level.Tileset;
+            _footsteps.SetSurface(tileset != null ? tileset.Footsteps : null);
+            _levelTitle.Show(tileset != null ? tileset.NameKey : null, level.Depth);
 
             foreach (var enemy in level.Enemies)
             {

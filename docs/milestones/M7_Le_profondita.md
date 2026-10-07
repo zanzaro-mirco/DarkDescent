@@ -59,6 +59,7 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | D10 | **Nemici per profondità** | Una `SpawnTable` nelle impostazioni del livello: per ogni profondità quanti **gruppi** e di che tipo, con un peso. Caverne: profondità 5 circa 5 scheletri, uno sciame e un bruto; profondità 8 circa 4 scheletri, tre sciami e tre bruti. Numeri in `CaveSettings`, ritarati alla M10 | Il mix cambia scendendo, e il bruto arriva quando il cavaliere ha già trovato qualche oggetto. I numeri fuori dal codice si cambiano provando la build |
 | D12 | **Musica e rumori d'ambiente** (aggiunta il 6 ott, su richiesta di Mirco dopo la prova della M6; anticipati dalla M11) | Un profilo per tipo di livello nel tileset: musica cupa e fondo di vento e gocce in loop, versi singoli ogni 20–50 s da un punto a caso a 10–18 m dal cavaliere. Tracce CC0 da OpenGameArt, ispirate a Diablo ma niente musica originale (piano § 1.1). Dissolvenza tra profili diversi, la musica continua tra livelli con lo stesso profilo | Il buio fa paura se si sente qualcosa che non si vede. In 3D e oltre la luce del cavaliere, il verso arriva da una direzione dove non c'è niente da guardare |
 | D13 | **Colpi critici e versi dei nemici** (aggiunta e confermata da Mirco il 6 ott) | Solo il cavaliere, solo sui colpi a segno: probabilità **5% + Destrezza / 10**, al massimo 50% (7% con la Destrezza 20 di partenza), **danno doppio**. Il tiro va dopo quello del danno, e il critico esce dalla parte **alta** dell'intervallo (trappola 9). `DamageInfo.IsCritical` c'è dalla M2 e non è mai stato usato. A schermo: numero più grande, giallo-arancio, con un punto esclamativo, e un hit stop un po' più lungo. A orecchio: ogni `EnemyArchetype` (D8) ha i suoi **versi del critico**, scelti a caso senza ripetere il precedente. Scheletro: un verso secco, intonazione 1,1–1,2. Sciame: uno stridio, 1,4–1,6. Bruto: un ruggito basso, 0,6–0,7. Per cominciare sono ritagliati dai versi delle tracce CC0 già nel progetto. Se non convincono, si cerca un pacchetto CC0 di versi di mostri, da scaricare con il permesso di Mirco. Niente affissi sul critico per ora: un affisso nuovo cambia il loot dei semi provati (trappola 10) | Il critico dà un picco nel ritmo del combattimento, e il verso dice subito *chi* l'ha preso anche nel buio. La Destrezza oggi conta per colpire e bloccare: con il critico pesa anche sul danno. Danno doppio come il guerriero di Diablo 1 |
+| D14 | **Correzioni dalla prova della build** (7 ott, chieste da Mirco dopo aver provato la build della M7) | Prima del tag: l'etichetta "(inventario pieno)" sparisce quando si libera un posto; il cursore attraversa colonne, barili e muri bassi per arrivare a un nemico o a una cosa da usare (i muri alti no); il bruto alterna il colpo forte con 1–3 colpi leggeri da 8–12, senza settore; una scritta dice tipo e profondità del livello; passi del cavaliere con il suono del pavimento; un verso a ogni colpo subito dai nemici, da un pacchetto CC0 scaricato con il permesso di Mirco. Elmo, armatura, guanti, stivali, anelli e amuleto vanno nella M8, prima del salvataggio (piano v2.19). Zoom e rotazione della visuale restano nella M8 (v2.18) | Sono quello che manca giocando: due bug di interfaccia, un bruto prevedibile, nessun riferimento su dove si è, un cavaliere muto |
 | D11 | **Loot dei nemici nuovi** | Una `LootTable` per tipo: sciame **20%** di lasciare un oggetto e 10% una pozione; bruto **sempre** un oggetto e 50% una pozione. Basi e rarità come lo scheletro, livello dell'oggetto dalla profondità | Lo sciame è tanti nemici piccoli: con la probabilità dello scheletro il pavimento si riempirebbe. Il bruto è un premio |
 
 ---
@@ -77,7 +78,8 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | 7.7 | Colpi critici e versi dei nemici (D13) | 1–1,5 |
 | 7.8 | Limite di voci audio | 0,5–1 |
 | 7.9 | Nemici e loot per profondità | 1 |
-| 7.10 | Chiusura: build da provare, GIF, ADR, tag `m7` | 0,5 |
+| 7.10 | Correzioni dalla prova della build (D14) | 2–3 |
+| 7.11 | Chiusura: build da provare, GIF, ADR, tag `m7` | 0,5 |
 
 ---
 
@@ -541,7 +543,69 @@ Il livello dell'oggetto è la profondità.
 
 172 EditMode e 124 PlayMode verdi.
 
-## Passo 7.10 — Chiusura
+## Passo 7.10 — Correzioni dalla prova della build
+
+1. L'etichetta "(inventario pieno)" torna il solo nome quando l'inventario cambia.
+2. Il cursore attraversa gli ostacoli bassi per arrivare a nemici e cose da usare.
+3. Colpi leggeri del bruto, alternati a quello forte.
+4. Scritta del livello: grande entrando, piccola sotto la minimappa.
+5. Passi del cavaliere, con il suono del pavimento del livello.
+6. Versi dei nemici a ogni colpo subito.
+
+**Com'è andata (7 ott 2026).**
+
+*Inventario pieno.* L'oggetto a terra ricordava di non essere entrato finché qualcuno non lo
+raccoglieva. Ora, quando non entra, ascolta griglia e cintura dell'inventario che l'ha rifiutato:
+appena cambiano, l'etichetta torna il solo nome. Si stacca quando l'ascolto non serve più, o
+quando l'oggetto sparisce.
+
+*Il cursore.* Il raggio si fermava sul primo collider, e la colonna davanti alla cassa la
+nascondeva. Ora il raggio raccoglie fino a 16 collider, li ordina per distanza e, se il primo è un
+ostacolo basso, guarda dietro. Se trova un nemico o una cosa da usare, vince quello. Un muro alto
+o il pavimento fermano la ricerca, così non si clicca in un'altra stanza. I muri alti si
+riconoscono dal tag `Wall`, messo sui tre prefab dei muri. Un click sulla sola colonna, come
+prima, non fa nulla.
+
+*Il bruto.* `MeleeAttack` ha un secondo colpo, `_quickWeapon` (`BruteQuick`: 8–12, ogni 1,5 s,
+0,42 s di ritardo, stesso arco e portata). `SwingPattern`, in `Core`, decide: il primo colpo è
+forte, poi da 1 a 3 leggeri, poi di nuovo forte. In media un colpo forte ogni tre, mai due di
+fila. Durante un colpo leggero niente settore, niente carica né recupero, e l'animazione va a
+velocità piena. Gli 8–12 restano sotto la soglia che ferma il cavaliere (20). Il tiro di quanti
+colpi leggeri seguono consuma un numero all'inizio del colpo forte (trappola 12).
+
+*La scritta del livello.* `LevelTitle` nell'HUD. Entrando, "Cripta – Livello 3" compare grande in
+alto al centro e sfuma dopo 2,5 s; la stessa scritta, piccola, resta sotto la minimappa
+d'angolo. Il nome del tipo di livello sta nel tileset (`level.crypt`, `level.caves`), e la
+scritta cambia con la lingua. `LevelContext` ora tiene il tileset da cui è nato, invece del solo
+profilo sonoro.
+
+*I passi.* `Footsteps`, su un figlio del cavaliere con una sorgente sua: un passo ogni 1,6 m
+percorsi, quindi da fermo tacciono e a 5 m/s sono tre al secondo. I suoni vengono dal tileset del
+livello: pietra nella cripta (`footstep_concrete` di Kenney), terra nelle caverne
+(`footstep_snow`, più sordo). Erano già nello zip della M5.
+
+*I versi.* Da *80 CC0 creature SFX* di rubberduck (OpenGameArt, 1,9 MB, scaricato con il permesso
+di Mirco), solo i 15 file che servono:
+- scheletro: cinque lamenti, intonazione 0,95–1,05;
+- sciame: quattro versi da insetto, 1,1–1,3;
+- bruto: quattro grugniti e due versi da troll, 0,8–0,9.
+
+Sono tutti sotto 0,7 s, e suonano più piano del critico (0,6). Il colpo che uccide fa solo il
+suono della morte. I versi dei nemici, critico compreso, hanno ora una sorgente loro: il pitch di
+una sorgente vale anche per i suoni già partiti, e il verso basso del bruto rallentava l'impatto
+che suonava insieme.
+
+*Test.* `CursorThroughObstaclesTests` (2): scheletro dietro una colonna cliccato, oggetto dietro
+una colonna evidenziato e dietro un muro alto no. `FootstepsAndTitleTests` (2): passi con la
+distanza e il pavimento, scritta nelle due lingue che sfuma e resta. `SwingPatternTests` (3,
+EditMode). In `BruteTests` i colpi leggeri dopo il forte; in `EnemyStateTests` il colpo leggero
+che non carica; in `CriticalHitTests` i versi dei tre nemici e il verso a un colpo normale; in
+`LootAndPickupTests` l'etichetta che torna normale; in `PlayerHitRecoveryTests` i colpi leggeri
+sotto la soglia. `SfxLimiterTests` conta anche il verso. `SwarmTests` ora mette il cavaliere lontano
+prima di svegliare i nemici: restava dove l'aveva lasciato la cripta generata, che cambia a ogni
+avvio, e ogni tanto finiva in vista del gruppo. 176 EditMode e 131 PlayMode verdi.
+
+## Passo 7.11 — Chiusura
 
 1. Build della CI da provare: discesa fino all'8, sciame e bruto, colpo schivato e colpo
    preso, critici con i versi dei tre nemici, stesso seme stessa caverna.
@@ -579,6 +643,9 @@ Il livello dell'oggetto è la profondità.
 10. **Un affisso nuovo cambia il loot dei semi provati:** il generatore sceglie tra tutti gli
     affissi del database, quindi un "+% critico" sposterebbe gli oggetti del seme 4711.
     Rimandato; se arriva, con un test che fissi i drop del seme.
+12. **I colpi leggeri del bruto spostano i tiri fissi:** all'inizio di ogni colpo forte si tira
+    quanti colpi leggeri seguono. Un test del bruto con una sequenza di tiri fissi deve contarne
+    uno in più in testa, prima di quelli di colpire, bloccare e danno.
 11. **Gli FBX del pacchetto non sono tutti esportati allo stesso modo:** quelli usati dalla M3
     hanno la radice a rotazione zero e scala 1, i pavimenti di terra e la candela tripla a −90°
     su X e scala 100. Uno script che mette un modello in un prefab non deve forzare rotazione e
@@ -602,6 +669,9 @@ Il livello dell'oggetto è la profondità.
 | `CriticalHitTests` (PlayMode) | Danno doppio e `IsCritical`, numero del critico, verso giusto per scheletro, sciame e bruto, nessun critico con i tiri fissi a 0 |
 | `SfxBudgetTests` (EditMode) | Un suono per tipo e per fotogramma, oltre il limite cade il più lontano, i suoni finiti liberano il posto, priorità dalla distanza |
 | `SfxLimiterTests` (PlayMode) | Dieci impatti nello stesso fotogramma, priorità delle sorgenti, cavaliere collegato |
+| `SwingPatternTests` (EditMode) | Colpo forte, poi da 1 a 3 leggeri; uno forte ogni tre in media, mai due di fila |
+| `CursorThroughObstaclesTests` (PlayMode) | Nemico e oggetto dietro una colonna cliccabili, dietro un muro alto no |
+| `FootstepsAndTitleTests` (PlayMode) | Passi con la distanza e il pavimento del livello; scritta del livello nelle due lingue |
 
 ---
 
@@ -619,6 +689,7 @@ Il livello dell'oggetto è la profondità.
 - [x] Colpi critici e versi dei nemici
 - [x] Limite di voci audio
 - [x] Nemici e loot per profondità
+- [x] Correzioni dalla prova della build (D14)
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m7`

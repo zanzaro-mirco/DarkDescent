@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.19 | 7 ott 2026 | Dopo la prova della build M7, su richiesta di Mirco: **elmo, armatura, guanti, stivali, due anelli e amuleto** nella M8, prima del salvataggio, così il formato dei salvataggi nasce con tutti gli slot · M8 da 8–12 a 12–18 h · nella M7 il passo 7.10 di correzioni (D14 della scheda) |
 | v2.18 | 6 ott 2026 | Su richiesta di Mirco: **zoom e rotazione della visuale** attorno al cavaliere, nella M8 (proposta: zoom con la rotella, rotazione a scatti di 90° con i muri bassi che seguono la camera; da confermare nella scheda della M8, poi un ADR che aggiorna ADR-017) · M8 da 6–9 a 8–12 h |
 | v2.17 | 6 ott 2026 | Su richiesta di Mirco: **colpi critici** del cavaliere, con un verso proprio per ogni tipo di nemico colpito, nella M7 (passo 7.7, D13 confermata) · formula nel § 2 · M7 da 12–18 a 13–20 h |
 | v2.16 | 6 ott 2026 | Dopo la prova della M6, su richiesta di Mirco: **musica e rumori d'ambiente** anticipati dalla M11 alla M7 (passo 7.0): un profilo per tipo di livello, tracce CC0 · M7 da 10–15 a 12–18 h · ADR-039 |
@@ -252,7 +253,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | ✅ 5 ott |
 | M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | ✅ 5 ott |
 | M7 | "Le profondità" | caverne, nuovi nemici, colpi critici, automappa delle caverne, musica e rumori d'ambiente | 13–20 | |
-| M8 | "Progressione e persistenza" | livelli, attributi, salvataggio, zoom e rotazione della visuale | 8–12 | |
+| M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 12–18 | |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza | 8–11 | |
 | M10 | "Città e loop completo" | il gioco è finibile, **prima build pubblica** | 10–14 | |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 15–25 | |
@@ -553,11 +554,19 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M8 — "Progressione e persistenza" · 8–12 h
+### M8 — "Progressione e persistenza" · 12–18 h
 
-**A schermo:** uccidi, sali di livello, distribuisci punti negli attributi. Chiudi il gioco, lo riapri, e sei dove eri, con lo stesso equipaggiamento. La visuale si avvicina e si allontana con la rotella, e gira attorno al cavaliere.
+**A schermo:** uccidi, sali di livello, distribuisci punti negli attributi. Trovi un elmo, un anello, un amuleto e li indossi. Chiudi il gioco, lo riapri, e sei dove eri, con lo stesso equipaggiamento. La visuale si avvicina e si allontana con la rotella, e gira attorno al cavaliere.
 
-**Contenuto:** esperienza e curva di livello · punti attributo · **salvataggio e caricamento** in JSON, con un **formato versionato fin dal primo salvataggio** · regole della morte (cosa si perde) · **zoom e rotazione della visuale** (v2.18, richiesta di Mirco), descritti sotto.
+**Contenuto:** esperienza e curva di livello · punti attributo · **equipaggiamento completo** (v2.19, richiesta di Mirco), descritto sotto · **salvataggio e caricamento** in JSON, con un **formato versionato fin dal primo salvataggio** · regole della morte (cosa si perde) · **zoom e rotazione della visuale** (v2.18, richiesta di Mirco), descritti sotto.
+
+**Equipaggiamento completo** (proposta, da confermare nella scheda della M8):
+
+- **Slot nuovi** accanto ad arma e scudo: elmo, armatura, guanti, stivali, due anelli, amuleto. Diablo 1 ne ha meno (niente guanti e stivali): qui si tengono perché danno al pannello più varietà con poco lavoro. `EquipSlot` e l'`Equipment` di oggi crescono di valori, non di struttura.
+- **Pezzi d'armatura** con l'Armatura e la Forza richiesta, come lo scudo; **anelli e amuleto** senza difesa, fatti dei loro affissi (vita, attributi, colpire, critico). Un affisso nuovo cambia il loot dei semi provati (trappola 10 della M7): i test che fissano i drop si aggiornano insieme.
+- **Modelli e icone.** Elmi e pezzi d'armatura dai pacchetti KayKit già scaricati, se ci sono; per anelli e amuleti un pacchetto CC0 da scaricare con il permesso di Mirco, o icone piatte. Si decide nella scheda. L'armatura indossata non cambia il modello del cavaliere: resta per la M11.
+- **Prima del salvataggio**, così il formato 1 contiene già tutti gli slot.
+- Circa 4–6 h in più.
 
 **Visuale: zoom e rotazione** (proposta, da confermare nella scheda della M8):
 

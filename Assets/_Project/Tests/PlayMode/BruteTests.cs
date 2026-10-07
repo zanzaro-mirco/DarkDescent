@@ -120,14 +120,44 @@ namespace DarkDescent.Tests
         [UnityTest, Description("Chi resta nel settore alla fine della carica prende il colpo, e forte")]
         public IEnumerator StayInside_GetHit()
         {
-            // colpisce, non bloccato, danno minimo: i tiri in ciclo sono colpire, bloccare, danno
-            yield return BuildTestLevel(new FixedRandomSource(0.0, 0.99, 0.0));
+            // i tiri in ciclo: quanti colpi leggeri dopo questo (uno), colpisce, non bloccato, danno minimo
+            yield return BuildTestLevel(new FixedRandomSource(0.0, 0.0, 0.99, 0.0));
             float life = _knight.Current;
             yield return WaitForState(EnemyState.WindUp, 5f);
             yield return WaitForState(EnemyState.Recover, 2f);
 
             float damage = life - _knight.Current;
             Assert.GreaterOrEqual(damage, _brute.GetComponent<MeleeAttack>().Weapon.MinDamage, "il colpo del bruto è arrivato");
+        }
+
+        [UnityTest, Description("Dopo il colpo forte il bruto dà colpi leggeri, senza carica né settore, e poi di nuovo uno forte (prova della M7)")]
+        public IEnumerator AfterTheHeavy_QuickSwings()
+        {
+            // 0,0 al tiro dei colpi leggeri: uno solo tra due colpi forti
+            yield return BuildTestLevel(new FixedRandomSource(0.0));
+            var attack = _brute.GetComponent<MeleeAttack>();
+            yield return WaitForState(EnemyState.WindUp, 5f);
+            Assert.IsFalse(attack.IsQuickSwing, "il primo è forte");
+            yield return WaitForState(EnemyState.Recover, 2f);
+            yield return WaitForState(EnemyState.Attack, 2f);
+
+            for (float time = 0f; !attack.IsSwinging; time += Time.deltaTime)
+            {
+                Assert.Less(time, 3f, "il colpo leggero non parte");
+                yield return null;
+            }
+
+            Assert.IsTrue(attack.IsQuickSwing, "dopo il forte, uno leggero");
+            Assert.IsFalse(_sector.IsShown, "senza settore");
+            for (float time = 0f; attack.IsSwinging; time += Time.deltaTime)
+            {
+                Assert.AreEqual(EnemyState.Attack, _brute.State, "senza carica");
+                Assert.Less(time, 1f);
+                yield return null;
+            }
+
+            yield return WaitForState(EnemyState.WindUp, 4f);
+            Assert.IsTrue(_sector.IsShown, "poi di nuovo il colpo forte, con il settore");
         }
 
         private static Vector3 Flat(Vector3 v)
