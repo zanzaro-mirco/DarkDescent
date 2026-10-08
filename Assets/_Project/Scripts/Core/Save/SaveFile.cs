@@ -37,8 +37,9 @@ namespace DarkDescent.Save
         }
 
         /// <summary>
-        /// Legge il salvataggio. <see cref="SaveReadResult.TooNew"/> se l'ha scritto una versione
-        /// del gioco più nuova di questa: non si carica, per non perdere quello che non capiamo.
+        /// Legge il salvataggio, portandolo al formato corrente se è più vecchio (D9 della M8).
+        /// <see cref="SaveReadResult.TooNew"/> se l'ha scritto una versione del gioco più nuova di
+        /// questa: non si carica, per non perdere quello che non capiamo.
         /// </summary>
         public static SaveReadResult TryRead(string path, out SaveData data)
         {
@@ -69,7 +70,7 @@ namespace DarkDescent.Save
                 return SaveReadResult.TooNew;
             }
 
-            data = read;
+            data = SaveMigrator.Migrate(read);
             return SaveReadResult.Ok;
         }
     }

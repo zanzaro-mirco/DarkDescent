@@ -59,6 +59,54 @@ namespace DarkDescent.Levels
             return true;
         }
 
+        /// <summary>Le celle viste, una per bit, riga per riga: per il salvataggio (M8).</summary>
+        public byte[] CellsToBytes()
+        {
+            var bytes = new byte[(_map.Width * _map.Height + 7) / 8];
+            for (int y = 0; y < _map.Height; y++)
+            {
+                for (int x = 0; x < _map.Width; x++)
+                {
+                    int i = y * _map.Width + x;
+                    if (_explored[x, y])
+                    {
+                        bytes[i / 8] |= (byte)(1 << (i % 8));
+                    }
+                }
+            }
+
+            return bytes;
+        }
+
+        /// <summary>
+        /// Riprende le celle viste da un salvataggio, per la stessa mappa. False, senza toccare
+        /// niente, se i bit non bastano per la mappa. Solo il pavimento conta come scoperto.
+        /// </summary>
+        public bool LoadCells(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length < (_map.Width * _map.Height + 7) / 8)
+            {
+                return false;
+            }
+
+            ExploredCount = 0;
+            for (int y = 0; y < _map.Height; y++)
+            {
+                for (int x = 0; x < _map.Width; x++)
+                {
+                    int i = y * _map.Width + x;
+                    bool seen = (bytes[i / 8] & (1 << (i % 8))) != 0 && _map.IsFloor(x, y);
+                    _explored[x, y] = seen;
+                    if (seen)
+                    {
+                        ExploredCount++;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Scopre le celle di pavimento raggiungibili da <paramref name="from"/> in al più
         /// <paramref name="steps"/> passi. True se se n'è scoperta almeno una nuova.

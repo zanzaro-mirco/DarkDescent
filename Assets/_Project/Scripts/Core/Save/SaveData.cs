@@ -1,14 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DarkDescent.Items;
+using DarkDescent.Levels;
 using UnityEngine;
 
 namespace DarkDescent.Save
 {
     /// <summary>
     /// Un salvataggio (D7–D9 della M8): seme della partita, dove si è (scena, ingresso, profondità),
-    /// la crescita del cavaliere, i valori base degli attributi, la vita e l'inventario completo. Lo
-    /// stato dei livelli non c'è (D8): un livello rientrandoci si rigenera dal seme. Il campo
+    /// la crescita del cavaliere, i valori base degli attributi, la vita, l'inventario completo e, dal
+    /// formato 2, la mappa scoperta di ogni profondità visitata. Lo stato dei livelli non c'è (D8):
+    /// un livello rientrandoci si rigenera dal seme. Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
     /// </summary>
@@ -16,7 +19,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
 
         [SerializeField] private int _version = CurrentVersion;
 
@@ -39,6 +42,9 @@ namespace DarkDescent.Save
         [SerializeField] private float _life;
 
         [SerializeField] private InventorySnapshot _inventory;
+
+        // formato 2: le mappe scoperte. Un salvataggio del formato 1 non ha il campo, e resta vuoto
+        [SerializeField] private List<ExploredLevel> _explored = new List<ExploredLevel>();
 
         public int Version => _version;
 
@@ -67,6 +73,8 @@ namespace DarkDescent.Save
         public float Life => _life;
 
         public InventorySnapshot Inventory => _inventory;
+
+        public IReadOnlyList<ExploredLevel> Explored => _explored;
 
         public static SaveData Create(ulong runSeed, string scene, string entrance, int depth)
         {
@@ -106,6 +114,19 @@ namespace DarkDescent.Save
         {
             _inventory = inventory;
             return this;
+        }
+
+        public SaveData WithExplored(List<ExploredLevel> explored)
+        {
+            _explored = explored ?? new List<ExploredLevel>();
+            return this;
+        }
+
+        /// <summary>Per la migrazione: dichiara il formato a cui il salvataggio è stato portato.</summary>
+        internal void UpgradeTo(int version)
+        {
+            _version = version;
+            _explored ??= new List<ExploredLevel>();
         }
 
         public string ToJson()

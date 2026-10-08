@@ -41,6 +41,7 @@ namespace DarkDescent.Save
         private CharacterStats _stats;
         private Health _health;
         private MeleeAttack _attack;
+        private ExplorationTracker _exploration;
         private string _path;
         private bool _forced;
         private bool _subscribed;
@@ -57,10 +58,11 @@ namespace DarkDescent.Save
         // Awake, che può arrivare prima di quello di questo componente
         public string FilePath => _path ??= ExternalPath() ?? Path.Combine(Application.persistentDataPath, _fileName);
 
-        public void Bind(LevelManager levelManager, GameObject player)
+        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration)
         {
             Unsubscribe();
             _levelManager = levelManager;
+            _exploration = exploration;
             _inventory = player.GetComponent<PlayerInventory>();
             _progress = player.GetComponent<PlayerProgress>();
             _stats = player.GetComponent<CharacterStats>();
@@ -101,7 +103,8 @@ namespace DarkDescent.Save
                 .WithProgress(progress.Level, progress.Experience, progress.UnspentPoints)
                 .WithAttributes(sheet.GetBase(StatType.Strength), sheet.GetBase(StatType.Dexterity), sheet.GetBase(StatType.Magic), sheet.GetBase(StatType.Vitality))
                 .WithLife(life)
-                .WithInventory(InventorySnapshot.Capture(_inventory.Inventory));
+                .WithInventory(InventorySnapshot.Capture(_inventory.Inventory))
+                .WithExplored(_exploration.Memory.Export());
         }
 
         /// <summary>Scrive lo stato di adesso; false se spento o se non c'è un livello in cui essere.</summary>
@@ -148,6 +151,9 @@ namespace DarkDescent.Save
             _progress.Progress.Restore(data.Level, data.Experience, data.UnspentPoints);
             bool complete = data.Inventory.Restore(_inventory.Inventory, _items, _affixes);
             _health.SetCurrent(data.Life);
+
+            // le mappe si riprendono quando il livello di ogni profondità viene generato
+            _exploration.Memory.Import(data.Explored);
             return complete;
         }
 

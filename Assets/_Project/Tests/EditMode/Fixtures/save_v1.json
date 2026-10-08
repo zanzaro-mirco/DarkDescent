@@ -1,0 +1,86 @@
+{
+    "_version": 1,
+    "_runSeed": "639270066672624430",
+    "_scene": "Level_Caves",
+    "_entrance": "FromAbove",
+    "_depth": 6,
+    "_level": 8,
+    "_experience": 1234,
+    "_unspentPoints": 5,
+    "_strength": 40.0,
+    "_dexterity": 25.0,
+    "_magic": 10.0,
+    "_vitality": 31.0,
+    "_life": 77.0,
+    "_inventory": {
+        "_gridItems": [
+            {
+                "_definitionId": "fdcb202e0508442e8a9d44ddffe3000f",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            }
+        ],
+        "_gridPositions": [
+            {
+                "x": 2,
+                "y": 1
+            }
+        ],
+        "_equipped": [
+            {
+                "_definitionId": "79db3768aa614aa9b28c0a633e7832e7",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            },
+            {
+                "_definitionId": "022b73b414af4478b3672cfb7e55d64f",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            },
+            {
+                "_definitionId": "27935a4cd6b14d35b9e2724a4346d937",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            },
+            {
+                "_definitionId": "27935a4cd6b14d35b9e2724a4346d937",
+                "_rarity": 1,
+                "_itemLevel": 3,
+                "_seed": 42,
+                "_affixes": [
+                    {
+                        "_affixId": "a78321929f25402190a455d233a469c4",
+                        "_value": 4
+                    }
+                ]
+            }
+        ],
+        "_equippedSlots": [
+            1,
+            3,
+            8,
+            9
+        ],
+        "_beltItems": [
+            {
+                "_definitionId": "5884889cecd34d84a4e3669a6f910bf9",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            }
+        ],
+        "_beltSlots": [
+            0
+        ],
+        "_loose": []
+    }
+}

@@ -77,6 +77,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2, saved.Depth);
             Assert.AreEqual("Level_Crypt", saved.Scene);
             Assert.AreEqual(manager.RunSeed, saved.RunSeed);
+            Assert.AreEqual(2, saved.Explored.Count, "le mappe scoperte delle due profondità visitate");
+            Assert.AreEqual((1, 2), (saved.Explored[0].Depth, saved.Explored[1].Depth));
             string before = save.Capture().ToJson();
             float life = health.Current;
 

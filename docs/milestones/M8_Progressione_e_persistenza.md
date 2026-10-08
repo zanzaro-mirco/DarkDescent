@@ -242,6 +242,31 @@ salvataggio scritto a mano si riparte dalla profondità 3, con seme, crescita, a
 elmo indossato e senza le pozioni di partenza; da morto si salva a vita piena. 203 EditMode e
 142 PlayMode verdi.
 
+## Passo 8.6 — Formato 2 e migrazione
+
+**Com'è andata (8 ott 2026).**
+
+- Prima di toccare il formato, uno script in batch ha scritto con il codice del formato 1 un
+  salvataggio vero (caverne, profondità 6, livello 8, elmo, due anelli di cui uno Letale, un
+  pugnale, una pozione) in `Tests/EditMode/Fixtures/save_v1.json`. Resta lì congelato: il test
+  della migrazione carica quel file, non uno scritto a mano che potrebbe somigliare al formato
+  di oggi più del vero.
+- La mappa scoperta ora resta per ogni profondità: `ExplorationMemory`, in `Core/Levels`, tiene
+  un'esplorazione per profondità, e il livello rigenerato dal seme riprende le celle viste.
+  `ExplorationTracker.SetLevel` vuole la profondità; il vecchio `keepExplored` non serve più.
+- **Formato 2:** `SaveData` ha in più la lista delle mappe (`ExploredLevel`: profondità, misura
+  e una cella per bit in base64). Una mappa salvata di un'altra misura si ignora. Le mappe di un
+  salvataggio aspettano che il livello di quella profondità venga generato.
+- `SaveMigrator` porta un formato vecchio al corrente un passo alla volta; dal 1 al 2 dichiara il
+  formato nuovo con le mappe vuote. `SaveFile.TryRead` migra dopo aver letto, e il codice del
+  gioco vede solo il formato corrente. Un formato più nuovo resta rifiutato.
+
+*Test.* `SaveMigrationTests` (3, EditMode): il file del formato 1 si carica con il codice del
+formato 2, migrato e senza mappe, con seme, profondità, crescita, vita e inventario intero (il
+secondo anello Letale nel secondo slot, il critico a +4), e riscritto è del formato 2; la memoria
+che tiene ogni profondità; le mappe che passano dal salvataggio e quella di un'altra misura
+ignorata. `SaveLoadTests` controlla anche le due mappe nel file. 206 EditMode e 142 PlayMode verdi.
+
 ---
 
 ## Trappole note

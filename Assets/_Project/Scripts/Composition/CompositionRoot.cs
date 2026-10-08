@@ -144,7 +144,7 @@ namespace DarkDescent.Core
             }
 
             // un salvataggio, se c'è, decide seme e livello (D10 della M8); -newgame e -seed lo ignorano
-            _saveGame.Bind(_levelManager, _player.gameObject);
+            _saveGame.Bind(_levelManager, _player.gameObject, _exploration);
             if (!seedGiven && !CommandLine.HasFlag(args, NewGameOption))
             {
                 SaveReadResult read = _saveGame.TryLoad(out SaveData save);
@@ -280,7 +280,7 @@ namespace DarkDescent.Core
             _pack = new EnemyPack(level.Enemies);
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
-            _exploration.SetLevel(level.Map);
+            _exploration.SetLevel(level.Map, level.Depth);
         }
 
         private void ReleaseLevel(LevelContext level)
@@ -305,7 +305,7 @@ namespace DarkDescent.Core
             }
 
             _rewardingEnemies.Clear();
-            _exploration.SetLevel(null);
+            _exploration.SetLevel(null, 0);
         }
 
         // l'esperienza del nemico ucciso, alla profondità del livello in cui è morto (D2 della M8)

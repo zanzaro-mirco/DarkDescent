@@ -26,6 +26,9 @@ namespace DarkDescent.Levels
         /// <summary>L'esplorazione del livello corrente; null se il livello non ha una mappa.</summary>
         public Exploration Exploration { get; private set; }
 
+        /// <summary>Le mappe scoperte di tutte le profondità visitate: tornandoci restano (M8).</summary>
+        public ExplorationMemory Memory { get; } = new ExplorationMemory();
+
         public Transform Player => _player;
 
         public void Bind(Transform player)
@@ -34,15 +37,12 @@ namespace DarkDescent.Levels
         }
 
         /// <summary>
-        /// Un livello nuovo: si riparte da niente, e si scopre subito attorno all'ingresso. Con
-        /// <paramref name="keepExplored"/> lo stesso livello ricostruito dopo Ricomincia: la mappa
-        /// scoperta resta.
+        /// Il livello di una profondità: con le celle già viste se ci si era già stati, o se le dice
+        /// il salvataggio, e si scopre subito attorno all'ingresso. Senza mappa, niente.
         /// </summary>
-        public void SetLevel(LevelMap map, bool keepExplored = false)
+        public void SetLevel(LevelMap map, int depth)
         {
-            var previous = keepExplored ? Exploration : null;
-            Exploration = map != null ? new Exploration(map) : null;
-            Exploration?.CopyExplored(previous);
+            Exploration = map != null ? Memory.Open(depth, map) : null;
             LevelChanged?.Invoke();
             if (Exploration != null && _player != null)
             {
