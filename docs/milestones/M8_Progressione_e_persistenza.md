@@ -43,7 +43,7 @@ Tutte confermate da Mirco l'8 ottobre 2026, con le proposte.
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
 | D1 | **Curva dell'esperienza** | Livello massimo **20** nella v1.0. Esperienza per passare dal livello L al successivo: **100 × L^1,6**, arrotondata a 10 (100 dal 1 al 2, circa 3.360 dal 9 al 10, 11.120 dal 19 al 20). Si arriva verso il 10 in fondo alle caverne | Otto profondità non bastano per i 50 livelli di Diablo: con 20 si sale spesso all'inizio e meno dopo. La formula sta in `Core`, i numeri in un asset |
-| D2 | **Esperienza dei nemici** | Un valore per archetipo: scheletro **12**, sciame **5**, bruto **40**, moltiplicato per **1 + 0,15 × (profondità − 1)**. Si divide per **1 + 0,1 × (livello del cavaliere − livello della zona)** quando il cavaliere è più forte della zona, come in Diablo, per non salire uccidendo sciami del livello 1 | Dà circa un livello per profondità nella cripta e uno ogni due nelle caverne. I numeri si tarano provando |
+| D2 | **Esperienza dei nemici** | Un valore per archetipo: scheletro **70**, sciame **30**, bruto **230** (proposti 12, 5 e 40: tarati al passo 8.1, vedi sotto), moltiplicato per **1 + 0,15 × (profondità − 1)**. Si divide per **1 + 0,1 × (livello del cavaliere − livello della zona)** quando il cavaliere è più forte della zona, come in Diablo, per non salire uccidendo sciami del livello 1 | Dà circa un livello per profondità nella cripta e uno ogni due nelle caverne. I numeri si tarano provando |
 | D3 | **Salire di livello** | **5 punti attributo** a livello, da spendere con un **+** accanto a ogni attributo del pannello. **+2 di vita** a livello oltre alla Vitalità. La vita si **riempie** salendo. Un suono e una luce dorata attorno al cavaliere | 5 punti come in Diablo 1. Riempire la vita premia il momento; senza, salire di livello in un combattimento non si sente |
 | D4 | **Slot nuovi** | **Elmo, armatura, guanti, stivali, due anelli, amuleto**, accanto ad arma e scudo (piano v2.19). Il pannello dell'inventario diventa una sagoma come in Diablo: elmo in alto, amuleto a destra dell'elmo, armatura al centro, anelli sotto le mani, guanti e stivali in basso | Già deciso nel piano; qui si decide solo la disposizione |
 | D5 | **Cosa danno** | Elmo, armatura, guanti e stivali: **Armatura** (come lo scudo, con la Forza richiesta per l'armatura). Anelli e amuleto: niente di base, solo **affissi**. Basi nuove: 2 elmi, 3 armature, 2 guanti, 2 stivali, 1 anello, 1 amuleto. Affissi nuovi ammessi sui gioielli: vita, i quattro attributi, colpire, probabilità di critico | Pochi oggetti, ma ogni slot ha già un motivo di cambio. Un affisso nuovo sposta il loot dei semi provati (trappola 10 della M7): i test con i drop fissi si aggiornano |
@@ -70,6 +70,36 @@ Tutte confermate da Mirco l'8 ottobre 2026, con le proposte.
 | 8.7 | Zoom (D11) | 0,5–1 |
 | 8.8 | Rotazione a scatti e muri che seguono la camera (D12) | 2–3 |
 | 8.9 | Chiusura: build da provare, GIF, ADR, lezioni, tag `m8` | 0,5 |
+
+---
+
+## Passo 8.1 — Esperienza e livelli
+
+**Com'è andata (8 ott 2026).** Tutto in `Core/Progression`, logica pura:
+
+- `ProgressionSettings` è un asset (`Data/Progression/Progression.asset`) con la curva (D1), i
+  punti e la vita a livello (D3) e le regole dell'esperienza dei nemici (D2). Il livello della
+  zona è la profondità × 1,25, arrotondato per eccesso a metà: la profondità 8 vale il livello 10.
+- `CharacterProgress` tiene livello, esperienza nel livello e punti da spendere. Salire scrive la
+  vita dei livelli come valore base di `Life` sulla scheda; spendere un punto alza di uno il valore
+  base dell'attributo. Più livelli in un colpo solo si annunciano uno per uno. `Restore` è pronto
+  per il salvataggio.
+- `EnemyArchetype` ha l'esperienza del nemico.
+
+*I numeri della D2 non bastavano.* Una simulazione della discesa, con i nemici che la cripta e
+le caverne mettono a ogni profondità (cripta: 3 + 2 per profondità; caverne: le medie della
+`SpawnTable`), uccidendoli tutti, portava il cavaliere solo al **livello 4** in fondo alle caverne:
+con 12, 5 e 40 i nemici sono troppo pochi per la curva della D1. Con **70, 30 e 230**, le stesse
+proporzioni circa sei volte tanto, si sale più o meno di un livello a profondità e si arriva al
+**9** all'ottava, come voleva la D1. La curva resta quella confermata.
+
+| Profondità | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| Livello in uscita | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+
+*Test.* `ExperienceTests` (7, EditMode): la curva con i numeri della scheda, l'esperienza che cresce
+con la profondità e cala sopra il livello della zona, i valori dei tre nemici, la salita con punti
+e vita, il livello massimo, i punti spesi, lo stato ripristinato. 188 EditMode verdi.
 
 ---
 

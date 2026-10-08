@@ -15,6 +15,7 @@ MonoBehaviour:
   _nameKey: enemy.brute
   _aggroRange: 8
   _leashRange: 20
+  _experience: 230
   _eyeHeight: 2
   _perceptionInterval: 0.2
   _corpseLifetime: 6

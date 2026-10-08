@@ -15,6 +15,7 @@ MonoBehaviour:
   _nameKey: enemy.swarm
   _aggroRange: 8
   _leashRange: 30
+  _experience: 30
   _eyeHeight: 1.3
   _perceptionInterval: 0.2
   _corpseLifetime: 4

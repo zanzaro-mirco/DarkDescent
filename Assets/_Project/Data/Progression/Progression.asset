@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 437aea6ff5a84762839a29e0acd8e777, type: 3}
+  m_Name: Progression
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Progression.ProgressionSettings
+  _maxLevel: 20
+  _baseExperience: 100
+  _exponent: 1.6
+  _rounding: 10
+  _pointsPerLevel: 5
+  _lifePerLevel: 2
+  _depthBonus: 0.15
+  _zoneLevelPerDepth: 1.25
+  _overLevelPenalty: 0.1

@@ -20,6 +20,9 @@ namespace DarkDescent.Enemies
         [Tooltip("Inseguendo, oltre questa distanza da dove l'ha messo il livello lascia il cavaliere e torna a casa, dove guarisce (seconda prova della build M7): 20 m, lo sciame che caccia in branco 30. 0: insegue ovunque.")]
         [SerializeField, Min(0f)] private float _leashRange = 20f;
 
+        [Tooltip("Esperienza che dà al cavaliere alla profondità 1; cresce con la profondità (D2 della M8).")]
+        [SerializeField, Min(0)] private int _experience = 10;
+
         [Tooltip("Altezza degli occhi per il controllo della vista, dal pivot ai piedi.")]
         [SerializeField, Min(0f)] private float _eyeHeight = 1.5f;
 
@@ -89,6 +92,8 @@ namespace DarkDescent.Enemies
         public float AggroRange => _aggroRange;
 
         public float LeashRange => _leashRange;
+
+        public int Experience => _experience;
 
         public float EyeHeight => _eyeHeight;
 

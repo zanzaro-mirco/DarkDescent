@@ -15,6 +15,7 @@ MonoBehaviour:
   _nameKey: enemy.skeleton
   _aggroRange: 8
   _leashRange: 20
+  _experience: 70
   _eyeHeight: 1.5
   _perceptionInterval: 0.2
   _corpseLifetime: 5
