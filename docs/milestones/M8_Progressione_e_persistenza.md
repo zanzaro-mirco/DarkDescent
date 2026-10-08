@@ -38,7 +38,7 @@ revisione degli ADR.
 
 ## Decisioni
 
-Da confermare. Per ognuna c'è una proposta.
+Tutte confermate da Mirco l'8 ottobre 2026, con le proposte.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -111,7 +111,7 @@ Da confermare. Per ognuna c'è una proposta.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D12 confermate
+- [x] Decisioni D1–D12 confermate
 - [ ] Esperienza e livelli
 - [ ] Equipaggiamento completo
 - [ ] Salvataggio e migrazione
