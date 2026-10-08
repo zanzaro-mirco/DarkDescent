@@ -3577,6 +3577,7 @@ MonoBehaviour:
   _levelTitle: {fileID: 907758890}
   _inventoryFullMessage: {fileID: 586088378}
   _experienceBar: {fileID: 1555219415}
+  _saveGame: {fileID: 1516830421}
   _enemyBar: {fileID: 1183260065}
   _targetMarker: {fileID: 143598250}
   _strings: {fileID: 4900000, guid: 2fda7ed2ca7aa064bafe58a844401558, type: 3}
@@ -11583,6 +11584,55 @@ MonoBehaviour:
   m_EffectColor: {r: 0.42, g: 0.36, b: 0.28, a: 1}
   m_EffectDistance: {x: 1.5, y: -1.5}
   m_UseGraphicAlpha: 1
+--- !u!1 &1516830420
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1516830422}
+  - component: {fileID: 1516830421}
+  m_Layer: 0
+  m_Name: SaveGame
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1516830421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516830420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 987391ce56264748b1050c1a929d3312, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Save.SaveGame
+  _fileName: save.json
+  _interval: 60
+  _combatCooldown: 5
+  _items: {fileID: 11400000, guid: be8dcda66dcc39645ad4c3fca0b208ce, type: 2}
+  _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
+--- !u!4 &1516830422
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516830420}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1520782690
 GameObject:
   m_ObjectHideFlags: 0
@@ -17336,3 +17386,4 @@ SceneRoots:
   - {fileID: 397583101}
   - {fileID: 681326280}
   - {fileID: 143598252}
+  - {fileID: 1516830422}

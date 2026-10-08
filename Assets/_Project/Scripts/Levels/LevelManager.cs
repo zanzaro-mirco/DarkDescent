@@ -30,6 +30,7 @@ namespace DarkDescent.Levels
         private Health _playerHealth;
         private Scene _currentScene;
         private string _currentEntrance;
+        private int _firstDepth = 1;
 
         /// <summary>Livello pronto, player già sull'ingresso: è il momento di collegare i nemici.</summary>
         public event Action<LevelContext> LevelLoaded;
@@ -38,6 +39,12 @@ namespace DarkDescent.Levels
         public event Action<LevelContext> LevelUnloading;
 
         public LevelContext CurrentLevel { get; private set; }
+
+        /// <summary>La scena del livello corrente: per il salvataggio.</summary>
+        public string CurrentSceneName => CurrentLevel != null ? _currentScene.name : null;
+
+        /// <summary>L'ingresso da cui si è entrati nel livello corrente: per il salvataggio.</summary>
+        public string CurrentEntrance => _currentEntrance;
 
         public bool IsTransitioning { get; private set; }
 
@@ -65,7 +72,18 @@ namespace DarkDescent.Levels
                 return;
             }
 
-            LoadLevel(_firstLevel, _firstEntrance, 1);
+            LoadLevel(_firstLevel, _firstEntrance, _firstDepth);
+        }
+
+        /// <summary>
+        /// Il livello da cui partire invece del primo: quello di un salvataggio (D10 della M8). Va
+        /// chiamato prima dello Start di questo componente, cioè da un Awake.
+        /// </summary>
+        public void SetStartLevel(string sceneName, string entranceId, int depth)
+        {
+            _firstLevel = sceneName;
+            _firstEntrance = entranceId;
+            _firstDepth = depth;
         }
 
         private void OnDisable()

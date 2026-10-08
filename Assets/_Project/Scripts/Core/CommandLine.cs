@@ -25,5 +25,24 @@ namespace DarkDescent.Core
 
             return false;
         }
+
+        /// <summary>Se c'è l'opzione, senza valore: <c>-newgame</c>.</summary>
+        public static bool HasFlag(string[] args, string option)
+        {
+            if (args == null)
+            {
+                return false;
+            }
+
+            foreach (string arg in args)
+            {
+                if (string.Equals(arg, option, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

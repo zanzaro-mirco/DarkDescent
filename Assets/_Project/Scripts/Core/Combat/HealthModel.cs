@@ -84,6 +84,17 @@ namespace DarkDescent.Combat
             Changed?.Invoke(Current, Max);
         }
 
+        /// <summary>
+        /// Rimette la vita a un valore salvato (M8), tra 1 e il massimo: un salvataggio non riporta
+        /// mai un morto, e non è né un colpo né una cura.
+        /// </summary>
+        public void SetCurrent(float current)
+        {
+            IsDead = false;
+            Current = float.IsNaN(current) ? Max : Math.Min(Max, Math.Max(1f, current));
+            Changed?.Invoke(Current, Max);
+        }
+
         /// <summary>Applica il danno e restituisce quanto ne è stato assorbito davvero (0 se già morto).</summary>
         public float ApplyDamage(float amount)
         {

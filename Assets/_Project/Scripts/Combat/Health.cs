@@ -85,6 +85,13 @@ namespace DarkDescent.Combat
             Revived?.Invoke();
         }
 
+        /// <summary>La vita di un salvataggio (M8): senza danno né cura, quindi senza numeri né suoni.</summary>
+        public void SetCurrent(float current)
+        {
+            Model.SetCurrent(current);
+            HealthChanged?.Invoke(Model.Current, Model.Max);
+        }
+
         public void Evade(in DamageInfo info)
         {
             if (!Model.IsDead)

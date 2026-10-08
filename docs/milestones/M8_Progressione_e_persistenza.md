@@ -207,6 +207,41 @@ che contano basi e affissi (`ItemDatabaseTests`, `ItemGeneratorTests`, `LootTest
 `LocalizationCoverageTests`). Nessun test con i drop fissi a un seme è cambiato: le basi nuove sono
 in fondo alle tabelle. 198 EditMode e 139 PlayMode verdi.
 
+## Passo 8.5 — Salvataggio, formato 1
+
+**Com'è andata (8 ott 2026).**
+
+- `SaveData`, in `Core/Save`: il campo `_version` (1), il seme della partita in testo (un `ulong`
+  in JSON come numero si perde in altri lettori), scena, ingresso e profondità, livello,
+  esperienza e punti, i valori base dei quattro attributi, la vita e l'`InventorySnapshot` della
+  M6, che dal passo 8.3 salva anche lo slot di ogni oggetto indossato. Lo stato dei livelli non
+  c'è (D8).
+- `SaveFile` scrive in `save.json.tmp` e poi lo mette al posto del vecchio con `File.Replace`: un
+  crash a metà lascia il salvataggio di prima. In lettura distingue un file che manca, uno che non
+  si legge (vuoto, troncato, non nostro) e uno di una versione più nuova del gioco, che non si
+  carica.
+- `SaveGame`, un componente nella scena `Core`, salva entrando in un livello, ogni 60 s se da
+  5 s non ci sono colpi dati o presi, e chiudendo il gioco. Da morto salva come dopo *Continua*,
+  a vita piena. Nell'editor è spento, così le prove e i test non toccano il salvataggio vero: i
+  test lo accendono con un file loro, da codice o con la variabile d'ambiente
+  `DARKDESCENT_SAVE_FILE`.
+- All'avvio il composition root, nel suo `Awake`, legge il salvataggio: se c'è prende il seme e
+  dice al gestore dei livelli da dove partire (`SetStartLevel`). Nel suo `Start`, quando vita,
+  pannelli ed equipaggiamento ascoltano già, lo rimette sul cavaliere: attributi, crescita,
+  inventario (che si svuota prima, così arma e pozioni di partenza spariscono) e per ultima la
+  vita, con `Health.SetCurrent`, che non è né un colpo né una cura. `-newgame` e `-seed`
+  ignorano il salvataggio, e il primo salvataggio della partita nuova lo sostituisce.
+- Il percorso del file e l'accensione si calcolano al primo uso, non in `Awake`: il composition
+  root legge il salvataggio dal suo `Awake`, che può arrivare prima di quello di `SaveGame`.
+
+*Test.* `SaveDataTests` (5, EditMode): scrittura e lettura identiche, il seme a 64 bit, la
+sostituzione senza file temporanei rimasti, i file rovinati, la versione più nuova, `-newgame`.
+`SaveLoadTests` (3, PlayMode): entrando al livello 2 si salva e, rovinato tutto, il cavaliere
+torna identico campo per campo, con il secondo anello nel secondo slot; all'avvio con un
+salvataggio scritto a mano si riparte dalla profondità 3, con seme, crescita, attributi, vita,
+elmo indossato e senza le pozioni di partenza; da morto si salva a vita piena. 203 EditMode e
+142 PlayMode verdi.
+
 ---
 
 ## Trappole note

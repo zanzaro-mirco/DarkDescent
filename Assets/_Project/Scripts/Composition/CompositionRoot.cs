@@ -9,6 +9,7 @@ using DarkDescent.Levels;
 using DarkDescent.Localization;
 using DarkDescent.Player;
 using DarkDescent.Progression;
+using DarkDescent.Save;
 using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -63,6 +64,8 @@ namespace DarkDescent.Core
 
         [SerializeField] private ExperienceBar _experienceBar;
 
+        [SerializeField] private SaveGame _saveGame;
+
         [Tooltip("Nome e vita del nemico sotto il cursore, in alto al centro.")]
         [SerializeField] private EnemyBar _enemyBar;
 
@@ -82,6 +85,9 @@ namespace DarkDescent.Core
 
         private const string SeedOption = "-seed";
 
+        // ignora il salvataggio e comincia una partita nuova (D10 della M8), finché non c'è il menu della M10
+        private const string NewGameOption = "-newgame";
+
         private MeleeAttack _playerAttack;
         private PlayerInputReader _reader;
         private Localizer _localizer;
@@ -90,6 +96,9 @@ namespace DarkDescent.Core
         private PlayerProgress _progress;
         private readonly List<EnemyAI> _rewardingEnemies = new List<EnemyAI>();
         private int _depth;
+
+        // il salvataggio da rimettere sul cavaliere in Start, quando tutti ascoltano già (D10 della M8)
+        private SaveData _pendingSave;
 
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
         private IRandomSource _random;
@@ -127,10 +136,29 @@ namespace DarkDescent.Core
 
             // il seme del loot: da riga di comando per rigiocare una partita, altrimenti dall'orologio.
             // Separato dai tiri del combattimento: un colpo mancato in più non cambia i drop (D5)
-            if (!CommandLine.TryGetValue(Environment.GetCommandLineArgs(), SeedOption, out string seedText)
-                || !ulong.TryParse(seedText, out ulong seed))
+            string[] args = Environment.GetCommandLineArgs();
+            bool seedGiven = CommandLine.TryGetValue(args, SeedOption, out string seedText) && ulong.TryParse(seedText, out _);
+            if (!seedGiven || !ulong.TryParse(seedText, out ulong seed))
             {
                 seed = (ulong)DateTime.UtcNow.Ticks;
+            }
+
+            // un salvataggio, se c'è, decide seme e livello (D10 della M8); -newgame e -seed lo ignorano
+            _saveGame.Bind(_levelManager, _player.gameObject);
+            if (!seedGiven && !CommandLine.HasFlag(args, NewGameOption))
+            {
+                SaveReadResult read = _saveGame.TryLoad(out SaveData save);
+                if (read == SaveReadResult.Ok)
+                {
+                    seed = save.RunSeed;
+                    _levelManager.SetStartLevel(save.Scene, save.Entrance, save.Depth);
+                    _pendingSave = save;
+                    Debug.Log($"[DarkDescent] partita ripresa dal salvataggio: {save.Scene}, profondità {save.Depth}, livello {save.Level}");
+                }
+                else if (read != SaveReadResult.Missing)
+                {
+                    Debug.LogWarning($"[DarkDescent] salvataggio non caricato ({read}): partita nuova, e il prossimo salvataggio lo sostituisce");
+                }
             }
 
             _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed);
@@ -168,6 +196,15 @@ namespace DarkDescent.Core
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);
             _targetMarker.Bind(controller);
+        }
+
+        private void Start()
+        {
+            if (_pendingSave != null)
+            {
+                _saveGame.Apply(_pendingSave);
+                _pendingSave = null;
+            }
         }
 
         private void OnEnable()
