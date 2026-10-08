@@ -655,6 +655,10 @@ e pozione bevuta com'erano, cassa aperta, nemico ucciso che non rinasce, ferito 
 fermo e ferito. `ShieldBlockTests`: il blocco non ferma più il fendente. `CaveContentTests`: le
 medie nuove dello sciame. 176 EditMode e 135 PlayMode verdi.
 
+*La build fallita.* La prima build di questo passo si è fermata ai test: `CaveDescentTests` contava
+ancora un gruppo di sciame da 4 a 6. In locale era passato per caso, perché il seme della partita
+cambia a ogni esecuzione; ora conta da 3 a 5.
+
 ## Passo 7.12 — Chiusura
 
 1. Build della CI da provare: discesa fino all'8, sciame e bruto, colpo schivato e colpo
