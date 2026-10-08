@@ -3,9 +3,11 @@ using DarkDescent.Combat;
 using DarkDescent.Items;
 using DarkDescent.Localization;
 using DarkDescent.Player;
+using DarkDescent.Progression;
 using DarkDescent.Stats;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace DarkDescent.UI
 {
@@ -13,6 +15,8 @@ namespace DarkDescent.UI
     /// Il pannello del personaggio, nella metà sinistra: attributi e valori derivati, calcolati con
     /// le stesse formule del combattimento. Si aggiorna quando cambiano statistiche o arma, mai in Update.
     /// Passando su una riga, un tooltip a destra della finestra dice a cosa serve (D16 della M6).
+    /// In alto livello, esperienza e punti da spendere; con punti da spendere, un "+" accanto a ogni
+    /// attributo ne compra uno (D3 della M8).
     /// </summary>
     [DisallowMultipleComponent]
     public class CharacterPanel : MonoBehaviour
@@ -32,6 +36,15 @@ namespace DarkDescent.UI
         [Tooltip("Il riquadro delle spiegazioni: uno suo, così l'inventario aperto non lo spegne.")]
         [SerializeField] private ItemTooltip _tooltip;
 
+        [Tooltip("Livello, esperienza e punti da spendere, sopra le colonne.")]
+        [SerializeField] private TMP_Text _header;
+
+        [Tooltip("I + di Forza, Destrezza, Magia e Vitalità, in quest'ordine: accanto alle prime quattro righe.")]
+        [SerializeField] private Button[] _raiseButtons = new Button[4];
+
+        /// <summary>Gli attributi dei "+", nell'ordine dei bottoni e delle prime righe.</summary>
+        public static readonly StatType[] RaisedStats = { StatType.Strength, StatType.Dexterity, StatType.Magic, StatType.Vitality };
+
         /// <summary>
         /// La spiegazione di ogni riga, nell'ordine della colonna dei nomi (hud.stat_names); null per
         /// la riga vuota tra attributi e valori derivati.
@@ -45,6 +58,7 @@ namespace DarkDescent.UI
         private readonly StringBuilder _builder = new StringBuilder(128);
         private CharacterStats _stats;
         private PlayerInventory _inventory;
+        private CharacterProgress _progress;
         private PlayerInputReader _reader;
         private ShieldBlock _block;
         private Localizer _localizer;
@@ -57,11 +71,17 @@ namespace DarkDescent.UI
 
         public ItemTooltip Tooltip => _tooltip;
 
-        public void Bind(CharacterStats stats, PlayerInventory inventory, PlayerInputReader reader, Localizer localizer)
+        public string HeaderText => _header.text;
+
+        /// <summary>Il "+" di un attributo, per i test: acceso solo con punti da spendere.</summary>
+        public Button RaiseButton(StatType stat) => _raiseButtons[System.Array.IndexOf(RaisedStats, stat)];
+
+        public void Bind(CharacterStats stats, PlayerInventory inventory, CharacterProgress progress, PlayerInputReader reader, Localizer localizer)
         {
             Unsubscribe();
             _stats = stats;
             _inventory = inventory;
+            _progress = progress;
             _block = stats.GetComponent<ShieldBlock>();
             _reader = reader;
             _localizer = localizer;
@@ -74,6 +94,12 @@ namespace DarkDescent.UI
         public void Toggle()
         {
             _window.SetActive(!_window.activeSelf);
+
+            // i "+" vanno accanto alle righe, che si misurano solo a finestra accesa
+            if (_window.activeSelf && _subscribed)
+            {
+                Refresh();
+            }
 
             // una finestra spenta non riceve l'uscita del cursore: il tooltip si dimentica qui
             _hoveredLine = -1;
@@ -120,13 +146,29 @@ namespace DarkDescent.UI
 
         private void OnEnable()
         {
+            _raiseButtons[0].onClick.AddListener(RaiseStrength);
+            _raiseButtons[1].onClick.AddListener(RaiseDexterity);
+            _raiseButtons[2].onClick.AddListener(RaiseMagic);
+            _raiseButtons[3].onClick.AddListener(RaiseVitality);
             Subscribe();
         }
 
         private void OnDisable()
         {
+            _raiseButtons[0].onClick.RemoveListener(RaiseStrength);
+            _raiseButtons[1].onClick.RemoveListener(RaiseDexterity);
+            _raiseButtons[2].onClick.RemoveListener(RaiseMagic);
+            _raiseButtons[3].onClick.RemoveListener(RaiseVitality);
             Unsubscribe();
         }
+
+        private void RaiseStrength() => _progress.TrySpend(StatType.Strength);
+
+        private void RaiseDexterity() => _progress.TrySpend(StatType.Dexterity);
+
+        private void RaiseMagic() => _progress.TrySpend(StatType.Magic);
+
+        private void RaiseVitality() => _progress.TrySpend(StatType.Vitality);
 
         private void Subscribe()
         {
@@ -137,6 +179,8 @@ namespace DarkDescent.UI
 
             _reader.CharacterToggled += Toggle;
             _localizer.LanguageChanged += RefreshTooltip;
+            _localizer.LanguageChanged += Refresh;
+            _progress.Changed += Refresh;
             _stats.Sheet.Changed += Refresh;
             _inventory.Equipment.Changed += HandleEquipmentChanged;
             if (_block != null)
@@ -157,6 +201,8 @@ namespace DarkDescent.UI
 
             _reader.CharacterToggled -= Toggle;
             _localizer.LanguageChanged -= RefreshTooltip;
+            _localizer.LanguageChanged -= Refresh;
+            _progress.Changed -= Refresh;
             _stats.Sheet.Changed -= Refresh;
             _inventory.Equipment.Changed -= HandleEquipmentChanged;
             if (_block != null)
@@ -191,6 +237,36 @@ namespace DarkDescent.UI
             _builder.Append(Mathf.RoundToInt(CombatFormulas.CritChance(_stats.Dexterity))).Append("%\n");
             _builder.Append(_block != null ? Mathf.RoundToInt(_block.BlockChance) : 0).Append('%');
             _values.SetText(_builder);
+            RefreshProgress();
+        }
+
+        private void RefreshProgress()
+        {
+            int next = _progress.ExperienceToNext;
+            string header = next > 0
+                ? _localizer.Format(TextKeys.CharacterLevel, _progress.Level, _progress.Experience, next)
+                : _localizer.Format(TextKeys.ExperienceMaxLevel, _progress.Level);
+            bool canSpend = _progress.UnspentPoints > 0;
+            if (canSpend)
+            {
+                header += "\n<color=#E0C060>" + _localizer.Format(TextKeys.CharacterPoints, _progress.UnspentPoints) + "</color>";
+            }
+
+            _header.text = header;
+
+            // a finestra chiusa le righe non si misurano: ci pensa Toggle all'apertura
+            bool place = canSpend && IsOpen;
+            for (int i = 0; i < _raiseButtons.Length; i++)
+            {
+                var button = _raiseButtons[i].gameObject;
+                button.SetActive(canSpend);
+                if (place)
+                {
+                    var rect = (RectTransform)button.transform;
+                    Vector3 line = LineWorldPosition(i);
+                    rect.position = new Vector3(rect.position.x, line.y, rect.position.z);
+                }
+            }
         }
 
         // titolo e spiegazione dalla tabella: la colonna dei nomi si traduce da sé, e al cambio di

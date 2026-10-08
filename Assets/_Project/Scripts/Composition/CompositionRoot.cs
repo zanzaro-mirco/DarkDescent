@@ -8,6 +8,7 @@ using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Localization;
 using DarkDescent.Player;
+using DarkDescent.Progression;
 using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -60,6 +61,8 @@ namespace DarkDescent.Core
 
         [SerializeField] private InventoryFullMessage _inventoryFullMessage;
 
+        [SerializeField] private ExperienceBar _experienceBar;
+
         [Tooltip("Nome e vita del nemico sotto il cursore, in alto al centro.")]
         [SerializeField] private EnemyBar _enemyBar;
 
@@ -84,6 +87,9 @@ namespace DarkDescent.Core
         private Localizer _localizer;
         private LootRoller _loot;
         private Footsteps _footsteps;
+        private PlayerProgress _progress;
+        private readonly List<EnemyAI> _rewardingEnemies = new List<EnemyAI>();
+        private int _depth;
 
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
         private IRandomSource _random;
@@ -146,7 +152,9 @@ namespace DarkDescent.Core
             _reader = _player.GetComponent<PlayerInputReader>();
             _inventoryPanel.Bind(inventory, _reader, _localizer);
             _itemCursor.Bind(inventory, _reader);
-            _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _reader, _localizer);
+            _progress = _player.GetComponent<PlayerProgress>();
+            _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _progress.Progress, _reader, _localizer);
+            _experienceBar.Bind(_progress.Progress, _localizer);
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _automap.Bind(_exploration, _reader);
@@ -198,6 +206,7 @@ namespace DarkDescent.Core
             var tileset = level.Tileset;
             _footsteps.SetSurface(tileset != null ? tileset.Footsteps : null);
             _levelTitle.Show(tileset != null ? tileset.NameKey : null, level.Depth);
+            _depth = level.Depth;
 
             foreach (var enemy in level.Enemies)
             {
@@ -208,6 +217,8 @@ namespace DarkDescent.Core
                 }
 
                 enemy.Bind(_player);
+                enemy.Killed += HandleEnemyKilled;
+                _rewardingEnemies.Add(enemy);
                 if (enemy.TryGetComponent(out CharacterAudio audio))
                 {
                     audio.Bind(_sfxLimiter);
@@ -246,7 +257,26 @@ namespace DarkDescent.Core
 
             _trackedEnemies.Clear();
             _enemyAttacks.Clear();
+
+            // anche i nemici già distrutti: l'evento è un campo C#, staccarsi è sempre lecito
+            foreach (var enemy in _rewardingEnemies)
+            {
+                if (!ReferenceEquals(enemy, null))
+                {
+                    enemy.Killed -= HandleEnemyKilled;
+                }
+            }
+
+            _rewardingEnemies.Clear();
             _exploration.SetLevel(null);
+        }
+
+        // l'esperienza del nemico ucciso, alla profondità del livello in cui è morto (D2 della M8)
+        private void HandleEnemyKilled(EnemyAI enemy)
+        {
+            enemy.Killed -= HandleEnemyKilled;
+            _rewardingEnemies.Remove(enemy);
+            _progress.AwardKill(enemy.Archetype.Experience, _depth);
         }
 
         /// <summary>Cambia il seme della partita: per i test e per rigiocare un seme senza riavviare.</summary>
@@ -288,7 +318,7 @@ namespace DarkDescent.Core
         // D15 della M7, al posto della ripartenza della M6: il livello resta com'era al momento della
         // morte, con l'inventario, i nemici uccisi, le casse aperte e la mappa scoperta. A schermo nero
         // il cavaliere torna in vita all'ingresso, e i nemici vivi tornano fermi dove li ha messi il
-        // livello, con la vita che hanno
+        // livello, a vita piena
         private void Restart()
         {
             // un hit stop o una pausa rimasti a metà farebbero ripartire il gioco rallentato o fermo

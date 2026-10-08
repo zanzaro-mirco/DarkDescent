@@ -82,5 +82,10 @@ namespace DarkDescent.Localization
         {
             return string.Format(CultureInfo.InvariantCulture, Get(key), arg0, arg1);
         }
+
+        public string Format(string key, object arg0, object arg1, object arg2)
+        {
+            return string.Format(CultureInfo.InvariantCulture, Get(key), arg0, arg1, arg2);
+        }
     }
 }

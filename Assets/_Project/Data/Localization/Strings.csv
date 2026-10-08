@@ -24,6 +24,10 @@ combat.blocked,Blocked,Bloccato
 # Oggetti a terra e scale
 exit.descend,Descend to level {0},Scendi al livello {0}
 hud.inventory_full,No room in the inventory,Non c'è posto nell'inventario
+hud.experience,Level {0} – {1} / {2},Livello {0} – {1} / {2}
+hud.experience_max,Level {0} (max),Livello {0} (massimo)
+hud.character_level,Level {0} – Experience {1} / {2},Livello {0} – Esperienza {1} / {2}
+hud.character_points,{0} points to spend,{0} punti da spendere
 
 # Tooltip
 tooltip.damage,Damage: {0}–{1},Danno: {0}–{1}

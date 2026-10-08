@@ -101,6 +101,32 @@ proporzioni circa sei volte tanto, si sale più o meno di un livello a profondit
 con la profondità e cala sopra il livello della zona, i valori dei tre nemici, la salita con punti
 e vita, il livello massimo, i punti spesi, lo stato ripristinato. 188 EditMode verdi.
 
+## Passo 8.2 — Esperienza e livelli nel gioco
+
+**Com'è andata (8 ott 2026).**
+
+- `PlayerProgress`, sul cavaliere, crea `CharacterProgress` e riceve l'esperienza dei nemici.
+  `EnemyAI` annuncia la sua morte (`Killed`); il composition root lo ascolta per ogni nemico
+  legato e dà l'esperienza alla profondità del livello. Ci si stacca alla morte e quando il
+  livello se ne va. Da morto il cavaliere non guadagna niente.
+- Salendo di livello la vita si riempie, con i 2 punti in più già contati: `CharacterProgress`
+  scrive la vita dei livelli prima di annunciarli e `Health` la rilegge dalla scheda. Suona un
+  arpeggio di campana e una luce dorata si accende attorno al cavaliere per 1,4 s. Più livelli in
+  un colpo solo fanno un suono e una luce. Il suono è sintetizzato da uno script Python, quindi
+  nostro (`Audio/SFX/Generated/level_up.wav`, nei crediti). Sorgente audio e luce stanno su un
+  figlio del cavaliere, `LevelUp`.
+- `ExperienceBar` in basso al centro: una barra dorata verso il livello successivo e sopra
+  *Livello 2 – 60 / 300*; al livello massimo è piena.
+- Il pannello del personaggio ha una testata sotto il titolo, *Livello 2 – Esperienza 60 / 300*
+  e, in oro, *5 punti da spendere*. Con punti da spendere compare un **+** accanto a Forza,
+  Destrezza, Magia e Vitalità; si posiziona sulla riga misurandola all'apertura del pannello.
+  Le colonne sono scese di 50 px per fare posto alla testata.
+
+*Test.* `LevelUpTests` (2, PlayMode): lo scheletro ucciso dà la sua esperienza una volta sola e
+la barra la mostra; salendo, vita piena con i 2 punti in più, la luce, la testata con i punti, il
++ della Forza cliccato con il mouse che compra un punto senza far camminare il cavaliere, i +
+che spariscono a punti finiti. 188 EditMode e 139 PlayMode verdi.
+
 ---
 
 ## Trappole note

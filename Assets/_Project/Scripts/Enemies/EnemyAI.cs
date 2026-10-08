@@ -37,6 +37,9 @@ namespace DarkDescent.Enemies
         /// <summary>Ha visto il bersaglio con i suoi occhi, non avvisato da un compagno: il branco si sveglia (D5).</summary>
         public event System.Action<EnemyAI> Spotted;
 
+        /// <summary>È morto: chi lo ha legato dà l'esperienza al cavaliere (D2 della M8).</summary>
+        public event System.Action<EnemyAI> Killed;
+
         public EnemyState State => _brain.State;
 
         public EnemyArchetype Archetype => _archetype;
@@ -188,6 +191,7 @@ namespace DarkDescent.Enemies
         private void HandleDied()
         {
             _brain.Die();
+            Killed?.Invoke(this);
 
             // MeleeAttack spento annulla anche un colpo in volo
             _attack.enabled = false;

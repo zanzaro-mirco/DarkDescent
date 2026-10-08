@@ -11,6 +11,12 @@ namespace DarkDescent.Localization
         public const string Blocked = "combat.blocked";
         public const string ExitDescend = "exit.descend";
         public const string InventoryFull = "hud.inventory_full";
+
+        // la crescita del cavaliere (M8): barra dell'esperienza e testata del pannello
+        public const string ExperienceLevel = "hud.experience";
+        public const string ExperienceMaxLevel = "hud.experience_max";
+        public const string CharacterLevel = "hud.character_level";
+        public const string CharacterPoints = "hud.character_points";
         public const string TooltipDamage = "tooltip.damage";
         public const string TooltipSpeed = "tooltip.speed";
         public const string SpeedFast = "speed.fast";
