@@ -61,6 +61,7 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | D13 | **Colpi critici e versi dei nemici** (aggiunta e confermata da Mirco il 6 ott) | Solo il cavaliere, solo sui colpi a segno: probabilità **5% + Destrezza / 10**, al massimo 50% (7% con la Destrezza 20 di partenza), **danno doppio**. Il tiro va dopo quello del danno, e il critico esce dalla parte **alta** dell'intervallo (trappola 9). `DamageInfo.IsCritical` c'è dalla M2 e non è mai stato usato. A schermo: numero più grande, giallo-arancio, con un punto esclamativo, e un hit stop un po' più lungo. A orecchio: ogni `EnemyArchetype` (D8) ha i suoi **versi del critico**, scelti a caso senza ripetere il precedente. Scheletro: un verso secco, intonazione 1,1–1,2. Sciame: uno stridio, 1,4–1,6. Bruto: un ruggito basso, 0,6–0,7. Per cominciare sono ritagliati dai versi delle tracce CC0 già nel progetto. Se non convincono, si cerca un pacchetto CC0 di versi di mostri, da scaricare con il permesso di Mirco. Niente affissi sul critico per ora: un affisso nuovo cambia il loot dei semi provati (trappola 10) | Il critico dà un picco nel ritmo del combattimento, e il verso dice subito *chi* l'ha preso anche nel buio. La Destrezza oggi conta per colpire e bloccare: con il critico pesa anche sul danno. Danno doppio come il guerriero di Diablo 1 |
 | D14 | **Correzioni dalla prova della build** (7 ott, chieste da Mirco dopo aver provato la build della M7) | Prima del tag: l'etichetta "(inventario pieno)" sparisce quando si libera un posto; il cursore attraversa colonne, barili e muri bassi per arrivare a un nemico o a una cosa da usare (i muri alti no); il bruto alterna il colpo forte con 1–3 colpi leggeri da 8–12, senza settore; una scritta dice tipo e profondità del livello; passi del cavaliere con il suono del pavimento; un verso a ogni colpo subito dai nemici, da un pacchetto CC0 scaricato con il permesso di Mirco. Elmo, armatura, guanti, stivali, anelli e amuleto vanno nella M8, prima del salvataggio (piano v2.19). Zoom e rotazione della visuale restano nella M8 (v2.18) | Sono quello che manca giocando: due bug di interfaccia, un bruto prevedibile, nessun riferimento su dove si è, un cavaliere muto |
 | D15 | **Sciame e morte** (7 ott, dopo la stessa prova) | Lo sciame era troppo forte: ogni colpo bloccato fermava il cavaliere 0,45 s e annullava il suo fendente, e in mezzo al gruppo succedeva circa una volta al secondo. Il blocco non ferma più (ADR-026 cambiato). Mira più facile: nome e vita del nemico sotto il cursore in alto, un cerchio rosso ai suoi piedi, un click a meno di 0,6 m da un nemico lo colpisce, il cavaliere non viene spinto dagli agent dei nemici. Sciame a gruppi da 3 a 5 e un colpo ogni 1,2 s. Morte: il livello non si ricarica; il cavaliere torna in vita all'ingresso, con l'inventario, i nemici uccisi, le casse aperte e la mappa di prima; i nemici vivi tornano fermi dove li ha messi il livello, a vita piena (sostituisce D13 della M6; la vita piena chiesta da Mirco l'8 ott) | Scelte di Mirco. Il limite di tre attaccanti insieme, proposto, non l'ha voluto |
+| D16 | **Seconda prova della build** (8 ott) | Passi a tempo con i piedi dell'animazione e non con i metri percorsi. Velocità d'attacco diversa per arma: il pugnale veloce, la spada corta normale, la lama dello scheletro e l'ascia lente, con l'animazione che segue. Niente più "(inventario pieno)" sull'etichetta dell'oggetto: un messaggio al centro dello schermo per un momento. I nemici inseguono fino a 20 m da casa, lo sciame fino a 30; oltre tornano indietro e guariscono | Richieste di Mirco; i numeri e la guarigione al ritorno sono una proposta di Claude |
 | D11 | **Loot dei nemici nuovi** | Una `LootTable` per tipo: sciame **20%** di lasciare un oggetto e 10% una pozione; bruto **sempre** un oggetto e 50% una pozione. Basi e rarità come lo scheletro, livello dell'oggetto dalla profondità | Lo sciame è tanti nemici piccoli: con la probabilità dello scheletro il pavimento si riempirebbe. Il bruto è un premio |
 
 ---
@@ -81,7 +82,8 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | 7.9 | Nemici e loot per profondità | 1 |
 | 7.10 | Correzioni dalla prova della build (D14) | 2–3 |
 | 7.11 | Sciame e morte (D15) | 2 |
-| 7.12 | Chiusura: build da provare, GIF, ADR, tag `m7` | 0,5 |
+| 7.12 | Correzioni dalla seconda prova (D16) | 2 |
+| 7.13 | Chiusura: build da provare, GIF, ADR, tag `m7` | 0,5 |
 
 ---
 
@@ -663,7 +665,61 @@ cambia a ogni esecuzione; ora conta da 3 a 5.
 che avevano. Mirco ha chiesto che tornino a vita piena. `EnemyAI.ReturnHome` ora li cura del tutto; il test
 controlla la vita piena.
 
-## Passo 7.12 — Chiusura
+## Passo 7.12 — Correzioni dalla seconda prova della build
+
+1. Passi a tempo con i piedi.
+2. Velocità d'attacco per arma.
+3. "Inventario pieno" come messaggio che sparisce.
+4. Nemici che non inseguono oltre un limite da casa.
+
+**Com'è andata (8 ott 2026).**
+
+*Passi.* Prima un passo ogni 1,6 m: a 5 m/s erano 3,1 passi al secondo, mentre nell'animazione
+di corsa (`Running_A`, ciclo di 0,8 s) i piedi toccano terra 2,5 volte al secondo. Uno script in
+batch ha campionato l'altezza dei piedi nella clip: il sinistro tocca al 12% del ciclo, il destro
+al 62%. `Footsteps` ora legge lo stato `Locomotion` dell'animator del cavaliere e suona quando il
+ciclo passa uno di quei due punti, sopra una velocità minima. Fermo, in attacco o in transizione
+non suona.
+
+*Velocità delle armi.* Ogni arma aveva già i suoi tempi (`AttackInterval`, `HitDelay`), ma erano
+tutti 1 s e 0,6 s. Ora:
+
+| Arma | Danno | Intervallo | Danno al secondo | Velocità |
+|---|---|---|---|---|
+| Pugnale | 3–6 | 0,7 s | 6,4 | Veloce |
+| Spada corta | 6–9 | 1 s | 7,5 | Normale |
+| Lama dello scheletro | 8–12 | 1,1 s | 9,1 | Lenta |
+| Ascia | 10–15 (era 7–11) | 1,25 s | 10 | Lenta |
+
+L'ascia sale di danno: lenta e con 7–11 sarebbe stata peggiore della spada corta, pur chiedendo
+Forza 30. `CharacterAnimatorDriver` sul cavaliere ha `_clipHitTime` = 0,6, il momento del colpo
+nella clip: la velocità della clip è 0,6 / `HitDelay` dell'arma, così la lama arriva insieme al
+danno anche con il pugnale (1,43) e con l'ascia (0,8). Per questo ogni arma tiene `HitDelay` al 60%
+del suo intervallo; un test lo controlla. Il tooltip ha una riga *Velocità d'attacco*.
+
+*Inventario pieno.* L'etichetta "(inventario pieno)" sull'oggetto a terra non c'è più, con
+l'ascolto dell'inventario aggiunto al passo 7.10. `PlayerInventory` annuncia un oggetto che non
+entra (`PickUpRefused`) e `InventoryFullMessage`, nell'HUD, scrive *Non c'è posto nell'inventario*
+sopra il cavaliere per 1,2 s, poi sfuma. Un altro tentativo lo rimette a piena luce.
+
+*Nemici che tornano a casa.* Uno stato nuovo, `ReturnState`. Inseguendo, oltre il limite da casa
+(`EnemyArchetype.LeashRange`: 20 m, lo sciame 30) il nemico lascia il cavaliere e cammina fino a
+dove l'ha messo il livello, senza guardarsi attorno e senza rispondere ai compagni; arrivato
+riprende la vita piena e torna fermo. L'attacco non guarda la distanza: un nemico che sta già
+colpendo finisce il duello. Lo sciame ha più corda perché caccia in branco nelle caverne, che sono
+larghe. La guarigione è una proposta: senza, si potrebbe colpire un nemico e scappare finché non
+torna a casa, poi ricominciare.
+
+*Test.* `EnemyStateTests`: il ritorno a casa e la guarigione, l'attacco che ignora il limite, il
+ritorno che ignora gli avvisi. `LeashTests` (nuovo, PlayMode): uno scheletro avvisato insegue il
+cavaliere in una cripta, si ferma al limite, torna e guarisce. `ItemDatabaseTests`: l'ordine delle
+velocità e la proporzione del colpo. `ItemDescriptionTests`: la riga della velocità.
+`EquipmentPlayModeTests`: la velocità dell'animazione con pugnale, spada, ascia e pugni.
+`FootstepsAndTitleTests`: ogni passo cade a meno del 10% del ciclo da un appoggio, mai due a meno di
+0,3 s. `LootAndPickupTests`: il messaggio che compare e sparisce. `SwarmTests`: nel cunicolo il
+cavaliere sta più vicino, entro i 30 m dello sciame. 181 EditMode e 137 PlayMode verdi.
+
+## Passo 7.13 — Chiusura
 
 1. Build della CI da provare: discesa fino all'8, sciame e bruto, colpo schivato e colpo
    preso, critici con i versi dei tre nemici, stesso seme stessa caverna.
@@ -729,8 +785,9 @@ controlla la vita piena.
 | `SfxLimiterTests` (PlayMode) | Dieci impatti nello stesso fotogramma, priorità delle sorgenti, cavaliere collegato |
 | `SwingPatternTests` (EditMode) | Colpo forte, poi da 1 a 3 leggeri; uno forte ogni tre in media, mai due di fila |
 | `CursorThroughObstaclesTests` (PlayMode) | Nemico e oggetto dietro una colonna cliccabili, dietro un muro alto no |
-| `FootstepsAndTitleTests` (PlayMode) | Passi con la distanza e il pavimento del livello; scritta del livello nelle due lingue |
+| `FootstepsAndTitleTests` (PlayMode) | Passi a tempo con i piedi dell'animazione e con il pavimento del livello; scritta del livello nelle due lingue |
 | `AimTests` (PlayMode) | Nemico sotto il cursore con nome, vita e cerchio; click accanto al nemico; cavaliere che non viene spinto |
+| `LeashTests` (PlayMode) | Un nemico che insegue troppo lontano da casa torna indietro e guarisce |
 
 ---
 
@@ -750,6 +807,7 @@ controlla la vita piena.
 - [x] Nemici e loot per profondità
 - [x] Correzioni dalla prova della build (D14)
 - [x] Sciame e morte (D15)
+- [x] Correzioni dalla seconda prova (D16)
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m7`

@@ -1,3 +1,4 @@
+using System;
 using DarkDescent.Combat;
 using DarkDescent.Player;
 using DarkDescent.Stats;
@@ -46,6 +47,9 @@ namespace DarkDescent.Items
             new InventoryGrid(_gridSize.x, _gridSize.y),
             new Equipment(GetComponent<CharacterStats>().Sheet));
 
+        /// <summary>Un oggetto non è entrato perché non c'era posto: l'HUD lo dice per un momento.</summary>
+        public event Action<ItemInstance> PickUpRefused;
+
         public Equipment Equipment => Inventory.Equipment;
 
         public WeaponDefinition Unarmed => _unarmed;
@@ -55,7 +59,13 @@ namespace DarkDescent.Items
         /// <summary>Raccoglie un oggetto nella griglia; false se non c'è posto.</summary>
         public bool TryPickUp(ItemInstance item)
         {
-            return Inventory.TryPickUp(item);
+            if (Inventory.TryPickUp(item))
+            {
+                return true;
+            }
+
+            PickUpRefused?.Invoke(item);
+            return false;
         }
 
         /// <summary>Lascia a terra, ai piedi del cavaliere, l'oggetto sul cursore.</summary>

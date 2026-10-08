@@ -5,6 +5,7 @@ using DarkDescent.Combat;
 using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
@@ -111,7 +112,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(new Vector2Int(0, 0), area.position);
         }
 
-        [UnityTest, Description("Con l'inventario pieno l'oggetto resta a terra e l'etichetta lo dice; liberato un posto, l'etichetta torna il solo nome")]
+        [UnityTest, Description("Con l'inventario pieno l'oggetto resta a terra e l'HUD lo dice per un momento al centro; l'etichetta resta il solo nome")]
         public IEnumerator FullInventory_ItemStaysOnGround()
         {
             yield return KillSkeleton();
@@ -134,11 +135,15 @@ namespace DarkDescent.Tests
             yield return new WaitForSeconds(0.3f);
 
             Assert.IsTrue(drop != null, "deve restare a terra");
-            StringAssert.Contains("inventory full", drop.GetComponent<Interactable>().GetLabel(Localizer));
+            var message = Object.FindFirstObjectByType<InventoryFullMessage>();
+            Assert.AreEqual("No room in the inventory", message.Text);
+            Assert.Greater(message.Alpha, 0.9f, "il messaggio si vede");
 
-            // la prova di Mirco del 7 ott: liberato un posto, la scritta restava
-            Assert.IsTrue(_inventory.Inventory.Grid.Remove(swords[0]));
-            StringAssert.DoesNotContain("inventory full", drop.GetComponent<Interactable>().GetLabel(Localizer));
+            // la seconda prova di Mirco: niente scritta che resta sull'oggetto
+            StringAssert.DoesNotContain("inventory", drop.GetComponent<Interactable>().GetLabel(Localizer));
+
+            yield return new WaitForSecondsRealtime(2.2f);
+            Assert.AreEqual(0f, message.Alpha, 0.01f, "dopo un momento sparisce");
         }
 
         [UnityTest, Description("Nel livello 1 lo scudo è a terra; scendendo, gli oggetti a terra se ne vanno con il livello")]

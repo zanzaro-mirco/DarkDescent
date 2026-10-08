@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Enemies.EnemyArchetype
   _nameKey: enemy.skeleton
   _aggroRange: 8
+  _leashRange: 20
   _eyeHeight: 1.5
   _perceptionInterval: 0.2
   _corpseLifetime: 5

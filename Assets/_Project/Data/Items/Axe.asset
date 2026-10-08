@@ -20,12 +20,12 @@ MonoBehaviour:
   _iconRotation: {x: 0, y: 0, z: 0}
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
-  _minDamage: 7
-  _maxDamage: 11
+  _minDamage: 10
+  _maxDamage: 15
   _damageType: 0
   _kind: 3
   _requiredStrength: 30
   _range: 0.6
   _rangeTolerance: 0.5
-  _attackInterval: 1
-  _hitDelay: 0.6
+  _attackInterval: 1.25
+  _hitDelay: 0.75

@@ -111,6 +111,9 @@ namespace DarkDescent.Combat
 
         public WeaponDefinition QuickWeapon => _quickWeapon;
 
+        /// <summary>L'arma del colpo in corso, o quella dell'ultimo colpo: i suoi tempi danno la velocità dell'animazione.</summary>
+        public WeaponDefinition SwingWeapon => _swingWeapon != null ? _swingWeapon : _weapon;
+
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();

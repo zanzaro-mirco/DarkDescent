@@ -110,6 +110,22 @@ namespace DarkDescent.Tests
             Assert.AreEqual(EquipSlot.Offhand, shield.Slot);
         }
     
+        [Test, Description("Le armi non colpiscono tutte allo stesso ritmo (seconda prova della build M7): il pugnale più svelto della spada corta, la spada più della lama dello scheletro e dell'ascia")]
+        public void Weapons_HaveTheirSpeed()
+        {
+            float Interval(string name) => Item<WeaponDefinition>(name).AttackInterval;
+            Assert.Less(Interval("Dagger"), Interval("ShortSword"));
+            Assert.Less(Interval("ShortSword"), Interval("SkeletonBlade"));
+            Assert.Less(Interval("SkeletonBlade"), Interval("Axe"));
+
+            // la clip del cavaliere ha il colpo al 60% del giro: accelerata o rallentata, la lama arriva
+            // ancora insieme al danno solo se ogni arma tiene la stessa proporzione
+            foreach (var weapon in Database.Items.OfType<WeaponDefinition>())
+            {
+                Assert.AreEqual(0.6f, weapon.HitDelay / weapon.AttackInterval, 0.001f, weapon.name);
+            }
+        }
+
         [Test, Description("Le basi della M5 hanno i valori della scheda (D7): otto oggetti a una mano, più la pozione della M6")]
         public void M5Bases_MatchTheScheda()
         {
@@ -121,7 +137,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(new Vector2Int(1, 2), dagger.Size);
 
             var axe = Item<WeaponDefinition>("Axe");
-            Assert.AreEqual((7, 11, 30, WeaponKind.Axe), (axe.MinDamage, axe.MaxDamage, axe.RequiredStrength, axe.Kind));
+            Assert.AreEqual((10, 15, 30, WeaponKind.Axe), (axe.MinDamage, axe.MaxDamage, axe.RequiredStrength, axe.Kind));
             Assert.AreEqual(new Vector2Int(2, 3), axe.Size);
 
             Assert.AreEqual(WeaponKind.Sword, Item<WeaponDefinition>("ShortSword").Kind);

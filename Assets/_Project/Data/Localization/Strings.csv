@@ -23,10 +23,14 @@ combat.blocked,Blocked,Bloccato
 
 # Oggetti a terra e scale
 exit.descend,Descend to level {0},Scendi al livello {0}
-ground.inventory_full,{0} (inventory full),{0} (inventario pieno)
+hud.inventory_full,No room in the inventory,Non c'è posto nell'inventario
 
 # Tooltip
 tooltip.damage,Damage: {0}–{1},Danno: {0}–{1}
+tooltip.speed,Attack speed: {0},Velocità d'attacco: {0}
+speed.fast,Fast,Veloce
+speed.normal,Normal,Normale
+speed.slow,Slow,Lenta
 tooltip.armor,Armor: {0},Armatura: {0}
 tooltip.required_strength,Required Strength: {0},Forza richiesta: {0}
 tooltip.block,Block chance: {0}%,Blocco: {0}%

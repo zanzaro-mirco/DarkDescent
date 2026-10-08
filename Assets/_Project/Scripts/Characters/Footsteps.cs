@@ -6,31 +6,39 @@ using Random = UnityEngine.Random;
 namespace DarkDescent.Characters
 {
     /// <summary>
-    /// I passi del cavaliere (prova della M7): un passo ogni tanti metri percorsi, con i suoni del
-    /// pavimento del livello, pietra nella cripta e terra nelle caverne. Si conta lo spazio e non il
-    /// tempo, così fermo non suona e di corsa i passi si fittano. Ha una sorgente sua, su un figlio del
-    /// cavaliere: l'intonazione dei passi non tocca i colpi che suonano insieme.
+    /// I passi del cavaliere (prova della M7): un passo quando un piede tocca terra nell'animazione di
+    /// corsa, con i suoni del pavimento del livello, pietra nella cripta e terra nelle caverne. Si segue
+    /// il ciclo dell'animazione e non lo spazio percorso: contando i metri i passi andavano più svelti
+    /// dei piedi (seconda prova della build M7). Ha una sorgente sua, su un figlio del cavaliere:
+    /// l'intonazione dei passi non tocca i colpi che suonano insieme.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(AudioSource))]
     public class Footsteps : MonoBehaviour
     {
-        [Tooltip("Ogni quanti metri percorsi un passo: a 5 m/s, tre passi al secondo.")]
-        [SerializeField, Min(0.2f)] private float _stride = 1.6f;
+        private static readonly int LocomotionHash = Animator.StringToHash("Locomotion");
+        private static readonly int SpeedHash = Animator.StringToHash("Speed");
+
+        [Tooltip("L'animator del modello del cavaliere. Vuoto: quello tra i figli del suo padre.")]
+        [SerializeField] private Animator _animator;
+
+        [Tooltip("Dove i piedi toccano terra nel ciclo della corsa, da 0 a 1 (Running_A di KayKit: il sinistro al 12%, il destro al 62%).")]
+        [SerializeField] private float[] _footfalls = { 0.12f, 0.62f };
+
+        [Tooltip("Sotto questa velocità (il parametro Speed, da 0 a 1) i piedi quasi non si staccano: niente passi.")]
+        [SerializeField, Range(0f, 1f)] private float _minSpeed = 0.3f;
 
         [SerializeField, Range(0f, 1f)] private float _volume = 0.5f;
 
         [SerializeField, Range(0f, 0.3f)] private float _pitchVariation = 0.08f;
 
-        [Tooltip("Uno spostamento più lungo in un fotogramma non è un passo: è il cambio di livello o la ripartenza.")]
-        [SerializeField, Min(0.1f)] private float _jumpDistance = 1f;
-
         private AudioSource _source;
         private SfxLimiter _limiter;
         private AudioClip[] _clips;
-        private Vector3 _lastPosition;
-        private float _travelled;
         private int _lastClip = -1;
+
+        // dove era il ciclo della corsa al frame prima; negativo fuori dalla corsa
+        private float _lastCycle = -1f;
 
         /// <summary>Un passo è suonato: per i test.</summary>
         public event Action<AudioClip> StepPlayed;
@@ -38,10 +46,19 @@ namespace DarkDescent.Characters
         /// <summary>I suoni del pavimento del livello corrente; vuoto, i passi tacciono.</summary>
         public AudioClip[] Surface => _clips;
 
+        /// <summary>Dove i piedi toccano terra nel ciclo della corsa: per i test.</summary>
+        public float[] Footfalls => _footfalls;
+
+        /// <summary>L'animator che si segue: per i test.</summary>
+        public Animator Animator => _animator;
+
         private void Awake()
         {
             _source = GetComponent<AudioSource>();
-            _lastPosition = transform.position;
+            if (_animator == null && transform.parent != null)
+            {
+                _animator = transform.parent.GetComponentInChildren<Animator>();
+            }
         }
 
         /// <summary>A chi chiedere il permesso di suonare (D9 della M7): lo passa il composition root.</summary>
@@ -54,32 +71,43 @@ namespace DarkDescent.Characters
         public void SetSurface(AudioClip[] clips)
         {
             _clips = clips;
-            _travelled = 0f;
-            _lastPosition = transform.position;
+            _lastCycle = -1f;
         }
 
         private void Update()
         {
-            Vector3 position = transform.position;
-            Vector3 step = position - _lastPosition;
-            step.y = 0f;
-            _lastPosition = position;
-
-            float distance = step.magnitude;
-            if (distance > _jumpDistance)
-            {
-                _travelled = 0f;
-                return;
-            }
-
-            _travelled += distance;
-            if (_travelled < _stride)
+            if (_animator == null)
             {
                 return;
             }
 
-            _travelled -= _stride;
-            Play();
+            // durante una transizione lo stato corrente è quello da cui si esce: dall'attacco alla
+            // corsa i passi ripartono a transizione finita
+            var state = _animator.GetCurrentAnimatorStateInfo(0);
+            if (state.shortNameHash != LocomotionHash)
+            {
+                _lastCycle = -1f;
+                return;
+            }
+
+            float before = _lastCycle;
+            float now = state.normalizedTime;
+            _lastCycle = now;
+            if (before < 0f || now <= before || _animator.GetFloat(SpeedHash) < _minSpeed)
+            {
+                return;
+            }
+
+            // un piede tocca terra quando il ciclo passa il suo punto: con la parte intera si contano
+            // anche i giri completi, e un frame lungo non perde il passo
+            foreach (float footfall in _footfalls)
+            {
+                if (Mathf.Floor(now - footfall) > Mathf.Floor(before - footfall))
+                {
+                    Play();
+                    return;
+                }
+            }
         }
 
         private void Play()

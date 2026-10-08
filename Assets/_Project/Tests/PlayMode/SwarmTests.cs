@@ -150,8 +150,9 @@ namespace DarkDescent.Tests
             PlaceKnight(4, 2);
             yield return new WaitForSeconds(1.5f);
 
-            // il cavaliere passa dall'altra parte: per raggiungerlo si passa uno alla volta
-            PlaceKnight(10, 2);
+            // il cavaliere passa dall'altra parte: per raggiungerlo si passa uno alla volta. Appena oltre
+            // il cunicolo: lo sciame lascia chi è a più di 30 m da casa (seconda prova della build M7)
+            PlaceKnight(8, 2);
             float elapsed = 0f;
             while (west.Any(e => Vector3.Distance(e.transform.position, Player.position) > 3f))
             {

@@ -19,6 +19,9 @@ namespace DarkDescent.Enemies
         [Tooltip("Layer che bloccano la vista: dietro un ostacolo il bersaglio non viene notato.")]
         [SerializeField] private LayerMask _sightBlockers;
 
+        [Tooltip("Tornando a casa, a questa distanza dal punto è arrivato.")]
+        [SerializeField, Min(0.05f)] private float _homeTolerance = 0.3f;
+
         private NavMeshAgent _agent;
         private MeleeAttack _attack;
         private Health _health;
@@ -26,7 +29,8 @@ namespace DarkDescent.Enemies
         private Health _target;
         private EnemyBrain _brain;
 
-        // dove l'ha messo il livello: ci torna quando il cavaliere torna in vita (D15 della M7)
+        // dove l'ha messo il livello: ci torna quando il cavaliere torna in vita (D15 della M7) e
+        // quando inseguendo si allontana troppo
         private Vector3 _homePosition;
         private Quaternion _homeRotation;
 
@@ -44,6 +48,25 @@ namespace DarkDescent.Enemies
         bool IEnemyBody.IsSwinging => _attack.IsSwinging;
 
         bool IEnemyBody.IsTelegraphedSwing => _attack.IsSwinging && !_attack.IsQuickSwing;
+
+        bool IEnemyBody.IsBeyondLeash
+        {
+            get
+            {
+                float leash = _archetype.LeashRange;
+                Vector3 away = transform.position - _homePosition;
+                away.y = 0f;
+                return leash > 0f && away.sqrMagnitude > leash * leash;
+            }
+        }
+
+        // un percorso che non arriva (casa irraggiungibile) finisce senza path: vale come arrivato,
+        // invece di restare per sempre a metà strada
+        bool IEnemyBody.IsHome => !_agent.enabled || !_agent.isOnNavMesh
+            || (!_agent.pathPending && (!_agent.hasPath || _agent.remainingDistance <= _homeTolerance));
+
+        /// <summary>Dove l'ha messo il livello: per i test.</summary>
+        public Vector3 HomePosition => _homePosition;
 
         private void Awake()
         {
@@ -142,6 +165,24 @@ namespace DarkDescent.Enemies
         void IEnemyBody.Disengage()
         {
             _attack.ClearTarget();
+        }
+
+        void IEnemyBody.GoHome()
+        {
+            if (_agent.enabled && _agent.isOnNavMesh)
+            {
+                _agent.SetDestination(_homePosition);
+            }
+        }
+
+        void IEnemyBody.ArriveHome()
+        {
+            if (_agent.enabled && _agent.isOnNavMesh && _agent.hasPath)
+            {
+                _agent.ResetPath();
+            }
+
+            _health.Heal(_health.Max);
         }
 
         private void HandleDied()

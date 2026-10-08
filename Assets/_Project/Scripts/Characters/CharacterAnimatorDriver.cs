@@ -51,6 +51,9 @@ namespace DarkDescent.Characters
         [Tooltip("Velocità dell'animazione dei colpi leggeri, quelli rapidi tra un colpo forte e l'altro.")]
         [SerializeField, Range(0.1f, 2f)] private float _quickAttackSpeed = 1f;
 
+        [Tooltip("Il momento del colpo nella clip d'attacco a velocità 1, in secondi. Con un valore la velocità segue l'arma impugnata: la clip si accelera o rallenta finché la lama arriva insieme al danno dell'arma (il cavaliere: il pugnale è più svelto dell'ascia). 0: le due velocità fisse qui sopra.")]
+        [SerializeField, Min(0f)] private float _clipHitTime;
+
         private Animator _animator;
         private bool _hasAttackSpeed;
 
@@ -149,7 +152,7 @@ namespace DarkDescent.Characters
             // a ogni colpo: Rebind, alla ripartenza, riporta i parametri ai valori del controller
             if (_hasAttackSpeed)
             {
-                _animator.SetFloat(AttackSpeedHash, _attack != null && _attack.IsQuickSwing ? _quickAttackSpeed : _attackSpeed);
+                _animator.SetFloat(AttackSpeedHash, AttackSpeed());
             }
 
             PlayOneShot(AttackStateHash);
@@ -201,6 +204,23 @@ namespace DarkDescent.Characters
             }
 
             _animator.CrossFadeInFixedTime(stateHash, _oneShotFadeTime, BaseLayer, 0f);
+        }
+
+        /// <summary>La velocità della clip d'attacco per il colpo che parte.</summary>
+        public float AttackSpeed()
+        {
+            if (_attack == null)
+            {
+                return _attackSpeed;
+            }
+
+            var weapon = _attack.SwingWeapon;
+            if (_clipHitTime > 0f && weapon != null && weapon.HitDelay > 0f)
+            {
+                return _clipHitTime / weapon.HitDelay;
+            }
+
+            return _attack.IsQuickSwing ? _quickAttackSpeed : _attackSpeed;
         }
 
         private float NormalizedSpeed()

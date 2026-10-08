@@ -10,7 +10,7 @@ namespace DarkDescent.Items
     /// <summary>
     /// Un oggetto a terra: il suo modello disteso sul pavimento, una piccola luce per trovarlo nel
     /// buio, un collider per il click. Si clicca come le scale (un Interactable); raggiunto, va
-    /// nell'inventario di chi lo usa, oppure resta e l'etichetta dice che non c'è posto. Il nome lo
+    /// nell'inventario di chi lo usa, oppure resta e l'HUD dice per un momento che non c'è posto. Il nome lo
     /// compone lui, nella lingua che l'HUD gli chiede. Un oggetto che cade da un nemico, da una cassa o
     /// dalla mano vola fin qui con una capriola: si muove solo il modello, mentre click, etichetta e
     /// punto d'arrivo stanno già dove si posa.
@@ -48,10 +48,6 @@ namespace DarkDescent.Items
         private ItemInstance _item;
         private GameObject _model;
         private Light _glow;
-        private bool _inventoryFull;
-
-        // l'inventario che non aveva posto: quando cambia, "inventario pieno" può non valere più
-        private Inventory _fullInventory;
         private Vector3 _restPosition;
         private Quaternion _restRotation;
         private Vector3 _restCenter;
@@ -107,9 +103,8 @@ namespace DarkDescent.Items
                 return string.Empty;
             }
 
-            // il colore della rarità sul nome, come in Diablo; "(inventario pieno)" resta del colore dell'etichetta
-            string name = "<color=" + RarityColors.TextHex(_item.Rarity) + ">" + ItemNamer.Name(_item, localizer) + "</color>";
-            return _inventoryFull ? localizer.Format(TextKeys.InventoryFull, name) : name;
+            // il colore della rarità sul nome, come in Diablo
+            return "<color=" + RarityColors.TextHex(_item.Rarity) + ">" + ItemNamer.Name(_item, localizer) + "</color>";
         }
 
         private void Awake()
@@ -136,13 +131,11 @@ namespace DarkDescent.Items
         private void OnDisable()
         {
             _interactable.Used -= HandleUsed;
-            ForgetFullInventory();
         }
 
         private void Show(ItemInstance item)
         {
             _item = item;
-            ForgetFullInventory();
             _interactable.NotifyLabelChanged();
             if (_glow != null)
             {
@@ -237,44 +230,12 @@ namespace DarkDescent.Items
                 return;
             }
 
+            // senza posto resta a terra: lo dice l'HUD, ascoltando l'inventario (seconda prova della M7)
             if (inventory.TryPickUp(_item))
             {
                 _item = null;
                 Destroy(gameObject);
             }
-            else if (!_inventoryFull)
-            {
-                // si resta in ascolto finché l'inventario non cambia: liberato un posto, l'etichetta
-                // torna il solo nome anche senza riprovare a raccoglierlo
-                _inventoryFull = true;
-                _fullInventory = inventory.Inventory;
-                _fullInventory.Grid.Changed += HandleInventoryChanged;
-                _fullInventory.Belt.Changed += HandleBeltChanged;
-                _interactable.NotifyLabelChanged();
-            }
-        }
-
-        private void HandleInventoryChanged()
-        {
-            ForgetFullInventory();
-            _interactable.NotifyLabelChanged();
-        }
-
-        private void HandleBeltChanged(int slot)
-        {
-            HandleInventoryChanged();
-        }
-
-        private void ForgetFullInventory()
-        {
-            if (_fullInventory != null)
-            {
-                _fullInventory.Grid.Changed -= HandleInventoryChanged;
-                _fullInventory.Belt.Changed -= HandleBeltChanged;
-                _fullInventory = null;
-            }
-
-            _inventoryFull = false;
         }
     }
 }

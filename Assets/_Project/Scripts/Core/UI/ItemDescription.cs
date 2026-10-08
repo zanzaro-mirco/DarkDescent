@@ -8,7 +8,7 @@ namespace DarkDescent.UI
     /// <summary>
     /// Il testo del tooltip di un oggetto, in rich text di TextMesh Pro, nella lingua attiva: nome
     /// composto nel colore della rarità, danno o Armatura e blocco già con gli affissi, requisiti,
-    /// poi una riga per affisso in blu, come in Diablo; per le pozioni la cura e come berle. Logica
+    /// velocità d'attacco, poi una riga per affisso in blu, come in Diablo; per le pozioni la cura e come berle. Logica
     /// pura, così il formato si prova senza scena.
     /// </summary>
     public static class ItemDescription
@@ -23,6 +23,15 @@ namespace DarkDescent.UI
 
         // il suggerimento sotto la pozione: più spento del testo, come un'istruzione e non un valore
         private const string HintColor = "#8C8577";
+
+        /// <summary>
+        /// La velocità d'attacco a parole, come in Diablo (seconda prova della build M7): il pugnale è
+        /// veloce, la spada corta normale, la lama dello scheletro e l'ascia lente.
+        /// </summary>
+        public static string SpeedKey(float attackInterval)
+        {
+            return attackInterval < 0.9f ? TextKeys.SpeedFast : attackInterval > 1.05f ? TextKeys.SpeedSlow : TextKeys.SpeedNormal;
+        }
 
         /// <summary>
         /// Scrive la descrizione in <paramref name="builder"/>, dopo averlo svuotato.
@@ -45,6 +54,7 @@ namespace DarkDescent.UI
                 case WeaponDefinition weapon:
                     var (min, max) = ItemStats.WeaponDamage(item);
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipDamage), min, max);
+                    builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipSpeed), localizer.Get(SpeedKey(weapon.AttackInterval)));
                     if (weapon.RequiredStrength > 0)
                     {
                         builder.Append('\n');

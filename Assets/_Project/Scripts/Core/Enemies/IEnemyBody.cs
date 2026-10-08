@@ -27,5 +27,17 @@ namespace DarkDescent.Enemies
 
         /// <summary>Lascia il bersaglio: niente più avvicinamento né colpi.</summary>
         void Disengage();
+
+        /// <summary>È più lontano da casa di quanto il suo archetipo gli permetta inseguendo.</summary>
+        bool IsBeyondLeash { get; }
+
+        /// <summary>È arrivato a casa, dove l'ha messo il livello.</summary>
+        bool IsHome { get; }
+
+        /// <summary>Si avvia verso casa.</summary>
+        void GoHome();
+
+        /// <summary>Arrivato: riprende la vita piena.</summary>
+        void ArriveHome();
     }
 }

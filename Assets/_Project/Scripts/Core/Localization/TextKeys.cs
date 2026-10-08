@@ -10,8 +10,12 @@ namespace DarkDescent.Localization
         public const string Miss = "combat.miss";
         public const string Blocked = "combat.blocked";
         public const string ExitDescend = "exit.descend";
-        public const string InventoryFull = "ground.inventory_full";
+        public const string InventoryFull = "hud.inventory_full";
         public const string TooltipDamage = "tooltip.damage";
+        public const string TooltipSpeed = "tooltip.speed";
+        public const string SpeedFast = "speed.fast";
+        public const string SpeedNormal = "speed.normal";
+        public const string SpeedSlow = "speed.slow";
         public const string TooltipArmor = "tooltip.armor";
         public const string TooltipRequiredStrength = "tooltip.required_strength";
         public const string TooltipBlock = "tooltip.block";

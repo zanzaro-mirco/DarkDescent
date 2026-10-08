@@ -46,6 +46,25 @@ namespace DarkDescent.Tests
             {
                 Disengages++;
             }
+
+            public bool BeyondLeash { get; set; }
+            public bool Home { get; set; }
+            public int HomeTrips { get; private set; }
+            public int Arrivals { get; private set; }
+
+            public bool IsBeyondLeash => BeyondLeash;
+
+            public bool IsHome => Home;
+
+            public void GoHome()
+            {
+                HomeTrips++;
+            }
+
+            public void ArriveHome()
+            {
+                Arrivals++;
+            }
         }
 
         private EnemyArchetype _archetype;
@@ -116,6 +135,62 @@ namespace DarkDescent.Tests
             Run(1);
             Assert.AreEqual(EnemyState.Chase, _brain.State);
             CollectionAssert.AreEqual(new[] { (EnemyState.Idle, EnemyState.Chase), (EnemyState.Chase, EnemyState.Attack), (EnemyState.Attack, EnemyState.Chase) }, _changes);
+        }
+
+        [Test, Description("Inseguendo troppo lontano da casa lascia il bersaglio e ci torna senza guardarsi attorno; arrivato guarisce e torna fermo, e può rivedere il cavaliere")]
+        public void Chase_BeyondLeash_GoesHomeAndHeals()
+        {
+            _body.Sees = true;
+            Run(2);
+            Assert.AreEqual(EnemyState.Chase, _brain.State);
+            int engages = _body.Engages;
+
+            _body.BeyondLeash = true;
+            Run(1);
+            Assert.AreEqual(EnemyState.Return, _brain.State);
+            Assert.AreEqual(1, _body.HomeTrips, "si avvia verso casa");
+            Assert.AreEqual(1, _body.Disengages, "lascia il bersaglio");
+
+            _body.BeyondLeash = false;
+            int looks = _body.Looks;
+            Run(20);
+            Assert.AreEqual(EnemyState.Return, _brain.State, "finché non è a casa non torna a inseguire, anche vedendo il cavaliere");
+            Assert.AreEqual(engages, _body.Engages, "nessun colpo chiesto tornando");
+            Assert.AreEqual(looks, _body.Looks, "non si guarda attorno");
+            Assert.AreEqual(0, _body.Arrivals);
+
+            _body.Home = true;
+            Run(1);
+            Assert.AreEqual(EnemyState.Idle, _brain.State);
+            Assert.AreEqual(1, _body.Arrivals, "arrivato, guarisce");
+
+            Run(11);
+            Assert.AreEqual(EnemyState.Chase, _brain.State, "da fermo, al prossimo sguardo, può vederlo di nuovo");
+        }
+
+        [Test, Description("Chi sta già colpendo non guarda la distanza da casa: il duello si finisce")]
+        public void Attack_IgnoresLeash()
+        {
+            _body.Sees = true;
+            _body.InRange = true;
+            Run(2);
+            Assert.AreEqual(EnemyState.Attack, _brain.State);
+
+            _body.BeyondLeash = true;
+            Run(5);
+            Assert.AreEqual(EnemyState.Attack, _brain.State);
+            Assert.AreEqual(0, _body.HomeTrips);
+        }
+
+        [Test, Description("Tornando a casa non risponde all'avviso di un compagno")]
+        public void Returning_IgnoresAlert()
+        {
+            _body.Sees = true;
+            Run(2);
+            _body.BeyondLeash = true;
+            Run(1);
+            Assert.IsFalse(_brain.Alert());
+            Assert.AreEqual(EnemyState.Return, _brain.State);
         }
 
         [Test, Description("Un colpo già partito porta dall'inseguimento all'attacco anche fuori portata")]

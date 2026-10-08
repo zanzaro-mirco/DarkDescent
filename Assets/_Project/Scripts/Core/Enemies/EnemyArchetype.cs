@@ -17,6 +17,9 @@ namespace DarkDescent.Enemies
         [Tooltip("Distanza entro cui il bersaglio viene notato, se non c'è un ostacolo in mezzo.")]
         [SerializeField, Min(0f)] private float _aggroRange = 8f;
 
+        [Tooltip("Inseguendo, oltre questa distanza da dove l'ha messo il livello lascia il cavaliere e torna a casa, dove guarisce (seconda prova della build M7): 20 m, lo sciame che caccia in branco 30. 0: insegue ovunque.")]
+        [SerializeField, Min(0f)] private float _leashRange = 20f;
+
         [Tooltip("Altezza degli occhi per il controllo della vista, dal pivot ai piedi.")]
         [SerializeField, Min(0f)] private float _eyeHeight = 1.5f;
 
@@ -85,6 +88,8 @@ namespace DarkDescent.Enemies
 
         public float AggroRange => _aggroRange;
 
+        public float LeashRange => _leashRange;
+
         public float EyeHeight => _eyeHeight;
 
         public float PerceptionInterval => _perceptionInterval;
@@ -96,13 +101,13 @@ namespace DarkDescent.Enemies
         {
             if (!IsTelegraphed)
             {
-                return new EnemyStateBase[] { new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new DeadState() };
+                return new EnemyStateBase[] { new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new ReturnState(), new DeadState() };
             }
 
             return new EnemyStateBase[]
             {
                 new IdleState(_perceptionInterval), new ChaseState(), new AttackState(telegraphed: true),
-                new WindUpState(), new RecoverState(_recoverTime), new DeadState(),
+                new WindUpState(), new RecoverState(_recoverTime), new ReturnState(), new DeadState(),
             };
         }
     }

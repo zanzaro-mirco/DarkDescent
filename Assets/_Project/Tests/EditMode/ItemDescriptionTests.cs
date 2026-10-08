@@ -45,8 +45,19 @@ namespace DarkDescent.Tests
 
             StringAssert.Contains("Skeleton Blade", text);
             StringAssert.Contains("Damage: 8–12", text);
+            StringAssert.Contains("Attack speed: Slow", text);
             StringAssert.Contains("Required Strength: 25", text);
             StringAssert.DoesNotContain(ItemDescription.UnmetColor, text);
+        }
+
+        [Test, Description("La velocità d'attacco a parole: il pugnale veloce, la spada corta normale, l'ascia lenta; in italiano tradotta")]
+        public void Weapons_ShowTheirSpeed()
+        {
+            StringAssert.Contains("Attack speed: Fast", Write(Normal("Dagger")));
+            StringAssert.Contains("Attack speed: Normal", Write(Normal("ShortSword")));
+            StringAssert.Contains("Attack speed: Slow", Write(Normal("Axe")));
+            _localizer.SetLanguage("it");
+            StringAssert.Contains("Velocità d'attacco: Veloce", Write(Normal("Dagger")));
         }
 
         [Test, Description("Con la Forza che non basta, il requisito è in rosso")]

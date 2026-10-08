@@ -1,4 +1,5 @@
 using System.Collections;
+using DarkDescent.Characters;
 using DarkDescent.Combat;
 using DarkDescent.Items;
 using DarkDescent.Stats;
@@ -73,6 +74,25 @@ namespace DarkDescent.Tests
             {
                 Assert.AreNotEqual(0u, renderer.renderingLayerMask & playerLayer, "la luce di riempimento deve illuminare anche l'arma");
             }
+        }
+
+        [UnityTest, Description("L'animazione d'attacco del cavaliere segue l'arma: più svelta con il pugnale, più lenta con l'ascia, normale con la spada corta e i pugni")]
+        public IEnumerator AttackAnimation_FollowsTheWeapon()
+        {
+            yield return LoadKnight();
+            var driver = Player.GetComponentInChildren<CharacterAnimatorDriver>();
+            Assert.AreEqual(1f, driver.AttackSpeed(), 0.001f, "la spada corta");
+
+            Assert.IsTrue(_inventory.Equipment.TryEquip(Item<WeaponDefinition>("Dagger"), out _));
+            Assert.AreEqual(0.6f / 0.42f, driver.AttackSpeed(), 0.001f, "il pugnale");
+
+            // l'ascia vuole Forza 30: per la prova gliela si dà
+            _stats.Sheet.SetBase(StatType.Strength, 60f);
+            Assert.IsTrue(_inventory.Equipment.TryEquip(Item<WeaponDefinition>("Axe"), out _));
+            Assert.AreEqual(0.8f, driver.AttackSpeed(), 0.001f, "l'ascia");
+
+            _inventory.Equipment.Unequip(EquipSlot.Weapon);
+            Assert.AreEqual(1f, driver.AttackSpeed(), 0.001f, "i pugni");
         }
 
         [UnityTest, Description("Lo scudo dà Armatura e compare in mano sinistra; tolto, tutto torna com'era")]

@@ -58,6 +58,8 @@ namespace DarkDescent.Core
         [Tooltip("La scritta del livello in cui si è: grande entrando, piccola sotto la minimappa.")]
         [SerializeField] private LevelTitle _levelTitle;
 
+        [SerializeField] private InventoryFullMessage _inventoryFullMessage;
+
         [Tooltip("Nome e vita del nemico sotto il cursore, in alto al centro.")]
         [SerializeField] private EnemyBar _enemyBar;
 
@@ -154,6 +156,7 @@ namespace DarkDescent.Core
             _footsteps = _player.GetComponentInChildren<Footsteps>();
             _footsteps.Bind(_sfxLimiter);
             _levelTitle.Bind(_localizer);
+            _inventoryFullMessage.Bind(inventory, _localizer);
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);
             _targetMarker.Bind(controller);

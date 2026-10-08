@@ -142,10 +142,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64b76d397e25d904eb0e36e58747175c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Characters.Footsteps
-  _stride: 1.6
+  _animator: {fileID: 7280326555418602738}
+  _footfalls:
+  - 0.12
+  - 0.62
+  _minSpeed: 0.3
   _volume: 0.5
   _pitchVariation: 0.08
-  _jumpDistance: 1
 --- !u!1 &3423166537272395747
 GameObject:
   m_ObjectHideFlags: 0
@@ -582,6 +585,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   _maxRayDistance: 100
+  _enemyClickTolerance: 0.6
   _useReach: 1
   _holdRepathInterval: 0.1
   _camera: {fileID: 0}
@@ -888,7 +892,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93a9d545777742e44960fc743ef444b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.ShieldBlock
-  _recovery: 0.45
 --- !u!114 &4619349021389252605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1051,6 +1054,7 @@ MonoBehaviour:
   _oneShotFadeTime: 0.05
   _attackSpeed: 1
   _quickAttackSpeed: 1
+  _clipHitTime: 0.6
 --- !u!114 &8665827698380722836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1069,5 +1073,10 @@ MonoBehaviour:
 --- !u!4 &5799765090521825100 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7214371169738337839, guid: 54df56d99241fd44ba9f600f4ae234f9, type: 3}
+  m_PrefabInstance: {fileID: 3774719917804294499}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &7280326555418602738 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 54df56d99241fd44ba9f600f4ae234f9, type: 3}
   m_PrefabInstance: {fileID: 3774719917804294499}
   m_PrefabAsset: {fileID: 0}

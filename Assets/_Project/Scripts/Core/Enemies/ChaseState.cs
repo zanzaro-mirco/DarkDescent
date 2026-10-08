@@ -2,7 +2,8 @@ namespace DarkDescent.Enemies
 {
     /// <summary>
     /// Insegue: chiede il colpo, e il corpo si avvicina da solo. A portata, o con un colpo già partito,
-    /// passa all'attacco; con il bersaglio morto torna fermo.
+    /// passa all'attacco; con il bersaglio morto torna fermo; troppo lontano da casa ci torna.
+    /// L'attacco non guarda la distanza da casa: un nemico che sta già colpendo finisce il duello.
     /// </summary>
     public sealed class ChaseState : EnemyStateBase
     {
@@ -14,6 +15,11 @@ namespace DarkDescent.Enemies
             {
                 body.Disengage();
                 return EnemyState.Idle;
+            }
+
+            if (body.IsBeyondLeash)
+            {
+                return EnemyState.Return;
             }
 
             body.Engage();
