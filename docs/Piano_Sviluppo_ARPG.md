@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.22 | 8 ott 2026 | Su richiesta di Mirco: **la vita del nemico che si sta combattendo** resta in alto anche senza il cursore sopra, nella M9 · barre sopra i nemici feriti come opzione, dopo la v1.0 · **nemici speciali** più forti con loot migliore, dopo la v1.0 · il boss della M10 lascia loot migliore |
 | v2.21 | 7 ott 2026 | Su richiesta di Mirco: una **punizione alla morte** tra i lavori dopo la v1.0, da valutare prima se le prove della M10 la chiedono |
 | v2.20 | 7 ott 2026 | Dopo la stessa prova, su richiesta di Mirco: **alla morte non si perde niente** e il livello non si ricarica (ADR-048, regola che il piano lasciava alla M8) · sciame più leggero, blocco che non ferma, mira sui nemici (ADR-049) · nella M7 il passo 7.11 |
 | v2.19 | 7 ott 2026 | Dopo la prova della build M7, su richiesta di Mirco: **elmo, armatura, guanti, stivali, due anelli e amuleto** nella M8, prima del salvataggio, così il formato dei salvataggi nasce con tutti gli slot · M8 da 8–12 a 12–18 h · nella M7 il passo 7.10 di correzioni (D14 della scheda) |
@@ -100,7 +101,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 108–156 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco; v2.14: la M6 sale di 6 ore per pozioni, automappa, ripartenza e tooltip, la M7 ne perde una con l'automappa; v2.16: la M7 sale di 2–3 ore per musica e rumori d'ambiente; v2.17: altre 1–2 ore per i colpi critici; v2.18: la M8 sale di 2–3 ore per la visuale). Per le milestone ancora aperte, M7–M11 al 6 ott 2026, restano 54–82 ore: a 6–10 h a settimana sono 6–14 settimane di lavoro effettivo; con pause e settimane saltate, **2–4 mesi di calendario**.
+**Totale stimato:** circa 109–157 ore, comprese M1 e M2 (v2.12: la M5 sale di 3 ore per lingue e blocco; v2.14: la M6 sale di 6 ore per pozioni, automappa, ripartenza e tooltip, la M7 ne perde una con l'automappa; v2.16: la M7 sale di 2–3 ore per musica e rumori d'ambiente; v2.17: altre 1–2 ore per i colpi critici; v2.18: la M8 sale di 2–3 ore per la visuale; v2.22: la M9 sale di un'ora per la vita del nemico combattuto). Per le milestone ancora aperte, M7–M11 al 6 ott 2026, restano 55–83 ore: a 6–10 h a settimana sono 6–14 settimane di lavoro effettivo; con pause e settimane saltate, **2–4 mesi di calendario**.
 
 **Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Il prossimo, se serve, si fissa alla chiusura della M8.
 
@@ -256,7 +257,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | ✅ 5 ott |
 | M7 | "Le profondità" | caverne, nuovi nemici, colpi critici, automappa delle caverne, musica e rumori d'ambiente | 13–20 | |
 | M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 12–18 | |
-| M9 | "Magia" | mana, incantesimi, nemico a distanza | 8–11 | |
+| M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto | 9–12 | |
 | M10 | "Città e loop completo" | il gioco è finibile, **prima build pubblica** | 10–14 | |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 15–25 | |
 
@@ -585,11 +586,13 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M9 — "Magia" · 8–11 h
+### M9 — "Magia" · 9–12 h
 
 **A schermo:** la sfera blu del mana si svuota mentre lanci dalla hotbar un proiettile, un incantesimo ad area e un potenziamento; un nemico tiene le distanze e ti bersaglia.
 
-**Contenuto:** mana · 3 incantesimi (proiettile, area, potenziamento) · proiettili gestiti con **`UnityEngine.Pool.ObjectPool<T>`** (esiste già, non serve scriverne uno) · hotbar e tempi di ricarica · effetti con il sistema particellare · pergamene che insegnano gli incantesimi · archetipo **a distanza** (§ 2), che riusa i proiettili.
+**Contenuto:** mana · 3 incantesimi (proiettile, area, potenziamento) · proiettili gestiti con **`UnityEngine.Pool.ObjectPool<T>`** (esiste già, non serve scriverne uno) · hotbar e tempi di ricarica · effetti con il sistema particellare · pergamene che insegnano gli incantesimi · archetipo **a distanza** (§ 2), che riusa i proiettili · **la vita del nemico che si sta combattendo** (v2.22, richiesta di Mirco), descritta sotto.
+
+**La vita del nemico che si sta combattendo** (proposta, da confermare nella scheda della M9). Dalla M7 la barra in alto mostra il nome e la vita del nemico sotto il cursore (ADR-049): appena il cursore si sposta, sparisce, anche se il cavaliere sta ancora colpendo lo stesso nemico. La barra mostra il nemico sotto il cursore e, quando il cursore non ne ha uno, quello che il cavaliere sta attaccando o ha colpito per ultimo, per circa 3 secondi dopo l'ultimo colpo. Il cerchio rosso a terra resta sul nemico sotto il cursore, così distingue il prossimo bersaglio da quello di prima. Sta nella M9 perché lì il bersaglio cambia significato: un proiettile o un incantesimo ad area colpiscono nemici che il cursore non ha mai toccato, e la regola dell'"ultimo colpito" deve valere anche per loro. Si è scartata la barra sopra ogni nemico: nello sciame sarebbero dieci barre una sull'altra, e Diablo 1 non le ha. Resta un'opzione per dopo la v1.0 (sotto). Circa 1 h.
 
 **Definition of Done:** in build, un combattimento misto di mischia e magia contro nemici a distanza; lanciando proiettili a raffica, il Profiler non mostra allocazioni a ogni frame.
 
@@ -601,7 +604,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 **A schermo:** dal menu arrivi in città, compri dal mercante, scendi, risali a vendere, affronti il boss al livello 8, vedi la schermata di vittoria.
 
-**Contenuto:** città hub · mercante · flusso di gioco completo (menu → città → dungeon → morte o vittoria) costruito sulla struttura a scene di M3 · menu delle opzioni, con la scelta della lingua che sostituisce il tasto provvisorio della M5 · ritorno in città dai livelli profondi · **boss** (§ 2) · vittoria e riconoscimenti · **prima build pubblica su itch.io** (spostata da M3): pagina "in sviluppo" creata da Mirco, caricamento dalla CI con butler sui tag, eventuale canale Web se la prova di M3 ha retto.
+**Contenuto:** città hub · mercante · flusso di gioco completo (menu → città → dungeon → morte o vittoria) costruito sulla struttura a scene di M3 · menu delle opzioni, con la scelta della lingua che sostituisce il tasto provvisorio della M5 · ritorno in città dai livelli profondi · **boss** (§ 2), che lascia loot migliore dei nemici normali (almeno un oggetto raro; v2.22) · vittoria e riconoscimenti · **prima build pubblica su itch.io** (spostata da M3): pagina "in sviluppo" creata da Mirco, caricamento dalla CI con butler sui tag, eventuale canale Web se la prova di M3 ha retto.
 
 **A fine M10 il gioco è finibile.** È il momento di farlo provare a cinque persone e di prendere appunti senza difendersi: il link di itch.io è il modo più semplice per dargliela.
 
@@ -629,6 +632,13 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
 
 - **Nuove classi e le loro armi** (chiesto da Mirco il 4 ott 2026). Quando si aggiungono classi oltre al Guerriero: armi **a due mani** (spadone, ascia a due mani; occupano anche lo slot dello scudo), **bacchette** e **bastoni** per gli incantatori, **archi** e **balestre** con le frecce, e gli altri tipi che serviranno. Dalla M5 il tipo d'arma è un dato della definizione (`WeaponKind`): un tipo nuovo vuole un valore dell'enum, la regola sugli slot, le animazioni e gli affissi che lo ammettono, non una struttura nuova. I modelli di KayKit *Adventurers* ci sono già: `sword_2handed`, `axe_2handed`, `staff`, `wand`, `bow`, `crossbow_1handed`, `crossbow_2handed`.
 - **Una punizione alla morte** (chiesta da Mirco il 7 ott 2026). Dalla M7 morire non costa niente: si torna all'ingresso del livello con tutto (ADR-048). Quando il gioco sarà finibile andrà pensata una perdita che dia peso alla morte senza far ricominciare da capo. Idee da valutare: una parte dell'oro (che arriva con il mercante della M10), l'oggetto in mano lasciato dove si è morti da andare a riprendere come in Diablo 1, una perdita di esperienza (M8), o i nemici uccisi che in parte rinascono. Se le prove della M10 con cinque persone dicono che la morte non pesa, si anticipa.
+- **Barre della vita sopra i nemici** (chiesto da Mirco l'8 ott 2026, come alternativa alla barra in alto della M9). Una barra piccola sopra la testa, solo per i nemici feriti, così nello sciame non se ne vedono dieci intatte. È un'opzione del menu della M10, spenta di default. Le barre stanno in un solo canvas in world space, prese da un pool e non una per nemico, e si aggiornano su `HealthChanged` senza controlli a ogni frame.
+- **Nemici speciali** (chiesto da Mirco l'8 ott 2026). Oltre al boss finale della M10, nemici più forti dei normali che lasciano loot migliore, come i *nemici unici* e i *campioni* di Diablo:
+  - **Campioni:** un nemico normale reso più forte da un dato, non da un archetipo nuovo. Ha più vita e più danno, un nome colorato e una tinta del modello, è un po' più grande e ha uno o due modificatori presi da una lista (più veloce, colpi che rallentano, rigenera la vita, resiste al blocco). Arriva con una scorta di nemici normali.
+  - **Unici:** un nemico con un nome suo e un modello suo, uno per tipo di livello, che lo spawn mette con una certa probabilità. Per esempio un capo degli scheletri nella cripta e un bruto più grande nelle caverne.
+  - **Loot:** più oggetti, e una tabella delle rarità spostata verso magico e raro (una moltiplicazione dei pesi della `RarityTable`, da M5). Gli unici lasciano sempre almeno un oggetto raro.
+  - Nel codice entra come un dato in più dell'`EnemyArchetype` e della `SpawnTable` (ADR-047): un moltiplicatore della vita, del danno e del loot, e la lista dei modificatori. La barra in alto mostra il nome colorato e i modificatori.
+  - Un boss a metà discesa, alla fine della cripta, è una variante da decidere insieme. Se le prove della M10 dicono che la discesa è monotona, si anticipa.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---
