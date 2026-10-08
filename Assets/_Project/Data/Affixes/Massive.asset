@@ -19,5 +19,5 @@ MonoBehaviour:
   _min: 25
   _max: 50
   _minItemLevel: 2
-  _targets: 2
+  _targets: 6
   _group: armor_percent

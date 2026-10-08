@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6047108da5d76c648b1118cc70d69e6a, type: 3}
+  m_Name: Gauntlets
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Items.ArmorDefinition
+  _id: c647e84ddfe94c55a036c5175db73974
+  _nameKey: item.gauntlets
+  _icon: {fileID: 21300000, guid: de9893cb478d2694fa7e95543b680098, type: 3}
+  _size: {x: 2, y: 2}
+  _model: {fileID: 2160550175922524005, guid: 4ca238c5ce6e91244ae8a806ad488273, type: 3}
+  _iconRotation: {x: 90, y: 0, z: 0}
+  _heldPosition: {x: 0, y: 0, z: 0}
+  _heldRotation: {x: 0, y: 0, z: 0}
+  _slot: 5
+  _armor: 4
+  _blockChance: 0
+  _requiredStrength: 25

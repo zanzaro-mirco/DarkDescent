@@ -7,13 +7,15 @@ namespace DarkDescent.Items
     /// Il nome di un oggetto nella lingua attiva (D4 della M5): lo schema della lingua
     /// (<c>item.name.pattern</c>, in inglese "{prefix} {base} {suffix}", in italiano
     /// "{base} {prefix} {suffix}") con il primo prefisso accordato al genere della base e il primo
-    /// suffisso. Il nome non si salva mai: si compone quando serve.
+    /// suffisso. Il genere è n, m o f, e dalla M8 mp per le basi al plurale maschile (guanti,
+    /// stivali). Il nome non si salva mai: si compone quando serve.
     /// </summary>
     public static class ItemNamer
     {
         public const string PatternKey = "item.name.pattern";
         public const string GenderSuffix = ".gender";
         public const string FeminineSuffix = ".f";
+        public const string MasculinePluralSuffix = ".mp";
 
         private static readonly StringBuilder Builder = new StringBuilder(64);
 
@@ -30,8 +32,9 @@ namespace DarkDescent.Items
             string prefixName = string.Empty;
             if (prefix != null)
             {
-                bool feminine = localizer.Get(item.Definition.NameKey + GenderSuffix) == "f";
-                prefixName = localizer.Get(feminine ? prefix.NameKey + FeminineSuffix : prefix.NameKey);
+                string gender = localizer.Get(item.Definition.NameKey + GenderSuffix);
+                string form = gender == "f" ? FeminineSuffix : gender == "mp" ? MasculinePluralSuffix : string.Empty;
+                prefixName = localizer.Get(prefix.NameKey + form);
             }
 
             string suffixName = suffix != null ? localizer.Get(suffix.NameKey) : string.Empty;

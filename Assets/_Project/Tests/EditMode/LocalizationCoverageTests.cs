@@ -64,7 +64,7 @@ namespace DarkDescent.Tests
                 Assert.IsTrue(table.TryGet(key, english, out var en), $"{item.name}: manca {key} in inglese");
                 Assert.IsTrue(table.TryGet(key, italian, out var it), $"{item.name}: manca {key} in italiano");
                 Assert.AreEqual("n", en, item.name);
-                CollectionAssert.Contains(new[] { "m", "f" }, it, item.name);
+                CollectionAssert.Contains(new[] { "m", "f", "mp" }, it, item.name);
             }
         }
 

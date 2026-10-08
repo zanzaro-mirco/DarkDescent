@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73333a477a5f4c72ab6039b498bcc602, type: 3}
+  m_Name: Amulet
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Items.JewelryDefinition
+  _id: f4f91e5f7798492c86730b0c2e713410
+  _nameKey: item.amulet
+  _icon: {fileID: 21300000, guid: b2be041c6b44b064e8e35a3d46751c68, type: 3}
+  _size: {x: 1, y: 1}
+  _model: {fileID: 6213837575585294701, guid: 4823e751672a1c54cbc2c6323470482b, type: 3}
+  _iconRotation: {x: 0, y: 0, z: 0}
+  _heldPosition: {x: 0, y: 0, z: 0}
+  _heldRotation: {x: 0, y: 0, z: 0}
+  _slot: 7

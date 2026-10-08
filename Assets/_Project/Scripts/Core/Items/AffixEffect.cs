@@ -27,5 +27,8 @@ namespace DarkDescent.Items
 
         /// <summary>Del personaggio: + vita massima.</summary>
         Life,
+
+        /// <summary>Del personaggio: + probabilità di critico, in punti percentuali (gioielli, M8).</summary>
+        CritChance,
     }
 }

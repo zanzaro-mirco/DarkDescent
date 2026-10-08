@@ -17,5 +17,8 @@ namespace DarkDescent.Stats
 
         /// <summary>Vita massima in più, oltre a quella data dalla Vitalità.</summary>
         Life,
+
+        /// <summary>Punti percentuali in più alla probabilità di critico (gli affissi dei gioielli, M8).</summary>
+        CritChance,
     }
 }

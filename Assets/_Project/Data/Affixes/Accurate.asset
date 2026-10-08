@@ -19,5 +19,5 @@ MonoBehaviour:
   _min: 5
   _max: 10
   _minItemLevel: 1
-  _targets: 1
+  _targets: 9
   _group: to_hit

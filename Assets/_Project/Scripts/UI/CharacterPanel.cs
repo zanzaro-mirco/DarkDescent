@@ -234,7 +234,7 @@ namespace DarkDescent.UI
             _builder.Append(Mathf.RoundToInt(_stats.Armor)).Append('\n');
             _builder.Append(min).Append('–').Append(max).Append('\n');
             _builder.Append(Mathf.RoundToInt(hitChance)).Append("%\n");
-            _builder.Append(Mathf.RoundToInt(CombatFormulas.CritChance(_stats.Dexterity))).Append("%\n");
+            _builder.Append(Mathf.RoundToInt(CombatFormulas.CritChance(_stats.Dexterity, _stats.Sheet.Get(StatType.CritChance)))).Append("%\n");
             _builder.Append(_block != null ? Mathf.RoundToInt(_block.BlockChance) : 0).Append('%');
             _values.SetText(_builder);
             RefreshProgress();

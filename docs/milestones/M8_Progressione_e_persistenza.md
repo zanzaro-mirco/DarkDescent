@@ -154,6 +154,59 @@ arrivano all'8.4: l'Armatura dei pezzi che si somma, la Forza richiesta, i due a
 accettano cosa, il click che mette l'anello nel secondo slot, il tooltip senza blocco. 194 EditMode
 e 139 PlayMode verdi.
 
+## Passo 8.4 — Basi nuove, affissi e loot
+
+**Com'è andata (8 ott 2026).**
+
+*Modelli (D6).* Scaricato con il permesso di Mirco l'*Ultimate RPG Items Pack* di Quaternius
+(CC0, 44,6 MB, OpenGameArt): ha cinque corazze, un guanto, sette anelli e tre collane, ma niente
+elmi né stivali. Quindi:
+
+- **Elmi** dalle mesh dei personaggi KayKit, cotte nella posa del modello (`BakeMesh`) e salvate
+  come asset: l'elmo del cavaliere con la visiera, e il copricapo d'orso del barbaro
+  (`Barbarian.fbx`, copiato dallo zip di *Adventurers* già scaricato).
+- **Armature, guanti, anello e amuleto** da Quaternius. I suoi FBX hanno la radice girata di −90°
+  su X, che icona e oggetto a terra sovrascrivono: stanno in un prefab con la radice dritta, come
+  i modelli KayKit. I guanti di ferro sono lo stesso guanto con un materiale di ferro.
+- **Stivali** fatti in casa: un paio a blocchi (gambale, piede e risvolto) combinati in una mesh,
+  di cuoio e di ferro. Si intonano con il low-poly degli altri.
+- Le icone le fa `ItemTools` come per gli altri oggetti; stivali e guanti hanno una rotazione
+  d'icona loro.
+
+*Le basi (D5).*
+
+| Base | Slot | Armatura | Forza |
+|---|---|---|---|
+| Copricapo d'orso | elmo | 3 | — |
+| Elmo da cavaliere | elmo | 6 | 25 |
+| Armatura di cuoio | armatura | 8 | — |
+| Corazza | armatura | 14 | 35 |
+| Corazza nera | armatura | 20 | 50 |
+| Guanti di cuoio | guanti | 2 | — |
+| Guanti di ferro | guanti | 4 | 25 |
+| Stivali di cuoio | stivali | 2 | — |
+| Stivali di ferro | stivali | 5 | 25 |
+| Anello | anello | — | — |
+| Amuleto | amuleto | — | — |
+
+Le undici entrano in tutte e quattro le tabelle del loot (scheletro, sciame, bruto, cassa) con
+peso 1: la lama dello scheletro, a 3, resta la più frequente.
+
+*Affissi.* Armatura e "+% Armatura" anche sui pezzi d'armatura; Forza, Destrezza, Vitalità e
+vita su tutto; "a colpire" su armi e gioielli. Nuovo il prefisso **Letale** (+2–5% di critico, dal
+livello d'oggetto 2), solo sui gioielli: `AffixEffect.CritChance` e `StatType.CritChance`, che
+`CombatFormulas.CritChance` somma alla Destrezza, sempre con il massimo a 50. Il pannello del
+personaggio lo conta.
+
+*Nomi.* Guanti e stivali sono plurali: il genere della base può essere `mp`, e il prefisso usa la
+sua forma `.mp` (*Guanti di ferro Robusti*, *Stivali di cuoio Massicci della Forza*).
+
+*Test.* `M8ItemsTests` (4, EditMode): le undici basi con slot, Armatura, Forza, modello e icona;
+dove vanno gli affissi; l'anello Letale che alza il critico; i nomi al plurale. Aggiornati i test
+che contano basi e affissi (`ItemDatabaseTests`, `ItemGeneratorTests`, `LootTests`,
+`LocalizationCoverageTests`). Nessun test con i drop fissi a un seme è cambiato: le basi nuove sono
+in fondo alle tabelle. 198 EditMode e 139 PlayMode verdi.
+
 ---
 
 ## Trappole note

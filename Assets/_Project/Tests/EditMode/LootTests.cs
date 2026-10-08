@@ -74,7 +74,7 @@ namespace DarkDescent.Tests
             }
 
             Assert.AreEqual(0.7, drops / 10000.0, 0.02);
-            Assert.AreEqual(8, bases.Count, "ogni base deve poter cadere");
+            Assert.AreEqual(19, bases.Count, "ogni base deve poter cadere, anche le undici della M8");
             Assert.AreEqual("SkeletonBlade", bases.OrderByDescending(p => p.Value).First().Key);
         }
 
@@ -85,7 +85,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual("SkeletonBlade", first.name, "la prima della lista");
             Assert.IsFalse(Skeleton.TryRoll(new FixedRandomSource(0.7), out _));
             Assert.IsTrue(Skeleton.TryRoll(new FixedRandomSource(0.0, 0.999), out var last));
-            Assert.AreEqual("SpikedShield", last.name, "l'ultima della lista");
+            Assert.AreEqual("Amulet", last.name, "l'ultima della lista");
         }
 
         [Test, Description("Su 10.000 nemici delle caverne (D11): lo sciame lascia un oggetto il 20% delle volte e una pozione il 10%, il bruto sempre un oggetto e una pozione la metà delle volte; il livello dell'oggetto è la profondità")]

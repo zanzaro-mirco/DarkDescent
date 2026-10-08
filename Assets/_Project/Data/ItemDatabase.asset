@@ -13,10 +13,21 @@ MonoBehaviour:
   m_Name: ItemDatabase
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.ItemDatabase
   _items:
+  - {fileID: 11400000, guid: 8f014bf2069c70947987bab32d0a778d, type: 2}
   - {fileID: 11400000, guid: a152012fd4f58a948a88fd205e5cbeee, type: 2}
   - {fileID: 11400000, guid: dec2236586c455e4db9128a1b0589fe2, type: 2}
+  - {fileID: 11400000, guid: 7c373b928ec6d4e46a4ee523085b8ec0, type: 2}
+  - {fileID: 11400000, guid: 24bea6c9d3609254c840fd8875e357b3, type: 2}
   - {fileID: 11400000, guid: 5b68e6f7f75fd7a4cb0a44f39c5288ff, type: 2}
+  - {fileID: 11400000, guid: 2683e199031bcec42a1ca6e01b5d99bd, type: 2}
+  - {fileID: 11400000, guid: 242bfa2e16aeddb4dae91362fc8c78c9, type: 2}
   - {fileID: 11400000, guid: c94daa5854b2b2f48851de7b3d27463c, type: 2}
+  - {fileID: 11400000, guid: 748429ba378cf7c45b284b47eeb042da, type: 2}
+  - {fileID: 11400000, guid: e81bb308db3349c4a8e4aa132103aff2, type: 2}
+  - {fileID: 11400000, guid: ae5120f3cc2505947b167363da0c8d41, type: 2}
+  - {fileID: 11400000, guid: 2cc1897d6e0764845b4ff23aa140ec5a, type: 2}
+  - {fileID: 11400000, guid: 1b223482d6b1bb944840551c1e46c0de, type: 2}
+  - {fileID: 11400000, guid: 6c8269c7c54b5cf4cb159b8ba70eed35, type: 2}
   - {fileID: 11400000, guid: a744ff80628cebb468e3985f1480c7b2, type: 2}
   - {fileID: 11400000, guid: edb5aa48207955b4ba8f40a78873892f, type: 2}
   - {fileID: 11400000, guid: 02b6800f1674534418a06c4cbe658b3b, type: 2}

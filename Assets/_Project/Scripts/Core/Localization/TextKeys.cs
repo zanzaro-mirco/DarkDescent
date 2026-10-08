@@ -56,6 +56,7 @@ namespace DarkDescent.Localization
         public const string EffectToHit = "affix.effect.to_hit";
         public const string EffectStrength = "affix.effect.strength";
         public const string EffectDexterity = "affix.effect.dexterity";
+        public const string EffectCritChance = "affix.effect.crit_chance";
         public const string EffectVitality = "affix.effect.vitality";
         public const string EffectLife = "affix.effect.life";
     }

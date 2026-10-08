@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6047108da5d76c648b1118cc70d69e6a, type: 3}
+  m_Name: LeatherGloves
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Items.ArmorDefinition
+  _id: f67c951e978f46ac96ee2f1fc8409e34
+  _nameKey: item.leather_gloves
+  _icon: {fileID: 21300000, guid: 8a48108c77a4afc42a60b5cb072a91d1, type: 3}
+  _size: {x: 2, y: 2}
+  _model: {fileID: 24305796969973569, guid: 7e4389c1769df564c9d09ea5a6c70956, type: 3}
+  _iconRotation: {x: 90, y: 0, z: 0}
+  _heldPosition: {x: 0, y: 0, z: 0}
+  _heldRotation: {x: 0, y: 0, z: 0}
+  _slot: 5
+  _armor: 2
+  _blockChance: 0
+  _requiredStrength: 0

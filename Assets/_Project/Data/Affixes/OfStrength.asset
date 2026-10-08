@@ -19,5 +19,5 @@ MonoBehaviour:
   _min: 2
   _max: 5
   _minItemLevel: 1
-  _targets: 3
+  _targets: 15
   _group: strength

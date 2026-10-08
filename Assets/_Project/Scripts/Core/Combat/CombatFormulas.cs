@@ -52,7 +52,13 @@ namespace DarkDescent.Combat
         /// </summary>
         public static float CritChance(float dexterity)
         {
-            return Math.Min(MaxCritChance, Math.Max(0f, BaseCritChance + dexterity / 10f));
+            return CritChance(dexterity, 0f);
+        }
+
+        /// <summary>Come l'altra, con i punti in più degli affissi dei gioielli (M8): il massimo resta 50.</summary>
+        public static float CritChance(float dexterity, float bonus)
+        {
+            return Math.Min(MaxCritChance, Math.Max(0f, BaseCritChance + dexterity / 10f + bonus));
         }
 
         /// <summary>

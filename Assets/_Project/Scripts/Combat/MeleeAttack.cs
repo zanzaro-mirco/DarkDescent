@@ -359,7 +359,7 @@ namespace DarkDescent.Combat
 
                     // il critico per ultimo: i tiri di colpire, bloccare e del danno restano dove sono
                     bool critical = _canCrit && CombatFormulas.RollCrit(
-                        CombatFormulas.CritChance(CharacterStats.ValueOf(_stats, StatType.Dexterity)), _random);
+                        CombatFormulas.CritChance(CharacterStats.ValueOf(_stats, StatType.Dexterity), CharacterStats.ValueOf(_stats, StatType.CritChance)), _random);
                     if (critical)
                     {
                         amount *= CombatFormulas.CritMultiplier;

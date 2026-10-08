@@ -19,5 +19,5 @@ MonoBehaviour:
   _min: 2
   _max: 4
   _minItemLevel: 1
-  _targets: 2
+  _targets: 6
   _group: armor

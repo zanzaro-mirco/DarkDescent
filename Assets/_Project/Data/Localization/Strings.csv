@@ -71,6 +71,7 @@ affix.effect.strength,+{0} Strength,+{0} Forza
 affix.effect.dexterity,+{0} Dexterity,+{0} Destrezza
 affix.effect.vitality,+{0} Vitality,+{0} Vitalità
 affix.effect.life,+{0} life,+{0} vita
+affix.effect.crit_chance,+{0}% critical chance,+{0}% critico
 
 # Oggetti. Lo schema del nome (D4 della M5): in inglese il prefisso va prima, in italiano dopo
 item.name.pattern,{prefix} {base} {suffix},{base} {prefix} {suffix}
@@ -85,6 +86,17 @@ item.round_shield,Round Shield,Scudo tondo
 item.square_shield,Square Shield,Scudo quadrato
 item.spiked_shield,Spiked Shield,Scudo chiodato
 item.healing_potion,Healing Potion,Pozione di cura
+item.bear_hat,Bear Hat,Copricapo d'orso
+item.knight_helm,Knight's Helm,Elmo da cavaliere
+item.leather_armor,Leather Armor,Armatura di cuoio
+item.breastplate,Breastplate,Corazza
+item.dark_plate,Dark Plate,Corazza nera
+item.leather_gloves,Leather Gloves,Guanti di cuoio
+item.gauntlets,Gauntlets,Guanti di ferro
+item.leather_boots,Leather Boots,Stivali di cuoio
+item.iron_boots,Iron Boots,Stivali di ferro
+item.ring,Ring,Anello
+item.amulet,Amulet,Amuleto
 
 # Genere grammaticale delle basi (D4 della M5): sceglie la forma del prefisso.
 # n = senza genere (inglese), m e f; altre lingue potranno usare anche n
@@ -97,18 +109,37 @@ item.round_shield.gender,n,m
 item.square_shield.gender,n,m
 item.spiked_shield.gender,n,m
 item.healing_potion.gender,n,f
+item.bear_hat.gender,n,m
+item.knight_helm.gender,n,m
+item.leather_armor.gender,n,f
+item.breastplate.gender,n,f
+item.dark_plate.gender,n,f
+item.leather_gloves.gender,n,mp
+item.gauntlets.gender,n,mp
+item.leather_boots.gender,n,mp
+item.iron_boots.gender,n,mp
+item.ring.gender,n,m
+item.amulet.gender,n,m
 
 # Affissi: i prefissi hanno la forma femminile in .f (D4 della M5); in inglese è la stessa
 affix.sharp,Sharp,Affilato
 affix.sharp.f,Sharp,Affilata
+affix.sharp.mp,Sharp,Affilati
 affix.savage,Savage,Feroce
 affix.savage.f,Savage,Feroce
+affix.savage.mp,Savage,Feroci
 affix.accurate,Accurate,Preciso
 affix.accurate.f,Accurate,Precisa
+affix.accurate.mp,Accurate,Precisi
 affix.sturdy,Sturdy,Robusto
 affix.sturdy.f,Sturdy,Robusta
+affix.sturdy.mp,Sturdy,Robusti
 affix.massive,Massive,Massiccio
 affix.massive.f,Massive,Massiccia
+affix.massive.mp,Massive,Massicci
+affix.deadly,Deadly,Letale
+affix.deadly.f,Deadly,Letale
+affix.deadly.mp,Deadly,Letali
 affix.of_strength,of Strength,della Forza
 affix.of_dexterity,of Dexterity,della Destrezza
 affix.of_vitality,of Vitality,della Vitalità

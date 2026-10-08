@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6047108da5d76c648b1118cc70d69e6a, type: 3}
+  m_Name: KnightHelm
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Items.ArmorDefinition
+  _id: 022b73b414af4478b3672cfb7e55d64f
+  _nameKey: item.knight_helm
+  _icon: {fileID: 21300000, guid: 8938ba9f04bc52d48b92019b578f3f5d, type: 3}
+  _size: {x: 2, y: 2}
+  _model: {fileID: 5169041185288664989, guid: bdaf5e651dacdf74a96599725ed0227b, type: 3}
+  _iconRotation: {x: 0, y: 0, z: 0}
+  _heldPosition: {x: 0, y: 0, z: 0}
+  _heldRotation: {x: 0, y: 0, z: 0}
+  _slot: 3
+  _armor: 6
+  _blockChance: 0
+  _requiredStrength: 25
