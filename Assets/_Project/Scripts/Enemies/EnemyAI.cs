@@ -87,8 +87,8 @@ namespace DarkDescent.Enemies
         }
 
         /// <summary>
-        /// Torna dove l'ha messo il livello, fermo e senza bersaglio, con la vita che ha: il cavaliere
-        /// è tornato in vita all'ingresso (D15 della M7). Un morto resta dov'è.
+        /// Torna dove l'ha messo il livello, fermo, senza bersaglio e a vita piena: il cavaliere è
+        /// tornato in vita all'ingresso (D15 della M7). Un morto resta dov'è.
         /// </summary>
         public void ReturnHome()
         {
@@ -107,6 +107,7 @@ namespace DarkDescent.Enemies
             }
 
             transform.rotation = _homeRotation;
+            _health.Heal(_health.Max);
         }
 
         private void Update()

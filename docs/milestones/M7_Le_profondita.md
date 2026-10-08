@@ -60,7 +60,7 @@ Tutte confermate da Mirco il 5 ottobre 2026, con le proposte consigliate: celle 
 | D12 | **Musica e rumori d'ambiente** (aggiunta il 6 ott, su richiesta di Mirco dopo la prova della M6; anticipati dalla M11) | Un profilo per tipo di livello nel tileset: musica cupa e fondo di vento e gocce in loop, versi singoli ogni 20–50 s da un punto a caso a 10–18 m dal cavaliere. Tracce CC0 da OpenGameArt, ispirate a Diablo ma niente musica originale (piano § 1.1). Dissolvenza tra profili diversi, la musica continua tra livelli con lo stesso profilo | Il buio fa paura se si sente qualcosa che non si vede. In 3D e oltre la luce del cavaliere, il verso arriva da una direzione dove non c'è niente da guardare |
 | D13 | **Colpi critici e versi dei nemici** (aggiunta e confermata da Mirco il 6 ott) | Solo il cavaliere, solo sui colpi a segno: probabilità **5% + Destrezza / 10**, al massimo 50% (7% con la Destrezza 20 di partenza), **danno doppio**. Il tiro va dopo quello del danno, e il critico esce dalla parte **alta** dell'intervallo (trappola 9). `DamageInfo.IsCritical` c'è dalla M2 e non è mai stato usato. A schermo: numero più grande, giallo-arancio, con un punto esclamativo, e un hit stop un po' più lungo. A orecchio: ogni `EnemyArchetype` (D8) ha i suoi **versi del critico**, scelti a caso senza ripetere il precedente. Scheletro: un verso secco, intonazione 1,1–1,2. Sciame: uno stridio, 1,4–1,6. Bruto: un ruggito basso, 0,6–0,7. Per cominciare sono ritagliati dai versi delle tracce CC0 già nel progetto. Se non convincono, si cerca un pacchetto CC0 di versi di mostri, da scaricare con il permesso di Mirco. Niente affissi sul critico per ora: un affisso nuovo cambia il loot dei semi provati (trappola 10) | Il critico dà un picco nel ritmo del combattimento, e il verso dice subito *chi* l'ha preso anche nel buio. La Destrezza oggi conta per colpire e bloccare: con il critico pesa anche sul danno. Danno doppio come il guerriero di Diablo 1 |
 | D14 | **Correzioni dalla prova della build** (7 ott, chieste da Mirco dopo aver provato la build della M7) | Prima del tag: l'etichetta "(inventario pieno)" sparisce quando si libera un posto; il cursore attraversa colonne, barili e muri bassi per arrivare a un nemico o a una cosa da usare (i muri alti no); il bruto alterna il colpo forte con 1–3 colpi leggeri da 8–12, senza settore; una scritta dice tipo e profondità del livello; passi del cavaliere con il suono del pavimento; un verso a ogni colpo subito dai nemici, da un pacchetto CC0 scaricato con il permesso di Mirco. Elmo, armatura, guanti, stivali, anelli e amuleto vanno nella M8, prima del salvataggio (piano v2.19). Zoom e rotazione della visuale restano nella M8 (v2.18) | Sono quello che manca giocando: due bug di interfaccia, un bruto prevedibile, nessun riferimento su dove si è, un cavaliere muto |
-| D15 | **Sciame e morte** (7 ott, dopo la stessa prova) | Lo sciame era troppo forte: ogni colpo bloccato fermava il cavaliere 0,45 s e annullava il suo fendente, e in mezzo al gruppo succedeva circa una volta al secondo. Il blocco non ferma più (ADR-026 cambiato). Mira più facile: nome e vita del nemico sotto il cursore in alto, un cerchio rosso ai suoi piedi, un click a meno di 0,6 m da un nemico lo colpisce, il cavaliere non viene spinto dagli agent dei nemici. Sciame a gruppi da 3 a 5 e un colpo ogni 1,2 s. Morte: il livello non si ricarica; il cavaliere torna in vita all'ingresso, con l'inventario, i nemici uccisi, le casse aperte e la mappa di prima; i nemici vivi tornano fermi dove li ha messi il livello, con la vita che hanno (sostituisce D13 della M6) | Scelte di Mirco. Il limite di tre attaccanti insieme, proposto, non l'ha voluto |
+| D15 | **Sciame e morte** (7 ott, dopo la stessa prova) | Lo sciame era troppo forte: ogni colpo bloccato fermava il cavaliere 0,45 s e annullava il suo fendente, e in mezzo al gruppo succedeva circa una volta al secondo. Il blocco non ferma più (ADR-026 cambiato). Mira più facile: nome e vita del nemico sotto il cursore in alto, un cerchio rosso ai suoi piedi, un click a meno di 0,6 m da un nemico lo colpisce, il cavaliere non viene spinto dagli agent dei nemici. Sciame a gruppi da 3 a 5 e un colpo ogni 1,2 s. Morte: il livello non si ricarica; il cavaliere torna in vita all'ingresso, con l'inventario, i nemici uccisi, le casse aperte e la mappa di prima; i nemici vivi tornano fermi dove li ha messi il livello, a vita piena (sostituisce D13 della M6; la vita piena chiesta da Mirco l'8 ott) | Scelte di Mirco. Il limite di tre attaccanti insieme, proposto, non l'ha voluto |
 | D11 | **Loot dei nemici nuovi** | Una `LootTable` per tipo: sciame **20%** di lasciare un oggetto e 10% una pozione; bruto **sempre** un oggetto e 50% una pozione. Basi e rarità come lo scheletro, livello dell'oggetto dalla profondità | Lo sciame è tanti nemici piccoli: con la probabilità dello scheletro il pavimento si riempirebbe. Il bruto è un premio |
 
 ---
@@ -644,7 +644,7 @@ semi: 4 dello sciame al livello 5, 12 all'8.
 cavaliere torna in vita e viene rimesso sull'ingresso da cui è entrato, senza scaricare la scena.
 Inventario, pozioni bevute, casse aperte, oggetti a terra, nemici uccisi e mappa scoperta restano
 come erano. I nemici vivi tornano fermi dove li aveva messi il livello (`EnemyAI.ReturnHome`, con
-`EnemyBrain.Rest`) e tengono le ferite. L'istantanea dell'inventario all'ingresso non serve più al
+`EnemyBrain.Rest`), a vita piena. L'istantanea dell'inventario all'ingresso non serve più al
 gioco; `InventorySnapshot` resta, servirà al salvataggio della M8. Il pulsante ora dice
 *Continua*.
 
@@ -652,12 +652,16 @@ gioco; `InventorySnapshot` resta, servirà al salvataggio della M8. Il pulsante 
 il click accanto al nemico che lo colpisce; il cavaliere che ha la precedenza su tutti; un nome
 per ogni nemico. `DeathAndRestartTests` riscritto per la regola nuova: stesso livello, inventario
 e pozione bevuta com'erano, cassa aperta, nemico ucciso che non rinasce, ferito che torna a casa
-fermo e ferito. `ShieldBlockTests`: il blocco non ferma più il fendente. `CaveContentTests`: le
+fermo e a vita piena. `ShieldBlockTests`: il blocco non ferma più il fendente. `CaveContentTests`: le
 medie nuove dello sciame. 176 EditMode e 135 PlayMode verdi.
 
 *La build fallita.* La prima build di questo passo si è fermata ai test: `CaveDescentTests` contava
 ancora un gruppo di sciame da 4 a 6. In locale era passato per caso, perché il seme della partita
 cambia a ogni esecuzione; ora conta da 3 a 5.
+
+*I nemici guariscono (8 ott).* Nella prima versione i nemici vivi tornavano a casa con le ferite
+che avevano. Mirco ha chiesto che tornino a vita piena. `EnemyAI.ReturnHome` ora li cura del tutto; il test
+controlla la vita piena.
 
 ## Passo 7.12 — Chiusura
 

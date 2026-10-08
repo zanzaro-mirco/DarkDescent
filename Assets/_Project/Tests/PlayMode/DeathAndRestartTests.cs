@@ -97,7 +97,6 @@ namespace DarkDescent.Tests
             var woundedHealth = wounded.GetComponent<Health>();
             Vector3 home = wounded.transform.position;
             woundedHealth.TakeDamage(Damage(Mathf.Round(woundedHealth.Max * 0.5f)));
-            float woundedLife = woundedHealth.Current;
             wounded.GetComponent<NavMeshAgent>().Warp(entrance + Vector3.right * 2f);
             wounded.Alert();
 
@@ -149,7 +148,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(sword, inventory.Equipment.Get(EquipSlot.Weapon).Definition);
             Assert.IsTrue(chest.IsOpen, "la cassa resta aperta");
             Assert.IsTrue(killed == null || killed.State == EnemyState.Dead, "il nemico ucciso non rinasce");
-            Assert.AreEqual(woundedLife, woundedHealth.Current, "il ferito resta ferito");
+            Assert.AreEqual(woundedHealth.Max, woundedHealth.Current, "il ferito torna a vita piena");
             Assert.Less(FlatDistance(home, wounded.transform.position), 0.1f, "ed è tornato dove l'ha messo il livello");
             Assert.AreEqual(EnemyState.Idle, wounded.State, "fermo");
             Assert.IsTrue(exploration.Exploration.IsExplored(far.x, far.y), "la mappa scoperta resta");
