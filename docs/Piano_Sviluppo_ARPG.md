@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.23**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.24**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.24 | 8 ott 2026 | Su richiesta di Mirco: una **grafica dei personaggi nello stile di Diablo 2** tra i lavori dopo la v1.0, con i vincoli di licenza e di tempo |
 | v2.23 | 8 ott 2026 | M7 chiusa (tag `m7`), con le lezioni · la M7 sale a 18–25 h con i tre passi di correzione dopo le prove in build · totale ricalcolato dalla tabella del § 5 · ADR-040…051 |
 | v2.22 | 8 ott 2026 | Su richiesta di Mirco: **la vita del nemico che si sta combattendo** resta in alto anche senza il cursore sopra, nella M9 · barre sopra i nemici feriti come opzione, dopo la v1.0 · **nemici speciali** più forti con loot migliore, dopo la v1.0 · il boss della M10 lascia loot migliore |
 | v2.21 | 7 ott 2026 | Su richiesta di Mirco: una **punizione alla morte** tra i lavori dopo la v1.0, da valutare prima se le prove della M10 la chiedono |
@@ -653,6 +654,12 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Loot:** più oggetti, e una tabella delle rarità spostata verso magico e raro (una moltiplicazione dei pesi della `RarityTable`, da M5). Gli unici lasciano sempre almeno un oggetto raro.
   - Nel codice entra come un dato in più dell'`EnemyArchetype` e della `SpawnTable` (ADR-047): un moltiplicatore della vita, del danno e del loot, e la lista dei modificatori. La barra in alto mostra il nome colorato e i modificatori.
   - Un boss a metà discesa, alla fine della cripta, è una variante da decidere insieme. Se le prove della M10 dicono che la discesa è monotona, si anticipa.
+- **Personaggi nello stile di Diablo 2** (chiesto da Mirco l'8 ott 2026, con un'immagine di *Diablo II: Resurrected* come riferimento). Oggi i personaggi sono KayKit: proporzioni da chibi, testa grande, colori piatti. Lo stile richiesto ha proporzioni realistiche, armature con usura e dettagli, texture con materiali (metallo, cuoio, stoffa) e luci più contrastate. Cosa comporta:
+  - **Modelli.** Personaggi CC0 realistici quasi non esistono. Le strade sono tre: modellarli in Blender, che è l'estensione opzionale della M11 (80–100 h di lavoro di Mirco); comprare un pacchetto, che con il repo pubblico vuole il submodule privato scartato nell'ADR-004 o un nuovo ADR; oppure un pacchetto CC0 semi-realistico, da cercare e valutare quando si comincia.
+  - **Animazioni.** Le clip di oggi sono per lo scheletro `Rig_Medium` di KayKit (ADR-005): un personaggio con un altro rig vuole clip sue, per il cavaliere e per ogni nemico.
+  - **Coerenza.** Personaggi realistici in un dungeon KayKit si vedono fuori posto: cripta, caverne, oggetti e icone vanno cambiati insieme, o almeno avvicinati con lo shader retro della M11.
+  - **Codice.** Quasi niente: modelli, animator e icone sono dati. Restano da rifare i punti di aggancio delle armi (`handslot`), i raggi degli agent e i tempi dei colpi misurati sulle clip.
+  - Si valuta a v1.0 pubblicata, insieme all'estensione Blender della M11, di cui è la versione completa.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---
