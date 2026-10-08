@@ -15,7 +15,7 @@ cripta e caverne, e ogni tanto un verso lontano. Con `-seed 4711` le caverne tor
 Test verdi in CI.
 
 **Tempo stimato:** 13–20 h (piano v2.17: 2–3 h in più per il passo 7.0, 1–1,5 h per il
-7.7). **Prerequisito:** M6 chiusa (tag `m6`).
+7.7); salito a 18–25 h con le correzioni dei passi 7.10–7.12 (piano v2.23). **Prerequisito:** M6 chiusa (tag `m6`).
 
 **Come si lavora:** come alla M6, il codice e i passaggi nell'editor li faccio io, in
 batchmode a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in Play Mode e
@@ -727,6 +727,19 @@ cavaliere sta più vicino, entro i 30 m dello sciame. 181 EditMode e 137 PlayMod
 3. ADR: caverne, generatori per tipo di livello, IA a stati, telegrafare, critici, limite di voci.
    Lezioni nel piano, tabella dello stato, tag `m7`.
 
+**Com'è andata (8 ott 2026).** Mirco ha provato tre build della CI: dopo la prima sono nate le
+correzioni del passo 7.10 (D14), poi quelle del 7.11 (D15) e del 7.12 (D16). La terza
+(run 37780142324) è andata bene. Chrome l'ha bloccata come download pericoloso: un `.exe` non
+firmato e scaricato da pochi. Si conserva dall'elenco dei download, o si scarica con
+`gh run download`; il problema sparisce con itch.io alla M10.
+
+La GIF del README (`docs/media/m7_caves.gif`, 640 × 360, 15 fotogrammi al secondo, 2,4 MB) è
+registrata in batch: un test temporaneo carica le caverne al livello 7, mette il cavaliere a 5 m
+da un bruto e poi da un gruppo di sciame, lo fa colpire e salva ogni fotogramma; lo sciame manca
+sempre, così il lampo bianco dei colpi non copre il cavaliere. ADR-040…051 in `DECISIONS.md`. Nel
+piano (v2.23) le lezioni, la tabella dello stato e il totale delle ore ricalcolato dalla tabella:
+la M7 è salita a 18–25 h. Scheda della M8 scritta, con D1–D12 da confermare.
+
 ---
 
 ## Trappole note
@@ -808,7 +821,7 @@ cavaliere sta più vicino, entro i 30 m dello sciame. 181 EditMode e 137 PlayMod
 - [x] Correzioni dalla prova della build (D14)
 - [x] Sciame e morte (D15)
 - [x] Correzioni dalla seconda prova (D16)
-- [ ] Scenario della Definition of Done provato in build
-- [ ] Test verdi in CI
-- [ ] GIF, ADR, lezioni nel piano, tag `m7`
-- [ ] Scheda della M8 scritta prima di cominciarla
+- [x] Scenario della Definition of Done provato in build
+- [x] Test verdi in CI
+- [x] GIF, ADR, lezioni nel piano, tag `m7`
+- [x] Scheda della M8 scritta prima di cominciarla

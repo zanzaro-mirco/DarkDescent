@@ -5,19 +5,24 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Dungeon infinito: il cavaliere apre una cassa in una cripta generata, la mappa sovrapposta si scopre mentre combatte verso la scala, poi scende al livello 2](docs/media/m6_descent.gif)
+![Le profondità: nelle caverne del livello 7 il cavaliere affronta un bruto che carica il colpo con il settore rosso a terra, poi un gruppo dello sciame; in alto il nome e la vita del nemico sotto il cursore](docs/media/m7_caves.gif)
 
 ## Stato
 
-**M6 — "Dungeon infinito"** chiusa il 5 ottobre 2026 (tag `m6`): i livelli 1–4 sono
-cripte generate a ogni partita con un BSP, sempre percorribili, con più scheletri e casse
-a ogni profondità; con lo stesso seme torna lo stesso dungeon. Le casse si aprono con un
-click. Pozioni di cura nella cintura, automappa che si scopre camminando, nell'angolo o
-sovrapposta al gioco. Morendo si riparte dall'ingresso del livello con l'inventario di
-quando ci si era entrati. Nell'editor una finestra genera e disegna i livelli senza Play
-Mode. Prossima: **M7 — "Le profondità"**.
+**M7 — "Le profondità"** chiusa l'8 ottobre 2026 (tag `m7`): sotto la cripta, i livelli
+5–8 sono caverne generate con un random walk. Ci vivono due nemici nuovi: lo sciame, veloce
+e in branco, e il bruto, che carica un colpo telegrafato da un settore rosso a terra. L'IA è
+fatta di classi di stato; i nemici che si allontanano troppo da casa tornano indietro. Colpi
+critici con un verso per tipo di nemico, armi più o meno veloci, nome e vita del nemico
+sotto il cursore. Musica, rumori d'ambiente, passi e un limite di voci audio. Morendo si
+torna all'ingresso del livello con tutto quello che si aveva. Prossima: **M8 —
+"Progressione e persistenza"**.
 
 Milestone precedenti:
+
+- **M6 — "Dungeon infinito"** (tag `m6`): cripte generate con un BSP, casse, pozioni nella
+  cintura, automappa, finestra dell'editor per generare i livelli
+  ([GIF](docs/media/m6_descent.gif)).
 
 - **M5 — "Loot casuale"** (tag `m5`): oggetti magici e rari con affissi, nomi composti
   secondo la lingua, blocco con lo scudo, inglese e italiano, loot legato al seme
@@ -42,7 +47,8 @@ Milestone precedenti:
 **Comandi:**
 
 - click sinistro sul pavimento per muoversi; tenendo premuto, il personaggio segue il cursore
-- click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo
+- click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo.
+  Il nemico sotto il cursore ha un cerchio rosso a terra, e in alto il suo nome e la sua vita
 - click sinistro sulla scala per scendere al livello successivo
 - click sinistro su un oggetto a terra per raccoglierlo, su una cassa per aprirla
 - `1`–`8` bevono la pozione in quel posto della cintura; click destro su una pozione,
