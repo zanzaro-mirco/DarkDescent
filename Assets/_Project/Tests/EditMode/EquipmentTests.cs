@@ -155,7 +155,7 @@ namespace DarkDescent.Tests
 
             Assert.AreEqual((8, 12), ItemStats.WeaponDamage(sword));
             Assert.AreEqual(20, ItemStats.ShieldBlock(shield));
-            Assert.AreEqual(5, ItemStats.ShieldArmor(shield));
+            Assert.AreEqual(5, ItemStats.ItemArmor(shield));
             Assert.AreEqual((6, 9), ItemStats.WeaponDamage(Sword), "senza affissi");
 
             Assert.IsTrue(_equipment.TryEquip(sword, out _));

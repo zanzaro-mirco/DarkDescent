@@ -6,6 +6,12 @@ key,en,it
 hud.inventory,Inventory,Inventario
 hud.weapon,Weapon,Arma
 hud.shield,Shield,Scudo
+hud.helm,Helm,Elmo
+hud.body,Armor,Armatura
+hud.gloves,Gloves,Guanti
+hud.boots,Boots,Stivali
+hud.amulet,Amulet,Amuleto
+hud.ring,Ring,Anello
 hud.character,Knight,Cavaliere
 hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance (skeleton)\nCritical chance\nBlock chance,Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire (scheletro)\nCritico\nBlocco
 hud.you_died,YOU DIED,SEI MORTO

@@ -16,6 +16,10 @@ namespace DarkDescent.Items
         [SerializeField] private List<ItemInstance> _gridItems = new List<ItemInstance>();
         [SerializeField] private List<Vector2Int> _gridPositions = new List<Vector2Int>();
         [SerializeField] private List<ItemInstance> _equipped = new List<ItemInstance>();
+
+        // lo slot di ogni oggetto indossato: con due anelli conta quale (M8). Vuota nelle istantanee
+        // di prima, e allora decide l'equipaggiamento
+        [SerializeField] private List<EquipSlot> _equippedSlots = new List<EquipSlot>();
         [SerializeField] private List<ItemInstance> _beltItems = new List<ItemInstance>();
         [SerializeField] private List<int> _beltSlots = new List<int>();
         [SerializeField] private List<ItemInstance> _loose = new List<ItemInstance>();
@@ -35,6 +39,7 @@ namespace DarkDescent.Items
                 if (item != null)
                 {
                     snapshot._equipped.Add(item);
+                    snapshot._equippedSlots.Add(slot);
                 }
             }
 
@@ -77,9 +82,19 @@ namespace DarkDescent.Items
             bool complete = true;
 
             // prima l'equipaggiamento: i suoi bonus possono servire ai requisiti degli altri oggetti
-            foreach (var item in _equipped)
+            for (int i = 0; i < _equipped.Count; i++)
             {
-                complete &= item.Resolve(items, affixes) && (inventory.Equipment.TryEquip(item, out _) || inventory.Grid.TryAutoPlace(item));
+                var item = _equipped[i];
+                if (!item.Resolve(items, affixes))
+                {
+                    complete = false;
+                    continue;
+                }
+
+                bool equipped = i < _equippedSlots.Count
+                    ? inventory.Equipment.TryEquip(item, _equippedSlots[i], out _)
+                    : inventory.Equipment.TryEquip(item, out _);
+                complete &= equipped || inventory.Grid.TryAutoPlace(item);
             }
 
             for (int i = 0; i < _gridItems.Count; i++)

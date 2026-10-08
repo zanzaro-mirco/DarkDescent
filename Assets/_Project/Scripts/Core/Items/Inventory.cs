@@ -85,7 +85,7 @@ namespace DarkDescent.Items
                 return true;
             }
 
-            if (Held.Definition.Slot != slot || !Equipment.TryEquip(Held, out ItemInstance previous))
+            if (!Equipment.TryEquip(Held, slot, out ItemInstance previous))
             {
                 return false;
             }

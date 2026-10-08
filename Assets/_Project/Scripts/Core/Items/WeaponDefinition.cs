@@ -44,7 +44,7 @@ namespace DarkDescent.Items
         public int MaxDamage => _maxDamage;
         public DamageType DamageType => _damageType;
         public WeaponKind Kind => _kind;
-        public int RequiredStrength => _requiredStrength;
+        public override int RequiredStrength => _requiredStrength;
         public float Range => _range;
         public float RangeTolerance => _rangeTolerance;
         public float AttackInterval => _attackInterval;

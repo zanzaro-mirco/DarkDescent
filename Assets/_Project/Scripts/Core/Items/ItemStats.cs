@@ -38,8 +38,8 @@ namespace DarkDescent.Items
             return (CombatFormulas.ApplyPercent(weapon.MinDamage, percent), CombatFormulas.ApplyPercent(weapon.MaxDamage, percent));
         }
 
-        /// <summary>L'Armatura dello scudo con il suo "+% Armatura".</summary>
-        public static int ShieldArmor(ItemInstance item)
+        /// <summary>L'Armatura di uno scudo o di un pezzo d'armatura, con il suo "+% Armatura".</summary>
+        public static int ItemArmor(ItemInstance item)
         {
             var armor = (ArmorDefinition)item.Definition;
             return CombatFormulas.ApplyPercent(armor.Armor, Sum(item, AffixEffect.ArmorPercent));

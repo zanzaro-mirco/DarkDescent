@@ -55,26 +55,17 @@ namespace DarkDescent.UI
                     var (min, max) = ItemStats.WeaponDamage(item);
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipDamage), min, max);
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipSpeed), localizer.Get(SpeedKey(weapon.AttackInterval)));
-                    if (weapon.RequiredStrength > 0)
-                    {
-                        builder.Append('\n');
-                        if (!meetsRequirements)
-                        {
-                            builder.Append("<color=").Append(UnmetColor).Append('>');
-                        }
-
-                        builder.AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipRequiredStrength), weapon.RequiredStrength);
-                        if (!meetsRequirements)
-                        {
-                            builder.Append("</color>");
-                        }
-                    }
-
+                    AppendRequirement(builder, weapon, meetsRequirements, localizer);
                     break;
 
-                case ArmorDefinition _:
-                    builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipArmor), ItemStats.ShieldArmor(item));
-                    builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipBlock), ItemStats.ShieldBlock(item));
+                case ArmorDefinition armor:
+                    builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipArmor), ItemStats.ItemArmor(item));
+                    if (armor.IsShield)
+                    {
+                        builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipBlock), ItemStats.ShieldBlock(item));
+                    }
+
+                    AppendRequirement(builder, armor, meetsRequirements, localizer);
                     break;
 
                 case PotionDefinition potion:
@@ -93,6 +84,27 @@ namespace DarkDescent.UI
                 builder.Append("\n<color=").Append(AffixColor).Append('>')
                     .AppendFormat(CultureInfo.InvariantCulture, localizer.Get(EffectKey(affix.Definition.Effect)), affix.Value)
                     .Append("</color>");
+            }
+        }
+
+        // la Forza richiesta, in rosso se non basta; niente riga per chi non ne chiede
+        private static void AppendRequirement(StringBuilder builder, ItemDefinition definition, bool meetsRequirements, Localizer localizer)
+        {
+            if (definition.RequiredStrength <= 0)
+            {
+                return;
+            }
+
+            builder.Append('\n');
+            if (!meetsRequirements)
+            {
+                builder.Append("<color=").Append(UnmetColor).Append('>');
+            }
+
+            builder.AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipRequiredStrength), definition.RequiredStrength);
+            if (!meetsRequirements)
+            {
+                builder.Append("</color>");
             }
         }
 

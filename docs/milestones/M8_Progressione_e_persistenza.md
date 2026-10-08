@@ -127,6 +127,33 @@ la barra la mostra; salendo, vita piena con i 2 punti in più, la luce, la testa
 + della Forza cliccato con il mouse che compra un punto senza far camminare il cavaliere, i +
 che spariscono a punti finiti. 188 EditMode e 139 PlayMode verdi.
 
+## Passo 8.3 — Slot nuovi e sagoma
+
+**Com'è andata (8 ott 2026).**
+
+- `EquipSlot` ha i valori nuovi in fondo, così i numeri di quelli vecchi non cambiano: elmo,
+  armatura, guanti, stivali, amuleto, anello e `Ring2`, il secondo anello. Nessun oggetto chiede
+  `Ring2`: un anello dice `Ring`, ed è `Equipment` a scegliere (trappola 5). Senza indicazioni va
+  nel primo slot libero, o al posto del primo; con un click su uno slot va lì
+  (`TryEquip(item, slot, ...)`, `Equipment.Fits`).
+- `ArmorDefinition` ha uno slot (scudo, elmo, armatura, guanti, stivali) e la Forza richiesta; il
+  blocco vale solo per gli scudi. `JewelryDefinition`, nuova, per anelli e amuleti: niente di base,
+  solo affissi. La Forza richiesta è diventata una proprietà di ogni oggetto (`RequiredStrength`,
+  0 di base), e `MeetsRequirements` la legge per tutti. Il tooltip la mostra anche per
+  l'armatura, senza la riga del blocco.
+- `AffixTargets` ha `Armor` e `Jewelry`: quali affissi ci vanno si decide al passo 8.4.
+- `InventorySnapshot` salva anche lo slot di ogni oggetto indossato: con due anelli conta quale.
+  Le istantanee senza slot si ripristinano come prima.
+- La finestra dell'inventario è una sagoma come in Diablo: elmo in alto con l'amuleto accanto,
+  arma e scudo ai lati, armatura al centro, anelli sotto le mani, guanti e stivali in basso, con
+  il nome sotto ogni slot. È alta 720 invece di 600 e scesa di 40 px, per non coprire la scritta
+  del livello sotto la minimappa. `InventoryPanel` ha un array di slot al posto dei due campi.
+
+*Test.* `EquipmentSlotsTests` (6, EditMode), con definizioni create nel test perché le basi
+arrivano all'8.4: l'Armatura dei pezzi che si somma, la Forza richiesta, i due anelli, quali slot
+accettano cosa, il click che mette l'anello nel secondo slot, il tooltip senza blocco. 194 EditMode
+e 139 PlayMode verdi.
+
 ---
 
 ## Trappole note

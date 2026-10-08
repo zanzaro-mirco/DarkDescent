@@ -49,6 +49,9 @@ namespace DarkDescent.Items
         /// <summary>Che tipo di oggetto è per gli affissi: quali possono comparirci.</summary>
         public abstract AffixTargets AffixTarget { get; }
 
+        /// <summary>Forza necessaria per indossarlo; 0 per chi non ne chiede.</summary>
+        public virtual int RequiredStrength => 0;
+
         protected virtual void OnValidate()
         {
             EnsureId();

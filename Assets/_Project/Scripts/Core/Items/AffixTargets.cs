@@ -9,6 +9,12 @@ namespace DarkDescent.Items
         None = 0,
         Weapon = 1 << 0,
         Shield = 1 << 1,
-        All = Weapon | Shield,
+
+        /// <summary>Elmi, armature, guanti e stivali (M8).</summary>
+        Armor = 1 << 2,
+
+        /// <summary>Anelli e amuleti (M8).</summary>
+        Jewelry = 1 << 3,
+        All = Weapon | Shield | Armor | Jewelry,
     }
 }

@@ -24,8 +24,8 @@ namespace DarkDescent.UI
         [Tooltip("Immagine modello per gli oggetti nella griglia, spenta: se ne fanno copie.")]
         [SerializeField] private Image _itemTemplate;
 
-        [SerializeField] private EquipmentSlotView _weaponSlot;
-        [SerializeField] private EquipmentSlotView _offhandSlot;
+        [Tooltip("Gli slot della sagoma (D4 della M8): arma, scudo, elmo, armatura, guanti, stivali, amuleto e i due anelli.")]
+        [SerializeField] private EquipmentSlotView[] _slots;
 
         [Tooltip("Fondo trasparente a tutto schermo, dietro le finestre: acceso solo con un oggetto sul cursore.")]
         [SerializeField] private GameObject _dropCatcher;
@@ -194,8 +194,11 @@ namespace DarkDescent.UI
             _subscribed = true;
 
             RefreshGrid();
-            RefreshSlot(EquipSlot.Weapon);
-            RefreshSlot(EquipSlot.Offhand);
+            foreach (var view in _slots)
+            {
+                RefreshSlot(view.Slot);
+            }
+
             RefreshDropCatcher();
         }
 
@@ -269,9 +272,18 @@ namespace DarkDescent.UI
             RefreshTooltip();
         }
 
-        private EquipmentSlotView SlotView(EquipSlot slot)
+        /// <summary>La vista di uno slot, per i test e per il tooltip; null se la sagoma non lo ha.</summary>
+        public EquipmentSlotView SlotView(EquipSlot slot)
         {
-            return slot == EquipSlot.Weapon ? _weaponSlot : slot == EquipSlot.Offhand ? _offhandSlot : null;
+            foreach (var view in _slots)
+            {
+                if (view.Slot == slot)
+                {
+                    return view;
+                }
+            }
+
+            return null;
         }
 
         private void HandleHeldChanged()
@@ -324,7 +336,7 @@ namespace DarkDescent.UI
             _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target);
 
             // dalla griglia, accanto c'è quello che si toglierebbe equipaggiandolo
-            var equipped = _hoveredCell.HasValue && item.Definition.Slot != EquipSlot.None ? _inventory.Equipment.Get(item.Definition.Slot) : null;
+            var equipped = _hoveredCell.HasValue && item.Definition.Slot != EquipSlot.None ? _inventory.Equipment.Get(_inventory.Equipment.TargetSlot(item.Definition)) : null;
             if (equipped != null)
             {
                 _compareTooltip.ShowBeside(equipped, _inventory.Equipment.MeetsRequirements(equipped.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquipped));
