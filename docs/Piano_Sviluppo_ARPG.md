@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.24**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.25**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.25 | 9 ott 2026 | Su richiesta di Mirco: il **movimento con WASD** tra i lavori dopo la v1.0, accanto al click |
 | v2.24 | 8 ott 2026 | Su richiesta di Mirco: una **grafica dei personaggi nello stile di Diablo 2** tra i lavori dopo la v1.0, con i vincoli di licenza e di tempo |
 | v2.23 | 8 ott 2026 | M7 chiusa (tag `m7`), con le lezioni · la M7 sale a 18–25 h con i tre passi di correzione dopo le prove in build · totale ricalcolato dalla tabella del § 5 · ADR-040…051 |
 | v2.22 | 8 ott 2026 | Su richiesta di Mirco: **la vita del nemico che si sta combattendo** resta in alto anche senza il cursore sopra, nella M9 · barre sopra i nemici feriti come opzione, dopo la v1.0 · **nemici speciali** più forti con loot migliore, dopo la v1.0 · il boss della M10 lascia loot migliore |
@@ -660,6 +661,13 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Coerenza.** Personaggi realistici in un dungeon KayKit si vedono fuori posto: cripta, caverne, oggetti e icone vanno cambiati insieme, o almeno avvicinati con lo shader retro della M11.
   - **Codice.** Quasi niente: modelli, animator e icone sono dati. Restano da rifare i punti di aggancio delle armi (`handslot`), i raggi degli agent e i tempi dei colpi misurati sulle clip.
   - Si valuta a v1.0 pubblicata, insieme all'estensione Blender della M11, di cui è la versione completa.
+- **Movimento con WASD** (chiesto da Mirco il 9 ott 2026). Oggi il cavaliere si muove con il click (ADR-006). Con WASD si muove anche da tastiera, e il mouse resta per attaccare, raccogliere e interagire. Cosa comporta:
+  - **Direzioni relative alla camera.** W va verso l'alto dello schermo, non verso nord: con la rotazione della M8 (ADR-052) le direzioni del mondo cambiano a ogni scatto. Le diagonali vengono da due tasti insieme.
+  - **NavMesh.** Il `NavMeshAgent` resta: ogni frame riceve una destinazione poco avanti nella direzione dei tasti, o si sposta con `NavMeshAgent.Move`, così i muri e gli ostacoli fermano il cavaliere come oggi e i nemici continuano a trovarlo.
+  - **Convivenza con il click.** Un tasto premuto annulla il percorso del click; un click a tasti fermi riprende come oggi. Il click su un nemico, durante il WASD, attacca senza spostarsi verso di lui se è già a portata, come lo Shift di Diablo.
+  - **Tasti già usati.** Q ed E girano la camera e restano lì, lontane da WASD; I, C, M e i numeri della cintura non si toccano. Il menu delle opzioni della M10 potrà poi permettere di cambiarli.
+  - **Animazioni e passi** seguono già la velocità dell'agent: non cambiano.
+  - Nel codice è un'azione `Move2D` in più nel `PlayerControls` e un ramo nel `PlayerController`. Il gamepad, fuori dall'ambito (§ 1), riuserebbe la stessa azione.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---
