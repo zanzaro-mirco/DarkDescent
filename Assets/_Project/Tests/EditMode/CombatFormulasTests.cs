@@ -40,6 +40,23 @@ namespace DarkDescent.Tests
             Assert.AreEqual(7f, CombatFormulas.RollDamage(6, 9, 0f, new FixedRandomSource(0.25)));
         }
 
+        [Test, Description("Forza e livello insieme: al tiro per la Forza si aggiunge Forza × livello / 100, come il guerriero di Diablo 1")]
+        public void RollDamage_AddsStrengthTimesLevel()
+        {
+            Assert.AreEqual(0f, CombatFormulas.StrengthBonus(30f, 0f), "un nemico non ha livello");
+            Assert.AreEqual(0.3f, CombatFormulas.StrengthBonus(30f, 1f), 1e-5f);
+            Assert.AreEqual(7.5f, CombatFormulas.StrengthBonus(75f, 10f), 1e-5f);
+
+            Assert.AreEqual(8f, CombatFormulas.RollDamage(6, 9, 30f, new FixedRandomSource(0.0), 1f), "al livello 1 quasi uguale: 7,8 + 0,3");
+            Assert.AreEqual(18f, CombatFormulas.RollDamage(6, 9, 75f, new FixedRandomSource(0.0), 10f), "6 × 1,75 + 7,5 = 18");
+            Assert.AreEqual(23f, CombatFormulas.RollDamage(6, 9, 75f, new FixedRandomSource(0.9999999), 10f), "9 × 1,75 + 7,5 = 23,25");
+
+            // la stessa Forza a livelli diversi: il livello conta
+            Assert.Greater(CombatFormulas.Damage(6, 60f, 7f), CombatFormulas.Damage(6, 60f, 1f));
+            // 30 punti di Forza in più al livello 7, sul tiro medio della spada corta: almeno un terzo in più
+            Assert.GreaterOrEqual(CombatFormulas.Damage(8, 60f, 7f) / (float)CombatFormulas.Damage(8, 30f, 7f), 1.3f);
+        }
+
         [Test, Description("Con la Forza il danno resta intero e almeno 1: la vita non resta mai frazionaria, e l'ultimo colpo non mostra 0")]
         public void RollDamage_IsAlwaysWholeAndPositive()
         {

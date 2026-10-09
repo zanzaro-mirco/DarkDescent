@@ -326,6 +326,27 @@ muri alti accesi siano sui due lati lontani, che ci sia una torcia accesa per og
 mappa e che l'automappa sia girata come la camera; scendendo di livello, i muri nuovi nascono già
 girati. 214 EditMode e 145 PlayMode verdi.
 
+## Prova della build (9 ott 2026)
+
+Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
+
+- **Ascia al contrario.** Il cavaliere tiene ogni arma senza ruotarla rispetto all'osso della mano:
+  per spada e pugnale non conta, ma l'ascia aveva il filo in alto e nel colpo, che scende davanti,
+  colpiva con il dorso. `Axe.asset` ha ora `_heldRotation` (0, 180, 0). L'ho controllata con
+  screenshot di quattro momenti dell'animazione d'attacco, presi con `animator.Play` a velocità 0.
+- **Forza che non si sente.** Il danno era tiro × (1 + Forza / 100): 30 punti in più valevano il
+  20% e lo scheletro moriva sempre in 3 colpi. Mirco ha scelto il bonus di Diablo 1, Forza ×
+  livello / 100 in più (ADR-053). Il livello entra nella scheda come `StatType.Level`, scritto da
+  `CharacterProgress` insieme alla vita dei livelli; `CombatFormulas.Damage` serve il colpo e il
+  pannello. Livello 5 e Forza 50 con la spada corta: 12–16 invece di 9–14.
+- **Font.** Cinzel (OFL) al posto di LiberationSans, che resta come riserva (ADR-054). Lo script
+  temporaneo ha creato l'asset statico dai caratteri ASCII, dalle accentate e dai caratteri della
+  tabella delle stringhe; mancano solo le frecce. Cinzel è più largo: "Hit chance (skeleton)" andava
+  a capo e spostava di una riga tutte le etichette sotto, così le colonne del pannello sono a 24
+  punti senza andare a capo. Le etichette degli slot sono in maiuscolo pieno e non vanno a capo
+  ("Amuleto"). Ho controllato con screenshot in inglese e in italiano.
+- **WASD** tra i lavori dopo la v1.0 (piano v2.25).
+
 ---
 
 ## Trappole note

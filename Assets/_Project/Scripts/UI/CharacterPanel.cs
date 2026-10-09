@@ -126,7 +126,7 @@ namespace DarkDescent.UI
             return _names.transform.TransformPoint(new Vector3(_names.rectTransform.rect.center.x, (info.ascender + info.descender) / 2f, 0f));
         }
 
-        /// <summary>Danno minimo e massimo dell'arma attuale, con i suoi affissi e la Forza: quello che il pannello mostra.</summary>
+        /// <summary>Danno minimo e massimo dell'arma attuale, con i suoi affissi, la Forza e il livello: quello che il pannello mostra.</summary>
         public (int min, int max) DamageRange()
         {
             // dall'oggetto e non da MeleeAttack: l'ordine tra il suo aggiornamento e questo non è garantito
@@ -135,8 +135,8 @@ namespace DarkDescent.UI
                 ? ItemStats.WeaponDamage(item)
                 : (_inventory.Unarmed.MinDamage, _inventory.Unarmed.MaxDamage);
 
-            float multiplier = CombatFormulas.StrengthMultiplier(_stats.Strength);
-            return (Mathf.RoundToInt(min * multiplier), Mathf.RoundToInt(max * multiplier));
+            float level = _stats.Sheet.Get(StatType.Level);
+            return (CombatFormulas.Damage(min, _stats.Strength, level), CombatFormulas.Damage(max, _stats.Strength, level));
         }
 
         private void Awake()

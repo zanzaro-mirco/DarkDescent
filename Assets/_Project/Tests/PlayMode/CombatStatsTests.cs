@@ -79,7 +79,7 @@ namespace DarkDescent.Tests
         public IEnumerator Hit_DealsRolledDamage()
         {
             yield return LoadArena();
-            // 0,7: colpito (70 < 75) e tiro 6 + 2 = 8, per 1,3 di Forza = 10,4, cioè 10
+            // 0,7: colpito (70 < 75) e tiro 6 + 2 = 8, per 1,3 di Forza = 10,4, più Forza × livello / 100 = 0,3: 10,7, cioè 11
             UseRandom(0.7);
 
             ClickAt(_skeleton.transform.position + Vector3.up);
@@ -90,7 +90,7 @@ namespace DarkDescent.Tests
                 yield return null;
             }
 
-            Assert.AreEqual(_skeletonHealth.Max - 10f, _skeletonHealth.Current, 0.001f);
+            Assert.AreEqual(_skeletonHealth.Max - 11f, _skeletonHealth.Current, 0.001f);
         }
     }
 }

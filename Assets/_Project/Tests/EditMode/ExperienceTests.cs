@@ -76,6 +76,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual((3, 20, 10), (_progress.Level, _progress.Experience, _progress.UnspentPoints));
             CollectionAssert.AreEqual(new[] { 2, 3 }, levels);
             Assert.AreEqual(4f, _sheet.Get(StatType.Life), "2 di vita per ognuno dei due livelli");
+            Assert.AreEqual(3f, _sheet.Get(StatType.Level), "il livello sulla scheda, per il danno");
             Assert.AreEqual(420, gained);
             Assert.AreEqual(2, changes);
         }
@@ -114,6 +115,7 @@ namespace DarkDescent.Tests
             _progress.Restore(7, 500, 3);
             Assert.AreEqual((7, 500, 3), (_progress.Level, _progress.Experience, _progress.UnspentPoints));
             Assert.AreEqual(12f, _sheet.Get(StatType.Life));
+            Assert.AreEqual(7f, _sheet.Get(StatType.Level));
 
             _progress.Restore(99, 99_999, -4);
             Assert.AreEqual((20, 0, 0), (_progress.Level, _progress.Experience, _progress.UnspentPoints));

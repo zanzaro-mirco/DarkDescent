@@ -5,8 +5,8 @@ namespace DarkDescent.Progression
 {
     /// <summary>
     /// Livello, esperienza e punti attributo di un personaggio (D1–D3 della M8). Salire dà i punti
-    /// e la vita in più, scritta come valore base della vita sulla sua scheda; spendere un punto alza
-    /// di uno il valore base di un attributo. Logica pura: il componente del cavaliere la crea e la
+    /// e la vita in più, scritta come valore base della vita sulla sua scheda insieme al livello, che
+    /// il danno legge con la Forza; spendere un punto alza di uno il valore base di un attributo. Logica pura: il componente del cavaliere la crea e la
     /// collega alla vita e all'HUD.
     /// </summary>
     public sealed class CharacterProgress
@@ -18,6 +18,7 @@ namespace DarkDescent.Progression
         {
             _settings = settings != null ? settings : throw new ArgumentNullException(nameof(settings));
             _sheet = sheet ?? throw new ArgumentNullException(nameof(sheet));
+            ApplyLevel();
         }
 
         /// <summary>Esperienza guadagnata, livelli compresi: per l'HUD e i suoni.</summary>
@@ -71,7 +72,7 @@ namespace DarkDescent.Progression
 
             if (Level > before)
             {
-                ApplyLevelLife();
+                ApplyLevel();
             }
 
             ExperienceGained?.Invoke(amount);
@@ -107,13 +108,14 @@ namespace DarkDescent.Progression
             Level = Math.Max(1, Math.Min(level, _settings.MaxLevel));
             Experience = IsMaxLevel ? 0 : Math.Max(0, Math.Min(experience, ExperienceToNext - 1));
             UnspentPoints = Math.Max(0, unspentPoints);
-            ApplyLevelLife();
+            ApplyLevel();
             Changed?.Invoke();
         }
 
-        private void ApplyLevelLife()
+        private void ApplyLevel()
         {
             _sheet.SetBase(StatType.Life, (Level - 1) * _settings.LifePerLevel);
+            _sheet.SetBase(StatType.Level, Level);
         }
     }
 }

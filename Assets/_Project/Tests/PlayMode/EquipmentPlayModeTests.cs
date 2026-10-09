@@ -178,7 +178,7 @@ namespace DarkDescent.Tests
             yield return null;
 
             Assert.AreEqual((8, 12), (_attack.MinDamage, _attack.MaxDamage));
-            Assert.AreEqual((10, 16), character.DamageRange());
+            Assert.AreEqual((11, 16), character.DamageRange(), "8 e 12 per 1,3, più 0,3 di Forza × livello");
         }
     }
 }

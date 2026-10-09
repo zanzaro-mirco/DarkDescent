@@ -136,11 +136,13 @@ namespace DarkDescent.Tests
             Object.FindFirstObjectByType<CompositionRoot>().UseRandomSource(new FixedRandomSource(values));
         }
 
-        /// <summary>Il danno di un colpo a segno con il tiro minimo: danno minimo dell'arma per la Forza.</summary>
+        /// <summary>Il danno di un colpo a segno con il tiro minimo: danno minimo dell'arma con la Forza e il livello.</summary>
         protected static float MinHitDamage(MeleeAttack attack)
         {
-            float strength = CharacterStats.ValueOf(attack.GetComponent<CharacterStats>(), StatType.Strength);
-            return CombatFormulas.RollDamage(attack.MinDamage, attack.MinDamage, strength, new FixedRandomSource(0.0));
+            var stats = attack.GetComponent<CharacterStats>();
+            float strength = CharacterStats.ValueOf(stats, StatType.Strength);
+            float level = CharacterStats.ValueOf(stats, StatType.Level);
+            return CombatFormulas.RollDamage(attack.MinDamage, attack.MinDamage, strength, new FixedRandomSource(0.0), level);
         }
 
         /// <summary>Aspetta che un livello sia caricato e il player sopra, con un limite di tempo.</summary>

@@ -20,5 +20,11 @@ namespace DarkDescent.Stats
 
         /// <summary>Punti percentuali in più alla probabilità di critico (gli affissi dei gioielli, M8).</summary>
         CritChance,
+
+        /// <summary>
+        /// Il livello del personaggio, scritto dalla sua crescita (M8): entra nel danno con la Forza.
+        /// I nemici non ce l'hanno, e vale 0.
+        /// </summary>
+        Level,
     }
 }

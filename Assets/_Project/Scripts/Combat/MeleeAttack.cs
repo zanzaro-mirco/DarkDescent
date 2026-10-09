@@ -355,7 +355,8 @@ namespace DarkDescent.Combat
                     float amount = CombatFormulas.RollDamage(
                         _swingIsQuick ? _quickWeapon.MinDamage : _minDamage,
                         _swingIsQuick ? _quickWeapon.MaxDamage : _maxDamage,
-                        CharacterStats.ValueOf(_stats, StatType.Strength), _random);
+                        CharacterStats.ValueOf(_stats, StatType.Strength), _random,
+                        CharacterStats.ValueOf(_stats, StatType.Level));
 
                     // il critico per ultimo: i tiri di colpire, bloccare e del danno restano dove sono
                     bool critical = _canCrit && CombatFormulas.RollCrit(

@@ -166,7 +166,7 @@ namespace DarkDescent.Tests
             Assert.AreSame(blade.Definition, Player.GetComponent<MeleeAttack>().Weapon);
             Assert.AreEqual("ShortSword", _inventory.Inventory.Held.Definition.name, "la spada corta sale sul cursore");
             Assert.IsTrue(SlotView(EquipSlot.Weapon).HasIcon);
-            StringAssert.Contains("10–16", _character.ValuesText, "lama: 8–12 per 1,3");
+            StringAssert.Contains("11–16", _character.ValuesText, "lama: 8–12 per 1,3, più 0,3 di Forza × livello");
         }
 
         [UnityTest, Description("Con un oggetto sul cursore, un click fuori dalle finestre lo lascia a terra ai piedi del cavaliere")]

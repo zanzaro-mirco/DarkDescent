@@ -86,16 +86,31 @@ namespace DarkDescent.Combat
         }
 
         /// <summary>
-        /// Un tiro intero tra minimo e massimo dell'arma, estremi compresi, moltiplicato per la Forza
-        /// e arrotondato come nel pannello del personaggio; almeno 1.
+        /// Danno in più a ogni colpo, da Forza e livello insieme, come il guerriero di Diablo 1:
+        /// Forza × livello / 100. Al livello 1 quasi niente; al 10 con Forza 75, 7,5 (M8, prova della build).
         /// </summary>
-        public static float RollDamage(int minDamage, int maxDamage, float strength, IRandomSource random)
+        public static float StrengthBonus(float strength, float level)
+        {
+            return Math.Max(0f, strength * level / 100f);
+        }
+
+        /// <summary>Il danno di un tiro dell'arma: tiro × moltiplicatore della Forza + bonus di Forza e livello, intero e almeno 1.</summary>
+        public static int Damage(int roll, float strength, float level)
+        {
+            // intero: con i decimali la vita restava frazionaria e l'ultimo colpo poteva mostrare "0"
+            return Math.Max(1, (int)Math.Round(roll * StrengthMultiplier(strength) + StrengthBonus(strength, level)));
+        }
+
+        /// <summary>
+        /// Un tiro intero tra minimo e massimo dell'arma, estremi compresi, con la Forza e il livello
+        /// e arrotondato come nel pannello del personaggio; almeno 1. Senza livello, come un nemico.
+        /// </summary>
+        public static float RollDamage(int minDamage, int maxDamage, float strength, IRandomSource random, float level = 0f)
         {
             int span = maxDamage - minDamage + 1;
             // il Min protegge dall'arrotondamento di un NextDouble vicinissimo a 1
             int roll = Math.Min(maxDamage, minDamage + (int)(random.NextDouble() * span));
-            // intero: con i decimali la vita restava frazionaria e l'ultimo colpo poteva mostrare "0"
-            return Math.Max(1f, (float)Math.Round(roll * StrengthMultiplier(strength)));
+            return Damage(roll, strength, level);
         }
 
         /// <summary>Vita massima: 50 + 2 × Vitalità. Con la Vitalità 25 del cavaliere, 100.</summary>
