@@ -31,6 +31,9 @@ namespace DarkDescent.Player
         /// <summary>M: l'automappa passa alla modalità dopo, tra angolo, sovrapposta e spenta (D15 della M6).</summary>
         public event Action MapCycled;
 
+        /// <summary>La rotella: +1 per uno scatto in avanti, che avvicina, -1 indietro (D11 della M8).</summary>
+        public event Action<int> ZoomScrolled;
+
         public bool IsMoveCommandHeld { get; private set; }
 
         public Vector2 PointerScreenPosition => _controls.Gameplay.Point.ReadValue<Vector2>();
@@ -53,6 +56,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.CycleLanguage.performed += HandleLanguagePerformed;
             _controls.Gameplay.UseBelt.performed += HandleBeltPerformed;
             _controls.Gameplay.CycleMap.performed += HandleMapPerformed;
+            _controls.Gameplay.Zoom.performed += HandleZoomPerformed;
             _controls.Gameplay.Enable();
         }
 
@@ -68,6 +72,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.CycleLanguage.performed -= HandleLanguagePerformed;
             _controls.Gameplay.UseBelt.performed -= HandleBeltPerformed;
             _controls.Gameplay.CycleMap.performed -= HandleMapPerformed;
+            _controls.Gameplay.Zoom.performed -= HandleZoomPerformed;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
@@ -120,6 +125,16 @@ namespace DarkDescent.Player
         private void HandleMapPerformed(InputAction.CallbackContext context)
         {
             MapCycled?.Invoke();
+        }
+
+        // la rotella dà 120 a scatto su Windows e 1 altrove: conta solo il verso
+        private void HandleZoomPerformed(InputAction.CallbackContext context)
+        {
+            float value = context.ReadValue<float>();
+            if (value != 0f)
+            {
+                ZoomScrolled?.Invoke(value > 0f ? 1 : -1);
+            }
         }
 
         /// <summary>Come premere il tasto del posto (da 0): per i test, che non hanno una tastiera.</summary>

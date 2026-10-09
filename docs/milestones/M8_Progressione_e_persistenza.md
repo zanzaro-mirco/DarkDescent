@@ -267,6 +267,28 @@ secondo anello Letale nel secondo slot, il critico a +4), e riscritto è del for
 che tiene ogni profondità; le mappe che passano dal salvataggio e quella di un'altra misura
 ignorata. `SaveLoadTests` controlla anche le due mappe nel file. 206 EditMode e 142 PlayMode verdi.
 
+## Passo 8.7 — Zoom
+
+**Com'è andata (9 ott 2026).**
+
+- La camera è ortografica: lo zoom cambia la dimensione della vista di Cinemachine (9 nella scena),
+  non la distanza. Il risultato è lo stesso, e la luce, i muri bassi e l'automappa non se ne
+  accorgono.
+- `ZoomLevel`, in `Core/Rendering`, è la logica pura. Il fattore va a scatti interi del 10%, tra -4
+  e +4, così non si accumulano somme di 0,1 lontane dai valori tondi. Arriva a quello scelto in
+  0,15 s esatti, con un'uscita cubica che rallenta alla fine. Uno scatto a metà riparte da dove si
+  è, senza salti.
+- `CameraZoom` sta sulla `PlayerCamera` di Core. Legge la preferenza `camera_zoom` in Awake e la
+  scrive a ogni scatto, come la lingua. Il tempo non è scalato: l'hit stop non ferma lo zoom.
+- L'azione `Zoom` è sulla rotella (`<Mouse>/scroll/y`). Il reader manda solo il verso, perché
+  Windows dà 120 a scatto e altre piattaforme 1.
+- I test partono senza le preferenze dello zoom, come già succedeva per la lingua (`ForgetPreferences`).
+
+*Test.* `ZoomLevelTests` (4, EditMode): scatti e limiti, 0,15 s senza superare il valore scelto,
+lo scatto durante lo smorzamento, la preferenza portata allo scatto più vicino. In `CameraTests`
+(PlayMode), la rotella del mouse virtuale porta la vista al 90%, poi non oltre il 60% e il 140%;
+ricaricata Core, lo zoom è quello salvato. 210 EditMode e 143 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -301,7 +323,8 @@ ignorata. `SaveLoadTests` controlla anche le due mappe nel file. 206 EditMode e 
 | `EquipmentTests` (EditMode, ampliato) | Gli slot nuovi, i due anelli, l'Armatura dei pezzi |
 | `LevelUpTests` (PlayMode) | Uccidere dà esperienza, si sale, la vita si riempie, i punti si spendono |
 | `SaveLoadTests` (PlayMode) | Dopo un caricamento il cavaliere è sulla profondità e sull'ingresso salvati, con tutto addosso |
-| `CameraRotationTests` (PlayMode) | Zoom nei limiti; dopo ogni scatto, tra la camera e il cavaliere nessun muro alto |
+| `ZoomLevelTests` (EditMode) e `CameraTests` (PlayMode, ampliato) | Zoom a scatti nei limiti, smorzato in 0,15 s, ricordato tra le preferenze |
+| `CameraRotationTests` (PlayMode) | Dopo ogni scatto, tra la camera e il cavaliere nessun muro alto |
 
 ---
 

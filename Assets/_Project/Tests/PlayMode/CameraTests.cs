@@ -1,9 +1,11 @@
 using System.Collections;
 using DarkDescent.Combat;
 using DarkDescent.Levels;
+using DarkDescent.Rendering;
 using NUnit.Framework;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
 namespace DarkDescent.Tests
@@ -45,6 +47,54 @@ namespace DarkDescent.Tests
             Vector3 viewport = PlayerViewport;
             Assert.AreEqual(0.5f, viewport.x, DeadZoneHalfWidth);
             Assert.AreEqual(0.5f, viewport.y, DeadZoneHalfHeight);
+        }
+
+        [UnityTest, Description("La rotella avvicina e allontana la vista a scatti del 10%, tra il 60% e il 140%, e la scelta resta tra le preferenze")]
+        public IEnumerator Wheel_ZoomsWithinLimits_AndRemembers()
+        {
+            yield return LoadSandbox();
+            var zoom = Object.FindFirstObjectByType<CameraZoom>();
+            var lens = zoom.GetComponent<CinemachineCamera>();
+            float baseSize = zoom.BaseSize;
+            Assert.AreEqual(9f, baseSize, "senza preferenza, la vista della scena");
+            Assert.AreEqual(baseSize, Camera.orthographicSize, 1e-3f);
+
+            // uno scatto in avanti: la vista arriva al 90% in 0,15 s
+            yield return Scroll(1);
+            yield return new WaitForSecondsRealtime(0.25f);
+            Assert.AreEqual(baseSize * 0.9f, lens.Lens.OrthographicSize, 1e-3f);
+            Assert.AreEqual(baseSize * 0.9f, Camera.orthographicSize, 1e-3f, "la camera vera segue");
+            Assert.AreEqual(0.9f, PlayerPrefs.GetFloat(CameraZoom.Preference), 1e-5f);
+
+            for (int i = 0; i < 6; i++)
+            {
+                yield return Scroll(1);
+            }
+
+            yield return new WaitForSecondsRealtime(0.25f);
+            Assert.AreEqual(baseSize * 0.6f, lens.Lens.OrthographicSize, 1e-3f, "non si avvicina oltre il 60%");
+
+            for (int i = 0; i < 12; i++)
+            {
+                yield return Scroll(-1);
+            }
+
+            yield return new WaitForSecondsRealtime(0.25f);
+            Assert.AreEqual(baseSize * 1.4f, lens.Lens.OrthographicSize, 1e-3f, "non si allontana oltre il 140%");
+
+            // ricaricato il gioco, lo zoom è quello scelto, senza animazione
+            SceneManager.LoadScene("Core");
+            yield return WaitForLevel();
+            zoom = Object.FindFirstObjectByType<CameraZoom>();
+            Assert.AreEqual(baseSize * 1.4f, zoom.GetComponent<CinemachineCamera>().Lens.OrthographicSize, 1e-3f);
+        }
+
+        // uno scatto della rotella del mouse virtuale: 120 come su Windows, e due frame perché passi
+        private IEnumerator Scroll(int notches)
+        {
+            Set(Mouse.scroll.y, notches * 120f);
+            yield return null;
+            yield return null;
         }
 
         [UnityTest, Description("Un colpo subito dal cavaliere fa partire una scossa della camera")]

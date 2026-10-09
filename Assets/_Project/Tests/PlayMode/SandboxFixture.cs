@@ -34,16 +34,17 @@ namespace DarkDescent.Tests
         /// <summary>La lingua del gioco, creata dal CompositionRoot.</summary>
         protected static Localizer Localizer => Object.FindFirstObjectByType<CompositionRoot>().Localizer;
 
-        // ogni test parte in inglese, la lingua di default: una scelta salvata da un test o da una
-        // prova nell'editor non deve cambiare i testi attesi
-        private static void ForgetLanguage()
+        // ogni test parte in inglese, la lingua di default, e con lo zoom della scena: una scelta
+        // salvata da un test o da una prova nell'editor non deve cambiare quello che si aspetta
+        private static void ForgetPreferences()
         {
             PlayerPrefs.DeleteKey(CompositionRoot.LanguagePreference);
+            PlayerPrefs.DeleteKey(Rendering.CameraZoom.Preference);
         }
 
         protected IEnumerator LoadSandbox(bool allSkeletons = false)
         {
-            ForgetLanguage();
+            ForgetPreferences();
             Mouse = InputSystem.AddDevice<Mouse>();
 
             // Core e sandbox nello stesso frame: il LevelManager trova la sandbox già aperta e la usa
@@ -76,7 +77,7 @@ namespace DarkDescent.Tests
         /// </summary>
         protected IEnumerator LoadCore()
         {
-            ForgetLanguage();
+            ForgetPreferences();
             Mouse = InputSystem.AddDevice<Mouse>();
             SceneManager.LoadScene("Core");
             SceneManager.LoadScene("Level_01", LoadSceneMode.Additive);
@@ -88,7 +89,7 @@ namespace DarkDescent.Tests
         /// <summary>Core da sola, come nella build: il LevelManager genera il primo livello della cripta.</summary>
         protected IEnumerator LoadGeneratedCore()
         {
-            ForgetLanguage();
+            ForgetPreferences();
             Mouse = InputSystem.AddDevice<Mouse>();
             SceneManager.LoadScene("Core");
             yield return WaitForLevel();

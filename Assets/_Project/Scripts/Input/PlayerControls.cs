@@ -163,6 +163,16 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""3c0ddbd9-85da-47e1-b556-916e8725869a"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -319,6 +329,17 @@ namespace DarkDescent.Input
                     ""action"": ""CycleMap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""798cd8df-ff36-4528-b85e-7bf97f7e9998"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -334,6 +355,7 @@ namespace DarkDescent.Input
             m_Gameplay_CycleLanguage = m_Gameplay.FindAction("CycleLanguage", throwIfNotFound: true);
             m_Gameplay_UseBelt = m_Gameplay.FindAction("UseBelt", throwIfNotFound: true);
             m_Gameplay_CycleMap = m_Gameplay.FindAction("CycleMap", throwIfNotFound: true);
+            m_Gameplay_Zoom = m_Gameplay.FindAction("Zoom", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -421,6 +443,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_CycleLanguage;
         private readonly InputAction m_Gameplay_UseBelt;
         private readonly InputAction m_Gameplay_CycleMap;
+        private readonly InputAction m_Gameplay_Zoom;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -460,6 +483,10 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/CycleMap".
             /// </summary>
             public InputAction @CycleMap => m_Wrapper.m_Gameplay_CycleMap;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/Zoom".
+            /// </summary>
+            public InputAction @Zoom => m_Wrapper.m_Gameplay_Zoom;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -507,6 +534,9 @@ namespace DarkDescent.Input
                 @CycleMap.started += instance.OnCycleMap;
                 @CycleMap.performed += instance.OnCycleMap;
                 @CycleMap.canceled += instance.OnCycleMap;
+                @Zoom.started += instance.OnZoom;
+                @Zoom.performed += instance.OnZoom;
+                @Zoom.canceled += instance.OnZoom;
             }
 
             /// <summary>
@@ -539,6 +569,9 @@ namespace DarkDescent.Input
                 @CycleMap.started -= instance.OnCycleMap;
                 @CycleMap.performed -= instance.OnCycleMap;
                 @CycleMap.canceled -= instance.OnCycleMap;
+                @Zoom.started -= instance.OnZoom;
+                @Zoom.performed -= instance.OnZoom;
+                @Zoom.canceled -= instance.OnZoom;
             }
 
             /// <summary>
@@ -628,6 +661,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnCycleMap(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Zoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnZoom(InputAction.CallbackContext context);
         }
     }
 }

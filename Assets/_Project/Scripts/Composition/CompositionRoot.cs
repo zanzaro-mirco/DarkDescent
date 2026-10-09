@@ -196,6 +196,7 @@ namespace DarkDescent.Core
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);
             _targetMarker.Bind(controller);
+            _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);
         }
 
         private void Start()
