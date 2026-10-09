@@ -289,6 +289,43 @@ lo scatto durante lo smorzamento, la preferenza portata allo scatto più vicino.
 (PlayMode), la rotella del mouse virtuale porta la vista al 90%, poi non oltre il 60% e il 140%;
 ricaricata Core, lo zoom è quello salvato. 210 EditMode e 143 PlayMode verdi.
 
+## Passo 8.8 — Rotazione
+
+**Com'è andata (9 ott 2026).**
+
+- `ViewRotation`, in `Core/Rendering`, è la logica pura. L'imbardata parte da 45° e cresce di 90° a
+  ogni scatto a destra, senza mai essere riportata tra 0 e 360, così non salta. L'animazione dura
+  0,4 s con partenza e arrivo morbidi. Il lato da cui si guarda cambia a metà scatto. `IsFar` dice
+  se un lato è lontano: con il lato 0 lo sono nord ed est, e ogni scatto sposta la coppia di uno.
+- `CameraRotation` sta sulla `PlayerCamera` e cambia solo l'orientamento. Il Position Composer di
+  Cinemachine gira già da solo attorno al punto seguito, senza smorzare la rotazione, quindi non
+  serve spostare la camera.
+- Il builder mette ogni muro due volte, in `Walls/<lato>/High` e `Walls/<lato>/Low`. Il livello
+  nasce con i gruppi alti accesi e i bassi spenti, e così si cuoce il NavMesh. `WallView`, sulla
+  radice del livello, accende i gruppi giusti; il `CompositionRoot` glielo chiede all'ingresso nel
+  livello e a ogni cambio di lato.
+- **Torce:** ognuna sta sul primo muro della sua cella. Ha una gemella sul muro di fronte della
+  stessa colonna; la ricerca si ferma se passa da un varco stretto, cioè se la stanza è finita, o
+  se arriva sulla scala. Senza gemella, la torcia scende sulla balaustra a 0,75 m. In ogni
+  direzione c'è una sola torcia accesa per ogni torcia della mappa.
+- Lo stendardo sta sul muro oltre la scala, su qualsiasi lato, e si vede quando quel muro è alto.
+- L'automappa gira la mappa con l'imbardata (`AutomapFrame.SetYaw`). La luce del cavaliere e le
+  orecchie seguivano già la camera.
+- Le scene a mano `Level_01` e `Level_02` sono state ricostruite dalle mappe con `BuildAll`, per
+  avere i lati doppi. La sandbox non li ha: lì la camera gira ma i muri restano com'erano.
+- Gli screenshot in batch, in cripta e in caverna, compresa la scala, mostrano nelle quattro
+  direzioni i muri alti dietro e le balaustre davanti. Il cavaliere è sempre visibile, la parte
+  sepolta della scala non spunta e le torce di riserva sulla balaustra si leggono bene.
+- ADR-052, con una riga di aggiornamento in ADR-017.
+
+*Test.* `ViewRotationTests` (4, EditMode): i lati lontani per ogni direzione; 0,4 s con il cambio
+a metà; quattro scatti che tornano al punto di partenza senza salti; uno scatto durante la
+rotazione. `CameraRotationTests` (2, PlayMode): nella cripta generata, dopo ogni scatto (il primo
+con il tasto E, l'ultimo con Q) controlla che tra camera e cavaliere non ci sia un muro alto, che i
+muri alti accesi siano sui due lati lontani, che ci sia una torcia accesa per ogni torcia della
+mappa e che l'automappa sia girata come la camera; scendendo di livello, i muri nuovi nascono già
+girati. 214 EditMode e 145 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -334,7 +371,7 @@ ricaricata Core, lo zoom è quello salvato. 210 EditMode e 143 PlayMode verdi.
 - [ ] Esperienza e livelli
 - [ ] Equipaggiamento completo
 - [ ] Salvataggio e migrazione
-- [ ] Zoom e rotazione
+- [x] Zoom e rotazione
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m8`

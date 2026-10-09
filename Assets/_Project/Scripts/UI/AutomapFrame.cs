@@ -5,8 +5,9 @@ namespace DarkDescent.UI
 {
     /// <summary>
     /// Una delle due viste dell'automappa: la minimappa nell'angolo o quella sovrapposta al gioco.
-    /// La mappa sta dentro un genitore ruotato di 45° e uno schiacciato a metà, così è orientata come
-    /// la camera isometrica: il nord della mappa cade dove cade nello schermo. Il punto del cavaliere
+    /// La mappa sta dentro un genitore ruotato come l'imbardata della camera (45° all'inizio) e uno
+    /// schiacciato a metà, così è orientata come la camera isometrica: il nord della mappa cade dove
+    /// cade nello schermo, anche quando la camera gira (D12 della M8). Il punto del cavaliere
     /// è figlio della mappa; con <c>_followPlayer</c> è la mappa a scorrere, e il cavaliere resta al
     /// centro. Nell'angolo una maschera taglia quello che esce dalla cornice.
     /// </summary>
@@ -46,6 +47,12 @@ namespace DarkDescent.UI
             _height = height;
             _map.texture = texture;
             _map.rectTransform.sizeDelta = new Vector2(width, height) * _cellSize;
+        }
+
+        /// <summary>Gira la mappa con la camera: l'angolo è l'imbardata, in gradi.</summary>
+        public void SetYaw(float yaw)
+        {
+            _map.rectTransform.parent.localRotation = Quaternion.Euler(0f, 0f, yaw);
         }
 
         /// <summary>Mette il punto sul cavaliere, in celle continue: x verso est, y verso sud, i centri sugli interi.</summary>

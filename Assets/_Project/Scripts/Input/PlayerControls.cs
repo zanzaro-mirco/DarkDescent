@@ -173,6 +173,16 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": true,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Rotate"",
+                    ""type"": ""Value"",
+                    ""id"": ""6855731a-9308-4ea0-ab96-88a62f97ebda"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -340,6 +350,39 @@ namespace DarkDescent.Input
                     ""action"": ""Zoom"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""Q/E"",
+                    ""id"": ""f061b99e-bd8e-4154-b8e3-7e78cc275ee4"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""1853fa19-1d6b-42a4-a91a-a773dde3566c"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""09e02bb5-463c-42ad-8806-9bb9de1147eb"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -356,6 +399,7 @@ namespace DarkDescent.Input
             m_Gameplay_UseBelt = m_Gameplay.FindAction("UseBelt", throwIfNotFound: true);
             m_Gameplay_CycleMap = m_Gameplay.FindAction("CycleMap", throwIfNotFound: true);
             m_Gameplay_Zoom = m_Gameplay.FindAction("Zoom", throwIfNotFound: true);
+            m_Gameplay_Rotate = m_Gameplay.FindAction("Rotate", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -444,6 +488,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_UseBelt;
         private readonly InputAction m_Gameplay_CycleMap;
         private readonly InputAction m_Gameplay_Zoom;
+        private readonly InputAction m_Gameplay_Rotate;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -487,6 +532,10 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/Zoom".
             /// </summary>
             public InputAction @Zoom => m_Wrapper.m_Gameplay_Zoom;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/Rotate".
+            /// </summary>
+            public InputAction @Rotate => m_Wrapper.m_Gameplay_Rotate;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -537,6 +586,9 @@ namespace DarkDescent.Input
                 @Zoom.started += instance.OnZoom;
                 @Zoom.performed += instance.OnZoom;
                 @Zoom.canceled += instance.OnZoom;
+                @Rotate.started += instance.OnRotate;
+                @Rotate.performed += instance.OnRotate;
+                @Rotate.canceled += instance.OnRotate;
             }
 
             /// <summary>
@@ -572,6 +624,9 @@ namespace DarkDescent.Input
                 @Zoom.started -= instance.OnZoom;
                 @Zoom.performed -= instance.OnZoom;
                 @Zoom.canceled -= instance.OnZoom;
+                @Rotate.started -= instance.OnRotate;
+                @Rotate.performed -= instance.OnRotate;
+                @Rotate.canceled -= instance.OnRotate;
             }
 
             /// <summary>
@@ -668,6 +723,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnZoom(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Rotate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnRotate(InputAction.CallbackContext context);
         }
     }
 }

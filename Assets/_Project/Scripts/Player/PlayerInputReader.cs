@@ -34,6 +34,9 @@ namespace DarkDescent.Player
         /// <summary>La rotella: +1 per uno scatto in avanti, che avvicina, -1 indietro (D11 della M8).</summary>
         public event Action<int> ZoomScrolled;
 
+        /// <summary>Q ed E: -1 gira la visuale a sinistra, +1 a destra, di 90° (D12 della M8).</summary>
+        public event Action<int> ViewRotated;
+
         public bool IsMoveCommandHeld { get; private set; }
 
         public Vector2 PointerScreenPosition => _controls.Gameplay.Point.ReadValue<Vector2>();
@@ -57,6 +60,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.UseBelt.performed += HandleBeltPerformed;
             _controls.Gameplay.CycleMap.performed += HandleMapPerformed;
             _controls.Gameplay.Zoom.performed += HandleZoomPerformed;
+            _controls.Gameplay.Rotate.performed += HandleRotatePerformed;
             _controls.Gameplay.Enable();
         }
 
@@ -73,6 +77,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.UseBelt.performed -= HandleBeltPerformed;
             _controls.Gameplay.CycleMap.performed -= HandleMapPerformed;
             _controls.Gameplay.Zoom.performed -= HandleZoomPerformed;
+            _controls.Gameplay.Rotate.performed -= HandleRotatePerformed;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
@@ -134,6 +139,16 @@ namespace DarkDescent.Player
             if (value != 0f)
             {
                 ZoomScrolled?.Invoke(value > 0f ? 1 : -1);
+            }
+        }
+
+        // Q e E sono i due capi di un asse: -1 e +1. Con tutti e due premuti l'asse torna a 0 e non gira
+        private void HandleRotatePerformed(InputAction.CallbackContext context)
+        {
+            float value = context.ReadValue<float>();
+            if (value != 0f)
+            {
+                ViewRotated?.Invoke(value > 0f ? 1 : -1);
             }
         }
 

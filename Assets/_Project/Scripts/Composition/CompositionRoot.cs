@@ -94,6 +94,10 @@ namespace DarkDescent.Core
         private LootRoller _loot;
         private Footsteps _footsteps;
         private PlayerProgress _progress;
+        private Rendering.CameraRotation _cameraRotation;
+
+        // muri e torce del livello corrente, alti o bassi secondo la camera (D12 della M8); null nei livelli fatti a mano senza
+        private WallView _walls;
         private readonly List<EnemyAI> _rewardingEnemies = new List<EnemyAI>();
         private int _depth;
 
@@ -185,7 +189,9 @@ namespace DarkDescent.Core
             _experienceBar.Bind(_progress.Progress, _localizer);
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
-            _automap.Bind(_exploration, _reader);
+            _cameraRotation = _playerCamera.GetComponent<Rendering.CameraRotation>();
+            _cameraRotation.Bind(_reader);
+            _automap.Bind(_exploration, _reader, _cameraRotation);
             // un generatore suo: i versi nel buio non spostano i tiri del combattimento
             _ambience.Bind(_player.transform, new SystemRandomSource(Environment.TickCount ^ 0x5EED));
             _player.GetComponent<CharacterAudio>().Bind(_sfxLimiter);
@@ -215,6 +221,7 @@ namespace DarkDescent.Core
             _levelManager.LevelLoaded += BindLevel;
             _levelManager.LevelUnloading += ReleaseLevel;
             _reader.LanguageCycled += CycleLanguage;
+            _cameraRotation.FacingChanged += HandleFacingChanged;
         }
 
         private void OnDisable()
@@ -224,6 +231,16 @@ namespace DarkDescent.Core
             _levelManager.LevelLoaded -= BindLevel;
             _levelManager.LevelUnloading -= ReleaseLevel;
             _reader.LanguageCycled -= CycleLanguage;
+            _cameraRotation.FacingChanged -= HandleFacingChanged;
+        }
+
+        // a metà di uno scatto della camera: i lati vicini diventano bassi, quelli lontani alti
+        private void HandleFacingChanged(int facing)
+        {
+            if (_walls != null)
+            {
+                _walls.Show(facing);
+            }
         }
 
         // tasto provvisorio (D13 della M5): la scelta vera andrà nel menu delle opzioni della M10
@@ -240,6 +257,8 @@ namespace DarkDescent.Core
             // smorzamento, attraversando la mappa (trappola 3). Invalidato lo stato, al prossimo
             // LateUpdate si posiziona direttamente sul bersaglio.
             _playerCamera.PreviousStateIsValid = false;
+            _walls = level.GetComponent<WallView>();
+            HandleFacingChanged(_cameraRotation.Facing);
             _ambience.Play(level.Ambience);
             var tileset = level.Tileset;
             _footsteps.SetSurface(tileset != null ? tileset.Footsteps : null);
@@ -286,6 +305,7 @@ namespace DarkDescent.Core
 
         private void ReleaseLevel(LevelContext level)
         {
+            _walls = null;
             _pack?.Release();
             _pack = null;
             foreach (var health in _trackedEnemies)

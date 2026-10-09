@@ -31,6 +31,13 @@ namespace DarkDescent.Levels
         private const float WallHalfThickness = 0.5f;
         private const float TorchHeight = 2.2f;
 
+        // la torcia di un muro che diventa basso, quando sul muro di fronte non trova posto: sotto
+        // la cima del muro basso, che è sotto 1,2 m
+        private const float LowTorchHeight = 0.75f;
+
+        // quante celle una torcia cerca il muro di fronte, nella stessa stanza
+        private const int MirrorReach = 12;
+
         // Il trigger dell'uscita copre la cella della scala e sconfina nella cella da cui si arriva:
         // il NavMesh finisce mezzo metro prima del bordo (raggio dell'agent), il player deve entrarci
         // fermandosi lì. Il punto d'arrivo del click sta appena dentro il NavMesh.
@@ -41,8 +48,8 @@ namespace DarkDescent.Levels
         private const float ClickAreaBottom = -0.15f;
         private const float ClickAreaTop = 1.15f;
 
-        // da dove si preferisce arrivare: da sud la scala scende verso nord, lontano dalla camera, e
-        // la parte sotto il pavimento finisce dietro il muro alto invece di spuntare nel vuoto
+        // da dove si preferisce arrivare: da sud la scala scende verso nord, lontano dalla camera di
+        // partenza, e la parte sotto il pavimento finisce dietro il muro alto invece di spuntare nel vuoto
         private static readonly MapDirection[] StairsEntryOrder = { MapDirection.South, MapDirection.West, MapDirection.East, MapDirection.North };
 
         private readonly LevelTileset _tileset;
@@ -88,9 +95,15 @@ namespace DarkDescent.Levels
                 group.SetParent(level.transform, false);
             }
 
+            // ogni lato ha la versione alta e quella bassa di muri e torce; WallView accende quella
+            // giusta per la camera (D12 della M8)
+            var view = level.AddComponent<WallView>();
+            var wallSides = new SideGroups(walls, view);
+            var torchSides = new SideGroups(torches, view);
+
             BuildFloors(map, floors);
-            BuildWalls(map, walls);
-            BuildMarkers(map, level.transform, props, torches, enemies);
+            BuildWalls(map, wallSides);
+            BuildMarkers(map, level.transform, props, torchSides, enemies);
 
             var navMesh = new GameObject("NavMesh");
             navMesh.transform.SetParent(level.transform, false);
@@ -153,21 +166,21 @@ namespace DarkDescent.Levels
             }
         }
 
-        // Nord ed est sono lontani dalla camera, che guarda da sud-ovest: lì i muri alti. A sud e a
-        // ovest i muri bassi, che non coprono il cavaliere e non fermano i click (ADR-017, ADR-006).
-        private void BuildWalls(LevelMap map, Transform parent)
+        // Su ogni lato sia il muro alto sia quello basso: alti i lati lontani dalla camera, bassi
+        // quelli vicini, che non coprono il cavaliere e non fermano i click (ADR-017, ADR-006). Quali
+        // siano lo decide la rotazione della camera (D12 della M8).
+        private void BuildWalls(LevelMap map, SideGroups sides)
         {
             foreach (var (x, y, side) in map.BoundaryEdges())
             {
-                bool far = side == MapDirection.North || side == MapDirection.East;
-                var prefab = far ? Pick(_tileset.Wall, _tileset.WallVariant, x, y, 1 + (int)side) : _tileset.LowWall;
                 Vector3 position = LevelMap.CellCenter(x, y) + LevelMap.ToWorld(side) * (LevelMap.CellSize * 0.5f);
 
                 // i moduli di muro sono lunghi lungo X: ruotati di 90° per i lati est e ovest
                 var rotation = side == MapDirection.North || side == MapDirection.South
                     ? Quaternion.identity
                     : Quaternion.Euler(0f, 90f, 0f);
-                Place(prefab, parent, position, rotation);
+                Place(Pick(_tileset.Wall, _tileset.WallVariant, x, y, 1 + (int)side), sides.High(side), position, rotation);
+                Place(_tileset.LowWall, sides.Low(side), position, rotation);
             }
         }
 
@@ -187,7 +200,7 @@ namespace DarkDescent.Levels
             return (hash % 1000) < _tileset.VariantChance * 1000f ? variant : basePrefab;
         }
 
-        private void BuildMarkers(LevelMap map, Transform level, Transform props, Transform torches, Transform enemies)
+        private void BuildMarkers(LevelMap map, Transform level, Transform props, SideGroups torches, Transform enemies)
         {
             int enemyCount = 0;
 
@@ -211,7 +224,7 @@ namespace DarkDescent.Levels
                         break;
                     }
                     case StairsDownSymbol:
-                        PlaceStairsDown(map, level, marker);
+                        PlaceStairsDown(map, level, torches, marker);
                         break;
                     case TorchSymbol:
                         PlaceTorch(map, torches, marker);
@@ -257,15 +270,17 @@ namespace DarkDescent.Levels
         // Il prefab della scala ha l'origine al centro della cella, all'altezza del pavimento, e il +Z
         // verso il pavimento da cui si arriva: lì c'è la cima, il resto scende sotto il livello del
         // pavimento. Balaustre, pilastrini e bagliore sono già nel prefab.
-        private void PlaceStairsDown(LevelMap map, Transform level, MapMarker marker)
+        private void PlaceStairsDown(LevelMap map, Transform level, SideGroups decor, MapMarker marker)
         {
             Vector3 toEntry = Vector3.back;
+            var entrySide = MapDirection.South;
             foreach (var side in StairsEntryOrder)
             {
                 Vector3 dir = LevelMap.ToWorld(side);
                 if (IsFloorToward(map, marker, dir))
                 {
                     toEntry = dir;
+                    entrySide = side;
                     break;
                 }
             }
@@ -274,14 +289,13 @@ namespace DarkDescent.Levels
             var stairs = Place(_tileset.StairsDown, level, cellCenter, Quaternion.LookRotation(toEntry));
             stairs.name = "StairsDown";
 
-            // lo stendardo va sul muro alto oltre la scala, a nord o a est: sui muri bassi non c'è
-            // dove appenderlo, e la scala resta senza
+            // lo stendardo va sul muro oltre la scala e si vede quando quel muro è alto: sul muro
+            // basso non c'è dove appenderlo, e la scala resta senza
             Vector3 far = -toEntry;
-            bool highWall = far == LevelMap.ToWorld(MapDirection.North) || far == LevelMap.ToWorld(MapDirection.East);
-            if (highWall && !IsFloorToward(map, marker, far))
+            if (!IsFloorToward(map, marker, far))
             {
                 Vector3 wallFace = cellCenter + far * (LevelMap.CellSize * 0.5f - WallHalfThickness);
-                Place(_tileset.ExitBanner, level, wallFace, Quaternion.LookRotation(toEntry)).name = "ExitBanner";
+                Place(_tileset.ExitBanner, decor.High(Opposite(entrySide)), wallFace, Quaternion.LookRotation(toEntry)).name = "ExitBanner";
             }
 
             var exitInfo = map.GetDirective("exit");
@@ -349,31 +363,99 @@ namespace DarkDescent.Levels
             return go;
         }
 
-        // La torcia va sul muro alto della sua cella, a nord o a est: sui muri bassi non c'è dove appenderla.
-        private void PlaceTorch(LevelMap map, Transform parent, MapMarker marker)
+        // La torcia va sul muro della sua cella, a nord, a est, a sud o a ovest, il primo che c'è.
+        // Quando la camera gira e quel muro diventa basso, la stanza resta illuminata da una torcia
+        // sul muro di fronte, nella stessa colonna; se di fronte non c'è un muro della stessa stanza,
+        // la torcia scende sul muro basso (D12 della M8).
+        private void PlaceTorch(LevelMap map, SideGroups sides, MapMarker marker)
         {
-            MapDirection side;
-            if (!map.IsFloor(marker.X, marker.Y - 1))
+            if (!TryWallSide(map, marker.X, marker.Y, out var home))
             {
-                side = MapDirection.North;
-            }
-            else if (!map.IsFloor(marker.X + 1, marker.Y))
-            {
-                side = MapDirection.East;
-            }
-            else
-            {
-                Debug.LogError($"Torcia in ({marker.X}, {marker.Y}) senza muro alto a nord o a est.");
+                Debug.LogError($"Torcia in ({marker.X}, {marker.Y}) senza un muro a cui appenderla.");
                 return;
             }
 
+            PlaceTorchOn(sides.High(home), marker.X, marker.Y, home, TorchHeight);
+            var across = Opposite(home);
+            if (TryFindFacingWall(map, marker.X, marker.Y, across, out var cell))
+            {
+                PlaceTorchOn(sides.High(across), cell.x, cell.y, across, TorchHeight);
+            }
+            else
+            {
+                PlaceTorchOn(sides.Low(home), marker.X, marker.Y, home, LowTorchHeight);
+            }
+        }
+
+        private void PlaceTorchOn(Transform parent, int x, int y, MapDirection side, float height)
+        {
             Vector3 outward = LevelMap.ToWorld(side);
-            Vector3 position = LevelMap.CellCenter(marker.X, marker.Y)
+            Vector3 position = LevelMap.CellCenter(x, y)
                 + outward * (LevelMap.CellSize * 0.5f - WallHalfThickness)
-                + Vector3.up * TorchHeight;
+                + Vector3.up * height;
 
             // il modello sporge lungo il suo +Z: verso l'interno della stanza
             Place(_tileset.WallTorch, parent, position, Quaternion.LookRotation(-outward));
+        }
+
+        private static bool TryWallSide(LevelMap map, int x, int y, out MapDirection side)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                side = (MapDirection)i;
+                var step = Step(side);
+                if (!map.IsFloor(x + step.x, y + step.y))
+                {
+                    return true;
+                }
+            }
+
+            side = MapDirection.North;
+            return false;
+        }
+
+        // Dalla cella della torcia verso il lato opposto, finché c'è un muro: la cella prima del muro
+        // è quella della torcia di fronte. Un passaggio stretto vuol dire che la stanza è finita, e
+        // la torcia non va a illuminare un corridoio; neanche sulla scala, dove c'è lo stendardo.
+        private static bool TryFindFacingWall(LevelMap map, int x, int y, MapDirection side, out Vector2Int cell)
+        {
+            var step = Step(side);
+            var across = new Vector2Int(step.y, step.x);
+            cell = new Vector2Int(x, y);
+            for (int i = 0; i < MirrorReach; i++)
+            {
+                var next = cell + step;
+                if (!map.IsFloor(next.x, next.y))
+                {
+                    return map.GetSymbol(cell.x, cell.y) != StairsDownSymbol;
+                }
+
+                if (!map.IsFloor(next.x + across.x, next.y + across.y) && !map.IsFloor(next.x - across.x, next.y - across.y))
+                {
+                    return false;
+                }
+
+                cell = next;
+            }
+
+            return false;
+        }
+
+        // nord è la riga sopra nel file di testo: y diminuisce
+        private static Vector2Int Step(MapDirection side)
+        {
+            switch (side)
+            {
+                case MapDirection.North: return new Vector2Int(0, -1);
+                case MapDirection.East: return new Vector2Int(1, 0);
+                case MapDirection.South: return new Vector2Int(0, 1);
+                default: return new Vector2Int(-1, 0);
+            }
+        }
+
+        private static MapDirection Opposite(MapDirection side)
+        {
+            return (MapDirection)(((int)side + 2) % 4);
         }
 
         private void PlaceGroundItem(Transform parent, Vector3 center, string itemName)

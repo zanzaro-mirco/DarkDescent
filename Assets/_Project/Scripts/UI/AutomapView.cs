@@ -1,5 +1,6 @@
 using DarkDescent.Levels;
 using DarkDescent.Player;
+using DarkDescent.Rendering;
 using UnityEngine;
 
 namespace DarkDescent.UI
@@ -23,6 +24,7 @@ namespace DarkDescent.UI
 
         private ExplorationTracker _tracker;
         private PlayerInputReader _reader;
+        private CameraRotation _rotation;
         private Texture2D _texture;
         private Color32[] _pixels;
         private bool _subscribed;
@@ -40,11 +42,12 @@ namespace DarkDescent.UI
         public int Repaints { get; private set; }
 
         /// <summary>Come la sfera: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
-        public void Bind(ExplorationTracker tracker, PlayerInputReader reader)
+        public void Bind(ExplorationTracker tracker, PlayerInputReader reader, CameraRotation rotation)
         {
             Unsubscribe();
             _tracker = tracker;
             _reader = reader;
+            _rotation = rotation;
             if (isActiveAndEnabled)
             {
                 Subscribe();
@@ -89,10 +92,12 @@ namespace DarkDescent.UI
             _tracker.LevelChanged += HandleLevelChanged;
             _tracker.Explored += Repaint;
             _reader.MapCycled += Cycle;
+            _rotation.YawChanged += Rotate;
             _subscribed = true;
 
             HandleLevelChanged();
             Repaint();
+            Rotate(_rotation.Yaw);
         }
 
         private void Unsubscribe()
@@ -105,7 +110,15 @@ namespace DarkDescent.UI
             _tracker.LevelChanged -= HandleLevelChanged;
             _tracker.Explored -= Repaint;
             _reader.MapCycled -= Cycle;
+            _rotation.YawChanged -= Rotate;
             _subscribed = false;
+        }
+
+        // le due viste girano con la camera: la mappa resta orientata come lo schermo
+        private void Rotate(float yaw)
+        {
+            _corner.SetYaw(yaw);
+            _overlay.SetYaw(yaw);
         }
 
         private void HandleLevelChanged()

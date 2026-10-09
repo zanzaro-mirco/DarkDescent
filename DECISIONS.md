@@ -135,6 +135,7 @@ Formato:
 - **Decisione:** muri alti (4 m) sui lati nord ed est di ogni cella, balaustre in pietra di 1,1 m (`barrier` di KayKit) su sud e ovest, come nella visuale di Diablo. Torce e scale stanno contro un muro alto: la scala scende verso nord, sotto il muro che la nasconde.
 - **Alternative scartate:** muri tutti alti con trasparenza vicino al cavaliere, che vuole uno shader apposta (si rivaluta alla M11); muri tutti bassi, che tolgono la sensazione di chiuso; `wall_half` di KayKit, che è un muro corto, non basso.
 - **Conseguenze:** il cavaliere resta sempre visibile e cliccabile. Nelle mappe torce e scale vanno contro un muro nord o est. La rotazione della camera resta fissa: girandola, i lati bassi sarebbero sbagliati.
+- **Aggiornamento (M8):** la camera ora gira a scatti di 90° e i lati alti e bassi la seguono (ADR-052). La regola resta: alti i due lati lontani dalla camera, bassi i due vicini.
 
 ## ADR-018 — Pubblicazione su itch.io rimandata alla M10
 - **Data:** 2026-10-03
@@ -377,3 +378,10 @@ Formato:
 - **Decisione:** ogni arma ha tempi suoi: pugnale 0,7 s, spada corta 1 s, lama dello scheletro 1,1 s, ascia 1,25 s, con il danno dell'ascia portato a 10–15 perché resti la più forte. Il ritardo del colpo è sempre il 60% dell'intervallo, dove la lama arriva nella clip del cavaliere; `CharacterAnimatorDriver` accelera o rallenta la clip di 0,6 / ritardo dell'arma, così l'animazione e il danno restano insieme. Il tooltip dice la velocità a parole: veloce, normale, lenta.
 - **Alternative scartate:** una velocità in più nella definizione dell'arma accanto ai tempi, che avrebbe potuto contraddirli; clip diverse per arma, che KayKit non ha; la velocità dalla Destrezza, che è un'altra decisione (M8, se serve).
 - **Conseguenze:** un'arma nuova sceglie solo il suo intervallo e tiene il ritardo al 60% (un test lo controlla). I nemici restano con le loro velocità fisse nell'animator (il bruto, ADR-044). Gli affissi di velocità d'attacco, se arriveranno, cambieranno l'intervallo dell'istanza e la stessa formula reggerà.
+
+## ADR-052 — La visuale gira a scatti di 90°, e i muri alti la seguono
+- **Data:** 2026-10-09
+- **Contesto:** dalla M3 la camera guarda sempre a nord-est e i muri bassi stanno a sud e a ovest (ADR-017). Nella prova della build M7 Mirco ha chiesto di poter girare la visuale; la decisione D12 della M8 l'ha voluta a scatti.
+- **Decisione:** Q ed E girano la camera di 90° attorno al cavaliere in 0,4 s. Il builder mette su ogni lato del livello sia il muro alto sia la balaustra, in due gruppi per lato; `WallView` accende quelli giusti a metà di ogni scatto. Il NavMesh si cuoce con tutti i muri alti, così non cambia girando. Una torcia sta sul muro della sua cella e ne ha una gemella sul muro di fronte della stessa stanza, accesa quando la prima finisce su un lato basso; se di fronte non c'è un muro della stanza, scende sulla balaustra. Lo stendardo della scala si vede solo quando il suo muro è alto. L'automappa gira con la camera; la luce del cavaliere e le orecchie la seguivano già.
+- **Alternative scartate:** rotazione libera, che vuole muri che si dissolvono vicino al cavaliere (uno shader, M11); spostare i muri da un lato all'altro a ogni scatto, che rifà centinaia di oggetti a metà animazione; torce solo sui muri alti, che lasciano metà delle stanze al buio a ogni giro.
+- **Conseguenze:** i livelli hanno il doppio dei pezzi di muro, ma metà sono spenti. Le scene costruite a mano vanno ricostruite dalle mappe per avere i lati doppi. La rotazione non si salva: ogni avvio parte da nord-est.

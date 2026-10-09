@@ -13344,6 +13344,7 @@ GameObject:
   - component: {fileID: 1669943978}
   - component: {fileID: 1669943977}
   - component: {fileID: 1187187765}
+  - component: {fileID: 1704864971}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: Untagged
@@ -13363,6 +13364,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7165fe17035466a885fc4ed3531821d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Rendering.CameraZoom
+--- !u!114 &1704864971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669943976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ffeb3edd1bb486796f6ea6682f97512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Rendering.CameraRotation
 --- !u!114 &1669943977
 MonoBehaviour:
   m_ObjectHideFlags: 0
