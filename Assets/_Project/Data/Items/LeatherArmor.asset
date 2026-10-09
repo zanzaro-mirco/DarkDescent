@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: af4a719c0f614500b090c0c4c602e32e
   _nameKey: item.leather_armor
   _icon: {fileID: 21300000, guid: 63ab588fd6803de4d81095d84dcf0d77, type: 3}
+  _sound: 1
   _size: {x: 2, y: 3}
   _model: {fileID: 7275832848014605154, guid: 810743dca62079f44abd18d5051bcefa, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}

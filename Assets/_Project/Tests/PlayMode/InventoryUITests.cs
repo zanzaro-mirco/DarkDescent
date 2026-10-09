@@ -93,6 +93,30 @@ namespace DarkDescent.Tests
             return null;
         }
 
+        [UnityTest, Description("Mettere dei guanti al posto di guanti uguali fa lampeggiare lo slot e suona: il click si vede anche se l'icona non cambia")]
+        public IEnumerator EquipSameLookingItem_FlashesSlot()
+        {
+            yield return LoadUI();
+            _panel.SetOpen(true);
+            var inventory = _inventory.Inventory;
+            Assert.IsTrue(inventory.Equipment.TryEquip(Item("LeatherGloves"), out _));
+            Assert.IsTrue(inventory.Grid.TryPlace(Item("LeatherGloves"), new Vector2Int(0, 0)));
+            yield return null;
+            var slot = _panel.SlotView(EquipSlot.Gloves);
+            Assert.IsFalse(slot.IsFlashing);
+
+            inventory.ClickCell(new Vector2Int(0, 0));
+            _panel.ClickSlot(EquipSlot.Gloves);
+            Assert.IsTrue(slot.IsFlashing, "il lampo parte subito");
+            yield return new WaitForSecondsRealtime(0.5f);
+            Assert.IsFalse(slot.IsFlashing, "e si spegne da solo");
+
+            // a mani vuote il click toglie i guanti: niente lampo
+            _inventory.DropHeld();
+            _panel.ClickSlot(EquipSlot.Gloves);
+            Assert.IsFalse(slot.IsFlashing);
+        }
+
         [UnityTest, Description("I apre e chiude l'inventario, C il pannello del personaggio")]
         public IEnumerator Keys_TogglePanels()
         {

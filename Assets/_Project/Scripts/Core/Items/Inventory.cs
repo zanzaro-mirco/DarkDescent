@@ -20,6 +20,12 @@ namespace DarkDescent.Items
         /// <summary>L'oggetto sul cursore è cambiato (preso, posato, scambiato, lasciato a terra).</summary>
         public event Action HeldChanged;
 
+        /// <summary>
+        /// Il giocatore ha messo un oggetto in uno slot, anche al posto di un altro (M8, prova della
+        /// build): la UI lo fa vedere e sentire. Non scatta per l'equipaggiamento di partenza né per il caricamento.
+        /// </summary>
+        public event Action<EquipSlot, ItemInstance> Equipped;
+
         public InventoryGrid Grid { get; }
 
         public Equipment Equipment { get; }
@@ -85,12 +91,14 @@ namespace DarkDescent.Items
                 return true;
             }
 
-            if (!Equipment.TryEquip(Held, slot, out ItemInstance previous))
+            ItemInstance placed = Held;
+            if (!Equipment.TryEquip(placed, slot, out ItemInstance previous))
             {
                 return false;
             }
 
             SetHeld(previous);
+            Equipped?.Invoke(slot, placed);
             return true;
         }
 

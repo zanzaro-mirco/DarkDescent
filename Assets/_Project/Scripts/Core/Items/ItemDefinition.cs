@@ -19,6 +19,9 @@ namespace DarkDescent.Items
         [Tooltip("Icona per inventario e tooltip, generata dal modello (DarkDescent → Oggetti → Rigenera le icone).")]
         [SerializeField] private Sprite _icon;
 
+        [Tooltip("Di che cosa suona quando lo si indossa: metallo, cuoio, gioiello o vetro.")]
+        [SerializeField] private ItemSound _sound = ItemSound.Metal;
+
         [Tooltip("Celle occupate nell'inventario, larghezza × altezza.")]
         [SerializeField] private Vector2Int _size = Vector2Int.one;
 
@@ -51,6 +54,11 @@ namespace DarkDescent.Items
 
         /// <summary>Forza necessaria per indossarlo; 0 per chi non ne chiede.</summary>
         public virtual int RequiredStrength => 0;
+
+        /// <summary>La rarità più bassa con cui può nascere: normale per quasi tutti.</summary>
+        public virtual Rarity MinRarity => Rarity.Normal;
+
+        public ItemSound Sound => _sound;
 
         protected virtual void OnValidate()
         {

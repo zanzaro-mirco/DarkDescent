@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: d7e960af5c7b484aa4136ebfa4f35040
   _nameKey: item.leather_boots
   _icon: {fileID: 21300000, guid: d748ddd23acbb12458d109b53531f7fd, type: 3}
+  _sound: 1
   _size: {x: 2, y: 2}
   _model: {fileID: 6541940783517520469, guid: 2a58e6479255aea4fa9336de716e8f43, type: 3}
   _iconRotation: {x: 20, y: 40, z: 0}

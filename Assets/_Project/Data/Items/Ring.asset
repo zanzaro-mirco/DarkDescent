@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: 27935a4cd6b14d35b9e2724a4346d937
   _nameKey: item.ring
   _icon: {fileID: 21300000, guid: 7c65e182fc1f50e4f938c818f9495177, type: 3}
+  _sound: 2
   _size: {x: 1, y: 1}
   _model: {fileID: 9100500771654986828, guid: 677d4da8698370041ada4c3cec9d31b5, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}

@@ -346,6 +346,18 @@ Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
   punti senza andare a capo. Le etichette degli slot sono in maiuscolo pieno e non vanno a capo
   ("Amuleto"). Ho controllato con screenshot in inglese e in italiano.
 - **WASD** tra i lavori dopo la v1.0 (piano v2.25).
+- **Gioielli senza niente.** Anelli e amuleti hanno solo affissi, ma il 65% degli oggetti nasce
+  normale, cioè senza: un anello su due non faceva niente. Ora una base ha una rarità minima
+  (`ItemDefinition.MinRarity`) e i gioielli nascono almeno magici, come in Diablo 1 (ADR-055).
+  Il generatore alza la rarità tirata, quindi gli altri tiri non cambiano.
+- **Amuleto a terra.** La collana di Quaternius era un cordino sottile, che a terra non si leggeva.
+  Ora è un modello fatto da uno script: catena d'oro a tubo, medaglione e una gemma lilla che
+  splende un poco nel buio. La gemma sporge da tutte e due le facce, perché a terra il modello è
+  disteso e mostra il retro. Il prefab è in scala 2, come le altre basi piccole a terra. `Necklace1` è uscita dal repo.
+- **Nessun riscontro mettendo dei guanti al posto di guanti uguali.** `Inventory` annuncia
+  `Equipped` quando il giocatore mette un oggetto in uno slot. Il pannello fa lampeggiare d'oro lo
+  slot per 0,35 s e suona: metallo, cuoio, gioiello o vetro secondo `ItemDefinition.Sound`, con
+  tre suoni Kenney per tipo presi dal pacchetto Impact Sounds già scaricato.
 
 ---
 

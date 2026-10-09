@@ -50,6 +50,12 @@ namespace DarkDescent.Items
                 throw new ArgumentNullException(nameof(item));
             }
 
+            // un anello normale non avrebbe niente: la rarità tirata sale fino a quella minima della base
+            if (rarity < item.MinRarity)
+            {
+                rarity = item.MinRarity;
+            }
+
             // magico 1–2, raro 3–4: il secondo tiro decide se c'è l'affisso in più
             int count = rarity == Rarity.Magic ? 1 + Coin(random) : rarity == Rarity.Rare ? 3 + Coin(random) : 0;
             int maxPerKind = MaxPerKind(rarity);

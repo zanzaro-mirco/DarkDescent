@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: ed07fac5793f4127898d70893d571d34
   _nameKey: item.bear_hat
   _icon: {fileID: 21300000, guid: 229f1b67b7afb7c4c9365cdd90eab9ec, type: 3}
+  _sound: 1
   _size: {x: 2, y: 2}
   _model: {fileID: 8139933925031884185, guid: 139ded51cf3359648b026ea1740c12f4, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}

@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: f4f91e5f7798492c86730b0c2e713410
   _nameKey: item.amulet
   _icon: {fileID: 21300000, guid: b2be041c6b44b064e8e35a3d46751c68, type: 3}
+  _sound: 2
   _size: {x: 1, y: 1}
   _model: {fileID: 6213837575585294701, guid: 4823e751672a1c54cbc2c6323470482b, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}

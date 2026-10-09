@@ -38,6 +38,20 @@ namespace DarkDescent.UI
 
         [SerializeField, Min(8f)] private float _cellSize = 56f;
 
+        [Tooltip("Il suono di un oggetto messo in uno slot: dà il riscontro del click anche al posto di un oggetto uguale.")]
+        [SerializeField] private AudioSource _audio;
+
+        [SerializeField] private AudioClip[] _metalClips;
+
+        [SerializeField] private AudioClip[] _leatherClips;
+
+        [SerializeField] private AudioClip[] _jewelClips;
+
+        [SerializeField] private AudioClip[] _glassClips;
+
+        // a rotazione: due scambi di fila non suonano uguali
+        private int _clipIndex;
+
         private readonly List<Image> _itemViews = new List<Image>();
 
         // lo sfondo di ogni immagine, nel colore della rarità: creato insieme a lei, quindi dietro
@@ -190,6 +204,7 @@ namespace DarkDescent.UI
             _inventory.Inventory.Grid.Changed += RefreshGrid;
             _inventory.Equipment.Changed += RefreshSlot;
             _inventory.Inventory.HeldChanged += HandleHeldChanged;
+            _inventory.Inventory.Equipped += HandleEquipped;
             _localizer.LanguageChanged += RefreshTooltip;
             _subscribed = true;
 
@@ -213,8 +228,30 @@ namespace DarkDescent.UI
             _inventory.Inventory.Grid.Changed -= RefreshGrid;
             _inventory.Equipment.Changed -= RefreshSlot;
             _inventory.Inventory.HeldChanged -= HandleHeldChanged;
+            _inventory.Inventory.Equipped -= HandleEquipped;
             _localizer.LanguageChanged -= RefreshTooltip;
             _subscribed = false;
+        }
+
+        private void HandleEquipped(EquipSlot slot, ItemInstance item)
+        {
+            SlotView(slot)?.Flash();
+            var clips = ClipsFor(item.Definition.Sound);
+            if (_audio != null && clips != null && clips.Length > 0)
+            {
+                _audio.PlayOneShot(clips[_clipIndex++ % clips.Length]);
+            }
+        }
+
+        private AudioClip[] ClipsFor(ItemSound sound)
+        {
+            switch (sound)
+            {
+                case ItemSound.Leather: return _leatherClips;
+                case ItemSound.Jewel: return _jewelClips;
+                case ItemSound.Glass: return _glassClips;
+                default: return _metalClips;
+            }
         }
 
         private void RefreshGrid()

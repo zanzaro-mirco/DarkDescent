@@ -24,6 +24,27 @@ namespace DarkDescent.Tests
             return $"{item.Rarity} [{string.Join(", ", item.Affixes.Select(a => $"{a.Definition.name} {a.Value}"))}]";
         }
 
+        [Test, Description("Anelli e amuleti nascono almeno magici, come in Diablo 1: normali non avrebbero niente. Le altre basi possono restare normali")]
+        public void Jewelry_IsAtLeastMagic()
+        {
+            var generator = Generator;
+            foreach (string name in new[] { "Ring", "Amulet" })
+            {
+                var jewel = AssetDatabase.LoadAssetAtPath<ItemDefinition>($"Assets/_Project/Data/Items/{name}.asset");
+                Assert.AreEqual(Rarity.Magic, jewel.MinRarity);
+                Assert.AreEqual(Rarity.Magic, generator.Generate(jewel, 1, 7UL, Rarity.Normal).Rarity, "una rarità normale scelta da fuori sale anche lei");
+                for (ulong seed = 1; seed <= 300; seed++)
+                {
+                    var item = generator.Generate(jewel, 1 + (int)(seed % 10), seed);
+                    Assert.AreNotEqual(Rarity.Normal, item.Rarity, $"{name} seme {seed}");
+                    Assert.IsNotEmpty(item.Affixes, $"{name} seme {seed}: {Describe(item)}");
+                }
+            }
+
+            Assert.AreEqual(Rarity.Normal, Sword.MinRarity);
+            Assert.AreEqual(Rarity.Normal, generator.Generate(Sword, 1, 7UL, Rarity.Normal).Rarity);
+        }
+
         [Test, Description("SplitMix64 dà i valori di riferimento: lo stesso seme fa la stessa sequenza su ogni piattaforma")]
         public void SplitMix64_MatchesReferenceValues()
         {

@@ -79,6 +79,30 @@ namespace DarkDescent.Tests
             Assert.AreSame(sword, _inventory.Held);
         }
 
+        [Test, Description("Mettere un oggetto in uno slot, anche al posto di uno uguale, si annuncia; toglierlo no")]
+        public void ClickSlot_AnnouncesEquipped()
+        {
+            var events = new System.Collections.Generic.List<(EquipSlot, ItemInstance)>();
+            _inventory.Equipped += (slot, item) => events.Add((slot, item));
+            var first = Load("LeatherGloves");
+            var second = Load("LeatherGloves");
+            _inventory.Equipment.TryEquip(first, out _);
+            Assert.IsEmpty(events, "l'equipaggiamento messo dal codice non si annuncia");
+
+            _inventory.Grid.TryPlace(second, new Vector2Int(0, 0));
+            _inventory.ClickCell(new Vector2Int(0, 0));
+            Assert.IsTrue(_inventory.ClickSlot(EquipSlot.Gloves));
+            Assert.AreEqual(1, events.Count);
+            Assert.AreEqual((EquipSlot.Gloves, second), events[0]);
+            Assert.AreSame(first, _inventory.Held, "i guanti di prima sul cursore");
+
+            // il click che toglie e quello rifiutato tacciono
+            _inventory.ClickCell(new Vector2Int(5, 2));
+            Assert.IsTrue(_inventory.ClickSlot(EquipSlot.Gloves));
+            Assert.IsFalse(_inventory.ClickSlot(EquipSlot.Weapon));
+            Assert.AreEqual(1, events.Count);
+        }
+
         [Test, Description("Uno scudo non va nello slot dell'arma, e un'arma troppo pesante non si equipaggia: il cursore resta com'era")]
         public void ClickSlot_RefusesWrongSlotOrRequirements()
         {

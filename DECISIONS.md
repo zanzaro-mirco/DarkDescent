@@ -399,3 +399,11 @@ Formato:
 - **Decisione:** Cinzel (SIL OFL 1.1, Google Fonts): maiuscole romane da iscrizione, con le minuscole disegnate come maiuscolette. È un asset TextMesh Pro statico con un atlante 1024 × 1024, i caratteri ASCII, le lettere accentate e i caratteri della tabella delle stringhe; LiberationSans resta come riserva per quelli che mancano (le frecce). È il font predefinito delle impostazioni di TextMesh Pro, quindi anche i testi creati dal codice lo usano. Le etichette piccole degli slot sono in maiuscolo pieno: a 18 punti la "g" maiuscoletta si leggeva come una "o".
 - **Alternative scartate:** un font gotico (MedievalSharp, UnifrakturCook), poco leggibile nei numeri e nei tooltip; Exocet, il font di Diablo, che non ha una licenza libera.
 - **Conseguenze:** Cinzel è più largo di LiberationSans: le colonne del pannello del personaggio sono scese a 24 punti e non vanno più a capo, come le etichette degli slot. Una lingua con un altro alfabeto vuole un font di riserva suo (piano § 5, "Lingue nuove"). La licenza sta accanto al font (ADR-004).
+
+## ADR-055 — Anelli e amuleti nascono almeno magici
+- **Data:** 2026-10-09
+- **Contesto:** dalla M8 i gioielli non hanno caratteristiche di base, solo affissi (D6). Con la tabella delle rarità della M5 (normale 65%, magico 28%, raro 7%) un gioiello su due nasceva normale e non faceva niente. Mirco l'ha notato con l'amuleto nella prova della build.
+- **Decisione:** ogni base ha una rarità minima, normale di default; anelli e amuleti l'hanno magica, come in Diablo 1. Il generatore tira la rarità come prima e la alza se è sotto il minimo: il seme e i tiri degli affissi non cambiano.
+- **Alternative scartate:** dare ai gioielli una caratteristica di base (un po' di vita o di un attributo), che li rende tutti uguali a parità di livello; togliere la rarità normale dalla tabella per i gioielli con una tabella loro, più dati per lo stesso effetto.
+- **Conseguenze:** i gioielli valgono sempre la pena di essere raccolti, e sono un po' più comuni tra i magici. Una base futura senza caratteristiche, come un talismano, userà la stessa regola. I salvataggi con un gioiello normale lo tengono com'era.
+

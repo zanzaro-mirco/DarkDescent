@@ -4,7 +4,8 @@ namespace DarkDescent.Items
 {
     /// <summary>
     /// Un anello o un amuleto (D5 della M8): niente di base, solo i suoi affissi. Gli anelli vanno
-    /// in uno dei due slot degli anelli, l'amuleto nel suo.
+    /// in uno dei due slot degli anelli, l'amuleto nel suo. Come in Diablo 1 nasce almeno magico:
+    /// normale non avrebbe niente.
     /// </summary>
     [CreateAssetMenu(fileName = "Jewelry", menuName = "DarkDescent/Items/Jewelry")]
     public sealed class JewelryDefinition : ItemDefinition
@@ -15,6 +16,8 @@ namespace DarkDescent.Items
         public override EquipSlot Slot => _slot;
 
         public override AffixTargets AffixTarget => AffixTargets.Jewelry;
+
+        public override Rarity MinRarity => Rarity.Magic;
 
         protected override void OnValidate()
         {
