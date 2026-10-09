@@ -19,7 +19,7 @@ MonoBehaviour:
   _model: {fileID: 919132149155446097, guid: 1d3d6bdfad6c46c1bfd72c2b3342dd0b, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}
   _heldPosition: {x: 0, y: 0, z: 0}
-  _heldRotation: {x: 0, y: 0, z: 0}
+  _heldRotation: {x: 0, y: 180, z: 0}
   _minDamage: 10
   _maxDamage: 15
   _damageType: 0
