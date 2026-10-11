@@ -789,6 +789,7 @@ GameObject:
   - component: {fileID: 4619349021389252605}
   - component: {fileID: 3437980886886522241}
   - component: {fileID: 2197471446205013170}
+  - component: {fileID: 2157874775504651773}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1271,6 +1272,26 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3b596d532d26ec14fab30fdc18ac2a44, type: 2}
   _failClip: {fileID: 8300000, guid: a77c9d43b49eeab46b96d6ac4e131c67, type: 3}
   _audio: {fileID: 4117437698390640255}
+--- !u!114 &2157874775504651773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ef52f194a3491a4ab912dcd9b6ee959, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Magic.PlayerSpells
+  _targetLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  _launchHeight: 1.1
+  _launchForward: 0.5
+  _releaseDelay: 0.33
+  _audio: {fileID: 4117437698390640255}
+  _castClip: {fileID: 8300000, guid: a6ce768a981bf3748b84094335a60d6e, type: 3}
 --- !u!1001 &3774719917804294499
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -22,6 +22,9 @@ namespace DarkDescent.Magic
 
         [SerializeField] private SpellKind _kind;
 
+        [Tooltip("Che cosa compare nel mondo: il prefab del proiettile, dell'anello di fiamme o dell'alone.")]
+        [SerializeField] private GameObject _effect;
+
         [SerializeField, Min(0f)] private float _manaCost = 6f;
 
         [Tooltip("Secondi prima di poterlo rilanciare; 0 per il proiettile, che ha solo il costo.")]
@@ -58,6 +61,7 @@ namespace DarkDescent.Magic
         public string NameKey => _nameKey;
         public Sprite Icon => _icon;
         public SpellKind Kind => _kind;
+        public GameObject Effect => _effect;
         public float ManaCost => _manaCost;
         public float Cooldown => _cooldown;
         public bool KnownFromStart => _knownFromStart;

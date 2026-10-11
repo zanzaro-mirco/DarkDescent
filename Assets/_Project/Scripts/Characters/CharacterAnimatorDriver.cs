@@ -20,6 +20,7 @@ namespace DarkDescent.Characters
         private static readonly int HitStateHash = Animator.StringToHash("Hit");
         private static readonly int BlockStateHash = Animator.StringToHash("Block");
         private static readonly int DeathStateHash = Animator.StringToHash("Death");
+        private static readonly int CastStateHash = Animator.StringToHash("Cast");
         private static readonly int AttackSpeedHash = Animator.StringToHash("AttackSpeed");
 
         private const int BaseLayer = 0;
@@ -156,6 +157,12 @@ namespace DarkDescent.Characters
             }
 
             PlayOneShot(AttackStateHash);
+        }
+
+        /// <summary>Il gesto del lancio di un incantesimo (M9): la clip Throw di KayKit.</summary>
+        public void PlayCast()
+        {
+            PlayOneShot(CastStateHash);
         }
 
         public void PlayHit()

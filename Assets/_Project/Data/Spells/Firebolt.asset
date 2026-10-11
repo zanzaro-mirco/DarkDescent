@@ -16,6 +16,7 @@ MonoBehaviour:
   _nameKey: spell.firebolt
   _icon: {fileID: -5125016487584988340, guid: 03375056c2c59d54b8a98eb37ca61809, type: 3}
   _kind: 0
+  _effect: {fileID: 7582448901973598493, guid: 502645253b63a8542b5234edd22bb8bb, type: 3}
   _manaCost: 6
   _cooldown: 0
   _knownFromStart: 1

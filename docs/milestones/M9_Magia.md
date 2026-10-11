@@ -152,6 +152,38 @@ incantesimo non noto, imparato l'Anello lo sceglie, il lancio avvia il velo che 
 senza mana i posti si scuriscono e il lancio è rifiutato; salendo di livello il mana massimo sale
 di 1 e si riempie, un punto di Magia lo alza di 2 senza riempire. 226 EditMode e 153 PlayMode verdi.
 
+## Passo 9.3 — Proiettili e Dardo di fuoco
+
+**Com'è andata (11 ott 2026).**
+
+- **`Projectile`** vola dritto all'altezza del petto, senza rigidbody: a ogni frame un raggio a
+  sfera (`SphereCastNonAlloc` con un buffer condiviso) cerca il primo bersaglio vivo sui livelli dei
+  nemici, saltando chi l'ha lanciato; il danno è di tipo `Fire`, nuovo in `DamageType`. I muri li
+  dice un `NavMesh.Raycast` a terra e non i collider, perché dalla M8 i muri alti dalla parte della
+  camera sono spenti con i loro collider (trappola 6 corretta). A fine corsa o all'impatto la scia
+  smette di emettere, il nucleo sparisce, parte lo scoppio con il suo suono e la luce si spegne in
+  0,6 s; poi il proiettile torna al pool.
+- **`ProjectilePools`** nella scena Core: un `ObjectPool` per prefab, al massimo 32, con la
+  funzione di ritorno creata una volta per pool. Un proiettile ripreso pulisce scia, nucleo e
+  scoppio e riaccende la luce (trappola 1).
+- **`PlayerSpells`** sul cavaliere: al lancio si ferma, si gira verso il punto, fa il gesto
+  (stato `Cast` nell'Animator, la clip Throw a velocità 2) e soffia; il dardo parte dopo 0,33 s,
+  quando la mano arriva avanti, misurato su una striscia di fotogrammi del gesto. Il danno usa un
+  flusso di numeri casuali suo.
+- **Il Dardo**: prefab con nucleo, scia e scoppio di particelle additive su una texture a punto
+  morbido, luce puntiforme arancione che illumina il pavimento al passaggio; suoni del lancio e
+  dell'impatto sintetizzati da uno script.
+- **Nemici colpiti da lontano**: uno scheletro fermo colpito si sveglia e insegue (`EnemyAI`
+  ascolta `Damaged`). Prima un nemico svegliato solo dalla vista sarebbe rimasto a farsi bersagliare.
+- Il primo controllo del danno dava 8–14 invece di 9–15: l'arrotondamento del banchiere di
+  `Math.Round`; ora `SpellDamage` arrotonda lontano dallo zero.
+
+*Test.* `ProjectileTests` (3, PlayMode): il dardo aspetta il gesto, parte, colpisce lo scheletro
+con 9–15 di danno, lo sveglia e torna al pool; tirato contro un muro della cripta generata esplode
+entro 0,6 m dal muro; due raffiche da dieci creano dieci proiettili, e trenta lanci dal pool caldo
+non allocano un byte. Screenshot nella cripta: il dardo in volo illumina il pavimento, lo scheletro
+lampeggia e mostra il 9. 226 EditMode e 156 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -167,9 +199,9 @@ di 1 e si riempie, un punto di Magia lo alza di 2 senza riempire. 226 EditMode e
    pozione di mana vanno in fondo alle tabelle, e i test che cercano un seme dicono cosa vogliono.
 5. **Il mago che scappa può uscire dal NavMesh** o finire in un angolo: la fuga sceglie un punto
    campionato sul NavMesh lontano dal cavaliere, e se non c'è resta e lancia.
-6. **Il raggio dei proiettili e i muri bassi:** dalla M8 i muri bassi sono accesi e spenti con la
-   camera; un proiettile non deve passare un muro alto spento. Il raggio guarda i collider dei
-   muri alti, che restano sempre (il NavMesh è cotto con quelli).
+6. **Il raggio dei proiettili e i muri spenti:** dalla M8 i muri alti dalla parte della camera
+   sono spenti con i loro collider; un proiettile non deve passarli. I muri li dice un raggio sul
+   NavMesh, cotto con tutti i muri accesi (corretta al passo 9.3: i collider non bastano).
 7. **La rigenerazione a ogni frame non deve allocare né annunciare:** il mana cambia di poco
    ogni frame; la sfera si aggiorna con un evento al massimo qualche volta al secondo, o
    quando il valore intero cambia.
@@ -182,7 +214,7 @@ di 1 e si riempie, un punto di Magia lo alza di 2 senza riempire. 226 EditMode e
 |---|---|
 | `TooltipCompareTests` (PlayMode) | Con due anelli, due tooltip di confronto; il nome lungo su due righe sotto la larghezza massima |
 | `ManaTests` (EditMode) | Mana massimo da Magia e livello, rigenerazione, costo, ricarica, lancio rifiutato senza mana |
-| `ProjectileTests` (PlayMode) | Il dardo colpisce il primo nemico sulla linea e torna al pool; si ferma su un muro; nessuna allocazione su cento lanci |
+| `ProjectileTests` (PlayMode) | Il dardo colpisce il primo nemico sulla linea e torna al pool; si ferma su un muro; nessuna allocazione su trenta lanci dal pool caldo |
 | `SpellTests` (PlayMode) | Anello di fuoco colpisce tutti entro 4 m e nessuno oltre; Pelle di pietra alza l'Armatura per 20 s |
 | `SkeletonMageTests` (PlayMode) | Il mago tiene la distanza, lancia, arretra; il dardo parato dallo scudo non fa danno |
 | `ScrollTests` (EditMode e PlayMode) | La pergamena insegna l'incantesimo e sparisce; una già nota non cade più |

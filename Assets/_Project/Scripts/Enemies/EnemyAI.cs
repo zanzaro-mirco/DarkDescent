@@ -93,11 +93,22 @@ namespace DarkDescent.Enemies
         private void OnEnable()
         {
             _health.Died += HandleDied;
+            _health.Damaged += HandleDamaged;
         }
 
         private void OnDisable()
         {
             _health.Died -= HandleDied;
+            _health.Damaged -= HandleDamaged;
+        }
+
+        // colpito da lontano (un incantesimo, M9) senza averlo visto: si sveglia come se un compagno lo avesse avvisato
+        private void HandleDamaged(DamageInfo info, float applied)
+        {
+            if (!_health.IsDead)
+            {
+                _brain.Alert();
+            }
         }
 
         /// <summary>Chi attaccare. Lo chiama il composition root; più avanti lo spawner.</summary>

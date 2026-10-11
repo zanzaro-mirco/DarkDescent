@@ -70,6 +70,9 @@ namespace DarkDescent.Core
         [Tooltip("I tre incantesimi accanto alla cintura (M9).")]
         [SerializeField] private SpellBarView _spellBar;
 
+        [Tooltip("I proiettili di tutti, in un pool per prefab (M9).")]
+        [SerializeField] private Magic.ProjectilePools _projectiles;
+
         [SerializeField] private SaveGame _saveGame;
 
         [Tooltip("Nome e vita del nemico sotto il cursore, in alto al centro.")]
@@ -212,6 +215,8 @@ namespace DarkDescent.Core
             magic.Bind(_reader, controller);
             _manaOrb.Bind(magic.Mana);
             _spellBar.Bind(magic);
+            // un generatore suo: i danni degli incantesimi non spostano i tiri della mischia (trappola 3 della M9)
+            _player.GetComponent<Magic.PlayerSpells>().Bind(_projectiles, new SystemRandomSource(Environment.TickCount ^ 0x5A11));
             _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);
         }
 
