@@ -22,8 +22,6 @@ namespace DarkDescent.Player
         /// <summary>Tasto del pannello del personaggio (C).</summary>
         public event Action CharacterToggled;
 
-        /// <summary>Il tasto provvisorio delle lingue (F9), finché non c'è il menu delle opzioni.</summary>
-        public event Action LanguageCycled;
 
         /// <summary>Un tasto da 1 a 8: il posto della cintura da bere, da 0 (D14 della M6).</summary>
         public event Action<int> BeltSlotUsed;
@@ -42,6 +40,9 @@ namespace DarkDescent.Player
 
         /// <summary>F1–F3: il posto dell'incantesimo scelto, da 0.</summary>
         public event Action<int> SpellSelected;
+
+        /// <summary>`Esc`: chiude le finestre aperte, o apre e chiude la pausa (D10 della M10).</summary>
+        public event Action PausePressed;
 
         /// <summary>`Alt` premuto o rilasciato: i nomi di tutti gli oggetti a terra (D1 della M10).</summary>
         public event Action<bool> LabelsHeldChanged;
@@ -67,7 +68,6 @@ namespace DarkDescent.Player
             _controls.Gameplay.Move.canceled += HandleMoveCanceled;
             _controls.Gameplay.ToggleInventory.performed += HandleInventoryPerformed;
             _controls.Gameplay.ToggleCharacter.performed += HandleCharacterPerformed;
-            _controls.Gameplay.CycleLanguage.performed += HandleLanguagePerformed;
             _controls.Gameplay.UseBelt.performed += HandleBeltPerformed;
             _controls.Gameplay.CycleMap.performed += HandleMapPerformed;
             _controls.Gameplay.Zoom.performed += HandleZoomPerformed;
@@ -76,6 +76,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.SelectSpell.performed += HandleSelectSpellPerformed;
             _controls.Gameplay.ShowLabels.performed += HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled += HandleLabelsCanceled;
+            _controls.Gameplay.Pause.performed += HandlePausePerformed;
             _controls.Gameplay.Enable();
         }
 
@@ -88,7 +89,6 @@ namespace DarkDescent.Player
             _controls.Gameplay.Move.canceled -= HandleMoveCanceled;
             _controls.Gameplay.ToggleInventory.performed -= HandleInventoryPerformed;
             _controls.Gameplay.ToggleCharacter.performed -= HandleCharacterPerformed;
-            _controls.Gameplay.CycleLanguage.performed -= HandleLanguagePerformed;
             _controls.Gameplay.UseBelt.performed -= HandleBeltPerformed;
             _controls.Gameplay.CycleMap.performed -= HandleMapPerformed;
             _controls.Gameplay.Zoom.performed -= HandleZoomPerformed;
@@ -97,6 +97,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.SelectSpell.performed -= HandleSelectSpellPerformed;
             _controls.Gameplay.ShowLabels.performed -= HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled -= HandleLabelsCanceled;
+            _controls.Gameplay.Pause.performed -= HandlePausePerformed;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
@@ -121,6 +122,17 @@ namespace DarkDescent.Player
         {
             IsMoveCommandHeld = false;
             MoveCommandCanceled?.Invoke();
+        }
+
+        private void HandlePausePerformed(InputAction.CallbackContext context)
+        {
+            PressPause();
+        }
+
+        /// <summary>Come se si premesse `Esc`: per i test.</summary>
+        public void PressPause()
+        {
+            PausePressed?.Invoke();
         }
 
         private void HandleLabelsPerformed(InputAction.CallbackContext context)
@@ -153,11 +165,6 @@ namespace DarkDescent.Player
         private void HandleCharacterPerformed(InputAction.CallbackContext context)
         {
             CharacterToggled?.Invoke();
-        }
-
-        private void HandleLanguagePerformed(InputAction.CallbackContext context)
-        {
-            LanguageCycled?.Invoke();
         }
 
         // un'azione sola con otto tasti: il posto si ricava dal tasto premuto, da 1 a 8 consecutivi nell'enum

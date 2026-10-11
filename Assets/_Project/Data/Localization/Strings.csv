@@ -19,6 +19,32 @@ hud.restart,Continue,Continua
 hud.level_title,{0} – Level {1},{0} – Livello {1}
 level.crypt,Crypt,Cripta
 level.caves,Caves,Caverne
+level.town,Town,Città
+menu.continue,Continue,Continua
+menu.new,New game,Nuova partita
+menu.load,Load,Carica
+menu.options,Options,Opzioni
+menu.quit,Quit,Esci
+menu.back,Back,Indietro
+menu.new_title,Where to save the new game,Dove salvare la nuova partita
+menu.load_title,Load a game,Carica una partita
+slot.empty,Slot {0} – empty,Posto {0} – vuoto
+slot.summary,Slot {0} – level {1} · {2},Posto {0} – livello {1} · {2}
+slot.delete,Delete,Cancella
+confirm.overwrite,Overwrite slot {0}? The game saved there will be lost.,Sovrascrivere il posto {0}? La partita salvata lì andrà persa.
+confirm.delete,Delete slot {0}? The game saved there will be lost.,Cancellare il posto {0}? La partita salvata lì andrà persa.
+confirm.yes,Yes,Sì
+confirm.no,No,No
+pause.title,Paused,Pausa
+pause.resume,Resume,Riprendi
+pause.quit,Save and quit to menu,Salva ed esci al menu
+options.title,Options,Opzioni
+options.language,Language: {0},Lingua: {0}
+language.name,English,Italiano
+options.master,Master volume,Volume generale
+options.music,Music,Musica
+options.sfx,Effects,Effetti
+options.labels,Always show item names,Nomi degli oggetti sempre visibili
 enemy.skeleton,Skeleton,Scheletro
 enemy.swarm,Skeleton Rogue,Scheletro predone
 enemy.brute,Skeleton Brute,Bruto scheletrico

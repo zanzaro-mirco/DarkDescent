@@ -13,6 +13,7 @@ using DarkDescent.Save;
 using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace DarkDescent.Core
 {
@@ -73,6 +74,12 @@ namespace DarkDescent.Core
 
         [SerializeField] private GroundLabels _groundLabels;
 
+        [SerializeField] private MainMenu _mainMenu;
+
+        [SerializeField] private PauseMenu _pauseMenu;
+
+        [SerializeField] private OptionsPanel _optionsPanel;
+
         [Tooltip("La sfera blu del mana, in basso a destra (M9).")]
         [SerializeField] private ManaOrb _manaOrb;
 
@@ -108,6 +115,15 @@ namespace DarkDescent.Core
 
         // ignora il salvataggio e comincia una partita nuova (D10 della M8), finché non c'è il menu della M10
         private const string NewGameOption = "-newgame";
+
+        /// <summary>"1" mostra il menu iniziale anche nell'editor: per i test del menu.</summary>
+        public const string MenuVariable = "DARKDESCENT_MENU";
+
+        /// <summary>La cartella dei tre salvataggi invece di quella del gioco: per i test.</summary>
+        public const string SaveFolderVariable = "DARKDESCENT_SAVE_DIR";
+
+        // i tre posti del menu iniziale; null quando il gioco parte senza menu
+        private SaveSlots _saves;
 
         private MeleeAttack _playerAttack;
         private PlayerInputReader _reader;
@@ -176,7 +192,22 @@ namespace DarkDescent.Core
 
             // un salvataggio, se c'è, decide seme e livello (D10 della M8); -newgame e -seed lo ignorano
             _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats);
-            if (!seedGiven && !CommandLine.HasFlag(args, NewGameOption))
+            // il menu iniziale nelle build, e nell'editor solo se un test lo chiede (D2 della M10).
+            // -newgame e -seed lo saltano e giocano senza salvare; un file scelto da fuori si riprende
+            bool newGame = CommandLine.HasFlag(args, NewGameOption);
+            bool fileGiven = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(SaveGame.FileVariable));
+            bool menuWanted = !Application.isEditor || Environment.GetEnvironmentVariable(MenuVariable) == "1";
+            if (!seedGiven && !newGame && !fileGiven && menuWanted)
+            {
+                _saves = new SaveSlots(SaveFolder());
+                if (_saves.MigrateLegacy())
+                {
+                    Debug.Log("[DarkDescent] il salvataggio di prima è ora il posto 1");
+                }
+
+                _levelManager.HoldStart();
+            }
+            else if (!seedGiven && !newGame)
             {
                 SaveReadResult read = _saveGame.TryLoad(out SaveData save);
                 if (read == SaveReadResult.Ok)
@@ -217,6 +248,7 @@ namespace DarkDescent.Core
             _experienceBar.Bind(_progress.Progress, _localizer);
             _pointsButton.Bind(_progress.Progress, _characterPanel);
             _groundLabels.Bind(_reader, _player.GetComponent<PlayerController>(), _localizer);
+            _optionsPanel.Bind(_localizer, _groundLabels);
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _cameraRotation = _playerCamera.GetComponent<Rendering.CameraRotation>();
@@ -251,6 +283,94 @@ namespace DarkDescent.Core
                 _saveGame.Apply(_pendingSave);
                 _pendingSave = null;
             }
+
+            if (_saves != null)
+            {
+                // fermo finché non si sceglie: niente tasti del gioco sotto il menu
+                _reader.enabled = false;
+                _mainMenu.Show(_saves, _localizer);
+            }
+        }
+
+        private static string SaveFolder()
+        {
+            string folder = Environment.GetEnvironmentVariable(SaveFolderVariable);
+            return string.IsNullOrEmpty(folder) ? Application.persistentDataPath : folder;
+        }
+
+        /// <summary>
+        /// Una partita scelta nel menu: nel suo posto si salva; ripresa, decide seme e livello e torna
+        /// sul cavaliere prima che il livello si colleghi (trappola 8 della M9); nuova, parte da capo.
+        /// </summary>
+        private void HandleMenuChosen(int slot, bool isNew)
+        {
+            _saveGame.UseFile(_saves.PathOf(slot));
+            ulong seed = (ulong)DateTime.UtcNow.Ticks;
+            _runStats.Restore(0f, 0, 0, 0, false);
+            if (!isNew && _saves.TryRead(slot, out SaveData save))
+            {
+                seed = save.RunSeed;
+                _levelManager.SetStartLevel(save.Scene, save.Entrance, save.Depth);
+                _saveGame.Apply(save);
+                Debug.Log($"[DarkDescent] partita ripresa dal posto {slot}: {save.Scene}, profondità {save.Depth}, livello {save.Level}");
+            }
+            else
+            {
+                Debug.Log($"[DarkDescent] partita nuova nel posto {slot}");
+            }
+
+            _loot.RunSeed = seed;
+            _levelManager.RunSeed = seed;
+            Debug.Log($"[DarkDescent] seme della partita: {seed} (per rigiocarla: -seed {seed})");
+            _mainMenu.Hide();
+            _reader.enabled = true;
+            _levelManager.Begin();
+        }
+
+        // Esc: prima chiude le finestre aperte, poi apre e chiude la pausa (D10 della M10)
+        private void HandlePausePressed()
+        {
+            if (_mainMenu.IsShown)
+            {
+                return;
+            }
+
+            if (_pauseMenu.IsOpen)
+            {
+                _pauseMenu.Close();
+                return;
+            }
+
+            if (_inventoryPanel.IsOpen || _characterPanel.IsOpen)
+            {
+                _inventoryPanel.SetOpen(false);
+                if (_characterPanel.IsOpen)
+                {
+                    _characterPanel.Toggle();
+                }
+
+                return;
+            }
+
+            if (_levelManager.CurrentLevel != null && !_levelManager.IsTransitioning && !_player.IsDead)
+            {
+                _pauseMenu.Open();
+            }
+        }
+
+        // in pausa il cavaliere non ascolta i click e non lancia: alla ripresa non partirebbe da solo
+        private void HandlePausedChanged(bool paused)
+        {
+            _player.GetComponent<PlayerController>().enabled = !paused;
+            _magic.enabled = !paused;
+        }
+
+        // salva e ricarica la scena: nelle build riparte dal menu iniziale
+        private void HandleQuitToMenu()
+        {
+            _saveGame.Save();
+            _pauseMenu.Close();
+            SceneManager.LoadScene(gameObject.scene.name);
         }
 
         /// <summary>I contatori della partita (D11 della M10): tempo, uccisioni, morti, oro raccolto.</summary>
@@ -258,7 +378,11 @@ namespace DarkDescent.Core
 
         private void Update()
         {
-            _runStats.AddTime(Time.deltaTime);
+            // il tempo di gioco: non quello passato nel menu o tra un livello e l'altro
+            if (_levelManager.CurrentLevel != null)
+            {
+                _runStats.AddTime(Time.deltaTime);
+            }
         }
 
         private void HandlePlayerDied()
@@ -274,24 +398,32 @@ namespace DarkDescent.Core
         private void OnEnable()
         {
             _player.Died += HandlePlayerDied;
+            _mainMenu.Chosen += HandleMenuChosen;
+            _reader.PausePressed += HandlePausePressed;
+            _pauseMenu.PausedChanged += HandlePausedChanged;
+            _pauseMenu.QuitRequested += HandleQuitToMenu;
+            _optionsPanel.LanguageCycleRequested += CycleLanguage;
             _playerInventory.GoldAdded += HandleGoldAdded;
             _deathScreen.RestartRequested += Restart;
             _playerAttack.HitLanded += HandlePlayerHitLanded;
             _levelManager.LevelLoaded += BindLevel;
             _levelManager.LevelUnloading += ReleaseLevel;
-            _reader.LanguageCycled += CycleLanguage;
             _cameraRotation.FacingChanged += HandleFacingChanged;
         }
 
         private void OnDisable()
         {
             _player.Died -= HandlePlayerDied;
+            _mainMenu.Chosen -= HandleMenuChosen;
+            _reader.PausePressed -= HandlePausePressed;
+            _pauseMenu.PausedChanged -= HandlePausedChanged;
+            _pauseMenu.QuitRequested -= HandleQuitToMenu;
+            _optionsPanel.LanguageCycleRequested -= CycleLanguage;
             _playerInventory.GoldAdded -= HandleGoldAdded;
             _deathScreen.RestartRequested -= Restart;
             _playerAttack.HitLanded -= HandlePlayerHitLanded;
             _levelManager.LevelLoaded -= BindLevel;
             _levelManager.LevelUnloading -= ReleaseLevel;
-            _reader.LanguageCycled -= CycleLanguage;
             _cameraRotation.FacingChanged -= HandleFacingChanged;
         }
 
@@ -304,7 +436,7 @@ namespace DarkDescent.Core
             }
         }
 
-        // tasto provvisorio (D13 della M5): la scelta vera andrà nel menu delle opzioni della M10
+        // dal tasto delle opzioni (D10 della M10), che ha preso il posto di F9 (D13 della M5)
         private void CycleLanguage()
         {
             _localizer.CycleLanguage();

@@ -54,8 +54,8 @@ namespace DarkDescent.Save
         /// <summary>Un salvataggio è stato scritto: per i test.</summary>
         public event Action<SaveData> Saved;
 
-        /// <summary>Acceso: nelle build sempre, nell'editor solo se un test ha scelto un file.</summary>
-        public bool IsActive => _forced || !Application.isEditor || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(FileVariable));
+        /// <summary>Acceso quando c'è un file: il posto scelto nel menu, quello di un test o la variabile d'ambiente.</summary>
+        public bool IsActive => _forced || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(FileVariable));
 
         // calcolato al primo uso e non in Awake: il composition root legge il salvataggio dal suo
         // Awake, che può arrivare prima di quello di questo componente
@@ -86,7 +86,10 @@ namespace DarkDescent.Save
             return string.IsNullOrEmpty(path) ? null : path;
         }
 
-        /// <summary>Per i test: salva e legge da questo file, anche nell'editor.</summary>
+        /// <summary>
+        /// Salva e legge da questo file: il posto scelto nel menu (D2 della M10), o quello di un test.
+        /// Senza, il salvataggio è spento: nell'editor, con -newgame e con -seed.
+        /// </summary>
         public void UseFile(string path)
         {
             _path = path;

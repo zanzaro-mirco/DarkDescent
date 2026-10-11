@@ -45,6 +45,17 @@ namespace DarkDescent.Localization
         public const string LevelCrypt = "level.crypt";
         public const string LevelCaves = "level.caves";
 
+        // il menu iniziale, i posti di salvataggio, la pausa e le opzioni (D2 e D10 della M10)
+        public const string MenuNewTitle = "menu.new_title";
+        public const string MenuLoadTitle = "menu.load_title";
+        public const string SlotEmpty = "slot.empty";
+        public const string SlotSummary = "slot.summary";
+        public const string ConfirmOverwrite = "confirm.overwrite";
+        public const string ConfirmDelete = "confirm.delete";
+        public const string OptionsLanguage = "options.language";
+        public const string LanguageName = "language.name";
+        public const string LevelTown = "level.town";
+
         // le spiegazioni delle righe del pannello del personaggio (D16 della M6), con i titoli dalle sue righe
         public const string StatNames = "hud.stat_names";
         public const string TipStrength = "stat.tip.strength";

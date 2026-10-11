@@ -171,6 +171,47 @@ verdi.
 com'erano); il formato 4 va e torna dal file; i file dei formati 1 e 2 arrivano al 4.
 `SaveLoadTests`: oro e contatori passano dal salvataggio. 254 EditMode e 170 PlayMode verdi.
 
+## Passo 10.3 — Menu iniziale, tre salvataggi, pausa e opzioni
+
+**Com'è andata (12 ott 2026).**
+
+- **Il menu sta nella scena Core**, in una tela sua sopra l'HUD, e non in una scena a parte:
+  così il posto scelto non deve passare da una scena all'altra senza un singleton. Se il menu
+  serve, il CompositionRoot ferma il primo caricamento (`LevelManager.HoldStart`), spegne i
+  tasti del cavaliere e mostra il menu; scelta la partita, decide seme e livello, rimette il
+  salvataggio sul cavaliere prima che il livello si colleghi e chiama `Begin`.
+- **Quando c'è il menu.** Nelle build sempre; nell'editor solo con `DARKDESCENT_MENU=1`, che usano
+  i test. `-newgame` e `-seed` lo saltano e giocano senza salvare (D2); un file scelto con
+  `DARKDESCENT_SAVE_FILE` si riprende direttamente, come prima. `SaveGame` ora è acceso solo con un
+  file: il posto del menu, quello di un test o la variabile.
+- **I tre posti.** `SaveSlots` in `Core`: `save_1.json`…`save_3.json` nella cartella dei dati
+  (`DARKDESCENT_SAVE_DIR` per i test), il riepilogo letto dal salvataggio, l'ultimo giocato dalla
+  data del file, la cancellazione. Il `save.json` di prima diventa il posto 1 con una rinomina,
+  solo se il posto 1 è libero. Nel menu ogni posto dice livello, luogo e data ("Posto 2 – livello 9
+  · Caverne – Livello 6 · …"); sovrascrivere o cancellare chiede conferma (`ConfirmDialog`).
+- **La pausa con `Esc`** (azione nuova `Pause`): prima chiude inventario e pannello del
+  personaggio, poi apre la pausa. Il tempo si ferma (`timeScale` 0) e anche i suoni; un hit stop in
+  corso finisce prima (`HitStop.Cancel`), altrimenti alla sua fine rimetterebbe il tempo che scorre
+  (trappola 6). In pausa cavaliere e incantesimi non ascoltano i click. *Salva ed esci* salva e
+  ricarica Core: nelle build si torna al menu.
+- **Le opzioni** (`OptionsPanel`), dal menu e dalla pausa: la lingua, che ha preso il posto di F9
+  (azione e tasto tolti); i volumi generale, della musica e degli effetti, sui tre parametri esposti
+  del mixer `Main` (il mixer non ha un gruppo per l'ambiente: passa da musica ed effetti); i nomi a
+  terra sempre visibili. Tutto nelle preferenze, i volumi applicati in `Start` perché il mixer non
+  li accetta in `Awake`.
+- La tela è costruita da uno script dell'editor, con Cinzel, i fondi scuri e i bordi dorati
+  dell'HUD. Il primo screenshot mostrava la casella dei nomi quasi invisibile: ora è più chiara e
+  bordata.
+
+*Test.* `SaveSlotsTests` (4, EditMode): percorsi, ultimo giocato, file rovinato, `save.json` spostato
+senza perdere niente. `MenuTests` (7, PlayMode): senza salvataggi Continua manca e il livello non
+parte, una nuova partita parte e salva nel suo posto; Continua riprende il posto più recente con
+profondità, seme e oro; conferma prima di sovrascrivere e di cancellare; il file vecchio diventa il
+posto 1; `Esc` chiude l'inventario e poi mette in pausa fermando tempo, suoni, hit stop e cavaliere;
+Salva ed esci torna al menu con la partita da continuare; volume nel mixer in decibel e nomi sempre
+visibili. `LanguageSwitchTests` cambia lingua dalle opzioni invece che con F9. 258 EditMode e 177
+PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -215,7 +256,7 @@ com'erano); il formato 4 va e torna dal file; i file dei formati 1 e 2 arrivano 
 - [x] Decisioni D1–D13 confermate
 - [x] Rifiniture della prova della M9
 - [x] Oro, prezzi e formato 4
-- [ ] Menu, tre salvataggi, pausa e opzioni
+- [x] Menu, tre salvataggi, pausa e opzioni
 - [ ] Città, mercante, pergamena del ritorno
 - [ ] Boss e vittoria
 - [ ] Build della CI provata su un altro PC

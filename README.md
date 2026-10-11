@@ -73,15 +73,21 @@ Milestone precedenti:
 - `Alt` tenuto premuto mostra i nomi di tutti gli oggetti a terra; un click su un nome lo raccoglie
 - rotella del mouse per avvicinare e allontanare la visuale; `Q` ed `E` la girano di 90°
 - `M` automappa: nell'angolo, sovrapposta al gioco, spenta
-- `F9` cambia lingua (inglese, italiano); la scelta resta per gli avvii successivi
+- `Esc` chiude le finestre aperte, poi mette in pausa: da lì si riprende, si aprono le
+  opzioni o si salva per tornare al menu iniziale
+
+Il gioco parte da un **menu iniziale**: *Continua* riprende l'ultima partita, *Nuova partita*
+e *Carica* usano tre posti di salvataggio (`save_1.json`…`save_3.json` nella cartella dei dati
+dell'applicazione), che si possono anche cancellare. Nelle **opzioni** ci sono la lingua
+(inglese, italiano), i volumi generale, della musica e degli effetti, e i nomi degli oggetti
+a terra sempre visibili; tutto resta per gli avvii successivi.
 
 **Opzioni da riga di comando:**
 
 - `-lang it` avvia in italiano (`en` per l'inglese)
 - `-seed 4711` usa quel seme per dungeon e loot; senza, il seme è casuale e si legge nel
   log (`Player.log`), con il comando per rigiocarlo
-- `-newgame` comincia una partita nuova invece di riprendere il salvataggio (anche `-seed`
-  la comincia); il salvataggio è `save.json` nella cartella dei dati dell'applicazione
+- `-newgame` salta il menu e comincia una partita nuova che non si salva (anche `-seed`)
 
 ## CI
 

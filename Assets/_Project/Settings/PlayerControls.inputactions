@@ -42,15 +42,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "CycleLanguage",
-                    "type": "Button",
-                    "id": "c1dff042-bf23-4660-8a88-aadcc77f8765",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "UseBelt",
                     "type": "Button",
                     "id": "a132ec13-e080-4603-b839-8eabc18c4ef7",
@@ -112,6 +103,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "dbd8b2c9-fa37-4a8b-a17c-ba90e0d59179",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -156,17 +156,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleCharacter",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "376bdc7f-391a-4bc0-8bd9-ac6a9fd31125",
-                    "path": "<Keyboard>/f9",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "CycleLanguage",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -343,6 +332,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ShowLabels",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2e0d83e9-b14c-4b19-b02c-d53298c542fe",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

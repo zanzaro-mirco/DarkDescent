@@ -135,16 +135,6 @@ namespace DarkDescent.Input
                     ""priority"": 0
                 },
                 {
-                    ""name"": ""CycleLanguage"",
-                    ""type"": ""Button"",
-                    ""id"": ""c1dff042-bf23-4660-8a88-aadcc77f8765"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false,
-                    ""priority"": 0
-                },
-                {
                     ""name"": ""UseBelt"",
                     ""type"": ""Button"",
                     ""id"": ""a132ec13-e080-4603-b839-8eabc18c4ef7"",
@@ -213,6 +203,16 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""dbd8b2c9-fa37-4a8b-a17c-ba90e0d59179"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -257,17 +257,6 @@ namespace DarkDescent.Input
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ToggleCharacter"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""376bdc7f-391a-4bc0-8bd9-ac6a9fd31125"",
-                    ""path"": ""<Keyboard>/f9"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""CycleLanguage"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -449,6 +438,17 @@ namespace DarkDescent.Input
                 },
                 {
                     ""name"": """",
+                    ""id"": ""2e0d83e9-b14c-4b19-b02c-d53298c542fe"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""b2aeddca-bf4e-4629-9575-b89c2fa35012"",
                     ""path"": ""<Keyboard>/f1"",
                     ""interactions"": """",
@@ -491,7 +491,6 @@ namespace DarkDescent.Input
             m_Gameplay_Point = m_Gameplay.FindAction("Point", throwIfNotFound: true);
             m_Gameplay_ToggleInventory = m_Gameplay.FindAction("ToggleInventory", throwIfNotFound: true);
             m_Gameplay_ToggleCharacter = m_Gameplay.FindAction("ToggleCharacter", throwIfNotFound: true);
-            m_Gameplay_CycleLanguage = m_Gameplay.FindAction("CycleLanguage", throwIfNotFound: true);
             m_Gameplay_UseBelt = m_Gameplay.FindAction("UseBelt", throwIfNotFound: true);
             m_Gameplay_CycleMap = m_Gameplay.FindAction("CycleMap", throwIfNotFound: true);
             m_Gameplay_Zoom = m_Gameplay.FindAction("Zoom", throwIfNotFound: true);
@@ -499,6 +498,7 @@ namespace DarkDescent.Input
             m_Gameplay_Cast = m_Gameplay.FindAction("Cast", throwIfNotFound: true);
             m_Gameplay_SelectSpell = m_Gameplay.FindAction("SelectSpell", throwIfNotFound: true);
             m_Gameplay_ShowLabels = m_Gameplay.FindAction("ShowLabels", throwIfNotFound: true);
+            m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -583,7 +583,6 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_Point;
         private readonly InputAction m_Gameplay_ToggleInventory;
         private readonly InputAction m_Gameplay_ToggleCharacter;
-        private readonly InputAction m_Gameplay_CycleLanguage;
         private readonly InputAction m_Gameplay_UseBelt;
         private readonly InputAction m_Gameplay_CycleMap;
         private readonly InputAction m_Gameplay_Zoom;
@@ -591,6 +590,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_Cast;
         private readonly InputAction m_Gameplay_SelectSpell;
         private readonly InputAction m_Gameplay_ShowLabels;
+        private readonly InputAction m_Gameplay_Pause;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -619,10 +619,6 @@ namespace DarkDescent.Input
             /// </summary>
             public InputAction @ToggleCharacter => m_Wrapper.m_Gameplay_ToggleCharacter;
             /// <summary>
-            /// Provides access to the underlying input action "Gameplay/CycleLanguage".
-            /// </summary>
-            public InputAction @CycleLanguage => m_Wrapper.m_Gameplay_CycleLanguage;
-            /// <summary>
             /// Provides access to the underlying input action "Gameplay/UseBelt".
             /// </summary>
             public InputAction @UseBelt => m_Wrapper.m_Gameplay_UseBelt;
@@ -650,6 +646,10 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/ShowLabels".
             /// </summary>
             public InputAction @ShowLabels => m_Wrapper.m_Gameplay_ShowLabels;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/Pause".
+            /// </summary>
+            public InputAction @Pause => m_Wrapper.m_Gameplay_Pause;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -688,9 +688,6 @@ namespace DarkDescent.Input
                 @ToggleCharacter.started += instance.OnToggleCharacter;
                 @ToggleCharacter.performed += instance.OnToggleCharacter;
                 @ToggleCharacter.canceled += instance.OnToggleCharacter;
-                @CycleLanguage.started += instance.OnCycleLanguage;
-                @CycleLanguage.performed += instance.OnCycleLanguage;
-                @CycleLanguage.canceled += instance.OnCycleLanguage;
                 @UseBelt.started += instance.OnUseBelt;
                 @UseBelt.performed += instance.OnUseBelt;
                 @UseBelt.canceled += instance.OnUseBelt;
@@ -712,6 +709,9 @@ namespace DarkDescent.Input
                 @ShowLabels.started += instance.OnShowLabels;
                 @ShowLabels.performed += instance.OnShowLabels;
                 @ShowLabels.canceled += instance.OnShowLabels;
+                @Pause.started += instance.OnPause;
+                @Pause.performed += instance.OnPause;
+                @Pause.canceled += instance.OnPause;
             }
 
             /// <summary>
@@ -735,9 +735,6 @@ namespace DarkDescent.Input
                 @ToggleCharacter.started -= instance.OnToggleCharacter;
                 @ToggleCharacter.performed -= instance.OnToggleCharacter;
                 @ToggleCharacter.canceled -= instance.OnToggleCharacter;
-                @CycleLanguage.started -= instance.OnCycleLanguage;
-                @CycleLanguage.performed -= instance.OnCycleLanguage;
-                @CycleLanguage.canceled -= instance.OnCycleLanguage;
                 @UseBelt.started -= instance.OnUseBelt;
                 @UseBelt.performed -= instance.OnUseBelt;
                 @UseBelt.canceled -= instance.OnUseBelt;
@@ -759,6 +756,9 @@ namespace DarkDescent.Input
                 @ShowLabels.started -= instance.OnShowLabels;
                 @ShowLabels.performed -= instance.OnShowLabels;
                 @ShowLabels.canceled -= instance.OnShowLabels;
+                @Pause.started -= instance.OnPause;
+                @Pause.performed -= instance.OnPause;
+                @Pause.canceled -= instance.OnPause;
             }
 
             /// <summary>
@@ -828,13 +828,6 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnToggleCharacter(InputAction.CallbackContext context);
             /// <summary>
-            /// Method invoked when associated input action "CycleLanguage" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-            /// </summary>
-            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-            void OnCycleLanguage(InputAction.CallbackContext context);
-            /// <summary>
             /// Method invoked when associated input action "UseBelt" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>
             /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -883,6 +876,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnShowLabels(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnPause(InputAction.CallbackContext context);
         }
     }
 }

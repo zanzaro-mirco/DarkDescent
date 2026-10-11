@@ -50,6 +50,15 @@ namespace DarkDescent.Core
             _remaining = Mathf.Max(_remaining, duration);
         }
 
+        /// <summary>Finisce subito l'hit stop in corso: la pausa (D10 della M10) prende il tempo da qui.</summary>
+        public void Cancel()
+        {
+            if (IsActive)
+            {
+                End();
+            }
+        }
+
         private void Update()
         {
             if (!IsActive)

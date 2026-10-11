@@ -36,19 +36,21 @@ namespace DarkDescent.Tests
             return null;
         }
 
-        [UnityTest, Description("Si parte in inglese; F9 passa all'italiano, anche le finestre chiuse, e la scelta resta al riavvio di Core")]
-        public IEnumerator F9_SwitchesToItalian_AndIsRemembered()
+        [UnityTest, Description("Si parte in inglese; il tasto della lingua nelle opzioni passa all'italiano, anche le finestre chiuse, e la scelta resta al riavvio di Core")]
+        public IEnumerator OptionsLanguage_SwitchesToItalian_AndIsRemembered()
         {
             yield return LoadCore();
-            var keyboard = InputSystem.AddDevice<Keyboard>();
             yield return null;
             Assert.AreEqual("en", Localizer.Language);
             Assert.AreEqual("Inventory", Label("hud.inventory"));
+            var options = Object.FindFirstObjectByType<OptionsPanel>();
+            options.Open();
+            Assert.AreEqual("Language: English", options.LanguageText);
 
-            Press(keyboard.f9Key);
+            options.LanguageButton.onClick.Invoke();
             yield return null;
-            Release(keyboard.f9Key);
-            yield return null;
+            Assert.AreEqual("Lingua: Italiano", options.LanguageText);
+            options.Close();
 
             Assert.AreEqual("it", Localizer.Language);
             var character = Object.FindFirstObjectByType<CharacterPanel>();

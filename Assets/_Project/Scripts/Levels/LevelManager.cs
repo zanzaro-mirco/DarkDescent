@@ -61,8 +61,38 @@ namespace DarkDescent.Levels
             _playerHealth = _player.GetComponent<Health>();
         }
 
+        // il menu iniziale tiene fermo il primo caricamento finché non si sceglie una partita (D2 della M10)
+        private bool _held;
+        private bool _started;
+
+        /// <summary>Non caricare il primo livello in Start: lo farà <see cref="Begin"/>. Va chiamato da un Awake.</summary>
+        public void HoldStart()
+        {
+            _held = true;
+        }
+
+        /// <summary>Carica il primo livello, dopo <see cref="SetStartLevel"/> se si riprende un salvataggio.</summary>
+        public void Begin()
+        {
+            _held = false;
+            if (!_started)
+            {
+                StartFirstLevel();
+            }
+        }
+
         private void Start()
         {
+            if (!_held)
+            {
+                StartFirstLevel();
+            }
+        }
+
+        private void StartFirstLevel()
+        {
+            _started = true;
+
             // Nell'editor si può premere Play con Core e un livello aperti insieme, e i test caricano
             // Core e la sandbox nello stesso frame: si usa il livello già caricato invece di caricarne
             // una seconda copia (trappola 6).

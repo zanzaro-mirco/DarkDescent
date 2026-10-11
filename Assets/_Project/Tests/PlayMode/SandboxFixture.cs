@@ -36,10 +36,14 @@ namespace DarkDescent.Tests
 
         // ogni test parte in inglese, la lingua di default, e con lo zoom della scena: una scelta
         // salvata da un test o da una prova nell'editor non deve cambiare quello che si aspetta
-        private static void ForgetPreferences()
+        protected static void ForgetPreferences()
         {
             PlayerPrefs.DeleteKey(CompositionRoot.LanguagePreference);
             PlayerPrefs.DeleteKey(Rendering.CameraZoom.Preference);
+            PlayerPrefs.DeleteKey(UI.OptionsPanel.MasterPreference);
+            PlayerPrefs.DeleteKey(UI.OptionsPanel.MusicPreference);
+            PlayerPrefs.DeleteKey(UI.OptionsPanel.SfxPreference);
+            PlayerPrefs.DeleteKey(UI.OptionsPanel.LabelsPreference);
         }
 
         protected IEnumerator LoadSandbox(bool allSkeletons = false)
