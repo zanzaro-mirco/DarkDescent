@@ -86,7 +86,8 @@ namespace DarkDescent.Tests
         [Test, Description("Un salvataggio di una versione più nuova del gioco non si carica")]
         public void NewerVersion_IsRefused()
         {
-            string json = Sample().ToJson().Replace("\"_version\": 2", "\"_version\": 99");
+            string json = Sample().ToJson().Replace($"\"_version\": {SaveData.CurrentVersion}", "\"_version\": 99");
+            StringAssert.Contains("\"_version\": 99", json);
             File.WriteAllText(SavePath, json);
             Assert.AreEqual(SaveReadResult.TooNew, SaveFile.TryRead(SavePath, out var data));
             Assert.IsNull(data);

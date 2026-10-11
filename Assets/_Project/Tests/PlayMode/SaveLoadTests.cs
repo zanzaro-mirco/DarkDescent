@@ -15,7 +15,7 @@ namespace DarkDescent.Tests
 {
     /// <summary>
     /// Il salvataggio nel gioco (D7–D10 della M8): entrando in un livello si salva; ricaricato, il
-    /// cavaliere torna identico, con crescita, attributi, vita e inventario.
+    /// cavaliere torna identico, con crescita, attributi, vita, inventario e, dal formato 3, incantesimi e mana.
     /// </summary>
     public class SaveLoadTests : SandboxFixture
     {
@@ -63,6 +63,12 @@ namespace DarkDescent.Tests
             health.TakeDamage(new DamageInfo(60f, DamageType.Physical, null));
             Assert.IsTrue(inventory.DrinkFromBelt(0), "una pozione bevuta: nella cintura ne resta una");
 
+            // e la magia (formato 3): la Pelle di pietra imparata e scelta, metà del mana spesa
+            var magic = Player.GetComponent<Magic.PlayerMagic>();
+            var stoneSkin = AssetDatabase.LoadAssetAtPath<Magic.SpellDefinition>("Assets/_Project/Data/Spells/StoneSkin.asset");
+            Assert.IsTrue(magic.Learn(stoneSkin));
+            magic.Mana.SetCurrent(magic.Mana.Max / 2f);
+
             SaveData saved = null;
             save.Saved += data => saved = data;
             var manager = Object.FindFirstObjectByType<LevelManager>();
@@ -79,7 +85,12 @@ namespace DarkDescent.Tests
             Assert.AreEqual(manager.RunSeed, saved.RunSeed);
             Assert.AreEqual(2, saved.Explored.Count, "le mappe scoperte delle due profondità visitate");
             Assert.AreEqual((1, 2), (saved.Explored[0].Depth, saved.Explored[1].Depth));
-            string before = save.Capture().ToJson();
+            Assert.AreEqual(2, saved.KnownSpells.Count, "il Dardo, noto dall'inizio, e la Pelle di pietra");
+            Assert.AreEqual(2, saved.SelectedSpell);
+            Assert.Less(saved.Mana, magic.Mana.Max);
+
+            // il mana intanto si è rigenerato: il confronto usa quello salvato
+            string before = save.Capture().WithMagic(magic.Book.KnownIds(), magic.Book.Selected, saved.Mana).ToJson();
             float life = health.Current;
 
             // tutto rovinato: un altro cavaliere
@@ -87,10 +98,15 @@ namespace DarkDescent.Tests
             stats.Sheet.SetBase(StatType.Strength, 99f);
             inventory.Inventory.Clear();
             health.Heal(1000f);
+            magic.Book.Restore(null, 0);
+            magic.Mana.Fill();
 
             Assert.AreEqual(SaveReadResult.Ok, save.TryLoad(out SaveData loaded));
             Assert.IsTrue(save.Apply(loaded), "ogni oggetto torna al suo posto");
             Assert.AreEqual(before, save.Capture().ToJson(), "lo stesso stato, campo per campo");
+            Assert.IsTrue(magic.Book.Knows(stoneSkin));
+            Assert.AreSame(stoneSkin, magic.Book.SelectedSpell);
+            Assert.AreEqual(saved.Mana, magic.Mana.Current, 0.001f);
             Assert.AreEqual(life, health.Current, 0.001f);
             Assert.AreEqual(3, progress.Level);
             Assert.AreEqual(32f, stats.Sheet.GetBase(StatType.Strength), "30 di partenza e i due punti spesi");
@@ -111,7 +127,8 @@ namespace DarkDescent.Tests
                 .WithProgress(4, 120, 5)
                 .WithAttributes(35f, 21f, 10f, 27f)
                 .WithLife(50f)
-                .WithInventory(InventorySnapshot.Capture(inventory));
+                .WithInventory(InventorySnapshot.Capture(inventory))
+                .WithMagic(new System.Collections.Generic.List<string> { FireRing.Id }, 1, 12f);
             _path = Path.Combine(Application.temporaryCachePath, "save_startup_test.json");
             SaveFile.Write(_path, data);
             System.Environment.SetEnvironmentVariable(SaveGame.FileVariable, _path);
@@ -132,7 +149,17 @@ namespace DarkDescent.Tests
             Assert.AreEqual("ShortSword", equipment.Get(EquipSlot.Weapon).Definition.name);
             Assert.AreEqual("Amulet", Player.GetComponent<PlayerInventory>().Inventory.Grid.ItemAt(new Vector2Int(3, 1)).Definition.name);
             Assert.AreEqual(0, Player.GetComponent<PlayerInventory>().Belt.Count, "le pozioni di partenza non tornano: il salvataggio non le aveva");
+
+            // formato 3: l'Anello di fuoco imparato e scelto, il mana di allora, la barra che lo mostra
+            var magic = Player.GetComponent<Magic.PlayerMagic>();
+            Assert.IsTrue(magic.Book.Knows(FireRing));
+            Assert.AreSame(FireRing, magic.Book.SelectedSpell);
+            Assert.AreEqual(12f, magic.Mana.Current, 1f, "più un soffio di rigenerazione");
+            var bar = Object.FindFirstObjectByType<UI.SpellBarView>();
+            Assert.IsTrue(bar.Slot(1).HasIcon && bar.Slot(1).IsSelected);
         }
+
+        private static Magic.SpellDefinition FireRing => AssetDatabase.LoadAssetAtPath<Magic.SpellDefinition>("Assets/_Project/Data/Spells/FireRing.asset");
 
         [UnityTest, Description("Da morto si salva come dopo Continua: a vita piena, all'ingresso del livello")]
         public IEnumerator Dead_SavesAsIfContinued()

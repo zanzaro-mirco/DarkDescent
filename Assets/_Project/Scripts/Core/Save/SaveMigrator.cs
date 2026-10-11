@@ -15,6 +15,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(2);
             }
 
+            // formato 2 → 3 (D11 della M9): arrivano incantesimi e mana; un salvataggio vecchio conosce
+            // solo il Dardo di fuoco, che è noto dall'inizio, e riparte con il mana pieno
+            if (data.Version == 2)
+            {
+                data.UpgradeTo(3);
+            }
+
             return data;
         }
     }

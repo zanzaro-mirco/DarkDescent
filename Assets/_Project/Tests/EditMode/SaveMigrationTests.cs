@@ -10,9 +10,10 @@ using UnityEngine;
 namespace DarkDescent.Tests
 {
     /// <summary>
-    /// Il formato 2 e la migrazione (D9 della M8): un salvataggio vero del formato 1, congelato in
-    /// <c>Fixtures/save_v1.json</c> quando il formato 1 era quello corrente, si carica con il codice
-    /// di oggi; la mappa scoperta di ogni profondità resta tornandoci e passa dal salvataggio.
+    /// I formati 2 e 3 e la migrazione (D9 della M8, D11 della M9): i salvataggi veri dei formati 1
+    /// e 2, congelati in <c>Fixtures/save_v1.json</c> e <c>save_v2.json</c> quando erano quelli
+    /// correnti, si caricano con il codice di oggi; la mappa scoperta di ogni profondità resta
+    /// tornandoci e passa dal salvataggio.
     /// </summary>
     public class SaveMigrationTests
     {
@@ -48,15 +49,15 @@ namespace DarkDescent.Tests
             File.Delete(_path);
         }
 
-        [Test, Description("Il salvataggio del formato 1 si carica con il codice del formato 2: migrato, senza mappe, con tutto il resto com'era")]
-        public void FormatOne_LoadsWithFormatTwoCode()
+        [Test, Description("Il salvataggio del formato 1 si carica con il codice di oggi: migrato un passo alla volta, senza mappe, con tutto il resto com'era")]
+        public void FormatOne_LoadsWithTodaysCode()
         {
             var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v1.json");
             StringAssert.Contains("\"_version\": 1", fixture.text, "il file congelato è davvero del formato 1");
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(2, data.Version, "portato al formato corrente");
+            Assert.AreEqual(3, data.Version, "portato al formato corrente");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.IsNotNull(data.Explored);
             Assert.AreEqual(0, data.Explored.Count, "un salvataggio vecchio non ha mappe");
@@ -82,9 +83,66 @@ namespace DarkDescent.Tests
             Assert.AreEqual("Dagger", inventory.Grid.ItemAt(new Vector2Int(2, 1)).Definition.name);
             Assert.AreEqual(1, inventory.Belt.Count);
 
-            // e riscritto, è del formato 2
+            // passando anche per il formato 3: niente incantesimi imparati e il mana pieno
+            Assert.AreEqual(0, data.KnownSpells.Count);
+            Assert.AreEqual(SaveData.FullMana, data.Mana);
+
+            // e riscritto, è del formato corrente
             SaveFile.Write(_path, data);
-            StringAssert.Contains("\"_version\": 2", File.ReadAllText(_path));
+            StringAssert.Contains("\"_version\": 3", File.ReadAllText(_path));
+        }
+
+        [Test, Description("Il salvataggio vero del formato 2 si carica con il codice del formato 3: il solo Dardo di fuoco, il primo posto e il mana pieno; mappa, Magia e oggetti della M9 (pergamena, pozione blu, affissi della magia) com'erano")]
+        public void FormatTwo_LoadsWithFormatThreeCode()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v2.json");
+            StringAssert.Contains("\"_version\": 2", fixture.text, "il file congelato è davvero del formato 2");
+            StringAssert.DoesNotContain("_knownSpells", fixture.text);
+            File.WriteAllText(_path, fixture.text);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(3, data.Version);
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
+            Assert.AreEqual(0, data.KnownSpells.Count, "nessun incantesimo imparato: il Dardo è noto dall'inizio");
+            Assert.AreEqual(0, data.SelectedSpell);
+            Assert.AreEqual(SaveData.FullMana, data.Mana, "mana pieno");
+            Assert.AreEqual(424242424242UL, data.RunSeed);
+            Assert.AreEqual(("Level_Crypt", "FromAbove", 3), (data.Scene, data.Entrance, data.Depth));
+            Assert.AreEqual((6, 2100, 2), (data.Level, data.Experience, data.UnspentPoints));
+            Assert.AreEqual(18f, data.Magic);
+            Assert.AreEqual(1, data.Explored.Count, "la mappa della profondità 3");
+
+            var spells = new[] { "Firebolt", "FireRing", "StoneSkin" };
+            var book = new Magic.SpellBook(System.Array.ConvertAll(spells, n => AssetDatabase.LoadAssetAtPath<Magic.SpellDefinition>($"Assets/_Project/Data/Spells/{n}.asset")));
+            book.Restore(data.KnownSpells, data.SelectedSpell);
+            Assert.IsTrue(book.Knows(0));
+            Assert.IsFalse(book.Knows(1) || book.Knows(2));
+            Assert.AreEqual(0, book.Selected);
+
+            var sheet = new StatSheet();
+            sheet.SetBase(StatType.Strength, data.Strength);
+            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(sheet));
+            var items = AssetDatabase.LoadAssetAtPath<ItemDatabase>("Assets/_Project/Data/ItemDatabase.asset");
+            var affixes = AssetDatabase.LoadAssetAtPath<AffixDatabase>("Assets/_Project/Data/AffixDatabase.asset");
+            Assert.IsTrue(data.Inventory.Restore(inventory, items, affixes));
+            Assert.AreEqual(3f, sheet.Get(StatType.Magic), "l'elmo della Stregoneria");
+            Assert.AreEqual(9f, sheet.Get(StatType.Mana), "l'anello Arcano");
+            Assert.IsTrue(inventory.Grid.Placements.Keys.GetEnumerator().MoveNext(), "la pergamena nello zaino");
+            Assert.AreEqual(2, inventory.Belt.Count, "pozione rossa e blu");
+        }
+
+        [Test, Description("Il formato 3 va e torna: incantesimi noti, posto scelto e mana passano dal file")]
+        public void FormatThree_RoundTrips()
+        {
+            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(new StatSheet()));
+            var data = SaveData.Create(9UL, "Level_Crypt", "FromAbove", 2)
+                .WithInventory(InventorySnapshot.Capture(inventory))
+                .WithMagic(new System.Collections.Generic.List<string> { "abc", "def" }, 2, 17.5f);
+            SaveFile.Write(_path, data);
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
+            CollectionAssert.AreEqual(new[] { "abc", "def" }, read.KnownSpells);
+            Assert.AreEqual(2, read.SelectedSpell);
+            Assert.AreEqual(17.5f, read.Mana);
         }
 
         [Test, Description("Tornando a una profondità già visitata, la mappa scoperta è quella di prima; ogni profondità ha la sua")]

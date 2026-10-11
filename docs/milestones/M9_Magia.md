@@ -301,6 +301,34 @@ cavaliere, non quello colpito da altri, resta 3 s dall'ultimo colpo e sparisce a
 vecchi aggiornati (fine del pannello, bersagli degli elmi, numero degli affissi). Screenshot del
 pannello con i tooltip di Magia e Mana. 240 EditMode e 166 PlayMode verdi.
 
+## Passo 9.7 — Formato 3 del salvataggio e migrazione
+
+**Com'è andata (11 ott 2026).**
+
+- **Prima il file vero.** Con il codice ancora del formato 2, uno script dell'editor ha scritto un
+  salvataggio di una partita alla profondità 3 con gli oggetti della M9 (pergamena nello zaino,
+  pozione blu nella cintura, elmo della Stregoneria, anello Arcano) e una mappa scoperta: è
+  `Tests/EditMode/Fixtures/save_v2.json`, committato da solo prima di toccare il formato.
+- **Formato 3 (D11).** `SaveData` aggiunge gli id degli incantesimi noti, il posto scelto e il
+  mana; `FullMana` (−1) vuol dire «pieno». `SaveMigrator` porta il 2 al 3 con nessun incantesimo
+  imparato (il Dardo è noto dall'inizio), il primo posto e il mana pieno; un file del formato 1
+  passa dal 2 e poi dal 3. La migrazione mette i valori a mano: `JsonUtility` lascia ai campi che
+  mancano nel file il default del tipo, non quello dell'inizializzatore.
+- **Nel gioco.** `SaveGame` cattura libro e mana (da morto il mana si salva pieno, come la vita) e
+  li rimette dopo attributi, livello e oggetti, così il mana massimo è già quello giusto.
+  `SpellBook.Restore` annuncia `Learned` per i posti che diventano noti, e la barra degli
+  incantesimi li mostra come dopo una pergamena.
+- **Trappola 8.** All'avvio il salvataggio si applica nello `Start` del CompositionRoot, mentre il
+  livello si carica in modo asincrono e si collega dopo: il libro è già quello salvato quando si
+  tira la pergamena del livello, e non cade quella di un incantesimo già noto.
+
+*Test.* `SaveMigrationTests` (EditMode): il file vero del formato 2 si carica con il codice del
+formato 3 (solo il Dardo, primo posto, mana pieno; Magia, mappa, pergamena, pozione blu e affissi
+della magia com'erano); il file del formato 1 arriva al 3; il formato 3 va e torna dal file.
+`SaveLoadTests` (PlayMode, ampliati): la Pelle di pietra imparata e scelta e metà del mana spesa
+tornano dopo il caricamento; all'avvio da un salvataggio con l'Anello di fuoco la barra lo mostra
+scelto e il mana è quello salvato. 242 EditMode e 166 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -325,6 +353,7 @@ pannello con i tooltip di Magia e Mana. 240 EditMode e 166 PlayMode verdi.
 8. **La pergamena del livello si tira collegando il livello:** se a quel punto il salvataggio non
    ha ancora rimesso gli incantesimi noti (passo 9.7), nel primo livello di una partita ripresa può
    cadere la pergamena di un incantesimo già noto. Il formato 3 deve rimettere il libro prima.
+   Risolta al 9.7: il salvataggio si applica nello `Start`, prima che il livello asincrono si colleghi.
 
 ---
 
@@ -350,7 +379,7 @@ pannello con i tooltip di Magia e Mana. 240 EditMode e 166 PlayMode verdi.
 - [x] Mana, incantesimi e pergamene
 - [x] Scheletro mago
 - [x] Barra del nemico combattuto e HUD in basso
-- [ ] Formato 3 e migrazione
+- [x] Formato 3 e migrazione
 - [ ] Profiler: nessuna allocazione a ogni frame lanciando a raffica
 - [ ] Scenario della Definition of Done provato in build
 - [ ] Test verdi in CI

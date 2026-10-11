@@ -10,7 +10,8 @@ namespace DarkDescent.Save
     /// <summary>
     /// Un salvataggio (D7–D9 della M8): seme della partita, dove si è (scena, ingresso, profondità),
     /// la crescita del cavaliere, i valori base degli attributi, la vita, l'inventario completo e, dal
-    /// formato 2, la mappa scoperta di ogni profondità visitata. Lo stato dei livelli non c'è (D8):
+    /// formato 2, la mappa scoperta di ogni profondità visitata; dal formato 3 gli incantesimi noti,
+    /// quello scelto e il mana (D11 della M9). Lo stato dei livelli non c'è (D8):
     /// un livello rientrandoci si rigenera dal seme. Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
@@ -19,7 +20,10 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
+
+        /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
+        public const float FullMana = -1f;
 
         [SerializeField] private int _version = CurrentVersion;
 
@@ -45,6 +49,11 @@ namespace DarkDescent.Save
 
         // formato 2: le mappe scoperte. Un salvataggio del formato 1 non ha il campo, e resta vuoto
         [SerializeField] private List<ExploredLevel> _explored = new List<ExploredLevel>();
+
+        // formato 3: gli id degli incantesimi noti, il posto scelto e il mana (FullMana: pieno)
+        [SerializeField] private List<string> _knownSpells = new List<string>();
+        [SerializeField] private int _selectedSpell;
+        [SerializeField] private float _mana = FullMana;
 
         public int Version => _version;
 
@@ -75,6 +84,13 @@ namespace DarkDescent.Save
         public InventorySnapshot Inventory => _inventory;
 
         public IReadOnlyList<ExploredLevel> Explored => _explored;
+
+        public IReadOnlyList<string> KnownSpells => _knownSpells;
+
+        public int SelectedSpell => _selectedSpell;
+
+        /// <summary>Il mana del cavaliere; <see cref="FullMana"/> se va riempito.</summary>
+        public float Mana => _mana;
 
         public static SaveData Create(ulong runSeed, string scene, string entrance, int depth)
         {
@@ -123,10 +139,29 @@ namespace DarkDescent.Save
         }
 
         /// <summary>Per la migrazione: dichiara il formato a cui il salvataggio è stato portato.</summary>
+        /// <summary>Gli incantesimi: gli id di quelli noti, il posto scelto e il mana (<see cref="FullMana"/> per pieno).</summary>
+        public SaveData WithMagic(List<string> knownSpells, int selectedSpell, float mana)
+        {
+            _knownSpells = knownSpells ?? new List<string>();
+            _selectedSpell = selectedSpell;
+            _mana = mana;
+            return this;
+        }
+
         internal void UpgradeTo(int version)
         {
+            // dal formato 2 al 3: niente incantesimi imparati, il primo posto e il mana pieno; JsonUtility
+            // lascia ai campi mancanti il valore di default del tipo, non quello dell'inizializzatore
+            if (_version < 3 && version >= 3)
+            {
+                _knownSpells = new List<string>();
+                _selectedSpell = 0;
+                _mana = FullMana;
+            }
+
             _version = version;
             _explored ??= new List<ExploredLevel>();
+            _knownSpells ??= new List<string>();
         }
 
         public string ToJson()

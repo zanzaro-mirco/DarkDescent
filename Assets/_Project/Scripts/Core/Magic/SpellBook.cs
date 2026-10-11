@@ -120,7 +120,14 @@ namespace DarkDescent.Magic
             var ids = new HashSet<string>(knownIds ?? Array.Empty<string>());
             for (int i = 0; i < _spells.Count; i++)
             {
+                bool wasKnown = _known[i];
                 _known[i] = _spells[i].KnownFromStart || ids.Contains(_spells[i].Id);
+
+                // la barra degli incantesimi mostra i posti nuovi come dopo una pergamena
+                if (_known[i] && !wasKnown)
+                {
+                    Learned?.Invoke(i);
+                }
             }
 
             Selected = -1;

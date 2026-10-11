@@ -3,6 +3,7 @@ using System.IO;
 using DarkDescent.Combat;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Magic;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
 using UnityEngine;
@@ -38,6 +39,7 @@ namespace DarkDescent.Save
         private LevelManager _levelManager;
         private PlayerInventory _inventory;
         private PlayerProgress _progress;
+        private PlayerMagic _magic;
         private CharacterStats _stats;
         private Health _health;
         private MeleeAttack _attack;
@@ -68,6 +70,8 @@ namespace DarkDescent.Save
             _stats = player.GetComponent<CharacterStats>();
             _health = player.GetComponent<Health>();
             _attack = player.GetComponent<MeleeAttack>();
+            // facoltativo: senza, il salvataggio non tocca incantesimi e mana
+            _magic = player.GetComponent<PlayerMagic>();
             if (isActiveAndEnabled)
             {
                 Subscribe();
@@ -99,12 +103,20 @@ namespace DarkDescent.Save
             var sheet = _stats.Sheet;
             var progress = _progress.Progress;
             float life = _health.IsDead ? _health.Max : _health.Current;
-            return SaveData.Create(_levelManager.RunSeed, _levelManager.CurrentSceneName, _levelManager.CurrentEntrance, _levelManager.CurrentLevel.Depth)
+            var data = SaveData.Create(_levelManager.RunSeed, _levelManager.CurrentSceneName, _levelManager.CurrentEntrance, _levelManager.CurrentLevel.Depth)
                 .WithProgress(progress.Level, progress.Experience, progress.UnspentPoints)
                 .WithAttributes(sheet.GetBase(StatType.Strength), sheet.GetBase(StatType.Dexterity), sheet.GetBase(StatType.Magic), sheet.GetBase(StatType.Vitality))
                 .WithLife(life)
                 .WithInventory(InventorySnapshot.Capture(_inventory.Inventory))
                 .WithExplored(_exploration.Memory.Export());
+
+            // da morto il mana torna pieno con la vita (Revived): si salva pieno
+            if (_magic != null)
+            {
+                data.WithMagic(_magic.Book.KnownIds(), _magic.Book.Selected, _health.IsDead ? SaveData.FullMana : _magic.Mana.Current);
+            }
+
+            return data;
         }
 
         /// <summary>Scrive lo stato di adesso; false se spento o se non c'è un livello in cui essere.</summary>
@@ -151,6 +163,20 @@ namespace DarkDescent.Save
             _progress.Progress.Restore(data.Level, data.Experience, data.UnspentPoints);
             bool complete = data.Inventory.Restore(_inventory.Inventory, _items, _affixes);
             _health.SetCurrent(data.Life);
+
+            // dopo attributi, livello e oggetti: il mana massimo è già quello giusto
+            if (_magic != null)
+            {
+                _magic.Book.Restore(data.KnownSpells, data.SelectedSpell);
+                if (data.Mana < 0f)
+                {
+                    _magic.Mana.Fill();
+                }
+                else
+                {
+                    _magic.Mana.SetCurrent(data.Mana);
+                }
+            }
 
             // le mappe si riprendono quando il livello di ogni profondità viene generato
             _exploration.Memory.Import(data.Explored);
