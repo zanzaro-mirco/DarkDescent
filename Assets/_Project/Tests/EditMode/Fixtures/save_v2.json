@@ -1,0 +1,99 @@
+{
+    "_version": 2,
+    "_runSeed": "424242424242",
+    "_scene": "Level_Crypt",
+    "_entrance": "FromAbove",
+    "_depth": 3,
+    "_level": 6,
+    "_experience": 2100,
+    "_unspentPoints": 2,
+    "_strength": 35.0,
+    "_dexterity": 22.0,
+    "_magic": 18.0,
+    "_vitality": 27.0,
+    "_life": 64.0,
+    "_inventory": {
+        "_gridItems": [
+            {
+                "_definitionId": "b61e3d3ea8c4496e9b778aa334c7052b",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            }
+        ],
+        "_gridPositions": [
+            {
+                "x": 0,
+                "y": 0
+            }
+        ],
+        "_equipped": [
+            {
+                "_definitionId": "79db3768aa614aa9b28c0a633e7832e7",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            },
+            {
+                "_definitionId": "022b73b414af4478b3672cfb7e55d64f",
+                "_rarity": 1,
+                "_itemLevel": 3,
+                "_seed": 77,
+                "_affixes": [
+                    {
+                        "_affixId": "d73589277fca445a96dbcc3e2be828ea",
+                        "_value": 3
+                    }
+                ]
+            },
+            {
+                "_definitionId": "27935a4cd6b14d35b9e2724a4346d937",
+                "_rarity": 1,
+                "_itemLevel": 3,
+                "_seed": 78,
+                "_affixes": [
+                    {
+                        "_affixId": "c84df779475f45baa2af56f3c8ef8973",
+                        "_value": 9
+                    }
+                ]
+            }
+        ],
+        "_equippedSlots": [
+            1,
+            3,
+            8
+        ],
+        "_beltItems": [
+            {
+                "_definitionId": "5884889cecd34d84a4e3669a6f910bf9",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            },
+            {
+                "_definitionId": "7361b8032d754e0395fdf90ff1b0bf58",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            }
+        ],
+        "_beltSlots": [
+            0,
+            1
+        ],
+        "_loose": []
+    },
+    "_explored": [
+        {
+            "_depth": 3,
+            "_width": 7,
+            "_height": 4,
+            "_cells": "AI8HAA=="
+        }
+    ]
+}
