@@ -37,6 +37,12 @@ namespace DarkDescent.Player
         /// <summary>Q ed E: -1 gira la visuale a sinistra, +1 a destra, di 90° (D12 della M8).</summary>
         public event Action<int> ViewRotated;
 
+        /// <summary>Il tasto destro: lancia l'incantesimo scelto verso il cursore (D4 della M9).</summary>
+        public event Action CastPressed;
+
+        /// <summary>F1–F3: il posto dell'incantesimo scelto, da 0.</summary>
+        public event Action<int> SpellSelected;
+
         public bool IsMoveCommandHeld { get; private set; }
 
         public Vector2 PointerScreenPosition => _controls.Gameplay.Point.ReadValue<Vector2>();
@@ -61,6 +67,8 @@ namespace DarkDescent.Player
             _controls.Gameplay.CycleMap.performed += HandleMapPerformed;
             _controls.Gameplay.Zoom.performed += HandleZoomPerformed;
             _controls.Gameplay.Rotate.performed += HandleRotatePerformed;
+            _controls.Gameplay.Cast.performed += HandleCastPerformed;
+            _controls.Gameplay.SelectSpell.performed += HandleSelectSpellPerformed;
             _controls.Gameplay.Enable();
         }
 
@@ -78,6 +86,8 @@ namespace DarkDescent.Player
             _controls.Gameplay.CycleMap.performed -= HandleMapPerformed;
             _controls.Gameplay.Zoom.performed -= HandleZoomPerformed;
             _controls.Gameplay.Rotate.performed -= HandleRotatePerformed;
+            _controls.Gameplay.Cast.performed -= HandleCastPerformed;
+            _controls.Gameplay.SelectSpell.performed -= HandleSelectSpellPerformed;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
@@ -149,6 +159,20 @@ namespace DarkDescent.Player
             if (value != 0f)
             {
                 ViewRotated?.Invoke(value > 0f ? 1 : -1);
+            }
+        }
+
+        private void HandleCastPerformed(InputAction.CallbackContext context)
+        {
+            CastPressed?.Invoke();
+        }
+
+        // F1, F2 e F3 sono consecutivi nell'enum dei tasti, come le cifre della cintura
+        private void HandleSelectSpellPerformed(InputAction.CallbackContext context)
+        {
+            if (context.control is KeyControl key)
+            {
+                SpellSelected?.Invoke(key.keyCode - Key.F1);
             }
         }
 

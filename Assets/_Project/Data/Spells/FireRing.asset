@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: 312dae5ae99c40a9b3812ae2e3b19cd6
   _nameKey: spell.fire_ring
-  _icon: {fileID: 0}
+  _icon: {fileID: 8787291131096080919, guid: fb0ec0d4a982faf42b33e76ca0d24980, type: 3}
   _kind: 1
   _manaCost: 15
   _cooldown: 3

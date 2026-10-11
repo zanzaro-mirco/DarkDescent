@@ -183,6 +183,26 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": true,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Cast"",
+                    ""type"": ""Button"",
+                    ""id"": ""91367f48-d674-484b-85a5-ffb1d7c3e3d7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""SelectSpell"",
+                    ""type"": ""Button"",
+                    ""id"": ""cf648c7f-23a1-4115-a017-a6b1e24361a5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -383,6 +403,50 @@ namespace DarkDescent.Input
                     ""action"": ""Rotate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3cac0818-8fea-462e-a741-0fcb26ff6a24"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cast"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b2aeddca-bf4e-4629-9575-b89c2fa35012"",
+                    ""path"": ""<Keyboard>/f1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectSpell"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5e8a29c8-6230-4e62-ae85-792cf3188870"",
+                    ""path"": ""<Keyboard>/f2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectSpell"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f7722c7a-fce4-45f0-aa20-416747cfa0b3"",
+                    ""path"": ""<Keyboard>/f3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectSpell"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -400,6 +464,8 @@ namespace DarkDescent.Input
             m_Gameplay_CycleMap = m_Gameplay.FindAction("CycleMap", throwIfNotFound: true);
             m_Gameplay_Zoom = m_Gameplay.FindAction("Zoom", throwIfNotFound: true);
             m_Gameplay_Rotate = m_Gameplay.FindAction("Rotate", throwIfNotFound: true);
+            m_Gameplay_Cast = m_Gameplay.FindAction("Cast", throwIfNotFound: true);
+            m_Gameplay_SelectSpell = m_Gameplay.FindAction("SelectSpell", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -489,6 +555,8 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_CycleMap;
         private readonly InputAction m_Gameplay_Zoom;
         private readonly InputAction m_Gameplay_Rotate;
+        private readonly InputAction m_Gameplay_Cast;
+        private readonly InputAction m_Gameplay_SelectSpell;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -536,6 +604,14 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/Rotate".
             /// </summary>
             public InputAction @Rotate => m_Wrapper.m_Gameplay_Rotate;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/Cast".
+            /// </summary>
+            public InputAction @Cast => m_Wrapper.m_Gameplay_Cast;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/SelectSpell".
+            /// </summary>
+            public InputAction @SelectSpell => m_Wrapper.m_Gameplay_SelectSpell;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -589,6 +665,12 @@ namespace DarkDescent.Input
                 @Rotate.started += instance.OnRotate;
                 @Rotate.performed += instance.OnRotate;
                 @Rotate.canceled += instance.OnRotate;
+                @Cast.started += instance.OnCast;
+                @Cast.performed += instance.OnCast;
+                @Cast.canceled += instance.OnCast;
+                @SelectSpell.started += instance.OnSelectSpell;
+                @SelectSpell.performed += instance.OnSelectSpell;
+                @SelectSpell.canceled += instance.OnSelectSpell;
             }
 
             /// <summary>
@@ -627,6 +709,12 @@ namespace DarkDescent.Input
                 @Rotate.started -= instance.OnRotate;
                 @Rotate.performed -= instance.OnRotate;
                 @Rotate.canceled -= instance.OnRotate;
+                @Cast.started -= instance.OnCast;
+                @Cast.performed -= instance.OnCast;
+                @Cast.canceled -= instance.OnCast;
+                @SelectSpell.started -= instance.OnSelectSpell;
+                @SelectSpell.performed -= instance.OnSelectSpell;
+                @SelectSpell.canceled -= instance.OnSelectSpell;
             }
 
             /// <summary>
@@ -730,6 +818,20 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnRotate(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Cast" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnCast(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "SelectSpell" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSelectSpell(InputAction.CallbackContext context);
         }
     }
 }

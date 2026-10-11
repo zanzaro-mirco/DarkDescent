@@ -64,6 +64,12 @@ namespace DarkDescent.Core
 
         [SerializeField] private ExperienceBar _experienceBar;
 
+        [Tooltip("La sfera blu del mana, in basso a destra (M9).")]
+        [SerializeField] private ManaOrb _manaOrb;
+
+        [Tooltip("I tre incantesimi accanto alla cintura (M9).")]
+        [SerializeField] private SpellBarView _spellBar;
+
         [SerializeField] private SaveGame _saveGame;
 
         [Tooltip("Nome e vita del nemico sotto il cursore, in alto al centro.")]
@@ -202,6 +208,10 @@ namespace DarkDescent.Core
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);
             _targetMarker.Bind(controller);
+            var magic = _player.GetComponent<Magic.PlayerMagic>();
+            magic.Bind(_reader, controller);
+            _manaOrb.Bind(magic.Mana);
+            _spellBar.Bind(magic);
             _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);
         }
 

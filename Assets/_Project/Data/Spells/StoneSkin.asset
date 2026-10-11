@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: bcfda7804f9f404a8696310d6691ea9d
   _nameKey: spell.stone_skin
-  _icon: {fileID: 0}
+  _icon: {fileID: 2141671851645666773, guid: c8705f895bdcecd42b3776df85716c60, type: 3}
   _kind: 2
   _manaCost: 12
   _cooldown: 30

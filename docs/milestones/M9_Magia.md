@@ -118,6 +118,40 @@ rigenerazione; il massimo che cambia; un evento per punto intero; i numeri dei t
 libro che impara e sceglie; ripristino dal salvataggio; lancio rifiutato per incantesimo non
 noto, ricarica o mana.
 
+## Passo 9.2 — HUD e comandi
+
+**Com'è andata (11 ott 2026).**
+
+- **Comandi.** Azioni `Cast` (tasto destro) e `SelectSpell` (F1–F3) nell'asset dei comandi; il
+  wrapper rigenerato con un avvio batch prima di scrivere il codice che le usa (trappola della
+  M8). Il reader annuncia `CastPressed` e `SpellSelected`.
+- **`PlayerMagic`** sul cavaliere, con una sorgente audio sua (figlio `Magic`, gruppo SFX): crea
+  mana, libro e lancio, aggiorna il mana massimo quando cambia la scheda delle statistiche (Magia,
+  livello, affissi), lo riempie salendo di livello e tornando in vita, rigenera e fa scorrere le
+  ricariche in `Update`. Il tasto destro, come il click del movimento, si esegue nel primo
+  `Update`, fuori dalla UI; il punto lo dà `PlayerController.TryGetCursorPoint`, con lo stesso
+  raggio e la stessa tolleranza sui nemici del click. Un lancio annuncia `Cast(incantesimo, punto)`;
+  uno rifiutato suona sordo (Kenney `impactSoft_heavy`) e annuncia `CastFailed`. Che cosa succede
+  nel mondo arriva con i passi 9.3 e 9.4.
+- **HUD.** La cintura è al centro in basso, con sopra la barra dell'esperienza; la sfera della vita
+  è scesa nell'angolo; la sfera del mana è la sua gemella blu a destra (`ManaOrb`). A destra
+  della cintura la barra dei tre incantesimi (`SpellBarView`, `SpellSlotView`): icona se noto,
+  cornice d'oro se scelto, icona scura se il mana non basta, velo radiale che si ritira durante la
+  ricarica, nome del tasto in alto. Un click su un posto lo sceglie. Si ridisegna quando si impara
+  o si sceglie un incantesimo e quando il mana cambia di un punto; il velo segue la ricarica solo
+  mentre c'è.
+- **Icone** disegnate da uno script, pixel per pixel: palla di fuoco con la scia, anello di
+  fiamme, scudo di pietra, e la cornice del posto scelto. Il primo screenshot ha mostrato posti
+  invisibili nel buio (mancava il bordo `Outline` dei posti della cintura), icone piccole su un
+  fondo scuro e un velo troppo nero: posti con lo stesso bordo, icone senza fondo e più grandi,
+  velo al 55%.
+
+*Test.* `MagicHudTests` (3, PlayMode): all'avvio sfera piena e solo il Dardo, scelto; il tasto
+destro del mouse virtuale sul pavimento lancia verso il punto e spende 6 di mana; F2 non sceglie un
+incantesimo non noto, imparato l'Anello lo sceglie, il lancio avvia il velo che sparisce dopo 3 s,
+senza mana i posti si scuriscono e il lancio è rifiutato; salendo di livello il mana massimo sale
+di 1 e si riempie, un punto di Magia lo alza di 2 senza riempire. 226 EditMode e 153 PlayMode verdi.
+
 ---
 
 ## Trappole note

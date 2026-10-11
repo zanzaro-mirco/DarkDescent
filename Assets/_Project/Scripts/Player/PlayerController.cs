@@ -180,6 +180,24 @@ namespace DarkDescent.Player
             return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
         }
 
+        /// <summary>
+        /// Il punto del mondo sotto il cursore, per mirare un incantesimo (M9): il nemico sotto il
+        /// cursore, con la stessa tolleranza del click, o il punto del pavimento. False sopra la UI o
+        /// fuori dal mondo. Va chiamato da un Update, non da una callback dell'input (trappola 7 della M2).
+        /// </summary>
+        public bool TryGetCursorPoint(out Vector3 point)
+        {
+            point = default;
+            if (IsPointerOverUI() || !TryRaycastCursor(out RaycastHit hit))
+            {
+                return false;
+            }
+
+            var enemy = EnemyUnderCursor(hit);
+            point = enemy != null ? enemy.transform.position : hit.point;
+            return true;
+        }
+
         private void HandleMoveCommandCanceled()
         {
             _heldTarget = null;
