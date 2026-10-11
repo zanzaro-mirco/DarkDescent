@@ -56,9 +56,10 @@ namespace DarkDescent.UI
         /// Scrive la descrizione in <paramref name="builder"/>, dopo averlo svuotato.
         /// <paramref name="meetsRequirements"/> colora di rosso la Forza richiesta quando è false;
         /// <paramref name="header"/>, se c'è, va in piccolo sopra il nome ("Equipped");
-        /// <paramref name="twoLineName"/> divide il nome a metà, per i nomi lunghi.
+        /// <paramref name="twoLineName"/> divide il nome a metà, per i nomi lunghi;
+        /// <paramref name="equipHint"/> aggiunge in fondo come indossarlo, per gli oggetti nella borsa.
         /// </summary>
-        public static void Write(StringBuilder builder, ItemInstance item, bool meetsRequirements, Localizer localizer, string header = null, bool twoLineName = false)
+        public static void Write(StringBuilder builder, ItemInstance item, bool meetsRequirements, Localizer localizer, string header = null, bool twoLineName = false, bool equipHint = false)
         {
             builder.Clear();
             if (!string.IsNullOrEmpty(header))
@@ -110,6 +111,11 @@ namespace DarkDescent.UI
                 builder.Append("\n<color=").Append(AffixColor).Append('>')
                     .AppendFormat(CultureInfo.InvariantCulture, localizer.Get(EffectKey(affix.Definition.Effect)), affix.Value)
                     .Append("</color>");
+            }
+
+            if (equipHint && item.Definition.Slot != EquipSlot.None)
+            {
+                builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipEquip)).Append("</color></size>");
             }
         }
 

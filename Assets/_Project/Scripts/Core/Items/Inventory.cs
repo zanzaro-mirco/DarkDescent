@@ -103,6 +103,44 @@ namespace DarkDescent.Items
         }
 
         /// <summary>
+        /// Il click destro su un oggetto della borsa (D1 della M10): lo indossa nel suo slot, per un
+        /// anello quello libero o il primo. L'oggetto che c'era torna nella borsa, nel posto lasciato
+        /// libero se ci sta, altrimenti nel primo posto libero; se non c'è posto, o i requisiti non
+        /// bastano, non cambia niente.
+        /// </summary>
+        public bool EquipFromGrid(Vector2Int cell)
+        {
+            ItemInstance item = Held == null ? Grid.ItemAt(cell) : null;
+            if (item == null || !Equipment.CanEquip(item) || !Grid.TryGetPlacement(item, out RectInt area))
+            {
+                return false;
+            }
+
+            EquipSlot slot = Equipment.TargetSlot(item.Definition);
+            ItemInstance current = Equipment.Get(slot);
+            Grid.Remove(item);
+            if (current != null && !Grid.CanPlace(current, area.position) && !Grid.CanAutoPlace(current))
+            {
+                Grid.TryPlace(item, area.position);
+                return false;
+            }
+
+            if (!Equipment.TryEquip(item, slot, out ItemInstance previous))
+            {
+                Grid.TryPlace(item, area.position);
+                return false;
+            }
+
+            if (previous != null && !Grid.TryPlace(previous, area.position))
+            {
+                Grid.TryAutoPlace(previous);
+            }
+
+            Equipped?.Invoke(slot, item);
+            return true;
+        }
+
+        /// <summary>
         /// Un click su un posto della cintura, come su una cella: a mani vuote prende la pozione,
         /// con una pozione in mano la posa e prende quella che c'era. Gli altri oggetti non ci vanno.
         /// </summary>

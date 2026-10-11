@@ -154,7 +154,7 @@ namespace DarkDescent.Tests
 
             Assert.AreEqual(120f, health.Max, "50 + 2 × 30 + 10");
             Assert.AreEqual(120f, health.Current, "indossarlo non è una cura, ma la vita sale con il massimo");
-            StringAssert.Contains("\n120\n", character.ValuesText);
+            StringAssert.Contains("\n<color=" + UI.CharacterPanel.RaisedColor + ">120</color>\n", character.ValuesText, "più alta della base: in azzurro (D1 della M10)");
 
             health.TakeDamage(new DamageInfo(30f, DamageType.Physical, null));
             _inventory.Equipment.Unequip(EquipSlot.Offhand);

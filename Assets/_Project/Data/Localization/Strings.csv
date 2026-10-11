@@ -59,6 +59,7 @@ tooltip.drink,Right-click or 1–8 on the belt to drink,Click destro o 1–8 dal
 tooltip.restore_mana,Restores {0}% of mana,Rende il {0}% del mana
 tooltip.teaches,Teaches {0},Insegna {0}
 tooltip.read,Right-click to read,Click destro per leggere
+tooltip.equip,Right-click to equip,Click destro per indossare
 
 # Spiegazioni delle righe del pannello del personaggio (D16 della M6); il titolo è la riga stessa
 stat.tip.strength,Each point adds 1% weapon damage.\nHeavier weapons require more Strength.,Ogni punto aggiunge l'1% al danno dell'arma.\nLe armi più pesanti richiedono più Forza.
@@ -72,6 +73,7 @@ stat.tip.hit_chance,75% + Dexterity / 2 − enemy Armor\n(between 5% and 95%). A
 stat.tip.critical,5% + Dexterity / 10 (up to 50%).\nA critical hit does double damage.,5% + Destrezza / 10 (fino al 50%).\nUn colpo critico fa il doppio del danno.
 stat.tip.block,Only with a shield: shield block + Dexterity / 2\n(up to 75%). A blocked hit does no damage.,Solo con uno scudo: blocco dello scudo + Destrezza / 2\n(fino al 75%). Un colpo bloccato non fa danno.
 stat.tip.mana,"10 + Magic × 2, +1 each level after the first.\nIt regenerates 2% per second;\nblue potions restore half.","10 + Magia × 2, +1 a ogni livello dopo il primo.\nSi rigenera del 2% al secondo;\nle pozioni blu ne rendono metà."
+stat.tip.bonus,"Base {0}, items and effects {1:+0;-0}","Base {0}, oggetti ed effetti {1:+0;-0}"
 
 # Righe degli affissi nel tooltip
 affix.effect.weapon_damage_percent,+{0}% damage,+{0}% danno

@@ -95,6 +95,11 @@ namespace DarkDescent.Items
                 return Read(item, scroll);
             }
 
+            if (item?.Definition != null && item.Definition.Slot != EquipSlot.None)
+            {
+                return Inventory.EquipFromGrid(cell);
+            }
+
             return CanDrink(item) && Drink(Inventory.TakePotionAt(cell));
         }
 

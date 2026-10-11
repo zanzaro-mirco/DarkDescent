@@ -75,7 +75,19 @@ namespace DarkDescent.UI
 
         private const int HitChanceLine = 8;
 
+        /// <summary>Un valore più alto della base per oggetti o effetti (D1 della M10): l'azzurro degli affissi, come in Diablo 1.</summary>
+        public const string RaisedColor = ItemDescription.AffixColor;
+
+        /// <summary>Un valore più basso della base: il rosso dei requisiti non soddisfatti.</summary>
+        public const string LoweredColor = ItemDescription.UnmetColor;
+
+        // il grigio della nota sotto la spiegazione
+        private const string NoteColor = "#8C8577";
+
         public bool IsOpen => _window.activeSelf;
+
+        /// <summary>La finestra si è aperta (true) o chiusa: il pulsante dei punti si nasconde a finestra aperta.</summary>
+        public event System.Action<bool> OpenChanged;
 
         public string ValuesText => _values.text;
 
@@ -104,6 +116,7 @@ namespace DarkDescent.UI
         public void Toggle()
         {
             _window.SetActive(!_window.activeSelf);
+            OpenChanged?.Invoke(_window.activeSelf);
 
             // i "+" vanno accanto alle righe, che si misurano solo a finestra accesa
             if (_window.activeSelf && _subscribed)
@@ -254,12 +267,12 @@ namespace DarkDescent.UI
 
             // l'ordine segue la colonna dei nomi nella scena
             _builder.Clear();
-            _builder.Append(Mathf.RoundToInt(_stats.Strength)).Append('\n');
-            _builder.Append(Mathf.RoundToInt(_stats.Dexterity)).Append('\n');
-            _builder.Append(Mathf.RoundToInt(_stats.Magic)).Append('\n');
-            _builder.Append(Mathf.RoundToInt(_stats.Vitality)).Append("\n\n");
-            _builder.Append(Mathf.RoundToInt(CombatFormulas.MaxLife(_stats.Vitality) + _stats.Life)).Append('\n');
-            _builder.Append(Mathf.RoundToInt(_stats.Armor)).Append('\n');
+            AppendLine(0).Append('\n');
+            AppendLine(1).Append('\n');
+            AppendLine(2).Append('\n');
+            AppendLine(3).Append("\n\n");
+            AppendLine(5).Append('\n');
+            AppendLine(6).Append('\n');
             _builder.Append(min).Append('–').Append(max).Append('\n');
             _builder.Append(lowestHit);
             if (highestHit != lowestHit)
@@ -268,9 +281,9 @@ namespace DarkDescent.UI
             }
 
             _builder.Append("%\n");
-            _builder.Append(Mathf.RoundToInt(CombatFormulas.CritChance(_stats.Dexterity, _stats.Sheet.Get(StatType.CritChance)))).Append("%\n");
+            AppendLine(9).Append("%\n");
             _builder.Append(_block != null ? Mathf.RoundToInt(_block.BlockChance) : 0).Append("%\n");
-            _builder.Append(Mathf.RoundToInt(CombatFormulas.MaxMana(_stats.Magic, _stats.Sheet.Get(StatType.Level), _stats.Sheet.Get(StatType.Mana))));
+            AppendLine(11);
             _values.SetText(_builder);
             RefreshProgress();
         }
@@ -323,7 +336,62 @@ namespace DarkDescent.UI
                 text += HitChanceList();
             }
 
+            if (TryGetLine(_hoveredLine, out int value, out int baseValue) && value != baseValue)
+            {
+                text += "\n<size=85%><color=" + NoteColor + ">" + _localizer.Format(TextKeys.TipBonus, baseValue, value - baseValue) + "</color></size>";
+            }
+
             _tooltip.ShowText(text, (RectTransform)_window.transform, LineWorldPosition(_hoveredLine));
+        }
+
+        /// <summary>
+        /// Il valore di una riga e quello di base, senza oggetti né effetti, per le righe che si
+        /// colorano (D1 della M10): i quattro attributi, Vita, Armatura, critico e Mana. Danno,
+        /// colpire e blocco dipendono sempre dall'arma o dallo scudo, e restano bianchi.
+        /// </summary>
+        public bool TryGetLine(int line, out int value, out int baseValue)
+        {
+            var sheet = _stats.Sheet;
+            float level = sheet.Get(StatType.Level);
+            switch (line)
+            {
+                case 0: return Pair(sheet.Get(StatType.Strength), sheet.GetBase(StatType.Strength), out value, out baseValue);
+                case 1: return Pair(sheet.Get(StatType.Dexterity), sheet.GetBase(StatType.Dexterity), out value, out baseValue);
+                case 2: return Pair(sheet.Get(StatType.Magic), sheet.GetBase(StatType.Magic), out value, out baseValue);
+                case 3: return Pair(sheet.Get(StatType.Vitality), sheet.GetBase(StatType.Vitality), out value, out baseValue);
+                case 5:
+                    return Pair(CombatFormulas.MaxLife(sheet.Get(StatType.Vitality)) + sheet.Get(StatType.Life),
+                        CombatFormulas.MaxLife(sheet.GetBase(StatType.Vitality)) + sheet.GetBase(StatType.Life), out value, out baseValue);
+                case 6: return Pair(sheet.Get(StatType.Armor), sheet.GetBase(StatType.Armor), out value, out baseValue);
+                case 9:
+                    return Pair(CombatFormulas.CritChance(sheet.Get(StatType.Dexterity), sheet.Get(StatType.CritChance)),
+                        CombatFormulas.CritChance(sheet.GetBase(StatType.Dexterity), sheet.GetBase(StatType.CritChance)), out value, out baseValue);
+                case 11:
+                    return Pair(CombatFormulas.MaxMana(sheet.Get(StatType.Magic), level, sheet.Get(StatType.Mana)),
+                        CombatFormulas.MaxMana(sheet.GetBase(StatType.Magic), level, sheet.GetBase(StatType.Mana)), out value, out baseValue);
+                default:
+                    value = baseValue = 0;
+                    return false;
+            }
+        }
+
+        private static bool Pair(float value, float baseValue, out int roundedValue, out int roundedBase)
+        {
+            roundedValue = Mathf.RoundToInt(value);
+            roundedBase = Mathf.RoundToInt(baseValue);
+            return true;
+        }
+
+        // il valore della riga, colorato se oggetti o effetti lo spostano dalla base
+        private StringBuilder AppendLine(int line)
+        {
+            TryGetLine(line, out int value, out int baseValue);
+            if (value == baseValue)
+            {
+                return _builder.Append(value);
+            }
+
+            return _builder.Append("<color=").Append(value > baseValue ? RaisedColor : LoweredColor).Append('>').Append(value).Append("</color>");
         }
 
         // una riga per tipo di nemico; si costruisce solo al passaggio del cursore

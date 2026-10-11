@@ -91,6 +91,29 @@ namespace DarkDescent.Items
             return true;
         }
 
+        /// <summary>Se l'oggetto troverebbe un posto libero, senza metterlo.</summary>
+        public bool CanAutoPlace(ItemInstance item)
+        {
+            if (item?.Definition == null)
+            {
+                return false;
+            }
+
+            Vector2Int size = item.Definition.Size;
+            for (int x = 0; x <= Width - size.x; x++)
+            {
+                for (int y = 0; y <= Height - size.y; y++)
+                {
+                    if (CanPlace(item, new Vector2Int(x, y)))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>Il primo posto libero, colonna per colonna da sinistra e dall'alto, come in Diablo.</summary>
         public bool TryAutoPlace(ItemInstance item)
         {

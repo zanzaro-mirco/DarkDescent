@@ -42,9 +42,9 @@ namespace DarkDescent.UI
         public RectTransform Box => _box;
 
         /// <summary>Descrive l'oggetto accanto a <paramref name="target"/>, il rettangolo che lo mostra.</summary>
-        public void Show(ItemInstance item, bool meetsRequirements, Localizer localizer, RectTransform target)
+        public void Show(ItemInstance item, bool meetsRequirements, Localizer localizer, RectTransform target, bool equipHint = false)
         {
-            Fill(item, meetsRequirements, localizer, null);
+            Fill(item, meetsRequirements, localizer, null, equipHint);
             GetLocalRect(target, out Vector2 min, out Vector2 max);
             PlaceAround(min, max);
         }
@@ -55,7 +55,7 @@ namespace DarkDescent.UI
         /// </summary>
         public void ShowBeside(ItemInstance item, bool meetsRequirements, Localizer localizer, ItemTooltip anchor, string header, bool onRight = false)
         {
-            Fill(item, meetsRequirements, localizer, header);
+            Fill(item, meetsRequirements, localizer, header, false);
             GetLocalRect(anchor.Box, out Vector2 min, out Vector2 max);
             PlaceBeside(min, max, onRight);
         }
@@ -86,11 +86,11 @@ namespace DarkDescent.UI
             Hide();
         }
 
-        private void Fill(ItemInstance item, bool meetsRequirements, Localizer localizer, string header)
+        private void Fill(ItemInstance item, bool meetsRequirements, Localizer localizer, string header, bool equipHint)
         {
             // un nome più largo del massimo va su due righe: misurato con il font del tooltip, in grassetto come sarà
             bool twoLines = _text.GetPreferredValues("<b>" + ItemNamer.Name(item, localizer) + "</b>").x > _maxNameWidth;
-            ItemDescription.Write(_builder, item, meetsRequirements, localizer, header, twoLines);
+            ItemDescription.Write(_builder, item, meetsRequirements, localizer, header, twoLines, equipHint);
             _text.SetText(_builder);
             Resize();
         }

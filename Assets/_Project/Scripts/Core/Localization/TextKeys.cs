@@ -34,6 +34,7 @@ namespace DarkDescent.Localization
         public const string TooltipRestoreMana = "tooltip.restore_mana";
         public const string TooltipTeaches = "tooltip.teaches";
         public const string TooltipRead = "tooltip.read";
+        public const string TooltipEquip = "tooltip.equip";
 
         // dove si trova il cavaliere (prova della M7): "{tipo} – Livello {profondità}"
         public const string LevelTitle = "hud.level_title";
@@ -52,6 +53,7 @@ namespace DarkDescent.Localization
         public const string TipHitChance = "stat.tip.hit_chance";
         public const string TipBlock = "stat.tip.block";
         public const string TipMana = "stat.tip.mana";
+        public const string TipBonus = "stat.tip.bonus";
         public const string TipCritical = "stat.tip.critical";
 
         // le righe degli affissi nel tooltip, una per effetto
