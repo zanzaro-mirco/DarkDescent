@@ -250,6 +250,11 @@ pergamena e ucciso la lascia a terra. Quattro test vecchi contano ora solo la po
   la scala 100 dell'FBX come l'ascia), poi orizzontale e infine con la testa in basso: rotazione
   dell'FBX ribaltata, testa trovata sui vertici. Una luce viola sulla testa del bastone fa
   riconoscere il mago nel buio. Dardo viola: il Dardo di fuoco ricolorato.
+  *Correzione dopo il 9.6:* Mirco ha visto dallo screenshot che il mago teneva il bastone al
+  contrario. Avevo giudicato l'orientamento dalla luce, piazzata male: il teschio stava dalla parte
+  dell'impugnatura. Ora il bastone è verificato da vicino, da fermo, di lato e nel gesto: la
+  rotazione è misurata nella posa di riposo perché il teschio stia in alto, un poco in avanti, con
+  la luce sul teschio.
 - **Numeri e spawn.** Vita 12, esperienza 60, vista a 10 m, `MageLoot` con più mana (oggetto 35%,
   cura 5%, mana 15%). Nella cripta 1–2 maghi dalla profondità 3 (`DungeonSettings.MagesAt`), nelle
   caverne dalla `SpawnTable` (1, 1–2, 1–2, 2 dalla 5 alla 8). In tutti e due i popolatori i maghi
