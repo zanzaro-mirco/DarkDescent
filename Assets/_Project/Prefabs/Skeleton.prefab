@@ -116,6 +116,9 @@ MonoBehaviour:
   _weapon: {fileID: 11400000, guid: 2613645cd3270fb4e97cb8f5400b9bcf, type: 2}
   _chaseRepathInterval: 0.1
   _facingTolerance: 30
+  _canCrit: 0
+  _quickWeapon: {fileID: 0}
+  _quickBetween: {x: 1, y: 3}
 --- !u!114 &8942145007644078378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,6 +149,7 @@ MonoBehaviour:
   _sightBlockers:
     serializedVersion: 2
     m_Bits: 128
+  _homeTolerance: 0.3
 --- !u!82 &3025011650240641013
 AudioSource:
   m_ObjectHideFlags: 0
@@ -262,6 +266,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 00ba7b11727b70b4ba8ede57f9b99a5c, type: 3}
   - {fileID: 8300000, guid: 9c445788a0946ce41904ea5a539cde4e, type: 3}
   - {fileID: 8300000, guid: c8707ec5c8934304d99921e26407d95d, type: 3}
+  - {fileID: 8300000, guid: 5cfedd6a176d46a4a94a30deb3ba5cc7, type: 3}
   _deathClips:
   - {fileID: 8300000, guid: a77c9d43b49eeab46b96d6ac4e131c67, type: 3}
   _blockClips: []
@@ -475,6 +480,9 @@ MonoBehaviour:
   _shieldBlock: {fileID: 0}
   _speedDampTime: 0.1
   _oneShotFadeTime: 0.05
+  _attackSpeed: 1
+  _quickAttackSpeed: 1
+  _clipHitTime: 0
 --- !u!114 &6512745034588951292
 MonoBehaviour:
   m_ObjectHideFlags: 0

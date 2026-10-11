@@ -36,6 +36,15 @@ namespace DarkDescent.Items
 
         [SerializeField, Range(0, Belt.Size)] private int _startingPotions = 2;
 
+        [Tooltip("Dove suonano il sorso e le monete: la sorgente del cavaliere.")]
+        [SerializeField] private AudioSource _audio;
+
+        [Tooltip("Una pozione bevuta, di cura o di mana.")]
+        [SerializeField] private AudioClip _drinkClip;
+
+        [Tooltip("L'oro raccolto (D4 della M10).")]
+        [SerializeField] private AudioClip _goldClip;
+
         private MeleeAttack _attack;
         private ShieldBlock _block;
         private Health _health;
@@ -68,6 +77,13 @@ namespace DarkDescent.Items
 
             PickUpRefused?.Invoke(item);
             return false;
+        }
+
+        /// <summary>Raccoglie una pila d'oro: sempre, nel portafoglio, con il suono delle monete.</summary>
+        public void PickUpGold(int amount)
+        {
+            Inventory.AddGold(amount);
+            Play(_goldClip);
         }
 
         /// <summary>Lascia a terra, ai piedi del cavaliere, l'oggetto sul cursore.</summary>
@@ -126,12 +142,23 @@ namespace DarkDescent.Items
                 return false;
             }
 
-            if (potion.Kind == PotionKind.Mana)
+            bool drunk = potion.Kind == PotionKind.Mana
+                ? _magic.Mana.Restore(potion.RestoreAmount(_magic.Mana.Max)) > 0f
+                : _health.Heal(potion.RestoreAmount(_health.Max)) > 0f;
+            if (drunk)
             {
-                return _magic.Mana.Restore(potion.RestoreAmount(_magic.Mana.Max)) > 0f;
+                Play(_drinkClip);
             }
 
-            return _health.Heal(potion.RestoreAmount(_health.Max)) > 0f;
+            return drunk;
+        }
+
+        private void Play(AudioClip clip)
+        {
+            if (_audio != null && clip != null)
+            {
+                _audio.PlayOneShot(clip);
+            }
         }
 
         // una pergamena di un incantesimo già noto resta nello zaino: non insegna niente

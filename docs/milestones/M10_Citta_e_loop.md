@@ -134,6 +134,11 @@ si coprono, più piccoli di quello sotto il cursore, e un click su un nome racco
 - **Nell'inventario.** "Oro: 18" in oro sopra la griglia, a destra; si aggiorna con
   `GoldChanged` e con la lingua. Il primo posto, sotto la griglia, finiva sul bordo della finestra.
 - I test che contavano gli oggetti caduti da un nemico ora saltano le pile d'oro.
+- **Suoni di puadlung (ADR-070).** Dopo il passo, su scelta di Mirco, quattro suoni gratuiti di
+  *Dark Fantasy Audio – Free*, con un'eccezione all'ADR-004 (non si possono ridistribuire da soli):
+  le monete alla raccolta dell'oro (in `PlayerInventory.PickUpGold`), il sorso di ogni pozione, anche
+  di mana, che prima non suonava (il vetro della cura è tolto, per non sentirne due), l'apertura della
+  cassa, e il colpo sulle ossa aggiunto ai colpi dei quattro scheletri.
 
 *Test.* `GoldTests` (5, EditMode): probabilità, intervallo e crescita con la profondità; seme
 dell'oro separato; prezzi per rarità e livello e vendita a un quarto; ogni oggetto ha un valore; il

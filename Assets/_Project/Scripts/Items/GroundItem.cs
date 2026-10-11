@@ -267,7 +267,7 @@ namespace DarkDescent.Items
             // l'oro non occupa posto: va sempre nel portafoglio
             if (_gold > 0)
             {
-                inventory.Inventory.AddGold(_gold);
+                inventory.PickUpGold(_gold);
                 _item = null;
                 Destroy(gameObject);
                 return;

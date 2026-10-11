@@ -494,6 +494,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 00ba7b11727b70b4ba8ede57f9b99a5c, type: 3}
   - {fileID: 8300000, guid: 9c445788a0946ce41904ea5a539cde4e, type: 3}
   - {fileID: 8300000, guid: c8707ec5c8934304d99921e26407d95d, type: 3}
+  - {fileID: 8300000, guid: 5cfedd6a176d46a4a94a30deb3ba5cc7, type: 3}
   _deathClips:
   - {fileID: 8300000, guid: a77c9d43b49eeab46b96d6ac4e131c67, type: 3}
   _blockClips: []
