@@ -84,7 +84,7 @@ namespace DarkDescent.Tests
             var skin = Spell("StoneSkin");
             Assert.AreEqual(SpellKind.Projectile, firebolt.Kind);
             Assert.AreEqual(6f, firebolt.ManaCost);
-            Assert.AreEqual(0f, firebolt.Cooldown);
+            Assert.AreEqual(0.8f, firebolt.Cooldown, "non a raffica: la prova della build lo trovava una mitragliatrice");
             Assert.IsTrue(firebolt.KnownFromStart);
             Assert.AreEqual((9, 15), firebolt.DamageRange(10f), "6–12 + 10 / 4, arrotondato");
             Assert.AreEqual(SpellKind.Area, ring.Kind);
@@ -157,8 +157,11 @@ namespace DarkDescent.Tests
             caster.Advance(1.5f);
             Assert.AreEqual(CastResult.Ready, caster.Check(1));
 
-            Assert.AreEqual(CastResult.Ready, caster.TryCast(0), "il Dardo non ha ricarica");
             Assert.AreEqual(CastResult.Ready, caster.TryCast(0));
+            Assert.AreEqual(CastResult.Cooldown, caster.TryCast(0), "anche il Dardo ha una ricarica breve");
+            caster.Advance(0.8f);
+            Assert.AreEqual(CastResult.Ready, caster.TryCast(0));
+            caster.Advance(0.8f);
             Assert.AreEqual(3f, caster.Mana.Current);
             Assert.AreEqual(CastResult.NoMana, caster.TryCast(0), "3 di mana non bastano per 6");
         }

@@ -86,7 +86,7 @@ namespace DarkDescent.Tests
                 .Where(e => (e.transform.position.x < 30f) == west).ToList();
         }
 
-        [Test, Description("Lo sciame è lo scheletro più piccolo, più veloce e più fragile (D5): 1,6 volte la velocità, un terzo della vita, scala 0,85, colpi più deboli e più frequenti, in branco")]
+        [Test, Description("Lo sciame è lo scheletro più piccolo, più veloce e più fragile (D5): 1,6 volte la velocità, due terzi della vita, scala 0,85, colpi più deboli e più frequenti, in branco")]
         public void Swarm_IsTheSmallFastFragileSkeleton()
         {
             var skeleton = Load<GameObject>("Assets/_Project/Prefabs/Skeleton.prefab");
@@ -96,7 +96,8 @@ namespace DarkDescent.Tests
             Assert.Less(swarm.GetComponent<NavMeshAgent>().radius, skeleton.GetComponent<NavMeshAgent>().radius, "più stretto, per i corridoi (trappola 5)");
             // dall'asset, non da un'istanza: la vita si calcola in Awake
             float MaxLife(GameObject prefab) => new UnityEditor.SerializedObject(prefab.GetComponent<Health>()).FindProperty("_maxHealth").floatValue;
-            Assert.AreEqual(MaxLife(skeleton) / 3f, MaxLife(swarm), 0.01f);
+            // un terzo alla M7; due terzi dalla prova della M9, perché moriva al primo colpo
+            Assert.AreEqual(MaxLife(skeleton) * 2f / 3f, MaxLife(swarm), 0.01f);
             Assert.AreEqual(0.85f, swarm.transform.Find("Model").localScale.x, 0.001f);
 
             var skeletonWeapon = skeleton.GetComponent<MeleeAttack>().Weapon;

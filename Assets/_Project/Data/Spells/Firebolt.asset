@@ -18,7 +18,7 @@ MonoBehaviour:
   _kind: 0
   _effect: {fileID: 7582448901973598493, guid: 502645253b63a8542b5234edd22bb8bb, type: 3}
   _manaCost: 6
-  _cooldown: 0
+  _cooldown: 0.8
   _knownFromStart: 1
   _minDamage: 6
   _maxDamage: 12
