@@ -10,7 +10,7 @@ Un salvataggio del **formato 1** si carica con il codice del **formato 2**. La v
 **avvicina e si allontana** con la rotella e **gira a scatti** attorno al cavaliere, con i
 muri bassi sempre dalla parte della camera. Test verdi in CI.
 
-**Tempo stimato:** 12–18 h (piano v2.19). **Prerequisito:** M7 chiusa (tag `m7`).
+**Tempo stimato:** 12–18 h (piano v2.19); salito a 16–22 h con i quattro giri di correzioni dopo le prove in build (piano v2.27). **Prerequisito:** M7 chiusa (tag `m7`).
 
 **Come si lavora:** come alla M7, il codice e i passaggi nell'editor li faccio io, in
 batchmode a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in build e la
@@ -387,6 +387,27 @@ Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
 - **Sviluppi futuri** chiesti nella stessa prova (piano v2.26): livello di nemici e oggetti che segue
   quello del personaggio, dungeon più ricco di oggetti di scena, cintura centrata sotto l'esperienza.
 
+## Passo 8.9 — Chiusura
+
+**Com'è andata (11 ott 2026).** Mirco ha provato tre build della CI: 37920188059 dopo la rotazione,
+38127835033 dopo i primi tre giri di correzioni, 38138629839 dopo il quarto (scritte, armature,
+"Colpire", loot). L'ultima è andata bene. Nella stessa prova ha chiesto due correzioni, che vanno
+nel primo passo della M9: con due anelli indossati il tooltip si confronta con uno solo, e i nomi
+lunghi allargano troppo il tooltip.
+
+La GIF del README (`docs/media/m8_progression.gif`, 640 × 360, 15 fotogrammi al secondo, 2,6 MB) è
+registrata in batch da un test temporaneo: nella cripta generata il cavaliere uccide uno scheletro
+e sale al livello 2 con la luce dorata, spende i cinque punti in Forza dal pannello, indossa elmo e
+corazza con il lampo sugli slot, poi la visuale si avvicina, gira due volte e torna indietro. Gli
+scheletri mancano sempre, così il combattimento non copre la scena.
+
+ADR-059…063 scritti alla chiusura per le decisioni dei passi 8.1–8.7 (esperienza, slot, salvataggio,
+formato versionato, zoom), accanto a ADR-052…058 nati durante la milestone. Nel piano (v2.27) le
+lezioni, la tabella dello stato e le stime: la M8 sale a 16–22 h, la M9 a 10–13 h, il totale a
+147–213 h. **Punto di controllo:** 6 giorni dalla chiusura della M5 contro le 66 h di M6–M8 (11
+settimane a 6 h): rapporto 0,08, nessun taglio. Scheda della M9 scritta, con le decisioni da
+confermare.
+
 ---
 
 ## Trappole note
@@ -410,6 +431,15 @@ Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
    segue da solo; ma le scorciatoie che assumono la camera a nord-est (la luce di riempimento
    del cavaliere, l'automappa) vanno riguardate.
 
+8. **Un font più largo rompe le scritte senza che un test se ne accorga:** "Mancato" a capo, nomi a
+   terra fuori dal riquadro. Dopo un cambio di font o di dimensione si controllano tutte le
+   schermate nelle due lingue (passo della prova della build).
+9. **I personaggi KayKit guardano verso +Z:** un pezzo preso da loro, davanti alla camera
+   dell'icona che guarda lungo +Z, mostra la schiena. L'icona vuole 180° di imbardata.
+10. **Probabilità salvate come float:** 0,3 salvato in un asset è un poco più di 0,3 in double, e
+    un tiro fisso a 0,3 cade dalla parte del sì. I test di confine usano un valore appena sopra.
+11. **`WaitForEndOfFrame` in batchmode non arriva:** un test che lo aspetta resta fermo per sempre.
+
 ---
 
 ## Test
@@ -429,12 +459,13 @@ Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D12 confermate
-- [ ] Esperienza e livelli
-- [ ] Equipaggiamento completo
-- [ ] Salvataggio e migrazione
+- [x] Esperienza e livelli
+- [x] Equipaggiamento completo
+- [x] Salvataggio e migrazione
 - [x] Zoom e rotazione
-- [ ] Scenario della Definition of Done provato in build
-- [ ] Test verdi in CI
-- [ ] GIF, ADR, lezioni nel piano, tag `m8`
-- [ ] Punto di controllo (piano § 1.3)
-- [ ] Scheda della M9 scritta prima di cominciarla
+- [x] Correzioni dalle prove della build
+- [x] Scenario della Definition of Done provato in build
+- [x] Test verdi in CI
+- [x] GIF, ADR, lezioni nel piano, tag `m8`
+- [x] Punto di controllo (piano § 1.3)
+- [x] Scheda della M9 scritta prima di cominciarla

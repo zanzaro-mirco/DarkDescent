@@ -427,3 +427,38 @@ Formato:
 - **Decisione:** scheletro dal 70% al 30% di oggetti e dal 25% al 10% di pozioni; sciame dal 20% al 7% e dal 10% al 3%; bruto dal 100% al 60% e dal 50% al 20%; le casse lasciano sempre un oggetto, ma la pozione scende dal 50% al 25%. Tutte le basi hanno peso 1: le quattro armi sono circa 4 oggetti su 19. Il numero delle casse non cambia, perché cambierebbe i livelli generati di ogni seme.
 - **Alternative scartate:** meno nemici per livello, che toglie combattimento invece di loot; meno casse, che sposta tutti i semi provati nei test di generazione.
 - **Conseguenze:** in media 2,5 oggetti e 0,8 pozioni alla cripta 1, 6,3 e 1,9 alla cripta 4, 6,0 e 1,9 alle caverne 8, circa la metà degli oggetti e meno della metà delle pozioni; le armi scendono da 3,6 a 1,3 per livello alla cripta 4. Le pozioni diventano una risorsa da tenere da conto. I test che fissano un drop cercano il seme da soli (trappola 10 della M7); con la pozione più rara il primo seme buono la faceva cadere insieme all'oggetto, e ora la ricerca vuole un seme senza pozione. Cambiano anche i test sulle frequenze.
+
+## ADR-059 — Esperienza e livelli: curva in un asset, logica in Core
+- **Data:** 2026-10-08 (scritto alla chiusura della M8, l'11 ott)
+- **Contesto:** la M8 porta l'esperienza e i livelli (D1–D3 della scheda). La curva e i valori dei nemici andavano tarati provando, senza toccare il codice.
+- **Decisione:** livello massimo 20; per passare dal livello L al successivo servono 100 × L^1,6 punti, arrotondati a 10. Ogni nemico ha l'esperienza nel suo archetipo (scheletro 70, sciame 30, bruto 230), moltiplicata per 1 + 0,15 × (profondità − 1) e divisa per 1 + 0,1 × (livello del cavaliere − livello della zona) quando il cavaliere è più forte della zona; il livello della zona è la profondità × 1,25. A ogni livello 5 punti attributo, 2 di vita in più e la vita piena. I numeri stanno in `ProgressionSettings`, un asset; la logica in `CharacterProgress`, in `Core`, che scrive livello e vita dei livelli come valori base della scheda delle statistiche.
+- **Alternative scartate:** i valori proposti nella scheda (12, 5 e 40), che una simulazione della discesa ha mostrato troppo bassi (livello 4 in fondo alle caverne invece di 9); la curva di Diablo 1 fino al 50, troppo lunga per otto profondità.
+- **Conseguenze:** si sale circa di un livello per profondità e si arriva al 9 all'ottava. Il livello sulla scheda serve anche al danno (ADR-053). Una classe nuova o una difficoltà cambiano l'asset, non il codice.
+
+## ADR-060 — Dieci slot, due anelli con due valori dell'enum
+- **Data:** 2026-10-08 (scritto alla chiusura della M8, l'11 ott)
+- **Contesto:** l'equipaggiamento completo (piano v2.19) aggiunge elmo, armatura, guanti, stivali, amuleto e due anelli ad arma e scudo. `Equipment` aveva un posto per valore di `EquipSlot`, e due anelli vogliono due posti con la stessa regola.
+- **Decisione:** `EquipSlot` cresce di valori in fondo all'enum, così i numeri salvati di quelli vecchi non cambiano, e il secondo anello è un valore suo, `Ring2`. Nessuna base chiede `Ring2`: un anello dice `Ring` ed è `Equipment` a scegliere il posto (il primo libero, o lo slot cliccato). Pezzi d'armatura con Armatura e Forza richiesta (`ArmorDefinition` con uno slot); anelli e amuleti senza niente di base, solo affissi (`JewelryDefinition`). L'inventario è una sagoma come in Diablo.
+- **Alternative scartate:** uno slot "anello" con un indice, che cambiava la chiave dell'equipaggiamento e il formato dell'istantanea per un caso solo.
+- **Conseguenze:** l'istantanea salva lo slot di ogni oggetto indossato, perché con due anelli conta quale. L'armatura indossata non cambia il modello del cavaliere (piano § 5, M11). I gioielli nascono almeno magici (ADR-055).
+
+## ADR-061 — Un salvataggio JSON, scritto per sostituzione, senza lo stato dei livelli
+- **Data:** 2026-10-08 (scritto alla chiusura della M8, l'11 ott)
+- **Contesto:** la M8 porta il salvataggio (D7, D8, D10 della scheda). Non c'è ancora il menu (M10), e un crash a metà scrittura non deve perdere la partita.
+- **Decisione:** un solo file, `save.json` in `Application.persistentDataPath`, con `JsonUtility`. Si scrive in `save.json.tmp` e lo si mette al posto del vecchio con `File.Replace`. Si salva entrando in un livello, ogni 60 s se da 5 s non ci sono colpi, e chiudendo il gioco; da morto si salva a vita piena, come dopo *Continua*. Dentro ci sono seme (in testo), scena, ingresso, profondità, crescita, attributi base, vita, inventario completo e mappe scoperte; non lo stato dei livelli, che il seme rigenera. All'avvio si riprende dal salvataggio; `-newgame` e `-seed` lo ignorano. Nell'editor è spento: i test lo accendono con un file loro.
+- **Alternative scartate:** `PlayerPrefs`, che non regge un inventario e su Windows finisce nel registro; salvare nemici uccisi, casse aperte e oggetti a terra, che vorrebbe un'identità stabile per ognuno e un formato molto più grande, per livelli che si attraversano in pochi minuti; più slot di salvataggio prima del menu.
+- **Conseguenze:** tornando in un livello, nemici e casse tornano come li genera il seme. Il menu della M10 avrà *Continua* e *Nuova partita* sullo stesso file.
+
+## ADR-062 — Formato versionato dal primo salvataggio, migrazione un passo alla volta
+- **Data:** 2026-10-08 (scritto alla chiusura della M8, l'11 ott)
+- **Contesto:** un salvataggio scritto da una versione del gioco deve caricarsi con le successive. La M8 ne ha dato un caso vero: il formato 2 aggiunge le mappe scoperte (D9).
+- **Decisione:** `SaveData` ha un campo `_version` fin dal formato 1. `SaveMigrator` porta un formato vecchio al corrente un passo alla volta (1 → 2: mappe vuote), dentro `SaveFile.TryRead`, così il resto del gioco vede solo il formato corrente. Un formato più nuovo del gioco non si carica e lo dice. Il test della migrazione carica un salvataggio vero del formato 1, scritto dal codice di allora e congelato in `Tests/EditMode/Fixtures/save_v1.json`.
+- **Alternative scartate:** campi facoltativi senza versione, che funzionano finché un campo non cambia significato; un file di prova scritto a mano, che somiglia al formato di oggi più di quello vero.
+- **Conseguenze:** ogni formato nuovo è un passo del migratore e un file congelato in più. La M9 ne avrà uno (incantesimi conosciuti e mana).
+
+## ADR-063 — Lo zoom cambia la dimensione della vista ortografica
+- **Data:** 2026-10-09 (scritto alla chiusura della M8, l'11 ott)
+- **Contesto:** lo zoom con la rotella (D11 della scheda, piano v2.18). La camera è ortografica: avvicinarla non ingrandisce niente.
+- **Decisione:** lo zoom cambia la dimensione della vista di Cinemachine (9 di base), a scatti interi del 10% tra il 60% e il 140%, in 0,15 s con un'uscita cubica e con il tempo non scalato. La logica sta in `ZoomLevel`, in `Core`; `CameraZoom` la applica e ricorda lo scatto tra le preferenze, come la lingua. Il reader manda solo il verso della rotella.
+- **Alternative scartate:** spostare la camera, che in ortografica non ha effetto; uno zoom continuo, che accumula somme di 0,1 lontane dai valori tondi.
+- **Conseguenze:** luce del cavaliere, muri bassi e automappa non cambiano con lo zoom. Il limite in allontanamento tiene la vista dentro il raggio della luce.

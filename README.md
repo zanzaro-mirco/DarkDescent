@@ -5,20 +5,24 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Le profondità: nelle caverne del livello 7 il cavaliere affronta un bruto che carica il colpo con il settore rosso a terra, poi un gruppo dello sciame; in alto il nome e la vita del nemico sotto il cursore](docs/media/m7_caves.gif)
+![Progressione: nella cripta il cavaliere uccide uno scheletro e sale di livello con una luce dorata, spende i punti in Forza nel pannello del personaggio, indossa elmo e corazza dall'inventario, poi la visuale si avvicina e gira attorno a lui](docs/media/m8_progression.gif)
 
 ## Stato
 
-**M7 — "Le profondità"** chiusa l'8 ottobre 2026 (tag `m7`): sotto la cripta, i livelli
-5–8 sono caverne generate con un random walk. Ci vivono due nemici nuovi: lo sciame, veloce
-e in branco, e il bruto, che carica un colpo telegrafato da un settore rosso a terra. L'IA è
-fatta di classi di stato; i nemici che si allontanano troppo da casa tornano indietro. Colpi
-critici con un verso per tipo di nemico, armi più o meno veloci, nome e vita del nemico
-sotto il cursore. Musica, rumori d'ambiente, passi e un limite di voci audio. Morendo si
-torna all'ingresso del livello con tutto quello che si aveva. Prossima: **M8 —
-"Progressione e persistenza"**.
+**M8 — "Progressione e persistenza"** chiusa l'11 ottobre 2026 (tag `m8`): uccidendo si
+guadagna esperienza fino al livello 20, e a ogni livello cinque punti da spendere negli
+attributi. Equipaggiamento completo a sagoma, come in Diablo: elmo, armatura, guanti,
+stivali, due anelli e un amuleto, con un lampo e un suono quando si indossano. Il gioco si
+salva da solo e riparte da dove si era, con la mappa scoperta di ogni profondità; il file è
+versionato e un salvataggio vecchio si migra. La visuale si avvicina con la rotella e gira a
+scatti di 90° con i muri alti sempre dietro. Font Cinzel, danno che cresce con Forza e
+livello. Prossima: **M9 — "Magia"**.
 
 Milestone precedenti:
+
+- **M7 — "Le profondità"** (tag `m7`): caverne generate con un random walk, lo sciame e il
+  bruto con il colpo telegrafato, IA a stati, colpi critici, musica e rumori d'ambiente
+  ([GIF](docs/media/m7_caves.gif)).
 
 - **M6 — "Dungeon infinito"** (tag `m6`): cripte generate con un BSP, casse, pozioni nella
   cintura, automappa, finestra dell'editor per generare i livelli
@@ -55,7 +59,9 @@ Milestone precedenti:
   nella cintura o nell'inventario, per berla
 - `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
   con un oggetto preso, un click fuori dalle finestre lo lascia a terra
-- `C` pannello del personaggio; passando su una statistica, un tooltip dice a cosa serve
+- `C` pannello del personaggio; passando su una statistica, un tooltip dice a cosa serve.
+  Con punti da spendere, un `+` accanto a ogni attributo ne compra uno
+- rotella del mouse per avvicinare e allontanare la visuale; `Q` ed `E` la girano di 90°
 - `M` automappa: nell'angolo, sovrapposta al gioco, spenta
 - `F9` cambia lingua (inglese, italiano); la scelta resta per gli avvii successivi
 
@@ -64,6 +70,8 @@ Milestone precedenti:
 - `-lang it` avvia in italiano (`en` per l'inglese)
 - `-seed 4711` usa quel seme per dungeon e loot; senza, il seme è casuale e si legge nel
   log (`Player.log`), con il comando per rigiocarlo
+- `-newgame` comincia una partita nuova invece di riprendere il salvataggio (anche `-seed`
+  la comincia); il salvataggio è `save.json` nella cartella dei dati dell'applicazione
 
 ## CI
 

@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.26**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.27**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.27 | 11 ott 2026 | M8 chiusa (tag `m8`), con le lezioni · la M8 sale a 16–22 h con i quattro giri di correzioni dopo le prove in build · la M9 a 10–13 h con le due correzioni chieste da Mirco nell'ultima prova (confronto con due anelli, nomi lunghi nei tooltip) · punto di controllo della M8 (rapporto 0,08, nessun taglio) · ADR-052…063 |
 | v2.26 | 11 ott 2026 | Su richiesta di Mirco: la **cintura centrata sotto la barra dell'esperienza** nella M9, insieme alla hotbar · un **dungeon più ricco di oggetti di scena** nella M11 (+2–3 h) · **nemici e oggetti che crescono con il livello del personaggio** dopo la v1.0 |
 | v2.25 | 9 ott 2026 | Su richiesta di Mirco: il **movimento con WASD** tra i lavori dopo la v1.0, accanto al click |
 | v2.24 | 8 ott 2026 | Su richiesta di Mirco: una **grafica dei personaggi nello stile di Diablo 2** tra i lavori dopo la v1.0, con i vincoli di licenza e di tempo |
@@ -38,7 +39,7 @@
 
 ---
 
-## Stato del progetto — aggiornato all'8 ottobre 2026
+## Stato del progetto — aggiornato all'11 ottobre 2026
 
 | | |
 |---|---|
@@ -49,11 +50,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) |
-| **Milestone corrente** | **M8 — "Progressione e persistenza"** → `docs/milestones/M8_Progressione_e_persistenza.md` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) |
+| **Milestone corrente** | **M9 — "Magia"** → `docs/milestones/M9_Magia.md` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
-| **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezione del 3 ott 2026: il font LiberationSans di TextMesh Pro (SIL OFL 1.1, con il testo della licenza nel repo); la sprite EmojiOne (CC BY 4.0) è tolta |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…051) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…063) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -105,9 +106,9 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 142–208 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Per le milestone ancora aperte, M8–M11 all'8 ott 2026, restano 46–69 ore (48–72 dalla v2.26, con il dungeon più ricco nella M11): a 6–10 h a settimana sono 5–12 settimane di lavoro effettivo; con pause e settimane saltate, **2–3 mesi di calendario**.
+**Totale stimato:** circa 147–213 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Alla chiusura della M8 (v2.27) la M8 è salita a 16–22 h, per i quattro giri di correzioni dopo le prove in build, e la M9 a 10–13 h. Per le milestone ancora aperte, M9–M11 all'11 ott 2026, restano 37–55 ore: a 6–10 h a settimana sono 4–9 settimane di lavoro effettivo; con pause e settimane saltate, **1,5–2,5 mesi di calendario**.
 
-**Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Il prossimo, se serve, si fissa alla chiusura della M8.
+**Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Quello della M8 confronta i 6 giorni dalla chiusura della M5 (5 ott) a quella della M8 (11 ott) con la stima massima di M6–M8, 66 h, cioè 11 settimane: rapporto 0,08, nessun taglio. Il prossimo, se serve, alla chiusura della M10, quando il gioco è finibile.
 
 ### 1.4 Proprietà intellettuale e licenze degli asset
 
@@ -260,8 +261,8 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M5 | "Loot casuale" | affissi e rarità, blocco, lingue | 9–12 | ✅ 5 ott |
 | M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | ✅ 5 ott |
 | M7 | "Le profondità" | caverne, nuovi nemici, colpi critici, automappa delle caverne, musica e rumori d'ambiente | 18–25 | ✅ 8 ott |
-| M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 12–18 | |
-| M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto | 9–12 | |
+| M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 16–22 | ✅ 11 ott |
+| M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | |
 | M10 | "Città e loop completo" | il gioco è finibile, **prima build pubblica** | 10–14 | |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 17–28 | |
 
@@ -377,6 +378,18 @@ Chiusa l'8 ottobre 2026: 181 test EditMode e 137 PlayMode verdi, tre build della
 - **Il suono va misurato sull'animazione, non stimato:** i passi a distanza fissa andavano più svelti dei piedi. Campionando l'altezza dei piedi nella clip si sono trovati i due appoggi (12% e 62% del ciclo), e i passi seguono l'animator.
 - **Cambiare l'intonazione di un `AudioSource` cambia anche i suoni già partiti:** versi e passi hanno sorgenti loro, separate da quella dei colpi.
 - **Quando un totale si tiene a mano, prima o poi diverge:** le stime del § 1.3 sommavano le variazioni versione per versione e erano rimaste indietro di 30–50 ore. Ora il totale si ricalcola dalla tabella.
+
+### M8 — "Progressione e persistenza" ✅
+
+Chiusa l'11 ottobre 2026: 217 test EditMode e 148 PlayMode verdi, tre build della CI provate da Mirco. Lezioni emerse:
+
+- **La lezione della M7 non era entrata nella scheda, e le correzioni sono arrivate lo stesso:** quattro giri di note dopo le prove in build (ascia al contrario, font, danno che non cresceva, gioielli senza niente, nessun riscontro equipaggiando, armature squadrate, "Colpire (scheletro)", troppo loot). La M8 è salita da 12–18 a 16–22 h. La scheda della M9 ha un passo di correzioni dopo la prima build già nella tabella.
+- **Simulare prima di tarare:** una simulazione della discesa con i nemici veri di ogni profondità ha mostrato che l'esperienza proposta portava al livello 4 invece del 9, prima di qualsiasi prova in build (ADR-059).
+- **Un salvataggio vero, congelato prima di cambiare formato,** è l'unico test di migrazione che vale: uno scritto a mano somiglia al formato nuovo più di quello vecchio (ADR-062).
+- **Un font nuovo rompe le scritte dove nessun test guarda:** Cinzel, più largo, ha mandato a capo "Mancato" e i nomi a terra. Un test temporaneo che apre ogni schermata nelle due lingue e controlla ogni testo (parole spezzate, testo fuori dal riquadro, caratteri mancanti) li ha trovati tutti in un giro, su circa 28.000 testi.
+- **Lo stile viene dallo stesso pacchetto:** armature e stivali presi dai pezzi dei personaggi KayKit stanno bene accanto al cavaliere; quelli di un pacchetto diverso, anche CC0 e low-poly, sembravano squadrati (ADR-056). I personaggi KayKit guardano verso +Z: le icone li vogliono girati di 180°.
+- **Un test che cerca un seme deve dire tutto quello che vuole:** abbassando la pozione, il primo seme con un oggetto la faceva cadere insieme; con meno armi, un altro dava un anello che entrava nell'inventario "pieno". E una probabilità salvata come float (0,3) cade dalla parte sbagliata contro lo stesso numero in double.
+- **In batchmode `WaitForEndOfFrame` non arriva:** i test temporanei per gli screenshot usano `yield return null`, o si bloccano.
 
 ---
 
@@ -574,7 +587,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M8 — "Progressione e persistenza" · 12–18 h
+### M8 — "Progressione e persistenza" · 16–22 h
 
 **A schermo:** uccidi, sali di livello, distribuisci punti negli attributi. Trovi un elmo, un anello, un amuleto e li indossi. Chiudi il gioco, lo riapri, e sei dove eri, con lo stesso equipaggiamento. La visuale si avvicina e si allontana con la rotella, e gira attorno al cavaliere.
 
@@ -603,13 +616,15 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M9 — "Magia" · 9–12 h
+### M9 — "Magia" · 10–13 h
 
 **A schermo:** la sfera blu del mana si svuota mentre lanci dalla hotbar un proiettile, un incantesimo ad area e un potenziamento; un nemico tiene le distanze e ti bersaglia.
 
 **Contenuto:** mana · 3 incantesimi (proiettile, area, potenziamento) · proiettili gestiti con **`UnityEngine.Pool.ObjectPool<T>`** (esiste già, non serve scriverne uno) · hotbar e tempi di ricarica · effetti con il sistema particellare · pergamene che insegnano gli incantesimi · archetipo **a distanza** (§ 2), che riusa i proiettili · **la vita del nemico che si sta combattendo** (v2.22, richiesta di Mirco), descritta sotto.
 
 **La vita del nemico che si sta combattendo** (proposta, da confermare nella scheda della M9). Dalla M7 la barra in alto mostra il nome e la vita del nemico sotto il cursore (ADR-049): appena il cursore si sposta, sparisce, anche se il cavaliere sta ancora colpendo lo stesso nemico. La barra mostra il nemico sotto il cursore e, quando il cursore non ne ha uno, quello che il cavaliere sta attaccando o ha colpito per ultimo, per circa 3 secondi dopo l'ultimo colpo. Il cerchio rosso a terra resta sul nemico sotto il cursore, così distingue il prossimo bersaglio da quello di prima. Sta nella M9 perché lì il bersaglio cambia significato: un proiettile o un incantesimo ad area colpiscono nemici che il cursore non ha mai toccato, e la regola dell'"ultimo colpito" deve valere anche per loro. Si è scartata la barra sopra ogni nemico: nello sciame sarebbero dieci barre una sull'altra, e Diablo 1 non le ha. Resta un'opzione per dopo la v1.0 (sotto). Circa 1 h.
+
+**Correzioni dalla prova della M8** (v2.27, richieste di Mirco). Con due anelli indossati, il tooltip di un anello nello zaino si confronta con uno solo dei due: deve mostrarli tutti e due, come per ogni slot doppio. I nomi lunghi dei magici e dei rari allargano il tooltip quasi a metà schermo: vanno su due righe, divisi a metà. Circa 1 h, nel primo passo della M9.
 
 **La cintura sotto l'esperienza** (v2.26, richiesta di Mirco). Oggi la cintura delle pozioni sta in basso a sinistra, accanto alla sfera della vita, e la barra dell'esperienza è in basso al centro. La cintura va al centro, sotto la barra. Sta nella M9 perché la hotbar degli incantesimi occupa la stessa fascia in basso: le due file e le due sfere si dispongono insieme, una volta sola. Circa 30 min.
 
