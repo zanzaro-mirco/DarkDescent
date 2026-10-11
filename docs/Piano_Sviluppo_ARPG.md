@@ -23,7 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
-| v2.28 | 11 ott 2026 | Su richiesta di Mirco: un **menu iniziale** con Continua e Nuova partita e **tre salvataggi** nella M10 · M10 da 10–14 a 12–17 h |
+| v2.28 | 11 ott 2026 | Su richiesta di Mirco: un **menu iniziale** con Continua e Nuova partita e **tre salvataggi** nella M10 · **click destro su un oggetto nella borsa per indossarlo** nella M10 · M10 da 10–14 a 13–18 h |
 | v2.27 | 11 ott 2026 | M8 chiusa (tag `m8`), con le lezioni · la M8 sale a 16–22 h con i quattro giri di correzioni dopo le prove in build · la M9 a 10–13 h con le due correzioni chieste da Mirco nell'ultima prova (confronto con due anelli, nomi lunghi nei tooltip) · punto di controllo della M8 (rapporto 0,08, nessun taglio) · ADR-052…063 |
 | v2.26 | 11 ott 2026 | Su richiesta di Mirco: la **cintura centrata sotto la barra dell'esperienza** nella M9, insieme alla hotbar · un **dungeon più ricco di oggetti di scena** nella M11 (+2–3 h) · **nemici e oggetti che crescono con il livello del personaggio** dopo la v1.0 |
 | v2.25 | 9 ott 2026 | Su richiesta di Mirco: il **movimento con WASD** tra i lavori dopo la v1.0, accanto al click |
@@ -107,7 +107,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 149–216 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Alla chiusura della M8 (v2.27) la M8 è salita a 16–22 h, per i quattro giri di correzioni dopo le prove in build, e la M9 a 10–13 h. Nella v2.28 la M10 è salita a 12–17 h con il menu iniziale e i tre salvataggi. Per le milestone ancora aperte, M9–M11 all'11 ott 2026, restano 39–58 ore: a 6–10 h a settimana sono 4–10 settimane di lavoro effettivo; con pause e settimane saltate, **1,5–2,5 mesi di calendario**.
+**Totale stimato:** circa 150–217 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Alla chiusura della M8 (v2.27) la M8 è salita a 16–22 h, per i quattro giri di correzioni dopo le prove in build, e la M9 a 10–13 h. Nella v2.28 la M10 è salita a 13–18 h con il menu iniziale, i tre salvataggi e il click destro per indossare. Per le milestone ancora aperte, M9–M11 all'11 ott 2026, restano 40–59 ore: a 6–10 h a settimana sono 4–10 settimane di lavoro effettivo; con pause e settimane saltate, **1,5–2,5 mesi di calendario**.
 
 **Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Quello della M8 confronta i 6 giorni dalla chiusura della M5 (5 ott) a quella della M8 (11 ott) con la stima massima di M6–M8, 66 h, cioè 11 settimane: rapporto 0,08, nessun taglio. Il prossimo, se serve, alla chiusura della M10, quando il gioco è finibile.
 
@@ -264,7 +264,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M7 | "Le profondità" | caverne, nuovi nemici, colpi critici, automappa delle caverne, musica e rumori d'ambiente | 18–25 | ✅ 8 ott |
 | M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 16–22 | ✅ 11 ott |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | |
-| M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, **prima build pubblica** | 12–17 | |
+| M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, **prima build pubblica** | 13–18 | |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 17–28 | |
 
 ---
@@ -635,7 +635,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M10 — "Città e loop completo" · 12–17 h
+### M10 — "Città e loop completo" · 13–18 h
 
 **A schermo:** dal menu arrivi in città, compri dal mercante, scendi, risali a vendere, affronti il boss al livello 8, vedi la schermata di vittoria.
 
@@ -648,6 +648,14 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 - **Sul disco.** Un file per posto (`save_1.json`, `save_2.json`, `save_3.json`) nella stessa cartella di oggi. Il riepilogo si legge dal salvataggio stesso, quindi il formato non cambia per questo. L'ultimo giocato si riconosce dalla data del file. Il `save.json` di chi ha già giocato diventa il posto 1 al primo avvio: si sposta, non si cancella.
 - **Durante la partita** si salva nel posto scelto, come oggi. Con `Esc` si apre un menu di pausa (oggi non c'è) da cui si torna al menu iniziale salvando.
 - **Da decidere nella scheda:** cosa fa `-newgame` (oggi ignora il salvataggio) e se il menu va saltato nei test e con `-seed`. La scena del menu è il `Bootstrap` rimandato dall'ADR-014.
+
+**Click destro per indossare** (v2.28, richiesta di Mirco). Oggi il click destro su una cella della borsa beve una pozione o legge una pergamena, e su tutto il resto non fa niente. Diventa: su un oggetto che si indossa, lo indossa nel suo slot.
+
+- **Scambio.** L'oggetto che c'era nello slot torna nella borsa, nel posto lasciato libero se ci sta, altrimenti nel primo posto libero. Se non c'è posto da nessuna parte, non succede niente.
+- **Slot doppi.** Un anello va nel posto libero; se sono occupati tutti e due, sostituisce il primo.
+- **Requisiti.** Se la Forza non basta, l'oggetto resta nella borsa, come quando lo si porta nello slot con il click sinistro.
+- **Tooltip.** Una riga in fondo dice "Click destro: indossa", come per pozioni e pergamene.
+- Circa 0,5–1 h: la logica di scambio c'è già in `Equipment.TryEquip`, manca solo il ritorno nella griglia.
 
 **A fine M10 il gioco è finibile.** È il momento di farlo provare a cinque persone e di prendere appunti senza difendersi: il link di itch.io è il modo più semplice per dargliela.
 
