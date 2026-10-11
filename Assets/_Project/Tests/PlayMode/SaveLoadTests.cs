@@ -69,6 +69,12 @@ namespace DarkDescent.Tests
             Assert.IsTrue(magic.Learn(stoneSkin));
             magic.Mana.SetCurrent(magic.Mana.Max / 2f);
 
+            // e il formato 4: oro nel portafoglio, un'uccisione e una morte nei contatori
+            inventory.Inventory.AddGold(250);
+            var runStats = Object.FindFirstObjectByType<Core.CompositionRoot>().RunStats;
+            runStats.AddKill();
+            runStats.AddDeath();
+
             SaveData saved = null;
             save.Saved += data => saved = data;
             var manager = Object.FindFirstObjectByType<LevelManager>();
@@ -88,9 +94,14 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2, saved.KnownSpells.Count, "il Dardo, noto dall'inizio, e la Pelle di pietra");
             Assert.AreEqual(2, saved.SelectedSpell);
             Assert.Less(saved.Mana, magic.Mana.Max);
+            Assert.AreEqual(250, saved.Gold);
+            Assert.AreEqual(250, saved.GoldCollected);
+            Assert.AreEqual((1, 1), (saved.Kills, saved.Deaths));
+            Assert.Greater(saved.PlayTime, 0f);
 
-            // il mana intanto si è rigenerato: il confronto usa quello salvato
-            string before = save.Capture().WithMagic(magic.Book.KnownIds(), magic.Book.Selected, saved.Mana).ToJson();
+            // il mana intanto si è rigenerato e il tempo è passato: il confronto usa quelli salvati
+            string before = save.Capture().WithMagic(magic.Book.KnownIds(), magic.Book.Selected, saved.Mana)
+                .WithStats(saved.PlayTime, saved.Kills, saved.Deaths, saved.GoldCollected, saved.BossDefeated).ToJson();
             float life = health.Current;
 
             // tutto rovinato: un altro cavaliere
@@ -100,6 +111,8 @@ namespace DarkDescent.Tests
             health.Heal(1000f);
             magic.Book.Restore(null, 0);
             magic.Mana.Fill();
+            inventory.Inventory.RestoreGold(0);
+            runStats.Restore(0f, 0, 0, 0, false);
 
             Assert.AreEqual(SaveReadResult.Ok, save.TryLoad(out SaveData loaded));
             Assert.IsTrue(save.Apply(loaded), "ogni oggetto torna al suo posto");
@@ -107,6 +120,8 @@ namespace DarkDescent.Tests
             Assert.IsTrue(magic.Book.Knows(stoneSkin));
             Assert.AreSame(stoneSkin, magic.Book.SelectedSpell);
             Assert.AreEqual(saved.Mana, magic.Mana.Current, 0.001f);
+            Assert.AreEqual(250, inventory.Inventory.Gold);
+            Assert.AreEqual((1, 1, 250), (runStats.Kills, runStats.Deaths, runStats.GoldCollected));
             Assert.AreEqual(life, health.Current, 0.001f);
             Assert.AreEqual(3, progress.Level);
             Assert.AreEqual(32f, stats.Sheet.GetBase(StatType.Strength), "30 di partenza e i due punti spesi");

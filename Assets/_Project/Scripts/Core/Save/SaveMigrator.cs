@@ -22,6 +22,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(3);
             }
 
+            // formato 3 → 4 (D11 della M10): arrivano oro, città e contatori; un salvataggio vecchio
+            // riparte senza oro, nel dungeon dov'era, con i contatori a zero
+            if (data.Version == 3)
+            {
+                data.UpgradeTo(4);
+            }
+
             return data;
         }
     }

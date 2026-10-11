@@ -11,7 +11,8 @@ namespace DarkDescent.Save
     /// Un salvataggio (D7–D9 della M8): seme della partita, dove si è (scena, ingresso, profondità),
     /// la crescita del cavaliere, i valori base degli attributi, la vita, l'inventario completo e, dal
     /// formato 2, la mappa scoperta di ogni profondità visitata; dal formato 3 gli incantesimi noti,
-    /// quello scelto e il mana (D11 della M9). Lo stato dei livelli non c'è (D8):
+    /// quello scelto e il mana (D11 della M9); dal formato 4 l'oro, la città, la profondità a cui
+    /// riporta il portale e i contatori della partita (D11 della M10). Lo stato dei livelli non c'è (D8):
     /// un livello rientrandoci si rigenera dal seme. Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
@@ -20,7 +21,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 4;
 
         /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
         public const float FullMana = -1f;
@@ -54,6 +55,16 @@ namespace DarkDescent.Save
         [SerializeField] private List<string> _knownSpells = new List<string>();
         [SerializeField] private int _selectedSpell;
         [SerializeField] private float _mana = FullMana;
+
+        // formato 4: l'oro, se si è in città e dove riporta il portale (0: da nessuna parte), i contatori
+        [SerializeField] private int _gold;
+        [SerializeField] private bool _inTown;
+        [SerializeField] private int _portalDepth;
+        [SerializeField] private float _playTime;
+        [SerializeField] private int _kills;
+        [SerializeField] private int _deaths;
+        [SerializeField] private int _goldCollected;
+        [SerializeField] private bool _bossDefeated;
 
         public int Version => _version;
 
@@ -91,6 +102,23 @@ namespace DarkDescent.Save
 
         /// <summary>Il mana del cavaliere; <see cref="FullMana"/> se va riempito.</summary>
         public float Mana => _mana;
+
+        public int Gold => _gold;
+
+        public bool InTown => _inTown;
+
+        /// <summary>La profondità all'ingresso della quale riporta il portale della città; 0 se non c'è.</summary>
+        public int PortalDepth => _portalDepth;
+
+        public float PlayTime => _playTime;
+
+        public int Kills => _kills;
+
+        public int Deaths => _deaths;
+
+        public int GoldCollected => _goldCollected;
+
+        public bool BossDefeated => _bossDefeated;
 
         public static SaveData Create(ulong runSeed, string scene, string entrance, int depth)
         {
@@ -148,6 +176,31 @@ namespace DarkDescent.Save
             return this;
         }
 
+        public SaveData WithGold(int gold)
+        {
+            _gold = gold;
+            return this;
+        }
+
+        /// <summary>Se si è in città e a che profondità riporta il portale (0: nessuna).</summary>
+        public SaveData WithTown(bool inTown, int portalDepth)
+        {
+            _inTown = inTown;
+            _portalDepth = portalDepth;
+            return this;
+        }
+
+        /// <summary>I contatori della partita, per la schermata di vittoria.</summary>
+        public SaveData WithStats(float playTime, int kills, int deaths, int goldCollected, bool bossDefeated)
+        {
+            _playTime = playTime;
+            _kills = kills;
+            _deaths = deaths;
+            _goldCollected = goldCollected;
+            _bossDefeated = bossDefeated;
+            return this;
+        }
+
         internal void UpgradeTo(int version)
         {
             // dal formato 2 al 3: niente incantesimi imparati, il primo posto e il mana pieno; JsonUtility
@@ -157,6 +210,19 @@ namespace DarkDescent.Save
                 _knownSpells = new List<string>();
                 _selectedSpell = 0;
                 _mana = FullMana;
+            }
+
+            // dal formato 3 al 4 (D11 della M10): niente oro, nel dungeon, nessun portale, contatori a zero
+            if (_version < 4 && version >= 4)
+            {
+                _gold = 0;
+                _inTown = false;
+                _portalDepth = 0;
+                _playTime = 0f;
+                _kills = 0;
+                _deaths = 0;
+                _goldCollected = 0;
+                _bossDefeated = false;
             }
 
             _version = version;

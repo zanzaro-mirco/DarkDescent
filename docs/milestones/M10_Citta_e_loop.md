@@ -146,6 +146,31 @@ portafoglio. `GoldPlayModeTests` (1): aperta una cassa, la pila prevista dal sem
 e raccolta finisce nel portafoglio e nell'inventario, non nella borsa. 252 EditMode e 170 PlayMode
 verdi.
 
+## Passo 10.2 — Formato 4 del salvataggio
+
+**Com'è andata (12 ott 2026).**
+
+- **Prima il file vero.** Con il codice ancora del formato 3, uno script dell'editor ha scritto un
+  salvataggio nelle caverne alla profondità 6: livello 9, ascia magica Affilata, elmo, anello
+  Arcano, pergamena e pugnale nello zaino, pozione rossa e blu nella cintura, l'Anello di fuoco
+  imparato e scelto, mana 23,5 e una mappa scoperta. È `Tests/EditMode/Fixtures/save_v3.json`,
+  committato da solo prima di toccare il formato.
+- **Formato 4 (D11).** `SaveData` aggiunge l'oro, se si è in città, la profondità a cui riporta il
+  portale (0: nessuna) e i contatori della partita: tempo di gioco, uccisioni, morti, oro raccolto e
+  boss sconfitto. `SaveMigrator` porta il 3 al 4 con tutto a zero, mettendo i valori a mano come al
+  9.7. Città e portale si riempiono ai passi 10.4 e 10.6; il boss al 10.7.
+- **I contatori.** `RunStats` in `Core`, tenuto dal CompositionRoot: il tempo cresce nel suo
+  `Update` (con il tempo scalato, così la pausa lo fermerà), le uccisioni con l'esperienza di ogni
+  nemico, le morti con `Died` del cavaliere, l'oro con il nuovo evento `GoldAdded` dell'inventario
+  (che non scatta spendendo né caricando). `SaveGame` li cattura e li rimette con l'oro.
+- Il primo giro di test ne ha fatti cadere 104: la disiscrizione in `OnDisable` chiedeva l'inventario
+  a un cavaliere già distrutto allo scarico della scena. Ora l'inventario si prende in `Awake`.
+
+*Test.* `SaveMigrationTests`: il file vero del formato 3 si carica con il codice del formato 4
+(niente oro, nel dungeon, contatori a zero; seme, profondità, incantesimi, mana, mappa e oggetti
+com'erano); il formato 4 va e torna dal file; i file dei formati 1 e 2 arrivano al 4.
+`SaveLoadTests`: oro e contatori passano dal salvataggio. 254 EditMode e 170 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -189,7 +214,7 @@ verdi.
 
 - [x] Decisioni D1–D13 confermate
 - [x] Rifiniture della prova della M9
-- [ ] Oro, prezzi e formato 4
+- [x] Oro, prezzi e formato 4
 - [ ] Menu, tre salvataggi, pausa e opzioni
 - [ ] Città, mercante, pergamena del ritorno
 - [ ] Boss e vittoria

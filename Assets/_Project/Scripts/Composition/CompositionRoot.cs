@@ -25,6 +25,11 @@ namespace DarkDescent.Core
     {
         [SerializeField] private Health _player;
 
+        private readonly RunStats _runStats = new RunStats();
+
+        // presi in Awake: allo scarico della scena il cavaliere può essere distrutto prima di OnDisable
+        private Inventory _playerInventory;
+
         [SerializeField] private LevelManager _levelManager;
 
         [SerializeField] private HealthOrb _healthOrb;
@@ -170,7 +175,7 @@ namespace DarkDescent.Core
             }
 
             // un salvataggio, se c'è, decide seme e livello (D10 della M8); -newgame e -seed lo ignorano
-            _saveGame.Bind(_levelManager, _player.gameObject, _exploration);
+            _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats);
             if (!seedGiven && !CommandLine.HasFlag(args, NewGameOption))
             {
                 SaveReadResult read = _saveGame.TryLoad(out SaveData save);
@@ -193,6 +198,7 @@ namespace DarkDescent.Core
             Debug.Log($"[DarkDescent] seme della partita: {seed} (per rigiocarla: -seed {seed})");
 
             _playerAttack = _player.GetComponent<MeleeAttack>();
+            _playerInventory = _player.GetComponent<PlayerInventory>().Inventory;
             _random = new SystemRandomSource(Environment.TickCount);
             _playerAttack.SetRandomSource(_random);
 
@@ -247,8 +253,28 @@ namespace DarkDescent.Core
             }
         }
 
+        /// <summary>I contatori della partita (D11 della M10): tempo, uccisioni, morti, oro raccolto.</summary>
+        public RunStats RunStats => _runStats;
+
+        private void Update()
+        {
+            _runStats.AddTime(Time.deltaTime);
+        }
+
+        private void HandlePlayerDied()
+        {
+            _runStats.AddDeath();
+        }
+
+        private void HandleGoldAdded(int amount)
+        {
+            _runStats.AddGold(amount);
+        }
+
         private void OnEnable()
         {
+            _player.Died += HandlePlayerDied;
+            _playerInventory.GoldAdded += HandleGoldAdded;
             _deathScreen.RestartRequested += Restart;
             _playerAttack.HitLanded += HandlePlayerHitLanded;
             _levelManager.LevelLoaded += BindLevel;
@@ -259,6 +285,8 @@ namespace DarkDescent.Core
 
         private void OnDisable()
         {
+            _player.Died -= HandlePlayerDied;
+            _playerInventory.GoldAdded -= HandleGoldAdded;
             _deathScreen.RestartRequested -= Restart;
             _playerAttack.HitLanded -= HandlePlayerHitLanded;
             _levelManager.LevelLoaded -= BindLevel;
@@ -416,6 +444,7 @@ namespace DarkDescent.Core
             enemy.Killed -= HandleEnemyKilled;
             _rewardingEnemies.Remove(enemy);
             _progress.AwardKill(enemy.Archetype.Experience, _depth);
+            _runStats.AddKill();
         }
 
         /// <summary>Cambia il seme della partita: per i test e per rigiocare un seme senza riavviare.</summary>

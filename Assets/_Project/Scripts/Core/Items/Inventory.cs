@@ -39,6 +39,9 @@ namespace DarkDescent.Items
         /// <summary>L'oro è cambiato: raccolto, speso, ricaricato.</summary>
         public event Action GoldChanged;
 
+        /// <summary>Oro raccolto, con la quantità: per il contatore della partita. Non scatta spendendo né caricando.</summary>
+        public event Action<int> GoldAdded;
+
         /// <summary>L'oggetto preso con il cursore, o null.</summary>
         public ItemInstance Held { get; private set; }
 
@@ -60,6 +63,7 @@ namespace DarkDescent.Items
 
             Gold += amount;
             GoldChanged?.Invoke();
+            GoldAdded?.Invoke(amount);
         }
 
         /// <summary>Spende l'oro se basta; false, senza toccare niente, se non basta.</summary>

@@ -40,6 +40,7 @@ namespace DarkDescent.Save
         private PlayerInventory _inventory;
         private PlayerProgress _progress;
         private PlayerMagic _magic;
+        private RunStats _runStats;
         private CharacterStats _stats;
         private Health _health;
         private MeleeAttack _attack;
@@ -60,10 +61,11 @@ namespace DarkDescent.Save
         // Awake, che può arrivare prima di quello di questo componente
         public string FilePath => _path ??= ExternalPath() ?? Path.Combine(Application.persistentDataPath, _fileName);
 
-        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration)
+        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration, RunStats runStats)
         {
             Unsubscribe();
             _levelManager = levelManager;
+            _runStats = runStats;
             _exploration = exploration;
             _inventory = player.GetComponent<PlayerInventory>();
             _progress = player.GetComponent<PlayerProgress>();
@@ -108,7 +110,9 @@ namespace DarkDescent.Save
                 .WithAttributes(sheet.GetBase(StatType.Strength), sheet.GetBase(StatType.Dexterity), sheet.GetBase(StatType.Magic), sheet.GetBase(StatType.Vitality))
                 .WithLife(life)
                 .WithInventory(InventorySnapshot.Capture(_inventory.Inventory))
-                .WithExplored(_exploration.Memory.Export());
+                .WithExplored(_exploration.Memory.Export())
+                .WithGold(_inventory.Inventory.Gold)
+                .WithStats(_runStats.PlayTime, _runStats.Kills, _runStats.Deaths, _runStats.GoldCollected, _runStats.BossDefeated);
 
             // da morto il mana torna pieno con la vita (Revived): si salva pieno
             if (_magic != null)
@@ -162,6 +166,8 @@ namespace DarkDescent.Save
             sheet.SetBase(StatType.Vitality, data.Vitality);
             _progress.Progress.Restore(data.Level, data.Experience, data.UnspentPoints);
             bool complete = data.Inventory.Restore(_inventory.Inventory, _items, _affixes);
+            _inventory.Inventory.RestoreGold(data.Gold);
+            _runStats.Restore(data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated);
             _health.SetCurrent(data.Life);
 
             // dopo attributi, livello e oggetti: il mana massimo è già quello giusto
