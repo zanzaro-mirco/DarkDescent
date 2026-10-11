@@ -345,6 +345,8 @@ Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
   a capo e spostava di una riga tutte le etichette sotto, così le colonne del pannello sono a 24
   punti senza andare a capo. Le etichette degli slot sono in maiuscolo pieno e non vanno a capo
   ("Amuleto"). Ho controllato con screenshot in inglese e in italiano.
+  Nella build dopo Mirco ha visto "Mancat" / "o": anche il modello dei numeri di danno (240 px a
+  46 punti) ora non va a capo.
 - **WASD** tra i lavori dopo la v1.0 (piano v2.25).
 - **Gioielli senza niente.** Anelli e amuleti hanno solo affissi, ma il 65% degli oggetti nasce
   normale, cioè senza: un anello su due non faceva niente. Ora una base ha una rarità minima
