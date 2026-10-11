@@ -56,3 +56,7 @@ MonoBehaviour:
   _potionChance: 0.2
   _manaPotion: {fileID: 11400000, guid: 7048aa0bfc559234bb73fa16ec0def3e, type: 2}
   _manaPotionChance: 0.1
+  _gold: {fileID: 11400000, guid: 9cf671510ba2f7542961474e74af6247, type: 2}
+  _goldChance: 0.8
+  _goldRange: {x: 8, y: 20}
+  _goldPerDepth: 0.35

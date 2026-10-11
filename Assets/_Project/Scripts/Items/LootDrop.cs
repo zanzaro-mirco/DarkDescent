@@ -63,6 +63,12 @@ namespace DarkDescent.Items
             return _roller?.RollPotion(_lootTable, _depth, _cellX, _cellZ);
         }
 
+        /// <summary>L'oro che lascerà in più, senza cambiare niente; 0 se non ne lascia (D4 della M10).</summary>
+        public int PreviewGold()
+        {
+            return _roller?.RollGold(_lootTable, _depth, _cellX, _cellZ) ?? 0;
+        }
+
         private void Awake()
         {
             _health = GetComponent<Health>();
@@ -108,6 +114,13 @@ namespace DarkDescent.Items
             {
                 GroundItem.Spawn(_groundItemPrefab, Carried, front - transform.right * _potionSideOffset, from);
                 Carried = null;
+            }
+
+            // l'oro un passo più avanti dell'oggetto
+            int gold = PreviewGold();
+            if (gold > 0)
+            {
+                GroundItem.SpawnGold(_groundItemPrefab, _lootTable.Gold, gold, front + transform.forward * _potionSideOffset, from);
             }
         }
     }

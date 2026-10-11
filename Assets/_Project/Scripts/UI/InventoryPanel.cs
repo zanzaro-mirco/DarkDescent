@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using DarkDescent.Items;
 using DarkDescent.Localization;
 using DarkDescent.Player;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,6 +39,9 @@ namespace DarkDescent.UI
 
         [Tooltip("Il secondo anello equipaggiato, dall'altra parte del primo tooltip: con due anelli si confrontano tutti e due (M9, D1).")]
         [SerializeField] private ItemTooltip _secondCompareTooltip;
+
+        [Tooltip("L'oro del cavaliere, sotto la griglia (D4 della M10).")]
+        [SerializeField] private TMP_Text _gold;
 
         [SerializeField, Min(8f)] private float _cellSize = 56f;
 
@@ -212,7 +216,11 @@ namespace DarkDescent.UI
             _inventory.Inventory.HeldChanged += HandleHeldChanged;
             _inventory.Inventory.Equipped += HandleEquipped;
             _localizer.LanguageChanged += RefreshTooltip;
+            _inventory.Inventory.GoldChanged += RefreshGold;
+            _localizer.LanguageChanged += RefreshGold;
             _subscribed = true;
+
+            RefreshGold();
 
             RefreshGrid();
             foreach (var view in _slots)
@@ -236,7 +244,20 @@ namespace DarkDescent.UI
             _inventory.Inventory.HeldChanged -= HandleHeldChanged;
             _inventory.Inventory.Equipped -= HandleEquipped;
             _localizer.LanguageChanged -= RefreshTooltip;
+            _inventory.Inventory.GoldChanged -= RefreshGold;
+            _localizer.LanguageChanged -= RefreshGold;
             _subscribed = false;
+        }
+
+        public string GoldText => _gold != null ? _gold.text : string.Empty;
+
+        // il formato della lingua con il numero dentro: SetText non alloca una stringa
+        private void RefreshGold()
+        {
+            if (_gold != null)
+            {
+                _gold.SetText(_localizer.Get(TextKeys.InventoryGold), _inventory.Inventory.Gold);
+            }
         }
 
         private void HandleEquipped(EquipSlot slot, ItemInstance item)

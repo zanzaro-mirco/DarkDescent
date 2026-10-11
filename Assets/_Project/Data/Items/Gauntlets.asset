@@ -15,9 +15,12 @@ MonoBehaviour:
   _id: c647e84ddfe94c55a036c5175db73974
   _nameKey: item.gauntlets
   _icon: {fileID: 21300000, guid: de9893cb478d2694fa7e95543b680098, type: 3}
+  _sound: 0
   _size: {x: 2, y: 2}
   _model: {fileID: 2160550175922524005, guid: 4ca238c5ce6e91244ae8a806ad488273, type: 3}
   _iconRotation: {x: 90, y: 0, z: 0}
+  _standsOnGround: 0
+  _value: 50
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
   _slot: 5

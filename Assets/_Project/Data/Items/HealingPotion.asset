@@ -19,6 +19,9 @@ MonoBehaviour:
   _size: {x: 1, y: 1}
   _model: {fileID: 2926209320578166193, guid: 879c37b222e900d40ba5a8c229b6054f, type: 3}
   _iconRotation: {x: 0, y: 180, z: 0}
+  _standsOnGround: 0
+  _value: 15
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
-  _healFraction: 0.5
+  _kind: 0
+  _restoreFraction: 0.5

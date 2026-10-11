@@ -111,6 +111,36 @@ un modificatore positivo e uno negativo; sei oggetti nello stesso punto mostrano
 si coprono, più piccoli di quello sotto il cursore, e un click su un nome raccoglie l'oggetto.
 `EquipmentPlayModeTests`: la vita alzata dallo scudo è azzurra. 247 EditMode e 169 PlayMode verdi.
 
+## Passo 10.1 — Oro e prezzi
+
+**Com'è andata (12 ott 2026).**
+
+- **In `Core`.** `GoldDefinition` è la pila d'oro: una definizione che non sta nel database degli
+  oggetti, con tre modelli per la quantità (piccola sotto 20, media, grande da 60). Ogni
+  `LootTable` ha pila, probabilità, intervallo alla profondità 1 e crescita a livello (+35%):
+  scheletro 50% 3–10, sciame 30% 1–5, bruto 80% 8–20, mago 60% 5–12, cassa sempre 15–35.
+  `LootRoller.RollGold` tira con un seme suo (`SeedMixer.ForGold`, dominio "GOLD"), quindi oggetto,
+  pozione e pergamena dei semi provati non cambiano. `Inventory` ha il portafoglio: `Gold`,
+  `AddGold`, `TrySpendGold`, `RestoreGold` e l'evento `GoldChanged`.
+- **Prezzi.** `ItemDefinition` ha un valore base (dal pugnale a 20 alla corazza scura a 200, le
+  pozioni 15, le pergamene 300); `ItemPricing.Price` fa valore × rarità (1, 3, 6) × (1 + livello /
+  10), e `SellPrice` un quarto, almeno 1. Li userà il mercante (10.5).
+- **A terra.** La pila è un `GroundItem` con la quantità: `SpawnGold` la fa cadere un passo davanti
+  all'oggetto, da nemici e casse. Ha il nome "18 oro" in oro, una luce dello stesso colore e un
+  tintinnio di monete quando tocca terra (tre suoni sintetizzati, `coins_*.wav`). Un click la
+  raccoglie nel portafoglio, sempre, senza occupare la borsa; con `Alt` il nome si vede come gli
+  altri. Modelli `coin_stack_small/medium/large` dal pacchetto KayKit *Dungeon*, con il materiale
+  del dungeon.
+- **Nell'inventario.** "Oro: 18" in oro sopra la griglia, a destra; si aggiorna con
+  `GoldChanged` e con la lingua. Il primo posto, sotto la griglia, finiva sul bordo della finestra.
+- I test che contavano gli oggetti caduti da un nemico ora saltano le pile d'oro.
+
+*Test.* `GoldTests` (5, EditMode): probabilità, intervallo e crescita con la profondità; seme
+dell'oro separato; prezzi per rarità e livello e vendita a un quarto; ogni oggetto ha un valore; il
+portafoglio. `GoldPlayModeTests` (1): aperta una cassa, la pila prevista dal seme ha il nome giusto
+e raccolta finisce nel portafoglio e nell'inventario, non nella borsa. 252 EditMode e 170 PlayMode
+verdi.
+
 ---
 
 ## Trappole note

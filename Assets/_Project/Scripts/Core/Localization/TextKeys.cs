@@ -36,6 +36,10 @@ namespace DarkDescent.Localization
         public const string TooltipRead = "tooltip.read";
         public const string TooltipEquip = "tooltip.equip";
 
+        // l'oro (D4 della M10): la pila a terra e il totale nell'inventario
+        public const string GoldAmount = "gold.amount";
+        public const string InventoryGold = "inventory.gold";
+
         // dove si trova il cavaliere (prova della M7): "{tipo} – Livello {profondità}"
         public const string LevelTitle = "hud.level_title";
         public const string LevelCrypt = "level.crypt";

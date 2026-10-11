@@ -15,14 +15,21 @@ MonoBehaviour:
   _id: e50e34d6fbb2421281eaa0b0e15ddd3f
   _nameKey: item.skeleton_blade
   _icon: {fileID: 21300000, guid: 5c49687c104967a4aac0cf4caec9f06a, type: 3}
+  _sound: 0
   _size: {x: 1, y: 3}
   _model: {fileID: 919132149155446097, guid: da85e36e56e0daf448adc9f0c64f607d, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}
+  _standsOnGround: 0
+  _value: 60
+  _heldPosition: {x: 0, y: 0, z: 0}
+  _heldRotation: {x: 0, y: 0, z: 0}
   _minDamage: 8
   _maxDamage: 12
   _damageType: 0
+  _kind: 2
   _requiredStrength: 25
   _range: 0.6
   _rangeTolerance: 0.5
   _attackInterval: 1.1
   _hitDelay: 0.66
+  _arc: 360

@@ -20,6 +20,7 @@ MonoBehaviour:
   _model: {fileID: 7071024680235048080, guid: 20cc074d7b41c814682f5e8f8f192994, type: 3}
   _iconRotation: {x: 0, y: 0, z: -18}
   _standsOnGround: 0
+  _value: 300
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
   _spell: {fileID: 11400000, guid: 3b596d532d26ec14fab30fdc18ac2a44, type: 2}

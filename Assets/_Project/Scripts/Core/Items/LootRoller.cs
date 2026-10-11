@@ -57,6 +57,20 @@ namespace DarkDescent.Items
         }
 
         /// <summary>
+        /// L'oro che lascia il nemico, o la cassa, partito da questa cella; 0 se non ne lascia (D4 della
+        /// M10). Un tiro a parte con un seme suo, come la pozione: oggetto e pozione non cambiano.
+        /// </summary>
+        public int RollGold(LootTable table, int depth, int cellX, int cellZ)
+        {
+            if (table == null || table.Gold == null)
+            {
+                return 0;
+            }
+
+            return table.GoldFor(new SplitMix64Source(SeedMixer.ForGold(RunSeed, depth, cellX, cellZ)), depth);
+        }
+
+        /// <summary>
         /// La pergamena di un livello (D5 della M9), o null: un tiro per profondità con un seme suo.
         /// <paramref name="wanted"/> dice quali incantesimi può ancora insegnare; <paramref name="carrier"/>,
         /// tra 0 e 1, sceglie tra nemici e casse chi la porta.

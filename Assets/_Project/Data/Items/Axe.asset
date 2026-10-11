@@ -15,9 +15,12 @@ MonoBehaviour:
   _id: e0b0ddd77ab14bd6b7d38926708bae5b
   _nameKey: item.axe
   _icon: {fileID: 21300000, guid: f077afabd634817449faeb76e2d84e52, type: 3}
+  _sound: 0
   _size: {x: 2, y: 3}
   _model: {fileID: 919132149155446097, guid: 1d3d6bdfad6c46c1bfd72c2b3342dd0b, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}
+  _standsOnGround: 0
+  _value: 90
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 180, z: 0}
   _minDamage: 10
@@ -29,3 +32,4 @@ MonoBehaviour:
   _rangeTolerance: 0.5
   _attackInterval: 1.25
   _hitDelay: 0.75
+  _arc: 360

@@ -29,7 +29,27 @@ namespace DarkDescent.Items
         [Tooltip("Probabilità della pozione di mana, tra 0 e 1, in più di quella di cura: la somma delle due non supera 1.")]
         [SerializeField, Range(0f, 1f)] private float _manaPotionChance;
 
+        [Tooltip("La pila d'oro che può lasciare (D4 della M10). Vuoto: niente oro.")]
+        [SerializeField] private GoldDefinition _gold;
+
+        [Tooltip("Probabilità di lasciare oro, tra 0 e 1.")]
+        [SerializeField, Range(0f, 1f)] private float _goldChance;
+
+        [Tooltip("Quanto oro alla profondità 1, da e a.")]
+        [SerializeField] private Vector2Int _goldRange = new Vector2Int(1, 1);
+
+        [Tooltip("Quanto cresce l'oro a ogni profondità in più: 0,35 vuol dire +35% a livello.")]
+        [SerializeField, Min(0f)] private float _goldPerDepth = 0.35f;
+
         public float DropChance => _dropChance;
+
+        public GoldDefinition Gold => _gold;
+
+        public float GoldChance => _goldChance;
+
+        public Vector2Int GoldRange => _goldRange;
+
+        public float GoldPerDepth => _goldPerDepth;
 
         public IReadOnlyList<LootEntry> Entries => _entries;
 
@@ -53,6 +73,24 @@ namespace DarkDescent.Items
             }
 
             return _manaPotion != null && roll >= _potionChance && roll < _potionChance + _manaPotionChance ? _manaPotion : null;
+        }
+
+        /// <summary>
+        /// L'oro di un tiro, 0 se non ne cade: sotto la probabilità una quantità nell'intervallo,
+        /// cresciuta con la profondità e arrotondata, almeno 1.
+        /// </summary>
+        public int GoldFor(IRandomSource random, int depth)
+        {
+            if (_gold == null || random.NextDouble() >= _goldChance)
+            {
+                return 0;
+            }
+
+            int min = Mathf.Max(1, _goldRange.x);
+            int max = Mathf.Max(min, _goldRange.y);
+            int amount = Mathf.Min(max, min + (int)(random.NextDouble() * (max - min + 1)));
+            double scaled = amount * (1.0 + (Mathf.Max(1, depth) - 1) * _goldPerDepth);
+            return System.Math.Max(1, (int)System.Math.Round(scaled, System.MidpointRounding.AwayFromZero));
         }
 
         /// <summary>Tira il drop: false se il nemico non lascia niente, altrimenti la base estratta per peso.</summary>

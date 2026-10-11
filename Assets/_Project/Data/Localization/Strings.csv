@@ -60,6 +60,9 @@ tooltip.restore_mana,Restores {0}% of mana,Rende il {0}% del mana
 tooltip.teaches,Teaches {0},Insegna {0}
 tooltip.read,Right-click to read,Click destro per leggere
 tooltip.equip,Right-click to equip,Click destro per indossare
+gold.amount,{0} gold,{0} oro
+inventory.gold,Gold: {0},Oro: {0}
+item.gold,Gold,Oro
 
 # Spiegazioni delle righe del pannello del personaggio (D16 della M6); il titolo è la riga stessa
 stat.tip.strength,Each point adds 1% weapon damage.\nHeavier weapons require more Strength.,Ogni punto aggiunge l'1% al danno dell'arma.\nLe armi più pesanti richiedono più Forza.

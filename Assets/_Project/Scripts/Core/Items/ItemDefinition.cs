@@ -34,6 +34,9 @@ namespace DarkDescent.Items
         [Tooltip("A terra resta in piedi invece di essere disteso: armature e stivali, che distesi si vedono vuoti.")]
         [SerializeField] private bool _standsOnGround;
 
+        [Tooltip("Valore base in oro: il prezzo lo moltiplica per rarità e livello (D4 della M10).")]
+        [SerializeField, Min(0)] private int _value = 10;
+
         [Tooltip("Posizione del modello rispetto all'osso della mano (handslot), quando è equipaggiato.")]
         [SerializeField] private Vector3 _heldPosition;
 
@@ -41,6 +44,9 @@ namespace DarkDescent.Items
         [SerializeField] private Vector3 _heldRotation;
 
         public string Id => _id;
+
+        /// <summary>Il valore base in oro, prima di rarità e livello (D4 della M10, <see cref="ItemPricing"/>).</summary>
+        public int Value => _value;
         public string NameKey => _nameKey;
         public Sprite Icon => _icon;
         public Vector2Int Size => _size;

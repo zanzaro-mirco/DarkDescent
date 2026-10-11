@@ -44,6 +44,12 @@ namespace DarkDescent.Items
         [Tooltip("Per le pozioni.")]
         [SerializeField] private AudioClip[] _glassClips;
 
+        [Tooltip("Per l'oro: monete che tintinnano.")]
+        [SerializeField] private AudioClip[] _coinClips;
+
+        [Tooltip("Il colore del nome e della luce di una pila d'oro (D4 della M10).")]
+        [SerializeField] private Color _goldColor = new Color(0.88f, 0.75f, 0.38f);
+
         private Interactable _interactable;
         private ItemInstance _item;
         private GameObject _model;
@@ -51,11 +57,15 @@ namespace DarkDescent.Items
         private Vector3 _restPosition;
         private Quaternion _restRotation;
         private Vector3 _restCenter;
+        private int _gold;
 
         /// <summary>Tocca terra: la luce si accende e si sente il suono.</summary>
         public event Action Landed;
 
         public ItemInstance Item => _item;
+
+        /// <summary>L'oro della pila, 0 per un oggetto (D4 della M10).</summary>
+        public int Gold => _gold;
 
         public bool IsFlying { get; private set; }
 
@@ -90,6 +100,22 @@ namespace DarkDescent.Items
             return ground;
         }
 
+        /// <summary>Una pila d'oro a terra, come un oggetto: si raccoglie con un click e va nel portafoglio (D4 della M10).</summary>
+        public static GroundItem SpawnGold(GroundItem prefab, GoldDefinition gold, int amount, Vector3 near, Vector3? from = null)
+        {
+            Vector3 position = NavMesh.SamplePosition(near, out NavMeshHit hit, 2f, NavMesh.AllAreas) ? hit.position : near;
+            float yaw = Mathf.Repeat(position.x * 37f + position.z * 53f, 360f);
+            var ground = Instantiate(prefab, position, Quaternion.Euler(0f, yaw, 0f));
+            ground._gold = Mathf.Max(1, amount);
+            ground.Show(new ItemInstance(gold));
+            if (from.HasValue)
+            {
+                ground.StartCoroutine(ground.Fly(from.Value));
+            }
+
+            return ground;
+        }
+
         /// <summary>L'oggetto messo dalla mappa: per chi costruisce il livello, prima di Start.</summary>
         public void Configure(ItemDefinition definition)
         {
@@ -101,6 +127,11 @@ namespace DarkDescent.Items
             if (_item == null)
             {
                 return string.Empty;
+            }
+
+            if (_gold > 0)
+            {
+                return "<color=#" + ColorUtility.ToHtmlStringRGB(_goldColor) + ">" + localizer.Format(TextKeys.GoldAmount, _gold) + "</color>";
             }
 
             // il colore della rarità sul nome, come in Diablo
@@ -139,7 +170,7 @@ namespace DarkDescent.Items
             _interactable.NotifyLabelChanged();
             if (_glow != null)
             {
-                _glow.color = RarityColors.Light(item.Rarity);
+                _glow.color = _gold > 0 ? _goldColor : RarityColors.Light(item.Rarity);
             }
 
             if (_model != null)
@@ -149,7 +180,8 @@ namespace DarkDescent.Items
 
             // disteso: i modelli KayKit sono in piedi lungo +Y, con il davanti verso +Z. Armature e
             // stivali restano in piedi
-            _model = Instantiate(item.Definition.Model, transform, false);
+            var gold = item.Definition as GoldDefinition;
+            _model = Instantiate(gold != null ? gold.ModelFor(_gold) : item.Definition.Model, transform, false);
             _model.transform.localRotation = item.Definition.StandsOnGround ? Quaternion.identity : Quaternion.Euler(-90f, 0f, 0f);
 
             var renderers = _model.GetComponentsInChildren<Renderer>();
@@ -213,7 +245,8 @@ namespace DarkDescent.Items
 
         private void PlayLandingSound()
         {
-            var clips = _item != null && _item.Definition is PotionDefinition ? _glassClips : _metalClips;
+            var clips = _gold > 0 && _coinClips != null && _coinClips.Length > 0 ? _coinClips
+                : _item != null && _item.Definition is PotionDefinition ? _glassClips : _metalClips;
             if (_audio == null || clips == null || clips.Length == 0)
             {
                 return;
@@ -228,6 +261,15 @@ namespace DarkDescent.Items
         {
             if (_item == null || !user.TryGetComponent(out PlayerInventory inventory))
             {
+                return;
+            }
+
+            // l'oro non occupa posto: va sempre nel portafoglio
+            if (_gold > 0)
+            {
+                inventory.Inventory.AddGold(_gold);
+                _item = null;
+                Destroy(gameObject);
                 return;
             }
 

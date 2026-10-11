@@ -41,6 +41,14 @@ namespace DarkDescent.Core
             return Mix(ForLevel(runSeed, depth) ^ ScrollDomain);
         }
 
+        // "GOLD" in ASCII: l'oro di un nemico o di una cassa non sposta né l'oggetto né la pozione
+        private const ulong GoldDomain = 0x474F4C44UL;
+
+        public static ulong ForGold(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ GoldDomain);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

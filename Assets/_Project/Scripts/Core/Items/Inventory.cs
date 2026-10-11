@@ -33,6 +33,12 @@ namespace DarkDescent.Items
         /// <summary>Le pozioni a portata di tasto (D14 della M6).</summary>
         public Belt Belt { get; } = new Belt();
 
+        /// <summary>L'oro del cavaliere (D4 della M10): non occupa la borsa.</summary>
+        public int Gold { get; private set; }
+
+        /// <summary>L'oro è cambiato: raccolto, speso, ricaricato.</summary>
+        public event Action GoldChanged;
+
         /// <summary>L'oggetto preso con il cursore, o null.</summary>
         public ItemInstance Held { get; private set; }
 
@@ -43,6 +49,37 @@ namespace DarkDescent.Items
         public bool TryPickUp(ItemInstance item)
         {
             return Belt.TryAdd(item) || Grid.TryAutoPlace(item);
+        }
+
+        public void AddGold(int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            Gold += amount;
+            GoldChanged?.Invoke();
+        }
+
+        /// <summary>Spende l'oro se basta; false, senza toccare niente, se non basta.</summary>
+        public bool TrySpendGold(int amount)
+        {
+            if (amount < 0 || amount > Gold)
+            {
+                return false;
+            }
+
+            Gold -= amount;
+            GoldChanged?.Invoke();
+            return true;
+        }
+
+        /// <summary>L'oro di un salvataggio.</summary>
+        public void RestoreGold(int amount)
+        {
+            Gold = Math.Max(0, amount);
+            GoldChanged?.Invoke();
         }
 
         /// <summary>

@@ -197,6 +197,11 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 3df37aee39a6d3f49854db44a946dc09, type: 3}
   - {fileID: 8300000, guid: fe58997c728c8ec40ad722f5018c5344, type: 3}
   - {fileID: 8300000, guid: 1864650ab85b97245923042e85e7afb3, type: 3}
+  _coinClips:
+  - {fileID: 8300000, guid: 29eb6c4d47c075348be2fb39651bdc4b, type: 3}
+  - {fileID: 8300000, guid: c63c14ea888d3214f8cf7645a52e8d62, type: 3}
+  - {fileID: 8300000, guid: 3abf9086fa9d55b408c2443b07677e62, type: 3}
+  _goldColor: {r: 0.88, g: 0.75, b: 0.38, a: 1}
 --- !u!114 &4650100682426865527
 MonoBehaviour:
   m_ObjectHideFlags: 0

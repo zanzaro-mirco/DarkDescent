@@ -15,10 +15,15 @@ MonoBehaviour:
   _id: 3fa41aee67784a71bc0a19690debd63d
   _nameKey: item.spiked_shield
   _icon: {fileID: 21300000, guid: e82a036b8b5be274b9b0e4a39e9ae5d1, type: 3}
+  _sound: 0
   _size: {x: 2, y: 2}
   _model: {fileID: 919132149155446097, guid: e67b3df4fcc14f79af7cdcde28b0a21d, type: 3}
   _iconRotation: {x: 0, y: 180, z: 0}
+  _standsOnGround: 0
+  _value: 70
   _heldPosition: {x: 0, y: 0, z: 0.15}
   _heldRotation: {x: 0, y: 0, z: 0}
+  _slot: 2
   _armor: 6
   _blockChance: 5
+  _requiredStrength: 0

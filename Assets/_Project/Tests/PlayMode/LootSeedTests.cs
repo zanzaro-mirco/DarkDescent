@@ -51,7 +51,7 @@ namespace DarkDescent.Tests
                 drop.GetComponent<Health>().TakeDamage(new DamageInfo(1000f, DamageType.Physical, null));
                 yield return null;
 
-                var fresh = Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).Where(g => !before.Contains(g)).ToArray();
+                var fresh = Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).Where(g => !before.Contains(g) && g.Gold == 0).ToArray();
                 var items = fresh.Where(g => !(g.Item.Definition is PotionDefinition)).ToArray();
                 string actual = (items.Length == 0 ? "niente" : Describe(items.Single().Item))
                     + (fresh.Any(g => g.Item.Definition is PotionDefinition) ? " + pozione" : "");
@@ -76,7 +76,7 @@ namespace DarkDescent.Tests
             skeleton.GetComponent<Health>().TakeDamage(new DamageInfo(1000f, DamageType.Physical, null));
             yield return null;
 
-            var dropped = Object.FindFirstObjectByType<GroundItem>();
+            var dropped = Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).First(g => g.Gold == 0);
             Assert.AreEqual(Rarity.Rare, dropped.Item.Rarity);
             Assert.AreEqual(expected.Affixes.Count, dropped.Item.Affixes.Count);
             Assert.AreEqual(RarityColors.Light(Rarity.Rare), dropped.GlowColor);

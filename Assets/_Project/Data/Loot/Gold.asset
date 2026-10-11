@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25d0e51ee744a074a821feb91fb6bf92, type: 3}
+  m_Name: Gold
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Items.GoldDefinition
+  _id: 1005839aabbc4629bbdc2a9ed36b8031
+  _nameKey: item.gold
+  _icon: {fileID: 0}
+  _sound: 0
+  _size: {x: 1, y: 1}
+  _model: {fileID: 3980546128959257725, guid: 52f5c74e2c63ffc469b4e2ac99a6a6b6, type: 3}
+  _iconRotation: {x: 0, y: 0, z: 0}
+  _standsOnGround: 1
+  _value: 0
+  _heldPosition: {x: 0, y: 0, z: 0}
+  _heldRotation: {x: 0, y: 0, z: 0}
+  _mediumModel: {fileID: 5231087846925649593, guid: f9f09cd4ef024154a8f6e94c7ffe269a, type: 3}
+  _mediumFrom: 20
+  _largeModel: {fileID: 4438936334632011836, guid: 3af6896c577810c4ea86abc55e53211f, type: 3}
+  _largeFrom: 60

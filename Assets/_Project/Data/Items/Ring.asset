@@ -19,6 +19,8 @@ MonoBehaviour:
   _size: {x: 1, y: 1}
   _model: {fileID: 9100500771654986828, guid: 677d4da8698370041ada4c3cec9d31b5, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}
+  _standsOnGround: 0
+  _value: 80
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
   _slot: 8

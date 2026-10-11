@@ -15,10 +15,15 @@ MonoBehaviour:
   _id: 89af6e0471a0438e855b5f87cfb64259
   _nameKey: item.square_shield
   _icon: {fileID: 21300000, guid: 589fcbb4fbc9b294faafb64690c85dd4, type: 3}
+  _sound: 0
   _size: {x: 2, y: 3}
   _model: {fileID: 919132149155446097, guid: 8db217bde2014cd680725644cd502cb4, type: 3}
   _iconRotation: {x: 0, y: 180, z: 0}
+  _standsOnGround: 0
+  _value: 50
   _heldPosition: {x: 0, y: 0, z: 0.15}
   _heldRotation: {x: 0, y: 0, z: 0}
+  _slot: 2
   _armor: 8
   _blockChance: 10
+  _requiredStrength: 0

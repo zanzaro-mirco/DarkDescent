@@ -18,7 +18,8 @@ namespace DarkDescent.Tests
         private PlayerInventory _inventory;
         private ItemInstance _expected;
 
-        private static GroundItem[] GroundItems() => Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None);
+        // gli oggetti, senza le pile d'oro della M10: quelle le prova GoldPlayModeTests
+        private static GroundItem[] GroundItems() => Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).Where(g => g.Gold == 0).ToArray();
 
         // Skeleton_B e non Skeleton: dalla camera, il cubo della sandbox copre lo scheletro principale
         // e quello che lascia cadere

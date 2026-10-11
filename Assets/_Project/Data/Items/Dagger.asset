@@ -15,9 +15,12 @@ MonoBehaviour:
   _id: fdcb202e0508442e8a9d44ddffe3000f
   _nameKey: item.dagger
   _icon: {fileID: 21300000, guid: 6a89f80378e7b7b409f2b5bdf7e18d13, type: 3}
+  _sound: 0
   _size: {x: 1, y: 2}
   _model: {fileID: 919132149155446097, guid: ce959b9eb16147beac9836c55890cd33, type: 3}
   _iconRotation: {x: 0, y: 0, z: 0}
+  _standsOnGround: 0
+  _value: 20
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
   _minDamage: 3
@@ -29,3 +32,4 @@ MonoBehaviour:
   _rangeTolerance: 0.5
   _attackInterval: 0.7
   _hitDelay: 0.42
+  _arc: 360
