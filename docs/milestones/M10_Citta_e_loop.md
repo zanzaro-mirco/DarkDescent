@@ -242,9 +242,11 @@ PlayMode verdi.
   quella del cavaliere. Il primo screenshot era troppo buio al centro e sul lato dei giacigli: ho
   aggiunto il fuoco e le torce sui muri est e ovest. La luce ambiente si legge dalla scena salvata:
   cambiandola nel tileset va ricostruita la scena (*DarkDescent → Ricostruisci la scena della città*).
-- **Il suono**: un crepitio di fuoco sintetizzato in loop come fondo, senza versi nel buio. **La
-  musica manca**: nessuna di quelle che abbiamo è adatta (il loop *Blizzard* del pacchetto RKN è vento
-  gelido) e scaricarne una vuole il permesso di Mirco.
+- **Il suono**: un crepitio di fuoco sintetizzato in loop come fondo, senza versi nel buio, e la
+  musica *Medieval: The Bard's Tale* di RandomMind (CC0, OpenGameArt; liuto e flauto, loop di 58 s, al
+  70%), scaricata con il permesso di Mirco: nessuna di quelle che avevamo era adatta (il loop *Blizzard*
+  del pacchetto RKN è vento gelido). Tenuta in `.wav` su LFS, senza un convertitore a portata: Unity la
+  comprime in Vorbis all'import, in streaming come le altre musiche.
 - **Il portale non c'è ancora**: lo spiazzo accanto all'ingresso è libero per il passo 10.6, che
   aggiungerà anche l'ingresso d'arrivo del portale.
 

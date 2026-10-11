@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3872c273d5a9c14e977c842e9cea841, type: 3}
   m_Name: AmbienceTown
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Audio.AmbienceProfile
-  _music: {fileID: 0}
-  _musicVolume: 1
+  _music: {fileID: 8300000, guid: 25071edebfb2ef44986548af0f2dd22f, type: 3}
+  _musicVolume: 0.7
   _bed: {fileID: 8300000, guid: 6ff4b260cc55ed141894ab86806b90c1, type: 3}
   _bedVolume: 0.35
   _stingers: []

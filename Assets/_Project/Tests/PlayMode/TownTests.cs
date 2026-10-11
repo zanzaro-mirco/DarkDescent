@@ -57,7 +57,7 @@ namespace DarkDescent.Tests
             yield return WaitForLevel();
         }
 
-        [UnityTest, Description("Una partita nuova comincia in città: profondità 0, senza nemici né casse, scena attiva per luci e Instantiate, il cavaliere sul NavMesh, il nome senza numero e l'automappa")]
+        [UnityTest, Description("Una partita nuova comincia in città: profondità 0, senza nemici né casse, scena attiva per luci e Instantiate, il cavaliere sul NavMesh, il nome senza numero, l'automappa, luce calda, la sua musica")]
         public IEnumerator NewGame_StartsInTown()
         {
             yield return StartNewGame();
@@ -82,6 +82,12 @@ namespace DarkDescent.Tests
             Assert.Greater(RenderSettings.ambientLight.r, 0.1f);
             int shadowLights = UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Count(l => l.shadows != LightShadows.None);
             Assert.AreEqual(1, shadowLights);
+
+            // la sua musica e il crepitio del fuoco, senza versi nel buio
+            var ambience = UnityEngine.Object.FindFirstObjectByType<DarkDescent.Audio.AmbiencePlayer>();
+            Assert.AreEqual("town_loop_the_bards_tale", ambience.Music.clip.name);
+            Assert.AreEqual("bed_town_fire", ambience.Bed.clip.name);
+            Assert.AreEqual(0, ambience.Current.StingerCount);
         }
 
         [UnityTest, Description("La scala della città porta alla profondità 1 della cripta, sul suo ingresso iniziale")]
