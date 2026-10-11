@@ -5,20 +5,24 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Progressione: nella cripta il cavaliere uccide uno scheletro e sale di livello con una luce dorata, spende i punti in Forza nel pannello del personaggio, indossa elmo e corazza dall'inventario, poi la visuale si avvicina e gira attorno a lui](docs/media/m8_progression.gif)
+![Magia: nella cripta il cavaliere lancia Dardi di fuoco contro tre scheletri, li investe con l'Anello di fuoco quando gli sono addosso, si copre con la Pelle di pietra e abbatte a Dardi uno scheletro mago che lo bersaglia da lontano; in basso a destra la sfera blu del mana si svuota](docs/media/m9_magic.gif)
 
 ## Stato
 
-**M8 — "Progressione e persistenza"** chiusa l'11 ottobre 2026 (tag `m8`): uccidendo si
-guadagna esperienza fino al livello 20, e a ogni livello cinque punti da spendere negli
-attributi. Equipaggiamento completo a sagoma, come in Diablo: elmo, armatura, guanti,
-stivali, due anelli e un amuleto, con un lampo e un suono quando si indossano. Il gioco si
-salva da solo e riparte da dove si era, con la mappa scoperta di ogni profondità; il file è
-versionato e un salvataggio vecchio si migra. La visuale si avvicina con la rotella e gira a
-scatti di 90° con i muri alti sempre dietro. Font Cinzel, danno che cresce con Forza e
-livello. Prossima: **M9 — "Magia"**.
+**M9 — "Magia"** chiusa l'11 ottobre 2026 (tag `m9`): la sfera blu del mana e tre
+incantesimi lanciati con il tasto destro: il Dardo di fuoco, un proiettile preso da un pool
+senza allocazioni; l'Anello di fuoco, che colpisce tutti attorno; la Pelle di pietra, che alza
+l'Armatura per 20 s. Il Dardo si conosce dall'inizio, gli altri si imparano dalle pergamene. Lo
+scheletro mago tiene le distanze, arretra se ci si avvicina e tira dardi che lo scudo para. La
+barra in alto resta sull'ultimo nemico colpito, la Magia ha un senso nel pannello, la pozione di
+mana e due affissi nuovi. Salvataggio al formato 3, con la migrazione dal 2. Prossima:
+**M10 — "Città e loop completo"**.
 
 Milestone precedenti:
+
+- **M8 — "Progressione e persistenza"** (tag `m8`): esperienza e livelli, punti attributo,
+  equipaggiamento completo, salvataggio versionato, zoom e rotazione della visuale
+  ([GIF](docs/media/m8_progression.gif)).
 
 - **M7 — "Le profondità"** (tag `m7`): caverne generate con un random walk, lo sciame e il
   bruto con il colpo telegrafato, IA a stati, colpi critici, musica e rumori d'ambiente
@@ -56,7 +60,9 @@ Milestone precedenti:
 - click sinistro sulla scala per scendere al livello successivo
 - click sinistro su un oggetto a terra per raccoglierlo, su una cassa per aprirla
 - `1`–`8` bevono la pozione in quel posto della cintura; click destro su una pozione,
-  nella cintura o nell'inventario, per berla
+  nella cintura o nell'inventario, per berla, o su una pergamena per imparare l'incantesimo
+- click destro nel mondo per lanciare l'incantesimo scelto verso il cursore; `F1`–`F3`, o un
+  click sui tre posti accanto alla sfera del mana, scelgono l'incantesimo
 - `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
   con un oggetto preso, un click fuori dalle finestre lo lascia a terra
 - `C` pannello del personaggio; passando su una statistica, un tooltip dice a cosa serve.

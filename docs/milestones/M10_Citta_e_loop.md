@@ -1,0 +1,131 @@
+# M10 — "Città e loop completo"
+
+**Cosa deve succedere (Definition of Done):** in una **build prodotta dalla CI**, il gioco parte
+da un **menu iniziale** con *Continua*, *Nuova partita* e **tre salvataggi**. Dalla **città** si
+compra dal **mercante** con l'**oro** raccolto, si scende nel dungeon, si torna in città con una
+**pergamena del ritorno** a vendere e ricomprare, e si riscende dove si era. Alla profondità 8 il
+cavaliere affronta il **boss**, lo uccide e vede la **schermata di vittoria** con i
+riconoscimenti. Una partita completa, dall'avvio alla vittoria, senza passare dall'editor. La
+build si scarica da **itch.io** e parte su un PC che non è quello di Mirco. Test verdi in CI.
+
+**Tempo stimato:** 17–22 h nel piano (v2.28); questa scheda ne conta 20–27 (D13).
+**Prerequisito:** M9 chiusa (tag `m9`).
+
+**Come si lavora:** come alla M9, il codice e i passaggi nell'editor li faccio io, in batchmode
+a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in build, la revisione degli ADR,
+e su itch.io la pagina e la chiave per la CI (D12): le credenziali le mette lui, io non le vedo.
+Dopo la prima build da provare c'è un passo per le correzioni (lezione della M7, della M8 e della M9).
+
+---
+
+## Stato verificato l'11 ottobre 2026
+
+| Cosa | Stato |
+|---|---|
+| Avvio | Il gioco parte dentro la partita: la scena `Core` carica il livello del salvataggio o la cripta alla profondità 1. Non c'è un menu, né una pausa, e `Esc` non è assegnato. `-newgame` ignora il salvataggio, `-seed` sceglie il seme |
+| Scene | `Core` sempre caricata, `Level_Crypt` (profondità 1–4, BSP) e `Level_Caves` (5–8, random walk) additive, `Sandbox_Combat`, `Level_01`/`Level_02` fatti a mano dalla M3. Non c'è una città |
+| Discesa | Alla profondità 8 la scala non c'è (`CaveSettings` non ha una scena dopo): il gioco non finisce |
+| Oro e prezzi | Non ci sono: `ItemDefinition` non ha un valore. Il pacchetto KayKit *Dungeon* già scaricato ha `coin`, `coin_stack_small/medium/large` e `chest_gold` |
+| Salvataggio | Formato 3 (ADR-068), un solo `save.json`. Migratore 1 → 2 → 3, file veri dei formati 1 e 2 congelati nei test |
+| Morte | Si torna all'ingresso del livello con tutto (ADR-048) |
+| Lingua | `F9` cambia lingua, la scelta resta tra le preferenze (provvisorio dalla M5) |
+| Audio | Mixer `Main` con i gruppi musica, effetti e ambiente (M7): un volume per gruppo si può già esporre |
+| Nemici | Scheletro, sciame, bruto (colpo telegrafato con il settore rosso), scheletro mago. Nessun boss |
+| Modelli | KayKit *Adventurers* (Barbarian, Knight, Mage, Ranger, Rogue, Rogue_Hooded) e *Skeletons* (Warrior, Minion, Rogue, Mage, armi e scudi grandi) già scaricati; *Dungeon* con tavoli, scaffali, barili, botti, letti, bauli, candele, monete |
+| CI | Test a ogni push, build Windows sui tag `m*`/`v*`, Web ad avvio manuale. Niente butler né itch.io |
+| Test | 242 EditMode e 166 PlayMode verdi |
+
+---
+
+## Decisioni
+
+Proposte da confermare con Mirco.
+
+| # | Decisione | Proposta | Perché |
+|---|---|---|---|
+| D1 | **Rifiniture chieste nella prova della M9** | Per prime, come descritte nel piano v2.28: **click destro** su un oggetto della borsa per **indossarlo**; **pulsante dorato** dei punti da spendere sopra la sfera della vita; **caratteristiche colorate** nel pannello (azzurro più alte della base, rosso più basse); **nomi degli oggetti a terra con `Alt`**, piccoli, impilati senza sovrapporsi, cliccabili | Sono piccole, si provano subito nella prima build, e il menu delle opzioni (D10) ne usa una |
+| D2 | **Menu iniziale e tre salvataggi** | Come nel piano v2.28: *Continua* (l'ultimo giocato), *Nuova partita* (sceglie il posto, conferma se è occupato), *Carica* (tre posti con livello, profondità, città o dungeon, data; cancellabili con conferma), *Opzioni*, *Esci*. File `save_1.json`…`save_3.json`; il vecchio `save.json` diventa il posto 1. **`-newgame` e `-seed` saltano il menu** e giocano senza salvare, come oggi nell'editor | La riga di comando serve a provare e a rigiocare un seme: lì il menu è solo un passaggio in più, e scrivere in un posto rischierebbe di coprire una partita vera |
+| D3 | **La città** | Un **accampamento sotterraneo all'ingresso della cripta**: una sala fatta a mano con la mappa di testo della M3, illuminata più calda della cripta, con tavoli, botti, scaffali, bauli e candele del pacchetto *Dungeon*. Dentro: il **mercante**, la **scala** che scende alla profondità 1 e il **portale** del ritorno (D6). Niente nemici, una musica sua. Si comincia lì | Il pacchetto ha arredi da taverna ma non esterni: una città all'aperto vorrebbe un pacchetto nuovo. Sotto terra resta coerente con la cripta, e la mappa di testo è già pronta (M3) |
+| D4 | **Oro** | Cade da nemici (spesso, poco) e casse (sempre, di più), crescente con la profondità; a terra come una pila di monete con il nome "N oro", si raccoglie con un click come gli oggetti e **non occupa la borsa**. Il totale nell'inventario. Ogni oggetto ha un **prezzo** calcolato: valore base del tipo × rarità (normale 1, magico 3, raro 6) × (1 + livello dell'oggetto / 10). Il mercante **vende** al prezzo e **compra** al 25% | Come Diablo 1: l'oro a terra è il riscontro più frequente, e un prezzo calcolato evita di scriverne uno per ogni combinazione di affissi. Il 25% rende vendere utile ma non un modo per arricchirsi |
+| D5 | **Il mercante** | Un personaggio KayKit *Adventurers* (il Mage o il Rogue incappucciato) dietro un tavolo. Click sopra: si apre la sua finestra accanto all'inventario. **Vende** pozioni di cura e di mana, pergamene del ritorno (D6) e **otto oggetti** del livello della profondità più bassa raggiunta, tirati dal seme della partita e cambiati a ogni ritorno in città. **Compra** tutto. Click su un suo oggetto per comprarlo, click destro su un oggetto della borsa per venderlo; il tooltip dice il prezzo | Un solo mercante, come nel piano. L'assortimento dal seme è ripetibile senza salvarlo |
+| D6 | **Tornare in città** | Una **pergamena del ritorno** (consumabile, 1 × 2 celle come quelle degli incantesimi): letta con il click destro apre un **portale** davanti al cavaliere. Il portale porta in città; in città un portale riporta **all'ingresso della profondità** da cui si era partiti (il livello si rigenera dal seme, ADR-061). Se ne comincia con una; il mercante le vende a poco e cadono raramente | È il *Town Portal* di Diablo 1. Le scale in su vorrebbero rifare otto livelli a ritroso; un portale fisso a ogni livello toglierebbe la scelta di quando tornare |
+| D7 | **Morte** | Resta come oggi: si torna all'ingresso del livello con tutto (ADR-048). La punizione alla morte resta tra i lavori dopo la v1.0, da valutare con le prove a cinque persone | Il piano la rimanda già; cambiarla adesso cambierebbe anche il bilanciamento dell'oro |
+| D8 | **Il boss** | **Il Re delle ossa**: lo `Skeleton_Warrior` a scala 1,8 con l'ascia grande, una luce rossa e un nome suo. Alla profondità 8 le caverne hanno una **sala del boss** nel punto più lontano dall'ingresso; entrando, la sala si chiude e la barra in alto mostra la sua vita per tutto lo scontro. **Tre fasi** per vita: sopra il 60% mischia e il **colpo caricato** del bruto; tra il 60 e il 30% **evoca un gruppo dello sciame** ogni 12 s; sotto il 30% è più veloce e lancia un **anello di fuoco** telegrafato da un cerchio a terra. Vita circa 600, da tarare. Lascia **almeno un oggetto raro**, molto oro e una pergamena del ritorno | Il piano lo vuole "a fasi, colpi telegrafati, evoca uno sciame": tutto riusa pezzi che ci sono già (stati dell'IA, telegrafo del bruto, sciame, anello di fuoco). Il modello è già scaricato |
+| D9 | **Vittoria** | Morto il boss, si apre un portale; attraversandolo, la **schermata di vittoria**: tempo di gioco, livello, nemici uccisi, morti, oro raccolto. Poi i **riconoscimenti** che scorrono (da `CREDITS.md`) e il ritorno al menu. Il salvataggio resta: con *Continua* si torna in città e si può riscendere | Chiude la partita senza cancellarla: chi vuole continuare a cercare oggetti può |
+| D10 | **Pausa e opzioni** | **`Esc`** apre la pausa: *Riprendi*, *Opzioni*, *Salva ed esci al menu*; il gioco si ferma. **Opzioni** (dal menu e dalla pausa): **lingua** (sostituisce `F9`), **volume** generale, musica, effetti e ambiente, **nomi a terra sempre visibili** (D1). Si salvano tra le preferenze | Il piano chiede la lingua nelle opzioni; i volumi sono gratis con il mixer della M7. `Esc` oggi non fa niente: con una finestra aperta (inventario, pannello, mercante) la chiude, altrimenti apre la pausa |
+| D11 | **Formato 4 del salvataggio** | Il salvataggio aggiunge l'**oro**, se si è **in città**, la profondità a cui riporta il portale, e i contatori della vittoria (tempo, uccisioni, morti, oro raccolto). `SaveMigrator` porta il 3 al 4 con oro 0 e contatori a zero. Prima si congela un file vero del formato 3 | Come per la M8 e la M9 (ADR-062): il test della migrazione usa un file vero |
+| D12 | **Prima build pubblica su itch.io** | **Mirco** crea la pagina del gioco in stato *In development* e una **chiave API di butler**, e la mette tra i secrets del repo come `BUTLER_API_KEY` (io non la vedo e non la chiedo). La CI, sui tag `m*` e `v*`, dopo la build Windows la carica con **butler** sul canale `windows`. Il canale Web resta ad avvio manuale | È la DoD del piano. Il canale Web regge (ADR-019), ma un caricamento in più su ogni tag raddoppia i minuti di CI per una versione che pochi provano |
+| D13 | **Stima** | Questa scheda conta **20–27 h** contro le 17–22 del piano, per il formato 4, la pausa e i passi di prova e correzione. Proposta: tenerle tutte e aggiornare il piano. Se serve tagliare, la **linea 3** del piano (la città come sola schermata del mercante) toglie circa 2 h, e i nomi con `Alt` possono passare a dopo la v1.0 (circa 1,5 h) | Meglio deciderlo adesso che a metà milestone |
+
+---
+
+## Passi
+
+| # | Passo | Ore |
+|---|---|---|
+| 10.0 | Rifiniture della prova della M9: click destro per indossare, pulsante dei punti, caratteristiche colorate, nomi con `Alt` (D1) | 3–4 |
+| 10.1 | Oro in `Core`: drop, pile a terra, raccolta, prezzi degli oggetti (D4), con i test | 1,5–2 |
+| 10.2 | Formato 4 del salvataggio e migrazione, con il file vero del formato 3 congelato prima (D11) | 0,5–1 |
+| 10.3 | Menu iniziale, tre salvataggi, pausa e opzioni (D2, D10) | 3–4 |
+| 10.4 | La città: sala a mano, arredi, luci, musica, scala e portale; si comincia lì (D3) | 2–3 |
+| 10.5 | Il mercante: modello, finestra, comprare e vendere, assortimento dal seme (D5) | 2–3 |
+| 10.6 | Pergamena del ritorno e portali (D6) | 1–1,5 |
+| 10.7 | Il boss alla profondità 8: sala, tre fasi, barra, loot (D8) | 3–4 |
+| 10.8 | Vittoria, statistiche e riconoscimenti (D9) | 1 |
+| 10.9 | Caricamento su itch.io dalla CI con butler (D12) | 1 |
+| 10.10 | Build da provare e correzioni | 1–2 |
+| 10.11 | Chiusura: prova su un altro PC, GIF, ADR, lezioni, tag `m10`, scheda della M11 | 0,5–1 |
+
+---
+
+## Trappole note
+
+1. **Il menu cambia l'avvio di tutti i test:** oggi i test caricano `Core` e trovano la partita
+   già avviata. Il menu va in una scena sua (`Menu`) prima di `Core`, e i test continuano a
+   caricare `Core` direttamente, come `-newgame`.
+2. **Tre salvataggi e un file vecchio:** il primo avvio con il codice nuovo deve trovare
+   `save.json`, spostarlo nel posto 1 e non cancellarlo mai, nemmeno se lo spostamento fallisce a
+   metà.
+3. **L'oro è un tiro nuovo nel loot** (trappola 10 della M7, ADR-067): va in fondo, con un flusso
+   suo, o cambia gli oggetti di tutti i semi provati.
+4. **Il portale riporta a un livello rigenerato:** nemici e casse tornano (ADR-061). Se si torna
+   alla profondità 8 dopo aver ucciso il boss, il boss non deve rinascere: la vittoria va nel
+   salvataggio.
+5. **La sala del boss non deve chiudersi con il cavaliere fuori o con lo sciame dentro il muro:**
+   la chiusura parte quando il cavaliere è ben dentro, e lo sciame evocato nasce su punti
+   campionati sul NavMesh della sala.
+6. **La pausa ferma `Time.timeScale`:** hit stop, ricariche, rigenerazione del mana e coroutine
+   con `WaitForSeconds` si fermano con lei; quello che deve andare in pausa (la UI) usa il tempo
+   non scalato, e il fade delle scene anche.
+7. **La chiave di itch.io sta solo nei secrets:** il workflow non la stampa mai, e i job delle pull
+   request da fork non la ricevono.
+
+---
+
+## Test
+
+| Test | Cosa controlla |
+|---|---|
+| `GoldTests` (EditMode) | Oro di nemici e casse per profondità, prezzi da tipo, rarità e livello, vendita al 25% |
+| `SaveSlotsTests` (EditMode) | Tre posti, riepilogo letto dal file, ultimo giocato, `save.json` spostato nel posto 1 |
+| `SaveMigrationTests` (EditMode, ampliato) | Il file vero del formato 3 si carica con il codice del formato 4 |
+| `MenuTests` (PlayMode) | *Continua* manca senza salvataggi; *Nuova partita* chiede conferma sopra un posto occupato; la pausa ferma il gioco e lo riprende |
+| `TownTests` (PlayMode) | Si comincia in città; la scala porta alla profondità 1; il portale riporta alla profondità salvata |
+| `MerchantTests` (PlayMode) | Comprare toglie l'oro e mette l'oggetto in borsa; senza oro o senza posto non compra; vendere dà il 25%; l'assortimento dipende dal seme e dalla visita |
+| `BossTests` (EditMode e PlayMode) | Le tre fasi per vita; l'evocazione dello sciame; la sala si chiude e si riapre; il loot garantito; la vittoria nel salvataggio |
+| Rifiniture (PlayMode) | Click destro indossa e scambia; il pulsante dei punti compare e sparisce; i colori del pannello; i nomi con `Alt` non si sovrappongono |
+
+---
+
+## Checklist di chiusura
+
+- [ ] Decisioni D1–D13 confermate
+- [ ] Rifiniture della prova della M9
+- [ ] Oro, prezzi e formato 4
+- [ ] Menu, tre salvataggi, pausa e opzioni
+- [ ] Città, mercante, pergamena del ritorno
+- [ ] Boss e vittoria
+- [ ] Build su itch.io, provata su un altro PC
+- [ ] Test verdi in CI
+- [ ] GIF, ADR, lezioni nel piano, tag `m10`
+- [ ] Scheda della M11 scritta prima di cominciarla

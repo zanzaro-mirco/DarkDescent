@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.28**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.29**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.29 | 11 ott 2026 | M9 chiusa (tag `m9`), con le lezioni · ADR-064…069 · scheda della M10 |
 | v2.28 | 11 ott 2026 | Su richiesta di Mirco: un **menu iniziale** con Continua e Nuova partita e **tre salvataggi** nella M10 · **click destro su un oggetto nella borsa per indossarlo** nella M10 · **avviso dei punti attributo da spendere** nell'HUD, nella M10 · **caratteristiche colorate** nel pannello quando oggetti o effetti le cambiano, nella M10 · **nomi degli oggetti a terra con `Alt`**, nella M10 · M10 da 10–14 a 17–22 h |
 | v2.27 | 11 ott 2026 | M8 chiusa (tag `m8`), con le lezioni · la M8 sale a 16–22 h con i quattro giri di correzioni dopo le prove in build · la M9 a 10–13 h con le due correzioni chieste da Mirco nell'ultima prova (confronto con due anelli, nomi lunghi nei tooltip) · punto di controllo della M8 (rapporto 0,08, nessun taglio) · ADR-052…063 |
 | v2.26 | 11 ott 2026 | Su richiesta di Mirco: la **cintura centrata sotto la barra dell'esperienza** nella M9, insieme alla hotbar · un **dungeon più ricco di oggetti di scena** nella M11 (+2–3 h) · **nemici e oggetti che crescono con il livello del personaggio** dopo la v1.0 |
@@ -51,11 +52,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) |
-| **Milestone corrente** | **M9 — "Magia"** → `docs/milestones/M9_Magia.md` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) |
+| **Milestone corrente** | **M10 — "Città e loop completo"** → `docs/milestones/M10_Citta_e_loop.md` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…063) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…069) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -263,7 +264,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M6 | "Dungeon infinito" | cripta procedurale, pozioni, automappa | 16–19 | ✅ 5 ott |
 | M7 | "Le profondità" | caverne, nuovi nemici, colpi critici, automappa delle caverne, musica e rumori d'ambiente | 18–25 | ✅ 8 ott |
 | M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 16–22 | ✅ 11 ott |
-| M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | |
+| M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | ✅ 11 ott |
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, **prima build pubblica** | 17–22 | |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 17–28 | |
 
@@ -391,6 +392,18 @@ Chiusa l'11 ottobre 2026: 217 test EditMode e 148 PlayMode verdi, tre build dell
 - **Lo stile viene dallo stesso pacchetto:** armature e stivali presi dai pezzi dei personaggi KayKit stanno bene accanto al cavaliere; quelli di un pacchetto diverso, anche CC0 e low-poly, sembravano squadrati (ADR-056). I personaggi KayKit guardano verso +Z: le icone li vogliono girati di 180°.
 - **Un test che cerca un seme deve dire tutto quello che vuole:** abbassando la pozione, il primo seme con un oggetto la faceva cadere insieme; con meno armi, un altro dava un anello che entrava nell'inventario "pieno". E una probabilità salvata come float (0,3) cade dalla parte sbagliata contro lo stesso numero in double.
 - **In batchmode `WaitForEndOfFrame` non arriva:** i test temporanei per gli screenshot usano `yield return null`, o si bloccano.
+
+### M9 — "Magia" ✅
+
+Chiusa l'11 ottobre 2026: 242 test EditMode e 166 PlayMode verdi, una build della CI provata da Mirco. Lezioni emerse:
+
+- **Il passo di correzioni in tabella ha retto:** dopo la prova, quattro correzioni (mago e sciame che morivano al primo colpo, il Dardo a raffica, le scritte troppo grandi) in un giro, senza far salire la stima. Le richieste che erano funzioni nuove sono andate nel piano (M10, v2.28) invece di gonfiare la milestone in corso.
+- **La vita di un nemico va ricontrollata quando cresce il danno del cavaliere:** lo sciame, tarato alla M7, con il danno da Forza e livello della M8 moriva al primo colpo. Per ogni nemico si conta quanti colpi servono alla profondità dove compare, con l'equipaggiamento che il cavaliere ha lì.
+- **Un oggetto in mano a un modello si guarda da vicino, ben illuminato:** il bastone del mago è stato sbagliato tre volte (la radice dei modelli KayKit ha scala 100, poi il verso, poi il teschio dietro). Le misure erano vecchie perché l'animator dei nemici usa `CullUpdateTransforms`: nei test per gli screenshot va `AlwaysAnimate`.
+- **I collider non bastano per i muri che la camera spegne:** un raggio sul NavMesh, cotto con tutti i muri accesi, li vede tutti (ADR-065).
+- **`Math.Round` arrotonda al pari:** il Dardo con la Magia 10 faceva 8–14 invece di 9–15. Dove il valore è mostrato al giocatore si arrotonda lontano dallo zero.
+- **Un test che conta lo stato del mondo dopo un click dipende da dove cadono le cose:** la cassa "aperta due volte" contava gli oggetti a terra, e il secondo click a volte ne raccoglieva uno. Si conta l'evento che interessa, non quello che resta sul pavimento.
+- **In CI Unity si può fermare all'avvio senza errori:** la build va seguita con un limite di tempo e annullata, invece di aspettare i 60 minuti del timeout.
 
 ---
 

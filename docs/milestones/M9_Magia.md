@@ -329,6 +329,51 @@ della magia com'erano); il file del formato 1 arriva al 3; il formato 3 va e tor
 tornano dopo il caricamento; all'avvio da un salvataggio con l'Anello di fuoco la barra lo mostra
 scelto e il mana è quello salvato. 242 EditMode e 166 PlayMode verdi.
 
+## Passo 9.8 — Build da provare e correzioni
+
+**Com'è andata (11 ott 2026).** La prima build del 9.7 (run 38157007904) è stata annullata: nel
+runner Unity si è fermato all'avvio dei test EditMode e per 21 minuti non ha scritto niente. Nello
+stesso run era caduto un test PlayMode fragile: in `ChestTests` il secondo click sulla cassa, che
+doveva non fare niente, a volte cadeva sull'etichetta di un oggetto appena uscito e lo raccoglieva.
+Ora il test conta le aperture della cassa, non gli oggetti a terra. La seconda build (run
+38159433084) è verde, e Mirco l'ha provata. Le correzioni:
+
+- **"Mancato" e "Bloccato"** al 65% della misura dei numeri di danno (`_textScale` di
+  `DamageNumbers`): una parola intera alla misura di un numero sembrava enorme.
+- **Scheletro mago** da 12 a 28 di vita: alla profondità 3 moriva al primo colpo.
+- **Dardo di fuoco** con 0,8 s di ricarica: senza, lo limitava solo il mana, e cliccando di
+  seguito sembrava una mitragliatrice.
+- **Sciame** da 10 a 20 di vita, due terzi dello scheletro: con il danno della M8 moriva al primo
+  colpo anche lui.
+
+Le altre richieste della prova sono funzioni nuove e sono andate nella M10 (piano v2.28): menu
+iniziale con tre salvataggi, click destro per indossare, avviso dei punti da spendere,
+caratteristiche colorate nel pannello, nomi degli oggetti a terra con `Alt`. Su richiesta di Mirco
+le correzioni non sono passate da un'altra build: si vedranno nella prima della M10.
+
+*Test.* `ManaTests`: il Dardo ha la sua ricarica. `SwarmTests`: lo sciame ha due terzi della vita
+dello scheletro. `CombatStatsTests`: "Miss" è più piccolo dei numeri. `ChestTests`: una sola
+apertura e nessun oggetto nuovo. 242 EditMode e 166 PlayMode verdi.
+
+## Passo 9.9 — Chiusura
+
+**Com'è andata (11 ott 2026).** **Allocazioni lanciando a raffica:** un test temporaneo ha
+misurato, frame per frame, i byte allocati sul thread principale (`GC.GetAllocatedBytesForCurrentThread`):
+120 frame con il cavaliere fermo, 0 byte; 120 frame lanciando un Dardo ogni due frame, con 99
+proiettili in volo, 0 byte. La misura è fatta nell'editor in batchmode, non con il Profiler
+collegato a una build: conta le stesse allocazioni gestite, ma non quelle native.
+
+La GIF del README (`docs/media/m9_magic.gif`, 640 × 360, 15 fotogrammi al secondo, 1,2 MB) è
+registrata in batch da un test temporaneo: nella cripta generata il cavaliere lancia due Dardi di
+fuoco contro tre scheletri che arrivano, impara l'Anello di fuoco e lo lancia quando gli sono
+addosso, poi la Pelle di pietra; uno scheletro mago lo bersaglia da lontano con i dardi viola, e
+il cavaliere lo abbatte a Dardi. La sfera del mana si svuota durante tutta la scena.
+
+ADR-064…069 scritti alla chiusura per le decisioni dei passi 9.1–9.7 (incantesimi, proiettili,
+nemico a distanza, pergamene, formato 3, barra del nemico). Nel piano (v2.29) le lezioni e lo
+stato. La M9 resta nelle 10–13 h: il passo di correzioni era già in tabella. Scheda della M10
+scritta, con le decisioni da confermare.
+
 ---
 
 ## Trappole note
@@ -380,8 +425,9 @@ scelto e il mana è quello salvato. 242 EditMode e 166 PlayMode verdi.
 - [x] Scheletro mago
 - [x] Barra del nemico combattuto e HUD in basso
 - [x] Formato 3 e migrazione
-- [ ] Profiler: nessuna allocazione a ogni frame lanciando a raffica
-- [ ] Scenario della Definition of Done provato in build
-- [ ] Test verdi in CI
-- [ ] GIF, ADR, lezioni nel piano, tag `m9`
-- [ ] Scheda della M10 scritta prima di cominciarla
+- [x] Nessuna allocazione a ogni frame lanciando a raffica (misurata nell'editor, 9.9)
+- [x] Scenario della Definition of Done provato in build (run 38159433084; le correzioni del 9.8 si provano con la M10)
+- [x] Test verdi in CI
+- [x] GIF, ADR, lezioni nel piano
+- [ ] Tag `m9`
+- [x] Scheda della M10 scritta prima di cominciarla

@@ -462,3 +462,45 @@ Formato:
 - **Decisione:** lo zoom cambia la dimensione della vista di Cinemachine (9 di base), a scatti interi del 10% tra il 60% e il 140%, in 0,15 s con un'uscita cubica e con il tempo non scalato. La logica sta in `ZoomLevel`, in `Core`; `CameraZoom` la applica e ricorda lo scatto tra le preferenze, come la lingua. Il reader manda solo il verso della rotella.
 - **Alternative scartate:** spostare la camera, che in ortografica non ha effetto; uno zoom continuo, che accumula somme di 0,1 lontane dai valori tondi.
 - **Conseguenze:** luce del cavaliere, muri bassi e automappa non cambiano con lo zoom. Il limite in allontanamento tiene la vista dentro il raggio della luce.
+
+## ADR-064 — Incantesimi come asset, logica in Core, effetti in ascolto
+- **Data:** 2026-10-11 (scritto alla chiusura della M9)
+- **Contesto:** la M9 porta il mana e tre incantesimi di tipo diverso (D2, D3, D5 della scheda): un proiettile, un'area e un potenziamento. Il piano chiede un sistema di abilità estendibile.
+- **Decisione:** ogni incantesimo è un `SpellDefinition` in `Data/Spells`, con id stabile, tipo, costo, ricarica, danno (tiro più Magia / divisore) e i numeri del suo tipo. In `Core/Magic` stanno `ManaPool`, `SpellBook` (noti e scelto, ripristinabile dagli id) e `SpellCaster`, che decide se un lancio parte e dice perché no (`CastResult`). `PlayerMagic` traduce il tasto destro in un lancio e annuncia `Cast`; che cosa succede nel mondo lo decide `PlayerSpells`, che ascolta e sceglie per tipo: proiettile dal pool, area con un `OverlapSphereNonAlloc`, potenziamento come modificatore dell'Armatura con l'incantesimo come sorgente.
+- **Alternative scartate:** un `MonoBehaviour` per incantesimo, che sparge regole di costo e ricarica in tre posti; incantesimi con livelli, che il gioco non chiede (il danno cresce con la Magia).
+- **Conseguenze:** un incantesimo nuovo di un tipo esistente è un asset; un tipo nuovo è un ramo in `PlayerSpells`. Il danno degli incantesimi non usa la Forza e non si blocca, e ha un flusso di numeri casuali suo (trappola 3).
+
+## ADR-065 — Proiettili da un pool, con un raggio a sfera e i muri dal NavMesh
+- **Data:** 2026-10-11 (scritto alla chiusura della M9)
+- **Contesto:** il Dardo di fuoco e i dardi dei maghi (D7). Lanciando a raffica non si deve allocare a ogni frame; i muri alti dalla parte della camera sono spenti con i loro collider dalla M8.
+- **Decisione:** `ProjectilePools` nella scena Core tiene un `UnityEngine.Pool.ObjectPool<Projectile>` per prefab, al massimo 32, con la funzione di ritorno creata una volta. Il proiettile vola dritto senza rigidbody: a ogni frame un `SphereCastNonAlloc` con un buffer condiviso cerca il primo bersaglio vivo, e un `NavMesh.Raycast` a terra dice se ha incontrato un muro. Ripreso dal pool azzera scia, nucleo, scoppio e luce. I dardi dei nemici passano da `ShieldBlock` come i colpi di mischia.
+- **Alternative scartate:** rigidbody e collisioni, che a 14 m/s perdono i contatti e vogliono i collider dei muri accesi; `Instantiate` e `Destroy` a ogni lancio; un pool scritto a mano, quando Unity ne ha uno.
+- **Conseguenze:** lanciando un Dardo ogni due frame con 99 proiettili in volo il thread principale alloca 0 byte (9.9). Un muro che non è nel NavMesh non ferma i proiettili.
+
+## ADR-066 — Il nemico a distanza: due stati nuovi e un corpo che sa tirare
+- **Data:** 2026-10-11 (scritto alla chiusura della M9)
+- **Contesto:** lo scheletro mago (D6) tiene la distanza, lancia e arretra. L'IA dei nemici è una macchina a stati in `Core` con un corpo astratto (ADR-042).
+- **Decisione:** `IRangedBody` estende `IEnemyBody` con distanza dal bersaglio, lancio, tiro libero, avvicinamento, attesa e fuga. Due stati nuovi in fondo all'enum: `RangedState` (si avvicina fino alla portata, si ferma e lancia se il tiro è libero, arretra sotto i 4 m dopo una pausa) e `RetreatState` (fugge verso un punto campionato sul NavMesh, con un limite di tempo). `EnemyArchetype` sceglie gli stati a distanza quando ha una portata; `EnemyBrain.Alert` entra in `Ranged` invece di `Chase`. `EnemyAI` implementa la fuga provando angoli di 0°, ±30°, ±60° e ±90° dalla direzione opposta al cavaliere, e il tiro libero con un `NavMesh.Raycast`.
+- **Alternative scartate:** un componente di IA separato per i maghi, che duplicherebbe percezione, ritorno a casa e morte; la fuga in linea retta, che finisce negli angoli (trappola 5).
+- **Conseguenze:** il comportamento si prova in EditMode con il corpo finto (`MageStateTests`). Un altro nemico a distanza (la balestra) è un archetipo e un prefab.
+
+## ADR-067 — Una pergamena per livello, tirata una volta e portata da un nemico o da una cassa
+- **Data:** 2026-10-11 (scritto alla chiusura della M9)
+- **Contesto:** gli incantesimi oltre al primo si imparano dalle pergamene (D5), circa una ogni tre livelli dalla profondità 2, mai di un incantesimo già noto. Il loot è deterministico dal seme (ADR-029, ADR-037) e un tiro nuovo sposta quelli dopo (trappola 10 della M7).
+- **Decisione:** `ScrollTable` tira una volta per livello, collegando il livello, con un flusso suo (`SeedMixer.ForScroll`): se esce una pergamena, sceglie tra quelle volute (incantesimi non noti) e un portatore tra nemici e casse, che la lascia accanto al suo drop (`Carry`). La pozione di mana divide il tiro della pozione di cura (`LootTable.PotionFor`) invece di aggiungerne uno.
+- **Alternative scartate:** pergamene nelle tabelle di ogni nemico, che renderebbero la frequenza dipendente dal numero di nemici e cambierebbero i drop dei semi provati; un tiro alla morte di ogni nemico, che potrebbe dare due pergamene uguali nello stesso livello.
+- **Conseguenze:** la frequenza è per livello, non per nemico. Il libro va rimesso dal salvataggio prima che il livello si colleghi (trappola 8, ADR-068).
+
+## ADR-068 — Formato 3: incantesimi e mana nel salvataggio
+- **Data:** 2026-10-11 (scritto alla chiusura della M9)
+- **Contesto:** con la M9 la partita ha incantesimi imparati, uno scelto e il mana (D11). ADR-062 vuole un passo del migratore e un file vero congelato per ogni formato.
+- **Decisione:** `SaveData` aggiunge gli id degli incantesimi noti, il posto scelto e il mana; −1 vuol dire «pieno», e da morto si salva pieno come la vita. `SaveMigrator` porta il 2 al 3 con nessun incantesimo imparato, il primo posto e il mana pieno, mettendo i valori a mano: `JsonUtility` lascia ai campi mancanti nel file il default del tipo, non quello dell'inizializzatore. Prima di cambiare il formato si è congelato `Tests/EditMode/Fixtures/save_v2.json`, scritto dal codice del formato 2. All'avvio il salvataggio si applica nello `Start` del CompositionRoot, prima che il livello caricato in modo asincrono tiri la sua pergamena.
+- **Alternative scartate:** salvare i nomi degli incantesimi invece degli id, che cambiano con la lingua o con un rinomina; ricalcolare il mana pieno a ogni caricamento, che regala mana a chi salva a secco.
+- **Conseguenze:** un file del formato 1 passa dal 2 e poi dal 3. Il menu della M10 con tre salvataggi non cambia il formato: il riepilogo si legge dal file.
+
+## ADR-069 — La barra in alto resta sull'ultimo nemico colpito
+- **Data:** 2026-10-11 (scritto alla chiusura della M9)
+- **Contesto:** dalla M7 la barra in alto mostra solo il nemico sotto il cursore (ADR-049). Con i proiettili e l'Anello di fuoco si colpiscono nemici che il cursore non ha mai toccato (D9, piano v2.22).
+- **Decisione:** `EnemyBar` segue i nemici del livello (`Track`/`Untrack`, chiamati dal CompositionRoot accanto ai numeri di danno) e ricorda l'ultimo colpito o mancato dal cavaliere per 3 s. Mostra il nemico sotto il cursore se c'è, altrimenti l'ultimo colpito. Il cerchio rosso a terra resta solo sul nemico sotto il cursore. Aggiorna ADR-049.
+- **Alternative scartate:** una barra sopra ogni nemico, che nello sciame fa dieci barre una sull'altra (resta un'opzione per dopo la v1.0); tenere l'ultimo colpito senza scadenza, che lascia sulla barra un nemico già lontano.
+- **Conseguenze:** colpi ed evasioni del cavaliere aggiornano la barra con un evento, senza controlli a ogni frame; il tempo di 3 s è un `WaitForSeconds` creato una volta.
