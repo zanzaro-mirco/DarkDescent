@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.29**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.30**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.30 | 11 ott 2026 | Decisioni della M10 confermate da Mirco · la **prima pubblicazione su itch.io** passa dalla M10 alla **fine della M11** · M10 a 19–26 h, M11 a 18–29 h |
 | v2.29 | 11 ott 2026 | M9 chiusa (tag `m9`), con le lezioni · ADR-064…069 · scheda della M10 |
 | v2.28 | 11 ott 2026 | Su richiesta di Mirco: un **menu iniziale** con Continua e Nuova partita e **tre salvataggi** nella M10 · **click destro su un oggetto nella borsa per indossarlo** nella M10 · **avviso dei punti attributo da spendere** nell'HUD, nella M10 · **caratteristiche colorate** nel pannello quando oggetti o effetti le cambiano, nella M10 · **nomi degli oggetti a terra con `Alt`**, nella M10 · M10 da 10–14 a 17–22 h |
 | v2.27 | 11 ott 2026 | M8 chiusa (tag `m8`), con le lezioni · la M8 sale a 16–22 h con i quattro giri di correzioni dopo le prove in build · la M9 a 10–13 h con le due correzioni chieste da Mirco nell'ultima prova (confronto con due anelli, nomi lunghi nei tooltip) · punto di controllo della M8 (rapporto 0,08, nessun taglio) · ADR-052…063 |
@@ -108,7 +109,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 154–221 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Alla chiusura della M8 (v2.27) la M8 è salita a 16–22 h, per i quattro giri di correzioni dopo le prove in build, e la M9 a 10–13 h. Nella v2.28 la M10 è salita a 15–20 h con il menu iniziale, i tre salvataggi, il click destro per indossare, l'avviso dei punti da spendere, le caratteristiche colorate e i nomi degli oggetti con `Alt`. Per le milestone ancora aperte, M9–M11 all'11 ott 2026, restano 44–63 ore: a 6–10 h a settimana sono 4–11 settimane di lavoro effettivo; con pause e settimane saltate, **1,5–2,5 mesi di calendario**.
+**Totale stimato:** circa 157–226 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Alla chiusura della M8 (v2.27) la M8 è salita a 16–22 h, per i quattro giri di correzioni dopo le prove in build, e la M9 a 10–13 h. Nella v2.28 la M10 è salita a 15–20 h con il menu iniziale, i tre salvataggi, il click destro per indossare, l'avviso dei punti da spendere, le caratteristiche colorate e i nomi degli oggetti con `Alt`. Nella v2.30 la scheda della M10 l'ha portata a 19–26 h, e itch.io è passato alla M11 (18–29 h). Per le milestone ancora aperte, M10–M11 all'11 ott 2026, restano 37–55 ore: a 6–10 h a settimana sono 4–10 settimane di lavoro effettivo; con pause e settimane saltate, **1,5–2,5 mesi di calendario**.
 
 **Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Quello della M8 confronta i 6 giorni dalla chiusura della M5 (5 ott) a quella della M8 (11 ott) con la stima massima di M6–M8, 66 h, cioè 11 settimane: rapporto 0,08, nessun taglio. Il prossimo, se serve, alla chiusura della M10, quando il gioco è finibile.
 
@@ -265,8 +266,8 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M7 | "Le profondità" | caverne, nuovi nemici, colpi critici, automappa delle caverne, musica e rumori d'ambiente | 18–25 | ✅ 8 ott |
 | M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 16–22 | ✅ 11 ott |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | ✅ 11 ott |
-| M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, **prima build pubblica** | 17–22 | |
-| M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 17–28 | |
+| M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi | 19–26 | |
+| M11 | "Look, feel e release" | arte, audio, shader, v1.0, **prima pubblicazione su itch.io** | 18–29 | |
 
 ---
 
@@ -648,11 +649,11 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M10 — "Città e loop completo" · 17–22 h
+### M10 — "Città e loop completo" · 19–26 h
 
 **A schermo:** dal menu arrivi in città, compri dal mercante, scendi, risali a vendere, affronti il boss al livello 8, vedi la schermata di vittoria.
 
-**Contenuto:** città hub · mercante · flusso di gioco completo (menu → città → dungeon → morte o vittoria) costruito sulla struttura a scene di M3 · menu delle opzioni, con la scelta della lingua che sostituisce il tasto provvisorio della M5 · ritorno in città dai livelli profondi · **boss** (§ 2), che lascia loot migliore dei nemici normali (almeno un oggetto raro; v2.22) · vittoria e riconoscimenti · **prima build pubblica su itch.io** (spostata da M3): pagina "in sviluppo" creata da Mirco, caricamento dalla CI con butler sui tag, eventuale canale Web se la prova di M3 ha retto.
+**Contenuto:** città hub · mercante · flusso di gioco completo (menu → città → dungeon → morte o vittoria) costruito sulla struttura a scene di M3 · menu delle opzioni, con la scelta della lingua che sostituisce il tasto provvisorio della M5 · ritorno in città dai livelli profondi · **boss** (§ 2), che lascia loot migliore dei nemici normali (almeno un oggetto raro; v2.22) · vittoria e riconoscimenti. La prima pubblicazione su itch.io, prevista qui fino alla v2.29, passa alla fine della M11 (v2.30, decisione di Mirco).
 
 **Menu iniziale e tre salvataggi** (v2.28, richiesta di Mirco). Il gioco non parte più dentro la partita: parte da un menu.
 
@@ -693,21 +694,23 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 - **Senza allocazioni a ogni frame.** Etichette prese da un pool; la disposizione si ricalcola a ogni frame solo mentre `Alt` è premuto, perché la camera si muove, con buffer fissi.
 - Circa 1,5–2 h.
 
-**A fine M10 il gioco è finibile.** È il momento di farlo provare a cinque persone e di prendere appunti senza difendersi: il link di itch.io è il modo più semplice per dargliela.
+**A fine M10 il gioco è finibile.** È il momento di farlo provare a cinque persone e di prendere appunti senza difendersi: basta lo zip della build Windows della CI.
 
-**Definition of Done:** una partita completa, dall'avvio alla vittoria, in build, senza passare dall'editor; la build si scarica da itch.io e parte su un PC che non è quello di Mirco.
+**Definition of Done:** una partita completa, dall'avvio alla vittoria, in build, senza passare dall'editor; la build della CI parte su un PC che non è quello di Mirco.
 
 **Per il CV:** gestione dello stato di gioco, design di un boss.
 
 ---
 
-### M11 — "Look, feel e release" · 17–28 h (percorso base)
+### M11 — "Look, feel e release" · 18–29 h (percorso base)
 
-**Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · rifinitura dell'audio (musica, rumori d'ambiente, audio posizionale e mixer a gruppi ci sono già: M3 e M7) · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · **dungeon più ricco** (v2.26), descritto sotto · pagina itch.io definitiva e release **v1.0**.
+**Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · rifinitura dell'audio (musica, rumori d'ambiente, audio posizionale e mixer a gruppi ci sono già: M3 e M7) · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · **dungeon più ricco** (v2.26), descritto sotto · release **v1.0** e **prima pubblicazione su itch.io**, descritta sotto.
+
+**Prima pubblicazione su itch.io** (spostata dalla M10 su decisione di Mirco, 11 ott 2026). È l'ultimo passo della M11, con la v1.0 pronta. Mirco crea la pagina del gioco e una chiave API di butler, e la mette tra i secrets del repo (`BUTLER_API_KEY`): le credenziali le mette lui. La CI, sui tag `v*`, dopo la build Windows la carica con butler sul canale `windows`; il canale Web si valuta allora (ADR-019). Il workflow non stampa mai la chiave, e i job delle pull request da fork non la ricevono. Circa 1 h.
 
 **Un dungeon meno spoglio** (v2.26, richiesta di Mirco). Oggi le stanze hanno pavimento, muri, torce, qualche colonna o cassa e gli stendardi. Mirco le trova monotone. Il pacchetto KayKit Dungeon ne ha già molte altre: per ora ne usiamo 42 su 211, e si possono aggiungere barili, tavoli, scaffali, libri, ossa, ragnatele, catene, candele, sacchi e detriti. Il popolatore della M6 le mette con poche regole: lungo i muri e negli angoli, mai sul percorso tra le porte, mai sopra le celle delle scale, e più fitte nelle stanze grandi. Un "tema" per stanza (deposito, biblioteca, ossario) le tiene coerenti, e il seme del livello le rende ripetibili come il resto. Tutto quello che blocca il passaggio entra nel NavMesh, e il resto è solo decorazione senza collider. Le caverne hanno una lista loro, con funghi, cristalli e rocce. Si misura in build: la decorazione non deve alzare il tempo di costruzione del livello oltre i 50 ms del punto di controllo D4 della M6. Circa 2–3 h, e per questo la stima sale.
 
-**Estensione opzionale — Blender.** Sostituire gli asset CC0 con modelli propri è **fuori** dalle 17–28 h: la sola modellazione, partendo da zero con Blender, vale facilmente 80–100 h, e lì il lavoro resta tutto di Mirco. Si valuta a M11 chiusa, con la v1.0 già pubblicata, e semmai diventa una v1.1. Non è un taglio: è il percorso base che non la prevede.
+**Estensione opzionale — Blender.** Sostituire gli asset CC0 con modelli propri è **fuori** dalle 18–29 h: la sola modellazione, partendo da zero con Blender, vale facilmente 80–100 h, e lì il lavoro resta tutto di Mirco. Si valuta a M11 chiusa, con la v1.0 già pubblicata, e semmai diventa una v1.1. Non è un taglio: è il percorso base che non la prevede.
 
 **Definition of Done:** v1.0 pubblicata, `CREDITS.md` completo, README con GIF e sezione sull'architettura.
 
@@ -760,7 +763,7 @@ Dieci minuti di disciplina che tengono il progetto leggibile anche dopo un mese 
 2. Test verdi (da M2) e CI verde (da M2.5)
 3. GIF per il README
 4. `git tag m<N>` e push del tag (da M2.5 produce anche la build)
-5. Build aggiornata su itch.io (da M10)
+5. Build aggiornata su itch.io (dalla M11)
 6. Tabella "Stato del progetto" aggiornata
 7. Scheda della milestone successiva in `docs/milestones/`, scritta **prima** di cominciarla
 
@@ -789,9 +792,9 @@ Le schede si scrivono una alla volta, all'inizio di ogni milestone, con quello c
 | URP, Shader Graph, illuminazione | M3, M11 |
 | Git, LFS, licenze degli asset in un repo pubblico | M0, M1 |
 | Blender (estensione opzionale) | dopo M11 |
-| Pubblicazione e release | M10, M11 |
+| Pubblicazione e release | M11 |
 
-**Come presentarlo:** repo pubblico con un README curato (GIF, schema dell'architettura, link agli ADR), build giocabile su itch.io da M10, e 3–4 articoli tecnici sulle parti più interessanti: il generatore di dungeon, il sistema di affissi, la pipeline di CI, lo shader retro.
+**Come presentarlo:** repo pubblico con un README curato (GIF, schema dell'architettura, link agli ADR), build giocabile su itch.io dalla M11, e 3–4 articoli tecnici sulle parti più interessanti: il generatore di dungeon, il sistema di affissi, la pipeline di CI, lo shader retro.
 
 ---
 

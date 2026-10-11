@@ -6,14 +6,14 @@ compra dal **mercante** con l'**oro** raccolto, si scende nel dungeon, si torna 
 **pergamena del ritorno** a vendere e ricomprare, e si riscende dove si era. Alla profondità 8 il
 cavaliere affronta il **boss**, lo uccide e vede la **schermata di vittoria** con i
 riconoscimenti. Una partita completa, dall'avvio alla vittoria, senza passare dall'editor. La
-build si scarica da **itch.io** e parte su un PC che non è quello di Mirco. Test verdi in CI.
+build della CI parte su un PC che non è quello di Mirco. Test verdi in CI. La pubblicazione su
+itch.io è passata alla fine della M11 (D12).
 
-**Tempo stimato:** 17–22 h nel piano (v2.28); questa scheda ne conta 20–27 (D13).
+**Tempo stimato:** 19–26 h (D13, piano v2.30).
 **Prerequisito:** M9 chiusa (tag `m9`).
 
 **Come si lavora:** come alla M9, il codice e i passaggi nell'editor li faccio io, in batchmode
-a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in build, la revisione degli ADR,
-e su itch.io la pagina e la chiave per la CI (D12): le credenziali le mette lui, io non le vedo.
+a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in build e la revisione degli ADR.
 Dopo la prima build da provare c'è un passo per le correzioni (lezione della M7, della M8 e della M9).
 
 ---
@@ -39,7 +39,7 @@ Dopo la prima build da provare c'è un passo per le correzioni (lezione della M7
 
 ## Decisioni
 
-Proposte da confermare con Mirco.
+Confermate da Mirco l'11 ottobre 2026: tutte come proposte, tranne la D12 (itch.io passa alla M11).
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -54,8 +54,8 @@ Proposte da confermare con Mirco.
 | D9 | **Vittoria** | Morto il boss, si apre un portale; attraversandolo, la **schermata di vittoria**: tempo di gioco, livello, nemici uccisi, morti, oro raccolto. Poi i **riconoscimenti** che scorrono (da `CREDITS.md`) e il ritorno al menu. Il salvataggio resta: con *Continua* si torna in città e si può riscendere | Chiude la partita senza cancellarla: chi vuole continuare a cercare oggetti può |
 | D10 | **Pausa e opzioni** | **`Esc`** apre la pausa: *Riprendi*, *Opzioni*, *Salva ed esci al menu*; il gioco si ferma. **Opzioni** (dal menu e dalla pausa): **lingua** (sostituisce `F9`), **volume** generale, musica, effetti e ambiente, **nomi a terra sempre visibili** (D1). Si salvano tra le preferenze | Il piano chiede la lingua nelle opzioni; i volumi sono gratis con il mixer della M7. `Esc` oggi non fa niente: con una finestra aperta (inventario, pannello, mercante) la chiude, altrimenti apre la pausa |
 | D11 | **Formato 4 del salvataggio** | Il salvataggio aggiunge l'**oro**, se si è **in città**, la profondità a cui riporta il portale, e i contatori della vittoria (tempo, uccisioni, morti, oro raccolto). `SaveMigrator` porta il 3 al 4 con oro 0 e contatori a zero. Prima si congela un file vero del formato 3 | Come per la M8 e la M9 (ADR-062): il test della migrazione usa un file vero |
-| D12 | **Prima build pubblica su itch.io** | **Mirco** crea la pagina del gioco in stato *In development* e una **chiave API di butler**, e la mette tra i secrets del repo come `BUTLER_API_KEY` (io non la vedo e non la chiedo). La CI, sui tag `m*` e `v*`, dopo la build Windows la carica con **butler** sul canale `windows`. Il canale Web resta ad avvio manuale | È la DoD del piano. Il canale Web regge (ADR-019), ma un caricamento in più su ogni tag raddoppia i minuti di CI per una versione che pochi provano |
-| D13 | **Stima** | Questa scheda conta **20–27 h** contro le 17–22 del piano, per il formato 4, la pausa e i passi di prova e correzione. Proposta: tenerle tutte e aggiornare il piano. Se serve tagliare, la **linea 3** del piano (la città come sola schermata del mercante) toglie circa 2 h, e i nomi con `Alt` possono passare a dopo la v1.0 (circa 1,5 h) | Meglio deciderlo adesso che a metà milestone |
+| D12 | **Pubblicazione** | **Niente itch.io nella M10** (decisione di Mirco, 11 ott 2026): la prima pubblicazione passa alla **fine della M11**, con la v1.0. Per la prova a cinque persone e su un altro PC basta lo zip della build Windows della CI | Mirco non vuole pubblicare finché il gioco non è rifinito |
+| D13 | **Stima** | **19–26 h** contro le 17–22 del piano, per il formato 4, la pausa e i passi di prova e correzione; senza itch.io (D12) un'ora in meno. Si tengono tutte e il piano si aggiorna (v2.30). Se servirà tagliare, la **linea 3** del piano (la città come sola schermata del mercante) toglie circa 2 h, e i nomi con `Alt` possono passare a dopo la v1.0 (circa 1,5 h) | Meglio deciderlo adesso che a metà milestone |
 
 ---
 
@@ -72,9 +72,8 @@ Proposte da confermare con Mirco.
 | 10.6 | Pergamena del ritorno e portali (D6) | 1–1,5 |
 | 10.7 | Il boss alla profondità 8: sala, tre fasi, barra, loot (D8) | 3–4 |
 | 10.8 | Vittoria, statistiche e riconoscimenti (D9) | 1 |
-| 10.9 | Caricamento su itch.io dalla CI con butler (D12) | 1 |
-| 10.10 | Build da provare e correzioni | 1–2 |
-| 10.11 | Chiusura: prova su un altro PC, GIF, ADR, lezioni, tag `m10`, scheda della M11 | 0,5–1 |
+| 10.9 | Build da provare e correzioni | 1–2 |
+| 10.10 | Chiusura: prova su un altro PC, GIF, ADR, lezioni, tag `m10`, scheda della M11 | 0,5–1 |
 
 ---
 
@@ -97,8 +96,6 @@ Proposte da confermare con Mirco.
 6. **La pausa ferma `Time.timeScale`:** hit stop, ricariche, rigenerazione del mana e coroutine
    con `WaitForSeconds` si fermano con lei; quello che deve andare in pausa (la UI) usa il tempo
    non scalato, e il fade delle scene anche.
-7. **La chiave di itch.io sta solo nei secrets:** il workflow non la stampa mai, e i job delle pull
-   request da fork non la ricevono.
 
 ---
 
@@ -119,13 +116,13 @@ Proposte da confermare con Mirco.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D13 confermate
+- [x] Decisioni D1–D13 confermate
 - [ ] Rifiniture della prova della M9
 - [ ] Oro, prezzi e formato 4
 - [ ] Menu, tre salvataggi, pausa e opzioni
 - [ ] Città, mercante, pergamena del ritorno
 - [ ] Boss e vittoria
-- [ ] Build su itch.io, provata su un altro PC
+- [ ] Build della CI provata su un altro PC
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m10`
 - [ ] Scheda della M11 scritta prima di cominciarla
