@@ -93,6 +93,31 @@ in italiano, il nome senza spazi, il nome su una riga di base. In `InventoryUITe
 due anelli confrontati in fila senza sovrapporsi e dentro lo schermo, il confronto che sparisce
 con un anello solo; il nome lungo su due righe e il tooltip non più largo della soglia.
 
+## Passo 9.1 — Mana e magia in Core
+
+**Com'è andata (11 ott 2026).** Tutto in `Core/Magic`, logica pura:
+
+- `ManaPool`: massimo, attuale, spesa, pozione, rigenerazione e riempimento. Annuncia il cambio
+  solo quando cambia il valore intero o il massimo (trappola 7): sessanta frame di rigenerazione
+  fanno un evento ogni punto di mana, non sessanta.
+- `SpellDefinition`, un asset per incantesimo in `Data/Spells` con id, nome, tipo, costo,
+  ricarica, danno (tiro più Magia / divisore) e i numeri del suo tipo: velocità e portata del
+  proiettile, raggio dell'area, Armatura in più e durata del potenziamento. Dardo di fuoco,
+  Anello di fuoco e Pelle di pietra con i numeri della D3; solo il Dardo è noto dall'inizio.
+- `SpellBook`: gli incantesimi in ordine di posto (F1–F3), quelli noti e quello scelto; impara da
+  una pergamena una volta sola, e si ripristina dagli id di un salvataggio.
+- `SpellCaster`: un lancio parte se l'incantesimo è noto, la ricarica è finita e il mana basta;
+  allora spende e avvia la ricarica. Altrimenti dice perché (`CastResult`), per scurire il posto.
+- `CombatFormulas.MaxMana` (10 + 2 × Magia + 1 per livello oltre il primo + affissi) e
+  `SpellDamage`, arrotondato a metà per eccesso: con l'arrotondamento al pari il Dardo con la
+  Magia 10 faceva 8–14 invece di 9–15. `StatType.Mana` per il mana degli affissi, in fondo
+  all'enum. Rigenerazione: il 2% del massimo al secondo.
+
+*Test.* `ManaTests` (8, EditMode): mana massimo da Magia, livello e affissi; spesa, pozione e
+rigenerazione; il massimo che cambia; un evento per punto intero; i numeri dei tre incantesimi;
+libro che impara e sceglie; ripristino dal salvataggio; lancio rifiutato per incantesimo non
+noto, ricarica o mana.
+
 ---
 
 ## Trappole note

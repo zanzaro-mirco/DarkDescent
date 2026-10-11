@@ -19,6 +19,12 @@ namespace DarkDescent.Combat
         private const float BaseCritChance = 5f;
         private const float BaseLife = 50f;
         private const float LifePerVitality = 2f;
+        private const float BaseMana = 10f;
+        private const float ManaPerMagic = 2f;
+        private const float ManaPerLevel = 1f;
+
+        /// <summary>Il mana che torna ogni secondo, in parte del massimo (D2 della M9): il 2%.</summary>
+        public const float ManaRegenPerSecond = 0.02f;
 
         /// <summary>
         /// Probabilità di colpire, in punti percentuali: 75 + Destrezza / 2 − Armatura, più il bonus
@@ -117,6 +123,25 @@ namespace DarkDescent.Combat
         public static float MaxLife(float vitality)
         {
             return BaseLife + LifePerVitality * vitality;
+        }
+
+        /// <summary>
+        /// Mana massimo (D2 della M9): 10 + 2 × Magia, più 1 per ogni livello oltre il primo, più il
+        /// mana degli affissi. Con la Magia 10 di partenza, 30.
+        /// </summary>
+        public static float MaxMana(float magic, float level, float bonus = 0f)
+        {
+            return BaseMana + ManaPerMagic * magic + ManaPerLevel * Math.Max(0f, level - 1f) + bonus;
+        }
+
+        /// <summary>
+        /// Il danno di un incantesimo (D3 della M9): il tiro più Magia / divisore, intero e almeno 1.
+        /// Niente Forza né livello: è la Magia a far crescere gli incantesimi.
+        /// </summary>
+        public static int SpellDamage(int roll, float magic, float magicDivisor)
+        {
+            // a metà per eccesso: 8,5 fa 9, non 8 come l'arrotondamento al pari
+            return Math.Max(1, (int)Math.Round(roll + magic / magicDivisor, MidpointRounding.AwayFromZero));
         }
     }
 }

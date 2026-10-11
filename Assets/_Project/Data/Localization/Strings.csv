@@ -27,6 +27,11 @@ enemy.brute,Skeleton Brute,Bruto scheletrico
 combat.miss,Miss,Mancato
 combat.blocked,Blocked,Bloccato
 
+# Incantesimi (M9)
+spell.firebolt,Firebolt,Dardo di fuoco
+spell.fire_ring,Ring of Fire,Anello di fuoco
+spell.stone_skin,Stone Skin,Pelle di pietra
+
 # Oggetti a terra e scale
 exit.descend,Descend to level {0},Scendi al livello {0}
 hud.inventory_full,No room in the inventory,Non c'è posto nell'inventario

@@ -26,5 +26,8 @@ namespace DarkDescent.Stats
         /// I nemici non ce l'hanno, e vale 0.
         /// </summary>
         Level,
+
+        /// <summary>Mana massimo in più, oltre a quello di Magia e livello (gli affissi della M9).</summary>
+        Mana,
     }
 }
