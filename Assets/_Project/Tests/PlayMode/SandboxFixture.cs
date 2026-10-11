@@ -112,6 +112,7 @@ namespace DarkDescent.Tests
         /// <summary>
         /// Cerca dal seme 1 in su il primo seme della partita con cui il nemico lascia un oggetto che va
         /// bene a <paramref name="wanted"/> (qualsiasi, se null), lo usa e restituisce l'oggetto atteso.
+        /// Senza pozione: a terra c'è solo l'oggetto, come contano i test.
         /// </summary>
         protected static ItemInstance UseLootSeedWithDrop(LootDrop drop, System.Func<ItemInstance, bool> wanted = null)
         {
@@ -120,7 +121,7 @@ namespace DarkDescent.Tests
             {
                 root.UseLootSeed(seed);
                 var item = drop.Preview();
-                if (item != null && (wanted == null || wanted(item)))
+                if (item != null && drop.PreviewPotion() == null && (wanted == null || wanted(item)))
                 {
                     return item;
                 }

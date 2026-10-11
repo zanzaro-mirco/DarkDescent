@@ -24,13 +24,13 @@ namespace DarkDescent.Tests
         // e quello che lascia cadere
         private const string SkeletonName = "Skeleton_B";
 
-        private IEnumerator KillSkeleton()
+        private IEnumerator KillSkeleton(System.Func<ItemInstance, bool> wanted = null)
         {
             yield return LoadSandbox(allSkeletons: true);
             _inventory = Player.GetComponent<PlayerInventory>();
             var skeleton = GameObject.Find(SkeletonName);
-            // un seme con cui lo scheletro lascia qualcosa: con il 30% non lascerebbe niente
-            _expected = UseLootSeedWithDrop(skeleton.GetComponent<LootDrop>());
+            // un seme con cui lo scheletro lascia qualcosa: con il 70% non lascerebbe niente
+            _expected = UseLootSeedWithDrop(skeleton.GetComponent<LootDrop>(), wanted);
             skeleton.GetComponent<Health>().TakeDamage(new DamageInfo(1000f, DamageType.Physical, null));
             yield return null;
         }
@@ -115,7 +115,8 @@ namespace DarkDescent.Tests
         [UnityTest, Description("Con l'inventario pieno l'oggetto resta a terra e l'HUD lo dice per un momento al centro; l'etichetta resta il solo nome")]
         public IEnumerator FullInventory_ItemStaysOnGround()
         {
-            yield return KillSkeleton();
+            // alto almeno due celle: un anello entrerebbe nell'ultima riga libera
+            yield return KillSkeleton(item => item.Definition.Size.y >= 2);
 #if UNITY_EDITOR
             var sword = UnityEditor.AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/ShortSword.asset");
 #else

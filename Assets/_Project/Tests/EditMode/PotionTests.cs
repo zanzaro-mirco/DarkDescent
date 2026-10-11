@@ -32,7 +32,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(potion.HealAmount(77f), Mathf.Round(potion.HealAmount(77f)), "intera, come i danni");
         }
 
-        [Test, Description("Su 10.000 tiri la pozione cade da circa il 25% degli scheletri e dal 50% delle casse")]
+        [Test, Description("Su 10.000 tiri la pozione cade da circa il 10% degli scheletri e dal 25% delle casse")]
         public void PotionChances_FollowTheTables()
         {
             var roller = Roller(99UL);
@@ -51,8 +51,8 @@ namespace DarkDescent.Tests
                 }
             }
 
-            Assert.AreEqual(0.25, skeletons / 10000.0, 0.02);
-            Assert.AreEqual(0.5, chests / 10000.0, 0.02);
+            Assert.AreEqual(0.1, skeletons / 10000.0, 0.02);
+            Assert.AreEqual(0.25, chests / 10000.0, 0.02);
         }
 
         [Test, Description("Il tiro della pozione ha un seme suo: stabile, diverso da quello dell'oggetto e scollegato dal drop dell'oggetto")]
@@ -81,8 +81,8 @@ namespace DarkDescent.Tests
                 }
             }
 
-            Assert.AreEqual(0.25, potionWithItem / (double)withItem, 0.03);
-            Assert.AreEqual(0.25, potionWithoutItem / (double)withoutItem, 0.03);
+            Assert.AreEqual(0.1, potionWithItem / (double)withItem, 0.03);
+            Assert.AreEqual(0.1, potionWithoutItem / (double)withoutItem, 0.03);
         }
 
         [Test, Description("Senza pozione nella tabella, o senza tabella, non cade niente")]

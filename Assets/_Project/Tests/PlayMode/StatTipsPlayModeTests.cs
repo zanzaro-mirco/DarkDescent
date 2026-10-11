@@ -62,5 +62,28 @@ namespace DarkDescent.Tests
             yield return null;
             Assert.IsFalse(tooltip.IsShowing, "si chiude con il pannello");
         }
+
+        [UnityTest, Description("La probabilità di colpire non è più contro il solo scheletro: la riga mostra l'intervallo su tutti i nemici (bruto con Armatura 20, sciame con 5), il tooltip il valore contro ognuno con il suo nome")]
+        public IEnumerator HitChance_ShowsEveryEnemy()
+        {
+            yield return LoadSandbox();
+            var panel = Object.FindFirstObjectByType<CharacterPanel>();
+            var tooltip = panel.Tooltip;
+            panel.Toggle();
+            yield return null;
+
+            // Destrezza 20 di partenza: 75 + 10 − Armatura
+            StringAssert.Contains("\n65–80%\n", panel.ValuesText);
+            yield return HoverLine(panel, 8);
+            StringAssert.Contains("Hit chance", tooltip.Text);
+            StringAssert.DoesNotContain("(skeleton)", tooltip.Text);
+            StringAssert.Contains("Skeleton: 75%", tooltip.Text);
+            StringAssert.Contains("Skeleton Rogue: 80%", tooltip.Text);
+            StringAssert.Contains("Skeleton Brute: 65%", tooltip.Text);
+            Localizer.SetLanguage("it");
+            yield return null;
+            StringAssert.Contains("Bruto scheletrico: 65%", tooltip.Text, "i nomi seguono la lingua");
+            Localizer.SetLanguage("en");
+        }
     }
 }

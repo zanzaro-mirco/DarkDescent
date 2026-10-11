@@ -1,5 +1,6 @@
 using System.Text;
 using DarkDescent.Combat;
+using DarkDescent.Enemies;
 using DarkDescent.Items;
 using DarkDescent.Localization;
 using DarkDescent.Player;
@@ -16,7 +17,8 @@ namespace DarkDescent.UI
     /// le stesse formule del combattimento. Si aggiorna quando cambiano statistiche o arma, mai in Update.
     /// Passando su una riga, un tooltip a destra della finestra dice a cosa serve (D16 della M6).
     /// In alto livello, esperienza e punti da spendere; con punti da spendere, un "+" accanto a ogni
-    /// attributo ne compra uno (D3 della M8).
+    /// attributo ne compra uno (D3 della M8). La probabilità di colpire dipende dall'Armatura del
+    /// nemico: la riga ne mostra l'intervallo su tutti i tipi, il tooltip il valore contro ognuno.
     /// </summary>
     [DisallowMultipleComponent]
     public class CharacterPanel : MonoBehaviour
@@ -27,8 +29,8 @@ namespace DarkDescent.UI
         [Tooltip("La colonna dei valori, allineata a quella dei nomi.")]
         [SerializeField] private TMP_Text _values;
 
-        [Tooltip("L'Armatura contro cui si mostra la probabilità di colpire: quella dello scheletro.")]
-        [SerializeField, Min(0f)] private float _referenceArmor = 10f;
+        [Tooltip("Un prefab per tipo di nemico: la probabilità di colpire si mostra contro la sua Armatura, con il suo nome.")]
+        [SerializeField] private EnemyAI[] _hitTargets;
 
         [Tooltip("La colonna dei nomi: le sue righe dicono dove mettere il tooltip.")]
         [SerializeField] private TMP_Text _names;
@@ -64,6 +66,13 @@ namespace DarkDescent.UI
         private Localizer _localizer;
         private int _hoveredLine = -1;
         private bool _subscribed;
+
+        // l'Armatura dei prefab non cambia: si legge una volta
+        private float[] _targetArmor;
+        private float _minTargetArmor;
+        private float _maxTargetArmor;
+
+        private const int HitChanceLine = 8;
 
         public bool IsOpen => _window.activeSelf;
 
@@ -142,6 +151,21 @@ namespace DarkDescent.UI
         private void Awake()
         {
             _window.SetActive(false);
+            _targetArmor = new float[_hitTargets.Length];
+            _minTargetArmor = float.MaxValue;
+            _maxTargetArmor = 0f;
+            for (int i = 0; i < _hitTargets.Length; i++)
+            {
+                _targetArmor[i] = CharacterStats.ValueOf(_hitTargets[i].GetComponent<CharacterStats>(), StatType.Armor);
+                _minTargetArmor = Mathf.Min(_minTargetArmor, _targetArmor[i]);
+                _maxTargetArmor = Mathf.Max(_maxTargetArmor, _targetArmor[i]);
+            }
+        }
+
+        /// <summary>La probabilità di colpire contro un'Armatura, con Destrezza e affissi del cavaliere, arrotondata come nel pannello.</summary>
+        public int HitChanceAgainst(float armor)
+        {
+            return Mathf.RoundToInt(CombatFormulas.HitChance(_stats.Dexterity, armor, _stats.ToHit));
         }
 
         private void OnEnable()
@@ -222,7 +246,10 @@ namespace DarkDescent.UI
         private void Refresh()
         {
             var (min, max) = DamageRange();
-            float hitChance = CombatFormulas.HitChance(_stats.Dexterity, _referenceArmor, _stats.ToHit);
+
+            // più Armatura, meno probabilità: il nemico più corazzato dà il minimo
+            int lowestHit = HitChanceAgainst(_maxTargetArmor);
+            int highestHit = HitChanceAgainst(_minTargetArmor);
 
             // l'ordine segue la colonna dei nomi nella scena
             _builder.Clear();
@@ -233,7 +260,13 @@ namespace DarkDescent.UI
             _builder.Append(Mathf.RoundToInt(CombatFormulas.MaxLife(_stats.Vitality) + _stats.Life)).Append('\n');
             _builder.Append(Mathf.RoundToInt(_stats.Armor)).Append('\n');
             _builder.Append(min).Append('–').Append(max).Append('\n');
-            _builder.Append(Mathf.RoundToInt(hitChance)).Append("%\n");
+            _builder.Append(lowestHit);
+            if (highestHit != lowestHit)
+            {
+                _builder.Append('–').Append(highestHit);
+            }
+
+            _builder.Append("%\n");
             _builder.Append(Mathf.RoundToInt(CombatFormulas.CritChance(_stats.Dexterity, _stats.Sheet.Get(StatType.CritChance)))).Append("%\n");
             _builder.Append(_block != null ? Mathf.RoundToInt(_block.BlockChance) : 0).Append('%');
             _values.SetText(_builder);
@@ -282,7 +315,27 @@ namespace DarkDescent.UI
 
             string[] names = _localizer.Get(TextKeys.StatNames).Split('\n');
             string title = _hoveredLine < names.Length ? names[_hoveredLine] : string.Empty;
-            _tooltip.ShowText("<b>" + title + "</b>\n" + _localizer.Get(key), (RectTransform)_window.transform, LineWorldPosition(_hoveredLine));
+            string text = "<b>" + title + "</b>\n" + _localizer.Get(key);
+            if (_hoveredLine == HitChanceLine)
+            {
+                text += HitChanceList();
+            }
+
+            _tooltip.ShowText(text, (RectTransform)_window.transform, LineWorldPosition(_hoveredLine));
+        }
+
+        // una riga per tipo di nemico; si costruisce solo al passaggio del cursore
+        private string HitChanceList()
+        {
+            var list = new StringBuilder();
+            for (int i = 0; i < _hitTargets.Length; i++)
+            {
+                var archetype = _hitTargets[i].Archetype;
+                string name = archetype != null ? _localizer.Get(archetype.NameKey) : _hitTargets[i].name;
+                list.Append('\n').Append(name).Append(": ").Append(HitChanceAgainst(_targetArmor[i])).Append('%');
+            }
+
+            return list.ToString();
         }
     }
 }

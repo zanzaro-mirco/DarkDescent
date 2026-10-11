@@ -376,6 +376,14 @@ Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
   portata dal verde al marrone. I buchi aperti sono chiusi a ventaglio e a terra questi pezzi stanno
   in piedi (`StandsOnGround`), perché distesi sembravano tubi (ADR-056). I personaggi KayKit guardano
   verso +Z: l'icona li vuole girati di 180°, se no mostra la schiena.
+- **"Colpire (scheletro)"** (11 ott). Con sciame e bruto il numero valeva per un nemico solo. Ora la
+  riga si chiama "Colpire" e mostra l'intervallo su tutti i tipi (65–80% con la Destrezza di
+  partenza); il tooltip elenca la probabilità contro ognuno, con il nome. Il pannello ha la lista dei
+  prefab dei nemici e ne legge Armatura e nome (ADR-057).
+- **Troppe armi e troppe pozioni** (11 ott). Ho fatto i conti per livello: 10,7 oggetti e 4,2 pozioni
+  alla cripta 4, più di metà armi e scudi. Probabilità più che dimezzate per scheletro, sciame e
+  bruto, pozione della cassa dal 50% al 25%, tutte le basi con lo stesso peso: 6,3 oggetti e 1,9
+  pozioni, armi da 3,6 a 1,3 (ADR-058).
 - **Sviluppi futuri** chiesti nella stessa prova (piano v2.26): livello di nemici e oggetti che segue
   quello del personaggio, dungeon più ricco di oggetti di scena, cintura centrata sotto l'esperienza.
 
