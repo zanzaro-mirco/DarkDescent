@@ -70,7 +70,7 @@ namespace DarkDescent.Tests
             File.SetLastWriteTimeUtc(slots.PathOf(slot), written);
         }
 
-        [UnityTest, Description("Senza salvataggi: il menu copre tutto, Continua manca, il livello non parte; Nuova partita nel posto 1 lo fa partire e salva lì entrando")]
+        [UnityTest, Description("Senza salvataggi: il menu copre tutto, Continua manca, il livello non parte; Nuova partita nel posto 1 parte dalla città e salva lì entrando")]
         public IEnumerator NewGame_StartsAndSavesInTheSlot()
         {
             yield return LoadWithMenu();
@@ -84,7 +84,7 @@ namespace DarkDescent.Tests
             Menu.SlotView(1).Button.onClick.Invoke();
             Assert.IsFalse(Menu.IsShown);
             yield return WaitForLevel();
-            Assert.AreEqual(1, Manager.CurrentLevel.Depth);
+            Assert.IsTrue(Manager.CurrentLevel.IsTown, "si comincia in città (D3)");
 
             string path = Path.Combine(_folder, "save_1.json");
             for (float t = 0f; !File.Exists(path); t += Time.unscaledDeltaTime)
@@ -134,7 +134,7 @@ namespace DarkDescent.Tests
             Menu.Confirm.Yes.onClick.Invoke();
             Assert.IsFalse(Menu.IsShown);
             yield return WaitForLevel();
-            Assert.AreEqual(1, Manager.CurrentLevel.Depth, "una partita nuova riparte dalla cripta");
+            Assert.IsTrue(Manager.CurrentLevel.IsTown, "una partita nuova riparte dalla città");
         }
 
         [UnityTest, Description("Il save.json di prima diventa il posto 1 e si può continuare")]

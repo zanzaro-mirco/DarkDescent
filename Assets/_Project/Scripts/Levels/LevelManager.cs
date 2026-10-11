@@ -271,8 +271,8 @@ namespace DarkDescent.Levels
             return false;
         }
 
-        // Il contesto alla radice della scena; in una scena di livello generato, il livello lo costruisce
-        // il suo DungeonLevel, alla profondità chiesta.
+        // Il contesto alla radice della scena; in una scena di livello costruito a runtime (generato, o
+        // la città dalla sua mappa), il livello lo costruisce il suo BuiltLevel, alla profondità chiesta.
         private bool TryGetContext(Scene scene, int depth, out LevelContext context)
         {
             context = null;
@@ -291,9 +291,9 @@ namespace DarkDescent.Levels
 
             foreach (var root in scene.GetRootGameObjects())
             {
-                if (root.TryGetComponent(out DungeonLevel dungeon))
+                if (root.TryGetComponent(out BuiltLevel built))
                 {
-                    context = dungeon.Build(RunSeed, depth);
+                    context = built.Build(RunSeed, depth);
                     return true;
                 }
             }

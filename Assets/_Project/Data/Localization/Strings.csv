@@ -19,7 +19,7 @@ hud.restart,Continue,Continua
 hud.level_title,{0} – Level {1},{0} – Livello {1}
 level.crypt,Crypt,Cripta
 level.caves,Caves,Caverne
-level.town,Town,Città
+level.town,Camp,Accampamento
 menu.continue,Continue,Continua
 menu.new,New game,Nuova partita
 menu.load,Load,Carica

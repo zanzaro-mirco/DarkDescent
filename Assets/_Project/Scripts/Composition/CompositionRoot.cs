@@ -106,6 +106,9 @@ namespace DarkDescent.Core
         [Tooltip("Le pergamene e quanto spesso un livello ne ha una (D5 della M9).")]
         [SerializeField] private ScrollTable _scrolls;
 
+        [Tooltip("La scena della città, dove comincia ogni partita nuova (D3 della M10).")]
+        [SerializeField] private string _townScene = "Town";
+
         /// <summary>Dove resta la lingua scelta tra un avvio e l'altro: è una preferenza, non la partita.</summary>
         public const string LanguagePreference = "language";
 
@@ -113,8 +116,11 @@ namespace DarkDescent.Core
 
         private const string SeedOption = "-seed";
 
-        // ignora il salvataggio e comincia una partita nuova (D10 della M8), finché non c'è il menu della M10
+        // salta il menu e comincia una partita nuova, senza salvarla (D2 della M10)
         private const string NewGameOption = "-newgame";
+
+        /// <summary>L'ingresso della città da cui comincia una partita nuova.</summary>
+        public const string TownEntrance = "Start";
 
         /// <summary>"1" mostra il menu iniziale anche nell'editor: per i test del menu.</summary>
         public const string MenuVariable = "DARKDESCENT_MENU";
@@ -207,7 +213,11 @@ namespace DarkDescent.Core
 
                 _levelManager.HoldStart();
             }
-            else if (!seedGiven && !newGame)
+            else if (seedGiven || newGame)
+            {
+                StartInTown();
+            }
+            else
             {
                 SaveReadResult read = _saveGame.TryLoad(out SaveData save);
                 if (read == SaveReadResult.Ok)
@@ -292,6 +302,13 @@ namespace DarkDescent.Core
             }
         }
 
+        // Una partita nuova comincia in città (D3 della M10). Senza menu e senza riga di comando, cioè
+        // nell'editor e nei test, si parte invece dalla cripta, come prima: i test cercano i nemici lì.
+        private void StartInTown()
+        {
+            _levelManager.SetStartLevel(_townScene, TownEntrance, 0);
+        }
+
         private static string SaveFolder()
         {
             string folder = Environment.GetEnvironmentVariable(SaveFolderVariable);
@@ -316,6 +333,7 @@ namespace DarkDescent.Core
             }
             else
             {
+                StartInTown();
                 Debug.Log($"[DarkDescent] partita nuova nel posto {slot}");
             }
 

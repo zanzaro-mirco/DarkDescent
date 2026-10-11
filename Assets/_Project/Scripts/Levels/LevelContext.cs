@@ -15,8 +15,8 @@ namespace DarkDescent.Levels
     [DisallowMultipleComponent]
     public class LevelContext : MonoBehaviour
     {
-        [Tooltip("La profondità del livello, dalla direttiva @depth della mappa: è il livello degli oggetti che ci cadono.")]
-        [SerializeField, Min(1)] private int _depth = 1;
+        [Tooltip("La profondità del livello, dalla direttiva @depth della mappa: è il livello degli oggetti che ci cadono. 0 è la città.")]
+        [SerializeField, Min(0)] private int _depth = 1;
 
         [Tooltip("I moduli da cui è costruito: suono, passi e nome del livello. Vuoto in una scena di prova: suono predefinito di Core, niente passi né nome.")]
         [SerializeField] private LevelTileset _tileset;
@@ -41,6 +41,9 @@ namespace DarkDescent.Levels
 
         public int Depth => _depth;
 
+        /// <summary>La città (D3 della M10): profondità 0, senza nemici, da dove si scende alla cripta.</summary>
+        public bool IsTown => _depth == 0;
+
         public LevelTileset Tileset => _tileset;
 
         public AmbienceProfile Ambience => _tileset != null ? _tileset.Ambience : null;
@@ -54,7 +57,7 @@ namespace DarkDescent.Levels
         /// <summary>Per chi costruisce il livello (<see cref="LevelBuilder"/>), prima che si accenda.</summary>
         public void Configure(int depth, LevelMap map = null, LevelTileset tileset = null)
         {
-            _depth = Mathf.Max(1, depth);
+            _depth = Mathf.Max(0, depth);
             Map = map;
             _tileset = tileset;
         }

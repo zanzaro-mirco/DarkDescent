@@ -212,6 +212,49 @@ Salva ed esci torna al menu con la partita da continuare; volume nel mixer in de
 visibili. `LanguageSwitchTests` cambia lingua dalle opzioni invece che con F9. 258 EditMode e 177
 PlayMode verdi.
 
+## Passo 10.4 — La città
+
+**Com'è andata (12 ott 2026).**
+
+- **Un accampamento sotterraneo**, scritto come mappa di testo (`Data/Levels/Town.txt`, 13 × 10
+  celle): una sala con due tavoli apparecchiati, il fuoco al centro, scaffali e botti di birra
+  contro il muro nord, giacigli e bauli ai lati, il banco del mercante a ovest, e a nord una nicchia
+  con la scala che scende. Il nome in gioco è **Accampamento** (*Camp*), più fedele di "Città" per
+  una sala sotto terra; la chiave resta `level.town`.
+- **Costruita a runtime dalla sua mappa**, non salvata come scena dall'editor come i livelli della
+  M3: la scena `Town` ha solo un `MapLevel`, che entrando costruisce la sala con lo stesso
+  `LevelBuilder` della cripta e ne cuoce il NavMesh. Così c'è l'automappa (che le scene salvate non
+  hanno) e ritoccare la città vuol dire cambiare il testo. `MapLevel` e `DungeonLevel` hanno ora
+  una base comune, `BuiltLevel`, che il `LevelManager` cerca nella scena.
+- **Profondità 0.** `LevelContext.IsTown` è la profondità 0; il titolo mostra solo il nome, senza
+  numero; il salvataggio scrive `inTown` (il campo del formato 4) e il menu mostra "Accampamento"
+  nel riepilogo del posto.
+- **Si comincia lì**: ogni partita nuova, dal menu o con `-newgame`/`-seed`. Nell'editor e nei test,
+  senza menu né riga di comando, Core parte ancora dalla cripta: i test cercano nemici e casse lì.
+  La scala porta all'ingresso `Start` della profondità 1, la stessa cripta di sempre.
+- **I mobili** sono nove modelli nuovi del pacchetto *Dungeon* (tavolo lungo apparecchiato,
+  sgabelli, scaffali, botte decorata, giaciglio, baule, banco con la tovaglia, cassetta) in sette
+  prefab di `Prefabs/Town/`, con il collider del loro ingombro sul layer degli ostacoli; il
+  `TownTileset` li lega ai simboli della mappa. Il fuoco è fatto di due mezzi cumuli di macerie
+  schiacciati e quattro torce accese inclinate a capanna, con una luce forte che tremola.
+- **Più calda della cripta**: luce ambiente arancione (0,24 · 0,165 · 0,11 contro lo 0,03 quasi nero
+  della cripta), torce su ogni parete, luci sui tavoli, sul banco e sul fuoco, nessuna ombra oltre a
+  quella del cavaliere. Il primo screenshot era troppo buio al centro e sul lato dei giacigli: ho
+  aggiunto il fuoco e le torce sui muri est e ovest. La luce ambiente si legge dalla scena salvata:
+  cambiandola nel tileset va ricostruita la scena (*DarkDescent → Ricostruisci la scena della città*).
+- **Il suono**: un crepitio di fuoco sintetizzato in loop come fondo, senza versi nel buio. **La
+  musica manca**: nessuna di quelle che abbiamo è adatta (il loop *Blizzard* del pacchetto RKN è vento
+  gelido) e scaricarne una vuole il permesso di Mirco.
+- **Il portale non c'è ancora**: lo spiazzo accanto all'ingresso è libero per il passo 10.6, che
+  aggiungerà anche l'ingresso d'arrivo del portale.
+
+*Test.* `TownMapTests` (3, EditMode): profondità 0, ingresso e scala verso la profondità 1 della cripta;
+ogni simbolo ha un mobile nel tileset e nessuno è un nemico; dall'ingresso si raggiunge ogni cella.
+`TownTests` (3, PlayMode): una partita nuova comincia in città (scena attiva, niente nemici né casse,
+titolo senza numero, automappa, luce calda, una sola luce con le ombre); la scala porta alla
+profondità 1 della cripta; salvata in città, la partita lo dice e Continua riporta lì. `MenuTests` ora
+si aspetta la città. 261 EditMode e 180 PlayMode verdi.
+
 ---
 
 ## Trappole note

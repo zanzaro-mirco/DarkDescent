@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using DarkDescent.Core;
-using Unity.AI.Navigation;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 
@@ -15,7 +13,7 @@ namespace DarkDescent.Levels
     /// builder delle mappe a mano, cuoce il NavMesh dai collider e accende i nemici.
     /// </summary>
     [DisallowMultipleComponent]
-    public class DungeonLevel : MonoBehaviour
+    public class DungeonLevel : BuiltLevel
     {
         private const string FirstEntrance = "Start";
         private const string EntranceFromAbove = "FromAbove";
@@ -57,8 +55,7 @@ namespace DarkDescent.Levels
             return layout.ToMap(directives);
         }
 
-        /// <summary>Costruisce il livello alla profondità chiesta, una volta sola; le chiamate dopo la prima restituiscono quello.</summary>
-        public LevelContext Build(ulong runSeed, int depth)
+        public override LevelContext Build(ulong runSeed, int depth)
         {
             if (_context != null)
             {
@@ -76,14 +73,8 @@ namespace DarkDescent.Levels
             _context = new LevelBuilder(_tileset).Build(map, activateEnemies: false);
             long built = watch.ElapsedMilliseconds;
 
-            // dai collider: le mesh dei modelli non sono leggibili, e in build il NavMesh verrebbe vuoto (D5)
-            var surface = _context.GetComponentInChildren<NavMeshSurface>();
-            surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
-            surface.BuildNavMesh();
+            Bake(_context);
             long baked = watch.ElapsedMilliseconds;
-
-            // i nemici si accendono sopra il NavMesh appena cotto: i loro agent ci si agganciano
-            _context.transform.Find(LevelBuilder.EnemiesGroup).gameObject.SetActive(true);
 
             Timings = (generated, built - generated, baked - built);
             Debug.Log($"[DarkDescent] livello {depth} generato da {_settings.name} (seme {seed}): "

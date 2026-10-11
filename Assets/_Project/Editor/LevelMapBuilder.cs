@@ -22,6 +22,9 @@ namespace DarkDescent.Editor
         private const string ItemsFolder = "Assets/_Project/Data/Items";
         private const string CryptScenePath = "Assets/_Project/Scenes/Level_Crypt.unity";
         private const string CryptSettingsPath = "Assets/_Project/Data/Levels/CryptSettings.asset";
+        private const string TownScenePath = "Assets/_Project/Scenes/Town.unity";
+        private const string TownMapPath = "Assets/_Project/Data/Levels/Town.txt";
+        private const string TownTilesetPath = "Assets/_Project/Data/Levels/TownTileset.asset";
 
         [MenuItem("DarkDescent/Ricostruisci i livelli dalle mappe")]
         public static void BuildAllFromMenu()
@@ -98,6 +101,43 @@ namespace DarkDescent.Editor
 
             AssetDatabase.SaveAssets();
             Debug.Log($"Scena della cripta costruita: {CryptScenePath}, numeri in {CryptSettingsPath}.");
+        }
+
+        [MenuItem("DarkDescent/Ricostruisci la scena della città")]
+        public static void BuildTownFromMenu()
+        {
+            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                BuildTown();
+            }
+        }
+
+        /// <summary>
+        /// La scena della città (D3 della M10): come quella della cripta, vuota, con un MapLevel che
+        /// costruisce l'accampamento dalla sua mappa quando ci si entra. Va nella build prima della cripta.
+        /// </summary>
+        public static void BuildTown()
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>(TownTilesetPath);
+            LevelBuilder.ApplyRenderSettings(tileset);
+            var town = new GameObject("Town").AddComponent<MapLevel>();
+            var so = new SerializedObject(town);
+            so.FindProperty("_map").objectReferenceValue = AssetDatabase.LoadAssetAtPath<TextAsset>(TownMapPath);
+            so.FindProperty("_tileset").objectReferenceValue = tileset;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorSceneManager.SaveScene(scene, TownScenePath);
+
+            var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+            if (!scenes.Exists(s => s.path == TownScenePath))
+            {
+                int index = scenes.FindIndex(s => s.path == CryptScenePath);
+                scenes.Insert(index < 0 ? scenes.Count : index, new EditorBuildSettingsScene(TownScenePath, true));
+                EditorBuildSettings.scenes = scenes.ToArray();
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"Scena della città costruita: {TownScenePath}, dalla mappa {TownMapPath}.");
         }
 
         public static void Build(LevelMap map, LevelTileset tileset, string scenePath)

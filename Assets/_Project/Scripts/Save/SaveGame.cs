@@ -115,6 +115,7 @@ namespace DarkDescent.Save
                 .WithInventory(InventorySnapshot.Capture(_inventory.Inventory))
                 .WithExplored(_exploration.Memory.Export())
                 .WithGold(_inventory.Inventory.Gold)
+                .WithTown(_levelManager.CurrentLevel.IsTown, 0)
                 .WithStats(_runStats.PlayTime, _runStats.Kills, _runStats.Deaths, _runStats.GoldCollected, _runStats.BossDefeated);
 
             // da morto il mana torna pieno con la vita (Revived): si salva pieno

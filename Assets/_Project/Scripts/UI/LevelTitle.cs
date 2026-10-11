@@ -127,9 +127,10 @@ namespace DarkDescent.UI
 
         private void Refresh()
         {
+            // la città non ha un numero (D3 della M10)
             string text = _localizer == null || string.IsNullOrEmpty(_nameKey)
                 ? string.Empty
-                : _localizer.Format(TextKeys.LevelTitle, _localizer.Get(_nameKey), _depth);
+                : _depth > 0 ? _localizer.Format(TextKeys.LevelTitle, _localizer.Get(_nameKey), _depth) : _localizer.Get(_nameKey);
             _banner.text = text;
             _corner.text = text;
         }
