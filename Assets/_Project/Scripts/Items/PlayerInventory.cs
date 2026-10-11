@@ -1,5 +1,6 @@
 using System;
 using DarkDescent.Combat;
+using DarkDescent.Magic;
 using DarkDescent.Player;
 using DarkDescent.Stats;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace DarkDescent.Items
     /// <summary>
     /// Guscio Unity di <see cref="Items.Inventory"/>: griglia, equipaggiamento, cintura e oggetto sul
     /// cursore del cavaliere. Tiene l'arma di MeleeAttack allineata a quella equipaggiata (senza arma,
-    /// i pugni), il blocco allineato allo scudo, mette a terra gli oggetti lasciati e beve le pozioni.
+    /// i pugni), il blocco allineato allo scudo, mette a terra gli oggetti lasciati, beve le pozioni e legge le pergamene.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterStats), typeof(MeleeAttack), typeof(Health))]
@@ -39,6 +40,7 @@ namespace DarkDescent.Items
         private ShieldBlock _block;
         private Health _health;
         private PlayerInputReader _reader;
+        private PlayerMagic _magic;
         private Inventory _inventory;
 
         // Creato al primo accesso: modelli in mano e pannelli si iscrivono in OnEnable, e l'ordine
@@ -75,27 +77,81 @@ namespace DarkDescent.Items
             return item != null ? GroundItem.Spawn(_groundItemPrefab, item, transform.position, transform.position + Vector3.up * _dropHeight) : null;
         }
 
-        /// <summary>Beve la pozione di un posto della cintura (da 0); false se è vuoto, se è morto o se ha la vita piena.</summary>
+        /// <summary>Beve la pozione di un posto della cintura (da 0); false se è vuoto, se è morto o se è già pieno.</summary>
         public bool DrinkFromBelt(int slot)
         {
             return CanDrink(Belt.Get(slot)) && Drink(Inventory.TakePotionFromBelt(slot));
         }
 
-        /// <summary>Beve la pozione che occupa una cella della griglia, con il click destro; false se non si può.</summary>
-        public bool DrinkAt(Vector2Int cell)
+        /// <summary>
+        /// Il click destro su una cella della griglia: beve la pozione o legge la pergamena che c'è;
+        /// false se non si può.
+        /// </summary>
+        public bool UseAt(Vector2Int cell)
         {
-            return CanDrink(Inventory.Grid.ItemAt(cell)) && Drink(Inventory.TakePotionAt(cell));
+            ItemInstance item = Inventory.Grid.ItemAt(cell);
+            if (item?.Definition is ScrollDefinition scroll)
+            {
+                return Read(item, scroll);
+            }
+
+            return CanDrink(item) && Drink(Inventory.TakePotionAt(cell));
         }
 
-        // a vita piena la pozione resta dov'è: in Diablo si sprecherebbe, qui il tasto non fa niente
+        // pieno, la pozione resta dov'è: in Diablo si sprecherebbe, qui il tasto non fa niente
         private bool CanDrink(ItemInstance item)
         {
-            return item?.Definition is PotionDefinition && !_health.IsDead && _health.Current < _health.Max;
+            if (!(item?.Definition is PotionDefinition potion) || _health.IsDead)
+            {
+                return false;
+            }
+
+            if (potion.Kind == PotionKind.Mana)
+            {
+                return _magic != null && _magic.Mana.Current < _magic.Mana.Max;
+            }
+
+            return _health.Current < _health.Max;
         }
 
         private bool Drink(PotionDefinition potion)
         {
-            return potion != null && _health.Heal(potion.HealAmount(_health.Max)) > 0f;
+            if (potion == null)
+            {
+                return false;
+            }
+
+            if (potion.Kind == PotionKind.Mana)
+            {
+                return _magic.Mana.Restore(potion.RestoreAmount(_magic.Mana.Max)) > 0f;
+            }
+
+            return _health.Heal(potion.RestoreAmount(_health.Max)) > 0f;
+        }
+
+        // una pergamena di un incantesimo già noto resta nello zaino: non insegna niente
+        private bool Read(ItemInstance item, ScrollDefinition scroll)
+        {
+            if (_magic == null || _health.IsDead || _magic.Book.SlotOf(scroll.Spell) < 0 || _magic.Book.Knows(scroll.Spell))
+            {
+                return false;
+            }
+
+            return Inventory.Grid.Remove(item) && _magic.Learn(scroll.Spell);
+        }
+
+        /// <summary>Vero se nella griglia c'è una pergamena di <paramref name="spell"/>: non ne cade un'altra.</summary>
+        public bool CarriesScrollOf(SpellDefinition spell)
+        {
+            foreach (var item in Inventory.Grid.Placements.Keys)
+            {
+                if (item.Definition is ScrollDefinition scroll && scroll.Spell == spell)
+                {
+                    return true;
+                }
+            }
+
+            return Inventory.Held?.Definition is ScrollDefinition held && held.Spell == spell;
         }
 
         /// <summary>Chiudendo l'inventario l'oggetto sul cursore torna nella griglia, o a terra se non c'è posto.</summary>
@@ -115,6 +171,8 @@ namespace DarkDescent.Items
             _health = GetComponent<Health>();
             // facoltativo: senza, la cintura si usa solo con il mouse
             _reader = GetComponent<PlayerInputReader>();
+            // facoltativo: senza, le pozioni di mana e le pergamene non servono
+            _magic = GetComponent<PlayerMagic>();
         }
 
         private void OnEnable()

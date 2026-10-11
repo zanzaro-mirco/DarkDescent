@@ -55,6 +55,9 @@ tooltip.equipped_ring1,Equipped – ring 1,Equipaggiato – anello 1
 tooltip.equipped_ring2,Equipped – ring 2,Equipaggiato – anello 2
 tooltip.heal,Restores {0}% of life,Rende il {0}% della vita
 tooltip.drink,Right-click or 1–8 on the belt to drink,Click destro o 1–8 dalla cintura per bere
+tooltip.restore_mana,Restores {0}% of mana,Rende il {0}% del mana
+tooltip.teaches,Teaches {0},Insegna {0}
+tooltip.read,Right-click to read,Click destro per leggere
 
 # Spiegazioni delle righe del pannello del personaggio (D16 della M6); il titolo è la riga stessa
 stat.tip.strength,Each point adds 1% weapon damage.\nHeavier weapons require more Strength.,Ogni punto aggiunge l'1% al danno dell'arma.\nLe armi più pesanti richiedono più Forza.
@@ -93,6 +96,9 @@ item.round_shield,Round Shield,Scudo tondo
 item.square_shield,Square Shield,Scudo quadrato
 item.spiked_shield,Spiked Shield,Scudo chiodato
 item.healing_potion,Healing Potion,Pozione di cura
+item.mana_potion,Mana Potion,Pozione di mana
+item.scroll_fire_ring,Scroll of Ring of Fire,Pergamena dell'Anello di fuoco
+item.scroll_stone_skin,Scroll of Stone Skin,Pergamena della Pelle di pietra
 item.bear_hat,Bear Hat,Copricapo d'orso
 item.knight_helm,Knight's Helm,Elmo da cavaliere
 item.leather_armor,Leather Armor,Armatura di cuoio
@@ -116,6 +122,9 @@ item.round_shield.gender,n,m
 item.square_shield.gender,n,m
 item.spiked_shield.gender,n,m
 item.healing_potion.gender,n,f
+item.mana_potion.gender,n,f
+item.scroll_fire_ring.gender,n,f
+item.scroll_stone_skin.gender,n,f
 item.bear_hat.gender,n,m
 item.knight_helm.gender,n,m
 item.leather_armor.gender,n,f

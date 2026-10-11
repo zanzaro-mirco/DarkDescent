@@ -87,6 +87,9 @@ namespace DarkDescent.Core
         [Tooltip("Gli affissi che il generatore può tirare (D3 della M5).")]
         [SerializeField] private AffixDatabase _affixes;
 
+        [Tooltip("Le pergamene e quanto spesso un livello ne ha una (D5 della M9).")]
+        [SerializeField] private ScrollTable _scrolls;
+
         /// <summary>Dove resta la lingua scelta tra un avvio e l'altro: è una preferenza, non la partita.</summary>
         public const string LanguagePreference = "language";
 
@@ -104,6 +107,11 @@ namespace DarkDescent.Core
         private Footsteps _footsteps;
         private PlayerProgress _progress;
         private Rendering.CameraRotation _cameraRotation;
+        private Magic.PlayerMagic _magic;
+        private PlayerInventory _inventory;
+
+        // quali pergamene possono ancora cadere: creata una volta, non a ogni livello
+        private Func<Magic.SpellDefinition, bool> _scrollWanted;
 
         // muri e torce del livello corrente, alti o bassi secondo la camera (D12 della M8); null nei livelli fatti a mano senza
         private WallView _walls;
@@ -212,6 +220,9 @@ namespace DarkDescent.Core
             _enemyBar.Bind(controller, _localizer);
             _targetMarker.Bind(controller);
             var magic = _player.GetComponent<Magic.PlayerMagic>();
+            _magic = magic;
+            _inventory = inventory;
+            _scrollWanted = spell => !_magic.Book.Knows(spell) && !_inventory.CarriesScrollOf(spell);
             magic.Bind(_reader, controller);
             _manaOrb.Bind(magic.Mana);
             _spellBar.Bind(magic);
@@ -312,10 +323,50 @@ namespace DarkDescent.Core
                 chest.Bind(_loot, level.Depth);
             }
 
+            PlaceScroll(level);
+
             _pack = new EnemyPack(level.Enemies);
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
             _exploration.SetLevel(level.Map, level.Depth);
+        }
+
+        // la pergamena del livello, se c'è, la porta uno dei nemici o una delle casse (D5 della M9)
+        private void PlaceScroll(LevelContext level)
+        {
+            var scroll = _loot.RollScroll(_scrolls, level.Depth, _scrollWanted, out double carrier);
+            if (scroll == null)
+            {
+                return;
+            }
+
+            int carriers = level.Chests.Count;
+            foreach (var enemy in level.Enemies)
+            {
+                if (enemy != null && enemy.TryGetComponent(out LootDrop _))
+                {
+                    carriers++;
+                }
+            }
+
+            int pick = Math.Min(carriers - 1, (int)(carrier * carriers));
+            foreach (var enemy in level.Enemies)
+            {
+                if (enemy != null && enemy.TryGetComponent(out LootDrop loot) && pick-- == 0)
+                {
+                    loot.Carry(scroll);
+                    return;
+                }
+            }
+
+            foreach (var chest in level.Chests)
+            {
+                if (pick-- == 0)
+                {
+                    chest.Carry(scroll);
+                    return;
+                }
+            }
         }
 
         private void ReleaseLevel(LevelContext level)

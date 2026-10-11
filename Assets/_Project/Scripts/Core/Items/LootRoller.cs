@@ -46,13 +46,31 @@ namespace DarkDescent.Items
         /// </summary>
         public ItemInstance RollPotion(LootTable table, int depth, int cellX, int cellZ)
         {
-            if (table == null || table.Potion == null)
+            if (table == null || (table.Potion == null && table.ManaPotion == null))
             {
                 return null;
             }
 
             var random = new SplitMix64Source(SeedMixer.ForPotion(RunSeed, depth, cellX, cellZ));
-            return random.NextDouble() < table.PotionChance ? new ItemInstance(table.Potion) : null;
+            var potion = table.PotionFor(random.NextDouble());
+            return potion != null ? new ItemInstance(potion) : null;
+        }
+
+        /// <summary>
+        /// La pergamena di un livello (D5 della M9), o null: un tiro per profondità con un seme suo.
+        /// <paramref name="wanted"/> dice quali incantesimi può ancora insegnare; <paramref name="carrier"/>,
+        /// tra 0 e 1, sceglie tra nemici e casse chi la porta.
+        /// </summary>
+        public ItemInstance RollScroll(ScrollTable table, int depth, Func<Magic.SpellDefinition, bool> wanted, out double carrier)
+        {
+            carrier = 0.0;
+            if (table == null)
+            {
+                return null;
+            }
+
+            var random = new SplitMix64Source(SeedMixer.ForScroll(RunSeed, depth));
+            return table.TryRoll(random, depth, wanted, out var scroll, out carrier) ? new ItemInstance(scroll) : null;
         }
     }
 }

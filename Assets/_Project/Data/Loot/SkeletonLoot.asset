@@ -54,3 +54,5 @@ MonoBehaviour:
     _weight: 1
   _potion: {fileID: 11400000, guid: c94daa5854b2b2f48851de7b3d27463c, type: 2}
   _potionChance: 0.1
+  _manaPotion: {fileID: 11400000, guid: 7048aa0bfc559234bb73fa16ec0def3e, type: 2}
+  _manaPotionChance: 0.05

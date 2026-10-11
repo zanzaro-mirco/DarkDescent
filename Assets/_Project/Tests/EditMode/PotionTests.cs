@@ -23,16 +23,16 @@ namespace DarkDescent.Tests
             var potion = Healing;
 
             Assert.AreEqual(Vector2Int.one, potion.Size);
-            Assert.AreEqual(0.5f, potion.HealFraction);
+            Assert.AreEqual(0.5f, potion.RestoreFraction);
             Assert.AreEqual(EquipSlot.None, potion.Slot);
             Assert.AreEqual(AffixTargets.None, potion.AffixTarget);
-            Assert.AreEqual(50f, potion.HealAmount(100f));
-            Assert.AreEqual(66f, potion.HealAmount(132f));
-            Assert.AreEqual(1f, potion.HealAmount(1f), "almeno 1");
-            Assert.AreEqual(potion.HealAmount(77f), Mathf.Round(potion.HealAmount(77f)), "intera, come i danni");
+            Assert.AreEqual(50f, potion.RestoreAmount(100f));
+            Assert.AreEqual(66f, potion.RestoreAmount(132f));
+            Assert.AreEqual(1f, potion.RestoreAmount(1f), "almeno 1");
+            Assert.AreEqual(potion.RestoreAmount(77f), Mathf.Round(potion.RestoreAmount(77f)), "intera, come i danni");
         }
 
-        [Test, Description("Su 10.000 tiri la pozione cade da circa il 10% degli scheletri e dal 25% delle casse")]
+        [Test, Description("Su 10.000 tiri la pozione di cura cade da circa il 10% degli scheletri e dal 25% delle casse; l'altra è quella di mana (M9)")]
         public void PotionChances_FollowTheTables()
         {
             var roller = Roller(99UL);
@@ -42,11 +42,11 @@ namespace DarkDescent.Tests
             for (int i = 0; i < 10000; i++)
             {
                 var potion = roller.RollPotion(skeleton, 1 + i % 4, i * 7, -i);
-                skeletons += potion != null ? 1 : 0;
-                chests += roller.RollPotion(chest, 1 + i % 4, i * 7, -i) != null ? 1 : 0;
+                skeletons += potion?.Definition == Healing ? 1 : 0;
+                chests += roller.RollPotion(chest, 1 + i % 4, i * 7, -i)?.Definition == Healing ? 1 : 0;
                 if (potion != null)
                 {
-                    Assert.AreSame(Healing, potion.Definition);
+                    Assert.IsInstanceOf<PotionDefinition>(potion.Definition);
                     Assert.AreEqual(Rarity.Normal, potion.Rarity);
                 }
             }
@@ -68,7 +68,7 @@ namespace DarkDescent.Tests
             for (int i = 0; i < 10000; i++)
             {
                 bool item = roller.Roll(skeleton, 1, i, i * 3) != null;
-                bool potion = roller.RollPotion(skeleton, 1, i, i * 3) != null;
+                bool potion = roller.RollPotion(skeleton, 1, i, i * 3)?.Definition == Healing;
                 if (item)
                 {
                     withItem++;

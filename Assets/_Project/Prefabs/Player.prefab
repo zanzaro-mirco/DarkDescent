@@ -1271,6 +1271,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7888b154766d17f4cb098c4a49f30ac2, type: 2}
   - {fileID: 11400000, guid: 3b596d532d26ec14fab30fdc18ac2a44, type: 2}
   _failClip: {fileID: 8300000, guid: a77c9d43b49eeab46b96d6ac4e131c67, type: 3}
+  _learnClip: {fileID: 8300000, guid: 13ad3d458866ba942a02b5447335c677, type: 3}
   _audio: {fileID: 4117437698390640255}
 --- !u!114 &2157874775504651773
 MonoBehaviour:

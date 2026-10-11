@@ -57,6 +57,15 @@ namespace DarkDescent.Items
 
         public bool IsOpen { get; private set; }
 
+        /// <summary>L'oggetto in più che porta, come la pergamena del livello (D5 della M9), o null.</summary>
+        public ItemInstance Carried { get; private set; }
+
+        /// <summary>Gli dà un oggetto in più da lasciare insieme al suo loot: la pergamena del livello.</summary>
+        public void Carry(ItemInstance item)
+        {
+            Carried = item;
+        }
+
         public void Bind(LootRoller roller, int depth)
         {
             _roller = roller;
@@ -134,6 +143,13 @@ namespace DarkDescent.Items
             if (potion != null && _groundItemPrefab != null)
             {
                 GroundItem.Spawn(_groundItemPrefab, potion, front + transform.right * _potionSideOffset, from);
+            }
+
+            // la pergamena dall'altra parte: i tre oggetti non si coprono
+            if (Carried != null && _groundItemPrefab != null)
+            {
+                GroundItem.Spawn(_groundItemPrefab, Carried, front - transform.right * _potionSideOffset, from);
+                Carried = null;
             }
 
             Opened?.Invoke(dropped);

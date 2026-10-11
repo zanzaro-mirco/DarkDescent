@@ -61,7 +61,7 @@ namespace DarkDescent.Tests
                 Assert.IsNotNull(item.Model, $"{item.name} senza modello");
                 Assert.GreaterOrEqual(item.Size.x, 1);
                 Assert.GreaterOrEqual(item.Size.y, 1);
-                Assert.IsTrue(item.Slot != EquipSlot.None || item is PotionDefinition, $"{item.name}: per ora ogni oggetto si equipaggia o si beve");
+                Assert.IsTrue(item.Slot != EquipSlot.None || item is PotionDefinition || item is ScrollDefinition, $"{item.name}: ogni oggetto si equipaggia, si beve o si legge");
             }
         }
 
@@ -131,7 +131,8 @@ namespace DarkDescent.Tests
         {
             // le otto della M5 e le undici della M8
             Assert.AreEqual(19, Database.Items.Count(item => item.Slot != EquipSlot.None));
-            Assert.AreEqual(1, Database.Items.Count(item => item is PotionDefinition));
+            // la pozione di cura della M6 e quella di mana della M9
+            Assert.AreEqual(2, Database.Items.Count(item => item is PotionDefinition));
 
             var dagger = Item<WeaponDefinition>("Dagger");
             Assert.AreEqual((3, 6, 0, WeaponKind.Dagger), (dagger.MinDamage, dagger.MaxDamage, dagger.RequiredStrength, dagger.Kind));

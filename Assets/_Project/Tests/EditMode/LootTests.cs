@@ -107,7 +107,8 @@ namespace DarkDescent.Tests
                         Assert.AreEqual(6, item.ItemLevel);
                     }
 
-                    drunk += roller.RollPotion(table, 6, i, -3 * i) != null ? 1 : 0;
+                    // solo la pozione di cura: quella di mana (M9) ha il suo tratto dopo
+                    drunk += roller.RollPotion(table, 6, i, -3 * i)?.Definition == table.Potion ? 1 : 0;
                 }
 
                 Assert.AreEqual(items, dropped / 10000.0, 0.015, $"{name}: oggetti");

@@ -33,6 +33,14 @@ namespace DarkDescent.Core
             return Mix(seed ^ (ulong)(uint)depth);
         }
 
+        // "SCROLL" in ASCII: la pergamena di un livello non sposta né la mappa né il loot dei nemici
+        private const ulong ScrollDomain = 0x5343524F4C4CUL;
+
+        public static ulong ForScroll(ulong runSeed, int depth)
+        {
+            return Mix(ForLevel(runSeed, depth) ^ ScrollDomain);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

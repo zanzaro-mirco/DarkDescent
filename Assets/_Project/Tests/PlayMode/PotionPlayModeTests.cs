@@ -52,7 +52,7 @@ namespace DarkDescent.Tests
 
         private float HealOf(ItemInstance potion)
         {
-            return ((PotionDefinition)potion.Definition).HealAmount(_health.Max);
+            return ((PotionDefinition)potion.Definition).RestoreAmount(_health.Max);
         }
 
         // In Screen Space - Overlay le coordinate "mondo" di un RectTransform sono pixel dello schermo

@@ -184,6 +184,43 @@ entro 0,6 m dal muro; due raffiche da dieci creano dieci proiettili, e trenta la
 non allocano un byte. Screenshot nella cripta: il dardo in volo illumina il pavimento, lo scheletro
 lampeggia e mostra il 9. 226 EditMode e 156 PlayMode verdi.
 
+## Passo 9.4 — Anello di fuoco, Pelle di pietra, pergamene e pozione di mana
+
+**Com'è andata (11 ott 2026).**
+
+- **`PlayerSpells`** lancia ora tutti e tre i tipi, sempre dopo il gesto. L'**Anello di fuoco**
+  colpisce con `OverlapSphereNonAlloc` tutti i nemici vivi entro 4 m, una volta sola anche con più
+  collider, ognuno con il suo tiro; il cavaliere non si gira. La **Pelle di pietra** mette sulla
+  scheda un +50% di Armatura con l'incantesimo come sorgente e lo toglie alla fine dei 20 s, alla
+  morte o spegnendo il cavaliere. Il tasto destro fuori dal pavimento lancia comunque anello e
+  pelle, che partono dal cavaliere.
+- **Effetti.** `AreaEffect`: un cerchio di fiamme che si allarga in 0,3 s; mentre si allarga le
+  fiamme vivono poco e lasciano un'onda, poi una raffica sul bordo resta accesa 0,8 s, con un lampo
+  di luce. `AuraEffect`: polvere grigio-azzurra che gira attorno al cavaliere, con una luce tenue,
+  finché dura. Il primo screenshot ha mostrato un anello rado e un alone invisibile nel buio
+  (particelle grigie in trasparenza): fiamme più fitte e più grandi, alone additivo come il fuoco,
+  con particelle più grandi.
+- **Pergamene.** `ScrollDefinition` (1 × 2, il rotolo di Quaternius già scaricato, con sigillo
+  rosso o grigio) si legge con il click destro nell'inventario: insegna l'incantesimo, lo sceglie,
+  suona e sparisce; una già nota resta nello zaino. `ScrollTable` tira **una pergamena per
+  livello** dalla profondità 2, con probabilità 0,34 e un seme suo (`SeedMixer.ForScroll`); non
+  cadono gli incantesimi già noti né quelli di cui c'è già una pergamena nello zaino. La porta uno
+  dei nemici o delle casse del livello (`Carry`), che la lascia dall'altra parte della pozione.
+- **Pozione di mana.** `PotionDefinition` ha un tipo, vita o mana; la blu è la bottiglia rossa con
+  la texture ricolorata di blu. Rende metà del mana massimo, va nella cintura, a mana pieno non si
+  beve. Nel loot sta **nello stesso tiro** della pozione di cura, nel tratto dopo: la pozione di
+  cura cade dove cadeva (trappola 4). Scheletro 5%, sciame 2%, bruto 10%, cassa 15%.
+- Suoni sintetizzati: vampata dell'anello, macina di pietra, fruscio e tre note della pergamena.
+
+*Test.* `ScrollTests` (5, EditMode): pergamene della scheda nel database; niente alla profondità 1
+e circa un livello su tre dalla 2, mai di un incantesimo noto; tiro stabile per seme; la pozione blu
+nel tratto dopo quella rossa, circa il 5% degli scheletri; tooltip. `SpellTests` (5, PlayMode):
+l'anello colpisce il nemico a 3 m con 11–18 e non quello a 6 m; la pelle porta l'Armatura da 20 a 30
+e torna a 20 alla fine e alla morte; la pergamena insegna e sparisce, la seconda resta; la pozione
+blu rende 15 di mana e a mana pieno resta; nella cripta alla profondità 2 uno solo porta la
+pergamena e ucciso la lascia a terra. Quattro test vecchi contano ora solo la pozione di cura.
+231 EditMode e 161 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -205,6 +242,9 @@ lampeggia e mostra il 9. 226 EditMode e 156 PlayMode verdi.
 7. **La rigenerazione a ogni frame non deve allocare né annunciare:** il mana cambia di poco
    ogni frame; la sfera si aggiorna con un evento al massimo qualche volta al secondo, o
    quando il valore intero cambia.
+8. **La pergamena del livello si tira collegando il livello:** se a quel punto il salvataggio non
+   ha ancora rimesso gli incantesimi noti (passo 9.7), nel primo livello di una partita ripresa può
+   cadere la pergamena di un incantesimo già noto. Il formato 3 deve rimettere il libro prima.
 
 ---
 
@@ -215,9 +255,9 @@ lampeggia e mostra il 9. 226 EditMode e 156 PlayMode verdi.
 | `TooltipCompareTests` (PlayMode) | Con due anelli, due tooltip di confronto; il nome lungo su due righe sotto la larghezza massima |
 | `ManaTests` (EditMode) | Mana massimo da Magia e livello, rigenerazione, costo, ricarica, lancio rifiutato senza mana |
 | `ProjectileTests` (PlayMode) | Il dardo colpisce il primo nemico sulla linea e torna al pool; si ferma su un muro; nessuna allocazione su trenta lanci dal pool caldo |
-| `SpellTests` (PlayMode) | Anello di fuoco colpisce tutti entro 4 m e nessuno oltre; Pelle di pietra alza l'Armatura per 20 s |
+| `SpellTests` (PlayMode) | Anello di fuoco colpisce tutti entro 4 m e nessuno oltre; Pelle di pietra alza l'Armatura per 20 s; la pergamena insegna e sparisce; la pozione blu rende il mana; la pergamena del livello cade dal suo portatore |
 | `SkeletonMageTests` (PlayMode) | Il mago tiene la distanza, lancia, arretra; il dardo parato dallo scudo non fa danno |
-| `ScrollTests` (EditMode e PlayMode) | La pergamena insegna l'incantesimo e sparisce; una già nota non cade più |
+| `ScrollTests` (EditMode) | Pergamene nel database, una ogni tre livelli circa dalla profondità 2, mai di un incantesimo noto; pozione di mana dopo quella di cura |
 | `SaveMigrationTests` (EditMode, ampliato) | Il file vero del formato 2 si carica con il codice del formato 3 |
 | `EnemyBarTests` (PlayMode, ampliato) | Senza cursore, la barra resta sull'ultimo colpito per 3 s |
 
@@ -227,7 +267,7 @@ lampeggia e mostra il 9. 226 EditMode e 156 PlayMode verdi.
 
 - [x] Decisioni D1–D12 confermate
 - [x] Correzioni dalla prova della M8
-- [ ] Mana, incantesimi e pergamene
+- [x] Mana, incantesimi e pergamene
 - [ ] Scheletro mago
 - [ ] Barra del nemico combattuto e HUD in basso
 - [ ] Formato 3 e migrazione

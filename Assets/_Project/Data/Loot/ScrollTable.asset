@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31409e207b7dc8a4ab062409de5de59a, type: 3}
+  m_Name: ScrollTable
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Items.ScrollTable
+  _scrolls:
+  - {fileID: 11400000, guid: eeaf3f5ddfcc0d345be89ab4afa3964e, type: 2}
+  - {fileID: 11400000, guid: 7bbff0841d00c8c4ba4ab6507695a2f7, type: 2}
+  _firstDepth: 2
+  _chancePerLevel: 0.34

@@ -16,6 +16,7 @@ MonoBehaviour:
   _nameKey: spell.stone_skin
   _icon: {fileID: 2141671851645666773, guid: c8705f895bdcecd42b3776df85716c60, type: 3}
   _kind: 2
+  _effect: {fileID: 4745980757906689171, guid: acb70657b7ce4984393e68896eea9054, type: 3}
   _manaCost: 12
   _cooldown: 30
   _knownFromStart: 0

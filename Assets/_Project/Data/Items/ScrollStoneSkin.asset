@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9ccff772ee135443bc812d36fb62d31, type: 3}
+  m_Name: ScrollStoneSkin
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Items.ScrollDefinition
+  _id: b61e3d3ea8c4496e9b778aa334c7052b
+  _nameKey: item.scroll_stone_skin
+  _icon: {fileID: 21300000, guid: 10c4f8be78e8062478bd2a17bcf17b18, type: 3}
+  _sound: 1
+  _size: {x: 1, y: 2}
+  _model: {fileID: 7071024680235048080, guid: 20cc074d7b41c814682f5e8f8f192994, type: 3}
+  _iconRotation: {x: 0, y: 0, z: -18}
+  _standsOnGround: 0
+  _heldPosition: {x: 0, y: 0, z: 0}
+  _heldRotation: {x: 0, y: 0, z: 0}
+  _spell: {fileID: 11400000, guid: 3b596d532d26ec14fab30fdc18ac2a44, type: 2}

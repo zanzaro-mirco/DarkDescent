@@ -24,6 +24,9 @@ namespace DarkDescent.Magic
         [Tooltip("Il suono sordo di un lancio che non parte: niente mana, ricarica, incantesimo non noto.")]
         [SerializeField] private AudioClip _failClip;
 
+        [Tooltip("Il suono di un incantesimo imparato da una pergamena.")]
+        [SerializeField] private AudioClip _learnClip;
+
         [SerializeField] private AudioSource _audio;
 
         private CharacterStats _stats;
@@ -73,6 +76,23 @@ namespace DarkDescent.Magic
 
         /// <summary>Sceglie il posto da lanciare (F1–F3 o un click sulla barra); false se non è noto.</summary>
         public bool Select(int slot) => Book.TrySelect(slot);
+
+        /// <summary>Impara un incantesimo da una pergamena e lo sceglie; false se era già noto.</summary>
+        public bool Learn(SpellDefinition spell)
+        {
+            if (!Book.Learn(spell))
+            {
+                return false;
+            }
+
+            Book.TrySelect(Book.SlotOf(spell));
+            if (_audio != null && _learnClip != null)
+            {
+                _audio.PlayOneShot(_learnClip);
+            }
+
+            return true;
+        }
 
         /// <summary>Lancia l'incantesimo scelto verso <paramref name="target"/>: il tasto destro, o un test.</summary>
         public CastResult TryCastAt(Vector3 target)
@@ -166,9 +186,17 @@ namespace DarkDescent.Magic
             {
                 _castPending = false;
                 bool overUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-                if (!overUI && _controller != null && _controller.TryGetCursorPoint(out Vector3 target))
+                if (!overUI && _controller != null)
                 {
-                    TryCastAt(target);
+                    // l'anello e la pelle di pietra partono dal cavaliere: il punto serve solo al dardo
+                    if (_controller.TryGetCursorPoint(out Vector3 target))
+                    {
+                        TryCastAt(target);
+                    }
+                    else if (Book.SelectedSpell != null && Book.SelectedSpell.Kind != SpellKind.Projectile)
+                    {
+                        TryCastAt(transform.position);
+                    }
                 }
             }
         }
