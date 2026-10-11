@@ -47,7 +47,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(30f, _skeletonHealth.Max);
         }
 
-        [UnityTest, Description("Un colpo mancato: niente danno, niente hit stop, e sopra lo scheletro compare \"Miss\"")]
+        [UnityTest, Description("Un colpo mancato: niente danno, niente hit stop, e sopra lo scheletro compare \"Miss\", più piccolo dei numeri")]
         public IEnumerator MissedSwing_NoDamageShowsMiss()
         {
             yield return LoadArena();
@@ -73,6 +73,8 @@ namespace DarkDescent.Tests
             Assert.IsFalse(hitStop.IsActive, "un colpo mancato non ferma il tempo");
             var texts = numbers.GetComponentsInChildren<TextMeshProUGUI>().Select(t => t.text).ToArray();
             CollectionAssert.Contains(texts, "Miss");
+            var miss = numbers.GetComponentsInChildren<TextMeshProUGUI>().First(t => t.text == "Miss");
+            Assert.Less(miss.transform.localScale.x, 0.8f, "una parola è più piccola dei numeri");
         }
 
         [UnityTest, Description("Un colpo a segno toglie il danno tirato: arma per Forza, arrotondato")]

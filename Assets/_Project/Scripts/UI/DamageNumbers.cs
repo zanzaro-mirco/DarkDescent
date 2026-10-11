@@ -28,6 +28,9 @@ namespace DarkDescent.UI
 
         [SerializeField, Min(1f)] private float _criticalScale = 1.5f;
 
+        [Tooltip("\"Mancato\" e \"Bloccato\": una parola intera alla misura dei numeri sembra enorme (prova della M9).")]
+        [SerializeField, Range(0.3f, 1f)] private float _textScale = 0.65f;
+
         [Tooltip("Altezza sopra i piedi da cui parte il numero.")]
         [SerializeField, Min(0f)] private float _spawnHeight = 2.3f;
 
@@ -176,7 +179,7 @@ namespace DarkDescent.UI
         private void SpawnText(Transform owner, string key, Color color)
         {
             var number = _pool.Get();
-            number.ShowText(owner.position + Vector3.up * _spawnHeight, _localizer.Get(key), color);
+            number.ShowText(owner.position + Vector3.up * _spawnHeight, _localizer.Get(key), color, _textScale);
             Activate(number);
         }
 

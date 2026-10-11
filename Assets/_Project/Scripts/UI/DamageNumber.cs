@@ -35,15 +35,15 @@ namespace DarkDescent.UI
             _rect.localScale = Vector3.one * scale;
         }
 
-        /// <summary>Come Show, con una scritta al posto del numero ("Mancato").</summary>
-        public void ShowText(Vector3 worldPosition, string text, Color color)
+        /// <summary>Come Show, con una scritta al posto del numero ("Mancato"), più piccola dei numeri.</summary>
+        public void ShowText(Vector3 worldPosition, string text, Color color, float scale)
         {
             _worldPosition = worldPosition;
             _color = color;
             _age = 0f;
             _text.SetText(text);
             _text.color = color;
-            _rect.localScale = Vector3.one;
+            _rect.localScale = Vector3.one * scale;
         }
 
         /// <summary>Avanza il numero; false quando ha finito e va restituito al pool.</summary>
