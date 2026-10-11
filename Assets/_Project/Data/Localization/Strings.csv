@@ -13,7 +13,7 @@ hud.boots,Boots,Stivali
 hud.amulet,Amulet,Amuleto
 hud.ring,Ring,Anello
 hud.character,Knight,Cavaliere
-hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance\nCritical chance\nBlock chance,Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire\nCritico\nBlocco
+hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance\nCritical chance\nBlock chance\nMana,Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire\nCritico\nBlocco\nMana
 hud.you_died,YOU DIED,SEI MORTO
 hud.restart,Continue,Continua
 hud.level_title,{0} – Level {1},{0} – Livello {1}
@@ -63,7 +63,7 @@ tooltip.read,Right-click to read,Click destro per leggere
 # Spiegazioni delle righe del pannello del personaggio (D16 della M6); il titolo è la riga stessa
 stat.tip.strength,Each point adds 1% weapon damage.\nHeavier weapons require more Strength.,Ogni punto aggiunge l'1% al danno dell'arma.\nLe armi più pesanti richiedono più Forza.
 stat.tip.dexterity,Every 2 points: +1% chance to hit\nand +1% block chance with a shield.\nEvery 10 points: +1% critical chance.,Ogni 2 punti: +1% a colpire\ne +1% di blocco con uno scudo.\nOgni 10 punti: +1% di critico.
-stat.tip.magic,Not used yet: it will power spells.,Non ancora usata: servirà agli incantesimi.
+stat.tip.magic,"Each point adds 2 mana.\nIt raises spell damage:\nFirebolt + Magic / 4, Ring of Fire + Magic / 3.","Ogni punto aggiunge 2 di mana.\nAlza il danno degli incantesimi:\nDardo di fuoco + Magia / 4, Anello di fuoco + Magia / 3."
 stat.tip.vitality,Each point adds 2 life.,Ogni punto aggiunge 2 punti vita.
 stat.tip.life,At zero you die. It does not regenerate:\ndrink potions (1–8 or right-click).,A zero si muore. Non si rigenera:\nbevi le pozioni (1–8 o click destro).
 stat.tip.armor,Each point lowers the enemies'\nchance to hit you by 1%.,Ogni punto toglie l'1% alla\nprobabilità dei nemici di colpirti.
@@ -71,6 +71,7 @@ stat.tip.damage,Damage of each hit with your weapon:\nStrength and affixes inclu
 stat.tip.hit_chance,75% + Dexterity / 2 − enemy Armor\n(between 5% and 95%). Against each enemy:,75% + Destrezza / 2 − Armatura del nemico\n(tra 5% e 95%). Contro ogni nemico:
 stat.tip.critical,5% + Dexterity / 10 (up to 50%).\nA critical hit does double damage.,5% + Destrezza / 10 (fino al 50%).\nUn colpo critico fa il doppio del danno.
 stat.tip.block,Only with a shield: shield block + Dexterity / 2\n(up to 75%). A blocked hit does no damage.,Solo con uno scudo: blocco dello scudo + Destrezza / 2\n(fino al 75%). Un colpo bloccato non fa danno.
+stat.tip.mana,"10 + Magic × 2, +1 each level after the first.\nIt regenerates 2% per second;\nblue potions restore half.","10 + Magia × 2, +1 a ogni livello dopo il primo.\nSi rigenera del 2% al secondo;\nle pozioni blu ne rendono metà."
 
 # Righe degli affissi nel tooltip
 affix.effect.weapon_damage_percent,+{0}% damage,+{0}% danno
@@ -83,6 +84,8 @@ affix.effect.dexterity,+{0} Dexterity,+{0} Destrezza
 affix.effect.vitality,+{0} Vitality,+{0} Vitalità
 affix.effect.life,+{0} life,+{0} vita
 affix.effect.crit_chance,+{0}% critical chance,+{0}% critico
+affix.effect.magic,+{0} Magic,+{0} Magia
+affix.effect.mana,+{0} mana,+{0} mana
 
 # Oggetti. Lo schema del nome (D4 della M5): in inglese il prefisso va prima, in italiano dopo
 item.name.pattern,{prefix} {base} {suffix},{base} {prefix} {suffix}
@@ -157,7 +160,11 @@ affix.massive.mp,Massive,Massicci
 affix.deadly,Deadly,Letale
 affix.deadly.f,Deadly,Letale
 affix.deadly.mp,Deadly,Letali
+affix.arcane,Arcane,Arcano
+affix.arcane.f,Arcane,Arcana
+affix.arcane.mp,Arcane,Arcani
 affix.of_strength,of Strength,della Forza
+affix.of_sorcery,of Sorcery,della Stregoneria
 affix.of_dexterity,of Dexterity,della Destrezza
 affix.of_vitality,of Vitality,della Vitalità
 affix.of_the_bear,of the Bear,dell'Orso

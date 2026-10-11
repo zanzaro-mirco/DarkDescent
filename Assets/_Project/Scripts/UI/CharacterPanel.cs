@@ -55,6 +55,7 @@ namespace DarkDescent.UI
         {
             TextKeys.TipStrength, TextKeys.TipDexterity, TextKeys.TipMagic, TextKeys.TipVitality, null,
             TextKeys.TipLife, TextKeys.TipArmor, TextKeys.TipDamage, TextKeys.TipHitChance, TextKeys.TipCritical, TextKeys.TipBlock,
+            TextKeys.TipMana,
         };
 
         private readonly StringBuilder _builder = new StringBuilder(128);
@@ -268,7 +269,8 @@ namespace DarkDescent.UI
 
             _builder.Append("%\n");
             _builder.Append(Mathf.RoundToInt(CombatFormulas.CritChance(_stats.Dexterity, _stats.Sheet.Get(StatType.CritChance)))).Append("%\n");
-            _builder.Append(_block != null ? Mathf.RoundToInt(_block.BlockChance) : 0).Append('%');
+            _builder.Append(_block != null ? Mathf.RoundToInt(_block.BlockChance) : 0).Append("%\n");
+            _builder.Append(Mathf.RoundToInt(CombatFormulas.MaxMana(_stats.Magic, _stats.Sheet.Get(StatType.Level), _stats.Sheet.Get(StatType.Mana))));
             _values.SetText(_builder);
             RefreshProgress();
         }

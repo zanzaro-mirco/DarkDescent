@@ -51,6 +51,7 @@ namespace DarkDescent.Localization
         public const string TipDamage = "stat.tip.damage";
         public const string TipHitChance = "stat.tip.hit_chance";
         public const string TipBlock = "stat.tip.block";
+        public const string TipMana = "stat.tip.mana";
         public const string TipCritical = "stat.tip.critical";
 
         // le righe degli affissi nel tooltip, una per effetto
@@ -62,6 +63,8 @@ namespace DarkDescent.Localization
         public const string EffectStrength = "affix.effect.strength";
         public const string EffectDexterity = "affix.effect.dexterity";
         public const string EffectCritChance = "affix.effect.crit_chance";
+        public const string EffectMagic = "affix.effect.magic";
+        public const string EffectMana = "affix.effect.mana";
         public const string EffectVitality = "affix.effect.vitality";
         public const string EffectLife = "affix.effect.life";
     }

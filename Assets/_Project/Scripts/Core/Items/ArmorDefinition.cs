@@ -30,7 +30,7 @@ namespace DarkDescent.Items
 
         public override int RequiredStrength => _requiredStrength;
 
-        public override AffixTargets AffixTarget => IsShield ? AffixTargets.Shield : AffixTargets.Armor;
+        public override AffixTargets AffixTarget => IsShield ? AffixTargets.Shield : Slot == EquipSlot.Helm ? AffixTargets.Armor | AffixTargets.Helm : AffixTargets.Armor;
 
         protected override void OnValidate()
         {

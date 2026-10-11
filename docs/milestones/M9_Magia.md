@@ -264,6 +264,35 @@ dardo magico; a 2,5 m scappa oltre i 4 m; con lo scudo e il tiro basso il dardo 
 cripta alla 3 ci sono 1–2 maghi. Tre test vecchi contano ora anche i maghi. 238 EditMode e 165
 PlayMode verdi.
 
+## Passo 9.6 — Barra del nemico combattuto, Magia e Mana nel pannello, affissi nuovi
+
+**Com'è andata (11 ott 2026).**
+
+- **Barra del nemico combattuto (D9).** `EnemyBar` segue i nemici del livello come i numeri di
+  danno (`Track` e `Untrack` dal CompositionRoot). Un colpo o uno schivato **del cavaliere** (la
+  sorgente del danno è lui, di mischia o con un incantesimo) rende quel nemico il combattuto per
+  3 s, rinnovati a ogni colpo; i colpi di altri non contano. Il cursore su un nemico vince sul
+  combattuto; morto, sparisce. Il tempo lo conta una coroutine riavviata a ogni colpo, non un
+  controllo a ogni frame.
+- **Pannello (D12).** La riga **Mana** sotto Blocco mostra il mana massimo, con la sua spiegazione
+  (formula, rigenerazione, pozioni blu). La spiegazione della **Magia** dice ora a cosa serve: 2 di
+  mana a punto e il danno degli incantesimi. Due testi con le virgole sono tra virgolette nel CSV,
+  che altrimenti li spezza in colonne.
+- **Affissi.** `AffixEffect.Magic` e `Mana`, sulla scheda come `StatType.Magic` e `Mana`. Due
+  affissi: **Arcano** (prefisso, +5–15 mana) e **della Stregoneria** (suffisso, +2–5 Magia, dal
+  livello 2). Vanno solo su gioielli ed elmi: `AffixTargets.Helm` è nuovo, e gli elmi sono
+  `Armor | Helm`, così gli affissi delle armature ci vanno ancora.
+- Un bug di passaggio: una stringa C# scritta da uno script Python dentro un heredoc di Bash ha
+  perso il `\n`, che è diventato un a capo vero; il compilatore l'ha fermato. Le stringhe con
+  `\n` si scrivono con lo strumento di modifica, non con un heredoc.
+
+*Test.* `MagicAffixTests` (2, EditMode): i due affissi solo su gioielli ed elmi, e un anello Arcano
+della Stregoneria alza Magia e mana con il suo tooltip in inglese e in italiano.
+`AimTests.LastHitEnemy_StaysOnTheBar` (PlayMode): senza cursore la barra mostra il nemico colpito dal
+cavaliere, non quello colpito da altri, resta 3 s dall'ultimo colpo e sparisce alla morte. Tre test
+vecchi aggiornati (fine del pannello, bersagli degli elmi, numero degli affissi). Screenshot del
+pannello con i tooltip di Magia e Mana. 240 EditMode e 166 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -302,7 +331,7 @@ PlayMode verdi.
 | `MageStateTests` (EditMode), `MageTests` (PlayMode) | Il mago tiene la distanza, lancia, arretra, in un angolo resta; il dardo parato dallo scudo non fa danno; maghi per profondità |
 | `ScrollTests` (EditMode) | Pergamene nel database, una ogni tre livelli circa dalla profondità 2, mai di un incantesimo noto; pozione di mana dopo quella di cura |
 | `SaveMigrationTests` (EditMode, ampliato) | Il file vero del formato 2 si carica con il codice del formato 3 |
-| `EnemyBarTests` (PlayMode, ampliato) | Senza cursore, la barra resta sull'ultimo colpito per 3 s |
+| `AimTests` (PlayMode, ampliato), `MagicAffixTests` (EditMode) | Senza cursore, la barra resta sull'ultimo colpito per 3 s; gli affissi della magia solo su gioielli ed elmi |
 
 ---
 
@@ -312,7 +341,7 @@ PlayMode verdi.
 - [x] Correzioni dalla prova della M8
 - [x] Mana, incantesimi e pergamene
 - [x] Scheletro mago
-- [ ] Barra del nemico combattuto e HUD in basso
+- [x] Barra del nemico combattuto e HUD in basso
 - [ ] Formato 3 e migrazione
 - [ ] Profiler: nessuna allocazione a ogni frame lanciando a raffica
 - [ ] Scenario della Definition of Done provato in build

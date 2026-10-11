@@ -15,6 +15,10 @@ namespace DarkDescent.Items
 
         /// <summary>Anelli e amuleti (M8).</summary>
         Jewelry = 1 << 3,
+
+        /// <summary>Gli elmi, oltre che armature: gli affissi della magia (M9) vanno su gioielli ed elmi.</summary>
+        Helm = 1 << 4,
+
         All = Weapon | Shield | Armor | Jewelry,
     }
 }

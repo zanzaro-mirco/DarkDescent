@@ -64,6 +64,8 @@ namespace DarkDescent.Items
                 case AffixEffect.Vitality: stat = StatType.Vitality; return true;
                 case AffixEffect.Life: stat = StatType.Life; return true;
                 case AffixEffect.CritChance: stat = StatType.CritChance; return true;
+                case AffixEffect.Magic: stat = StatType.Magic; return true;
+                case AffixEffect.Mana: stat = StatType.Mana; return true;
                 default: stat = default; return false;
             }
         }

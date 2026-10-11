@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.AffixDatabase
   _affixes:
   - {fileID: 11400000, guid: c6e29ea0993d08b4781744262d1ae818, type: 2}
+  - {fileID: 11400000, guid: 4d17f6cf60b525c4987040d7ef1129c3, type: 2}
   - {fileID: 11400000, guid: c7b6a259e71d3e947bcc8d8d514fcbcd, type: 2}
   - {fileID: 11400000, guid: ae459b13c4c5f844c8a22f12f5239e99, type: 2}
   - {fileID: 11400000, guid: 59f2396372aa67d488423387ed7f076a, type: 2}
   - {fileID: 11400000, guid: 4442b2b2a1fb86940b25ca3e7c11ce1b, type: 2}
+  - {fileID: 11400000, guid: c2dcba6a69f17a64ea3b154a8e459b52, type: 2}
   - {fileID: 11400000, guid: 03fd1ba568397494a9c5d37846b85e8b, type: 2}
   - {fileID: 11400000, guid: 0075b0e70cddf5f49aa0026aa94df6ba, type: 2}
   - {fileID: 11400000, guid: 8678379e457b0c34784f84797f863aba, type: 2}

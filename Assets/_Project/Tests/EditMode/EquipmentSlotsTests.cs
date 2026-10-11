@@ -123,7 +123,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Equipment.Fits(helm, EquipSlot.Helm));
             Assert.IsFalse(Equipment.Fits(helm, EquipSlot.Body));
             Assert.AreEqual(AffixTargets.Jewelry, ring.AffixTarget);
-            Assert.AreEqual(AffixTargets.Armor, helm.AffixTarget);
+            Assert.AreEqual(AffixTargets.Armor | AffixTargets.Helm, helm.AffixTarget, "gli elmi sono anche elmi per gli affissi della magia (M9)");
         }
 
         [Test, Description("Con un anello sul cursore, un click sul secondo slot degli anelli lo mette lì; un elmo sullo slot dell'armatura no")]

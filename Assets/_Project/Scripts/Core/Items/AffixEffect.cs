@@ -30,5 +30,11 @@ namespace DarkDescent.Items
 
         /// <summary>Del personaggio: + probabilità di critico, in punti percentuali (gioielli, M8).</summary>
         CritChance,
+
+        /// <summary>+Magia (M9): più mana e incantesimi più forti; su gioielli ed elmi.</summary>
+        Magic,
+
+        /// <summary>+mana massimo (M9); su gioielli ed elmi.</summary>
+        Mana,
     }
 }

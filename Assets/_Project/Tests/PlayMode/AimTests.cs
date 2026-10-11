@@ -55,6 +55,45 @@ namespace DarkDescent.Tests
             Assert.IsNull(marker.Target);
         }
 
+        [UnityTest, Description("Senza cursore sopra, la barra mostra il nemico colpito dal cavaliere per 3 s dopo l'ultimo colpo; i colpi di altri non contano; morto, sparisce")]
+        public IEnumerator LastHitEnemy_StaysOnTheBar()
+        {
+            yield return StillSkeleton();
+            var skeleton = Object.FindFirstObjectByType<EnemyAI>().GetComponent<Health>();
+            var bar = Object.FindFirstObjectByType<EnemyBar>();
+            PointAt(Player.position + Vector3.right * 2f);
+            yield return null;
+            Assert.IsNull(bar.Shown);
+
+            skeleton.TakeDamage(new DamageInfo(1f, DamageType.Physical, null));
+            Assert.IsNull(bar.Shown, "un colpo che non è del cavaliere");
+
+            skeleton.TakeDamage(new DamageInfo(1f, DamageType.Fire, Player.gameObject));
+            Assert.AreSame(skeleton, bar.Shown, "colpito dal cavaliere, anche senza cursore");
+            Assert.AreEqual("Skeleton", bar.NameText);
+            yield return Wait(2f);
+
+            // un altro colpo rinnova i 3 s
+            skeleton.TakeDamage(new DamageInfo(1f, DamageType.Physical, Player.gameObject));
+            yield return Wait(2f);
+            Assert.AreSame(skeleton, bar.Shown, "2 s dopo l'ultimo colpo resta");
+            yield return Wait(1.5f);
+            Assert.IsNull(bar.Shown, "3 s dopo l'ultimo colpo sparisce");
+
+            skeleton.TakeDamage(new DamageInfo(1f, DamageType.Physical, Player.gameObject));
+            Assert.AreSame(skeleton, bar.Shown);
+            skeleton.TakeDamage(new DamageInfo(1000f, DamageType.Physical, Player.gameObject));
+            Assert.IsNull(bar.Shown, "morto, sparisce");
+        }
+
+        private static IEnumerator Wait(float seconds)
+        {
+            for (float t = 0f; t < seconds; t += Time.deltaTime)
+            {
+                yield return null;
+            }
+        }
+
         [UnityTest, Description("Un click sul pavimento accanto a un nemico, entro 0,6 m, lo colpisce invece di camminare")]
         public IEnumerator ClickNextToEnemy_Attacks()
         {

@@ -75,7 +75,7 @@ namespace DarkDescent.Core
 
         [SerializeField] private SaveGame _saveGame;
 
-        [Tooltip("Nome e vita del nemico sotto il cursore, in alto al centro.")]
+        [Tooltip("Nome e vita del nemico sotto il cursore, o di quello combattuto (M9), in alto al centro.")]
         [SerializeField] private EnemyBar _enemyBar;
 
         [Tooltip("Il cerchio rosso a terra sotto il nemico che ha il cursore addosso.")]
@@ -317,6 +317,7 @@ namespace DarkDescent.Core
                 _enemyAttacks.Add(attack);
                 var health = enemy.GetComponent<Health>();
                 _damageNumbers.Track(health, isPlayer: false);
+                _enemyBar.Track(health);
                 _trackedEnemies.Add(health);
                 if (enemy.TryGetComponent(out LootDrop loot))
                 {
@@ -383,6 +384,7 @@ namespace DarkDescent.Core
             foreach (var health in _trackedEnemies)
             {
                 _damageNumbers.Untrack(health);
+                _enemyBar.Untrack(health);
             }
 
             _trackedEnemies.Clear();

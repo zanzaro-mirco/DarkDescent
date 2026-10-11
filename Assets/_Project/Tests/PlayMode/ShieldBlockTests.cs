@@ -55,12 +55,13 @@ namespace DarkDescent.Tests
             var character = Object.FindFirstObjectByType<CharacterPanel>();
             Assert.IsFalse(_block.HasShield);
             Assert.AreEqual(0f, _block.BlockChance);
-            StringAssert.EndsWith("\n0%", character.ValuesText);
+            // dopo il blocco viene la riga del mana (M9)
+            StringAssert.EndsWith("\n0%\n30", character.ValuesText);
 
             EquipShield();
 
             Assert.AreEqual(20f, _block.BlockChance, 0.001f);
-            StringAssert.EndsWith("\n20%", character.ValuesText);
+            StringAssert.EndsWith("\n20%\n30", character.ValuesText);
 
             _inventory.Equipment.Unequip(EquipSlot.Offhand);
             Assert.AreEqual(0f, _block.BlockChance);
