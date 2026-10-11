@@ -366,6 +366,18 @@ Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
   `Equipped` quando il giocatore mette un oggetto in uno slot. Il pannello fa lampeggiare d'oro lo
   slot per 0,35 s e suona: metallo, cuoio, gioiello o vetro secondo `ItemDefinition.Sound`, con
   tre suoni Kenney per tipo presi dal pacchetto Impact Sounds già scaricato.
+- **Armature e stivali squadrati** (11 ott). Mirco ha bocciato gli stivali a blocchi e i busti di
+  Quaternius. Ho messo le icone di tutte le basi in un foglio: il problema era solo lì. Ho
+  fotografato ogni pezzo dei sei personaggi KayKit Adventurers con uno script temporaneo: le gambe
+  finiscono in stivali veri e i busti sono corazze. Stivali di ferro e di cuoio sono le gambe del
+  Knight e del Rogue tagliate al 66% e al 70% dell'altezza; il taglio per pezzi staccati non
+  funziona, perché stivale e pantaloni condividono i vertici. Corazza e corazza nera sono il busto
+  del Knight (la nera con la texture brunita), l'armatura di cuoio il busto del Rogue con la tunica
+  portata dal verde al marrone. I buchi aperti sono chiusi a ventaglio e a terra questi pezzi stanno
+  in piedi (`StandsOnGround`), perché distesi sembravano tubi (ADR-056). I personaggi KayKit guardano
+  verso +Z: l'icona li vuole girati di 180°, se no mostra la schiena.
+- **Sviluppi futuri** chiesti nella stessa prova (piano v2.26): livello di nemici e oggetti che segue
+  quello del personaggio, dungeon più ricco di oggetti di scena, cintura centrata sotto l'esperienza.
 
 ---
 

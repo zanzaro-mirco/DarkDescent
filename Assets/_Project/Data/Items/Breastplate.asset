@@ -15,9 +15,11 @@ MonoBehaviour:
   _id: eaf7a5f52eea43f5a8997ceceb17a762
   _nameKey: item.breastplate
   _icon: {fileID: 21300000, guid: 44636a16b09a6f74d91d784774018baa, type: 3}
+  _sound: 0
   _size: {x: 2, y: 3}
   _model: {fileID: 1076963529946422274, guid: 5fac1846bc1ce25449c592ea13e5943c, type: 3}
-  _iconRotation: {x: 0, y: 0, z: 0}
+  _iconRotation: {x: 0, y: 200, z: 0}
+  _standsOnGround: 1
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
   _slot: 4

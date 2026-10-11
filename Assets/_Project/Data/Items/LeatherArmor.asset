@@ -18,7 +18,8 @@ MonoBehaviour:
   _sound: 1
   _size: {x: 2, y: 3}
   _model: {fileID: 7275832848014605154, guid: 810743dca62079f44abd18d5051bcefa, type: 3}
-  _iconRotation: {x: 0, y: 0, z: 0}
+  _iconRotation: {x: 0, y: 200, z: 0}
+  _standsOnGround: 1
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
   _slot: 4

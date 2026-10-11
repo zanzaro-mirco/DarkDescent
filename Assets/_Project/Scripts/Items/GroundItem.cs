@@ -147,9 +147,10 @@ namespace DarkDescent.Items
                 Destroy(_model);
             }
 
-            // disteso: i modelli KayKit sono in piedi lungo +Y, con il davanti verso +Z
+            // disteso: i modelli KayKit sono in piedi lungo +Y, con il davanti verso +Z. Armature e
+            // stivali restano in piedi
             _model = Instantiate(item.Definition.Model, transform, false);
-            _model.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+            _model.transform.localRotation = item.Definition.StandsOnGround ? Quaternion.identity : Quaternion.Euler(-90f, 0f, 0f);
 
             var renderers = _model.GetComponentsInChildren<Renderer>();
             Bounds bounds = renderers[0].bounds;

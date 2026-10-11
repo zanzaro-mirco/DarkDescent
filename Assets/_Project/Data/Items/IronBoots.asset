@@ -15,9 +15,11 @@ MonoBehaviour:
   _id: 087b60a574164918a667eaf47188a8d1
   _nameKey: item.iron_boots
   _icon: {fileID: 21300000, guid: 32a8312817c470d4a9b7234f340339ae, type: 3}
+  _sound: 0
   _size: {x: 2, y: 2}
   _model: {fileID: 8224338901680661302, guid: 34aa75a5777675647beda8472eb87549, type: 3}
-  _iconRotation: {x: 20, y: 40, z: 0}
+  _iconRotation: {x: 15, y: 215, z: 0}
+  _standsOnGround: 1
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
   _slot: 6

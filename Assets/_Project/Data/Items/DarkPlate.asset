@@ -15,9 +15,11 @@ MonoBehaviour:
   _id: ba987679cc014e7bba516885a4f3bee1
   _nameKey: item.dark_plate
   _icon: {fileID: 21300000, guid: d2c37dd2d7873b64eb13bc94d706548a, type: 3}
+  _sound: 0
   _size: {x: 2, y: 3}
   _model: {fileID: 8732507898882562032, guid: 92412ce7cd9cdcf4fa2eef8cd7c854b0, type: 3}
-  _iconRotation: {x: 0, y: 0, z: 0}
+  _iconRotation: {x: 0, y: 200, z: 0}
+  _standsOnGround: 1
   _heldPosition: {x: 0, y: 0, z: 0}
   _heldRotation: {x: 0, y: 0, z: 0}
   _slot: 4

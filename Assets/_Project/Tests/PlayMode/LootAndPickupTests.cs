@@ -168,5 +168,31 @@ namespace DarkDescent.Tests
             Assert.AreEqual("Level_02", manager.CurrentLevel.gameObject.scene.name);
             Assert.IsEmpty(GroundItems(), "lo scudo del livello 1 non deve seguire il cavaliere");
         }
+
+        [UnityTest, Description("A terra armature e stivali restano in piedi, distesi si vedrebbero vuoti; l'elmo resta disteso come le armi")]
+        public IEnumerator GroundItems_ArmorStandsHelmLies()
+        {
+            yield return LoadSandbox();
+            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GroundItem>("Assets/_Project/Prefabs/GroundItem.prefab");
+            foreach (var (name, stands) in new[] { ("Breastplate", true), ("LeatherArmor", true), ("IronBoots", true), ("KnightHelm", false) })
+            {
+                var definition = UnityEditor.AssetDatabase.LoadAssetAtPath<ItemDefinition>($"Assets/_Project/Data/Items/{name}.asset");
+                Assert.AreEqual(stands, definition.StandsOnGround, name);
+                var item = GroundItem.Spawn(prefab, new ItemInstance(definition), Player.position + new Vector3(2f, 0f, 2f));
+                yield return null;
+                var renderer = item.GetComponentInChildren<MeshRenderer>();
+                float upright = Vector3.Dot(renderer.transform.up, Vector3.up);
+                if (stands)
+                {
+                    Assert.Greater(upright, 0.99f, name + " deve stare in piedi");
+                }
+                else
+                {
+                    Assert.Less(Mathf.Abs(upright), 0.1f, name + " deve stare disteso");
+                }
+
+                Object.Destroy(item.gameObject);
+            }
+        }
     }
 }

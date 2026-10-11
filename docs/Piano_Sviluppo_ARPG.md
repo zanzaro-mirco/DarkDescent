@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.25**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.26**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.26 | 11 ott 2026 | Su richiesta di Mirco: la **cintura centrata sotto la barra dell'esperienza** nella M9, insieme alla hotbar · un **dungeon più ricco di oggetti di scena** nella M11 (+2–3 h) · **nemici e oggetti che crescono con il livello del personaggio** dopo la v1.0 |
 | v2.25 | 9 ott 2026 | Su richiesta di Mirco: il **movimento con WASD** tra i lavori dopo la v1.0, accanto al click |
 | v2.24 | 8 ott 2026 | Su richiesta di Mirco: una **grafica dei personaggi nello stile di Diablo 2** tra i lavori dopo la v1.0, con i vincoli di licenza e di tempo |
 | v2.23 | 8 ott 2026 | M7 chiusa (tag `m7`), con le lezioni · la M7 sale a 18–25 h con i tre passi di correzione dopo le prove in build · totale ricalcolato dalla tabella del § 5 · ADR-040…051 |
@@ -104,7 +105,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 140–205 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Per le milestone ancora aperte, M8–M11 all'8 ott 2026, restano 46–69 ore: a 6–10 h a settimana sono 5–12 settimane di lavoro effettivo; con pause e settimane saltate, **2–3 mesi di calendario**.
+**Totale stimato:** circa 142–208 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Per le milestone ancora aperte, M8–M11 all'8 ott 2026, restano 46–69 ore (48–72 dalla v2.26, con il dungeon più ricco nella M11): a 6–10 h a settimana sono 5–12 settimane di lavoro effettivo; con pause e settimane saltate, **2–3 mesi di calendario**.
 
 **Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Il prossimo, se serve, si fissa alla chiusura della M8.
 
@@ -262,7 +263,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 12–18 | |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto | 9–12 | |
 | M10 | "Città e loop completo" | il gioco è finibile, **prima build pubblica** | 10–14 | |
-| M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 15–25 | |
+| M11 | "Look, feel e release" | arte, audio, shader, v1.0 | 17–28 | |
 
 ---
 
@@ -610,6 +611,8 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 **La vita del nemico che si sta combattendo** (proposta, da confermare nella scheda della M9). Dalla M7 la barra in alto mostra il nome e la vita del nemico sotto il cursore (ADR-049): appena il cursore si sposta, sparisce, anche se il cavaliere sta ancora colpendo lo stesso nemico. La barra mostra il nemico sotto il cursore e, quando il cursore non ne ha uno, quello che il cavaliere sta attaccando o ha colpito per ultimo, per circa 3 secondi dopo l'ultimo colpo. Il cerchio rosso a terra resta sul nemico sotto il cursore, così distingue il prossimo bersaglio da quello di prima. Sta nella M9 perché lì il bersaglio cambia significato: un proiettile o un incantesimo ad area colpiscono nemici che il cursore non ha mai toccato, e la regola dell'"ultimo colpito" deve valere anche per loro. Si è scartata la barra sopra ogni nemico: nello sciame sarebbero dieci barre una sull'altra, e Diablo 1 non le ha. Resta un'opzione per dopo la v1.0 (sotto). Circa 1 h.
 
+**La cintura sotto l'esperienza** (v2.26, richiesta di Mirco). Oggi la cintura delle pozioni sta in basso a sinistra, accanto alla sfera della vita, e la barra dell'esperienza è in basso al centro. La cintura va al centro, sotto la barra. Sta nella M9 perché la hotbar degli incantesimi occupa la stessa fascia in basso: le due file e le due sfere si dispongono insieme, una volta sola. Circa 30 min.
+
 **Definition of Done:** in build, un combattimento misto di mischia e magia contro nemici a distanza; lanciando proiettili a raffica, il Profiler non mostra allocazioni a ogni frame.
 
 **Per il CV:** object pooling, sistemi di abilità estendibili, profiling mirato.
@@ -630,11 +633,13 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ---
 
-### M11 — "Look, feel e release" · 15–25 h (percorso base)
+### M11 — "Look, feel e release" · 17–28 h (percorso base)
 
-**Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · rifinitura dell'audio (musica, rumori d'ambiente, audio posizionale e mixer a gruppi ci sono già: M3 e M7) · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · pagina itch.io definitiva e release **v1.0**.
+**Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · rifinitura dell'audio (musica, rumori d'ambiente, audio posizionale e mixer a gruppi ci sono già: M3 e M7) · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · **dungeon più ricco** (v2.26), descritto sotto · pagina itch.io definitiva e release **v1.0**.
 
-**Estensione opzionale — Blender.** Sostituire gli asset CC0 con modelli propri è **fuori** dalle 15–25 h: la sola modellazione, partendo da zero con Blender, vale facilmente 80–100 h, e lì il lavoro resta tutto di Mirco. Si valuta a M11 chiusa, con la v1.0 già pubblicata, e semmai diventa una v1.1. Non è un taglio: è il percorso base che non la prevede.
+**Un dungeon meno spoglio** (v2.26, richiesta di Mirco). Oggi le stanze hanno pavimento, muri, torce, qualche colonna o cassa e gli stendardi. Mirco le trova monotone. Il pacchetto KayKit Dungeon ne ha già molte altre: per ora ne usiamo 42 su 211, e si possono aggiungere barili, tavoli, scaffali, libri, ossa, ragnatele, catene, candele, sacchi e detriti. Il popolatore della M6 le mette con poche regole: lungo i muri e negli angoli, mai sul percorso tra le porte, mai sopra le celle delle scale, e più fitte nelle stanze grandi. Un "tema" per stanza (deposito, biblioteca, ossario) le tiene coerenti, e il seme del livello le rende ripetibili come il resto. Tutto quello che blocca il passaggio entra nel NavMesh, e il resto è solo decorazione senza collider. Le caverne hanno una lista loro, con funghi, cristalli e rocce. Si misura in build: la decorazione non deve alzare il tempo di costruzione del livello oltre i 50 ms del punto di controllo D4 della M6. Circa 2–3 h, e per questo la stima sale.
+
+**Estensione opzionale — Blender.** Sostituire gli asset CC0 con modelli propri è **fuori** dalle 17–28 h: la sola modellazione, partendo da zero con Blender, vale facilmente 80–100 h, e lì il lavoro resta tutto di Mirco. Si valuta a M11 chiusa, con la v1.0 già pubblicata, e semmai diventa una v1.1. Non è un taglio: è il percorso base che non la prevede.
 
 **Definition of Done:** v1.0 pubblicata, `CREDITS.md` completo, README con GIF e sezione sull'architettura.
 
@@ -668,6 +673,13 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Tasti già usati.** Q ed E girano la camera e restano lì, lontane da WASD; I, C, M e i numeri della cintura non si toccano. Il menu delle opzioni della M10 potrà poi permettere di cambiarli.
   - **Animazioni e passi** seguono già la velocità dell'agent: non cambiano.
   - Nel codice è un'azione `Move2D` in più nel `PlayerControls` e un ramo nel `PlayerController`. Il gamepad, fuori dall'ambito (§ 1), riuserebbe la stessa azione.
+- **Nemici e oggetti che crescono con il personaggio** (chiesto da Mirco l'11 ott 2026). Dalla M8 il livello dei nemici e degli oggetti dipende solo dalla profondità: il livello della zona. Così un personaggio forte che torna ai primi livelli trova nemici facili e loot povero, come in Diablo 1. Con questa regola nemici e oggetti seguono anche il livello del personaggio. Cosa comporta:
+  - **Regola.** Il livello di un nemico o di un oggetto è il più alto tra quello della zona e il livello del personaggio meno un margine (per esempio 2). In profondità comanda la zona come oggi, e nei primi livelli comanda il personaggio.
+  - **Nemici.** Vita, danno, armatura ed esperienza crescono con il livello, con una curva nella `ProgressionSettings` della M8. Oggi i nemici hanno numeri fissi per tipo.
+  - **Oggetti.** Il livello dell'oggetto c'è dalla M5 (`ItemInstance.ItemLevel`) e decide già quali affissi può avere: basta passargli il livello nuovo.
+  - **Il rischio.** Se tutto cresce con il personaggio, salire di livello non si sente più. Il margine e la curva vanno provati in build, e la regola può essere un'opzione della difficoltà invece di valere sempre.
+  - **Salvataggio.** Non cambia: i nemici non si salvano (lo stato dei livelli non si salva, M8) e gli oggetti hanno già il loro livello.
+  - Si valuta insieme ai nemici speciali, che toccano gli stessi numeri.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---
