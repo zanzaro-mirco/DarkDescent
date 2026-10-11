@@ -56,7 +56,12 @@ namespace DarkDescent.Tests
             var chest = Manager.CurrentLevel.Chests[0];
             string expected = Describe(chest.Preview());
             GroundItem dropped = null;
-            chest.Opened += item => dropped = item;
+            int openings = 0;
+            chest.Opened += item =>
+            {
+                dropped = item;
+                openings++;
+            };
 
             PlayerAgent.Warp(chest.GetComponent<Interactable>().ApproachPoint + chest.transform.forward * 1.5f);
             yield return new WaitForSeconds(0.3f);
@@ -79,10 +84,13 @@ namespace DarkDescent.Tests
             Assert.Greater(Quaternion.Angle(closed, lid.localRotation), 90f, "il coperchio si è alzato");
             Assert.IsTrue(lid.TransformPoint(Vector3.forward).y > lid.position.y, "il bordo davanti è salito, non sceso");
 
-            int items = Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).Length;
+            // il secondo click può cadere sull'etichetta di un oggetto appena caduto e raccoglierlo:
+            // conta che la cassa non lasci niente di nuovo, non quanti oggetti restano a terra
+            var before = new System.Collections.Generic.HashSet<GroundItem>(Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None));
             ClickAt(chest.transform.position + Vector3.up * 0.7f);
             yield return new WaitForSeconds(1f);
-            Assert.AreEqual(items, Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).Length, "aperta una volta sola");
+            Assert.AreEqual(1, openings, "aperta una volta sola");
+            Assert.IsTrue(Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).All(before.Contains), "nessun oggetto nuovo dalla cassa");
         }
     }
 }
