@@ -64,9 +64,13 @@ Milestone precedenti:
 - click destro nel mondo per lanciare l'incantesimo scelto verso il cursore; `F1`–`F3`, o un
   click sui tre posti accanto alla sfera del mana, scelgono l'incantesimo
 - `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
-  con un oggetto preso, un click fuori dalle finestre lo lascia a terra
-- `C` pannello del personaggio; passando su una statistica, un tooltip dice a cosa serve.
-  Con punti da spendere, un `+` accanto a ogni attributo ne compra uno
+  con un oggetto preso, un click fuori dalle finestre lo lascia a terra. Click destro su un
+  oggetto della borsa per indossarlo
+- `C` pannello del personaggio; passando su una statistica, un tooltip dice a cosa serve. I
+  valori cambiati da oggetti o effetti sono azzurri se più alti, rossi se più bassi. Con punti
+  da spendere, un `+` accanto a ogni attributo ne compra uno, e sopra la sfera della vita un
+  pulsante dorato apre il pannello
+- `Alt` tenuto premuto mostra i nomi di tutti gli oggetti a terra; un click su un nome lo raccoglie
 - rotella del mouse per avvicinare e allontanare la visuale; `Q` ed `E` la girano di 90°
 - `M` automappa: nell'angolo, sovrapposta al gioco, spenta
 - `F9` cambia lingua (inglese, italiano); la scelta resta per gli avvii successivi

@@ -75,6 +75,42 @@ Confermate da Mirco l'11 ottobre 2026: tutte come proposte, tranne la D12 (itch.
 | 10.9 | Build da provare e correzioni | 1–2 |
 | 10.10 | Chiusura: prova su un altro PC, GIF, ADR, lezioni, tag `m10`, scheda della M11 | 0,5–1 |
 
+## Passo 10.0 — Rifiniture della prova della M9
+
+**Com'è andata (12 ott 2026).**
+
+- **Click destro per indossare.** `Inventory.EquipFromGrid` mette l'oggetto della borsa nel suo
+  slot (per un anello quello libero, o il primo) e rimette quello di prima nel posto lasciato
+  libero, o nel primo libero. Prima di toccare qualcosa controlla che ci sia posto per l'oggetto
+  che torna (`InventoryGrid.CanAutoPlace`), così un'ascia che non entra da nessuna parte lascia
+  tutto com'era. Lampo e suono come equipaggiando con il click sinistro. Nel tooltip di un oggetto
+  nella borsa, in fondo, "Click destro per indossare".
+- **Pulsante dei punti.** `PointsButton`, un riquadro scuro con il bordo e il "+N" dorati sopra la
+  sfera della vita. Ascolta la crescita e il nuovo evento `OpenChanged` del pannello del
+  personaggio: si nasconde a pannello aperto e a punti finiti; un click apre il pannello.
+- **Caratteristiche colorate.** `CharacterPanel.TryGetLine` dà valore e base di ogni riga che si
+  colora: i quattro attributi (con e senza modificatori), Vita, Armatura, critico e Mana rifatti con
+  i valori di base. Azzurro (il colore degli affissi) se più alto, rosso se più basso; il tooltip
+  aggiunge in grigio "Base 30, oggetti ed effetti +5". Danno, colpire e blocco restano bianchi.
+- **Nomi con `Alt`.** Un'azione nuova, `ShowLabels`, su tutti e due gli `Alt`; il reader annuncia
+  `LabelsHeldChanged`. `GroundLabels`, primo figlio dell'HUD (sotto finestre e tooltip), mentre
+  `Alt` è premuto cerca gli oggetti a terra con un `OverlapSphereNonAlloc` sul livello Interactable,
+  tiene quelli sullo schermo, li ordina dal più vicino e mette ogni nome sopra il suo oggetto,
+  salendo di una riga finché non tocca un nome già messo (al massimo sei). Testo al 72% del nome
+  sotto il cursore, fondo scuro, colore della rarità. Etichette da un pool, legate all'oggetto
+  finché resta in vista: il testo si scrive solo quando un oggetto compare. Un click su un nome
+  manda il cavaliere a raccoglierlo (`PlayerController.Use`). `SetAlwaysVisible` è pronto per
+  l'opzione della D10.
+- Il primo screenshot metteva tutti i nomi nello stesso punto: la camera della UI era letta
+  all'avvio, e il test degli screenshot cambia il canvas dopo. Ora si legge a ogni giro.
+
+*Test.* `EquipFromBagTests` (5, EditMode): elmo scambiato, Forza che non basta, anelli nel posto
+libero e poi al posto del primo, niente posto per l'oggetto che torna, la riga del tooltip.
+`RefinementTests` (3, PlayMode): il pulsante segue punti e pannello; colori e nota del tooltip con
+un modificatore positivo e uno negativo; sei oggetti nello stesso punto mostrano sei nomi che non
+si coprono, più piccoli di quello sotto il cursore, e un click su un nome raccoglie l'oggetto.
+`EquipmentPlayModeTests`: la vita alzata dallo scudo è azzurra. 247 EditMode e 169 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -117,7 +153,7 @@ Confermate da Mirco l'11 ottobre 2026: tutte come proposte, tranne la D12 (itch.
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D13 confermate
-- [ ] Rifiniture della prova della M9
+- [x] Rifiniture della prova della M9
 - [ ] Oro, prezzi e formato 4
 - [ ] Menu, tre salvataggi, pausa e opzioni
 - [ ] Città, mercante, pergamena del ritorno

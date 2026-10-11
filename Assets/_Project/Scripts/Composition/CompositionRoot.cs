@@ -66,6 +66,8 @@ namespace DarkDescent.Core
 
         [SerializeField] private PointsButton _pointsButton;
 
+        [SerializeField] private GroundLabels _groundLabels;
+
         [Tooltip("La sfera blu del mana, in basso a destra (M9).")]
         [SerializeField] private ManaOrb _manaOrb;
 
@@ -208,6 +210,7 @@ namespace DarkDescent.Core
             _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _progress.Progress, _reader, _localizer);
             _experienceBar.Bind(_progress.Progress, _localizer);
             _pointsButton.Bind(_progress.Progress, _characterPanel);
+            _groundLabels.Bind(_reader, _player.GetComponent<PlayerController>(), _localizer);
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _cameraRotation = _playerCamera.GetComponent<Rendering.CameraRotation>();

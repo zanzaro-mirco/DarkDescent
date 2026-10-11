@@ -198,6 +198,22 @@ namespace DarkDescent.Player
             return true;
         }
 
+        /// <summary>
+        /// Va a usare <paramref name="interactable"/> come dopo un click sopra: il click su un nome
+        /// mostrato con `Alt` (D1 della M10), che non passa dal raggio del cursore.
+        /// </summary>
+        public void Use(Interactable interactable)
+        {
+            if (interactable == null)
+            {
+                return;
+            }
+
+            _heldTarget = null;
+            RequestWalk(interactable.ApproachPoint);
+            _pendingUse = interactable;
+        }
+
         private void HandleMoveCommandCanceled()
         {
             _heldTarget = null;

@@ -43,7 +43,12 @@ namespace DarkDescent.Player
         /// <summary>F1–F3: il posto dell'incantesimo scelto, da 0.</summary>
         public event Action<int> SpellSelected;
 
+        /// <summary>`Alt` premuto o rilasciato: i nomi di tutti gli oggetti a terra (D1 della M10).</summary>
+        public event Action<bool> LabelsHeldChanged;
+
         public bool IsMoveCommandHeld { get; private set; }
+
+        public bool IsLabelsHeld { get; private set; }
 
         public Vector2 PointerScreenPosition => _controls.Gameplay.Point.ReadValue<Vector2>();
 
@@ -69,6 +74,8 @@ namespace DarkDescent.Player
             _controls.Gameplay.Rotate.performed += HandleRotatePerformed;
             _controls.Gameplay.Cast.performed += HandleCastPerformed;
             _controls.Gameplay.SelectSpell.performed += HandleSelectSpellPerformed;
+            _controls.Gameplay.ShowLabels.performed += HandleLabelsPerformed;
+            _controls.Gameplay.ShowLabels.canceled += HandleLabelsCanceled;
             _controls.Gameplay.Enable();
         }
 
@@ -88,9 +95,12 @@ namespace DarkDescent.Player
             _controls.Gameplay.Rotate.performed -= HandleRotatePerformed;
             _controls.Gameplay.Cast.performed -= HandleCastPerformed;
             _controls.Gameplay.SelectSpell.performed -= HandleSelectSpellPerformed;
+            _controls.Gameplay.ShowLabels.performed -= HandleLabelsPerformed;
+            _controls.Gameplay.ShowLabels.canceled -= HandleLabelsCanceled;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
+            IsLabelsHeld = false;
         }
 
         private void OnDestroy()
@@ -111,6 +121,28 @@ namespace DarkDescent.Player
         {
             IsMoveCommandHeld = false;
             MoveCommandCanceled?.Invoke();
+        }
+
+        private void HandleLabelsPerformed(InputAction.CallbackContext context)
+        {
+            SetLabelsHeld(true);
+        }
+
+        private void HandleLabelsCanceled(InputAction.CallbackContext context)
+        {
+            SetLabelsHeld(false);
+        }
+
+        /// <summary>Come se `Alt` fosse premuto o rilasciato: per i test.</summary>
+        public void SetLabelsHeld(bool held)
+        {
+            if (held == IsLabelsHeld)
+            {
+                return;
+            }
+
+            IsLabelsHeld = held;
+            LabelsHeldChanged?.Invoke(held);
         }
 
         private void HandleInventoryPerformed(InputAction.CallbackContext context)
