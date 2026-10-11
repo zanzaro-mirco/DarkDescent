@@ -56,6 +56,16 @@ namespace DarkDescent.Localization
         public const string LanguageName = "language.name";
         public const string LevelTown = "level.town";
 
+        // il mercante (D5 della M10)
+        public const string MerchantName = "merchant.name";
+        public const string ShopPrice = "shop.price";
+        public const string ShopSellPrice = "shop.sell_price";
+        public const string ShopBuyHint = "shop.buy_hint";
+        public const string ShopSellHint = "shop.sell_hint";
+        public const string ShopNoGold = "shop.no_gold";
+        public const string ShopNoRoom = "shop.no_room";
+        public const string ShopHelp = "shop.help";
+
         // le spiegazioni delle righe del pannello del personaggio (D16 della M6), con i titoli dalle sue righe
         public const string StatNames = "hud.stat_names";
         public const string TipStrength = "stat.tip.strength";

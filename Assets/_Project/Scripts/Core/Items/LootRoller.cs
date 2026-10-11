@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DarkDescent.Core;
 
 namespace DarkDescent.Items
@@ -68,6 +69,32 @@ namespace DarkDescent.Items
             }
 
             return table.GoldFor(new SplitMix64Source(SeedMixer.ForGold(RunSeed, depth, cellX, cellZ)), depth);
+        }
+
+        /// <summary>
+        /// Gli oggetti del mercante (D5 della M10): <see cref="MerchantTable.StockSize"/> basi pesate,
+        /// del livello <paramref name="depth"/>, da un seme di profondità e ritorno in città. Stessi
+        /// ingressi, stesso assortimento: non si salva. <paramref name="into"/> viene svuotata prima.
+        /// </summary>
+        public void RollStock(MerchantTable table, int depth, int visit, List<ItemInstance> into)
+        {
+            into.Clear();
+            if (table == null)
+            {
+                return;
+            }
+
+            var random = new SplitMix64Source(SeedMixer.ForShop(RunSeed, depth, visit));
+            for (int i = 0; i < table.StockSize; i++)
+            {
+                var item = table.PickStock(random);
+                if (item == null)
+                {
+                    return;
+                }
+
+                into.Add(_generator.Generate(item, depth, random.NextUInt64()));
+            }
         }
 
         /// <summary>

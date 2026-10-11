@@ -45,6 +45,12 @@ namespace DarkDescent.Core
 
         [SerializeField] private CharacterPanel _characterPanel;
 
+        [Tooltip("La finestra del mercante, a sinistra (D5 della M10).")]
+        [SerializeField] private ShopPanel _shopPanel;
+
+        [Tooltip("Cosa vende il mercante: provviste e basi degli oggetti (D5 della M10).")]
+        [SerializeField] private MerchantTable _merchantTable;
+
         [SerializeField] private BeltView _beltView;
 
         [SerializeField] private ExplorationTracker _exploration;
@@ -140,6 +146,11 @@ namespace DarkDescent.Core
         private Rendering.CameraRotation _cameraRotation;
         private Magic.PlayerMagic _magic;
         private PlayerInventory _inventory;
+
+        // il banco del mercante e il mercante della città, se è il livello corrente (D5 della M10)
+        private readonly Shop _shop = new Shop();
+        private readonly List<ItemInstance> _stock = new List<ItemInstance>();
+        private Town.Merchant _merchant;
 
         // quali pergamene possono ancora cadere: creata una volta, non a ogni livello
         private Func<Magic.SpellDefinition, bool> _scrollWanted;
@@ -257,6 +268,7 @@ namespace DarkDescent.Core
             _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _progress.Progress, _reader, _localizer);
             _experienceBar.Bind(_progress.Progress, _localizer);
             _pointsButton.Bind(_progress.Progress, _characterPanel);
+            _shopPanel.Bind(_shop, inventory, _inventoryPanel, _localizer);
             _groundLabels.Bind(_reader, _player.GetComponent<PlayerController>(), _localizer);
             _optionsPanel.Bind(_localizer, _groundLabels);
             _beltView.Bind(inventory);
@@ -427,6 +439,7 @@ namespace DarkDescent.Core
             _levelManager.LevelLoaded += BindLevel;
             _levelManager.LevelUnloading += ReleaseLevel;
             _cameraRotation.FacingChanged += HandleFacingChanged;
+            _characterPanel.OpenChanged += HandleCharacterOpenChanged;
         }
 
         private void OnDisable()
@@ -443,6 +456,8 @@ namespace DarkDescent.Core
             _levelManager.LevelLoaded -= BindLevel;
             _levelManager.LevelUnloading -= ReleaseLevel;
             _cameraRotation.FacingChanged -= HandleFacingChanged;
+            _characterPanel.OpenChanged -= HandleCharacterOpenChanged;
+            ReleaseMerchant();
         }
 
         // a metà di uno scatto della camera: i lati vicini diventano bassi, quelli lontani alti
@@ -520,6 +535,7 @@ namespace DarkDescent.Core
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
             _exploration.SetLevel(level.Map, level.Depth);
+            BindMerchant(level);
         }
 
         // la pergamena del livello, se c'è, la porta uno dei nemici o una delle casse (D5 della M9)
@@ -586,6 +602,58 @@ namespace DarkDescent.Core
 
             _rewardingEnemies.Clear();
             _exploration.SetLevel(null, 0);
+            ReleaseMerchant();
+        }
+
+        // Entrando in città il mercante tira l'assortimento: oggetti del livello della profondità più
+        // bassa raggiunta, da un seme che cambia con le uccisioni, quindi a ogni ritorno dopo aver
+        // combattuto; uguale per lo stesso stato, senza salvarlo (D5 della M10)
+        private void BindMerchant(LevelContext level)
+        {
+            _merchant = level.Merchant;
+            if (_merchant == null)
+            {
+                return;
+            }
+
+            int depth = Math.Max(1, _exploration.Memory.DeepestDepth);
+            _loot.RollStock(_merchantTable, depth, _runStats.Kills, _stock);
+            _shop.Restock(_merchantTable.Supplies, _stock);
+            _merchant.Opened += HandleMerchantOpened;
+        }
+
+        private void ReleaseMerchant()
+        {
+            // chiudendo la scena il pannello può essere già distrutto
+            if (_shopPanel != null)
+            {
+                _shopPanel.Close();
+            }
+
+            if (_merchant != null)
+            {
+                _merchant.Opened -= HandleMerchantOpened;
+                _merchant = null;
+            }
+        }
+
+        // il banco prende la metà sinistra, dove sta il pannello del personaggio: uno chiude l'altro
+        private void HandleMerchantOpened()
+        {
+            if (_characterPanel.IsOpen)
+            {
+                _characterPanel.Toggle();
+            }
+
+            _shopPanel.Open();
+        }
+
+        private void HandleCharacterOpenChanged(bool open)
+        {
+            if (open)
+            {
+                _shopPanel.Close();
+            }
         }
 
         // l'esperienza del nemico ucciso, alla profondità del livello in cui è morto (D2 della M8)

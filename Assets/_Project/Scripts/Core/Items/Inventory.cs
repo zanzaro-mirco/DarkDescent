@@ -54,6 +54,27 @@ namespace DarkDescent.Items
             return Belt.TryAdd(item) || Grid.TryAutoPlace(item);
         }
 
+        /// <summary>Se <see cref="TryPickUp"/> troverebbe posto, senza mettere niente.</summary>
+        public bool CanPickUp(ItemInstance item)
+        {
+            return (Belt.Accepts(item) && Belt.Count < Belt.Size) || Grid.CanAutoPlace(item);
+        }
+
+        /// <summary>
+        /// Oro guadagnato vendendo al mercante (D4 della M10): sale come quello raccolto, ma non conta
+        /// tra l'oro raccolto della schermata di vittoria.
+        /// </summary>
+        public void ReceiveGold(int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            Gold += amount;
+            GoldChanged?.Invoke();
+        }
+
         public void AddGold(int amount)
         {
             if (amount <= 0)

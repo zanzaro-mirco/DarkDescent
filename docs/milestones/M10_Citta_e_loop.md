@@ -257,6 +257,46 @@ titolo senza numero, automappa, luce calda, una sola luce con le ombre); la scal
 profondità 1 della cripta; salvata in città, la partita lo dice e Continua riporta lì. `MenuTests` ora
 si aspetta la città. 261 EditMode e 180 PlayMode verdi.
 
+## Passo 10.5 — Il mercante
+
+**Com'è andata (12 ott 2026).**
+
+- **Il mercante** è il *Rogue* incappucciato di KayKit Adventurers, dietro il banco con la tovaglia
+  sul lato ovest dell'accampamento. Banco e personaggio sono un prefab solo (`MerchantStall`, il
+  simbolo `M` della mappa): il personaggio sta tra il banco e il muro, con l'animazione di riposo del
+  cavaliere e le armi spente. Il nome sopra è *Mercante*; un click e il cavaliere va davanti al banco.
+- **Il banco** si apre nella metà sinistra, dove sta il pannello del personaggio (uno chiude
+  l'altro), con l'inventario aperto accanto. Dodici posti: prima le **provviste**, pozione di cura e
+  di mana, sempre lì; poi gli **otto oggetti**. Sotto ogni posto il prezzo, rosso se l'oro non basta;
+  il tooltip dice prezzo e tasto. **Click per comprare**: la pozione va nella cintura se c'è posto,
+  il resto nella borsa; senza oro o senza posto lo dice sotto il banco e non tocca niente.
+- **Vendere**: con il banco aperto, il **click destro** su un oggetto della borsa lo vende al 25% del
+  prezzo invece di indossarlo o berlo, e il suo tooltip dice a quanto. L'oro della vendita non conta
+  tra l'oro raccolto della vittoria (`Inventory.ReceiveGold` invece di `AddGold`).
+- **L'assortimento** viene da `MerchantTable` (le provviste e le basi pesate, oggi quelle delle casse)
+  e da un flusso suo del seme della partita (`SeedMixer.ForShop`): oggetti del livello della
+  **profondità più bassa raggiunta** (la presa dalle mappe esplorate, che sono già nel salvataggio),
+  da un seme di profondità e numero di uccisioni. Così cambia a ogni ritorno in città dopo aver
+  combattuto e resta uguale per lo stesso stato, **senza salvarlo né cambiare formato**. Il prezzo
+  della scelta: un oggetto comprato ricompare se si esce e si rientra senza aver ucciso niente (lo si
+  ricompra, non si duplica niente).
+- **Si chiude** con la sua X, chiudendo l'inventario, con `Esc` o aprendo il pannello del personaggio.
+- La logica è in `Core` (`Shop`, `MerchantTable`, `TradeResult`, `LootRoller.RollStock`), la finestra è
+  `ShopPanel` con dodici `ShopSlotView`, costruita da uno script dell'editor con lo stile delle altre.
+- *Trappola ritrovata*: lo script dell'editor creava la tabella e poi apriva la scena Core, e il
+  riferimento della tabella nel composition root restava vuoto (trappola già vista con la cripta:
+  aprire una scena scarica gli oggetti caricati prima). Ricollegata dopo l'apertura.
+- La pergamena del ritorno si aggiunge alle provviste al passo 10.6; i prezzi e le quantità d'oro si
+  tarano con la build del 10.9.
+
+*Test.* `ShopTests` (8, EditMode): la tabella; l'assortimento uguale per seme, diverso per ritorno e
+profondità, con un flusso suo; comprare una provvista (resta) e un oggetto (sparisce); senza oro o
+senza posto non cambia niente; vendere paga un quarto e non è oro raccolto; la profondità più bassa
+senza la città; le righe del prezzo in oro e in rosso. `MerchantTests` (4, PlayMode): raggiunto il
+mercante si apre il banco con dieci cose e i prezzi; comprare vuole l'oro; il click destro vende
+dalla borsa; il banco si chiude in quattro modi e chiuso la borsa non vende più. 269
+EditMode e 184 PlayMode verdi.
+
 ---
 
 ## Trappole note

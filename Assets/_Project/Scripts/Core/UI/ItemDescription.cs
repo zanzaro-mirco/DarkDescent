@@ -24,6 +24,9 @@ namespace DarkDescent.UI
         // il suggerimento sotto la pozione: più spento del testo, come un'istruzione e non un valore
         private const string HintColor = "#8C8577";
 
+        // l'oro, come la scritta dell'inventario
+        private const string GoldColor = "#E0BF61";
+
         /// <summary>
         /// La velocità d'attacco a parole, come in Diablo (seconda prova della build M7): il pugnale è
         /// veloce, la spada corta normale, la lama dello scheletro e l'ascia lente.
@@ -57,9 +60,10 @@ namespace DarkDescent.UI
         /// <paramref name="meetsRequirements"/> colora di rosso la Forza richiesta quando è false;
         /// <paramref name="header"/>, se c'è, va in piccolo sopra il nome ("Equipped");
         /// <paramref name="twoLineName"/> divide il nome a metà, per i nomi lunghi;
-        /// <paramref name="equipHint"/> aggiunge in fondo come indossarlo, per gli oggetti nella borsa.
+        /// <paramref name="equipHint"/> aggiunge in fondo come indossarlo, per gli oggetti nella borsa;
+        /// <paramref name="trade"/>, se c'è, va in fondo a tutto: le righe del mercante (<see cref="TradeText"/>).
         /// </summary>
-        public static void Write(StringBuilder builder, ItemInstance item, bool meetsRequirements, Localizer localizer, string header = null, bool twoLineName = false, bool equipHint = false)
+        public static void Write(StringBuilder builder, ItemInstance item, bool meetsRequirements, Localizer localizer, string header = null, bool twoLineName = false, bool equipHint = false, string trade = null)
         {
             builder.Clear();
             if (!string.IsNullOrEmpty(header))
@@ -117,6 +121,24 @@ namespace DarkDescent.UI
             {
                 builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipEquip)).Append("</color></size>");
             }
+
+            if (!string.IsNullOrEmpty(trade))
+            {
+                builder.Append('\n').Append(trade);
+            }
+        }
+
+        /// <summary>
+        /// Le righe del mercante in fondo al tooltip (D5 della M10): il prezzo in oro, in rosso se non
+        /// basta, e sotto il tasto. <paramref name="priceKey"/> è il prezzo d'acquisto o quello di vendita.
+        /// </summary>
+        public static string TradeText(Localizer localizer, string priceKey, int price, bool affordable, string hintKey)
+        {
+            var builder = new StringBuilder(96);
+            builder.Append("<color=").Append(affordable ? GoldColor : UnmetColor).Append('>')
+                .AppendFormat(CultureInfo.InvariantCulture, localizer.Get(priceKey), price).Append("</color>");
+            builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(hintKey)).Append("</color></size>");
+            return builder.ToString();
         }
 
         // la Forza richiesta, in rosso se non basta; niente riga per chi non ne chiede

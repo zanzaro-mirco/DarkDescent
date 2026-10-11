@@ -201,3 +201,11 @@ affix.of_vitality,of Vitality,della Vitalità
 affix.of_the_bear,of the Bear,dell'Orso
 affix.of_the_griffin,of the Griffin,del Grifone
 affix.of_blocking,of Blocking,della Parata
+merchant.name,Merchant,Mercante
+shop.price,Price: {0} gold,Prezzo: {0} oro
+shop.sell_price,Sells for {0} gold,Si vende a {0} oro
+shop.buy_hint,Click to buy,Click per comprare
+shop.sell_hint,Right-click to sell,Click destro per vendere
+shop.no_gold,Not enough gold,Non hai abbastanza oro
+shop.no_room,No room in the bag,Non c'è posto nella borsa
+shop.help,Right-click an item in your bag to sell it,Click destro su un oggetto della borsa per venderlo

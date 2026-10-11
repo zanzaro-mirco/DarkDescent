@@ -49,6 +49,14 @@ namespace DarkDescent.Core
             return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ GoldDomain);
         }
 
+        // "SHOP": l'assortimento del mercante, a una profondità e a un ritorno in città (D5 della M10)
+        private const ulong ShopDomain = 0x53484F50UL;
+
+        public static ulong ForShop(ulong runSeed, int depth, int visit)
+        {
+            return Mix(ForLevel(runSeed, depth) ^ ShopDomain ^ Mix((ulong)(uint)visit));
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

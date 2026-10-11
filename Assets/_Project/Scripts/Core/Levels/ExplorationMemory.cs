@@ -39,6 +39,26 @@ namespace DarkDescent.Levels
             return exploration;
         }
 
+        /// <summary>La profondità più bassa visitata, città esclusa; 0 se nessuna. Per il mercante (D5 della M10).</summary>
+        public int DeepestDepth
+        {
+            get
+            {
+                int deepest = 0;
+                foreach (var depth in _levels.Keys)
+                {
+                    deepest = depth > deepest ? depth : deepest;
+                }
+
+                foreach (var depth in _saved.Keys)
+                {
+                    deepest = depth > deepest ? depth : deepest;
+                }
+
+                return deepest;
+            }
+        }
+
         /// <summary>Le mappe scoperte da salvare: quelle visitate e quelle salvate non ancora riaperte.</summary>
         public List<ExploredLevel> Export()
         {

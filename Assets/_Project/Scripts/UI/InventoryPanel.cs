@@ -71,6 +71,9 @@ namespace DarkDescent.UI
         private Localizer _localizer;
         private bool _subscribed;
 
+        // il banco del mercante aperto accanto: il click destro vende invece di usare (D5 della M10)
+        private ShopPanel _trade;
+
         public bool IsOpen => _window.activeSelf;
 
         public float CellSize => _cellSize;
@@ -128,6 +131,12 @@ namespace DarkDescent.UI
                 _inventory.PutAwayHeld();
             }
 
+            // senza la borsa non si vende: il banco si chiude con lei
+            if (!open && _trade != null)
+            {
+                _trade.Close();
+            }
+
             _window.SetActive(open);
 
             // una finestra spenta non riceve l'uscita del cursore: il tooltip si dimentica qui
@@ -142,14 +151,34 @@ namespace DarkDescent.UI
             _inventory.Inventory.ClickCell(cell);
         }
 
-        /// <summary>Click destro su una cella: beve la pozione, legge la pergamena o indossa l'oggetto che c'è, se il cursore è libero.</summary>
+        /// <summary>
+        /// Click destro su una cella, a cursore libero: beve la pozione, legge la pergamena o indossa
+        /// l'oggetto che c'è; con il banco del mercante aperto lo vende.
+        /// </summary>
         public void UseCell(Vector2Int cell)
         {
-            if (_inventory.Inventory.Held == null)
+            if (_inventory.Inventory.Held != null)
             {
-                _inventory.UseAt(cell);
+                return;
             }
+
+            if (_trade != null)
+            {
+                _trade.SellAt(cell);
+                return;
+            }
+
+            _inventory.UseAt(cell);
         }
+
+        /// <summary>Il banco del mercante aperto accanto, o null quando si chiude: cambia il click destro e il tooltip.</summary>
+        public void SetTrade(ShopPanel shop)
+        {
+            _trade = shop;
+            RefreshTooltip();
+        }
+
+        public bool IsTrading => _trade != null;
 
         public void ClickSlot(EquipSlot slot)
         {
@@ -398,7 +427,10 @@ namespace DarkDescent.UI
                 return;
             }
 
-            _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target, equipHint: _hoveredCell.HasValue);
+            // con il banco aperto, dalla borsa si vende: il prezzo al posto di come indossarlo
+            bool selling = _trade != null && _hoveredCell.HasValue;
+            _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target,
+                equipHint: _hoveredCell.HasValue && !selling, trade: selling ? _trade.SellText(item) : null);
             if (!_hoveredCell.HasValue || item.Definition.Slot == EquipSlot.None)
             {
                 _compareTooltip.Hide();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DarkDescent.Audio;
 using DarkDescent.Enemies;
 using DarkDescent.Items;
+using DarkDescent.Town;
 using UnityEngine;
 
 namespace DarkDescent.Levels
@@ -36,6 +37,9 @@ namespace DarkDescent.Levels
 
         /// <summary>Le casse da aprire (dalla M6): il loot le collega come i nemici.</summary>
         public IReadOnlyList<Chest> Chests => _chests;
+
+        /// <summary>Il mercante della città (D5 della M10); null negli altri livelli.</summary>
+        public Merchant Merchant { get; private set; }
 
         public int EntranceCount => _entrances.Count;
 
@@ -79,6 +83,10 @@ namespace DarkDescent.Levels
                 _enemies.AddRange(enemies);
                 root.GetComponentsInChildren(true, chests);
                 _chests.AddRange(chests);
+                if (Merchant == null)
+                {
+                    Merchant = root.GetComponentInChildren<Merchant>(true);
+                }
             }
         }
 

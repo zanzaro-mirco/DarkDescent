@@ -77,7 +77,8 @@ Milestone precedenti:
   opzioni o si salva per tornare al menu iniziale
 
 Il gioco parte da un **menu iniziale**: *Continua* riprende l'ultima partita, *Nuova partita*
-comincia nell'**accampamento** all'ingresso della cripta, da cui la scala scende al primo livello;
+comincia nell'**accampamento** all'ingresso della cripta, da cui la scala scende al primo livello
+e dove il **mercante** vende pozioni e oggetti e compra quelli della borsa (click destro);
 e *Carica* usano tre posti di salvataggio (`save_1.json`…`save_3.json` nella cartella dei dati
 dell'applicazione), che si possono anche cancellare. Nelle **opzioni** ci sono la lingua
 (inglese, italiano), i volumi generale, della musica e degli effetti, e i nomi degli oggetti
