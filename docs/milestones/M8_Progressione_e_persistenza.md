@@ -346,7 +346,13 @@ Mirco ha provato la build 37920188059. Le correzioni prima della chiusura:
   punti senza andare a capo. Le etichette degli slot sono in maiuscolo pieno e non vanno a capo
   ("Amuleto"). Ho controllato con screenshot in inglese e in italiano.
   Nella build dopo Mirco ha visto "Mancat" / "o": anche il modello dei numeri di danno (240 px a
-  46 punti) ora non va a capo.
+  46 punti) ora non va a capo. Poi ho controllato tutte le scritte con un test temporaneo che apre in inglese e
+  in italiano HUD, barre dei tre nemici, etichette a terra, pannelli, tutte le righe delle statistiche,
+  i tooltip di ogni base (normale, magica, rara) e la schermata di morte, e su circa 28 000 testi
+  cerca parole spezzate, testi fuori dal riquadro e caratteri che il font non ha. Unico difetto:
+  l'etichetta degli oggetti a terra aveva il riquadro fisso di 420 × 52 e i nomi magici lunghi
+  andavano su due righe uscendo dal fondo scuro; ora è su una riga e il riquadro segue il nome
+  (layout orizzontale e ContentSizeFitter).
 - **WASD** tra i lavori dopo la v1.0 (piano v2.25).
 - **Gioielli senza niente.** Anelli e amuleti hanno solo affissi, ma il 65% degli oggetti nasce
   normale, cioè senza: un anello su due non faceva niente. Ora una base ha una rarità minima
