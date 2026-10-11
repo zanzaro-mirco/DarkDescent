@@ -38,11 +38,11 @@ revisione degli ADR. Dopo la prima build da provare c'è già un passo per le co
 
 ## Decisioni
 
-Da confermare con Mirco prima di cominciare.
+Tutte confermate da Mirco l'11 ottobre 2026, con le proposte.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
-| D1 | **Correzioni dalla prova della M8** | Con due anelli indossati, il tooltip di un anello nello zaino mostra **tutti e due** gli anelli indossati, uno a sinistra e uno a destra, con *Equipaggiato – anello 1* e *anello 2*. I **nomi lunghi** vanno su due righe divise allo spazio più vicino al centro, quando sono più larghi di circa 420 px; il tooltip non supera quella larghezza | Le ha chieste Mirco nell'ultima prova. In Diablo 2 i nomi rari stanno su due righe: qui la divisione a metà tiene le righe simili |
+| D1 | **Correzioni dalla prova della M8** | Con due anelli indossati, il tooltip di un anello nello zaino mostra **tutti e due** gli anelli indossati, uno a sinistra e uno a destra, con *Equipaggiato – anello 1* e *anello 2*. I **nomi lunghi** vanno su due righe divise allo spazio più vicino al centro, quando sono più larghi di 480 px di riferimento; il tooltip non supera quella larghezza | Le ha chieste Mirco nell'ultima prova. In Diablo 2 i nomi rari stanno su due righe: qui la divisione a metà tiene le righe simili |
 | D2 | **Mana** | Mana massimo **10 + Magia × 2** (con la Magia di partenza 10 fa 30), **+1** a livello. Si rigenera del **2% al secondo**, anche in combattimento. Pozione di mana blu, come quella di cura, nelle stesse tabelle del loot e nella cintura | Il guerriero non è un mago: con 30 di mana lancia cinque o sei dardi. Chi alza la Magia cambia stile di gioco, ed è il motivo per farlo |
 | D3 | **Tre incantesimi** | **Dardo di fuoco:** un proiettile verso il cursore, 6 di mana, danno 6–12 + Magia / 4. **Anello di fuoco:** colpisce tutti i nemici entro 4 m, 15 di mana, danno 8–14 + Magia / 3, ricarica 3 s. **Pelle di pietra:** +50% di Armatura per 20 s, 12 di mana, ricarica 30 s. Il danno degli incantesimi non usa la Forza e non può essere bloccato | Uno per tipo, come nel piano. I numeri partono dal danno della spada corta e si tarano provando |
 | D4 | **Come si lanciano** | Il **tasto destro** lancia l'incantesimo scelto verso il cursore, come in Diablo 1. **F1–F3** scelgono l'incantesimo, o un click sui tre posti della barra accanto alla sfera del mana. Senza mana, o in ricarica, il posto si scurisce e il lancio non parte, con un suono sordo | Il tasto destro è libero e tiene la mano sul mouse. F1–F3 sono lontani da cintura e rotazione; F9 resta la lingua |
@@ -71,6 +71,27 @@ Da confermare con Mirco prima di cominciare.
 | 9.7 | Formato 3 del salvataggio e migrazione (D11) | 0,5–1 |
 | 9.8 | Build da provare e correzioni | 1 |
 | 9.9 | Chiusura: Profiler, GIF, ADR, lezioni, tag `m9`, scheda della M10 | 0,5 |
+
+## Passo 9.0 — Correzioni dalla prova della M8
+
+**Com'è andata (11 ott 2026).**
+
+- **Due anelli.** L'inventario ha un secondo tooltip di confronto, copia del primo nella scena.
+  Passando su un anello della griglia con due anelli addosso, si vedono *Equipaggiato – anello 1*
+  e *anello 2* in fila dallo stesso lato: oggetto, primo anello, secondo anello. La prima prova li
+  metteva uno per lato, ma l'inventario sta sul bordo destro e a destra non c'era posto: finivano
+  uno sopra l'altro (lo ha mostrato lo screenshot, non il test). Con un anello solo il confronto
+  non c'è, perché il nuovo andrebbe nello slot libero. `ShowBeside` sceglie il lato preferito e
+  ripiega sull'altro se non c'è spazio.
+- **Nomi lunghi.** Il tooltip misura il nome in grassetto con il suo font: oltre 480 px di
+  riferimento lo fa dividere da `ItemDescription.SplitAtMiddle`, allo spazio più vicino al centro
+  (*Lama dello scheletro* / *Precisa della Vitalità*). Con 420 si divideva anche *Anello Preciso
+  della Vitalità*, che sta bene su una riga.
+
+*Test.* `ItemDescriptionTests.LongName_SplitsAtMiddle` (EditMode): la divisione a metà in inglese e
+in italiano, il nome senza spazi, il nome su una riga di base. In `InventoryUITests` (PlayMode):
+due anelli confrontati in fila senza sovrapporsi e dentro lo schermo, il confronto che sparisce
+con un anello solo; il nome lungo su due righe e il tooltip non più largo della soglia.
 
 ---
 
@@ -113,8 +134,8 @@ Da confermare con Mirco prima di cominciare.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D12 confermate
-- [ ] Correzioni dalla prova della M8
+- [x] Decisioni D1–D12 confermate
+- [x] Correzioni dalla prova della M8
 - [ ] Mana, incantesimi e pergamene
 - [ ] Scheletro mago
 - [ ] Barra del nemico combattuto e HUD in basso

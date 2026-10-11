@@ -326,6 +326,59 @@ namespace DarkDescent.Tests
             Assert.IsFalse(compare.IsShowing);
         }
 
+        [UnityTest, Description("Con due anelli addosso, un anello della griglia si confronta con tutti e due, in fila a sinistra (l'inventario sta sul bordo destro), senza sovrapporsi e dentro lo schermo; con un anello solo il confronto non c'è, perché andrebbe nello slot libero (M9, D1)")]
+        public IEnumerator Tooltip_ComparesWithBothRings()
+        {
+            yield return LoadUI();
+            _inventory.Equipment.TryEquip(Item("Ring"), out _);
+            _inventory.Equipment.TryEquip(Item("Ring"), out _);
+            _inventory.TryPickUp(Item("Ring"));
+            _panel.SetOpen(true);
+            yield return null;
+
+            yield return HoverScreen(CellOnScreen(new Vector2Int(0, 0)));
+            var tooltip = _panel.Tooltip;
+            var first = _panel.CompareTooltip;
+            var second = _panel.SecondCompareTooltip;
+            Assert.IsTrue(first.IsShowing && second.IsShowing, "tutti e due gli anelli");
+            StringAssert.Contains("ring 1", first.Text);
+            StringAssert.Contains("ring 2", second.Text);
+            AssertInsideScreen(first.Box);
+            AssertInsideScreen(second.Box);
+            var main = new Vector3[4];
+            var a = new Vector3[4];
+            var b = new Vector3[4];
+            tooltip.Box.GetWorldCorners(main);
+            first.Box.GetWorldCorners(a);
+            second.Box.GetWorldCorners(b);
+            Assert.LessOrEqual(a[2].x, main[0].x + 0.5f, "il primo a sinistra dell'oggetto");
+            Assert.LessOrEqual(b[2].x, a[0].x + 0.5f, "il secondo a sinistra del primo, senza sovrapporsi");
+
+            _inventory.Equipment.Unequip(EquipSlot.Ring2);
+            yield return HoverScreen(CellOnScreen(new Vector2Int(1, 0)));
+            yield return HoverScreen(CellOnScreen(new Vector2Int(0, 0)));
+            Assert.IsFalse(second.IsShowing, "un anello solo: il secondo confronto sparisce");
+        }
+
+        [UnityTest, Description("Un nome lungo va su due righe e il tooltip non supera la larghezza massima (M9, D1)")]
+        public IEnumerator Tooltip_LongNameOnTwoLines()
+        {
+            yield return LoadUI();
+            var accurate = UnityEditor.AssetDatabase.LoadAssetAtPath<AffixDefinition>("Assets/_Project/Data/Affixes/Accurate.asset");
+            var vitality = UnityEditor.AssetDatabase.LoadAssetAtPath<AffixDefinition>("Assets/_Project/Data/Affixes/OfVitality.asset");
+            var blade = UnityEditor.AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/SkeletonBlade.asset");
+            _inventory.TryPickUp(new ItemInstance(blade, Rarity.Magic, 5, 1UL, new[] { new ItemAffix(accurate, 10), new ItemAffix(vitality, 3) }));
+            Localizer.SetLanguage("it");
+            _panel.SetOpen(true);
+            yield return null;
+
+            yield return HoverScreen(CellOnScreen(new Vector2Int(0, 0)));
+            var tooltip = _panel.Tooltip;
+            StringAssert.Contains("Lama dello scheletro\nPrecisa della Vitalità", tooltip.Text);
+            Assert.LessOrEqual(tooltip.Box.sizeDelta.x, 480f + 2f * 14f, "non più largo del nome massimo più i margini");
+            Localizer.SetLanguage("en");
+        }
+
         [UnityTest, Description("Chiudendo l'inventario con un oggetto sul cursore, l'oggetto torna nella griglia")]
         public IEnumerator Close_PutsHeldItemBack()
         {

@@ -38,6 +38,20 @@ namespace DarkDescent.Tests
             return _builder.ToString();
         }
 
+        [Test, Description("Un nome lungo si divide allo spazio più vicino al centro (M9, D1); un nome senza spazi resta com'è; il tooltip lo chiede con twoLineName")]
+        public void LongName_SplitsAtMiddle()
+        {
+            Assert.AreEqual("Lama dello scheletro\nPrecisa della Vitalità", ItemDescription.SplitAtMiddle("Lama dello scheletro Precisa della Vitalità"));
+            Assert.AreEqual("Accurate Skeleton\nBlade of Vitality", ItemDescription.SplitAtMiddle("Accurate Skeleton Blade of Vitality"));
+            Assert.AreEqual("Ascia", ItemDescription.SplitAtMiddle("Ascia"));
+
+            var item = With("SkeletonBlade", Rarity.Magic, ("Accurate", 5), ("OfVitality", 3));
+            ItemDescription.Write(_builder, item, true, _localizer, null, twoLineName: true);
+            StringAssert.Contains("Accurate Skeleton\nBlade of Vitality</color>", _builder.ToString());
+            ItemDescription.Write(_builder, item, true, _localizer);
+            StringAssert.Contains("Accurate Skeleton Blade of Vitality</color>", _builder.ToString(), "di base su una riga");
+        }
+
         [Test, Description("La lama: nome, danno e Forza richiesta, senza rosso se la Forza basta")]
         public void Blade_ShowsDamageAndRequirement()
         {

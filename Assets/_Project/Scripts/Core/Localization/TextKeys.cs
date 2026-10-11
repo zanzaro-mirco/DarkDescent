@@ -27,6 +27,8 @@ namespace DarkDescent.Localization
         public const string TooltipBlock = "tooltip.block";
         public const string Chest = "chest";
         public const string TooltipEquipped = "tooltip.equipped";
+        public const string TooltipEquippedRing1 = "tooltip.equipped_ring1";
+        public const string TooltipEquippedRing2 = "tooltip.equipped_ring2";
         public const string TooltipHeal = "tooltip.heal";
         public const string TooltipDrink = "tooltip.drink";
 

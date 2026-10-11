@@ -46,6 +46,8 @@ tooltip.required_strength,Required Strength: {0},Forza richiesta: {0}
 tooltip.block,Block chance: {0}%,Blocco: {0}%
 chest,Chest,Cassa
 tooltip.equipped,Equipped,Equipaggiato
+tooltip.equipped_ring1,Equipped – ring 1,Equipaggiato – anello 1
+tooltip.equipped_ring2,Equipped – ring 2,Equipaggiato – anello 2
 tooltip.heal,Restores {0}% of life,Rende il {0}% della vita
 tooltip.drink,Right-click or 1–8 on the belt to drink,Click destro o 1–8 dalla cintura per bere
 

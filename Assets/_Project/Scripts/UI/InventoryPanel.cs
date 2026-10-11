@@ -36,6 +36,9 @@ namespace DarkDescent.UI
         [Tooltip("L'oggetto equipaggiato nello stesso slot, accanto al primo per il confronto (D9 della M5).")]
         [SerializeField] private ItemTooltip _compareTooltip;
 
+        [Tooltip("Il secondo anello equipaggiato, dall'altra parte del primo tooltip: con due anelli si confrontano tutti e due (M9, D1).")]
+        [SerializeField] private ItemTooltip _secondCompareTooltip;
+
         [SerializeField, Min(8f)] private float _cellSize = 56f;
 
         [Tooltip("Il suono di un oggetto messo in uno slot: dà il riscontro del click anche al posto di un oggetto uguale.")]
@@ -73,6 +76,9 @@ namespace DarkDescent.UI
 
         /// <summary>Il tooltip dell'oggetto equipaggiato, accanto al primo.</summary>
         public ItemTooltip CompareTooltip => _compareTooltip;
+
+        /// <summary>Il tooltip del secondo anello equipaggiato, quando se ne confrontano due.</summary>
+        public ItemTooltip SecondCompareTooltip => _secondCompareTooltip;
 
         /// <summary>Le immagini degli oggetti nella griglia attualmente visibili.</summary>
         public int VisibleItemCount
@@ -367,16 +373,37 @@ namespace DarkDescent.UI
             {
                 _tooltip.Hide();
                 _compareTooltip.Hide();
+                _secondCompareTooltip.Hide();
                 return;
             }
 
             _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target);
+            if (!_hoveredCell.HasValue || item.Definition.Slot == EquipSlot.None)
+            {
+                _compareTooltip.Hide();
+                _secondCompareTooltip.Hide();
+                return;
+            }
+
+            // un anello con due anelli addosso: si toglierebbe l'uno o l'altro, quindi si vedono
+            // tutti e due, in fila dallo stesso lato (l'inventario sta sul bordo destro)
+            var equipment = _inventory.Equipment;
+            var firstRing = equipment.Get(EquipSlot.Ring);
+            var secondRing = equipment.Get(EquipSlot.Ring2);
+            if (item.Definition.Slot == EquipSlot.Ring && firstRing != null && secondRing != null)
+            {
+                _compareTooltip.ShowBeside(firstRing, equipment.MeetsRequirements(firstRing.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquippedRing1));
+                bool onRight = _compareTooltip.Box.anchoredPosition.x > _tooltip.Box.anchoredPosition.x;
+                _secondCompareTooltip.ShowBeside(secondRing, equipment.MeetsRequirements(secondRing.Definition), _localizer, _compareTooltip, _localizer.Get(TextKeys.TooltipEquippedRing2), onRight);
+                return;
+            }
 
             // dalla griglia, accanto c'è quello che si toglierebbe equipaggiandolo
-            var equipped = _hoveredCell.HasValue && item.Definition.Slot != EquipSlot.None ? _inventory.Equipment.Get(_inventory.Equipment.TargetSlot(item.Definition)) : null;
+            _secondCompareTooltip.Hide();
+            var equipped = equipment.Get(equipment.TargetSlot(item.Definition));
             if (equipped != null)
             {
-                _compareTooltip.ShowBeside(equipped, _inventory.Equipment.MeetsRequirements(equipped.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquipped));
+                _compareTooltip.ShowBeside(equipped, equipment.MeetsRequirements(equipped.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquipped));
             }
             else
             {

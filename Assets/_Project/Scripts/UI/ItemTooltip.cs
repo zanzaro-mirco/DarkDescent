@@ -27,6 +27,9 @@ namespace DarkDescent.UI
         [Tooltip("Distanza tra il riquadro e l'oggetto descritto, o l'altro riquadro.")]
         [SerializeField, Min(0f)] private float _gap = 6f;
 
+        [Tooltip("Oltre questa larghezza il nome va su due righe, divise a metà (M9, D1).")]
+        [SerializeField, Min(100f)] private float _maxNameWidth = 480f;
+
         private readonly StringBuilder _builder = new StringBuilder(160);
         private readonly Vector3[] _corners = new Vector3[4];
         private RectTransform _container;
@@ -46,12 +49,15 @@ namespace DarkDescent.UI
             PlaceAround(min, max);
         }
 
-        /// <summary>Descrive l'oggetto accanto a un altro tooltip, a sinistra o a destra, con un titolo.</summary>
-        public void ShowBeside(ItemInstance item, bool meetsRequirements, Localizer localizer, ItemTooltip anchor, string header)
+        /// <summary>
+        /// Descrive l'oggetto accanto a un altro tooltip, con un titolo: a sinistra, o a destra se
+        /// a sinistra non c'è spazio; con <paramref name="onRight"/> il contrario, per il secondo anello.
+        /// </summary>
+        public void ShowBeside(ItemInstance item, bool meetsRequirements, Localizer localizer, ItemTooltip anchor, string header, bool onRight = false)
         {
             Fill(item, meetsRequirements, localizer, header);
             GetLocalRect(anchor.Box, out Vector2 min, out Vector2 max);
-            PlaceBeside(min, max);
+            PlaceBeside(min, max, onRight);
         }
 
         /// <summary>
@@ -82,7 +88,9 @@ namespace DarkDescent.UI
 
         private void Fill(ItemInstance item, bool meetsRequirements, Localizer localizer, string header)
         {
-            ItemDescription.Write(_builder, item, meetsRequirements, localizer, header);
+            // un nome più largo del massimo va su due righe: misurato con il font del tooltip, in grassetto come sarà
+            bool twoLines = _text.GetPreferredValues("<b>" + ItemNamer.Name(item, localizer) + "</b>").x > _maxNameWidth;
+            ItemDescription.Write(_builder, item, meetsRequirements, localizer, header, twoLines);
             _text.SetText(_builder);
             Resize();
         }
@@ -117,17 +125,17 @@ namespace DarkDescent.UI
             Place((min.x + max.x) / 2f, y);
         }
 
-        private void PlaceBeside(Vector2 min, Vector2 max)
+        private void PlaceBeside(Vector2 min, Vector2 max, bool onRight)
         {
             Rect bounds = _container.rect;
             Vector2 half = _box.sizeDelta / 2f;
 
-            // a sinistra dell'altro, allineato in alto; se a sinistra non c'è spazio, a destra
-            float x = min.x - _gap - half.x;
-            if (x - half.x < bounds.xMin)
-            {
-                x = max.x + _gap + half.x;
-            }
+            // dal lato chiesto, allineato in alto all'altro; se lì non c'è spazio, dall'altro lato
+            float left = min.x - _gap - half.x;
+            float right = max.x + _gap + half.x;
+            bool leftFits = left - half.x >= bounds.xMin;
+            bool rightFits = right + half.x <= bounds.xMax;
+            float x = onRight ? (rightFits || !leftFits ? right : left) : (leftFits || !rightFits ? left : right);
 
             Place(x, max.y - half.y);
         }

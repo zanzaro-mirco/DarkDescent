@@ -34,11 +34,31 @@ namespace DarkDescent.UI
         }
 
         /// <summary>
+        /// Il nome su due righe, diviso allo spazio più vicino al centro, così le righe hanno una
+        /// larghezza simile (M9, D1); senza spazi resta com'è.
+        /// </summary>
+        public static string SplitAtMiddle(string name)
+        {
+            int middle = name.Length / 2;
+            int best = -1;
+            for (int i = 0; i < name.Length; i++)
+            {
+                if (name[i] == ' ' && (best < 0 || System.Math.Abs(i - middle) < System.Math.Abs(best - middle)))
+                {
+                    best = i;
+                }
+            }
+
+            return best < 0 ? name : name.Substring(0, best) + "\n" + name.Substring(best + 1);
+        }
+
+        /// <summary>
         /// Scrive la descrizione in <paramref name="builder"/>, dopo averlo svuotato.
         /// <paramref name="meetsRequirements"/> colora di rosso la Forza richiesta quando è false;
-        /// <paramref name="header"/>, se c'è, va in piccolo sopra il nome ("Equipped").
+        /// <paramref name="header"/>, se c'è, va in piccolo sopra il nome ("Equipped");
+        /// <paramref name="twoLineName"/> divide il nome a metà, per i nomi lunghi.
         /// </summary>
-        public static void Write(StringBuilder builder, ItemInstance item, bool meetsRequirements, Localizer localizer, string header = null)
+        public static void Write(StringBuilder builder, ItemInstance item, bool meetsRequirements, Localizer localizer, string header = null, bool twoLineName = false)
         {
             builder.Clear();
             if (!string.IsNullOrEmpty(header))
@@ -47,7 +67,7 @@ namespace DarkDescent.UI
             }
 
             builder.Append("<b><color=").Append(RarityColors.TextHex(item.Rarity)).Append('>')
-                .Append(ItemNamer.Name(item, localizer)).Append("</color></b>");
+                .Append(twoLineName ? SplitAtMiddle(ItemNamer.Name(item, localizer)) : ItemNamer.Name(item, localizer)).Append("</color></b>");
 
             switch (item.Definition)
             {
