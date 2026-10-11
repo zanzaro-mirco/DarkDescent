@@ -16,6 +16,9 @@ namespace DarkDescent.Levels
         public const char EnemySymbol = 'S';
         public const char ChestSymbol = 'c';
 
+        /// <summary>Uno scheletro mago (D6 della M9): da solo, in una stanza.</summary>
+        public const char MageSymbol = 'm';
+
         // barile, casse di legno, pilastro: ostacoli, il NavMesh ci gira attorno
         private const string PropSymbols = "bxp";
 
@@ -63,6 +66,44 @@ namespace DarkDescent.Levels
             }
 
             PlaceEnemies(layout, depth, random, reserved);
+
+            // per ultimi: i tiri in più non spostano niente di quello che c'era prima (trappola 10 della M7)
+            PlaceMages(layout, depth, random, reserved);
+        }
+
+        // ogni mago in una stanza diversa se ce ne sono abbastanza, su una cella libera qualsiasi
+        private void PlaceMages(DungeonLayout layout, int depth, IRandomSource random, HashSet<Vector2Int> reserved)
+        {
+            Vector2Int range = _settings.MagesAt(depth);
+            if (range.y <= 0)
+            {
+                return;
+            }
+
+            int count = Range(random, range.x, range.y);
+            var rooms = OtherRooms(layout, random);
+            for (int m = 0; m < count && rooms.Count > 0; m++)
+            {
+                RectInt room = layout.Rooms[rooms[m % rooms.Count]];
+                var free = new List<Vector2Int>();
+                for (int y = room.yMin; y < room.yMax; y++)
+                {
+                    for (int x = room.xMin; x < room.xMax; x++)
+                    {
+                        var cell = new Vector2Int(x, y);
+                        if (layout[x, y] == LevelMap.Floor && !reserved.Contains(cell))
+                        {
+                            free.Add(cell);
+                        }
+                    }
+                }
+
+                if (free.Count > 0)
+                {
+                    var pick = free[Range(random, 0, free.Count - 1)];
+                    layout.TryPlace(MageSymbol, pick.x, pick.y);
+                }
+            }
         }
 
         // Sul muro nord della stanza, dove oltre c'è roccia; se non c'è posto, sul muro est. Una ogni

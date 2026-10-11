@@ -8,11 +8,14 @@ namespace DarkDescent.Enemies
     public sealed class IdleState : EnemyStateBase
     {
         private readonly float _perceptionInterval;
+        private readonly EnemyState _engage;
         private float _timer;
 
-        public IdleState(float perceptionInterval)
+        /// <param name="engage">Dove va quando vede il bersaglio: l'inseguimento, o il combattimento a distanza del mago.</param>
+        public IdleState(float perceptionInterval, EnemyState engage = EnemyState.Chase)
         {
             _perceptionInterval = perceptionInterval;
+            _engage = engage;
         }
 
         public override EnemyState Id => EnemyState.Idle;
@@ -26,7 +29,7 @@ namespace DarkDescent.Enemies
             }
 
             _timer = _perceptionInterval;
-            return body.IsTargetAlive && body.CanSeeTarget() ? EnemyState.Chase : Id;
+            return body.IsTargetAlive && body.CanSeeTarget() ? _engage : Id;
         }
     }
 }

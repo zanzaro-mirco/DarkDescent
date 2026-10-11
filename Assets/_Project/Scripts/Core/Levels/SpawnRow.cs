@@ -23,12 +23,16 @@ namespace DarkDescent.Levels
         [Tooltip("Bruti: da quanti (x) a quanti (y).")]
         [SerializeField] private Vector2Int _brutes;
 
-        public SpawnRow(int depth, Vector2Int skeletonGroups, Vector2Int swarmGroups, Vector2Int brutes)
+        [Tooltip("Scheletri maghi (M9): da quanti (x) a quanti (y).")]
+        [SerializeField] private Vector2Int _mages;
+
+        public SpawnRow(int depth, Vector2Int skeletonGroups, Vector2Int swarmGroups, Vector2Int brutes, Vector2Int mages = default)
         {
             _depth = depth;
             _skeletonGroups = skeletonGroups;
             _swarmGroups = swarmGroups;
             _brutes = brutes;
+            _mages = mages;
         }
 
         public int Depth => _depth;
@@ -38,5 +42,7 @@ namespace DarkDescent.Levels
         public Vector2Int SwarmGroups => _swarmGroups;
 
         public Vector2Int Brutes => _brutes;
+
+        public Vector2Int Mages => _mages;
     }
 }

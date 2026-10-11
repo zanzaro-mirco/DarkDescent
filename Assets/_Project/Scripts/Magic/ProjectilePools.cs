@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DarkDescent.Core;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -27,8 +28,11 @@ namespace DarkDescent.Magic
         /// <summary>Quanti ne sono stati creati in tutto, per prefab: per i test del pool.</summary>
         public int CreatedCount(GameObject prefab) => _pools.TryGetValue(prefab, out var pool) ? pool.CountAll : 0;
 
-        /// <summary>Lancia un proiettile del <paramref name="prefab"/>; torna nel pool da solo dopo l'esplosione.</summary>
-        public Projectile Launch(GameObject prefab, Vector3 from, Vector3 direction, float speed, float range, float damage, GameObject source, int targetLayers)
+        /// <summary>
+        /// Lancia un proiettile del <paramref name="prefab"/>; torna nel pool da solo dopo l'esplosione.
+        /// Con <paramref name="blockRandom"/> si può parare con lo scudo.
+        /// </summary>
+        public Projectile Launch(GameObject prefab, Vector3 from, Vector3 direction, float speed, float range, float damage, GameObject source, int targetLayers, IRandomSource blockRandom = null)
         {
             if (!_pools.TryGetValue(prefab, out var pool))
             {
@@ -47,7 +51,7 @@ namespace DarkDescent.Magic
 
             var launched = pool.Get();
             _active.Add(launched);
-            launched.Launch(from, direction, speed, range, damage, source, targetLayers, _releases[prefab]);
+            launched.Launch(from, direction, speed, range, damage, source, targetLayers, _releases[prefab], blockRandom);
             return launched;
         }
 

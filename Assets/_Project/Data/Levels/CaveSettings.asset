@@ -30,6 +30,8 @@ MonoBehaviour:
   _depthsPerChest: 3
   _maxPropsPerRoom: 2
   _cellsPerTorch: 4
+  _magesFirstDepth: 3
+  _mages: {x: 1, y: 2}
   _floorFraction: 0.37
   _walkers: 4
   _straightChance: 0.65
@@ -46,17 +48,21 @@ MonoBehaviour:
       _skeletonGroups: {x: 2, y: 2}
       _swarmGroups: {x: 1, y: 1}
       _brutes: {x: 1, y: 1}
+      _mages: {x: 1, y: 1}
     - _depth: 6
       _skeletonGroups: {x: 2, y: 2}
       _swarmGroups: {x: 1, y: 2}
       _brutes: {x: 1, y: 2}
+      _mages: {x: 1, y: 2}
     - _depth: 7
       _skeletonGroups: {x: 1, y: 2}
       _swarmGroups: {x: 2, y: 2}
       _brutes: {x: 2, y: 2}
+      _mages: {x: 1, y: 2}
     - _depth: 8
       _skeletonGroups: {x: 1, y: 2}
       _swarmGroups: {x: 3, y: 3}
       _brutes: {x: 3, y: 3}
+      _mages: {x: 2, y: 2}
   _minSwarm: 3
   _maxSwarm: 5

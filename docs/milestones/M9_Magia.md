@@ -221,6 +221,49 @@ blu rende 15 di mana e a mana pieno resta; nella cripta alla profondità 2 uno s
 pergamena e ucciso la lascia a terra. Quattro test vecchi contano ora solo la pozione di cura.
 231 EditMode e 161 PlayMode verdi.
 
+## Passo 9.5 — Scheletro mago
+
+**Com'è andata (11 ott 2026).**
+
+- **IA in `Core`.** Due stati nuovi: `RangedState` (troppo lontano, o con un muro in mezzo, si
+  avvicina; entro 10 m con il tiro libero si ferma e lancia appena la ricarica lo permette; sotto
+  i 4 m si allontana) e `RetreatState` (va verso un punto lontano dal cavaliere, poi torna a
+  lanciare). Il tiro libero si ricontrolla ogni 0,25 s. Appena entrato nel combattimento a
+  distanza il mago non scappa per 1,5 s: chiuso in un angolo resta e lancia invece di riprovare a
+  ogni frame (trappola 5). Gli stati chiedono al corpo un'interfaccia in più, `IRangedBody`, così
+  il corpo finto dei test della mischia non cambia. `IdleState` e `EnemyBrain.Alert` mandano il
+  mago al combattimento a distanza invece che all'inseguimento. L'archetipo lo dice con
+  `_castRange` maggiore di zero.
+- **Il corpo.** `EnemyAI` fa anche da corpo a distanza: il tiro libero e i muri li dice il NavMesh,
+  come per i proiettili; la fuga prova dritto all'indietro e poi sempre più di lato, a 7 m dal
+  cavaliere, su un punto raggiungibile in linea retta e dentro il guinzaglio da casa.
+  `RangedAttack` fa il gesto (lo stato `Cast` dell'animator del cavaliere, che gli scheletri
+  condividono), si gira verso il cavaliere e dopo 0,4 s lancia il dardo verso dove il cavaliere è in
+  quel momento: 9 m/s, più lento del Dardo di fuoco, per poterlo schivare. Un lancio ogni 2 s, danno
+  4–8 di tipo `Magic`.
+- **Dardi bloccabili.** `Projectile` riceve un generatore per il blocco: con quello, un bersaglio con
+  lo scudo può parare come contro la mischia (stesso `ShieldBlock.TryBlock`, stesso evento). I dardi
+  del cavaliere non lo passano e non si parano. I dardi del mago colpiscono solo il layer del
+  cavaliere e attraversano gli altri nemici.
+- **Modello.** `Skeleton_Mage` e `Skeleton_Staff` dal pacchetto Skeletons già scaricato. Gli
+  screenshot hanno mostrato prima un bastone di 2 cm (copiavo la scala della lama, ma il bastone ha
+  la scala 100 dell'FBX come l'ascia), poi orizzontale e infine con la testa in basso: rotazione
+  dell'FBX ribaltata, testa trovata sui vertici. Una luce viola sulla testa del bastone fa
+  riconoscere il mago nel buio. Dardo viola: il Dardo di fuoco ricolorato.
+- **Numeri e spawn.** Vita 12, esperienza 60, vista a 10 m, `MageLoot` con più mana (oggetto 35%,
+  cura 5%, mana 15%). Nella cripta 1–2 maghi dalla profondità 3 (`DungeonSettings.MagesAt`), nelle
+  caverne dalla `SpawnTable` (1, 1–2, 1–2, 2 dalla 5 alla 8). In tutti e due i popolatori i maghi
+  si piazzano **per ultimi**: i livelli e i semi di prima non cambiano (trappola 10 della M7). Il
+  mago è anche tra i bersagli della riga Colpire del pannello.
+
+*Test.* `MageStateTests` (7, EditMode): archetipo della scheda; visto il cavaliere si ferma e lancia,
+e il gesto si finisce; lontano o dietro un muro si avvicina; troppo vicino scappa dopo la pausa; in
+un angolo resta e lancia senza riprovare a ogni frame; avvisato passa al combattimento a distanza;
+quanti maghi per profondità su 20 semi. `MageTests` (4, PlayMode): a 7 m resta e colpisce con un
+dardo magico; a 2,5 m scappa oltre i 4 m; con lo scudo e il tiro basso il dardo è parato; nella
+cripta alla 3 ci sono 1–2 maghi. Tre test vecchi contano ora anche i maghi. 238 EditMode e 165
+PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -256,7 +299,7 @@ pergamena e ucciso la lascia a terra. Quattro test vecchi contano ora solo la po
 | `ManaTests` (EditMode) | Mana massimo da Magia e livello, rigenerazione, costo, ricarica, lancio rifiutato senza mana |
 | `ProjectileTests` (PlayMode) | Il dardo colpisce il primo nemico sulla linea e torna al pool; si ferma su un muro; nessuna allocazione su trenta lanci dal pool caldo |
 | `SpellTests` (PlayMode) | Anello di fuoco colpisce tutti entro 4 m e nessuno oltre; Pelle di pietra alza l'Armatura per 20 s; la pergamena insegna e sparisce; la pozione blu rende il mana; la pergamena del livello cade dal suo portatore |
-| `SkeletonMageTests` (PlayMode) | Il mago tiene la distanza, lancia, arretra; il dardo parato dallo scudo non fa danno |
+| `MageStateTests` (EditMode), `MageTests` (PlayMode) | Il mago tiene la distanza, lancia, arretra, in un angolo resta; il dardo parato dallo scudo non fa danno; maghi per profondità |
 | `ScrollTests` (EditMode) | Pergamene nel database, una ogni tre livelli circa dalla profondità 2, mai di un incantesimo noto; pozione di mana dopo quella di cura |
 | `SaveMigrationTests` (EditMode, ampliato) | Il file vero del formato 2 si carica con il codice del formato 3 |
 | `EnemyBarTests` (PlayMode, ampliato) | Senza cursore, la barra resta sull'ultimo colpito per 3 s |
@@ -268,7 +311,7 @@ pergamena e ucciso la lascia a terra. Quattro test vecchi contano ora solo la po
 - [x] Decisioni D1–D12 confermate
 - [x] Correzioni dalla prova della M8
 - [x] Mana, incantesimi e pergamene
-- [ ] Scheletro mago
+- [x] Scheletro mago
 - [ ] Barra del nemico combattuto e HUD in basso
 - [ ] Formato 3 e migrazione
 - [ ] Profiler: nessuna allocazione a ogni frame lanciando a raffica

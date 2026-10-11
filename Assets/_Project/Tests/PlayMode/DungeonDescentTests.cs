@@ -109,7 +109,10 @@ namespace DarkDescent.Tests
                 // nelle caverne scheletri, sciame e bruti sono quanti ne ha messi il popolatore: si contano sulla mappa
                 var map = Manager.CurrentLevel.Map;
                 int marked = map.Markers.Count(m => CavePopulator.IsEnemy(m.Symbol));
-                Assert.AreEqual(caves ? marked : 3 + 2 * (depth + 1), Manager.CurrentLevel.Enemies.Count);
+                // nella cripta gli scheletri dei numeri, più i maghi dalla profondità 3 (M9)
+                int mages = map.Markers.Count(m => m.Symbol == DungeonPopulator.MageSymbol);
+                Assert.AreEqual(marked, Manager.CurrentLevel.Enemies.Count);
+                Assert.AreEqual(caves ? marked : 3 + 2 * (depth + 1) + mages, marked);
             }
 
             Assert.AreEqual(0, Manager.CurrentLevel.Exits.Count, "l'ottavo livello non ha la scala: il boss arriva alla M10");

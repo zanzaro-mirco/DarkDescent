@@ -23,10 +23,10 @@ namespace DarkDescent.Levels
         /// <summary>Un bruto (D6): da solo, grosso e lento.</summary>
         public const char BruteSymbol = 'B';
 
-        /// <summary>Un simbolo di nemico delle caverne: scheletro, sciame o bruto.</summary>
+        /// <summary>Un simbolo di nemico: scheletro, sciame, bruto o mago.</summary>
         public static bool IsEnemy(char symbol)
         {
-            return symbol == DungeonPopulator.EnemySymbol || symbol == SwarmSymbol || symbol == BruteSymbol;
+            return symbol == DungeonPopulator.EnemySymbol || symbol == SwarmSymbol || symbol == BruteSymbol || symbol == DungeonPopulator.MageSymbol;
         }
 
         private const string PropSymbols = "bxp";
@@ -180,6 +180,16 @@ namespace DarkDescent.Levels
             {
                 int size = Range(random, _settings.MinGroup, _settings.MaxGroup);
                 PlaceGroup(layout, random, steps, reserved, centers, used, ref next, DungeonPopulator.EnemySymbol, size);
+            }
+
+            // i maghi per ultimi, da soli: i tiri in più non spostano gli altri (trappola 10 della M7)
+            if (row.Mages.y > 0)
+            {
+                int mages = Range(random, row.Mages.x, row.Mages.y);
+                for (int m = 0; m < mages; m++)
+                {
+                    PlaceGroup(layout, random, steps, reserved, centers, used, ref next, DungeonPopulator.MageSymbol, 1);
+                }
             }
         }
 

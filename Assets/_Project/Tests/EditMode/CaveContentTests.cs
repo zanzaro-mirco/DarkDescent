@@ -94,7 +94,7 @@ namespace DarkDescent.Tests
             CollectionAssert.AreEqual(new[] { "FromAbove" }, last.GetDirective("entrance"));
         }
 
-        [Test, Description("Su 200 semi per profondità: scheletri, sciame e bruti negli intervalli della tabella, le casse dei numeri, e nessuno vicino all'ingresso")]
+        [Test, Description("Su 200 semi per profondità: scheletri, sciame, bruti e maghi negli intervalli della tabella, le casse dei numeri, e nessuno vicino all'ingresso")]
         public void EnemiesAndChests_AreAllThereAndAwayFromTheEntrance()
         {
             var settings = Caves;
@@ -104,9 +104,11 @@ namespace DarkDescent.Tests
                 var enemies = Find(layout, CavePopulator.IsEnemy);
                 int swarm = enemies.Count(c => layout[c.x, c.y] == CavePopulator.SwarmSymbol);
                 int brutes = enemies.Count(c => layout[c.x, c.y] == CavePopulator.BruteSymbol);
-                int skeletons = enemies.Count - swarm - brutes;
+                int mages = enemies.Count(c => layout[c.x, c.y] == DungeonPopulator.MageSymbol);
+                int skeletons = enemies.Count - swarm - brutes - mages;
                 string where = $"seme {seed}, profondità {depth}";
                 Assert.That(brutes, Is.InRange(row.Brutes.x, row.Brutes.y), $"{where}: bruti");
+                Assert.That(mages, Is.InRange(row.Mages.x, row.Mages.y), $"{where}: maghi");
                 Assert.That(swarm, Is.InRange(row.SwarmGroups.x * settings.MinSwarm, row.SwarmGroups.y * settings.MaxSwarm), $"{where}: sciame");
                 Assert.That(skeletons, Is.InRange(row.SkeletonGroups.x * settings.MinGroup, row.SkeletonGroups.y * settings.MaxGroup), $"{where}: scheletri");
                 var chests = Find(layout, c => c == DungeonPopulator.ChestSymbol);

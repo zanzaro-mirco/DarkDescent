@@ -63,6 +63,13 @@ namespace DarkDescent.Levels
         [Tooltip("Una torcia in più ogni tante celle di larghezza della stanza, oltre la prima.")]
         [SerializeField, Min(2)] private int _cellsPerTorch = 4;
 
+        [Header("Scheletri maghi (D6 della M9)")]
+        [Tooltip("La prima profondità con i maghi, nella cripta. Le caverne li prendono dalla loro tabella.")]
+        [SerializeField, Min(1)] private int _magesFirstDepth = 3;
+
+        [Tooltip("Quanti maghi per livello, da (x) a (y), dalla prima profondità.")]
+        [SerializeField] private Vector2Int _mages = new Vector2Int(1, 2);
+
         public int Width => _width;
 
         public int Height => _height;
@@ -90,6 +97,12 @@ namespace DarkDescent.Levels
         public int MaxPropsPerRoom => _maxPropsPerRoom;
 
         public int CellsPerTorch => _cellsPerTorch;
+
+        /// <summary>Quanti maghi, da quanti a quanti, a questa profondità della cripta: nessuno prima della prima.</summary>
+        public Vector2Int MagesAt(int depth)
+        {
+            return depth >= _magesFirstDepth ? _mages : Vector2Int.zero;
+        }
 
         public int EnemyCount(int depth)
         {

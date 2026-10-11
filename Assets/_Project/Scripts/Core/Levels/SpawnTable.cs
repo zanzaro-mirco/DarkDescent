@@ -33,10 +33,10 @@ namespace DarkDescent.Levels
         {
             return new SpawnTable(new[]
             {
-                new SpawnRow(5, new Vector2Int(2, 2), new Vector2Int(1, 1), new Vector2Int(1, 1)),
-                new SpawnRow(6, new Vector2Int(2, 2), new Vector2Int(1, 2), new Vector2Int(1, 2)),
-                new SpawnRow(7, new Vector2Int(1, 2), new Vector2Int(2, 2), new Vector2Int(2, 2)),
-                new SpawnRow(8, new Vector2Int(1, 2), new Vector2Int(3, 3), new Vector2Int(3, 3)),
+                new SpawnRow(5, new Vector2Int(2, 2), new Vector2Int(1, 1), new Vector2Int(1, 1), new Vector2Int(1, 1)),
+                new SpawnRow(6, new Vector2Int(2, 2), new Vector2Int(1, 2), new Vector2Int(1, 2), new Vector2Int(1, 2)),
+                new SpawnRow(7, new Vector2Int(1, 2), new Vector2Int(2, 2), new Vector2Int(2, 2), new Vector2Int(1, 2)),
+                new SpawnRow(8, new Vector2Int(1, 2), new Vector2Int(3, 3), new Vector2Int(3, 3), new Vector2Int(2, 2)),
             });
         }
 

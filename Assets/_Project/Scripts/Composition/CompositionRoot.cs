@@ -125,6 +125,7 @@ namespace DarkDescent.Core
         private IRandomSource _random;
 
         private readonly List<MeleeAttack> _enemyAttacks = new List<MeleeAttack>();
+        private readonly List<RangedAttack> _enemyRanged = new List<RangedAttack>();
 
         // i branchi del livello corrente: chi vede il cavaliere sveglia i compagni (D5 della M7)
         private EnemyPack _pack;
@@ -308,6 +309,11 @@ namespace DarkDescent.Core
                 }
                 var attack = enemy.GetComponent<MeleeAttack>();
                 attack.SetRandomSource(_random);
+                if (enemy.TryGetComponent(out RangedAttack ranged))
+                {
+                    ranged.Bind(_projectiles, _random);
+                    _enemyRanged.Add(ranged);
+                }
                 _enemyAttacks.Add(attack);
                 var health = enemy.GetComponent<Health>();
                 _damageNumbers.Track(health, isPlayer: false);
@@ -381,6 +387,7 @@ namespace DarkDescent.Core
 
             _trackedEnemies.Clear();
             _enemyAttacks.Clear();
+            _enemyRanged.Clear();
 
             // anche i nemici già distrutti: l'evento è un campo C#, staccarsi è sempre lecito
             foreach (var enemy in _rewardingEnemies)
@@ -423,6 +430,14 @@ namespace DarkDescent.Core
                 if (attack != null)
                 {
                     attack.SetRandomSource(random);
+                }
+            }
+
+            foreach (var ranged in _enemyRanged)
+            {
+                if (ranged != null)
+                {
+                    ranged.SetRandomSource(random);
                 }
             }
         }

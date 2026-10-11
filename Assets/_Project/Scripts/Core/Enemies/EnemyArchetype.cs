@@ -5,7 +5,8 @@ namespace DarkDescent.Enemies
 {
     /// <summary>
     /// Un tipo di nemico come combinazione di stati e numeri (D8 della M7). Lo scheletro ha fermo,
-    /// inseguimento, attacco e morte; sciame e bruto aggiungono numeri e stati loro, e ognuno ha i suoi
+    /// inseguimento, attacco e morte; sciame e bruto aggiungono numeri e stati loro, il mago combatte
+    /// a distanza, e ognuno ha i suoi
     /// versi: quando viene colpito e quando il colpo è critico. Dati immutabili.
     /// </summary>
     [CreateAssetMenu(menuName = "DarkDescent/Enemy Archetype", fileName = "EnemyArchetype")]
@@ -42,6 +43,22 @@ namespace DarkDescent.Enemies
         [Header("Colpo telegrafato (D6 della M7)")]
         [Tooltip("Secondi fermo dopo un colpo, la finestra per colpirlo. Zero: nessuna carica né recupero, come lo scheletro. La carica dura quanto il ritardo dell'arma.")]
         [SerializeField, Min(0f)] private float _recoverTime;
+
+        [Header("A distanza (D6 della M9)")]
+        [Tooltip("Entro questa distanza, con il tiro libero, si ferma e lancia: 10 m il mago. Zero: combatte in mischia.")]
+        [SerializeField, Min(0f)] private float _castRange;
+
+        [Tooltip("Se il bersaglio arriva più vicino di così, si allontana.")]
+        [SerializeField, Min(0f)] private float _retreatBelow = 4f;
+
+        [Tooltip("Allontanandosi cerca un punto almeno a questa distanza dal bersaglio.")]
+        [SerializeField, Min(0f)] private float _retreatDistance = 7f;
+
+        [Tooltip("Secondi dopo una fuga, o appena sveglio, in cui resta e lancia anche con il bersaglio vicino.")]
+        [SerializeField, Min(0f)] private float _retreatPause = 1.5f;
+
+        [Tooltip("Una fuga dura al massimo tanto, anche se non è arrivato.")]
+        [SerializeField, Min(0.1f)] private float _retreatMaxDuration = 2f;
 
         [Header("Versi del critico (D13 della M7)")]
         [Tooltip("Il verso di questo tipo di nemico quando il cavaliere lo colpisce di critico, al posto dell'impatto.")]
@@ -89,6 +106,14 @@ namespace DarkDescent.Enemies
 
         public bool IsTelegraphed => _recoverTime > 0f;
 
+        public float CastRange => _castRange;
+
+        public bool IsRanged => _castRange > 0f;
+
+        public float RetreatBelow => _retreatBelow;
+
+        public float RetreatDistance => _retreatDistance;
+
         public float AggroRange => _aggroRange;
 
         public float LeashRange => _leashRange;
@@ -104,6 +129,15 @@ namespace DarkDescent.Enemies
         /// <summary>Gli stati di un nemico di questo tipo: nuovi a ogni chiamata, perché ogni nemico ha i suoi.</summary>
         public IEnumerable<EnemyStateBase> CreateStates()
         {
+            if (IsRanged)
+            {
+                return new EnemyStateBase[]
+                {
+                    new IdleState(_perceptionInterval, EnemyState.Ranged), new RangedState(_retreatBelow, _castRange, _retreatPause),
+                    new RetreatState(_retreatMaxDuration), new ReturnState(), new DeadState(),
+                };
+            }
+
             if (!IsTelegraphed)
             {
                 return new EnemyStateBase[] { new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new ReturnState(), new DeadState() };

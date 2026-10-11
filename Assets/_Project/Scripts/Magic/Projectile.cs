@@ -1,5 +1,6 @@
 using System;
 using DarkDescent.Combat;
+using DarkDescent.Core;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,7 +11,8 @@ namespace DarkDescent.Magic
     /// con un raggio a sfera e si ferma sui muri, poi esplode e torna al pool. I muri li dice il
     /// NavMesh e non i collider: dalla M8 i muri alti dalla parte della camera sono spenti, con i loro
     /// collider, mentre il NavMesh è cotto con tutti (trappola 6 della scheda). Niente rigidbody: a
-    /// velocità alta una collisione fisica si può perdere tra due frame.
+    /// velocità alta una collisione fisica si può perdere tra due frame. I dardi dei maghi si possono
+    /// parare con lo scudo, come i colpi di mischia (D7); quelli del cavaliere no.
     /// </summary>
     [DisallowMultipleComponent]
     public class Projectile : MonoBehaviour
@@ -33,6 +35,9 @@ namespace DarkDescent.Magic
 
         [SerializeField] private AudioClip _impactClip;
 
+        [Tooltip("Il tipo di danno: fuoco il dardo del cavaliere, magia quello del mago.")]
+        [SerializeField] private DamageType _damageType = DamageType.Fire;
+
         [Tooltip("Quanto dura l'esplosione prima di tornare al pool.")]
         [SerializeField, Min(0.05f)] private float _burstDuration = 0.6f;
 
@@ -47,6 +52,7 @@ namespace DarkDescent.Magic
         private GameObject _source;
         private int _targetLayers;
         private Action<Projectile> _release;
+        private IRandomSource _blockRandom;
         private float _lightIntensity;
         private float _burstTimer;
         private float _groundY;
@@ -57,13 +63,19 @@ namespace DarkDescent.Magic
         /// <summary>Annunciato all'impatto: chi è stato colpito (null su un muro o a fine corsa).</summary>
         public event Action<Projectile, IDamageable> Exploded;
 
+        /// <summary>L'ultimo impatto è stato parato dallo scudo: per i test.</summary>
+        public bool WasBlocked { get; private set; }
+
         private void Awake()
         {
             _lightIntensity = _light != null ? _light.intensity : 0f;
         }
 
-        /// <summary>Parte da <paramref name="from"/> verso <paramref name="direction"/>; <paramref name="release"/> lo rimette nel pool.</summary>
-        public void Launch(Vector3 from, Vector3 direction, float speed, float range, float damage, GameObject source, int targetLayers, Action<Projectile> release)
+        /// <summary>
+        /// Parte da <paramref name="from"/> verso <paramref name="direction"/>; <paramref name="release"/> lo
+        /// rimette nel pool. Con <paramref name="blockRandom"/> il bersaglio con lo scudo può pararlo.
+        /// </summary>
+        public void Launch(Vector3 from, Vector3 direction, float speed, float range, float damage, GameObject source, int targetLayers, Action<Projectile> release, IRandomSource blockRandom = null)
         {
             transform.position = from;
             _direction = direction.normalized;
@@ -76,7 +88,9 @@ namespace DarkDescent.Magic
             _groundY = source != null ? source.transform.position.y : from.y;
             _targetLayers = targetLayers;
             _release = release;
+            _blockRandom = blockRandom;
             IsExploding = false;
+            WasBlocked = false;
 
             // ripreso dal pool: niente scia né luce del lancio di prima (trappola 1)
             if (_light != null)
@@ -112,9 +126,15 @@ namespace DarkDescent.Magic
 
             float step = Mathf.Min(_speed * Time.deltaTime, _range - _travelled);
             Vector3 from = transform.position;
-            if (TryHitTarget(from, step, out IDamageable target, out Vector3 point))
+            if (TryHitTarget(from, step, out Health target, out Vector3 point))
             {
-                target.TakeDamage(new DamageInfo(_damage, DamageType.Fire, _source));
+                var info = new DamageInfo(_damage, _damageType, _source);
+                WasBlocked = _blockRandom != null && target.TryGetComponent(out ShieldBlock shield) && shield.TryBlock(info, _blockRandom);
+                if (!WasBlocked)
+                {
+                    target.TakeDamage(info);
+                }
+
                 Explode(point, target);
                 return;
             }
@@ -135,7 +155,7 @@ namespace DarkDescent.Magic
         }
 
         // il primo bersaglio vivo sulla strada, senza il lanciatore
-        private bool TryHitTarget(Vector3 from, float step, out IDamageable target, out Vector3 point)
+        private bool TryHitTarget(Vector3 from, float step, out Health target, out Vector3 point)
         {
             target = null;
             point = from;

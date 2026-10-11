@@ -46,16 +46,17 @@ namespace DarkDescent.Enemies
 
         /// <summary>
         /// Un compagno ha visto il bersaglio (lo sciame, D5): chi è fermo comincia a inseguire senza
-        /// averlo visto. Negli altri stati, o con il bersaglio già morto, non cambia niente.
+        /// averlo visto, o il mago a combattere a distanza. Negli altri stati, o con il bersaglio già morto, non cambia niente.
         /// </summary>
         public bool Alert()
         {
-            if (_current.Id != EnemyState.Idle || !_body.IsTargetAlive || !_states.ContainsKey(EnemyState.Chase))
+            EnemyState engage = _states.ContainsKey(EnemyState.Chase) ? EnemyState.Chase : EnemyState.Ranged;
+            if (_current.Id != EnemyState.Idle || !_body.IsTargetAlive || !_states.ContainsKey(engage))
             {
                 return false;
             }
 
-            Switch(EnemyState.Chase);
+            Switch(engage);
             return true;
         }
 
