@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.32 | 12 ott 2026 | Su richiesta di Mirco, dopo la v1.0: **barili da rompere**, più numerosi, con poco loot · **oggetti unici e set** con i bonus per numero di pezzi, che escono dal fuori ambito del § 1.1 |
 | v2.31 | 12 ott 2026 | Scheda della M11 scritta e decisioni confermate da Mirco: filtro retrò con opzione, post-processing per livello, musica del boss, profiling in una build di sviluppo, licenza MIT, itch.io solo Windows · M11 a 20–30 h · dalla prova della M10 i livelli lasciati restano com'erano (ADR-079) |
 | v2.30 | 11 ott 2026 | Decisioni della M10 confermate da Mirco · la **prima pubblicazione su itch.io** passa dalla M10 alla **fine della M11** · M10 a 19–26 h, M11 a 18–29 h |
 | v2.29 | 11 ott 2026 | M9 chiusa (tag `m9`), con le lezioni · ADR-064…069 · scheda della M10 |
@@ -82,7 +83,7 @@ Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del
 - Musica ambientale ed effetti sonori
 - Interfaccia e nomi degli oggetti in inglese (default) e italiano, predisposti per altre lingue (da M5, decisione di Mirco del 4 ott 2026)
 
-**Fuori, esplicitamente:** multiplayer · quest system · dialoghi e NPC multipli · crafting · altre classi (con le loro armi: vedi "Dopo la v1.0" nel § 5) · set e oggetti unici complessi · cinematiche · gamepad · achievement · livelli di difficoltà. La localizzazione, fuori fino alla v2.11, è entrata nella v1.0 con la M5.
+**Fuori, esplicitamente:** multiplayer · quest system · dialoghi e NPC multipli · crafting · altre classi (con le loro armi: vedi "Dopo la v1.0" nel § 5) · set e oggetti unici (dopo la v1.0, v2.32: vedi «Dopo la v1.0» nel § 5) · cinematiche · gamepad · achievement · livelli di difficoltà. La localizzazione, fuori fino alla v2.11, è entrata nella v1.0 con la M5.
 
 Un'idea fuori ambito va in `ICEBOX.md`, non nel codice.
 
@@ -750,8 +751,22 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Nemici.** Vita, danno, armatura ed esperienza crescono con il livello, con una curva nella `ProgressionSettings` della M8. Oggi i nemici hanno numeri fissi per tipo.
   - **Oggetti.** Il livello dell'oggetto c'è dalla M5 (`ItemInstance.ItemLevel`) e decide già quali affissi può avere: basta passargli il livello nuovo.
   - **Il rischio.** Se tutto cresce con il personaggio, salire di livello non si sente più. Il margine e la curva vanno provati in build, e la regola può essere un'opzione della difficoltà invece di valere sempre.
-  - **Salvataggio.** Non cambia: i nemici non si salvano (lo stato dei livelli non si salva, M8) e gli oggetti hanno già il loro livello.
+  - **Salvataggio.** Non cambia: i ricordi dei livelli (ADR-079) dicono solo quali nemici sono morti, non i loro numeri, e gli oggetti hanno già il loro livello.
   - Si valuta insieme ai nemici speciali, che toccano gli stessi numeri.
+- **Barili da rompere** (chiesto da Mirco il 12 ott 2026). Come in Diablo 1: un barile si rompe con un colpo, cliccandolo come un nemico, e a volte lascia qualcosa. Cosa comporta:
+  - **Più barili.** Il popolatore li mette in gruppi da due a quattro, lungo i muri e negli angoli, più fitti nelle stanze a tema deposito degli arredi della M11 e mai sul percorso tra le porte. Indicativamente 4–8 per livello nella cripta e 2–5 nelle caverne, da provare in build.
+  - **Cosa lasciano.** Meno di uno scheletro, perché sono tanti e non fanno male. Per barile, con tiri separati: **oro 15%**, la metà della quantità di uno scheletro alla stessa profondità; **un oggetto 5%**, con la tabella delle rarità di sempre; **una pozione 4%**; **una pergamena del ritorno 1%**. Circa tre barili su quattro non lasciano niente. Con 6 barili a livello fanno in media un oggetto ogni tre livelli e un po' d'oro: un premio per chi esplora, non una fonte che cambia il bilanciamento della M10. I numeri sono una `LootTable` come le altre, quindi si tarano senza toccare il codice.
+  - **Il seme.** Un dominio suo, come l'oro (ADR-071), così il loot dei nemici e delle casse dei semi già provati non cambia.
+  - **Nel codice.** Un componente `Breakable` con una `Health` di un colpo, il modello rotto (il pacchetto KayKit *Dungeon* ha i barili e i loro pezzi), il suono del legno, il collider che sparisce e l'ostacolo del NavMesh che si toglie. Il click del cavaliere lo tratta come un bersaglio, senza esperienza e senza barra in alto. Rotto, entra nei ricordi del livello come una cassa aperta (ADR-079).
+  - **Variante da decidere insieme:** i barili esplosivi delle profondità più basse, che feriscono chi è vicino, cavaliere compreso.
+  - Circa 2–3 h. Se si fa subito dopo la v1.0, riusa le regole degli arredi della M11.
+- **Oggetti unici e set** (chiesto da Mirco il 12 ott 2026). Oggi le rarità sono tre, normale, magico e raro, e una quarta leggendaria era stata chiesta e poi tolta alla M5 (ADR-027). Due gradi nuovi sopra il raro, come in Diablo 2:
+  - **Unico** (nome in oro): un oggetto scritto a mano, con un nome suo ("La Mannaia del Re") e affissi fissi, o con un intervallo stretto, più forti di quelli di un raro. Uno per tipo di base all'inizio, una decina in tutto. Cade molto raramente, dalle profondità più basse, e il Re delle ossa può lasciarne uno.
+  - **Set** (nome in verde): pezzi con un nome ciascuno che appartengono a un set ("L'armatura del Custode": elmo, corazza, guanti, stivali). Ogni pezzo ha i suoi affissi; indossandone **due, tre o tutti** si accendono bonus in più, come in Diablo 2 e 3: per esempio +Vita con due pezzi, +Armatura con tre, un effetto speciale con tutti. Il tooltip elenca i pezzi del set, quelli indossati in bianco e gli altri in grigio, e i bonus accesi.
+  - **Nel codice.** Unici e set sono asset (`UniqueDefinition`, `SetDefinition` con i pezzi e i bonus per numero di pezzi), come le definizioni degli oggetti. I bonus del set sono modificatori della `StatSheet` con l'equipaggiamento come sorgente, ricalcolati quando cambia uno slot: lo stesso meccanismo degli affissi, senza controlli a ogni frame. La `RarityTable` della M5 aggiunge i due gradi con pesi molto bassi.
+  - **Salvataggio.** Un formato nuovo: l'istanza dice se è un unico o un pezzo di set e quale.
+  - **Con i nemici speciali.** Campioni e unici (sopra) sono il posto naturale da cui fanno cadere questi oggetti: conviene farli insieme.
+  - È stato fuori ambito dalla v1 del piano (§ 1.1, `ICEBOX.md`): passa qui, dopo la v1.0. Circa 5–8 h con una decina di unici e due o tre set; scrivere oggetti a mano è la parte lunga.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---

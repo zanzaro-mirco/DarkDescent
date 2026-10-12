@@ -12,7 +12,7 @@
 - NPC multipli e dialoghi
 - Crafting
 - Classi aggiuntive (Mago, Ladro): quando arriveranno, con loro le armi nuove (piano § 5, "Dopo la v1.0")
-- Set item e unici complessi
+- ~~Set item e unici complessi~~: passati a «Dopo la v1.0» nel piano (v2.32, 12 ott 2026)
 - Cinematiche
 - Supporto gamepad
 - Achievement
