@@ -46,7 +46,7 @@ Confermate da Mirco il 12 ottobre 2026: tutte come proposte.
 | D6 | **Prestazioni** | Una **build di sviluppo** dalla CI (un parametro dell'avvio manuale) con il Profiler collegato sul PC di Mirco: frame a 1080p nella cripta, nelle caverne piene e nello scontro con il boss, con lo shader acceso. Obiettivo **60 fps**, nessuna allocazione a ogni frame, livello costruito sotto i 50 ms. Quello che non regge si corregge nello stesso passo | Il piano chiede il profiling completo, e le misure della M9 erano nell'editor |
 | D7 | **Versione 1.0** | `bundleVersion` **1.0.0**, la CI la prende dal tag `v*` (`versioning: Tag`). Il tag `v1.0.0` è l'ultimo passo e fa partire build e pubblicazione. Il titolo del menu mostra la versione in piccolo | Un numero di versione nel gioco serve per le segnalazioni dei giocatori |
 | D8 | **Licenza del codice** | **Tutti i diritti riservati** (scelta di Mirco, 12 ott 2026, al posto della MIT proposta): un file `LICENSE` con «Copyright © 2026 Mirco Zanzaro. Tutti i diritti riservati.», e una sezione del README che lo dice e ricorda che gli asset di terzi restano con le loro licenze, elencate in `CREDITS.md`. Il repo resta pubblico: si legge, ma il codice non si riusa né si ridistribuisce senza permesso | Il repo fa da portfolio e va letto; Mirco non vuole che il codice o il gioco si riusino. Senza una dicitura chi legge non sa cosa può fare |
-| D9 | **itch.io** | Come nel piano: Mirco crea la pagina e una chiave di butler e la mette tra i secrets (`BUTLER_API_KEY`). La CI, sui tag `v*`, dopo la build Windows la carica con butler sul canale `windows`. Niente canale Web alla v1.0: il salvataggio nel browser e le prestazioni andrebbero riprovati da capo (ADR-019) | La pubblicazione è l'ultimo passo, con il gioco rifinito (D12 della M10). Il canale Web può arrivare con una v1.1 |
+| D9 | **itch.io, prima in beta** | Mirco crea la pagina e una chiave di butler e la mette tra i secrets (`BUTLER_API_KEY`). La CI, sui tag `v*`, dopo la build Windows la carica con butler sul canale `windows`. La v1.0 esce prima in modalità **ristretta**, con una **chiave di download** per ogni tester scelto da Mirco, revocabile; la pagina diventa pubblica quando Mirco lo decide, senza toccare la CI (scelta di Mirco, 12 ott 2026). Niente canale Web alla v1.0: il salvataggio nel browser e le prestazioni andrebbero riprovati da capo (ADR-019) | Una beta chiusa raccoglie le note di persone scelte prima dell'uscita pubblica; le chiavi dicono chi ha accesso, una password si passa ad altri. Il canale Web può arrivare con una v1.1 |
 | D10 | **README e GIF** | La GIF della M10 (città, mercante, portale, boss) e quella finale della v1.0 in testa al README. Una sezione **Architettura** breve: le scene, la logica pura in `Core`, il composition root, gli eventi, il seme, il salvataggio versionato, con i link agli ADR | Il piano lo chiede per la v1.0, e per il portfolio è la pagina che si legge per prima |
 | D11 | **Stima** | **20–30 h**, da 18–29: un'ora in più per l'opzione del filtro e per la musica del boss. Se servirà tagliare: il canale Web non c'è già; poi i temi delle stanze (resta la decorazione lungo i muri, circa 1 h in meno), poi il dithering (resta la palette) | Meglio deciderlo adesso che a metà milestone |
 
@@ -65,7 +65,7 @@ Confermate da Mirco il 12 ottobre 2026: tutte come proposte.
 | 11.6 | Profiling in build e correzioni (D6) | 2–4 |
 | 11.7 | Build da provare e correzioni | 1,5–2 |
 | 11.8 | Versione 1.0, `LICENSE`, README, `CREDITS.md`, GIF (D7, D8, D10) | 1,5–2 |
-| 11.9 | itch.io con butler: pagina e chiave di Mirco, job della CI (D9) | 1 |
+| 11.9 | itch.io con butler: pagina ristretta e chiave di Mirco, job della CI, chiavi dei tester (D9) | 1 |
 | 11.10 | Chiusura: tag `v1.0.0`, pubblicazione, ADR, lezioni | 1–1,5 |
 
 ---
@@ -103,6 +103,6 @@ Da scrivere passo per passo.
 - [ ] Audio rifinito
 - [ ] Profiling in build
 - [ ] Test verdi in CI
-- [ ] v1.0 pubblicata su itch.io dalla CI
+- [ ] v1.0 su itch.io dalla CI, in beta ristretta con le chiavi
 - [ ] README con GIF e architettura, `CREDITS.md` completo
 - [ ] ADR, lezioni nel piano, tag `v1.0.0`
