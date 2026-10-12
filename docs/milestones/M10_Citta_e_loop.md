@@ -438,6 +438,11 @@ nemico, aperta una cassa e raccolta una pila d'oro, tornando dalla città il nem
 aperta e gli oggetti a terra sono gli stessi negli stessi punti; lo stesso dopo Continua.
 `PortalTests`: il portale della città riporta dove si era aperto, lontano dall'ingresso.
 
+La prima build con queste correzioni è caduta in CI su `PortalTests`: il test cercava un punto della
+cripta tra 12 e 20 m dall'ingresso, e la cripta di quella partita nuova, con il suo seme, non ne
+aveva. Ora prende il punto più lontano dall'ingresso, lontano dalle uscite e senza nemici, e il test
+dei livelli ricordati non chiede più un nemico che lasci l'oro: tutti e due passano con qualunque seme.
+
 ---
 
 ## Trappole note

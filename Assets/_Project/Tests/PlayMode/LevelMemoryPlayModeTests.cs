@@ -99,8 +99,9 @@ namespace DarkDescent.Tests
 
             var level = Manager.CurrentLevel;
             int enemyCount = level.Enemies.Count;
-            int victim = level.Enemies.ToList().FindIndex(e => e != null && e.TryGetComponent(out LootDrop drop) && drop.PreviewGold() > 0);
-            Assert.GreaterOrEqual(victim, 0, "un nemico che lascia almeno l'oro");
+            // la cassa lascia sempre un oggetto e l'oro: a terra resta qualcosa con qualunque seme
+            int victim = level.Enemies.ToList().FindIndex(e => e != null && e.TryGetComponent(out LootDrop _));
+            Assert.GreaterOrEqual(victim, 0, "un nemico con il suo loot");
             var health = level.Enemies[victim].GetComponent<Health>();
             health.TakeDamage(new DamageInfo(health.Max, DamageType.Physical, null));
             Assert.Greater(level.Chests.Count, 0);

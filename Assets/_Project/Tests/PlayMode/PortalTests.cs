@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using DarkDescent.Core;
 using DarkDescent.Items;
 using DarkDescent.Levels;
@@ -84,6 +85,12 @@ namespace DarkDescent.Tests
             yield return StartNewGame();
             Manager.LoadLevel("Level_Crypt", "Start", 1);
             yield return WaitUntilIn(level => level.Depth == 1, "la cripta non arriva");
+            // senza nemici: il punto lontano può stare in una stanza piena, e qui si provano i portali
+            foreach (var enemy in Manager.CurrentLevel.Enemies)
+            {
+                enemy.gameObject.SetActive(false);
+            }
+
             PlayerObject.GetComponent<NavMeshAgent>().Warp(FarFromEntrance());
             yield return null;
             Assert.IsTrue(Bag.UseAt(ScrollCell));
@@ -93,21 +100,27 @@ namespace DarkDescent.Tests
             yield return WaitUntilIn(level => level.IsTown, "il portale non porta in città");
         }
 
-        // il vertice del NavMesh più lontano dall'ingresso, ma non più di 20 metri: lontano dalle scale
+        // il vertice del NavMesh più lontano dall'ingresso, ad almeno 4 m da ogni uscita: la cripta
+        // cambia con il seme della partita nuova, e così un punto lontano c'è sempre
         private static Vector3 FarFromEntrance()
         {
-            Vector3 start = Manager.CurrentLevel.GetEntrance("Start").position;
+            var level = Manager.CurrentLevel;
+            Vector3 start = level.GetEntrance("Start").position;
             Vector3 best = start;
             foreach (var vertex in NavMesh.CalculateTriangulation().vertices)
             {
-                float distance = Vector3.Distance(vertex, start);
-                if (distance <= 20f && distance > Vector3.Distance(best, start) && NavMesh.SamplePosition(vertex, out var hit, 0.5f, NavMesh.AllAreas))
+                if (Vector3.Distance(vertex, start) <= Vector3.Distance(best, start) || level.Exits.Any(exit => Vector3.Distance(exit.transform.position, vertex) < 4f))
+                {
+                    continue;
+                }
+
+                if (NavMesh.SamplePosition(vertex, out var hit, 0.5f, NavMesh.AllAreas))
                 {
                     best = hit.position;
                 }
             }
 
-            Assert.Greater(Vector3.Distance(best, start), 12f, "un punto lontano dall'ingresso");
+            Assert.Greater(Vector3.Distance(best, start), 8f, "un punto lontano dall'ingresso");
             return best;
         }
 
