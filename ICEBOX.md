@@ -22,3 +22,5 @@
 
 <!-- data — idea — perché mi piace -->
 
+- 12 ott 2026 — Pergamene del ritorno impilabili: più pergamene in una sola casella della borsa, con il numero sopra — se ne portano di scorta senza riempire la griglia.
+
