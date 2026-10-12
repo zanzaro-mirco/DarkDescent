@@ -7,7 +7,7 @@ misurato tengono insieme asset di pacchetti diversi. Le stanze della cripta e de
 **Profiler** in build. Il README ha la GIF finale e una sezione sull'architettura; `CREDITS.md` è
 completo.
 
-**Tempo stimato:** 18–29 h (piano v2.30), da ricontrollare con le decisioni qui sotto.
+**Tempo stimato:** 20–30 h (D11, piano v2.31).
 **Prerequisito:** M10 chiusa (tag `m10`).
 
 **Come si lavora:** come alla M10, il codice e i passaggi nell'editor li faccio io, in batchmode
@@ -34,7 +34,7 @@ la sua chiave e la revisione degli ADR. Dopo la prima build da provare c'è un p
 
 ## Decisioni
 
-Da confermare con Mirco prima di cominciare.
+Confermate da Mirco il 12 ottobre 2026: tutte come proposte.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -96,7 +96,7 @@ Da scrivere passo per passo.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D11 confermate
+- [x] Decisioni D1–D11 confermate
 - [ ] Correzioni dalla prova della M10
 - [ ] Shader retro e post-processing
 - [ ] Cripta e caverne arredate
