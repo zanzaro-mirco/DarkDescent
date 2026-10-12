@@ -448,6 +448,7 @@ Formato:
 - **Decisione:** un solo file, `save.json` in `Application.persistentDataPath`, con `JsonUtility`. Si scrive in `save.json.tmp` e lo si mette al posto del vecchio con `File.Replace`. Si salva entrando in un livello, ogni 60 s se da 5 s non ci sono colpi, e chiudendo il gioco; da morto si salva a vita piena, come dopo *Continua*. Dentro ci sono seme (in testo), scena, ingresso, profondità, crescita, attributi base, vita, inventario completo e mappe scoperte; non lo stato dei livelli, che il seme rigenera. All'avvio si riprende dal salvataggio; `-newgame` e `-seed` lo ignorano. Nell'editor è spento: i test lo accendono con un file loro.
 - **Alternative scartate:** `PlayerPrefs`, che non regge un inventario e su Windows finisce nel registro; salvare nemici uccisi, casse aperte e oggetti a terra, che vorrebbe un'identità stabile per ognuno e un formato molto più grande, per livelli che si attraversano in pochi minuti; più slot di salvataggio prima del menu.
 - **Conseguenze:** tornando in un livello, nemici e casse tornano come li genera il seme. Il menu della M10 avrà *Continua* e *Nuova partita* sullo stesso file.
+- **Aggiornamento (passo 10.9 della M10):** i livelli lasciati ora restano com'erano, anche nel salvataggio (ADR-079); i tre posti del menu sono nell'ADR-073.
 
 ## ADR-062 — Formato versionato dal primo salvataggio, migrazione un passo alla volta
 - **Data:** 2026-10-08 (scritto alla chiusura della M8, l'11 ott)
@@ -512,3 +513,66 @@ Formato:
 - **Alternative scartate:** chiedere prima il permesso all'autore, che toglieva la zona grigia ma rimandava i suoni; restare sul CC0 (Kenney RPG Audio per le monete, un ruggito sintetizzato), più sicuro ma con suoni meno adatti.
 - **Aggiornamento (passo 10.7):** con il boss entrano il ruggito, come previsto, e la porta pesante, per le colonne che chiudono la sua sala: sei file in tutto.
 - **Conseguenze:** se l'autore chiedesse di toglierli, si sostituiscono i quattro file e il loro riferimento nei prefab, senza toccare il codice. Ogni altro asset con una licenza diversa da CC0 o OFL vuole un ADR come questo.
+
+## ADR-071 — L'oro in Core, a terra come un oggetto e fuori dalla borsa; prezzi calcolati
+- **Data:** 2026-10-12 (scritto durante la chiusura della M10)
+- **Contesto:** la M10 porta il mercante, e con lui l'oro e i prezzi (D4 della scheda). Scrivere un prezzo per ogni combinazione di base, rarità e affissi non regge.
+- **Decisione:** `GoldDefinition` è una definizione fuori dal database degli oggetti, con tre modelli per la quantità. Ogni `LootTable` ha probabilità, intervallo e crescita con la profondità; `LootRoller.RollGold` tira con un seme suo (`SeedMixer.ForGold`), così il loot dei semi già provati non cambia. A terra la pila è un `GroundItem` con la quantità e si raccoglie nel portafoglio di `Inventory`, senza occupare la borsa. Il prezzo è valore base × rarità (1, 3, 6) × (1 + livello / 10) (`ItemPricing`); si vende a un quarto. L'oro delle vendite non conta tra l'oro raccolto della vittoria (`ReceiveGold` invece di `AddGold`).
+- **Alternative scartate:** l'oro come oggetto nella borsa, che in Diablo 1 occupa celle e qui avrebbe solo riempito la griglia; un prezzo scritto in ogni definizione e per ogni affisso.
+- **Conseguenze:** ogni flusso nuovo del loot (pergamena del ritorno, assortimento del mercante) ha il suo dominio del seme. Quantità e prezzi si tarano dalle prove in build senza toccare il codice.
+
+## ADR-072 — Formato 4: oro, città, portale e contatori della partita
+- **Data:** 2026-10-12 (scritto durante la chiusura della M10)
+- **Contesto:** la M10 aggiunge alla partita l'oro, la città, il portale del ritorno e la vittoria con le sue statistiche (D11). L'ADR-062 vuole un passo del migratore e un file vero congelato per ogni formato.
+- **Decisione:** `SaveData` aggiunge l'oro, se si è in città, la profondità a cui riporta il portale e i contatori di `RunStats` (tempo, uccisioni, morti, oro raccolto, boss sconfitto). Il migratore porta il 3 al 4 con tutto a zero, mettendo i valori a mano. Prima del cambio si è congelato `save_v3.json`, scritto dal codice del formato 3.
+- **Alternative scartate:** i contatori in un file a parte, che si sarebbe perso o disallineato dal salvataggio della partita.
+- **Conseguenze:** la vittoria sta nel salvataggio appena il boss muore: tornando alla profondità 8 il re non rinasce. Il formato 5 (ADR-079) è arrivato con le correzioni del 10.9.
+
+## ADR-073 — Il menu nella scena Core, tre posti e la pausa che ferma il tempo
+- **Data:** 2026-10-12 (scritto durante la chiusura della M10)
+- **Contesto:** fino alla M9 il gioco partiva dentro la partita, con un solo `save.json` (ADR-061). La M10 vuole un menu con *Continua*, *Nuova partita* e tre salvataggi, una pausa e le opzioni (D2, D10). L'ADR-014 aveva rimandato una scena `Bootstrap`.
+- **Decisione:** il menu sta in una tela della scena Core, sopra l'HUD, non in una scena sua: così il posto scelto non deve passare tra due scene senza un singleton. Se serve il menu, il CompositionRoot ferma il primo caricamento (`LevelManager.HoldStart`) e, scelta la partita, rimette il salvataggio sul cavaliere e chiama `Begin`. Nelle build il menu c'è sempre; nell'editor solo con `DARKDESCENT_MENU=1`; `-newgame` e `-seed` lo saltano e giocano senza salvare. `SaveSlots` gestisce `save_1.json`…`save_3.json`, legge il riepilogo dal salvataggio stesso e trasforma il vecchio `save.json` nel posto 1. La pausa (`Esc`) mette `Time.timeScale` a 0 e la UI usa il tempo non scalato; *Salva ed esci* ricarica Core. Le opzioni (lingua al posto di F9, volumi del mixer, nomi a terra sempre visibili) stanno nelle preferenze.
+- **Alternative scartate:** una scena `Bootstrap` con il menu, che vuole uno stato condiviso tra scene; tre partite in un solo file, che rende rischioso cancellarne una.
+- **Conseguenze:** l'ADR-014 resta senza la scena `Bootstrap`. Ogni sistema che si muove nel tempo deve sapere se va in pausa: un hit stop in corso si annulla aprendo la pausa, altrimenti alla sua fine rimetterebbe il tempo che scorre.
+
+## ADR-074 — La città come mappa di testo costruita a runtime, alla profondità 0
+- **Data:** 2026-10-12 (scritto durante la chiusura della M10)
+- **Contesto:** la città (D3) è un accampamento sotterraneo fatto a mano. I livelli fatti a mano della M3 sono scene salvate dall'editor con `LevelMapBuilder`, senza automappa.
+- **Decisione:** la città è un testo (`Data/Levels/Town.txt`) che un `MapLevel` costruisce entrando, con lo stesso `LevelBuilder` della cripta, e di cui cuoce il NavMesh. `MapLevel` e `DungeonLevel` hanno una base comune, `BuiltLevel`, che il `LevelManager` cerca nella scena. La profondità 0 è la città (`LevelContext.IsTown`): niente numero nel titolo e `inTown` nel salvataggio. Ogni partita nuova comincia lì.
+- **Alternative scartate:** una scena salvata come quelle della M3, che non ha l'automappa e si ritocca solo nell'editor; una sola schermata del mercante, la linea di taglio 3 del piano.
+- **Conseguenze:** ritoccare la città vuol dire cambiare il testo. La luce ambiente si legge dalla scena salvata, quindi cambiandola nel tileset va ricostruita la scena.
+
+## ADR-075 — L'assortimento del mercante dal seme, senza salvarlo
+- **Data:** 2026-10-12 (scritto durante la chiusura della M10)
+- **Contesto:** il mercante (D5) vende otto oggetti del livello della profondità più bassa raggiunta, che cambiano a ogni ritorno in città. Salvarli vorrebbe un campo nuovo nel salvataggio.
+- **Decisione:** `LootRoller.RollStock` tira l'assortimento da un flusso suo (`SeedMixer.ForShop`) mescolato con la profondità più bassa raggiunta (dalle mappe esplorate, già salvate) e con il numero di uccisioni (da `RunStats`, già salvato). Le provviste (pozioni e pergamena del ritorno) ci sono sempre.
+- **Alternative scartate:** salvare l'assortimento; cambiarlo a ogni ingresso in città, anche senza combattere, che lo farebbe ritirare uscendo e rientrando.
+- **Conseguenze:** l'assortimento cambia solo dopo aver ucciso qualcosa. Un oggetto comprato ricompare se si esce e si rientra senza uccidere: lo si ricompra, non si duplica niente.
+
+## ADR-076 — La pergamena del ritorno e i portali, con il ritorno dove si era aperto
+- **Data:** 2026-10-12 (scritto durante la chiusura della M10)
+- **Contesto:** dal dungeon si deve poter tornare in città e riscendere (D6), come con il *Town Portal* di Diablo 1. La scheda proponeva il ritorno all'ingresso della profondità; nella prova della build è sembrato un errore.
+- **Decisione:** `ReturnScrollDefinition` si legge con il click destro e chiede a un `IPortalOpener` (`TownPortals`, in Core) di aprire un portale davanti al cavaliere, uno solo per volta. Il portale porta all'ingresso `Portal` della città; lì un portale riporta alla profondità di partenza e si chiude dopo l'uso. Dal 10.9 riporta nel punto in cui si era aperto: `TownPortals.PortalSpot` lo ricorda e `LevelManager.LoadLevelAt` ci porta il cavaliere, sul NavMesh del livello rigenerato. L'ingresso del livello resta quello di sempre, per *Continua* e per la ripartenza dopo la morte. Profondità e punto vanno nel salvataggio (formati 4 e 5). Il portale della vittoria è un secondo portale, tenuto a parte.
+- **Alternative scartate:** scale in su, che vorrebbero rifare otto livelli a ritroso; un portale fisso a ogni livello, che toglie la scelta di quando tornare; ripartire dal punto del portale dopo la morte, che alla profondità 8 può far rinascere dentro la sala del boss.
+- **Conseguenze:** il ritorno nel punto ha senso solo perché il livello torna com'era (ADR-079).
+
+## ADR-077 — La sala del boss scavata dal generatore, il boss a fasi dai pezzi che c'erano
+- **Data:** 2026-10-12 (scritto durante la chiusura della M10)
+- **Contesto:** il boss (D8) sta alla profondità 8, in una sala che si chiude entrando. Le caverne sono generate dal seme.
+- **Decisione:** alla `CaveSettings.BossDepth` il `CaveGenerator` scava una sala di 5 × 5 celle nella zona aperta più lontana dall'ingresso, la chiude con un anello di roccia e lascia una porta sola, la più vicina all'ingresso tra quelle che tengono la sala raggiungibile; quello che l'anello isola torna roccia. Il popolatore mette il re al centro e la porta (`BossGate`, colonne con un `NavMeshObstacle` che taglia il NavMesh solo da chiusa) e non mette altro dentro. `BossController` comanda lo scontro sopra l'`EnemyAI` di sempre: fasi per vita in `Core` (`BossPhases`), evocazioni dello sciame, anello di fuoco telegrafato da un cerchio. Gli evocati non danno esperienza né loot. La `LootTable` ha una rarità minima.
+- **Alternative scartate:** una sala fatta a mano e incollata nella caverna, che vuole un innesto tra mappa di testo e generatore; una macchina a stati del boss separata dall'IA dei nemici.
+- **Conseguenze:** gli altri livelli non cambiano. Morto il cavaliere, lo scontro ricomincia da capo: porta aperta, evocati spariti, re a vita piena.
+
+## ADR-078 — I riconoscimenti da una copia di CREDITS.md tra gli asset
+- **Data:** 2026-10-12 (scritto durante la chiusura della M10)
+- **Contesto:** dopo la vittoria scorrono i riconoscimenti (D9), che devono dire le stesse cose di `CREDITS.md`. Il file sta nella radice del repo e non entra nella build.
+- **Decisione:** il gioco legge `Data/Credits.txt`, una copia aggiornata dal menu *DarkDescent → Aggiorna i riconoscimenti*; un test EditMode fallisce se la copia è diversa dall'originale. `CreditsTable` legge la tabella, toglie link e markdown e salta le righe degli asset fatti per il progetto.
+- **Alternative scartate:** un testo scritto a mano per la schermata, che ci si dimentica di aggiornare; spostare `CREDITS.md` sotto `Assets/`, lontano da dove chi legge il repo lo cerca.
+- **Conseguenze:** cambiando `CREDITS.md` va rifatta la copia, e il test lo ricorda.
+
+## ADR-079 — I livelli lasciati restano com'erano: formato 5
+- **Data:** 2026-10-12 (passo 10.9, decisione di Mirco)
+- **Contesto:** dall'ADR-061 un livello, rientrandoci, si rigenerava nuovo dal seme. Con la città e i portali della M10 si torna spesso nella stessa profondità, e nella prova della build i nemici rinascevano e le casse ridavano gli stessi oggetti: si poteva fare l'oro all'infinito. Mirco ha scelto di ricordare tutto, come Diablo 1, anche nel salvataggio.
+- **Decisione:** `LevelRecorder` (sul LevelManager di Core), prima di scaricare un livello, ne scrive un `LevelRecord`: nemici uccisi e casse aperte per posto nell'ordine in cui il livello li costruisce, oggetti e oro a terra con il punto (`GroundItemRecord`), anche quelli messi dalla mappa. Rientrando, il livello si rigenera dal seme e `Restore` lo rimette com'era prima che il CompositionRoot colleghi i nemici: gli uccisi si spengono subito e si distruggono a fine frame, le casse aperte restano aperte e vuote, gli oggetti tornano a terra. I ricordi sono per scena e profondità (`LevelMemory`) e dicono anche quanti nemici e casse c'erano: se il livello generato non corrisponde, nemici e casse ripartono nuovi. Il formato 5 aggiunge i ricordi e il punto del portale (ADR-076); un salvataggio del formato 4 si migra senza ricordi, e `save_v4.json` è congelato.
+- **Alternative scartate:** ricordare solo finché il gioco è aperto, che lascia rifarmare le casse chiudendo e riaprendo; ricordare nemici e casse ma non gli oggetti a terra, che li perde uscendo dal livello; un'identità stabile salvata in ogni nemico, superflua finché il seme dà lo stesso livello e i posti nell'ordine di costruzione restano gli stessi.
+- **Conseguenze:** aggiorna l'ADR-061. Un livello appena caricato non si ricorda finché non è stato rimesso, perché il salvataggio fatto entrando non sovrascriva il ricordo vero con il livello nuovo del seme. I nemici feriti tornano a vita piena. Una punizione alla morte che faccia rinascere parte dei nemici (piano, «Dopo la v1.0») partirebbe da questi ricordi.

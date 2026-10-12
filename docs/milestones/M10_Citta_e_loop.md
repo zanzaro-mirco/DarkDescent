@@ -452,7 +452,8 @@ aperta e gli oggetti a terra sono gli stessi negli stessi punti; lo stesso dopo 
    suo, o cambia gli oggetti di tutti i semi provati.
 4. **Il portale riporta a un livello rigenerato:** nemici e casse tornano (ADR-061). Se si torna
    alla profondità 8 dopo aver ucciso il boss, il boss non deve rinascere: la vittoria va nel
-   salvataggio.
+   salvataggio. Dal 10.9 il livello torna com'era (ADR-079), ma il re si toglie ancora dalla
+   vittoria salvata: un ricordo che non corrisponde al livello generato non toglie i nemici.
 5. **La sala del boss non deve chiudersi con il cavaliere fuori o con lo sciame dentro il muro:**
    la chiusura parte quando il cavaliere è ben dentro, e lo sciame evocato nasce su punti
    campionati sul NavMesh della sala.
