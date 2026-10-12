@@ -1,5 +1,5 @@
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Save;
@@ -11,9 +11,9 @@ using UnityEngine;
 namespace DarkDescent.Tests
 {
     /// <summary>
-    /// I formati 2 e 3 e la migrazione (D9 della M8, D11 della M9): i salvataggi veri dei formati 1
-    /// e 2, congelati in <c>Fixtures/save_v1.json</c> e <c>save_v2.json</c> quando erano quelli
-    /// correnti, si caricano con il codice di oggi; la mappa scoperta di ogni profondità resta
+    /// I formati dal 2 al 5 e la migrazione (D9 della M8, D11 della M9, D11 e 10.9 della M10): i
+    /// salvataggi veri dei formati dall'1 al 4, congelati in <c>Fixtures/save_v1.json</c>…<c>save_v4.json</c>
+    /// quando erano quelli correnti, si caricano con il codice di oggi; la mappa scoperta di ogni profondità resta
     /// tornandoci e passa dal salvataggio.
     /// </summary>
     public class SaveMigrationTests
@@ -58,7 +58,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(4, data.Version, "portato al formato corrente");
+            Assert.AreEqual(5, data.Version, "portato al formato corrente");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.IsNotNull(data.Explored);
             Assert.AreEqual(0, data.Explored.Count, "un salvataggio vecchio non ha mappe");
@@ -90,7 +90,7 @@ namespace DarkDescent.Tests
 
             // e riscritto, è del formato corrente
             SaveFile.Write(_path, data);
-            StringAssert.Contains("\"_version\": 4", File.ReadAllText(_path));
+            StringAssert.Contains($"\"_version\": {SaveData.CurrentVersion}", File.ReadAllText(_path));
         }
 
         [Test, Description("Il salvataggio vero del formato 2 si carica con il codice di oggi: il solo Dardo di fuoco, il primo posto e il mana pieno; mappa, Magia e oggetti della M9 (pergamena, pozione blu, affissi della magia) com'erano")]
@@ -102,7 +102,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(4, data.Version, "passa anche dal 3 al 4");
+            Assert.AreEqual(5, data.Version, "passa anche dal 3 al 4 e dal 4 al 5");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.KnownSpells.Count, "nessun incantesimo imparato: il Dardo è noto dall'inizio");
             Assert.AreEqual(0, data.SelectedSpell);
@@ -132,8 +132,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2, inventory.Belt.Count, "pozione rossa e blu");
         }
 
-        [Test, Description("Il salvataggio vero del formato 3 si carica con il codice del formato 4: niente oro, nel dungeon, contatori a zero; incantesimi, mana, mappa e oggetti com'erano")]
-        public void FormatThree_LoadsWithFormatFourCode()
+        [Test, Description("Il salvataggio vero del formato 3 si carica con il codice di oggi: niente oro, nel dungeon, contatori a zero, nessun livello ricordato; incantesimi, mana, mappa e oggetti com'erano")]
+        public void FormatThree_LoadsWithTodaysCode()
         {
             var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v3.json");
             StringAssert.Contains("\"_version\": 3", fixture.text, "il file congelato è davvero del formato 3");
@@ -141,11 +141,12 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(4, data.Version);
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.Gold);
             Assert.IsFalse(data.InTown);
             Assert.AreEqual(0, data.PortalDepth);
             Assert.IsNull(data.PortalSpot);
+            Assert.AreEqual(0, data.Levels.Count);
             Assert.AreEqual((0f, 0, 0, 0, false), (data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated));
             Assert.AreEqual(5150505050505050505UL, data.RunSeed);
             Assert.AreEqual(("Level_Caves", "FromAbove", 6), (data.Scene, data.Entrance, data.Depth));
@@ -183,23 +184,61 @@ namespace DarkDescent.Tests
             Assert.AreEqual((3600.5f, 210, 3, 4321, true), (read.PlayTime, read.Kills, read.Deaths, read.GoldCollected, read.BossDefeated));
         }
 
-        [Test, Description("Un salvataggio del formato 4 scritto prima del punto del portale si legge: il portale riporta all'ingresso; senza portale il punto non si salva")]
-        public void FormatFour_WithoutPortalSpot_ReturnsToEntrance()
+        [Test, Description("Il salvataggio del formato 4 si carica con il codice del formato 5: il portale riporta all'ingresso della profondità e nessun livello è ricordato; oro, città, portale e contatori com'erano")]
+        public void FormatFour_LoadsWithFormatFiveCode()
         {
-            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(new StatSheet()));
-            string json = SaveData.Create(9UL, "Level_Town", "Portal", 0)
-                .WithInventory(InventorySnapshot.Capture(inventory))
-                .WithTown(true, 3, new Vector3(1f, 2f, 3f))
-                .ToJson();
-            StringAssert.Contains("_hasPortalSpot", json);
-            // senza il campo JsonUtility legge false, come da un file scritto prima
-            string old = string.Join("\n", json.Split('\n').Where(line => !line.Contains("_hasPortalSpot")));
-            File.WriteAllText(_path, old);
-            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
-            Assert.AreEqual(3, read.PortalDepth);
-            Assert.IsNull(read.PortalSpot);
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v4.json");
+            StringAssert.Contains("\"_version\": 4", fixture.text, "il file congelato è davvero del formato 4");
+            StringAssert.DoesNotContain("_levels", fixture.text);
+            File.WriteAllText(_path, fixture.text);
 
-            Assert.IsNull(SaveData.Create(9UL, "Level_Town", "Start", 0).WithTown(true, 0, Vector3.one).PortalSpot);
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(5, data.Version);
+            Assert.AreEqual(6, data.PortalDepth);
+            Assert.IsNull(data.PortalSpot, "riporta all'ingresso");
+            Assert.AreEqual(0, data.Levels.Count);
+            Assert.AreEqual(("Town", "Portal", 0), (data.Scene, data.Entrance, data.Depth));
+            Assert.AreEqual((250, true), (data.Gold, data.InTown));
+            Assert.AreEqual((1834.5f, 97, 2, 612, false), (data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated));
+            Assert.AreEqual(1, data.Explored.Count);
+        }
+
+        [Test, Description("Il formato 5 va e torna: il punto del portale e i ricordi dei livelli, con nemici uccisi, casse aperte, oggetti e oro a terra; senza portale il punto non si salva")]
+        public void FormatFive_RoundTrips()
+        {
+            var scroll = AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/ReturnScroll.asset");
+            var record = new LevelRecord("Level_Crypt", 2, 14, 3);
+            record.AddKilled(0);
+            record.AddKilled(7);
+            record.AddOpened(2);
+            record.AddItem(new GroundItemRecord(new ItemInstance(scroll), new Vector3(4f, 0f, 9.5f)));
+            record.AddItem(new GroundItemRecord(37, new Vector3(5f, 0f, 9.5f)));
+            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(new StatSheet()));
+            var data = SaveData.Create(9UL, "Town", "Portal", 0)
+                .WithInventory(InventorySnapshot.Capture(inventory))
+                .WithTown(true, 2, new Vector3(1f, 0.5f, 3f))
+                .WithLevels(new List<LevelRecord> { record });
+            SaveFile.Write(_path, data);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
+            Assert.AreEqual(new Vector3(1f, 0.5f, 3f), read.PortalSpot);
+            Assert.AreEqual(1, read.Levels.Count);
+            var level = read.Levels[0];
+            Assert.AreEqual(("Level_Crypt", 2), (level.Scene, level.Depth));
+            Assert.IsTrue(level.Matches(14, 3));
+            Assert.IsFalse(level.Matches(15, 3), "un livello generato diverso");
+            CollectionAssert.AreEqual(new[] { 0, 7 }, level.Killed);
+            CollectionAssert.AreEqual(new[] { 2 }, level.Opened);
+            Assert.AreEqual(2, level.Items.Count);
+            var items = AssetDatabase.LoadAssetAtPath<ItemDatabase>("Assets/_Project/Data/ItemDatabase.asset");
+            var affixes = AssetDatabase.LoadAssetAtPath<AffixDatabase>("Assets/_Project/Data/AffixDatabase.asset");
+            Assert.IsTrue(level.Items[0].Item.Resolve(items, affixes));
+            Assert.AreEqual(scroll, level.Items[0].Item.Definition);
+            Assert.AreEqual(new Vector3(4f, 0f, 9.5f), level.Items[0].Position);
+            Assert.IsNull(level.Items[1].Item, "una pila d'oro");
+            Assert.AreEqual(37, level.Items[1].Gold);
+
+            Assert.IsNull(SaveData.Create(9UL, "Town", "Start", 0).WithTown(true, 0, Vector3.one).PortalSpot);
         }
 
         [Test, Description("Il formato 3 va e torna: incantesimi noti, posto scelto e mana passano dal file")]

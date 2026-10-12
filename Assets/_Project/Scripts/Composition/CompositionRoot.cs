@@ -115,6 +115,9 @@ namespace DarkDescent.Core
         [Tooltip("I portali della pergamena del ritorno (D6 della M10).")]
         [SerializeField] private Town.TownPortals _portals;
 
+        [Tooltip("Ricorda i livelli lasciati e li rimette com'erano (10.9 della M10).")]
+        [SerializeField] private LevelRecorder _levelRecorder;
+
         [Tooltip("La vittoria e i riconoscimenti (D9 della M10).")]
         [SerializeField] private VictoryScreen _victoryScreen;
 
@@ -222,7 +225,7 @@ namespace DarkDescent.Core
             // un salvataggio, se c'è, decide seme e livello (D10 della M8); -newgame e -seed lo ignorano
             _portals.Bind(_player.transform);
             _player.GetComponent<PlayerInventory>().SetPortalOpener(_portals);
-            _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats, _portals);
+            _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats, _portals, _levelRecorder);
             // il menu iniziale nelle build, e nell'editor solo se un test lo chiede (D2 della M10).
             // -newgame e -seed lo saltano e giocano senza salvare; un file scelto da fuori si riprende
             bool newGame = CommandLine.HasFlag(args, NewGameOption);
@@ -517,6 +520,8 @@ namespace DarkDescent.Core
             _levelTitle.Show(tileset != null ? tileset.NameKey : null, level.Depth);
             _depth = level.Depth;
 
+            // prima di tutto il resto: i nemici già uccisi non si collegano
+            _levelRecorder.Restore(level);
             BindBoss(level);
             foreach (var enemy in level.Enemies)
             {
@@ -710,6 +715,7 @@ namespace DarkDescent.Core
 
         private void ReleaseLevel(LevelContext level)
         {
+            _levelRecorder.Remember(level);
             _walls = null;
             _pack?.Release();
             _pack = null;

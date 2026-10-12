@@ -7150,6 +7150,7 @@ MonoBehaviour:
   _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
   _scrolls: {fileID: 11400000, guid: 8523e7faa83f38c4288193ee90254b01, type: 2}
   _portals: {fileID: 428672407}
+  _levelRecorder: {fileID: 1765101946}
   _victoryScreen: {fileID: 1241808558}
   _returnScroll: {fileID: 11400000, guid: bf49831be2e81f545b7090f182399e97, type: 2}
   _townScene: Town
@@ -30599,6 +30600,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1765101945}
   - component: {fileID: 1765101944}
+  - component: {fileID: 1765101946}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -30637,6 +30639,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1765101946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1765101943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd95fd84c0fc0a74c98ce9e3cd6ac842, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Levels.LevelRecorder
+  _groundItemPrefab: {fileID: 733407215090042755, guid: 92a1fd790b3d3c8468d952d3fc33c114, type: 3}
+  _gold: {fileID: 11400000, guid: 9cf671510ba2f7542961474e74af6247, type: 2}
+  _items: {fileID: 11400000, guid: be8dcda66dcc39645ad4c3fca0b208ce, type: 2}
+  _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
 --- !u!1 &1769313802
 GameObject:
   m_ObjectHideFlags: 0

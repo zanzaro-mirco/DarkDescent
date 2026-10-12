@@ -12,8 +12,9 @@ namespace DarkDescent.Save
     /// la crescita del cavaliere, i valori base degli attributi, la vita, l'inventario completo e, dal
     /// formato 2, la mappa scoperta di ogni profondità visitata; dal formato 3 gli incantesimi noti,
     /// quello scelto e il mana (D11 della M9); dal formato 4 l'oro, la città, la profondità a cui
-    /// riporta il portale e i contatori della partita (D11 della M10). Lo stato dei livelli non c'è (D8):
-    /// un livello rientrandoci si rigenera dal seme. Il campo
+    /// riporta il portale e i contatori della partita (D11 della M10); dal formato 5 il punto in cui
+    /// riporta il portale e i ricordi dei livelli visitati (10.9 della M10): nemici uccisi, casse aperte
+    /// e oggetti a terra, che un livello rigenerato dal seme rimette com'erano. Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
     /// </summary>
@@ -21,7 +22,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 4;
+        public const int CurrentVersion = 5;
 
         /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
         public const float FullMana = -1f;
@@ -66,10 +67,10 @@ namespace DarkDescent.Save
         [SerializeField] private int _goldCollected;
         [SerializeField] private bool _bossDefeated;
 
-        // ancora formato 4, aggiunto con il 10.9: il punto in cui riporta il portale. Un salvataggio
-        // che non ha i campi legge false, e il portale riporta all'ingresso come prima
+        // formato 5: il punto in cui riporta il portale (senza, all'ingresso) e i ricordi dei livelli
         [SerializeField] private bool _hasPortalSpot;
         [SerializeField] private Vector3 _portalSpot;
+        [SerializeField] private List<LevelRecord> _levels = new List<LevelRecord>();
 
         public int Version => _version;
 
@@ -127,6 +128,9 @@ namespace DarkDescent.Save
         public int GoldCollected => _goldCollected;
 
         public bool BossDefeated => _bossDefeated;
+
+        /// <summary>I ricordi dei livelli visitati: nemici uccisi, casse aperte, oggetti a terra.</summary>
+        public IReadOnlyList<LevelRecord> Levels => _levels;
 
         public static SaveData Create(ulong runSeed, string scene, string entrance, int depth)
         {
@@ -200,6 +204,12 @@ namespace DarkDescent.Save
             return this;
         }
 
+        public SaveData WithLevels(List<LevelRecord> levels)
+        {
+            _levels = levels ?? new List<LevelRecord>();
+            return this;
+        }
+
         /// <summary>I contatori della partita, per la schermata di vittoria.</summary>
         public SaveData WithStats(float playTime, int kills, int deaths, int goldCollected, bool bossDefeated)
         {
@@ -228,7 +238,6 @@ namespace DarkDescent.Save
                 _gold = 0;
                 _inTown = false;
                 _portalDepth = 0;
-                _hasPortalSpot = false;
                 _playTime = 0f;
                 _kills = 0;
                 _deaths = 0;
@@ -236,8 +245,17 @@ namespace DarkDescent.Save
                 _bossDefeated = false;
             }
 
+            // dal formato 4 al 5 (10.9 della M10): il portale riporta all'ingresso e nessun livello è
+            // ricordato, quindi si rigenerano come prima
+            if (_version < 5 && version >= 5)
+            {
+                _hasPortalSpot = false;
+                _levels = new List<LevelRecord>();
+            }
+
             _version = version;
             _explored ??= new List<ExploredLevel>();
+            _levels ??= new List<LevelRecord>();
             _knownSpells ??= new List<string>();
         }
 

@@ -412,8 +412,31 @@ Build della CI del 12 ott 2026 (run 38219581157), provata da Mirco. Correzioni:
   profondità. `TownPortals.PortalSpot` ricorda il punto del portale del dungeon e
   `LevelManager.LoadLevelAt` ci porta il cavaliere, sul NavMesh della profondità rigenerata dal seme.
   L'ingresso del livello resta quello di sempre: Continua e la ripartenza dopo la morte usano lui. Il
-  punto va nel salvataggio (`_hasPortalSpot`, `_portalSpot`) senza cambiare formato: un salvataggio
-  del formato 4 scritto prima non ha i campi e il portale riporta all'ingresso.
+  punto va nel salvataggio (formato 5, sotto).
+- **I livelli lasciati restano com'erano**, come in Diablo 1. Fino alla M10 ogni profondità, rientrandoci
+  dalle scale o dal portale, si rigenerava nuova dal seme (ADR della M8): nemici di nuovo vivi e casse
+  di nuovo piene, con gli stessi oggetti. Decisione di Mirco: si ricorda tutto. `LevelRecorder` (sul
+  LevelManager di Core) prima di scaricare un livello ne scrive il ricordo (`LevelRecord`): i nemici
+  uccisi e le casse aperte, per posto nell'ordine in cui il livello li costruisce, e gli oggetti e
+  l'oro rimasti a terra (`GroundItemRecord`), anche quelli messi dalla mappa. Rientrando, il livello si
+  rigenera dal seme e poi `Restore` lo rimette com'era, prima che il composition root colleghi i
+  nemici: gli uccisi spariscono, le casse aperte restano aperte e vuote (`Chest.RestoreOpen`), gli
+  oggetti tornano dov'erano. Il ricordo dice anche quanti nemici e casse c'erano: se il livello
+  generato non corrisponde più, nemici e casse ripartono nuovi e restano solo gli oggetti a terra. La
+  pergamena del livello (D5 della M9) sceglie lo stesso portatore della prima visita, perché gli uccisi
+  si spengono subito ma si distruggono a fine frame: se era già morto, non ne nasce un'altra.
+- **Formato 5 del salvataggio**: il punto del portale (`_hasPortalSpot`, `_portalSpot`) e i ricordi dei
+  livelli (`_levels`). Un salvataggio del formato 4 si migra: il portale riporta all'ingresso e nessun
+  livello è ricordato. `save_v4.json` è il nuovo file congelato. Un livello appena caricato non si
+  ricorda finché `Restore` non l'ha rimesso: il salvataggio fatto entrando non deve sovrascrivere il
+  ricordo vero con il livello nuovo del seme.
+
+*Test.* `LevelMemoryTests` (2, EditMode): un ricordo per scena e profondità; l'import sostituisce.
+`SaveMigrationTests`: il formato 4 congelato si carica con il codice del formato 5; il formato 5 va e
+torna con punto del portale, nemici, casse, oggetti e oro. `LevelMemoryPlayModeTests` (1): ucciso un
+nemico, aperta una cassa e raccolta una pila d'oro, tornando dalla città il nemico non c'è, la cassa è
+aperta e gli oggetti a terra sono gli stessi negli stessi punti; lo stesso dopo Continua.
+`PortalTests`: il portale della città riporta dove si era aperto, lontano dall'ingresso.
 
 ---
 
@@ -436,6 +459,9 @@ Build della CI del 12 ott 2026 (run 38219581157), provata da Mirco. Correzioni:
 6. **La pausa ferma `Time.timeScale`:** hit stop, ricariche, rigenerazione del mana e coroutine
    con `WaitForSeconds` si fermano con lei; quello che deve andare in pausa (la UI) usa il tempo
    non scalato, e il fade delle scene anche.
+7. **Ricordare un livello appena caricato cancella il ricordo vero** (10.9): il salvataggio entrando
+   nel livello può arrivare prima che `LevelRecorder.Restore` l'abbia rimesso com'era, e
+   scriverebbe il livello nuovo del seme. Si ricorda solo il livello già rimesso.
 
 ---
 

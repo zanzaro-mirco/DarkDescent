@@ -51,7 +51,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(PlayerAgent.isOnNavMesh, "l'agent si riaggancia al NavMesh del livello nuovo");
         }
 
-        [UnityTest, Description("I nemici del livello nuovo sono collegati; quelli del vecchio non sono più seguiti")]
+        [UnityTest, Description("I nemici del livello nuovo sono collegati; quelli del vecchio non sono più seguiti, e quello ucciso prima non rinasce (10.9 della M10)")]
         public IEnumerator LoadLevel_RebindsEnemies()
         {
             yield return LoadSandbox(allSkeletons: true);
@@ -65,7 +65,8 @@ namespace DarkDescent.Tests
             Manager.LoadLevel(SandboxScene, "Start", 1);
             yield return WaitForLevel();
 
-            Assert.AreEqual(4, numbers.TrackedCount, "i numeri seguono solo player e scheletri del livello nuovo");
+            Assert.AreEqual(3, numbers.TrackedCount, "i numeri seguono solo player e scheletri vivi del livello nuovo");
+            Assert.IsNull(GameObject.Find("Skeleton_B"), "lo scheletro ucciso resta morto");
 
             // lo scheletro del livello nuovo vede il player e lo insegue: è collegato
             var skeleton = GameObject.Find("Skeleton").GetComponent<EnemyAI>();

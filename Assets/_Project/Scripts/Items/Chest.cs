@@ -96,6 +96,25 @@ namespace DarkDescent.Items
             return _roller?.RollReturnScroll(_lootTable, _depth, _cellX, _cellZ);
         }
 
+        /// <summary>
+        /// Già aperta in una visita di prima (10.9 della M10): coperchio alzato, niente click, e non
+        /// lascia niente. Quello che aveva lasciato è tra gli oggetti a terra del ricordo del livello.
+        /// </summary>
+        public void RestoreOpen()
+        {
+            IsOpen = true;
+            Carried = null;
+            if (_clickArea != null)
+            {
+                _clickArea.enabled = false;
+            }
+
+            if (_lid != null)
+            {
+                _lid.localRotation *= Quaternion.Euler(-_openAngle, 0f, 0f);
+            }
+        }
+
         private void Awake()
         {
             _interactable = GetComponent<Interactable>();

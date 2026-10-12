@@ -29,6 +29,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(4);
             }
 
+            // formato 4 → 5 (10.9 della M10): arrivano il punto del portale e i ricordi dei livelli; un
+            // salvataggio vecchio riporta all'ingresso e rigenera i livelli come nuovi
+            if (data.Version == 4)
+            {
+                data.UpgradeTo(5);
+            }
+
             return data;
         }
     }

@@ -47,6 +47,7 @@ namespace DarkDescent.Save
         private MeleeAttack _attack;
         private ExplorationTracker _exploration;
         private TownPortals _portals;
+        private LevelRecorder _levels;
         private string _path;
         private bool _forced;
         private bool _subscribed;
@@ -64,11 +65,13 @@ namespace DarkDescent.Save
         public string FilePath => _path ??= ExternalPath() ?? Path.Combine(Application.persistentDataPath, _fileName);
 
         /// <param name="portals">Facoltativo: senza, il salvataggio non ricorda il portale della città.</param>
-        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration, RunStats runStats, TownPortals portals = null)
+        /// <param name="levels">Facoltativo: senza, il salvataggio non ricorda com'erano i livelli.</param>
+        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration, RunStats runStats, TownPortals portals = null, LevelRecorder levels = null)
         {
             Unsubscribe();
             _levelManager = levelManager;
             _portals = portals;
+            _levels = levels;
             _runStats = runStats;
             _exploration = exploration;
             _inventory = player.GetComponent<PlayerInventory>();
@@ -120,7 +123,8 @@ namespace DarkDescent.Save
                 .WithExplored(_exploration.Memory.Export())
                 .WithGold(_inventory.Inventory.Gold)
                 .WithTown(_levelManager.CurrentLevel.IsTown, _portals != null ? _portals.PortalDepth : 0, _portals != null ? _portals.PortalSpot : null)
-                .WithStats(_runStats.PlayTime, _runStats.Kills, _runStats.Deaths, _runStats.GoldCollected, _runStats.BossDefeated);
+                .WithStats(_runStats.PlayTime, _runStats.Kills, _runStats.Deaths, _runStats.GoldCollected, _runStats.BossDefeated)
+                .WithLevels(_levels != null ? _levels.Export(_levelManager.CurrentLevel) : null);
 
             // da morto il mana torna pieno con la vita (Revived): si salva pieno
             if (_magic != null)
@@ -179,6 +183,11 @@ namespace DarkDescent.Save
             if (_portals != null)
             {
                 _portals.Restore(data.PortalDepth, data.PortalSpot);
+            }
+
+            if (_levels != null)
+            {
+                _levels.Memory.Import(data.Levels);
             }
 
             _health.SetCurrent(data.Life);

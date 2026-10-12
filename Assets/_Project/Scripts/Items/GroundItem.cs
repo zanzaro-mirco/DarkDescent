@@ -58,11 +58,18 @@ namespace DarkDescent.Items
         private Quaternion _restRotation;
         private Vector3 _restCenter;
         private int _gold;
+        private bool _taken;
 
         /// <summary>Tocca terra: la luce si accende e si sente il suono.</summary>
         public event Action Landed;
 
         public ItemInstance Item => _item;
+
+        /// <summary>
+        /// L'oggetto da ricordare uscendo dal livello (10.9 della M10): quello a terra, o quello che la
+        /// mappa ci ha messo e che nasce in Start; null se è stato raccolto.
+        /// </summary>
+        public ItemInstance Remembered => _item ?? (_definition != null && !_taken ? new ItemInstance(_definition) : null);
 
         /// <summary>L'oro della pila, 0 per un oggetto (D4 della M10).</summary>
         public int Gold => _gold;
@@ -269,6 +276,7 @@ namespace DarkDescent.Items
             {
                 inventory.PickUpGold(_gold);
                 _item = null;
+                _taken = true;
                 Destroy(gameObject);
                 return;
             }
@@ -277,6 +285,7 @@ namespace DarkDescent.Items
             if (inventory.TryPickUp(_item))
             {
                 _item = null;
+                _taken = true;
                 Destroy(gameObject);
             }
         }
