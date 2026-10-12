@@ -1,5 +1,6 @@
 using System;
 using DarkDescent.Localization;
+using DarkDescent.Rendering;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -10,7 +11,8 @@ namespace DarkDescent.UI
     /// <summary>
     /// Le opzioni (D10 della M10), dal menu iniziale e dalla pausa: la lingua, che sostituisce il
     /// tasto F9 della M5, i volumi generale, della musica e degli effetti, e i nomi degli oggetti a
-    /// terra sempre visibili. Tutto resta tra le preferenze, come zoom e lingua.
+    /// terra sempre visibili; dalla M11 il filtro retrò (D2). Tutto resta tra le preferenze, come zoom
+    /// e lingua.
     /// </summary>
     [DisallowMultipleComponent]
     public class OptionsPanel : MonoBehaviour
@@ -40,12 +42,18 @@ namespace DarkDescent.UI
 
         [SerializeField] private Toggle _labels;
 
+        [Tooltip("Il filtro retrò: spento, leggero, pieno (D2 della M11).")]
+        [SerializeField] private Button _retro;
+
+        [SerializeField] private TMP_Text _retroLabel;
+
         [SerializeField] private Button _back;
 
         [SerializeField] private AudioMixer _mixer;
 
         private Localizer _localizer;
         private GroundLabels _groundLabels;
+        private RetroFilter _retroFilter;
         private bool _subscribed;
 
         /// <summary>Il tasto della lingua: chi tiene le preferenze cambia lingua e la ricorda.</summary>
@@ -64,13 +72,19 @@ namespace DarkDescent.UI
 
         public Button Back => _back;
 
+        public Button RetroButton => _retro;
+
+        public string RetroText => _retroLabel != null ? _retroLabel.text : string.Empty;
+
         public string LanguageText => _languageLabel.text;
 
-        public void Bind(Localizer localizer, GroundLabels groundLabels)
+        /// <param name="retroFilter">Facoltativo: senza, il pulsante del filtro non fa niente.</param>
+        public void Bind(Localizer localizer, GroundLabels groundLabels, RetroFilter retroFilter = null)
         {
             Unsubscribe();
             _localizer = localizer;
             _groundLabels = groundLabels;
+            _retroFilter = retroFilter;
             if (isActiveAndEnabled)
             {
                 Subscribe();
@@ -138,6 +152,11 @@ namespace DarkDescent.UI
             _music.onValueChanged.AddListener(HandleVolume);
             _sfx.onValueChanged.AddListener(HandleVolume);
             _labels.onValueChanged.AddListener(HandleLabels);
+            if (_retro != null)
+            {
+                _retro.onClick.AddListener(HandleRetro);
+            }
+
             _localizer.LanguageChanged += RefreshLanguage;
             _subscribed = true;
             _groundLabels.SetAlwaysVisible(_labels.isOn);
@@ -157,6 +176,11 @@ namespace DarkDescent.UI
             _music.onValueChanged.RemoveListener(HandleVolume);
             _sfx.onValueChanged.RemoveListener(HandleVolume);
             _labels.onValueChanged.RemoveListener(HandleLabels);
+            if (_retro != null)
+            {
+                _retro.onClick.RemoveListener(HandleRetro);
+            }
+
             _localizer.LanguageChanged -= RefreshLanguage;
             _subscribed = false;
         }
@@ -182,6 +206,15 @@ namespace DarkDescent.UI
             _groundLabels.SetAlwaysVisible(on);
         }
 
+        private void HandleRetro()
+        {
+            if (_retroFilter != null)
+            {
+                _retroFilter.Cycle();
+                RefreshLanguage();
+            }
+        }
+
         private void ApplyVolumes()
         {
             if (_mixer == null)
@@ -199,6 +232,10 @@ namespace DarkDescent.UI
             if (_localizer != null)
             {
                 _languageLabel.text = _localizer.Format(TextKeys.OptionsLanguage, _localizer.Get(TextKeys.LanguageName));
+                if (_retroLabel != null && _retroFilter != null)
+                {
+                    _retroLabel.text = _localizer.Format(TextKeys.OptionsRetro, _localizer.Get(RetroModes.NameKey(_retroFilter.Mode)));
+                }
             }
         }
     }

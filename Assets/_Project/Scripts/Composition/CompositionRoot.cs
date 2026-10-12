@@ -115,6 +115,9 @@ namespace DarkDescent.Core
         [Tooltip("I portali della pergamena del ritorno (D6 della M10).")]
         [SerializeField] private Town.TownPortals _portals;
 
+        [Tooltip("Il filtro retrò, regolato dalle opzioni (D2 della M11).")]
+        [SerializeField] private Rendering.RetroFilter _retroFilter;
+
         [Tooltip("Ricorda i livelli lasciati e li rimette com'erano (10.9 della M10).")]
         [SerializeField] private LevelRecorder _levelRecorder;
 
@@ -287,7 +290,7 @@ namespace DarkDescent.Core
             _pointsButton.Bind(_progress.Progress, _characterPanel);
             _shopPanel.Bind(_shop, inventory, _inventoryPanel, _localizer);
             _groundLabels.Bind(_reader, _player.GetComponent<PlayerController>(), _localizer);
-            _optionsPanel.Bind(_localizer, _groundLabels);
+            _optionsPanel.Bind(_localizer, _groundLabels, _retroFilter);
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _cameraRotation = _playerCamera.GetComponent<Rendering.CameraRotation>();

@@ -44,6 +44,7 @@ namespace DarkDescent.Tests
             PlayerPrefs.DeleteKey(UI.OptionsPanel.MusicPreference);
             PlayerPrefs.DeleteKey(UI.OptionsPanel.SfxPreference);
             PlayerPrefs.DeleteKey(UI.OptionsPanel.LabelsPreference);
+            PlayerPrefs.DeleteKey(Rendering.RetroFilter.Preference);
         }
 
         protected IEnumerator LoadSandbox(bool allSkeletons = false)

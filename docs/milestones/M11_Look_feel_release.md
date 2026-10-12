@@ -87,6 +87,41 @@ con il profilo del tileset, e così i colori cambiano con il livello senza un Vo
 grana leggera, bilanciamento del bianco e colore; la cripta fredda, le caverne verdastre,
 l'accampamento caldo, e le caverne con un profilo loro. `CaveDescentTests`: il Volume delle caverne
 usa il loro profilo. 292 EditMode verdi.
+
+## Passo 11.2 — Filtro retrò
+
+**Com'è andata (12 ott 2026).**
+
+- **Il passo a tutto schermo** è una *Full Screen Pass Renderer Feature* di URP sui due renderer
+  (PC e Mobile), dopo il post-processing: legge l'immagine e la riscrive. L'interfaccia è disegnata
+  dopo, in overlay, e resta nitida.
+- **Lo shader** (`Art/Shaders/Retro.shader`) è scritto a mano in HLSL e non in Shader Graph come
+  diceva la D2. Il calcolo è un ciclo su 32 colori con una distanza pesata, che in Shader Graph
+  sarebbe stato un nodo *Custom Function* con lo stesso codice dentro, e un grafo non si scrive
+  bene da uno script. Per ogni pixel: l'immagine passa in sRGB, si sposta della soglia di Bayer 4 × 4
+  del suo pixel sullo schermo (il motivo non segue il mondo, quindi resta fermo quando la camera si
+  muove o gira) e va al colore più vicino della palette; poi si mescola con l'originale secondo la
+  forza.
+- **La palette** (`Data/RetroPalette.asset`, `RetroPalette`) ha 32 colori: dieci grigi dal nero al
+  bianco caldo, bruni e aranci per fuochi e oro, rosso, blu freddi, verdi delle caverne, due viola. Nel
+  primo giro il fuoco dell'accampamento sfumava in un anello rosso scuro: due rossi scuri sono
+  diventati bruni caldi, e ora la luce scende per aranci e bruni.
+- **`RetroFilter`** in Core regola lo shader con proprietà globali (palette, forza, dithering), così
+  nessun asset cambia giocando e fuori dal gioco l'immagine resta com'è. *Spento* lascia passare
+  l'immagine; *leggero*, la scelta di partenza, mescola al 60% con metà dithering; *pieno* porta tutto
+  alla palette. Senza palette resta spento invece di annerire tutto.
+- **Nelle opzioni** un pulsante *Filtro retrò: leggero* gira le tre scelte e le ricorda tra le
+  preferenze; il riquadro è cresciuto di una riga.
+- *Trappola ritrovata* (la stessa del 10.5): lo script dell'editor creava la palette e poi apriva la
+  scena Core, e il riferimento alla palette restava vuoto: il primo screenshot del filtro pieno era tutto
+  nero. Ricollegata dopo l'apertura.
+
+*Test.* `RetroFilterTests` (3, EditMode): la palette ha 32 colori diversi con il nero, e il più vicino a
+un grigio è un grigio; le scelte girano, un valore sbagliato vale leggero, i nomi ci sono nelle due
+lingue; i due renderer hanno il passo acceso, con il materiale, dopo il post-processing.
+`RetroFilterPlayModeTests` (2): con il filtro pieno ogni pixel della cripta è un colore della palette,
+spento l'immagine ne ha molti di più, e si parte da leggero; il pulsante delle opzioni gira le scelte,
+lo dice e le ricorda dopo aver riaperto il gioco. 295 EditMode e 194 PlayMode verdi.
 ---
 
 ## Trappole note

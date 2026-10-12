@@ -54,6 +54,10 @@ namespace DarkDescent.Localization
         public const string ConfirmOverwrite = "confirm.overwrite";
         public const string ConfirmDelete = "confirm.delete";
         public const string OptionsLanguage = "options.language";
+        public const string OptionsRetro = "options.retro";
+        public const string RetroOff = "retro.off";
+        public const string RetroLight = "retro.light";
+        public const string RetroFull = "retro.full";
         public const string LanguageName = "language.name";
         public const string LevelTown = "level.town";
 
