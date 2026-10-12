@@ -68,7 +68,9 @@ namespace DarkDescent.Levels
             }
 
             // il contenuto con lo stesso generatore di numeri, dopo la forma: stessa caverna, stesso contenuto
-            new CavePopulator(_settings).Populate(layout, depth, _random);
+            var populator = new CavePopulator(_settings);
+            populator.Populate(layout, depth, _random);
+            populator.Decorate(layout, new SplitMix64Source(SeedMixer.ForDecor(seed)));
             return layout;
         }
 

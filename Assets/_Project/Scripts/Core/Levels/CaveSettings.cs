@@ -38,6 +38,12 @@ namespace DarkDescent.Levels
         [Tooltip("Un mucchio di sassi, una colonna o un tavolo rotto ogni tante celle di pavimento.")]
         [SerializeField, Min(4)] private int _floorPerProp = 30;
 
+        [Tooltip("Una composizione degli arredi ogni tante celle di pavimento (D4 della M11). Zero: nessun arredo.")]
+        [SerializeField, Min(0)] private int _floorPerDecor = 20;
+
+        [Tooltip("Tra due composizioni almeno tante celle, in ogni direzione.")]
+        [SerializeField, Min(1)] private int _decorSpacing = 3;
+
         [Tooltip("Nessuno scheletro e nessuna cassa a meno di tanti passi dall'ingresso.")]
         [SerializeField, Min(1)] private int _quietSteps = 6;
 
@@ -69,6 +75,10 @@ namespace DarkDescent.Levels
         public int FloorPerProp => _floorPerProp;
 
         public int QuietSteps => _quietSteps;
+
+        public int FloorPerDecor => _floorPerDecor;
+
+        public int DecorSpacing => _decorSpacing;
 
         public float FloorFraction => _floorFraction;
 

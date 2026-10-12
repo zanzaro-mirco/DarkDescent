@@ -36,6 +36,23 @@ namespace DarkDescent.Levels
                 || symbol == BossSymbol;
         }
 
+        /// <summary>
+        /// I temi degli arredi delle caverne (D4 della M11): cristalli, ossa, frane. Tre composizioni
+        /// per tema, una zona della caverna per tema.
+        /// </summary>
+        public static readonly string[] DecorThemes = { "ACH", "IJM", "PQX" };
+
+        private const string DecorSymbols = "ACHIJMPQX";
+
+        /// <summary>Le zone dei temi: quadrati di tante celle di lato, dall'angolo della mappa.</summary>
+        public const int DecorZone = 7;
+
+        /// <summary>Una composizione degli arredi delle caverne.</summary>
+        public static bool IsDecor(char symbol)
+        {
+            return DecorSymbols.IndexOf(symbol) >= 0;
+        }
+
         private const string PropSymbols = "bxp";
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
@@ -49,22 +66,10 @@ namespace DarkDescent.Levels
 
         public void Populate(DungeonLayout layout, int depth, IRandomSource random)
         {
-            // come nella cripta: davanti e ai lati della scala, e attorno al cavaliere, niente
-            var reserved = new HashSet<Vector2Int>
-            {
-                layout.Stairs + Vector2Int.up, layout.Stairs + Vector2Int.left, layout.Stairs + Vector2Int.right,
-            };
-            for (int dy = -1; dy <= 1; dy++)
-            {
-                for (int dx = -1; dx <= 1; dx++)
-                {
-                    reserved.Add(layout.Entrance + new Vector2Int(dx, dy));
-                }
-            }
-
+            var reserved = Reserved(layout);
             if (layout.HasBossRoom)
             {
-                PlaceBossRoom(layout, reserved);
+                PlaceBossRoom(layout);
             }
 
             int[,] steps = Distances(layout);
@@ -101,18 +106,9 @@ namespace DarkDescent.Levels
 
         // La sala del boss resta sua (D8 della M10): il boss al centro, la porta, una candela per angolo;
         // niente altro dentro né sulla soglia, dove la porta deve potersi chiudere.
-        private static void PlaceBossRoom(DungeonLayout layout, HashSet<Vector2Int> reserved)
+        private static void PlaceBossRoom(DungeonLayout layout)
         {
-            const int Ring = CaveGenerator.BossRoomHalf + 1;
             var center = layout.BossCell;
-            for (int dy = -Ring - 1; dy <= Ring + 1; dy++)
-            {
-                for (int dx = -Ring - 1; dx <= Ring + 1; dx++)
-                {
-                    reserved.Add(center + new Vector2Int(dx, dy));
-                }
-            }
-
             layout.TryPlace(BossSymbol, center.x, center.y);
             int half = CaveGenerator.BossRoomHalf;
             foreach (var corner in new[] { new Vector2Int(-half, -half), new Vector2Int(half, -half), new Vector2Int(-half, half), new Vector2Int(half, half) })
@@ -124,11 +120,138 @@ namespace DarkDescent.Levels
             if (gate.x >= 0)
             {
                 layout.TryPlace(GateSymbol, gate.x, gate.y);
-                foreach (var step in Steps)
+            }
+        }
+
+        // Come nella cripta: davanti e ai lati della scala, e attorno al cavaliere, niente. La sala del
+        // boss resta sua, con un giro di celle attorno, e oltre la porta si deve poter passare.
+        private static HashSet<Vector2Int> Reserved(DungeonLayout layout)
+        {
+            var reserved = new HashSet<Vector2Int>
+            {
+                layout.Stairs + Vector2Int.up, layout.Stairs + Vector2Int.left, layout.Stairs + Vector2Int.right,
+            };
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                for (int dx = -1; dx <= 1; dx++)
                 {
-                    reserved.Add(gate + step + step);
+                    reserved.Add(layout.Entrance + new Vector2Int(dx, dy));
                 }
             }
+
+            if (layout.HasBossRoom)
+            {
+                const int Ring = CaveGenerator.BossRoomHalf + 1;
+                for (int dy = -Ring - 1; dy <= Ring + 1; dy++)
+                {
+                    for (int dx = -Ring - 1; dx <= Ring + 1; dx++)
+                    {
+                        reserved.Add(layout.BossCell + new Vector2Int(dx, dy));
+                    }
+                }
+
+                var gate = layout.GateCell;
+                if (gate.x >= 0)
+                {
+                    foreach (var step in Steps)
+                    {
+                        reserved.Add(gate + step + step);
+                    }
+                }
+            }
+
+            return reserved;
+        }
+
+        /// <summary>
+        /// Gli arredi (D4 della M11), dopo tutto il resto e con un flusso suo del seme: mappa, nemici e
+        /// casse dei semi già provati non cambiano. La caverna è divisa in zone quadrate con un tema
+        /// ciascuna; le composizioni stanno contro la roccia, lontane tra loro, mai in un cunicolo, mai
+        /// accanto a una cassa o alla scala, e se chiudono il cammino si tolgono.
+        /// </summary>
+        public void Decorate(DungeonLayout layout, IRandomSource random)
+        {
+            if (_settings.FloorPerDecor <= 0)
+            {
+                return;
+            }
+
+            int zonesX = (layout.Width + DecorZone - 1) / DecorZone;
+            int zonesY = (layout.Height + DecorZone - 1) / DecorZone;
+            var themes = new string[zonesX, zonesY];
+            for (int y = 0; y < zonesY; y++)
+            {
+                for (int x = 0; x < zonesX; x++)
+                {
+                    themes[x, y] = DecorThemes[Range(random, 0, DecorThemes.Length - 1)];
+                }
+            }
+
+            var reserved = Reserved(layout);
+            var candidates = new List<Vector2Int>();
+            int floorCount = 0;
+            for (int y = 0; y < layout.Height; y++)
+            {
+                for (int x = 0; x < layout.Width; x++)
+                {
+                    var cell = new Vector2Int(x, y);
+                    if (layout.IsFloor(x, y))
+                    {
+                        floorCount++;
+                    }
+
+                    if (layout[x, y] == LevelMap.Floor && RockBeside(layout, cell) > 0 && !reserved.Contains(cell)
+                        && !IsPassage(layout, cell) && !NextToKeep(layout, cell))
+                    {
+                        candidates.Add(cell);
+                    }
+                }
+            }
+
+            int wanted = floorCount / _settings.FloorPerDecor;
+            var placed = new List<Vector2Int>();
+            foreach (var cell in Shuffled(candidates, random))
+            {
+                if (placed.Count >= wanted)
+                {
+                    break;
+                }
+
+                if (placed.Exists(p => Chebyshev(p, cell) < _settings.DecorSpacing))
+                {
+                    continue;
+                }
+
+                string theme = themes[cell.x / DecorZone, cell.y / DecorZone];
+                if (!layout.TryPlace(theme[Range(random, 0, theme.Length - 1)], cell.x, cell.y))
+                {
+                    continue;
+                }
+
+                if (IsConnected(layout))
+                {
+                    placed.Add(cell);
+                }
+                else
+                {
+                    layout.Remove(cell.x, cell.y);
+                }
+            }
+        }
+
+        // accanto a una cassa, alla scala o alla porta del boss: lì il cavaliere deve poter arrivare
+        private static bool NextToKeep(DungeonLayout layout, Vector2Int cell)
+        {
+            foreach (var step in Steps)
+            {
+                char c = layout[cell.x + step.x, cell.y + step.y];
+                if (c == DungeonPopulator.ChestSymbol || c == DungeonGenerator.StairsSymbol || c == GateSymbol)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // Una ogni FloorPerCandle celle, ognuna ad almeno CandleSpacing celle dalle altre: la luce si sparge.

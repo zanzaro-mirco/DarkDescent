@@ -41,6 +41,8 @@ MonoBehaviour:
   _floorPerCandle: 14
   _candleSpacing: 3
   _floorPerProp: 30
+  _floorPerDecor: 20
+  _decorSpacing: 3
   _quietSteps: 6
   _spawnTable:
     _rows:

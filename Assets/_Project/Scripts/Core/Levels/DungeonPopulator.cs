@@ -43,7 +43,7 @@ namespace DarkDescent.Levels
         /// <summary>Un simbolo che il cavaliere non attraversa: casse e oggetti di scena.</summary>
         public static bool IsObstacle(char symbol)
         {
-            return symbol == ChestSymbol || PropSymbols.IndexOf(symbol) >= 0 || IsDecor(symbol);
+            return symbol == ChestSymbol || PropSymbols.IndexOf(symbol) >= 0 || IsDecor(symbol) || CavePopulator.IsDecor(symbol);
         }
 
         /// <summary>Una composizione di mobili degli arredi della M11.</summary>

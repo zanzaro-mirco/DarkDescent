@@ -155,6 +155,53 @@ lo dice e le ricorda dopo aver riaperto il gioco. 295 EditMode e 194 PlayMode ve
 a quella generata senza; ogni stanza ha un tema solo, le composizioni stanno sul bordo e sono almeno
 una ogni due stanze; ogni composizione ha il prefab nel tileset, sta nella sua cella e sopra il
 pavimento, con i collider sul layer degli ostacoli e il materiale del dungeon. 298 EditMode e 194 PlayMode verdi (due giri completi).
+
+## Passo 11.4 — Caverne arredate
+
+**Com'è andata (12 ott 2026).**
+
+- **Nove composizioni, tre temi**: **cristalli** (gruppi di cristalli azzurri alti fino a 2,5 m, uno
+  tra le macerie), **ossa** (teschi e ossa sparse, uno scudo con le spade spezzate accanto a un baule,
+  candele consumate), **frane** (macerie grandi e mezze, un barile rovesciato). Come nella cripta, il
+  retro contro la roccia e il davanti verso il pavimento, con i collider sul layer degli ostacoli solo
+  per i pezzi grossi: ossa, teschi piccoli e candele si scavalcano.
+- **I modelli.** Il pacchetto *Dungeon* non ha né funghi né cristalli né ossa: cristalli, teschi e
+  ossa vengono dall'*Ultimate RPG Items Pack* di Quaternius (CC0, lo stesso di anello, guanto e
+  pergamena), estratto dallo zip già in Downloads. Nove modelli, importati senza materiali; hanno
+  l'origine al centro e sono lunghi pochi millimetri con una scala di 100 nel file, quindi le
+  composizioni li appoggiano a terra misurandone i contorni. Due materiali nuovi: `M_CaveCrystal`
+  (azzurro con un'emissione leggera: i cristalli si vedono anche fuori dalla luce del cavaliere) e
+  `M_Bone`. **I funghi della D4 non ci sono**: nessuno dei pacchetti scaricati li ha, e uno nuovo
+  vorrebbe un download.
+- **Nel popolatore** (`CavePopulator.Decorate`): le caverne non hanno stanze, così il tema va per
+  **zone** di 7 × 7 celle, scelto dal seme; una composizione ogni 20 celle di pavimento
+  (`CaveSettings.FloorPerDecor`), ad almeno 3 celle l'una dall'altra (`DecorSpacing`), contro la
+  roccia, mai in un cunicolo, mai accanto a casse, scala o porta del boss, mai nella sala del boss; se
+  una composizione chiude il cammino si toglie. Le celle riservate (scala, ingresso, sala del boss)
+  sono passate in `Reserved`, condiviso con `Populate`. Stesso flusso del seme degli arredi della
+  cripta (`SeedMixer.ForDecor`), dopo tutto il resto: nemici, casse, candele e boss non cambiano.
+- **Simboli**: `ACH` (cristalli), `IJM` (ossa), `PQX` (frane), maiuscole che non usano né la cripta
+  né le caverne; contano come ostacoli (`DungeonPopulator.IsObstacle`), anche per l'automappa.
+- **Misure.** Tra 10 e 14 composizioni per caverna, 12,6 in media su 400 caverne. Generazione,
+  costruzione e NavMesh fanno 25–31 ms per caverna, sotto i 50 ms della D4.
+
+**Fuori passo: la CI rossa dall'11.2.** `RetroFilterPlayModeTests.Full_UsesOnlyThePalette` passava in
+locale (anche con OpenGL forzato) e falliva in CI con 53 576 pixel su 57 600 fuori palette. La prima
+ipotesi era la scrittura in una texture sRGB senza conversione: il test ora legge da una texture float
+lineare e converte da sé (`4dbf005`), ma la CI è rimasta rossa. Il messaggio nuovo ha detto il resto:
+la CI disegna con **llvmpipe** (OpenGL in software, Mesa) e i pixel sono quelli grezzi della cripta,
+(2, 2, 3) e simili: lì il passo a tutto schermo non si vede proprio nell'immagine. Sulle schede vere,
+D3D11 e OpenGL, il controllo passa, e il gioco esce per Windows (D9): su llvmpipe la parte dei pixel
+del test si ignora, con nel motivo quello che serve a capire il perché (shader supportato, forza
+globale); tutto il resto del test vale ovunque.
+
+*Test.* `CaveDecorTests` (4, EditMode): su 400 caverne (profondità 5–8, sala del boss compresa), tolti
+gli arredi la caverna è uguale cella per cella a quella generata senza; almeno 6 composizioni, contro
+la roccia, mai in un cunicolo, mai accanto a casse, scala o porta, lontane tra loro e fuori dalla sala
+del boss, una zona un tema, e dall'ingresso si arriva a ogni cella e a ogni cassa; ogni composizione
+ha il prefab nel tileset delle caverne, dentro la cella e sopra il pavimento, con i materiali delle
+caverne; i simboli non sono già usati. 302 EditMode e 194 PlayMode verdi (due giri completi).
+
 ---
 
 ## Trappole note
@@ -171,7 +218,10 @@ pavimento, con i collider sul layer degli ostacoli e il materiale del dungeon. 2
    ritroverebbe nemici sbagliati: il controllo dei conteggi li farebbe ripartire nuovi.
 5. **Un tiro in più nel popolatore cambia i livelli di tutti i semi** (trappola 10 della M7): gli arredi
    prendono un flusso suo del seme, come l'oro e il mercante.
-6. **butler non deve mai stampare la chiave**, e i job delle pull request da fork non la ricevono.
+6. **Il rendering software della CI non è una scheda vera**: con llvmpipe il passo a tutto schermo
+   del filtro retrò non arriva nell'immagine. Un test che legge i pixel va provato anche con
+   `-force-glcore`, e se passa ovunque tranne che in CI si ignora lì, dicendo perché.
+7. **butler non deve mai stampare la chiave**, e i job delle pull request da fork non la ricevono.
 
 ---
 
@@ -186,7 +236,7 @@ Da scrivere passo per passo.
 - [x] Decisioni D1–D11 confermate
 - [ ] Correzioni dalla prova della M10
 - [ ] Shader retro e post-processing
-- [ ] Cripta e caverne arredate
+- [x] Cripta e caverne arredate
 - [ ] Audio rifinito
 - [ ] Profiling in build
 - [ ] Test verdi in CI
