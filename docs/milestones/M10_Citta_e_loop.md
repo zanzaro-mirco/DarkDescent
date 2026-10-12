@@ -402,6 +402,15 @@ profondità 8 dopo la vittoria c'è il portale. 287 EditMode e 191 PlayMode verd
 
 ---
 
+## Passo 10.9 — Build da provare e correzioni
+
+Build della CI del 12 ott 2026 (run 38219581157), provata da Mirco. Correzioni:
+
+- **L'oro nell'inventario** sta al centro della finestra, sotto gli anelli, invece che allineato a
+  destra.
+
+---
+
 ## Trappole note
 
 1. **Il menu cambia l'avvio di tutti i test:** oggi i test caricano `Core` e trovano la partita
