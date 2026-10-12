@@ -34,7 +34,7 @@ la sua chiave e la revisione degli ADR. Dopo la prima build da provare c'è un p
 
 ## Decisioni
 
-Confermate da Mirco il 12 ottobre 2026: tutte come proposte.
+Confermate da Mirco il 12 ottobre 2026: tutte come proposte, tranne la D8 (tutti i diritti riservati invece della MIT) e la D9 (prima una beta ristretta).
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
