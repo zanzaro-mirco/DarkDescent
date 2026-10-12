@@ -88,6 +88,12 @@ namespace DarkDescent.Levels
 
         public int LastDepth => _lastDepth;
 
+        /// <summary>Vero se le profondità di questa scena comprendono <paramref name="depth"/>: il portale della città ci riporta.</summary>
+        public bool Covers(int depth)
+        {
+            return depth >= _firstDepth && depth <= _lastDepth;
+        }
+
         public string NextScene => _nextScene;
 
         public int MinGroup => _minGroup;

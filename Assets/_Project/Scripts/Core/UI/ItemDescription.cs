@@ -99,6 +99,11 @@ namespace DarkDescent.UI
                     builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipDrink)).Append("</color></size>");
                     break;
 
+                case ReturnScrollDefinition _:
+                    builder.Append('\n').Append(localizer.Get(TextKeys.TooltipReturn));
+                    builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipRead)).Append("</color></size>");
+                    break;
+
                 case ScrollDefinition scroll when scroll.Spell != null:
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipTeaches), localizer.Get(scroll.Spell.NameKey));
                     builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipRead)).Append("</color></size>");

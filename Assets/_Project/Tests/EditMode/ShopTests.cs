@@ -41,10 +41,10 @@ namespace DarkDescent.Tests
             return shop;
         }
 
-        [Test, Description("La tabella: pozioni di cura e di mana sempre in vendita, otto oggetti dalle basi delle casse")]
+        [Test, Description("La tabella: pozioni di cura e di mana e pergamena del ritorno sempre in vendita, otto oggetti dalle basi delle casse")]
         public void Table_HasPotionsAndEightItems()
         {
-            CollectionAssert.AreEqual(new[] { "HealingPotion", "ManaPotion" }, Table.Supplies.Select(s => s.name).ToArray());
+            CollectionAssert.AreEqual(new[] { "HealingPotion", "ManaPotion", "ReturnScroll" }, Table.Supplies.Select(s => s.name).ToArray());
             Assert.AreEqual(8, Table.StockSize);
             Assert.IsTrue(Table.Stock.All(e => e.Item != null && e.Item.Slot != EquipSlot.None), "solo equipaggiamento");
         }
@@ -81,7 +81,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(100 - price, inventory.Gold);
             Assert.AreEqual(1, inventory.Belt.Count);
             Assert.AreEqual("HealingPotion", shop.ItemAt(0).Definition.name, "le provviste non finiscono");
-            Assert.AreEqual(10, shop.Count);
+            Assert.AreEqual(11, shop.Count);
         }
 
         [Test, Description("Un oggetto comprato va nella borsa e sparisce dal banco")]
@@ -89,16 +89,16 @@ namespace DarkDescent.Tests
         {
             var shop = Stocked();
             var inventory = NewInventory(100000);
-            var item = shop.ItemAt(2);
+            var item = shop.ItemAt(3);
             int price = ItemPricing.Price(item);
             int changes = 0;
             shop.Changed += () => changes++;
 
-            Assert.AreEqual(TradeResult.Done, shop.Buy(inventory, 2));
+            Assert.AreEqual(TradeResult.Done, shop.Buy(inventory, 3));
             Assert.AreEqual(100000 - price, inventory.Gold);
             Assert.IsTrue(inventory.Grid.TryGetPlacement(item, out _));
-            Assert.AreEqual(9, shop.Count);
-            Assert.AreNotSame(item, shop.ItemAt(2));
+            Assert.AreEqual(10, shop.Count);
+            Assert.AreNotSame(item, shop.ItemAt(3));
             Assert.AreEqual(1, changes);
         }
 
@@ -107,18 +107,18 @@ namespace DarkDescent.Tests
         {
             var shop = Stocked();
             var poor = NewInventory(5);
-            Assert.AreEqual(TradeResult.NotEnoughGold, shop.Buy(poor, 2));
+            Assert.AreEqual(TradeResult.NotEnoughGold, shop.Buy(poor, 3));
             Assert.AreEqual(5, poor.Gold);
-            Assert.AreEqual(10, shop.Count);
+            Assert.AreEqual(11, shop.Count);
 
             var full = NewInventory(100000);
             while (full.Grid.TryAutoPlace(new ItemInstance(Item("Ring"))))
             {
             }
 
-            Assert.AreEqual(TradeResult.NoRoom, shop.Buy(full, 2));
+            Assert.AreEqual(TradeResult.NoRoom, shop.Buy(full, 3));
             Assert.AreEqual(100000, full.Gold);
-            Assert.AreEqual(10, shop.Count);
+            Assert.AreEqual(11, shop.Count);
             Assert.AreEqual(TradeResult.Nothing, shop.Buy(full, 50));
         }
 

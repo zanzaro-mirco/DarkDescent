@@ -34,6 +34,7 @@ namespace DarkDescent.Localization
         public const string TooltipRestoreMana = "tooltip.restore_mana";
         public const string TooltipTeaches = "tooltip.teaches";
         public const string TooltipRead = "tooltip.read";
+        public const string TooltipReturn = "tooltip.return";
         public const string TooltipEquip = "tooltip.equip";
 
         // l'oro (D4 della M10): la pila a terra e il totale nell'inventario
@@ -65,6 +66,10 @@ namespace DarkDescent.Localization
         public const string ShopNoGold = "shop.no_gold";
         public const string ShopNoRoom = "shop.no_room";
         public const string ShopHelp = "shop.help";
+
+        // i portali della pergamena del ritorno (D6 della M10)
+        public const string PortalToTown = "portal.to_town";
+        public const string PortalToDepth = "portal.to_depth";
 
         // le spiegazioni delle righe del pannello del personaggio (D16 della M6), con i titoli dalle sue righe
         public const string StatNames = "hud.stat_names";

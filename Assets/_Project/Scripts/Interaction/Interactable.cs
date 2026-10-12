@@ -64,6 +64,14 @@ namespace DarkDescent.Interaction
             _labelArgument = labelArgument;
         }
 
+        /// <summary>Un nome nuovo da chiave e segnaposto, anche ad acceso, come la meta di un portale: chi lo mostra lo rilegge.</summary>
+        public void SetLabel(string labelKey, string labelArgument)
+        {
+            _labelKey = labelKey;
+            _labelArgument = labelArgument;
+            NotifyLabelChanged();
+        }
+
         /// <summary>Un nome composto dal codice, come quello di un oggetto a terra, al posto della chiave.</summary>
         public void SetLabelSource(ILabelSource source)
         {

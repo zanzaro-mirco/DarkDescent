@@ -49,6 +49,14 @@ namespace DarkDescent.Core
             return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ GoldDomain);
         }
 
+        // "RETURN" in ASCII: la pergamena del ritorno di un nemico o di una cassa (D6 della M10)
+        private const ulong ReturnDomain = 0x52455455524EUL;
+
+        public static ulong ForReturnScroll(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ ReturnDomain);
+        }
+
         // "SHOP": l'assortimento del mercante, a una profondità e a un ritorno in città (D5 della M10)
         private const ulong ShopDomain = 0x53484F50UL;
 

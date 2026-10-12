@@ -15,6 +15,7 @@ MonoBehaviour:
   _supplies:
   - {fileID: 11400000, guid: c94daa5854b2b2f48851de7b3d27463c, type: 2}
   - {fileID: 11400000, guid: 7048aa0bfc559234bb73fa16ec0def3e, type: 2}
+  - {fileID: 11400000, guid: bf49831be2e81f545b7090f182399e97, type: 2}
   _stock:
   - _item: {fileID: 11400000, guid: 02b6800f1674534418a06c4cbe658b3b, type: 2}
     _weight: 1

@@ -27,6 +27,12 @@ namespace DarkDescent.Levels
         /// <summary>Quanto è costato l'ultimo livello, in millisecondi: generazione, costruzione, NavMesh (D4).</summary>
         public (long generate, long build, long bake) Timings { get; private set; }
 
+        /// <summary>L'ingresso da cui si entra in un livello generato senza scale: quello della profondità 1 o quello in cima.</summary>
+        public static string EntranceAt(int depth)
+        {
+            return depth == 1 ? FirstEntrance : EntranceFromAbove;
+        }
+
         /// <summary>
         /// La mappa del livello di una partita a una profondità, con le direttive: la stessa che il gioco
         /// costruisce. La usa anche la finestra del generatore nell'editor, per vedere il livello di un seme.
@@ -37,7 +43,7 @@ namespace DarkDescent.Levels
             var directives = new Dictionary<string, string[]>
             {
                 ["depth"] = new[] { depth.ToString() },
-                ["entrance"] = new[] { depth == 1 ? FirstEntrance : EntranceFromAbove },
+                ["entrance"] = new[] { EntranceAt(depth) },
             };
 
             // Prima dell'ultima profondità la scala riporta in questa scena, all'ultima porta alla scena

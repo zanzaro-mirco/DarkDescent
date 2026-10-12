@@ -297,6 +297,40 @@ mercante si apre il banco con dieci cose e i prezzi; comprare vuole l'oro; il cl
 dalla borsa; il banco si chiude in quattro modi e chiuso la borsa non vende più. 269
 EditMode e 184 PlayMode verdi.
 
+## Passo 10.6 — Pergamena del ritorno e portali
+
+**Com'è andata (12 ott 2026).**
+
+- **La pergamena del ritorno** è una definizione sua (`ReturnScrollDefinition`), 1 × 2 come le altre,
+  con il modello della pergamena di Quaternius e un sigillo blu. Si legge con il click destro
+  nell'inventario: nel dungeon apre un portale e sparisce, in città non fa niente e resta. Se ne
+  comincia con una nell'ultima colonna dello zaino; il mercante la vende tra le provviste a 28 oro;
+  cade raramente con un tiro suo (`SeedMixer.ForReturnScroll`, dominio "RETURN"), quindi il loot dei
+  semi provati non cambia: 6% dalle casse, 3% da bruti e maghi, 2% dagli scheletri, 1% dallo sciame.
+  A terra cade in diagonale, tra la pergamena dell'incantesimo e l'oro.
+- **Il portale** è un ovale azzurro che gira, con una luce, scintille che salgono e un ronzio in loop;
+  cresce in 0,6 s con il suono dell'apertura e guarda sempre la camera, anche quando la camera gira.
+  Si apre 2,5 m davanti al cavaliere, o prima del muro, o di lato se davanti non c'è spazio; uno solo
+  per volta: una seconda pergamena lo sposta. Sopra c'è scritto *Portale per l'accampamento*.
+- **In città** si arriva sul nuovo ingresso `Portal`, il simbolo `P` della mappa, tre celle a ovest
+  dell'ingresso iniziale, e il portale del ritorno aspetta due metri dietro il cavaliere: *Portale per
+  il livello 3*. Riattraversato, riporta all'ingresso di quella profondità (rigenerata dal seme,
+  ADR-061; la scena dalla cripta o dalle caverne secondo la profondità) e si chiude.
+- **Il salvataggio** scrive finalmente la profondità del portale (`portalDepth`, già nel formato 4):
+  chiusa la partita in città con il portale aperto, *Continua* lo ritrova. Il portale aperto nel
+  dungeon non si salva: si riprende comunque dall'ingresso del livello.
+- Tutto in `TownPortals`, accanto al gestore dei livelli in Core, che l'inventario conosce solo come
+  `IPortalOpener`; il portale è `Portal`, con l'`Interactable` di sempre. Tre suoni sintetizzati in
+  Python (apertura, ronzio, viaggio) e la texture del vortice generata dall'editor.
+
+*Test.* `ReturnScrollTests` (4, EditMode): la pergamena (dimensioni, database, provviste, prezzo,
+tooltip nelle due lingue); cade raramente, più dalle casse, con un seme suo; le profondità e le loro
+scene e ingressi; l'arrivo `P` accanto all'ingresso della città. `PortalTests` (3, PlayMode): la
+pergamena di partenza non si legge in città e nel dungeon apre un portale sul NavMesh, uno solo per
+volta; il portale porta in città, dove aspetta quello del ritorno e il salvataggio lo ricorda, e
+riattraversato riporta alla profondità 1 e si chiude; con il portale aperto, *Continua* lo ritrova.
+I test del mercante contano una provvista in più. 273 EditMode e 187 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -342,7 +376,7 @@ EditMode e 184 PlayMode verdi.
 - [x] Rifiniture della prova della M9
 - [x] Oro, prezzi e formato 4
 - [x] Menu, tre salvataggi, pausa e opzioni
-- [ ] Città, mercante, pergamena del ritorno
+- [x] Città, mercante, pergamena del ritorno
 - [ ] Boss e vittoria
 - [ ] Build della CI provata su un altro PC
 - [ ] Test verdi in CI

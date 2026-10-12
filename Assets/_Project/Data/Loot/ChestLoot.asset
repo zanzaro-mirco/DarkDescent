@@ -60,3 +60,5 @@ MonoBehaviour:
   _goldChance: 1
   _goldRange: {x: 15, y: 35}
   _goldPerDepth: 0.35
+  _returnScroll: {fileID: 11400000, guid: bf49831be2e81f545b7090f182399e97, type: 2}
+  _returnScrollChance: 0.06

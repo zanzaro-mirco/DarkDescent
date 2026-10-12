@@ -6,6 +6,7 @@ using DarkDescent.Levels;
 using DarkDescent.Magic;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
+using DarkDescent.Town;
 using UnityEngine;
 
 namespace DarkDescent.Save
@@ -45,6 +46,7 @@ namespace DarkDescent.Save
         private Health _health;
         private MeleeAttack _attack;
         private ExplorationTracker _exploration;
+        private TownPortals _portals;
         private string _path;
         private bool _forced;
         private bool _subscribed;
@@ -61,10 +63,12 @@ namespace DarkDescent.Save
         // Awake, che può arrivare prima di quello di questo componente
         public string FilePath => _path ??= ExternalPath() ?? Path.Combine(Application.persistentDataPath, _fileName);
 
-        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration, RunStats runStats)
+        /// <param name="portals">Facoltativo: senza, il salvataggio non ricorda il portale della città.</param>
+        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration, RunStats runStats, TownPortals portals = null)
         {
             Unsubscribe();
             _levelManager = levelManager;
+            _portals = portals;
             _runStats = runStats;
             _exploration = exploration;
             _inventory = player.GetComponent<PlayerInventory>();
@@ -115,7 +119,7 @@ namespace DarkDescent.Save
                 .WithInventory(InventorySnapshot.Capture(_inventory.Inventory))
                 .WithExplored(_exploration.Memory.Export())
                 .WithGold(_inventory.Inventory.Gold)
-                .WithTown(_levelManager.CurrentLevel.IsTown, 0)
+                .WithTown(_levelManager.CurrentLevel.IsTown, _portals != null ? _portals.PortalDepth : 0)
                 .WithStats(_runStats.PlayTime, _runStats.Kills, _runStats.Deaths, _runStats.GoldCollected, _runStats.BossDefeated);
 
             // da morto il mana torna pieno con la vita (Revived): si salva pieno
@@ -172,6 +176,11 @@ namespace DarkDescent.Save
             bool complete = data.Inventory.Restore(_inventory.Inventory, _items, _affixes);
             _inventory.Inventory.RestoreGold(data.Gold);
             _runStats.Restore(data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated);
+            if (_portals != null)
+            {
+                _portals.Restore(data.PortalDepth);
+            }
+
             _health.SetCurrent(data.Life);
 
             // dopo attributi, livello e oggetti: il mana massimo è già quello giusto

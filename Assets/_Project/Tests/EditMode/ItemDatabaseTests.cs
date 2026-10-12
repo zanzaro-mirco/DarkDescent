@@ -61,7 +61,7 @@ namespace DarkDescent.Tests
                 Assert.IsNotNull(item.Model, $"{item.name} senza modello");
                 Assert.GreaterOrEqual(item.Size.x, 1);
                 Assert.GreaterOrEqual(item.Size.y, 1);
-                Assert.IsTrue(item.Slot != EquipSlot.None || item is PotionDefinition || item is ScrollDefinition, $"{item.name}: ogni oggetto si equipaggia, si beve o si legge");
+                Assert.IsTrue(item.Slot != EquipSlot.None || item is PotionDefinition || item is ScrollDefinition || item is ReturnScrollDefinition, $"{item.name}: ogni oggetto si equipaggia, si beve o si legge");
             }
         }
 

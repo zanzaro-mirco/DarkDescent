@@ -112,6 +112,12 @@ namespace DarkDescent.Core
         [Tooltip("Le pergamene e quanto spesso un livello ne ha una (D5 della M9).")]
         [SerializeField] private ScrollTable _scrolls;
 
+        [Tooltip("I portali della pergamena del ritorno (D6 della M10).")]
+        [SerializeField] private Town.TownPortals _portals;
+
+        [Tooltip("La pergamena del ritorno con cui comincia ogni partita nuova.")]
+        [SerializeField] private ReturnScrollDefinition _returnScroll;
+
         [Tooltip("La scena della città, dove comincia ogni partita nuova (D3 della M10).")]
         [SerializeField] private string _townScene = "Town";
 
@@ -208,7 +214,9 @@ namespace DarkDescent.Core
             }
 
             // un salvataggio, se c'è, decide seme e livello (D10 della M8); -newgame e -seed lo ignorano
-            _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats);
+            _portals.Bind(_player.transform);
+            _player.GetComponent<PlayerInventory>().SetPortalOpener(_portals);
+            _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats, _portals);
             // il menu iniziale nelle build, e nell'editor solo se un test lo chiede (D2 della M10).
             // -newgame e -seed lo saltano e giocano senza salvare; un file scelto da fuori si riprende
             bool newGame = CommandLine.HasFlag(args, NewGameOption);
@@ -314,11 +322,18 @@ namespace DarkDescent.Core
             }
         }
 
-        // Una partita nuova comincia in città (D3 della M10). Senza menu e senza riga di comando, cioè
-        // nell'editor e nei test, si parte invece dalla cripta, come prima: i test cercano i nemici lì.
+        // Una partita nuova comincia in città (D3 della M10), con una pergamena del ritorno nell'ultima
+        // colonna dello zaino (D6). Senza menu e senza riga di comando, cioè nell'editor e nei test, si
+        // parte invece dalla cripta, come prima: i test cercano i nemici lì.
         private void StartInTown()
         {
             _levelManager.SetStartLevel(_townScene, TownEntrance, 0);
+            _portals.Restore(0);
+            var grid = _player.GetComponent<PlayerInventory>().Inventory.Grid;
+            if (_returnScroll != null)
+            {
+                grid.TryPlace(new ItemInstance(_returnScroll), new Vector2Int(grid.Width - 1, 0));
+            }
         }
 
         private static string SaveFolder()

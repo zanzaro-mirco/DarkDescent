@@ -41,6 +41,12 @@ namespace DarkDescent.Items
         [Tooltip("Quanto cresce l'oro a ogni profondità in più: 0,35 vuol dire +35% a livello.")]
         [SerializeField, Min(0f)] private float _goldPerDepth = 0.35f;
 
+        [Tooltip("La pergamena del ritorno che può lasciare, raramente (D6 della M10). Vuoto: niente.")]
+        [SerializeField] private ReturnScrollDefinition _returnScroll;
+
+        [Tooltip("Probabilità di lasciare la pergamena del ritorno, tra 0 e 1: 0,02 i nemici, 0,06 le casse.")]
+        [SerializeField, Range(0f, 1f)] private float _returnScrollChance;
+
         public float DropChance => _dropChance;
 
         public GoldDefinition Gold => _gold;
@@ -50,6 +56,10 @@ namespace DarkDescent.Items
         public Vector2Int GoldRange => _goldRange;
 
         public float GoldPerDepth => _goldPerDepth;
+
+        public ReturnScrollDefinition ReturnScroll => _returnScroll;
+
+        public float ReturnScrollChance => _returnScrollChance;
 
         public IReadOnlyList<LootEntry> Entries => _entries;
 
