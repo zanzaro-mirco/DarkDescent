@@ -50,6 +50,12 @@ namespace DarkDescent.Levels
 
         [SerializeField, Min(1)] private int _maxSwarm = 5;
 
+        [Tooltip("La profondità con la sala del boss in fondo alla caverna (D8 della M10). Zero: nessuna.")]
+        [SerializeField, Min(0)] private int _bossDepth;
+
+        /// <summary>La profondità con la sala del boss; 0 se non c'è.</summary>
+        public int BossDepth => _bossDepth;
+
         public SpawnTable SpawnTable => _spawnTable;
 
         public int MinSwarm => _minSwarm;

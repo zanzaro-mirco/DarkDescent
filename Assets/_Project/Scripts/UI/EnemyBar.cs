@@ -41,6 +41,7 @@ namespace DarkDescent.UI
             new Dictionary<Health, (Action<DamageInfo, float>, Action<DamageInfo>)>();
 
         private Health _hovered;
+        private Health _pinned;
         private Health _lastHit;
         private Coroutine _lastHitTimer;
         private WaitForSeconds _lastHitWait;
@@ -82,6 +83,25 @@ namespace DarkDescent.UI
             _tracked.Add(enemy, (damaged, evaded));
         }
 
+        /// <summary>
+        /// Tiene in alto un nemico finché non lo si lascia o muore: il boss, per tutto lo scontro (D8
+        /// della M10). Il nemico sotto il cursore passa comunque davanti.
+        /// </summary>
+        public void Pin(Health enemy)
+        {
+            _pinned = enemy;
+            Refresh();
+        }
+
+        public void Unpin()
+        {
+            _pinned = null;
+            Refresh();
+        }
+
+        /// <summary>Il nemico tenuto in alto, per i test; null se nessuno.</summary>
+        public Health Pinned => _pinned;
+
         /// <summary>Lascia un nemico: il livello se ne va, anche con i nemici già distrutti.</summary>
         public void Untrack(Health enemy)
         {
@@ -94,6 +114,11 @@ namespace DarkDescent.UI
             enemy.Damaged -= handlers.damaged;
             enemy.Evaded -= handlers.evaded;
             _tracked.Remove(enemy);
+            if (ReferenceEquals(_pinned, enemy))
+            {
+                _pinned = null;
+            }
+
             if (ReferenceEquals(_lastHit, enemy))
             {
                 ForgetLastHit();
@@ -195,7 +220,12 @@ namespace DarkDescent.UI
                 _lastHit = null;
             }
 
-            Show(_hovered != null && !_hovered.IsDead ? _hovered : _lastHit);
+            if (_pinned != null && _pinned.IsDead)
+            {
+                _pinned = null;
+            }
+
+            Show(_hovered != null && !_hovered.IsDead ? _hovered : _pinned != null ? _pinned : _lastHit);
         }
 
         private void Show(Health enemy)

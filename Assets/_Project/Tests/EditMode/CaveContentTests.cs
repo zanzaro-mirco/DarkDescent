@@ -105,8 +105,10 @@ namespace DarkDescent.Tests
                 int swarm = enemies.Count(c => layout[c.x, c.y] == CavePopulator.SwarmSymbol);
                 int brutes = enemies.Count(c => layout[c.x, c.y] == CavePopulator.BruteSymbol);
                 int mages = enemies.Count(c => layout[c.x, c.y] == DungeonPopulator.MageSymbol);
-                int skeletons = enemies.Count - swarm - brutes - mages;
+                int bosses = enemies.Count(c => layout[c.x, c.y] == CavePopulator.BossSymbol);
+                int skeletons = enemies.Count - swarm - brutes - mages - bosses;
                 string where = $"seme {seed}, profondità {depth}";
+                Assert.AreEqual(depth == settings.BossDepth ? 1 : 0, bosses, $"{where}: il boss");
                 Assert.That(brutes, Is.InRange(row.Brutes.x, row.Brutes.y), $"{where}: bruti");
                 Assert.That(mages, Is.InRange(row.Mages.x, row.Mages.y), $"{where}: maghi");
                 Assert.That(swarm, Is.InRange(row.SwarmGroups.x * settings.MinSwarm, row.SwarmGroups.y * settings.MaxSwarm), $"{where}: sciame");
@@ -147,7 +149,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("In media su 200 semi i numeri di D10: al 5 circa cinque scheletri, uno sciame e un bruto; all'8 circa quattro scheletri, tre sciami e tre bruti")]
+        [Test, Description("In media su 200 semi i numeri di D10: al 5 circa cinque scheletri, uno sciame e un bruto; all'8, con il boss, circa quattro scheletri, due sciami e due bruti")]
         public void Averages_MatchD10()
         {
             var settings = Caves;
@@ -168,8 +170,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(4f, at5.Item2, 0.5f, "un gruppo di sciame al 5, da 3 a 5 (prova della M7)");
             Assert.AreEqual(1f, at5.Item3, 0.001f, "un bruto al 5");
             Assert.AreEqual(4f, at8.Item1, 0.5f, "scheletri all'8");
-            Assert.AreEqual(12f, at8.Item2, 1f, "tre gruppi di sciame all'8");
-            Assert.AreEqual(3f, at8.Item3, 0.001f, "tre bruti all'8");
+            Assert.AreEqual(8f, at8.Item2, 1f, "due gruppi di sciame all'8, dove c'è anche il boss");
+            Assert.AreEqual(2f, at8.Item3, 0.001f, "due bruti all'8");
         }
 
         [Test, Description("Una riga della tabella vale dalla sua profondità in giù; prima della prima vale la prima")]

@@ -38,6 +38,23 @@ namespace DarkDescent.Levels
 
         public Vector2Int Stairs { get; }
 
+        /// <summary>La sala del boss (D8 della M10): c'è solo alla profondità del boss.</summary>
+        public bool HasBossRoom { get; private set; }
+
+        /// <summary>Il centro della sala, dove aspetta il boss.</summary>
+        public Vector2Int BossCell { get; private set; }
+
+        /// <summary>L'unica cella da cui si entra nella sala: lì si chiude.</summary>
+        public Vector2Int GateCell { get; private set; }
+
+        /// <summary>Per il generatore che ha scavato la sala.</summary>
+        public void SetBossRoom(Vector2Int center, Vector2Int gate)
+        {
+            HasBossRoom = true;
+            BossCell = center;
+            GateCell = gate;
+        }
+
         public char this[int x, int y] => x >= 0 && y >= 0 && x < Width && y < Height ? _cells[x, y] : LevelMap.Rock;
 
         public bool IsFloor(int x, int y)

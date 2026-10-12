@@ -48,6 +48,7 @@ options.labels,Always show item names,Nomi degli oggetti sempre visibili
 enemy.skeleton,Skeleton,Scheletro
 enemy.swarm,Skeleton Rogue,Scheletro predone
 enemy.brute,Skeleton Brute,Bruto scheletrico
+enemy.bone_king,The Bone King,Il Re delle ossa
 enemy.skeleton_mage,Skeleton Mage,Scheletro mago
 
 # Combattimento

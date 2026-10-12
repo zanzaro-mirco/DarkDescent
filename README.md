@@ -83,7 +83,9 @@ un portale per l'accampamento, e lì un portale riporta giù) e compra quelli de
 e *Carica* usano tre posti di salvataggio (`save_1.json`…`save_3.json` nella cartella dei dati
 dell'applicazione), che si possono anche cancellare. Nelle **opzioni** ci sono la lingua
 (inglese, italiano), i volumi generale, della musica e degli effetti, e i nomi degli oggetti
-a terra sempre visibili; tutto resta per gli avvii successivi.
+a terra sempre visibili; tutto resta per gli avvii successivi. In fondo alle caverne, alla
+profondità 8, aspetta nella sua sala il **Re delle ossa**: entrati, la porta si chiude finché
+uno dei due non cade.
 
 **Opzioni da riga di comando:**
 

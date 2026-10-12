@@ -56,9 +56,16 @@ namespace DarkDescent.Levels
             Vector2Int anchor = KeepLargestRegion();
 
             Vector2Int entrance = FarthestOpenCell(anchor);
+            Vector2Int bossCell = default;
+            Vector2Int gateCell = default;
+            bool bossRoom = depth == _settings.BossDepth && TryCarveBossRoom(entrance, out bossCell, out gateCell);
             Vector2Int stairs = PlaceStairs(entrance);
             _cells[entrance.x, entrance.y] = DungeonGenerator.EntranceSymbol;
             var layout = new DungeonLayout(_cells, new List<RectInt>(), -1, -1, entrance, stairs);
+            if (bossRoom)
+            {
+                layout.SetBossRoom(bossCell, gateCell);
+            }
 
             // il contenuto con lo stesso generatore di numeri, dopo la forma: stessa caverna, stesso contenuto
             new CavePopulator(_settings).Populate(layout, depth, _random);
@@ -276,6 +283,96 @@ namespace DarkDescent.Levels
             }
 
             return best;
+        }
+
+        /// <summary>Mezzo lato della sala del boss, in celle: la sala è di 5 × 5, 20 m.</summary>
+        public const int BossRoomHalf = 2;
+
+        // La sala del boss (D8 della M10): un quadrato di 5 × 5 celle nella zona aperta più lontana
+        // dall'ingresso, dentro un anello di roccia con una porta sola, la più vicina all'ingresso a
+        // piedi tra quelle che lasciano la sala raggiungibile. Quello che l'anello taglia fuori torna
+        // roccia. Se nessuna porta va, la sala resta aperta e la porta è (-1, -1).
+        private bool TryCarveBossRoom(Vector2Int entrance, out Vector2Int center, out Vector2Int gate)
+        {
+            const int Ring = BossRoomHalf + 1;
+            gate = new Vector2Int(-1, -1);
+            Vector2Int far = FarthestOpenCell(entrance);
+            center = new Vector2Int(Mathf.Clamp(far.x, Ring + 1, _width - Ring - 2), Mathf.Clamp(far.y, Ring + 1, _height - Ring - 2));
+            if (Math.Max(Math.Abs(center.x - entrance.x), Math.Abs(center.y - entrance.y)) <= Ring + 2)
+            {
+                return false;
+            }
+
+            for (int dy = -BossRoomHalf; dy <= BossRoomHalf; dy++)
+            {
+                for (int dx = -BossRoomHalf; dx <= BossRoomHalf; dx++)
+                {
+                    _cells[center.x + dx, center.y + dy] = LevelMap.Floor;
+                }
+            }
+
+            // le porte possibili: il pavimento sull'anello, non negli angoli, che toccano la sala
+            int[,] distances = LevelGrid.Distances(_cells, entrance);
+            var ring = new List<Vector2Int>();
+            var doors = new List<Vector2Int>();
+            for (int dy = -Ring; dy <= Ring; dy++)
+            {
+                for (int dx = -Ring; dx <= Ring; dx++)
+                {
+                    if (Math.Max(Math.Abs(dx), Math.Abs(dy)) != Ring || _cells[center.x + dx, center.y + dy] == LevelMap.Rock)
+                    {
+                        continue;
+                    }
+
+                    var cell = new Vector2Int(center.x + dx, center.y + dy);
+                    ring.Add(cell);
+                    if (Math.Abs(dx) != Math.Abs(dy) && distances[cell.x, cell.y] >= 0)
+                    {
+                        doors.Add(cell);
+                    }
+                }
+            }
+
+            // ordine stabile: prima la più vicina all'ingresso, poi la più a nord, poi la più a ovest
+            doors.Sort((a, b) => distances[a.x, a.y] != distances[b.x, b.y] ? distances[a.x, a.y].CompareTo(distances[b.x, b.y])
+                : a.y != b.y ? a.y.CompareTo(b.y)
+                : a.x.CompareTo(b.x));
+            foreach (var door in doors)
+            {
+                foreach (var cell in ring)
+                {
+                    _cells[cell.x, cell.y] = cell == door ? LevelMap.Floor : LevelMap.Rock;
+                }
+
+                if (LevelGrid.Distances(_cells, entrance)[center.x, center.y] >= 0)
+                {
+                    gate = door;
+                    RemoveUnreachable(entrance);
+                    return true;
+                }
+            }
+
+            foreach (var cell in ring)
+            {
+                _cells[cell.x, cell.y] = LevelMap.Floor;
+            }
+
+            return true;
+        }
+
+        private void RemoveUnreachable(Vector2Int from)
+        {
+            int[,] distances = LevelGrid.Distances(_cells, from);
+            for (int y = 0; y < _height; y++)
+            {
+                for (int x = 0; x < _width; x++)
+                {
+                    if (distances[x, y] < 0)
+                    {
+                        _cells[x, y] = LevelMap.Rock;
+                    }
+                }
+            }
         }
 
         // Come nella cripta: la roccia a nord (lo stendardo), il pavimento a sud (da dove si arriva), e

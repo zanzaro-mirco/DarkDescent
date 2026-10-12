@@ -36,7 +36,8 @@ namespace DarkDescent.Levels
                 new SpawnRow(5, new Vector2Int(2, 2), new Vector2Int(1, 1), new Vector2Int(1, 1), new Vector2Int(1, 1)),
                 new SpawnRow(6, new Vector2Int(2, 2), new Vector2Int(1, 2), new Vector2Int(1, 2), new Vector2Int(1, 2)),
                 new SpawnRow(7, new Vector2Int(1, 2), new Vector2Int(2, 2), new Vector2Int(2, 2), new Vector2Int(1, 2)),
-                new SpawnRow(8, new Vector2Int(1, 2), new Vector2Int(3, 3), new Vector2Int(3, 3), new Vector2Int(2, 2)),
+                // la profondità del boss come la 7: il re e i suoi evocati prendono il posto degli altri (D8 della M10)
+                new SpawnRow(8, new Vector2Int(1, 2), new Vector2Int(2, 2), new Vector2Int(2, 2), new Vector2Int(1, 2)),
             });
         }
 

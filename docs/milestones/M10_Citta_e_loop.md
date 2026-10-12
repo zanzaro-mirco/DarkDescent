@@ -331,6 +331,46 @@ volta; il portale porta in città, dove aspetta quello del ritorno e il salvatag
 riattraversato riporta alla profondità 1 e si chiude; con il portale aperto, *Continua* lo ritrova.
 I test del mercante contano una provvista in più. 273 EditMode e 187 PlayMode verdi.
 
+## Passo 10.7 — Il Re delle ossa
+
+**Com'è andata (12 ott 2026).**
+
+- **La sala.** Alla profondità del boss (`CaveSettings.BossDepth`, la 8) il generatore delle caverne
+  scava una sala di 5 × 5 celle nella zona aperta più lontana dall'ingresso e la chiude con un anello
+  di roccia, lasciando una porta sola: la più vicina all'ingresso a piedi tra quelle che lasciano la
+  sala raggiungibile. Quello che l'anello taglia fuori torna roccia. Dentro ci sono solo il re al
+  centro (simbolo `K`) e una candela per angolo; sulla porta il simbolo `G`. Gli altri livelli non
+  cambiano: la sala nasce solo a quella profondità.
+- **Il re** è il bruto più grande: lo `Skeleton_Warrior` a scala 1,8 con l'ascia, una luce rossa, 600 di
+  vita, armi sue (colpo caricato 30–42 con un arco di 140°, colpi leggeri 12–18) e il nome *Il Re delle
+  ossa*. Quando il cavaliere arriva a 8 m dal centro (la porta è a 12), la porta si chiude: tre
+  colonne di roccia salgono dal pavimento con il rumore di una porta pesante, un collider e un
+  ostacolo del NavMesh la tagliano. Il re ruggisce (il ruggito del pacchetto di puadlung, ADR-070) e
+  la sua vita resta nella barra in alto per tutto lo scontro (`EnemyBar.Pin`).
+- **Tre fasi per vita** (`BossPhases`): sopra il 60% mischia e colpo caricato; fino al 30% evoca tre
+  dello sciame ogni 12 s, mai più di sei vivi, su punti del NavMesh della sala; sotto è più veloce del
+  40% e ogni 7 s si ferma, un cerchio rosso di 5 m si riempie a terra per 1,4 s e parte l'anello di
+  fuoco, con le fiamme dell'incantesimo del cavaliere: chi è ancora dentro prende 28–38 di fuoco.
+  Gli evocati non danno esperienza né loot.
+- **Morto il re**, gli evocati cadono con lui, la porta riscende e la vittoria va subito nel
+  salvataggio (`RunStats.BossDefeated`, già nel formato 4): tornando alla profondità 8, rigenerata, il
+  re non c'è più (trappola 4). Lascia sempre un oggetto almeno raro del livello (la tabella ha ora una
+  rarità minima), una pozione, molto oro e la pergamena del ritorno.
+- **Morto il cavaliere** durante lo scontro, tornando in vita all'ingresso la porta si riapre, gli
+  evocati spariscono e il re ricomincia a vita piena dalla prima fase.
+- **La profondità 8 si alleggerisce** come la 7 (due gruppi di sciame, due bruti, uno o due maghi):
+  con la sala del boss lo spazio per tutti non c'era, e il re con i suoi evocati prende il posto degli
+  altri. Il test delle medie della M7 ora lo dice.
+
+*Test.* `BossTests` (EditMode): le fasi per vita; su otto semi la sala alla profondità 8, piena, con
+il solo re dentro e una porta sola, senza scala, e nessuna sala alla 7; il bottino del re; il prefab e
+il tileset. `BossPlayModeTests` (3): entrando la porta si chiude e il NavMesh non porta fuori, la barra
+tiene il re; evoca lo sciame, in furia corre e telegrafa l'anello; morto, la porta si apre, la vittoria
+è nel salvataggio e restano un oggetto raro e la pergamena; morto il cavaliere lo scontro ricomincia;
+sconfitto, il re non rinasce. `CaveContentTests` contano il boss a parte. 284 EditMode e 190 PlayMode
+verdi (`PlayerAttackTests.ClickOnSkeleton_ApproachesAndHitsOnce` è caduto una volta nel giro completo e
+passa da solo: un test che ogni tanto balla, da tenere d'occhio).
+
 ---
 
 ## Trappole note

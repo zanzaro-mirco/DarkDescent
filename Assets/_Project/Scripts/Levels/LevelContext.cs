@@ -41,6 +41,12 @@ namespace DarkDescent.Levels
         /// <summary>Il mercante della città (D5 della M10); null negli altri livelli.</summary>
         public Merchant Merchant { get; private set; }
 
+        /// <summary>Il boss della sala in fondo alle caverne (D8 della M10); null negli altri livelli.</summary>
+        public BossController Boss { get; private set; }
+
+        /// <summary>La porta della sala del boss; null se non c'è.</summary>
+        public BossGate BossGate { get; private set; }
+
         public int EntranceCount => _entrances.Count;
 
         public int Depth => _depth;
@@ -86,6 +92,16 @@ namespace DarkDescent.Levels
                 if (Merchant == null)
                 {
                     Merchant = root.GetComponentInChildren<Merchant>(true);
+                }
+
+                if (Boss == null)
+                {
+                    Boss = root.GetComponentInChildren<BossController>(true);
+                }
+
+                if (BossGate == null)
+                {
+                    BossGate = root.GetComponentInChildren<BossGate>(true);
                 }
             }
         }

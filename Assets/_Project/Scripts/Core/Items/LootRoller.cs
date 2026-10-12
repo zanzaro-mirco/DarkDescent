@@ -37,8 +37,11 @@ namespace DarkDescent.Items
                 return null;
             }
 
-            // il livello dell'oggetto è la profondità del livello (D8)
-            return _generator.Generate(item, depth, random.NextUInt64());
+            // il livello dell'oggetto è la profondità del livello (D8); sotto la rarità minima della
+            // tabella, lo stesso oggetto con lo stesso seme rifatto a quella rarità
+            ulong seed = random.NextUInt64();
+            var generated = _generator.Generate(item, depth, seed);
+            return generated.Rarity < table.MinRarity ? _generator.Generate(item, depth, seed, table.MinRarity) : generated;
         }
 
         /// <summary>

@@ -158,6 +158,9 @@ namespace DarkDescent.Core
         private readonly List<ItemInstance> _stock = new List<ItemInstance>();
         private Town.Merchant _merchant;
 
+        // il boss del livello corrente, se c'è e non è ancora stato sconfitto (D8 della M10)
+        private BossController _boss;
+
         // quali pergamene possono ancora cadere: creata una volta, non a ogni livello
         private Func<Magic.SpellDefinition, bool> _scrollWanted;
 
@@ -506,37 +509,17 @@ namespace DarkDescent.Core
             _levelTitle.Show(tileset != null ? tileset.NameKey : null, level.Depth);
             _depth = level.Depth;
 
+            BindBoss(level);
             foreach (var enemy in level.Enemies)
             {
-                // un nemico può essere già morto e sparito se il livello era aperto da prima
-                if (enemy == null)
+                // un nemico può essere già morto e sparito se il livello era aperto da prima; il boss
+                // già sconfitto è spento e sta per sparire
+                if (enemy == null || !enemy.gameObject.activeSelf)
                 {
                     continue;
                 }
 
-                enemy.Bind(_player);
-                enemy.Killed += HandleEnemyKilled;
-                _rewardingEnemies.Add(enemy);
-                if (enemy.TryGetComponent(out CharacterAudio audio))
-                {
-                    audio.Bind(_sfxLimiter);
-                }
-                var attack = enemy.GetComponent<MeleeAttack>();
-                attack.SetRandomSource(_random);
-                if (enemy.TryGetComponent(out RangedAttack ranged))
-                {
-                    ranged.Bind(_projectiles, _random);
-                    _enemyRanged.Add(ranged);
-                }
-                _enemyAttacks.Add(attack);
-                var health = enemy.GetComponent<Health>();
-                _damageNumbers.Track(health, isPlayer: false);
-                _enemyBar.Track(health);
-                _trackedEnemies.Add(health);
-                if (enemy.TryGetComponent(out LootDrop loot))
-                {
-                    loot.Bind(_loot, level.Depth);
-                }
+                BindEnemy(enemy, level.Depth, rewarding: true);
             }
 
             foreach (var chest in level.Chests)
@@ -551,6 +534,108 @@ namespace DarkDescent.Core
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
             _exploration.SetLevel(level.Map, level.Depth);
             BindMerchant(level);
+        }
+
+        // Un nemico del livello, o un evocato del boss: chi colpire, i tiri, suoni, numeri e barra. Solo
+        // quelli del livello danno esperienza e lasciano loot: gli evocati non si allevano (D8 della M10).
+        private void BindEnemy(EnemyAI enemy, int depth, bool rewarding)
+        {
+            enemy.Bind(_player);
+            if (rewarding)
+            {
+                enemy.Killed += HandleEnemyKilled;
+                _rewardingEnemies.Add(enemy);
+            }
+
+            if (enemy.TryGetComponent(out CharacterAudio audio))
+            {
+                audio.Bind(_sfxLimiter);
+            }
+
+            var attack = enemy.GetComponent<MeleeAttack>();
+            attack.SetRandomSource(_random);
+            if (enemy.TryGetComponent(out RangedAttack ranged))
+            {
+                ranged.Bind(_projectiles, _random);
+                _enemyRanged.Add(ranged);
+            }
+
+            _enemyAttacks.Add(attack);
+            var health = enemy.GetComponent<Health>();
+            _damageNumbers.Track(health, isPlayer: false);
+            _enemyBar.Track(health);
+            _trackedEnemies.Add(health);
+            if (rewarding && enemy.TryGetComponent(out LootDrop loot))
+            {
+                loot.Bind(_loot, depth);
+            }
+        }
+
+        // Il boss della profondità 8 (D8 della M10): già sconfitto non rinasce (trappola 4), e il
+        // livello rigenerato lo toglie prima di legare i nemici
+        private void BindBoss(LevelContext level)
+        {
+            _boss = level.Boss;
+            if (_boss == null)
+            {
+                return;
+            }
+
+            if (_runStats.BossDefeated)
+            {
+                _boss.gameObject.SetActive(false);
+                Destroy(_boss.gameObject);
+                _boss = null;
+                return;
+            }
+
+            _boss.Bind(_player, level.BossGate, _random);
+            _boss.FightStarted += HandleBossFightStarted;
+            _boss.FightReset += HandleBossFightReset;
+            _boss.Defeated += HandleBossDefeated;
+            _boss.Summoned += HandleBossSummoned;
+        }
+
+        private void ReleaseBoss()
+        {
+            if (!ReferenceEquals(_boss, null))
+            {
+                _boss.FightStarted -= HandleBossFightStarted;
+                _boss.FightReset -= HandleBossFightReset;
+                _boss.Defeated -= HandleBossDefeated;
+                _boss.Summoned -= HandleBossSummoned;
+                _boss = null;
+            }
+
+            if (_enemyBar != null)
+            {
+                _enemyBar.Unpin();
+            }
+        }
+
+        // la sua vita resta in alto per tutto lo scontro
+        private void HandleBossFightStarted(BossController boss)
+        {
+            _enemyBar.Pin(boss.Health);
+        }
+
+        private void HandleBossFightReset(BossController boss)
+        {
+            _enemyBar.Unpin();
+        }
+
+        // la vittoria va subito nel salvataggio: tornando alla profondità 8 il boss non c'è più
+        private void HandleBossDefeated(BossController boss)
+        {
+            _enemyBar.Unpin();
+            _runStats.MarkBossDefeated();
+            _saveGame.Save();
+        }
+
+        private void HandleBossSummoned(EnemyAI enemy)
+        {
+            BindEnemy(enemy, _depth, rewarding: false);
+            enemy.Alert();
         }
 
         // la pergamena del livello, se c'è, la porta uno dei nemici o una delle casse (D5 della M9)
@@ -618,6 +703,7 @@ namespace DarkDescent.Core
             _rewardingEnemies.Clear();
             _exploration.SetLevel(null, 0);
             ReleaseMerchant();
+            ReleaseBoss();
         }
 
         // Entrando in città il mercante tira l'assortimento: oggetti del livello della profondità più
@@ -745,6 +831,12 @@ namespace DarkDescent.Core
                 {
                     enemy.ReturnHome();
                 }
+            }
+
+            // la porta del boss si riapre e lo scontro ricomincia da capo
+            if (_boss != null)
+            {
+                _boss.ResetFight();
             }
         }
     }

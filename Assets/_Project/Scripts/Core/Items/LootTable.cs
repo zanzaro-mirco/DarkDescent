@@ -17,6 +17,9 @@ namespace DarkDescent.Items
 
         [SerializeField] private List<LootEntry> _entries = new List<LootEntry>();
 
+        [Tooltip("La rarità più bassa dell'oggetto: raro per il boss (D8 della M10), normale per tutti gli altri.")]
+        [SerializeField] private Rarity _minRarity = Rarity.Normal;
+
         [Tooltip("La pozione che può lasciare in più dell'oggetto. Vuoto: niente pozioni.")]
         [SerializeField] private PotionDefinition _potion;
 
@@ -48,6 +51,8 @@ namespace DarkDescent.Items
         [SerializeField, Range(0f, 1f)] private float _returnScrollChance;
 
         public float DropChance => _dropChance;
+
+        public Rarity MinRarity => _minRarity;
 
         public GoldDefinition Gold => _gold;
 

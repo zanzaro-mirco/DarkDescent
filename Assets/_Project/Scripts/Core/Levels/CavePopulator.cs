@@ -23,10 +23,17 @@ namespace DarkDescent.Levels
         /// <summary>Un bruto (D6): da solo, grosso e lento.</summary>
         public const char BruteSymbol = 'B';
 
-        /// <summary>Un simbolo di nemico: scheletro, sciame, bruto o mago.</summary>
+        /// <summary>Il boss (D8 della M10): al centro della sua sala.</summary>
+        public const char BossSymbol = 'K';
+
+        /// <summary>La porta della sala del boss, che si chiude quando comincia lo scontro.</summary>
+        public const char GateSymbol = 'G';
+
+        /// <summary>Un simbolo di nemico: scheletro, sciame, bruto, mago o boss.</summary>
         public static bool IsEnemy(char symbol)
         {
-            return symbol == DungeonPopulator.EnemySymbol || symbol == SwarmSymbol || symbol == BruteSymbol || symbol == DungeonPopulator.MageSymbol;
+            return symbol == DungeonPopulator.EnemySymbol || symbol == SwarmSymbol || symbol == BruteSymbol || symbol == DungeonPopulator.MageSymbol
+                || symbol == BossSymbol;
         }
 
         private const string PropSymbols = "bxp";
@@ -53,6 +60,11 @@ namespace DarkDescent.Levels
                 {
                     reserved.Add(layout.Entrance + new Vector2Int(dx, dy));
                 }
+            }
+
+            if (layout.HasBossRoom)
+            {
+                PlaceBossRoom(layout, reserved);
             }
 
             int[,] steps = Distances(layout);
@@ -85,6 +97,38 @@ namespace DarkDescent.Levels
                 () => PropSymbols[Range(random, 0, PropSymbols.Length - 1)], reserved);
 
             PlaceEnemies(layout, depth, random, steps, reserved);
+        }
+
+        // La sala del boss resta sua (D8 della M10): il boss al centro, la porta, una candela per angolo;
+        // niente altro dentro né sulla soglia, dove la porta deve potersi chiudere.
+        private static void PlaceBossRoom(DungeonLayout layout, HashSet<Vector2Int> reserved)
+        {
+            const int Ring = CaveGenerator.BossRoomHalf + 1;
+            var center = layout.BossCell;
+            for (int dy = -Ring - 1; dy <= Ring + 1; dy++)
+            {
+                for (int dx = -Ring - 1; dx <= Ring + 1; dx++)
+                {
+                    reserved.Add(center + new Vector2Int(dx, dy));
+                }
+            }
+
+            layout.TryPlace(BossSymbol, center.x, center.y);
+            int half = CaveGenerator.BossRoomHalf;
+            foreach (var corner in new[] { new Vector2Int(-half, -half), new Vector2Int(half, -half), new Vector2Int(-half, half), new Vector2Int(half, half) })
+            {
+                layout.TryPlace(CandleSymbol, center.x + corner.x, center.y + corner.y);
+            }
+
+            var gate = layout.GateCell;
+            if (gate.x >= 0)
+            {
+                layout.TryPlace(GateSymbol, gate.x, gate.y);
+                foreach (var step in Steps)
+                {
+                    reserved.Add(gate + step + step);
+                }
+            }
         }
 
         // Una ogni FloorPerCandle celle, ognuna ad almeno CandleSpacing celle dalle altre: la luce si sparge.

@@ -106,7 +106,7 @@ namespace DarkDescent.Enemies
             }
         }
 
-        private static GameObject CreatePart(string name, Transform parent, Mesh mesh, Material material)
+        internal static GameObject CreatePart(string name, Transform parent, Mesh mesh, Material material)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
@@ -120,7 +120,7 @@ namespace DarkDescent.Enemies
 
         // Un ventaglio di raggio 1 sul piano, davanti (+Z), largo arc gradi: la scala lo porta alla
         // portata. Uno per bruto, fatto in Awake: niente allocazioni durante il gioco.
-        private static Mesh BuildMesh(float arc, int segments)
+        internal static Mesh BuildMesh(float arc, int segments)
         {
             var vertices = new Vector3[segments + 2];
             var triangles = new int[segments * 3];
