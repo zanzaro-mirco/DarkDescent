@@ -74,16 +74,41 @@ namespace DarkDescent.Tests
             yield return null;
         }
 
-        // una partita nuova, giù alla profondità 1, la pergamena letta e il portale attraversato
+        // dove si è aperto l'ultimo portale del dungeon
+        private static Vector3 _dungeonPortal;
+
+        // una partita nuova, giù alla profondità 1, lontano dall'ingresso, la pergamena letta e il
+        // portale attraversato
         private static IEnumerator GoToTownThroughPortal()
         {
             yield return StartNewGame();
             Manager.LoadLevel("Level_Crypt", "Start", 1);
             yield return WaitUntilIn(level => level.Depth == 1, "la cripta non arriva");
+            PlayerObject.GetComponent<NavMeshAgent>().Warp(FarFromEntrance());
+            yield return null;
             Assert.IsTrue(Bag.UseAt(ScrollCell));
             var portal = Portals.OpenPortal;
+            _dungeonPortal = portal.transform.position;
             PlayerObject.GetComponent<PlayerController>().Use(portal.Interactable);
             yield return WaitUntilIn(level => level.IsTown, "il portale non porta in città");
+        }
+
+        // il vertice del NavMesh più lontano dall'ingresso, ma non più di 20 metri: lontano dalle scale
+        private static Vector3 FarFromEntrance()
+        {
+            Vector3 start = Manager.CurrentLevel.GetEntrance("Start").position;
+            Vector3 best = start;
+            foreach (var vertex in NavMesh.CalculateTriangulation().vertices)
+            {
+                float distance = Vector3.Distance(vertex, start);
+                if (distance <= 20f && distance > Vector3.Distance(best, start) && NavMesh.SamplePosition(vertex, out var hit, 0.5f, NavMesh.AllAreas))
+                {
+                    best = hit.position;
+                }
+            }
+
+            Assert.Greater(Vector3.Distance(best, start), 12f, "un punto lontano dall'ingresso");
+            return best;
         }
 
         [UnityTest, Description("Si comincia con una pergamena del ritorno; in città non si legge. Letta nel dungeon apre un portale davanti al cavaliere, sul NavMesh e nella scena del livello; una seconda pergamena lo sposta")]
@@ -117,7 +142,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, UnityEngine.Object.FindObjectsByType<Portal>(FindObjectsSortMode.None).Length, "uno solo per volta");
         }
 
-        [UnityTest, Description("Il portale porta in città, dove un portale aspetta accanto all'ingresso e il salvataggio lo ricorda; riattraversato, riporta all'ingresso della profondità e si chiude")]
+        [UnityTest, Description("Il portale porta in città, dove un portale aspetta accanto all'ingresso e il salvataggio lo ricorda; riattraversato, riporta nel punto della profondità in cui si era aperto e si chiude")]
         public IEnumerator Portal_GoesToTownAndBack()
         {
             yield return GoToTownThroughPortal();
@@ -133,12 +158,16 @@ namespace DarkDescent.Tests
             var data = UnityEngine.Object.FindFirstObjectByType<SaveGame>().Capture();
             Assert.IsTrue(data.InTown);
             Assert.AreEqual(1, data.PortalDepth);
+            Assert.AreEqual(_dungeonPortal, data.PortalSpot);
 
             PlayerObject.GetComponent<PlayerController>().Use(portal.Interactable);
             yield return WaitUntilIn(level => level.Depth == 1, "il portale della città non riporta giù");
             Assert.AreEqual("Level_Crypt", Manager.CurrentSceneName);
-            Assert.AreEqual("Start", Manager.CurrentEntrance);
+            Assert.AreEqual("Start", Manager.CurrentEntrance, "l'ingresso resta quello del livello, per il salvataggio");
+            Assert.Less(Vector3.Distance(PlayerObject.transform.position, _dungeonPortal), 1.5f, "si torna dove si era aperto il portale");
+            Assert.IsTrue(PlayerObject.GetComponent<NavMeshAgent>().isOnNavMesh);
             Assert.AreEqual(0, Portals.PortalDepth, "riattraversato si chiude");
+            Assert.IsNull(Portals.PortalSpot);
             Assert.IsNull(Portals.OpenPortal);
         }
 
@@ -156,6 +185,7 @@ namespace DarkDescent.Tests
             Menu.ContinueButton.onClick.Invoke();
             yield return WaitUntilIn(level => level.IsTown, "Continua non riporta in città");
             Assert.AreEqual(1, Portals.PortalDepth);
+            Assert.AreEqual(_dungeonPortal, Portals.PortalSpot, "anche il punto del ritorno");
             Assert.IsNotNull(Portals.OpenPortal);
             Assert.IsNull(Bag.Inventory.Grid.ItemAt(ScrollCell), "la pergamena letta non torna");
         }

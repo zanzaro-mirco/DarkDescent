@@ -66,6 +66,11 @@ namespace DarkDescent.Save
         [SerializeField] private int _goldCollected;
         [SerializeField] private bool _bossDefeated;
 
+        // ancora formato 4, aggiunto con il 10.9: il punto in cui riporta il portale. Un salvataggio
+        // che non ha i campi legge false, e il portale riporta all'ingresso come prima
+        [SerializeField] private bool _hasPortalSpot;
+        [SerializeField] private Vector3 _portalSpot;
+
         public int Version => _version;
 
         public ulong RunSeed => ulong.TryParse(_runSeed, NumberStyles.None, CultureInfo.InvariantCulture, out ulong seed) ? seed : 0UL;
@@ -109,6 +114,9 @@ namespace DarkDescent.Save
 
         /// <summary>La profondità all'ingresso della quale riporta il portale della città; 0 se non c'è.</summary>
         public int PortalDepth => _portalDepth;
+
+        /// <summary>Il punto della profondità in cui riporta il portale della città; null: all'ingresso.</summary>
+        public Vector3? PortalSpot => _hasPortalSpot ? _portalSpot : (Vector3?)null;
 
         public float PlayTime => _playTime;
 
@@ -182,11 +190,13 @@ namespace DarkDescent.Save
             return this;
         }
 
-        /// <summary>Se si è in città e a che profondità riporta il portale (0: nessuna).</summary>
-        public SaveData WithTown(bool inTown, int portalDepth)
+        /// <summary>Se si è in città, a che profondità riporta il portale (0: nessuna) e in che punto (null: all'ingresso).</summary>
+        public SaveData WithTown(bool inTown, int portalDepth, Vector3? portalSpot = null)
         {
             _inTown = inTown;
             _portalDepth = portalDepth;
+            _hasPortalSpot = portalDepth > 0 && portalSpot.HasValue;
+            _portalSpot = _hasPortalSpot ? portalSpot.Value : Vector3.zero;
             return this;
         }
 
@@ -218,6 +228,7 @@ namespace DarkDescent.Save
                 _gold = 0;
                 _inTown = false;
                 _portalDepth = 0;
+                _hasPortalSpot = false;
                 _playTime = 0f;
                 _kills = 0;
                 _deaths = 0;

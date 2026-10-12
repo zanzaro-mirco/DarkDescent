@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Save;
@@ -144,6 +145,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0, data.Gold);
             Assert.IsFalse(data.InTown);
             Assert.AreEqual(0, data.PortalDepth);
+            Assert.IsNull(data.PortalSpot);
             Assert.AreEqual((0f, 0, 0, 0, false), (data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated));
             Assert.AreEqual(5150505050505050505UL, data.RunSeed);
             Assert.AreEqual(("Level_Caves", "FromAbove", 6), (data.Scene, data.Entrance, data.Depth));
@@ -164,20 +166,40 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2, inventory.Belt.Count);
         }
 
-        [Test, Description("Il formato 4 va e torna: oro, città, portale e contatori passano dal file")]
+        [Test, Description("Il formato 4 va e torna: oro, città, portale con il suo punto e contatori passano dal file")]
         public void FormatFour_RoundTrips()
         {
             var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(new StatSheet()));
             var data = SaveData.Create(9UL, "Level_Town", "FromPortal", 0)
                 .WithInventory(InventorySnapshot.Capture(inventory))
                 .WithGold(1234)
-                .WithTown(true, 5)
+                .WithTown(true, 5, new Vector3(12.5f, 0.25f, -7f))
                 .WithStats(3600.5f, 210, 3, 4321, true);
             SaveFile.Write(_path, data);
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
             Assert.AreEqual(1234, read.Gold);
             Assert.AreEqual((true, 5), (read.InTown, read.PortalDepth));
+            Assert.AreEqual(new Vector3(12.5f, 0.25f, -7f), read.PortalSpot);
             Assert.AreEqual((3600.5f, 210, 3, 4321, true), (read.PlayTime, read.Kills, read.Deaths, read.GoldCollected, read.BossDefeated));
+        }
+
+        [Test, Description("Un salvataggio del formato 4 scritto prima del punto del portale si legge: il portale riporta all'ingresso; senza portale il punto non si salva")]
+        public void FormatFour_WithoutPortalSpot_ReturnsToEntrance()
+        {
+            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(new StatSheet()));
+            string json = SaveData.Create(9UL, "Level_Town", "Portal", 0)
+                .WithInventory(InventorySnapshot.Capture(inventory))
+                .WithTown(true, 3, new Vector3(1f, 2f, 3f))
+                .ToJson();
+            StringAssert.Contains("_hasPortalSpot", json);
+            // senza il campo JsonUtility legge false, come da un file scritto prima
+            string old = string.Join("\n", json.Split('\n').Where(line => !line.Contains("_hasPortalSpot")));
+            File.WriteAllText(_path, old);
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
+            Assert.AreEqual(3, read.PortalDepth);
+            Assert.IsNull(read.PortalSpot);
+
+            Assert.IsNull(SaveData.Create(9UL, "Level_Town", "Start", 0).WithTown(true, 0, Vector3.one).PortalSpot);
         }
 
         [Test, Description("Il formato 3 va e torna: incantesimi noti, posto scelto e mana passano dal file")]

@@ -98,7 +98,7 @@ namespace DarkDescent.Levels
             // una seconda copia (trappola 6).
             if (TryFindLoadedLevel(out LevelContext loaded))
             {
-                Enter(loaded, _firstEntrance);
+                Enter(loaded, _firstEntrance, null);
                 return;
             }
 
@@ -132,7 +132,23 @@ namespace DarkDescent.Levels
                 return;
             }
 
-            StartCoroutine(Transition(sceneName, entranceId, depth, null));
+            StartCoroutine(Transition(sceneName, entranceId, depth, null, null));
+        }
+
+        /// <summary>
+        /// Come <see cref="LoadLevel"/>, ma il player arriva in <paramref name="arrival"/>, il punto più
+        /// vicino sul NavMesh, invece che sull'ingresso: è il ritorno dal portale della città (D6 della
+        /// M10). L'ingresso resta quello del livello, per il salvataggio e per chi muore; se il punto
+        /// non è sul NavMesh si arriva sull'ingresso.
+        /// </summary>
+        public void LoadLevelAt(string sceneName, string entranceId, int depth, Vector3 arrival)
+        {
+            if (IsTransitioning)
+            {
+                return;
+            }
+
+            StartCoroutine(Transition(sceneName, entranceId, depth, arrival, null));
         }
 
         /// <summary>
@@ -183,7 +199,7 @@ namespace DarkDescent.Levels
             }
         }
 
-        private IEnumerator Transition(string sceneName, string entranceId, int depth, Action whileDark)
+        private IEnumerator Transition(string sceneName, string entranceId, int depth, Vector3? arrival, Action whileDark)
         {
             IsTransitioning = true;
 
@@ -226,10 +242,10 @@ namespace DarkDescent.Levels
                 yield break;
             }
 
-            Enter(context, entranceId);
+            Enter(context, entranceId, arrival);
         }
 
-        private void Enter(LevelContext context, string entranceId)
+        private void Enter(LevelContext context, string entranceId, Vector3? arrival)
         {
             _currentScene = context.gameObject.scene;
             _currentEntrance = entranceId;
@@ -242,8 +258,14 @@ namespace DarkDescent.Levels
             // Spento, spostato, riacceso: riaccendendosi l'agent si aggancia al NavMesh del livello. Con
             // l'agent acceso si userebbe Warp, ma qui il NavMesh sotto il player è appena cambiato.
             Transform entrance = context.GetEntrance(entranceId);
+            Vector3 position = entrance.position;
+            if (arrival.HasValue && NavMesh.SamplePosition(arrival.Value, out var hit, 2f, NavMesh.AllAreas))
+            {
+                position = hit.position;
+            }
+
             _playerAgent.enabled = false;
-            _player.transform.SetPositionAndRotation(entrance.position, entrance.rotation);
+            _player.transform.SetPositionAndRotation(position, entrance.rotation);
 
             if (!_playerHealth.IsDead)
             {

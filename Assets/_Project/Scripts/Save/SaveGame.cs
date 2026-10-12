@@ -119,7 +119,7 @@ namespace DarkDescent.Save
                 .WithInventory(InventorySnapshot.Capture(_inventory.Inventory))
                 .WithExplored(_exploration.Memory.Export())
                 .WithGold(_inventory.Inventory.Gold)
-                .WithTown(_levelManager.CurrentLevel.IsTown, _portals != null ? _portals.PortalDepth : 0)
+                .WithTown(_levelManager.CurrentLevel.IsTown, _portals != null ? _portals.PortalDepth : 0, _portals != null ? _portals.PortalSpot : null)
                 .WithStats(_runStats.PlayTime, _runStats.Kills, _runStats.Deaths, _runStats.GoldCollected, _runStats.BossDefeated);
 
             // da morto il mana torna pieno con la vita (Revived): si salva pieno
@@ -178,7 +178,7 @@ namespace DarkDescent.Save
             _runStats.Restore(data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated);
             if (_portals != null)
             {
-                _portals.Restore(data.PortalDepth);
+                _portals.Restore(data.PortalDepth, data.PortalSpot);
             }
 
             _health.SetCurrent(data.Life);

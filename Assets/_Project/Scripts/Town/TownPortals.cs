@@ -10,9 +10,9 @@ namespace DarkDescent.Town
     /// <summary>
     /// I portali della pergamena del ritorno (D6 della M10), come il <i>Town Portal</i> di Diablo 1.
     /// Letta nel dungeon, la pergamena apre un portale davanti al cavaliere che porta all'accampamento;
-    /// arrivati, accanto all'ingresso aspetta un portale che riporta all'ingresso della profondità da
-    /// cui si era partiti, rigenerata dal seme (ADR-061). Riattraversato, si chiude. La profondità del
-    /// ritorno va nel salvataggio (D11): chiusa e ripresa la partita in città, il portale c'è ancora.
+    /// arrivati, accanto all'ingresso aspetta un portale che riporta nel punto in cui si era aperto,
+    /// nella profondità rigenerata dal seme (ADR-061). Riattraversato, si chiude. Profondità e punto del
+    /// ritorno vanno nel salvataggio (D11): chiusa e ripresa la partita in città, il portale c'è ancora.
     /// Sconfitto il boss, nella sua sala si apre il portale della vittoria (D9): porta in città e lì
     /// annuncia la vittoria.
     /// </summary>
@@ -60,6 +60,9 @@ namespace DarkDescent.Town
         /// <summary>La profondità a cui riporta il portale della città; 0 se non c'è.</summary>
         public int PortalDepth { get; private set; }
 
+        /// <summary>Dove riporta il portale della città, nella sua profondità; null: all'ingresso.</summary>
+        public Vector3? PortalSpot { get; private set; }
+
         /// <summary>Il portale aperto nel livello corrente, o null.</summary>
         public Portal OpenPortal => _open;
 
@@ -95,10 +98,14 @@ namespace DarkDescent.Town
             _playerHealth = player.GetComponent<Health>();
         }
 
-        /// <summary>La profondità del portale della città, da un salvataggio; 0 per una partita nuova.</summary>
-        public void Restore(int portalDepth)
+        /// <summary>
+        /// Profondità e punto del portale della città, da un salvataggio; 0 per una partita nuova. Senza
+        /// punto, come nei salvataggi di prima, il portale riporta all'ingresso della profondità.
+        /// </summary>
+        public void Restore(int portalDepth, Vector3? portalSpot = null)
         {
             PortalDepth = Mathf.Max(0, portalDepth);
+            PortalSpot = PortalDepth > 0 ? portalSpot : null;
         }
 
         /// <summary>La scena generata che contiene <paramref name="depth"/>; null se nessuna.</summary>
@@ -251,6 +258,7 @@ namespace DarkDescent.Town
             if (!level.IsTown)
             {
                 PortalDepth = level.Depth;
+                PortalSpot = portal.transform.position;
                 _levelManager.LoadLevel(_townScene, PortalEntrance, 0);
                 return;
             }
@@ -264,8 +272,17 @@ namespace DarkDescent.Town
                 return;
             }
 
+            Vector3? spot = PortalSpot;
             PortalDepth = 0;
-            _levelManager.LoadLevel(scene, DungeonLevel.EntranceAt(depth), depth);
+            PortalSpot = null;
+            if (spot.HasValue)
+            {
+                _levelManager.LoadLevelAt(scene, DungeonLevel.EntranceAt(depth), depth, spot.Value);
+            }
+            else
+            {
+                _levelManager.LoadLevel(scene, DungeonLevel.EntranceAt(depth), depth);
+            }
         }
     }
 }

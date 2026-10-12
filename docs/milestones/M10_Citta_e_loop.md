@@ -408,6 +408,12 @@ Build della CI del 12 ott 2026 (run 38219581157), provata da Mirco. Correzioni:
 
 - **L'oro nell'inventario** sta al centro della finestra, sotto gli anelli, invece che allineato a
   destra.
+- **Il portale della città riporta dove si era aperto**, come in Diablo, e non più all'ingresso della
+  profondità. `TownPortals.PortalSpot` ricorda il punto del portale del dungeon e
+  `LevelManager.LoadLevelAt` ci porta il cavaliere, sul NavMesh della profondità rigenerata dal seme.
+  L'ingresso del livello resta quello di sempre: Continua e la ripartenza dopo la morte usano lui. Il
+  punto va nel salvataggio (`_hasPortalSpot`, `_portalSpot`) senza cambiare formato: un salvataggio
+  del formato 4 scritto prima non ha i campi e il portale riporta all'ingresso.
 
 ---
 
