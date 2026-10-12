@@ -512,8 +512,8 @@ unici e i set.
 - [x] Menu, tre salvataggi, pausa e opzioni
 - [x] Città, mercante, pergamena del ritorno
 - [x] Boss e vittoria
-- [ ] Build della CI provata su un altro PC
+- [ ] Build della CI provata su un altro PC (non ancora fatta al tag: resta da fare con la prova a cinque persone)
 - [x] Test verdi in CI
 - [x] GIF, ADR, lezioni nel piano
-- [ ] Tag `m10`
+- [x] Tag `m10`
 - [x] Scheda della M11 scritta prima di cominciarla, decisioni confermate
