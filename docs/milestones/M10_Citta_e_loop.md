@@ -491,5 +491,5 @@ aperta e gli oggetti a terra sono gli stessi negli stessi punti; lo stesso dopo 
 - [x] Boss e vittoria
 - [ ] Build della CI provata su un altro PC
 - [ ] Test verdi in CI
-- [ ] GIF, ADR, lezioni nel piano, tag `m10`
-- [ ] Scheda della M11 scritta prima di cominciarla
+- [ ] GIF, lezioni nel piano, tag `m10` (ADR-071…079 scritti)
+- [x] Scheda della M11 scritta prima di cominciarla (decisioni da confermare)
