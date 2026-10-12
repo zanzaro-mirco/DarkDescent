@@ -8,7 +8,8 @@ namespace DarkDescent.Levels
     /// <summary>
     /// Il contenuto di una cripta generata (D6 della scheda M6): torce sui muri alti, casse e oggetti
     /// di scena contro i muri, scheletri a gruppi, più numerosi in profondità. Tutto come marcatori
-    /// della mappa, gli stessi delle mappe a mano. Logica pura.
+    /// della mappa, gli stessi delle mappe a mano. Dalla M11 (D4) gli arredi: ogni stanza ha un tema e
+    /// qualche composizione di mobili contro i muri, con un flusso suo del seme. Logica pura.
     /// </summary>
     public sealed class DungeonPopulator
     {
@@ -22,6 +23,14 @@ namespace DarkDescent.Levels
         // barile, casse di legno, pilastro: ostacoli, il NavMesh ci gira attorno
         private const string PropSymbols = "bxp";
 
+        /// <summary>
+        /// Le composizioni di mobili per tema (D4 della M11), tre per tema: deposito, biblioteca, cella,
+        /// rovina. Ognuna occupa una cella contro un muro ed è un ostacolo.
+        /// </summary>
+        public static readonly string[] DecorThemes = { "DEF", "LNO", "RUV", "WYZ" };
+
+        private const string DecorSymbols = "DEFLNORUVWYZ";
+
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
         private readonly DungeonSettings _settings;
@@ -34,21 +43,18 @@ namespace DarkDescent.Levels
         /// <summary>Un simbolo che il cavaliere non attraversa: casse e oggetti di scena.</summary>
         public static bool IsObstacle(char symbol)
         {
-            return symbol == ChestSymbol || PropSymbols.IndexOf(symbol) >= 0;
+            return symbol == ChestSymbol || PropSymbols.IndexOf(symbol) >= 0 || IsDecor(symbol);
+        }
+
+        /// <summary>Una composizione di mobili degli arredi della M11.</summary>
+        public static bool IsDecor(char symbol)
+        {
+            return DecorSymbols.IndexOf(symbol) >= 0;
         }
 
         public void Populate(DungeonLayout layout, int depth, IRandomSource random)
         {
-            // davanti alla scala si deve poter arrivare, ai suoi lati ci sono le balaustre, e il cavaliere
-            // non deve comparire addosso a un barile: queste celle restano libere
-            var reserved = new HashSet<Vector2Int>
-            {
-                layout.Stairs + Vector2Int.up, layout.Stairs + Vector2Int.left, layout.Stairs + Vector2Int.right,
-            };
-            foreach (var step in Steps)
-            {
-                reserved.Add(layout.Entrance + step);
-            }
+            var reserved = Reserved(layout);
 
             for (int i = 0; i < layout.Rooms.Count; i++)
             {
@@ -69,6 +75,42 @@ namespace DarkDescent.Levels
 
             // per ultimi: i tiri in più non spostano niente di quello che c'era prima (trappola 10 della M7)
             PlaceMages(layout, depth, random, reserved);
+        }
+
+        /// <summary>
+        /// Gli arredi (D4 della M11), dopo tutto il resto e con un flusso suo del seme: nemici, casse e
+        /// mappa dei semi già provati non cambiano. Ogni stanza ha un tema e una composizione ogni sei
+        /// celle di lato, fino al massimo delle impostazioni, contro i muri e mai su un passaggio.
+        /// </summary>
+        public void Decorate(DungeonLayout layout, IRandomSource random)
+        {
+            var reserved = Reserved(layout);
+            for (int i = 0; i < layout.Rooms.Count; i++)
+            {
+                RectInt room = layout.Rooms[i];
+                string theme = DecorThemes[Range(random, 0, DecorThemes.Length - 1)];
+                int count = Math.Min(_settings.MaxDecorPerRoom, 1 + (room.width + room.height) / 6);
+                for (int d = 0; d < count; d++)
+                {
+                    TryPlaceAgainstWall(layout, room, theme[Range(random, 0, theme.Length - 1)], random, reserved);
+                }
+            }
+        }
+
+        // davanti alla scala si deve poter arrivare, ai suoi lati ci sono le balaustre, e il cavaliere
+        // non deve comparire addosso a un barile: queste celle restano libere
+        private static HashSet<Vector2Int> Reserved(DungeonLayout layout)
+        {
+            var reserved = new HashSet<Vector2Int>
+            {
+                layout.Stairs + Vector2Int.up, layout.Stairs + Vector2Int.left, layout.Stairs + Vector2Int.right,
+            };
+            foreach (var step in Steps)
+            {
+                reserved.Add(layout.Entrance + step);
+            }
+
+            return reserved;
         }
 
         // ogni mago in una stanza diversa se ce ne sono abbastanza, su una cella libera qualsiasi

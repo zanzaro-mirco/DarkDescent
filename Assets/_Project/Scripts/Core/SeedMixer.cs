@@ -57,6 +57,15 @@ namespace DarkDescent.Core
             return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ ReturnDomain);
         }
 
+        // "DECOR": gli arredi di un livello (D4 della M11), dopo tutto il resto e con il loro flusso
+        private const ulong DecorDomain = 0x4445434F52UL;
+
+        /// <summary>Il seme degli arredi, dal seme del livello: mappa, nemici e casse non cambiano.</summary>
+        public static ulong ForDecor(ulong levelSeed)
+        {
+            return Mix(levelSeed ^ DecorDomain);
+        }
+
         // "SHOP": l'assortimento del mercante, a una profondità e a un ritorno in città (D5 della M10)
         private const ulong ShopDomain = 0x53484F50UL;
 

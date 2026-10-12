@@ -60,6 +60,9 @@ namespace DarkDescent.Levels
         [Tooltip("Barili, casse di legno e pilastri: al più tanti per stanza, contro i muri.")]
         [SerializeField, Min(0)] private int _maxPropsPerRoom = 2;
 
+        [Tooltip("Arredi (D4 della M11): quante composizioni di mobili al massimo per stanza; 0 le toglie.")]
+        [SerializeField, Min(0)] private int _maxDecorPerRoom = 3;
+
         [Tooltip("Una torcia in più ogni tante celle di larghezza della stanza, oltre la prima.")]
         [SerializeField, Min(2)] private int _cellsPerTorch = 4;
 
@@ -101,6 +104,8 @@ namespace DarkDescent.Levels
         public int MaxGroup => _maxGroup;
 
         public int MaxPropsPerRoom => _maxPropsPerRoom;
+
+        public int MaxDecorPerRoom => _maxDecorPerRoom;
 
         public int CellsPerTorch => _cellsPerTorch;
 

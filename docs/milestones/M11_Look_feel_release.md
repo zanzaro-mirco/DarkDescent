@@ -122,6 +122,39 @@ lingue; i due renderer hanno il passo acceso, con il materiale, dopo il post-pro
 `RetroFilterPlayModeTests` (2): con il filtro pieno ogni pixel della cripta è un colore della palette,
 spento l'immagine ne ha molti di più, e si parte da leggero; il pulsante delle opzioni gira le scelte,
 lo dice e le ricorda dopo aver riaperto il gioco. 295 EditMode e 194 PlayMode verdi.
+
+## Passo 11.3 — Cripta arredata
+
+**Com'è andata (12 ott 2026).**
+
+- **Composizioni, non oggetti singoli.** Una cella della cripta è di 4 m: un barile da solo la
+  occupa quasi vuota. Ogni arredo è una composizione di due o quattro modelli addossata al muro,
+  dentro la sua cella, con il retro sul muro (a 1,45 m dal centro) e il davanti verso la stanza, come
+  le casse. Dodici, tre per tema: **deposito** (barili, casse, botti), **studio** (tavolini con candele
+  e attrezzi, sedie, sgabello, bottiglie, un baule), **cella** (letti, bauli, sgabello, candela consumata),
+  **rovina** (macerie, tavoli rotti, scudo con le spade spezzate). Ogni modello solido ha un collider sul
+  layer degli ostacoli, quindi il NavMesh ci gira attorno; candele e bottiglie no.
+- **Ventun modelli nuovi** dal pacchetto KayKit *Dungeon* già in Downloads, la versione per Unity,
+  importati senza materiali e con `M_Dungeon` come gli altri. Le misure dei modelli erano lontane dal
+  previsto: le macerie grandi sono lunghe 8 m, le casse impilate 3,5 m. Si sono scalate (0,35 e 0,55).
+  Le mensole e gli scaffali del pacchetto si appendono al muro: con la rotazione della visuale
+  (ADR-052) qualunque muro può diventare basso, e resterebbero a mezz'aria. Sono rimasti fuori, e
+  la "biblioteca" della D4 è diventata uno studio: il pacchetto gratuito non ha librerie da terra, né
+  ossa, ragnatele o catene.
+- **Nel popolatore** (`DungeonPopulator.Decorate`): dopo tutto il resto, con un flusso suo del seme
+  (`SeedMixer.ForDecor`), ogni stanza prende un tema e una composizione ogni sei celle di lato fino a
+  tre (`DungeonSettings.MaxDecorPerRoom`), sul bordo, mai accanto a un passaggio e con il controllo che
+  ogni cella resti raggiungibile, come gli oggetti di scena della M6. I simboli sono dodici maiuscole
+  libere (`DEF`, `LNO`, `RUV`, `WYZ`) e contano come ostacoli anche per l'automappa. Tra 18 e 29
+  composizioni per livello; la costruzione resta sotto i 50 ms (generazione, costruzione e NavMesh
+  fanno 22–26 ms, 48 al primo livello con l'avvio a freddo).
+- Nemici, casse e mappa dei semi già provati non cambiano: il test lo controlla togliendo gli arredi.
+  Non entrano nei ricordi dei livelli (ADR-079), che contano solo nemici e casse.
+
+*Test.* `DecorTests` (3, EditMode): su 400 cripte, tolti gli arredi la cripta è uguale cella per cella
+a quella generata senza; ogni stanza ha un tema solo, le composizioni stanno sul bordo e sono almeno
+una ogni due stanze; ogni composizione ha il prefab nel tileset, sta nella sua cella e sopra il
+pavimento, con i collider sul layer degli ostacoli e il materiale del dungeon. 298 EditMode e 194 PlayMode verdi (due giri completi).
 ---
 
 ## Trappole note
