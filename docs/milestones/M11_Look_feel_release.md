@@ -202,6 +202,43 @@ del boss, una zona un tema, e dall'ingresso si arriva a ogni cella e a ogni cass
 ha il prefab nel tileset delle caverne, dentro la cella e sopra il pavimento, con i materiali delle
 caverne; i simboli non sono già usati. 302 EditMode e 194 PlayMode verdi (due giri completi).
 
+## Passo 11.5 — Audio
+
+**Com'è andata (12 ott 2026).**
+
+- **La musica del boss**: *Epic Boss Battle [Seamlessly Looping]* di Juhani Junkala (CC0, da
+  OpenGameArt, scaricata con il permesso di Mirco), orchestrale, 123 s in loop. Resta il WAV originale
+  (21,8 MB, in LFS): qui non c'è un convertitore, e nella build Unity lo comprime in Vorbis come gli
+  altri brani, in streaming. Entra come un **profilo d'ambiente** (`AmbienceBoss`): stesso fondo della
+  caverna, nessun verso nel buio, musica a 0,4. Il brano è masterizzato forte (RMS −8,5 dB contro
+  −14,6 della musica dell'accampamento), e a 0,4 resta un po' sopra quella. Il composition root lo
+  passa all'`AmbiencePlayer` su `FightStarted` (la porta si chiude nello stesso momento) e rimette il
+  profilo del livello su `Defeated` e su `FightReset`: le due musiche sfumano l'una nell'altra in 2,5 s,
+  come tra due livelli. Nessun codice nuovo nel lettore.
+- **Il click dei menu** (`UiClickSound`): un colpo di legno di 90 ms sintetizzato con uno script
+  Python, come gli altri suoni nostri. All'avvio prende i pulsanti delle due tele della scena Core
+  (HUD e menu), anche quelli dei pannelli spenti, e li sgancia alla distruzione. Le etichette degli
+  oggetti a terra restano fuori, e gli slot di inventario, cintura e mercante non sono `Button`:
+  hanno già i loro suoni, niente doppioni. La sorgente è 2D sul gruppo UI del mixer e
+  **ignora la pausa dell'audio**, che il menu di pausa accende.
+- **Compravendita e salita di livello avevano già un suono** (le monete del mercante dalla M10,
+  l'arpeggio dalla M8): la D5 li dava per mancanti.
+- **Il giro dei volumi**, misurato: uno script dell'editor ha letto picco, RMS e i 100 ms più forti
+  di ogni clip breve. I più bassi rispetto agli altri, a parità di volume della sorgente (quasi tutte
+  a 1), erano il ruggito del boss, la porta della sala, il sorso di pozione e le monete raccolte:
+  alzati di 7, 7, 6 e 4 dB direttamente nei file (WAV a 32 bit float), con il picco sotto −0,8 dB. Il
+  resto sta tra −8 e −20 dB nei 100 ms più forti, con i passi in fondo come deve essere. Un verso dei
+  nemici (`grunt_02`) è 5–9 dB sopra gli altri: è un OGG, e qui non c'è un modo di riscriverlo; da
+  sentire nella prova. L'ascolto vero resta alla build del passo 11.7.
+
+**Dalla CI, sul filtro retrò**: il test ignorato su llvmpipe ha riportato *shader supportato, forza 1*:
+lo shader c'è e la forza arriva, è il passo a tutto schermo a non agire su quel renderer.
+
+*Test.* `UiClickSoundTests` (2, PlayMode): i pulsanti dei menu fanno click, anche quelli del menu di
+pausa spento all'avvio, con una sorgente 2D sul gruppo UI; con il gioco in pausa l'audio del mondo si
+ferma e il click no. `BossPlayModeTests.BossMusic_EntersAndFadesOut`: con la porta chiusa suona il brano
+dello scontro, senza versi; vinto, torna la caverna. `VictoryTests`: i crediti con le righe nuove (il titolo del brano ha le parentesi tonde: le quadre i riconoscimenti le leggono come un link). 302 EditMode e 197 PlayMode verdi (due giri completi).
+
 ---
 
 ## Trappole note
@@ -237,7 +274,7 @@ Da scrivere passo per passo.
 - [ ] Correzioni dalla prova della M10
 - [ ] Shader retro e post-processing
 - [x] Cripta e caverne arredate
-- [ ] Audio rifinito
+- [x] Audio rifinito
 - [ ] Profiling in build
 - [ ] Test verdi in CI
 - [ ] v1.0 su itch.io dalla CI, in beta ristretta con le chiavi

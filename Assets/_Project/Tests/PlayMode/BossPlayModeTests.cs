@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using DarkDescent.Audio;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
@@ -65,6 +66,25 @@ namespace DarkDescent.Tests
             Assert.IsTrue(NavMesh.SamplePosition(home + Vector3.back * 5f, out var hit, 2f, NavMesh.AllAreas));
             Player.GetComponent<NavMeshAgent>().Warp(hit.position);
             yield return Wait(() => boss.IsFighting, 3f, "lo scontro non comincia");
+        }
+
+        [UnityTest, Description("Con la porta che si chiude entra la musica dello scontro al posto di quella della caverna, senza versi nel buio; alla vittoria la caverna torna")]
+        public IEnumerator BossMusic_EntersAndFadesOut()
+        {
+            yield return GoToDepth8();
+            var ambience = UnityEngine.Object.FindFirstObjectByType<AmbiencePlayer>();
+            var caves = ambience.Current;
+            var boss = Manager.CurrentLevel.Boss;
+            yield return EnterTheRoom(boss);
+
+            Assert.AreNotSame(caves, ambience.Current, "la musica dello scontro");
+            Assert.IsNotNull(ambience.Current.Music, "con un brano");
+            Assert.AreSame(ambience.Current.Music, ambience.Music.clip);
+            Assert.AreEqual(0, ambience.Current.StingerCount, "niente versi durante lo scontro");
+
+            boss.Health.TakeDamage(Damage(boss.Health.Current));
+            Assert.AreSame(caves, ambience.Current, "vinto, torna la caverna");
+            Assert.AreSame(caves.Music, ambience.Music.clip);
         }
 
         [UnityTest, Description("Entrando nella sala la porta si chiude e la vita del re resta in alto; le fasi: evoca lo sciame, poi in furia corre e telegrafa l'anello; morto, la porta si apre, la vittoria va nel salvataggio e lascia un oggetto raro e la pergamena del ritorno")]

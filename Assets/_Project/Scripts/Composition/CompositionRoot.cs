@@ -66,6 +66,9 @@ namespace DarkDescent.Core
         [Tooltip("Musica, fondo e versi nel buio: cambiano con il livello (passo 7.0 della M7).")]
         [SerializeField] private AmbiencePlayer _ambience;
 
+        [Tooltip("La musica dello scontro con il boss (D5 della M11): entra con la porta che si chiude, sfuma alla vittoria.")]
+        [SerializeField] private AmbienceProfile _bossAmbience;
+
         [Tooltip("Il limite di voci dei personaggi (D9 della M7): cavaliere e nemici gli chiedono il permesso.")]
         [SerializeField] private SfxLimiter _sfxLimiter;
 
@@ -635,11 +638,24 @@ namespace DarkDescent.Core
         private void HandleBossFightStarted(BossController boss)
         {
             _enemyBar.Pin(boss.Health);
+            PlayBossMusic(true);
         }
 
         private void HandleBossFightReset(BossController boss)
         {
             _enemyBar.Unpin();
+            PlayBossMusic(false);
+        }
+
+        // la musica dello scontro al posto di quella della caverna, e indietro: le due sfumano l'una
+        // nell'altra come tra due livelli
+        private void PlayBossMusic(bool fighting)
+        {
+            var level = _levelManager.CurrentLevel;
+            if (_bossAmbience != null && level != null)
+            {
+                _ambience.Play(fighting ? _bossAmbience : level.Ambience);
+            }
         }
 
         // la vittoria va subito nel salvataggio: tornando alla profondità 8 il boss non c'è più. Nella
@@ -647,6 +663,7 @@ namespace DarkDescent.Core
         private void HandleBossDefeated(BossController boss)
         {
             _enemyBar.Unpin();
+            PlayBossMusic(false);
             _runStats.MarkBossDefeated();
             _saveGame.Save();
             _portals.OpenVictoryPortal(VictorySpot(boss), animate: true);
