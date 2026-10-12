@@ -138,7 +138,7 @@ namespace DarkDescent.Tests
             Assert.IsFalse(Root.RunStats.BossDefeated);
         }
 
-        [UnityTest, Description("Sconfitto il re, la profondità 8 rigenerata non lo ha più e la porta resta aperta")]
+        [UnityTest, Description("Sconfitto il re, la profondità 8 rigenerata non lo ha più, la porta resta aperta e il portale della vittoria c'è")]
         public IEnumerator DefeatedBoss_DoesNotComeBack()
         {
             yield return LoadGeneratedCore();
@@ -154,6 +154,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Manager.CurrentLevel.Boss == null, "il re non rinasce");
             Assert.IsFalse(Manager.CurrentLevel.BossGate.IsClosed);
             Assert.IsFalse(UnityEngine.Object.FindObjectsByType<BossController>(FindObjectsSortMode.None).Any());
+            Assert.IsNotNull(UnityEngine.Object.FindFirstObjectByType<Town.TownPortals>().VictoryPortal, "al suo posto, il portale della vittoria");
         }
     }
 }

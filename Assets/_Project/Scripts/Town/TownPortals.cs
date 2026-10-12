@@ -13,6 +13,8 @@ namespace DarkDescent.Town
     /// arrivati, accanto all'ingresso aspetta un portale che riporta all'ingresso della profondità da
     /// cui si era partiti, rigenerata dal seme (ADR-061). Riattraversato, si chiude. La profondità del
     /// ritorno va nel salvataggio (D11): chiusa e ripresa la partita in città, il portale c'è ancora.
+    /// Sconfitto il boss, nella sua sala si apre il portale della vittoria (D9): porta in città e lì
+    /// annuncia la vittoria.
     /// </summary>
     [DisallowMultipleComponent]
     public class TownPortals : MonoBehaviour, IPortalOpener
@@ -52,13 +54,40 @@ namespace DarkDescent.Town
         private Transform _player;
         private Health _playerHealth;
         private Portal _open;
-        private bool _subscribed;
+        private Portal _victory;
+        private bool _victoryPending;
 
         /// <summary>La profondità a cui riporta il portale della città; 0 se non c'è.</summary>
         public int PortalDepth { get; private set; }
 
         /// <summary>Il portale aperto nel livello corrente, o null.</summary>
         public Portal OpenPortal => _open;
+
+        /// <summary>Il portale della vittoria nel livello corrente, o null.</summary>
+        public Portal VictoryPortal => _victory;
+
+        /// <summary>Il cavaliere è arrivato in città dal portale della vittoria: la partita è vinta (D9 della M10).</summary>
+        public event System.Action VictoryReached;
+
+        /// <summary>
+        /// Il portale della vittoria, che non chiude il portale della pergamena: si apre morto il boss,
+        /// e di nuovo ogni volta che si torna nella sua sala.
+        /// </summary>
+        public void OpenVictoryPortal(Vector3 position, bool animate)
+        {
+            if (_victory != null)
+            {
+                return;
+            }
+
+            if (NavMesh.SamplePosition(position, out var hit, 3f, NavMesh.AllAreas))
+            {
+                position = hit.position;
+            }
+
+            _victory = Spawn(position);
+            _victory.Open(TextKeys.PortalVictory, null, _viewer, animate);
+        }
 
         public void Bind(Transform player)
         {
@@ -162,9 +191,16 @@ namespace DarkDescent.Town
             _levelManager.LevelUnloading -= HandleLevelUnloading;
         }
 
-        // in città, se c'è una profondità a cui tornare, il portale aspetta dietro il cavaliere
+        // in città, se c'è una profondità a cui tornare, il portale aspetta dietro il cavaliere; arrivati
+        // dal portale della vittoria, la vittoria
         private void HandleLevelLoaded(LevelContext level)
         {
+            if (_victoryPending && level.IsTown)
+            {
+                _victoryPending = false;
+                VictoryReached?.Invoke();
+            }
+
             if (!level.IsTown || PortalDepth <= 0 || !level.HasEntrance(PortalEntrance))
             {
                 return;
@@ -183,7 +219,13 @@ namespace DarkDescent.Town
                 _open.Entered -= HandleEntered;
             }
 
+            if (_victory != null)
+            {
+                _victory.Entered -= HandleEntered;
+            }
+
             _open = null;
+            _victory = null;
         }
 
         private void HandleEntered(Portal portal)
@@ -197,6 +239,13 @@ namespace DarkDescent.Town
             if (_audio != null && _travelClip != null)
             {
                 _audio.PlayOneShot(_travelClip);
+            }
+
+            if (portal == _victory)
+            {
+                _victoryPending = true;
+                _levelManager.LoadLevel(_townScene, PortalEntrance, 0);
+                return;
             }
 
             if (!level.IsTown)

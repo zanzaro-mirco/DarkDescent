@@ -115,6 +115,9 @@ namespace DarkDescent.Core
         [Tooltip("I portali della pergamena del ritorno (D6 della M10).")]
         [SerializeField] private Town.TownPortals _portals;
 
+        [Tooltip("La vittoria e i riconoscimenti (D9 della M10).")]
+        [SerializeField] private VictoryScreen _victoryScreen;
+
         [Tooltip("La pergamena del ritorno con cui comincia ogni partita nuova.")]
         [SerializeField] private ReturnScrollDefinition _returnScroll;
 
@@ -293,6 +296,7 @@ namespace DarkDescent.Core
             _footsteps = _player.GetComponentInChildren<Footsteps>();
             _footsteps.Bind(_sfxLimiter);
             _levelTitle.Bind(_localizer);
+            _victoryScreen.Bind(_localizer);
             _inventoryFullMessage.Bind(inventory, _localizer);
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);
@@ -458,6 +462,8 @@ namespace DarkDescent.Core
             _levelManager.LevelUnloading += ReleaseLevel;
             _cameraRotation.FacingChanged += HandleFacingChanged;
             _characterPanel.OpenChanged += HandleCharacterOpenChanged;
+            _portals.VictoryReached += HandleVictoryReached;
+            _victoryScreen.Finished += HandleVictoryFinished;
         }
 
         private void OnDisable()
@@ -474,6 +480,8 @@ namespace DarkDescent.Core
             _levelManager.LevelLoaded -= BindLevel;
             _levelManager.LevelUnloading -= ReleaseLevel;
             _cameraRotation.FacingChanged -= HandleFacingChanged;
+            _portals.VictoryReached -= HandleVictoryReached;
+            _victoryScreen.Finished -= HandleVictoryFinished;
             _characterPanel.OpenChanged -= HandleCharacterOpenChanged;
             ReleaseMerchant();
         }
@@ -583,6 +591,8 @@ namespace DarkDescent.Core
 
             if (_runStats.BossDefeated)
             {
+                // al suo posto, il portale della vittoria resta aperto (D9)
+                _portals.OpenVictoryPortal(VictorySpot(_boss), animate: false);
                 _boss.gameObject.SetActive(false);
                 Destroy(_boss.gameObject);
                 _boss = null;
@@ -624,12 +634,34 @@ namespace DarkDescent.Core
             _enemyBar.Unpin();
         }
 
-        // la vittoria va subito nel salvataggio: tornando alla profondità 8 il boss non c'è più
+        // la vittoria va subito nel salvataggio: tornando alla profondità 8 il boss non c'è più. Nella
+        // sala si apre il portale della vittoria (D9)
         private void HandleBossDefeated(BossController boss)
         {
             _enemyBar.Unpin();
             _runStats.MarkBossDefeated();
             _saveGame.Save();
+            _portals.OpenVictoryPortal(VictorySpot(boss), animate: true);
+        }
+
+        // una cella a nord del centro della sala: il bottino cade attorno a dove è morto il re
+        private static Vector3 VictorySpot(BossController boss)
+        {
+            return boss.GetComponent<EnemyAI>().HomePosition + Vector3.forward * LevelMap.CellSize;
+        }
+
+        // arrivati in città dal portale della vittoria: il gioco si ferma sulle statistiche
+        private void HandleVictoryReached()
+        {
+            _reader.enabled = false;
+            _victoryScreen.Show(_runStats, _progress.Progress.Level);
+        }
+
+        // finiti i riconoscimenti, si salva in città e si torna al menu: con Continua si riprende lì
+        private void HandleVictoryFinished()
+        {
+            _reader.enabled = true;
+            HandleQuitToMenu();
         }
 
         private void HandleBossSummoned(EnemyAI enemy)

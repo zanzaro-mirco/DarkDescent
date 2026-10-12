@@ -70,6 +70,19 @@ namespace DarkDescent.Localization
         // i portali della pergamena del ritorno (D6 della M10)
         public const string PortalToTown = "portal.to_town";
         public const string PortalToDepth = "portal.to_depth";
+        public const string PortalVictory = "portal.victory";
+
+        // la vittoria e i riconoscimenti (D9 della M10)
+        public const string VictoryTime = "victory.time";
+        public const string VictoryLevel = "victory.level";
+        public const string VictoryKills = "victory.kills";
+        public const string VictoryDeaths = "victory.deaths";
+        public const string VictoryGold = "victory.gold";
+        public const string CreditsTitle = "credits.title";
+        public const string CreditsAuthor = "credits.author";
+        public const string CreditsAssets = "credits.assets";
+        public const string CreditsOwn = "credits.own";
+        public const string CreditsThanks = "credits.thanks";
 
         // le spiegazioni delle righe del pannello del personaggio (D16 della M6), con i titoli dalle sue righe
         public const string StatNames = "hud.stat_names";

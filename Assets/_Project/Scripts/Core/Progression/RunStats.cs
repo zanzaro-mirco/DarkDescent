@@ -49,6 +49,16 @@ namespace DarkDescent.Progression
             BossDefeated = true;
         }
 
+        /// <summary>Il tempo di gioco come si legge: "12:05" sotto l'ora, "1:02:05" da un'ora in su.</summary>
+        public static string FormatTime(float seconds)
+        {
+            int total = seconds > 0f ? (int)seconds : 0;
+            int hours = total / 3600;
+            int minutes = total / 60 % 60;
+            int rest = total % 60;
+            return hours > 0 ? $"{hours}:{minutes:00}:{rest:00}" : $"{minutes}:{rest:00}";
+        }
+
         /// <summary>I contatori di un salvataggio.</summary>
         public void Restore(float playTime, int kills, int deaths, int goldCollected, bool bossDefeated)
         {

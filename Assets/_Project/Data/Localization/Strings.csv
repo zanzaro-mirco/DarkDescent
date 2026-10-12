@@ -215,3 +215,18 @@ shop.no_room,No room in the bag,Non c'è posto nella borsa
 shop.help,Right-click an item in your bag to sell it,Click destro su un oggetto della borsa per venderlo
 portal.to_town,Portal to the Camp,Portale per l'accampamento
 portal.to_depth,Portal to level {0},Portale per il livello {0}
+portal.victory,Leave the depths,Lascia le profondità
+victory.title,Victory,Vittoria
+victory.subtitle,The Bone King has fallen.,Il Re delle ossa è caduto.
+victory.time,Play time: {0},Tempo di gioco: {0}
+victory.level,Level: {0},Livello: {0}
+victory.kills,Enemies killed: {0},Nemici uccisi: {0}
+victory.deaths,Deaths: {0},Morti: {0}
+victory.gold,Gold collected: {0},Oro raccolto: {0}
+victory.credits,Credits,Riconoscimenti
+credits.title,Credits,Riconoscimenti
+credits.author,A game by Mirco Zanzaro,Un gioco di Mirco Zanzaro
+credits.assets,With the work of,Con il lavoro di
+credits.own,"The amulet, the synthesized sounds and the textures were made for the game (CC0)","L'amuleto, i suoni sintetizzati e le texture sono stati fatti per il gioco (CC0)"
+credits.thanks,Thank you for playing,Grazie per aver giocato
+credits.back,Back to the menu,Torna al menu

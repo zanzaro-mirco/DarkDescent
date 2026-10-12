@@ -371,6 +371,35 @@ sconfitto, il re non rinasce. `CaveContentTests` contano il boss a parte. 284 Ed
 verdi (`PlayerAttackTests.ClickOnSkeleton_ApproachesAndHitsOnce` è caduto una volta nel giro completo e
 passa da solo: un test che ogni tanto balla, da tenere d'occhio).
 
+## Passo 10.8 — Vittoria e riconoscimenti
+
+**Com'è andata (12 ott 2026).**
+
+- **Il portale della vittoria.** Morto il re, una cella a nord del centro della sua sala si apre un
+  portale, *Lascia le profondità*: lo stesso dei portali della pergamena, tenuto a parte da
+  `TownPortals`, così una pergamena letta lì non lo chiude. Non si salva: c'è ogni volta che si torna
+  alla profondità 8 dopo la vittoria, al posto del re che non rinasce. Chi esce prima di attraversarlo
+  lo ritrova.
+- **La schermata.** Attraversato, si arriva all'accampamento, dove la partita si salva come sempre
+  entrando in un livello (in città, boss sconfitto); poi il gioco si ferma e il riquadro della pausa,
+  ingrandito, dice *Vittoria*, *Il Re delle ossa è caduto* e i contatori della D11: tempo di gioco
+  (`RunStats.FormatTime`, "12:05" o "1:02:05"), livello, nemici uccisi, morti, oro raccolto.
+- **I riconoscimenti** salgono dal basso in tempo reale, a gioco fermo, sopra l'accampamento: il nome
+  del gioco e dell'autore, poi opera e autore di ogni asset di terzi letti dalla tabella di
+  `CREDITS.md` (`CreditsTable`, senza link né markdown), una riga per quello fatto per il gioco e
+  *Grazie per aver giocato*. Finiti, o con *Torna al menu*, si salva e si torna al menu iniziale, da
+  cui *Continua* riprende all'accampamento.
+- `CREDITS.md` sta nella radice del repo e non entra nella build: il gioco legge una copia,
+  `Data/Credits.txt`, che si aggiorna con *DarkDescent → Aggiorna i riconoscimenti*. Un test fallisce
+  se le due non sono uguali.
+
+*Test.* `VictoryTests` (3, EditMode): il formato del tempo; la tabella dei riconoscimenti, con tutte le
+righe di terzi e nessuna di quelle fatte per il progetto, senza markdown; la copia uguale
+all'originale. `VictoryPlayModeTests` (1): morto il re si apre il portale, attraversato si arriva in
+città con il gioco fermo sulle statistiche e il salvataggio in città con la vittoria; i riconoscimenti
+salgono, il pulsante riporta al menu e *Continua* all'accampamento. `BossPlayModeTests`: tornando alla
+profondità 8 dopo la vittoria c'è il portale. 287 EditMode e 191 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -417,7 +446,7 @@ passa da solo: un test che ogni tanto balla, da tenere d'occhio).
 - [x] Oro, prezzi e formato 4
 - [x] Menu, tre salvataggi, pausa e opzioni
 - [x] Città, mercante, pergamena del ritorno
-- [ ] Boss e vittoria
+- [x] Boss e vittoria
 - [ ] Build della CI provata su un altro PC
 - [ ] Test verdi in CI
 - [ ] GIF, ADR, lezioni nel piano, tag `m10`

@@ -85,7 +85,8 @@ dell'applicazione), che si possono anche cancellare. Nelle **opzioni** ci sono l
 (inglese, italiano), i volumi generale, della musica e degli effetti, e i nomi degli oggetti
 a terra sempre visibili; tutto resta per gli avvii successivi. In fondo alle caverne, alla
 profondità 8, aspetta nella sua sala il **Re delle ossa**: entrati, la porta si chiude finché
-uno dei due non cade.
+uno dei due non cade. Morto il re, il portale della vittoria porta all'accampamento, alle statistiche
+della partita e ai riconoscimenti; la partita resta salvata e si può riscendere.
 
 **Opzioni da riga di comando:**
 
