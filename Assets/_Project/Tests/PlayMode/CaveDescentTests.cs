@@ -51,7 +51,9 @@ namespace DarkDescent.Tests
             Assert.Greater(candles, 3, "le candele fanno luce");
             int shadowLights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Count(l => l.shadows != LightShadows.None);
             Assert.AreEqual(1, shadowLights, "le ombre le fa solo la luce del cavaliere, non le candele");
-            Assert.IsNotNull(Object.FindFirstObjectByType<UnityEngine.Rendering.Volume>(), "post-processing delle caverne");
+            var volume = Object.FindFirstObjectByType<UnityEngine.Rendering.Volume>();
+            Assert.IsNotNull(volume, "post-processing delle caverne");
+            Assert.AreEqual("CavePostProcessing", volume.sharedProfile.name, "con il profilo delle caverne, verdastro (D3 della M11)");
 
             int skeletons = level.Map.Markers.Count(m => m.Symbol == DungeonPopulator.EnemySymbol);
             int swarm = level.Map.Markers.Count(m => m.Symbol == CavePopulator.SwarmSymbol);

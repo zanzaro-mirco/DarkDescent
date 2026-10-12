@@ -21,7 +21,7 @@ la sua chiave e la revisione degli ADR. Dopo la prima build da provare c'è un p
 | Cosa | Stato |
 |---|---|
 | Rendering | URP 17.3, renderer `PC_Renderer` con la sola Renderer Feature del template (SSAO). Nessuno shader né Shader Graph del progetto; il pacchetto Shader Graph 17.3 c'è già, come dipendenza di URP |
-| Post-processing | La camera lo ha acceso, ma i livelli generati usano il profilo predefinito del template URP; solo `Level_01`, `Level_02` e `Sandbox_Combat` hanno un Volume. Nessun profilo per livello |
+| Post-processing | Ogni livello costruito ha un Volume dal suo tileset (`LevelBuilder`), con tonemapping ACES, bloom (soglia 0,9) e vignetta; cripta e caverne condividono lo stesso profilo, l'accampamento ne ha uno uguale a parte. Niente grana né colore per livello. *(Corretto al passo 11.1: la prima stesura diceva che i livelli usavano il profilo del template.)* |
 | Arredi | Cripta: colonne, casse, torce e stendardi, 42 modelli del pacchetto KayKit *Dungeon* su 211. Caverne: rocce e colonne. L'accampamento ha già i suoi mobili (M10) |
 | Audio | Musica e rumori d'ambiente per cripta, caverne e accampamento; mixer `Main` con musica ed effetti. Lo scontro con il boss non ha una musica sua |
 | Prestazioni | Allocazioni a ogni frame misurate a 0 byte nell'editor (M9). Costruzione del livello sotto i 50 ms alla M6. Mai misurato con il Profiler collegato a una build |
@@ -68,6 +68,25 @@ Confermate da Mirco il 12 ottobre 2026: tutte come proposte, tranne la D8 (tutti
 | 11.9 | itch.io con butler: pagina ristretta e chiave di Mirco, job della CI, chiavi dei tester (D9) | 1 |
 | 11.10 | Chiusura: tag `v1.0.0`, pubblicazione, ADR, lezioni | 1–1,5 |
 
+
+## Passo 11.1 — Post-processing
+
+**Com'è andata (12 ott 2026).** Il Volume per livello c'era già dalla M6: il `LevelBuilder` lo crea
+con il profilo del tileset, e così i colori cambiano con il livello senza un Volume in Core. Il passo
+è stato più corto del previsto.
+
+- **Le caverne hanno un profilo loro** (`CavePostProcessing`), copiato da quello della cripta.
+- **A tutti e tre** si aggiungono la grana (*Thin1*, intensità 0,18) e un colore: la cripta fredda
+  e un po' spenta (temperatura −14, saturazione −12), le caverne verdastre (tinta −25, temperatura
+  −6), l'accampamento caldo (temperatura +10, saturazione +6). Contrasto +5…+10. Bloom, tonemapping
+  e vignetta restano com'erano: il bloom a soglia 0,9 prende solo fuochi, candele e portali.
+- I numeri sono da guardare in build: negli screenshot del batch la grana a quella intensità quasi
+  non si vede, e il verde delle caverne è tenue apposta.
+
+*Test.* `PostProcessingTests` (1, EditMode): ogni tileset ha tonemapping, bloom sopra 0,9, vignetta,
+grana leggera, bilanciamento del bianco e colore; la cripta fredda, le caverne verdastre,
+l'accampamento caldo, e le caverne con un profilo loro. `CaveDescentTests`: il Volume delle caverne
+usa il loro profilo. 292 EditMode verdi.
 ---
 
 ## Trappole note
