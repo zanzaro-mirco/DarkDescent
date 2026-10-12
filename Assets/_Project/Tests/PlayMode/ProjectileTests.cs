@@ -75,20 +75,41 @@ namespace DarkDescent.Tests
             }
 
             var pools = Object.FindFirstObjectByType<ProjectilePools>();
+
+            // un punto con un muro tra 2 e 8 m in una delle sedici direzioni: dall'ingresso, o se la
+            // cripta di questo seme non ce l'ha, da un vertice del NavMesh
             Vector3 origin = Player.position;
             Vector3 wall = Vector3.zero;
             Vector3 aim = Vector3.zero;
-            for (int i = 0; i < 16 && aim == Vector3.zero; i++)
+            var origins = new[] { origin }.Concat(NavMesh.CalculateTriangulation().vertices.Where((v, k) => k % 7 == 0));
+            foreach (var from in origins)
             {
-                Vector3 direction = Quaternion.Euler(0f, i * 22.5f, 0f) * Vector3.forward;
-                if (NavMesh.Raycast(origin, origin + direction * 8f, out var hit, NavMesh.AllAreas) && hit.distance > 2f)
+                if (!NavMesh.SamplePosition(from, out var start, 0.5f, NavMesh.AllAreas))
                 {
-                    wall = hit.position;
-                    aim = direction;
+                    continue;
+                }
+
+                for (int i = 0; i < 16 && aim == Vector3.zero; i++)
+                {
+                    Vector3 direction = Quaternion.Euler(0f, i * 22.5f, 0f) * Vector3.forward;
+                    if (NavMesh.Raycast(start.position, start.position + direction * 8f, out var hit, NavMesh.AllAreas) && hit.distance > 2f)
+                    {
+                        origin = start.position;
+                        wall = hit.position;
+                        aim = direction;
+                    }
+                }
+
+                if (aim != Vector3.zero)
+                {
+                    break;
                 }
             }
 
             Assert.AreNotEqual(Vector3.zero, aim, "un muro tra 2 e 8 m");
+            PlayerAgent.Warp(origin);
+            yield return null;
+            origin = Player.position;
             var projectile = pools.Launch(Firebolt.Effect, origin + Vector3.up * 1.1f, aim, Firebolt.Speed, Firebolt.Range, 10f, Player.gameObject, ~0);
             yield return WaitUntil(() => projectile.IsExploding, 2f);
             Assert.IsTrue(projectile.IsExploding);
