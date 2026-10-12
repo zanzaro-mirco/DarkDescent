@@ -443,6 +443,24 @@ cripta tra 12 e 20 m dall'ingresso, e la cripta di quella partita nuova, con il 
 aveva. Ora prende il punto più lontano dall'ingresso, lontano dalle uscite e senza nemici, e il test
 dei livelli ricordati non chiede più un nemico che lasci l'oro: tutti e due passano con qualunque seme.
 
+
+## Passo 10.10 — Chiusura
+
+**Com'è andata (12 ott 2026).** Mirco ha provato la seconda build del 10.9 (run 38257056533) e l'ha
+trovata a posto: le tarature di oro, prezzi, boss e portale restano come sono, da rivedere con la
+prova a cinque persone e nella M11.
+
+La GIF del README (`docs/media/m10_camp_boss.gif`, 640 × 360, 15 fotogrammi al secondo, 3,3 MB) è
+registrata in batch da un test temporaneo: dal menu si comincia nell'accampamento e si compra una
+pozione dal mercante; alla profondità 8 il cavaliere entra nella sala del Re delle ossa, la porta si
+chiude, il re evoca lo sciame, in furia telegrafa l'anello di fuoco; morto il re, il portale della
+vittoria porta alla schermata con le statistiche.
+
+ADR-071…079 per le decisioni dei passi 10.1–10.9; l'ADR-061 rimanda al 079. Nel piano (v2.33) le
+lezioni e lo stato. La M10 resta nelle 19–26 h: le correzioni dopo la prova erano già in tabella.
+Scheda della M11 scritta e confermata (con la D8 e la D9 cambiate da Mirco). Dalla prova sono
+arrivati anche due lavori per dopo la v1.0, nel piano (v2.32): i barili da rompere e gli oggetti
+unici e i set.
 ---
 
 ## Trappole note
@@ -495,6 +513,7 @@ dei livelli ricordati non chiede più un nemico che lasci l'oro: tutti e due pas
 - [x] Città, mercante, pergamena del ritorno
 - [x] Boss e vittoria
 - [ ] Build della CI provata su un altro PC
-- [ ] Test verdi in CI
-- [ ] GIF, lezioni nel piano, tag `m10` (ADR-071…079 scritti)
-- [x] Scheda della M11 scritta prima di cominciarla (decisioni da confermare)
+- [x] Test verdi in CI
+- [x] GIF, ADR, lezioni nel piano
+- [ ] Tag `m10`
+- [x] Scheda della M11 scritta prima di cominciarla, decisioni confermate

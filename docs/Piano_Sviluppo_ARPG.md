@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.33 | 12 ott 2026 | M10 chiusa (tag `m10`), con le lezioni · ADR-071…079 · la M10 resta nelle 19–26 h: le correzioni dopo la prova erano già in tabella |
 | v2.32 | 12 ott 2026 | Su richiesta di Mirco, dopo la v1.0: **barili da rompere**, più numerosi, con poco loot · **oggetti unici e set** con i bonus per numero di pezzi, che escono dal fuori ambito del § 1.1 |
 | v2.31 | 12 ott 2026 | Scheda della M11 scritta e decisioni confermate da Mirco: filtro retrò con opzione, post-processing per livello, musica del boss, profiling in una build di sviluppo, licenza MIT, itch.io solo Windows · M11 a 20–30 h · dalla prova della M10 i livelli lasciati restano com'erano (ADR-079) |
 | v2.30 | 11 ott 2026 | Decisioni della M10 confermate da Mirco · la **prima pubblicazione su itch.io** passa dalla M10 alla **fine della M11** · M10 a 19–26 h, M11 a 18–29 h |
@@ -44,7 +45,7 @@
 
 ---
 
-## Stato del progetto — aggiornato all'11 ottobre 2026
+## Stato del progetto — aggiornato al 12 ottobre 2026
 
 | | |
 |---|---|
@@ -55,11 +56,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) |
-| **Milestone corrente** | **M10 — "Città e loop completo"** → `docs/milestones/M10_Citta_e_loop.md` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) |
+| **Milestone corrente** | **M11 — "Look, feel e release"** → `docs/milestones/M11_Look_feel_release.md` |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…070) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…079) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -111,7 +112,7 @@ Le stime sono in **ore di sessione**: il tempo in cui Mirco lavora con Claude, c
 - **circa un terzo** della stima originale per le milestone fatte soprattutto di codice e test (M2.5, M4, M5, M6, M8, M9);
 - **circa metà** per quelle in cui pesano il giudizio di Mirco e il tempo passato a provare: atmosfera e luci (M3), nuovi nemici da tarare (M7), città e bilanciamento del gioco completo (M10), arte, audio e release (M11).
 
-**Totale stimato:** circa 159–227 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Alla chiusura della M8 (v2.27) la M8 è salita a 16–22 h, per i quattro giri di correzioni dopo le prove in build, e la M9 a 10–13 h. Nella v2.28 la M10 è salita a 15–20 h con il menu iniziale, i tre salvataggi, il click destro per indossare, l'avviso dei punti da spendere, le caratteristiche colorate e i nomi degli oggetti con `Alt`. Nella v2.30 la scheda della M10 l'ha portata a 19–26 h, e itch.io è passato alla M11 (18–29 h); nella v2.31 la scheda della M11 l'ha portata a 20–30 h. Per le milestone ancora aperte, M10–M11 al 12 ott 2026, restano 39–56 ore: a 6–10 h a settimana sono 4–10 settimane di lavoro effettivo; con pause e settimane saltate, **1,5–2,5 mesi di calendario**.
+**Totale stimato:** circa 159–227 ore, comprese M1 e M2: è la somma delle stime della tabella del § 5. Fino alla v2.22 il totale si teneva a mano, aggiungendo le variazioni di ogni versione, e diceva 109–157 ore: non teneva più conto di alcune variazioni, tra cui la crescita della M8 nella v2.19. Alla chiusura della M7 (v2.23) si è ricalcolato dalla tabella, che da ora è l'unica fonte; la M7 stessa è salita a 18–25 h con i tre passi di correzione dopo le prove in build. Alla chiusura della M8 (v2.27) la M8 è salita a 16–22 h, per i quattro giri di correzioni dopo le prove in build, e la M9 a 10–13 h. Nella v2.28 la M10 è salita a 15–20 h con il menu iniziale, i tre salvataggi, il click destro per indossare, l'avviso dei punti da spendere, le caratteristiche colorate e i nomi degli oggetti con `Alt`. Nella v2.30 la scheda della M10 l'ha portata a 19–26 h, e itch.io è passato alla M11 (18–29 h); nella v2.31 la scheda della M11 l'ha portata a 20–30 h. Per la sola M11 ancora aperta, al 12 ott 2026, restano 20–30 ore: a 6–10 h a settimana sono 2–5 settimane di lavoro effettivo; con pause e settimane saltate, **1–1,5 mesi di calendario**.
 
 **Punti di controllo, alla chiusura di M2 e di M5:** confronta le **settimane di calendario** dal punto di controllo precedente con la stima massima delle milestone chiuse nel frattempo, convertita a 6 h a settimana. Per M5 sono M2.5–M5, cioè 42 h, circa 7 settimane dalla chiusura della M2. Se il rapporto supera **1,5**, applica la prossima linea di taglio e ristima il resto. È una regola meccanica di proposito: la decisione di tagliare, presa da stanchi e in ritardo, non arriva mai. Le date di inizio e chiusura stanno già nella storia git e nei tag. Il punto di controllo di M2 (rapporto 0,19) è stato misurato con le stime della v2.1; quello di M5 (rapporto 0,04: 2 giorni contro circa 7 settimane) con quelle della v2.12. Quello della M8 confronta i 6 giorni dalla chiusura della M5 (5 ott) a quella della M8 (11 ott) con la stima massima di M6–M8, 66 h, cioè 11 settimane: rapporto 0,08, nessun taglio. Il prossimo, se serve, alla chiusura della M10, quando il gioco è finibile.
 
@@ -268,7 +269,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M7 | "Le profondità" | caverne, nuovi nemici, colpi critici, automappa delle caverne, musica e rumori d'ambiente | 18–25 | ✅ 8 ott |
 | M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 16–22 | ✅ 11 ott |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | ✅ 11 ott |
-| M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi | 19–26 | |
+| M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0, **prima pubblicazione su itch.io** | 20–30 | |
 
 ---
@@ -407,6 +408,18 @@ Chiusa l'11 ottobre 2026: 242 test EditMode e 166 PlayMode verdi, una build dell
 - **`Math.Round` arrotonda al pari:** il Dardo con la Magia 10 faceva 8–14 invece di 9–15. Dove il valore è mostrato al giocatore si arrotonda lontano dallo zero.
 - **Un test che conta lo stato del mondo dopo un click dipende da dove cadono le cose:** la cassa "aperta due volte" contava gli oggetti a terra, e il secondo click a volte ne raccoglieva uno. Si conta l'evento che interessa, non quello che resta sul pavimento.
 - **In CI Unity si può fermare all'avvio senza errori:** la build va seguita con un limite di tempo e annullata, invece di aspettare i 60 minuti del timeout.
+
+
+### M10 — "Città e loop completo" ✅
+
+Chiusa il 12 ottobre 2026: 291 test EditMode e 192 PlayMode verdi, due build della CI provate da Mirco. Lezioni emerse:
+
+- **Le prove in build trovano anche le scelte sbagliate, non solo gli errori:** il portale che riportava all'ingresso e i livelli che rinascevano erano scritti così apposta (D6, ADR-061). Solo giocando il giro città–dungeon–città si è visto che toglievano senso al ritorno e permettevano di rifare l'oro all'infinito. La correzione ha ribaltato un ADR della M8 (ADR-079) e ha portato un formato del salvataggio in più. Il passo di correzioni in tabella ha retto anche questo.
+- **Un dominio del seme per ogni tiro nuovo** (oro, pergamena del ritorno, assortimento del mercante) ha tenuto validi per tutta la milestone i test che cercano un seme preciso: nessun test di loot da riscrivere.
+- **Un test che parte da una partita nuova eredita un seme casuale:** il menu non lo fissa, e un test del portale che chiedeva un punto a 12–20 m dall'ingresso è passato in locale e caduto in CI. Un test che genera un livello deve valere per qualunque livello, o fissare il seme.
+- **L'ordine degli ascoltatori di un evento conta:** il salvataggio fatto entrando in un livello può arrivare prima che il livello sia rimesso com'era, e avrebbe sovrascritto il ricordo vero. Chi dipende dall'ordine va chiamato in modo esplicito dal composition root, non messo in fila sullo stesso evento.
+- **Gli operatori `??` e `?.` di C# non vedono gli oggetti distrutti di Unity:** un componente distrutto non è `null` per loro. Con gli oggetti di Unity si confronta con `== null`, o si usa un metodo che non restituisce un oggetto distrutto.
+- **Il menu nella scena Core, senza una scena a parte, ha reso semplici i test:** un test apre il menu, sceglie un posto e gioca, tutto nella stessa scena, con una cartella dei salvataggi temporanea da una variabile d'ambiente.
 
 ---
 

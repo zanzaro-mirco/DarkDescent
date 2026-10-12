@@ -5,20 +5,24 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Magia: nella cripta il cavaliere lancia Dardi di fuoco contro tre scheletri, li investe con l'Anello di fuoco quando gli sono addosso, si copre con la Pelle di pietra e abbatte a Dardi uno scheletro mago che lo bersaglia da lontano; in basso a destra la sfera blu del mana si svuota](docs/media/m9_magic.gif)
+![Città e loop completo: dal menu iniziale si comincia nell'accampamento sotterraneo, il cavaliere va dal mercante e compra una pozione; poi, alla profondità 8 delle caverne, entra nella sala del Re delle ossa, la porta si chiude, il re evoca lo sciame e in furia telegrafa l'anello di fuoco con un cerchio rosso; morto il re si apre il portale della vittoria, che porta alla schermata con le statistiche della partita](docs/media/m10_camp_boss.gif)
 
 ## Stato
 
-**M9 — "Magia"** chiusa l'11 ottobre 2026 (tag `m9`): la sfera blu del mana e tre
-incantesimi lanciati con il tasto destro: il Dardo di fuoco, un proiettile preso da un pool
-senza allocazioni; l'Anello di fuoco, che colpisce tutti attorno; la Pelle di pietra, che alza
-l'Armatura per 20 s. Il Dardo si conosce dall'inizio, gli altri si imparano dalle pergamene. Lo
-scheletro mago tiene le distanze, arretra se ci si avvicina e tira dardi che lo scudo para. La
-barra in alto resta sull'ultimo nemico colpito, la Magia ha un senso nel pannello, la pozione di
-mana e due affissi nuovi. Salvataggio al formato 3, con la migrazione dal 2. Prossima:
-**M10 — "Città e loop completo"**.
+**M10 — "Città e loop completo"** chiusa il 12 ottobre 2026 (tag `m10`): il gioco è finibile.
+Parte da un menu con *Continua*, *Nuova partita* e tre salvataggi, una pausa con `Esc` e le
+opzioni (lingua, volumi). Si comincia in un accampamento sotterraneo con il mercante, che vende
+pozioni, pergamene del ritorno e oggetti tirati dal seme, e compra quello che si trova. L'oro cade
+da nemici e casse; la pergamena del ritorno apre un portale verso l'accampamento, e il portale
+riporta dove lo si era aperto. I livelli lasciati restano com'erano: nemici uccisi, casse aperte,
+oggetti a terra. Alla profondità 8 il Re delle ossa aspetta in una sala che si chiude, con tre
+fasi; morto lui, la schermata di vittoria e i riconoscimenti. Salvataggio al formato 5. Prossima:
+**M11 — "Look, feel e release"**, con la v1.0.
 
 Milestone precedenti:
+
+- **M9 — "Magia"** (tag `m9`): mana, Dardo di fuoco, Anello di fuoco e Pelle di pietra,
+  pergamene, lo scheletro mago che tira da lontano ([GIF](docs/media/m9_magic.gif)).
 
 - **M8 — "Progressione e persistenza"** (tag `m8`): esperienza e livelli, punti attributo,
   equipaggiamento completo, salvataggio versionato, zoom e rotazione della visuale
