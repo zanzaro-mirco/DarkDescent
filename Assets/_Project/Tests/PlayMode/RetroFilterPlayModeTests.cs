@@ -36,7 +36,9 @@ namespace DarkDescent.Tests
             Directory.Delete(_folder, true);
         }
 
-        // l'immagine della camera senza interfaccia, in sRGB come la vede il giocatore
+        // L'immagine della camera senza interfaccia, in sRGB come la vede il giocatore. Si legge da una
+        // texture float lineare e si converte qui: sul rendering software della CI (Linux, Mesa) la
+        // scrittura in una texture sRGB non converte, e i colori arriverebbero lineari.
         private static Color32[] Render()
         {
             var camera = Camera.main;
@@ -45,19 +47,31 @@ namespace DarkDescent.Tests
                 canvas.enabled = false;
             }
 
-            var target = new RenderTexture(320, 180, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            var target = new RenderTexture(320, 180, 24, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear);
             camera.targetTexture = target;
             camera.Render();
             RenderTexture.active = target;
-            var texture = new Texture2D(320, 180, TextureFormat.RGBA32, false);
+            var texture = new Texture2D(320, 180, TextureFormat.RGBAHalf, false, true);
             texture.ReadPixels(new Rect(0, 0, 320, 180), 0, 0);
             texture.Apply();
             camera.targetTexture = null;
             RenderTexture.active = null;
-            var pixels = texture.GetPixels32();
+            var linear = texture.GetPixels();
             UnityEngine.Object.Destroy(texture);
             target.Release();
+            var pixels = new Color32[linear.Length];
+            for (int i = 0; i < linear.Length; i++)
+            {
+                var c = linear[i];
+                pixels[i] = new Color32(ToSrgb(c.r), ToSrgb(c.g), ToSrgb(c.b), 255);
+            }
+
             return pixels;
+        }
+
+        private static byte ToSrgb(float linear)
+        {
+            return (byte)Mathf.RoundToInt(Mathf.Clamp01(Mathf.LinearToGammaSpace(Mathf.Clamp01(linear))) * 255f);
         }
 
         [UnityTest, Description("Pieno, ogni pixel della cripta è un colore della palette; spento, l'immagine ne ha molti di più; il leggero è la scelta di partenza")]
@@ -78,16 +92,21 @@ namespace DarkDescent.Tests
             filter.SetMode(RetroMode.Full);
             int outside = 0;
             var used = new HashSet<Color32>();
+            var examples = new List<string>();
             foreach (var pixel in Render())
             {
-                used.Add(new Color32(pixel.r, pixel.g, pixel.b, 255));
+                used.Add(pixel);
                 if (!allowed.Exists(c => Math.Abs(c.r - pixel.r) <= 2 && Math.Abs(c.g - pixel.g) <= 2 && Math.Abs(c.b - pixel.b) <= 2))
                 {
                     outside++;
+                    if (examples.Count < 5)
+                    {
+                        examples.Add($"({pixel.r}, {pixel.g}, {pixel.b})");
+                    }
                 }
             }
 
-            Assert.AreEqual(0, outside, "pixel fuori dalla palette");
+            Assert.AreEqual(0, outside, $"pixel fuori dalla palette su {SystemInfo.graphicsDeviceName} ({SystemInfo.graphicsDeviceType}), per esempio {string.Join(" ", examples)}");
             Assert.LessOrEqual(used.Count, RetroPalette.Size);
 
             filter.SetMode(RetroMode.Off);
