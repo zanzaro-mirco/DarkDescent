@@ -98,6 +98,9 @@ della partita e ai riconoscimenti; la partita resta salvata e si può riscendere
 - `-seed 4711` usa quel seme per dungeon e loot; senza, il seme è casuale e si legge nel
   log (`Player.log`), con il comando per rigiocarlo
 - `-newgame` salta il menu e comincia una partita nuova che non si salva (anche `-seed`)
+- `-benchmark risultati.txt`, con `-seed`: il cavaliere gira da solo per città, cripta, caverne e
+  scontro con il re misurando i frame; i risultati vanno nel log e nel file, poi il gioco si chiude.
+  `-benchmark-seconds 5` accorcia i tratti, `-benchmark-fps 30` mette un tetto agli fps
 
 ## CI
 

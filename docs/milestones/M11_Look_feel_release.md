@@ -239,6 +239,51 @@ pausa spento all'avvio, con una sorgente 2D sul gruppo UI; con il gioco in pausa
 ferma e il click no. `BossPlayModeTests.BossMusic_EntersAndFadesOut`: con la porta chiusa suona il brano
 dello scontro, senza versi; vinto, torna la caverna. `VictoryTests`: i crediti con le righe nuove (il titolo del brano ha le parentesi tonde: le quadre i riconoscimenti le leggono come un link). 302 EditMode e 197 PlayMode verdi (due giri completi).
 
+## Passo 11.6 — Profiling in build
+
+**Com'è andata (13 ott 2026).**
+
+- **La build di sviluppo dalla CI**: l'avvio manuale di `Build` ha un'opzione `development`. Lo
+  script di build di GameCI accende le `BuildOptions` passate come parametri con lo stesso nome, e
+  basta `-Development`; l'artefatto prende il suffisso `-dev`. Sui tag la build resta normale.
+- **Una misura che gira da sola** (`Benchmark`, con i conti in `FrameStats` nel Core):
+  `DarkDescent.exe -seed 1 -benchmark risultati.txt` fa camminare e combattere il cavaliere per 20 s
+  in città, nella cripta alle profondità 2 e 4, nelle caverne alla 6 e contro il re alla 8, senza
+  che muoia; la vita del re scende a tempo per passare dalle tre fasi. Per ogni tratto una riga:
+  frame medi, p95, p99 e massimi, main thread, allocazioni (solo nella build di sviluppo), batch,
+  SetPass e triangoli. Spegne il vSync per misurare il margine, e i collider delle uscite: al primo
+  giro il cavaliere era entrato nella cripta camminando a caso per la città. `-benchmark-seconds` e
+  `-benchmark-fps` accorciano e rallentano la misura, per una registrazione del Profiler
+  (`-profiler-enable -profiler-log-file`) che entri nella storia dell'editor.
+- **Le misure**, sul PC di Mirco (Core Ultra 9 275HX, RTX 5070 Ti Laptop, D3D12, 1920×1080, filtro
+  retrò acceso), build normale:
+
+  | Tratto | fps medi | p99 | massimo | batch | triangoli |
+  |---|---|---|---|---|---|
+  | Città | 680 | 2,0 ms | 2,8 ms | 427 | 130k |
+  | Cripta, profondità 2 | 759 | 2,0 ms | 8,8 ms | 321 | 90k |
+  | Cripta, profondità 4 | 693 | 2,0 ms | 4,7 ms | 430 | 144k |
+  | Caverne, profondità 6 | 697 | 2,0 ms | 8,6 ms | 460 | 206k |
+  | Re delle ossa | 659 | 2,1 ms | 22,7 ms | 513 | 242k |
+
+  I 60 fps su questa macchina sono lontanissimi; quanto margine resta su un PC più modesto lo
+  diranno la prova del passo 11.7 e quella con le cinque persone. I livelli si costruiscono in
+  14–30 ms tra generazione, costruzione e NavMesh, sotto i 50. Il massimo di 22 ms contro il re è un
+  frame solo: a 60 fps un frame perso, da riguardare con il Profiler se nella prova si sente.
+- **Nessuna allocazione a ogni frame.** Nella build di sviluppo allocano da 4 a 27 frame su 11–13
+  mila per tratto, 72 contro il re. La registrazione del Profiler, letta con uno script dell'editor,
+  dice da dove: caricamenti dei livelli e `Awake`, la prima compilazione JIT di Mono, i testi TMP e
+  il pool dei numeri di danno che crescono le prime volte, URP che aggiunge i dati delle luci alle
+  torce al primo frame di un livello, i `-=` negli `OnDisable` dei nemici distrutti e circa 450 B a
+  colpo negli handler dei colpi. Tutte legate a un evento: nessuna da correggere.
+- **La correzione: il vSync.** La qualità PC lo aveva spento, e nessuno metteva un tetto agli fps: il
+  gioco girava a 600–700 fps con la GPU al massimo per niente, con ventole e consumi da portatile
+  sotto sforzo. Ora è acceso; la misura lo spegne solo per sé e lo scrive nel resoconto.
+
+*Test.* `FrameStatsTests` (5, EditMode): media e percentili al rango più vicino, allocazioni,
+contatori mancanti e `Reset`, frame oltre la capacità, e aggiungere un frame non alloca.
+`QualitySettingsTests` (1, EditMode): la qualità PC ha il vSync. 308 EditMode e 197 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -258,7 +303,9 @@ dello scontro, senza versi; vinto, torna la caverna. `VictoryTests`: i crediti c
 6. **Il rendering software della CI non è una scheda vera**: con llvmpipe il passo a tutto schermo
    del filtro retrò non arriva nell'immagine. Un test che legge i pixel va provato anche con
    `-force-glcore`, e se passa ovunque tranne che in CI si ignora lì, dicendo perché.
-7. **butler non deve mai stampare la chiave**, e i job delle pull request da fork non la ricevono.
+7. **Una finestra senza focus ferma il player**: `runInBackground` è spento, e un frame misurato
+   mentre si guarda altro dura secondi. La misura in build lo accende per sé.
+8. **butler non deve mai stampare la chiave**, e i job delle pull request da fork non la ricevono.
 
 ---
 
@@ -275,7 +322,7 @@ Da scrivere passo per passo.
 - [ ] Shader retro e post-processing
 - [x] Cripta e caverne arredate
 - [x] Audio rifinito
-- [ ] Profiling in build
+- [x] Profiling in build
 - [ ] Test verdi in CI
 - [ ] v1.0 su itch.io dalla CI, in beta ristretta con le chiavi
 - [ ] README con GIF e architettura, `CREDITS.md` completo

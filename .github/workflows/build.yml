@@ -13,6 +13,10 @@ on:
         type: choice
         options: [StandaloneWindows64, WebGL]
         default: StandaloneWindows64
+      development:
+        description: Build di sviluppo, per il Profiler (M11, passo 11.6)
+        type: boolean
+        default: false
 
 # Niente concurrency a livello di workflow: il gruppo "unity" lo prende già tests.yml
 # richiamato qui sotto, e lo stesso gruppo su chiamante e chiamato si blocca a vicenda.
@@ -39,7 +43,7 @@ jobs:
     # Sui tag inputs è vuoto: Windows.
     env:
       TARGET_PLATFORM: ${{ inputs.targetPlatform || 'StandaloneWindows64' }}
-      ARTIFACT_LABEL: ${{ inputs.targetPlatform == 'WebGL' && 'Web' || 'Windows' }}
+      ARTIFACT_LABEL: ${{ inputs.targetPlatform == 'WebGL' && 'Web' || 'Windows' }}${{ inputs.development && '-dev' || '' }}
     steps:
       # Stesso checkout e stessa cache LFS dei test: vedi tests.yml.
       - name: Checkout
@@ -77,6 +81,9 @@ jobs:
       # gli header Content-Encoding, come un server locale o itch.io.
       # versioning: None lascia il bundleVersion del progetto; la versione dal tag si valuta
       # alla M10, con la prima build pubblica.
+      # -Development: lo script di build di GameCI accende le BuildOptions con lo stesso nome
+      # passate come parametri. La build di sviluppo si collega al Profiler dell'editor sulla
+      # stessa rete e ha i contatori delle allocazioni; sui tag inputs è vuoto e la build è normale.
       - name: Build
         uses: game-ci/unity-builder@v6.0.0
         env:
@@ -87,6 +94,7 @@ jobs:
           targetPlatform: ${{ env.TARGET_PLATFORM }}
           buildName: DarkDescent
           versioning: None
+          customParameters: ${{ inputs.development && '-Development' || '' }}
 
       - name: Artifact
         uses: actions/upload-artifact@v7
