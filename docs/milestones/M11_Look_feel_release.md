@@ -341,7 +341,11 @@ scuro. `BossPlayModeTests.Portal_IsRefusedInTheBossRoom`: rifiutato nella sala p
 scontro, aperto morto il re. `DecorTests`: colonnati solo nelle stanze grandi, simmetrici, mai accanto
 a passaggi, casse o scala e frequenti; mucchietti quasi tutti in mezzo e attraversabili; ogni arredo
 ha il suo prefab, con i collider giusti. `RetroFilterTests` e `RetroFilterPlayModeTests`: si parte da
-spento. 310 EditMode e 198 PlayMode verdi; in un giro `BossMusic_EntersAndFadesOut` è caduto perché con quel seme la sala del re era uscita senza porta (il generatore lo ammette), e rilanciato è passato. Il test dava la porta per certa: ora i test del boss provano i semi da 1 in su e tengono il primo con la porta, e girano sempre sulla stessa sala.
+spento. 310 EditMode e 198 PlayMode verdi; in un giro `BossMusic_EntersAndFadesOut` è caduto perché con quel seme la sala del re era uscita senza porta (il generatore lo ammette), e rilanciato è passato. Il test dava la porta per certa: ora i test del boss provano i semi da 1 in su e tengono il primo con la porta, e girano sempre sulla stessa sala. Il giro dei test della prima build è poi caduto su `GoldPlayModeTests`: con quel seme una
+composizione era finita nella cella davanti alla prima cassa, che si apre dal davanti, e il cavaliere
+non ci arrivava. Gli arredi ora lasciano libere le celle accanto alle casse, come già le colonne; il
+controllo vale solo per gli arredi, così casse, nemici e oggetti di scena dei semi già provati non
+cambiano. `DecorTests` lo verifica su cento semi.
 
 ---
 

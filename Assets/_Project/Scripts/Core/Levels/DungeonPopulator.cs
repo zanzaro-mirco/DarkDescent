@@ -125,7 +125,7 @@ namespace DarkDescent.Levels
                 int count = Math.Min(_settings.MaxDecorPerRoom, 1 + (room.width + room.height) / 4);
                 for (int d = 0; d < count; d++)
                 {
-                    TryPlaceAgainstWall(layout, room, theme[Range(random, 0, theme.Length - 1)], random, reserved);
+                    TryPlaceAgainstWall(layout, room, theme[Range(random, 0, theme.Length - 1)], random, reserved, keepChestsFree: true);
                 }
 
                 int scatter = Range(random, 0, _settings.MaxScatterPerRoom);
@@ -406,7 +406,9 @@ namespace DarkDescent.Levels
 
         // Un ostacolo su una cella del bordo della stanza, mai su un passaggio verso un corridoio né
         // accanto: se comunque chiude il cammino verso un pezzo del livello, si toglie (trappola 5).
-        private static bool TryPlaceAgainstWall(DungeonLayout layout, RectInt room, char symbol, IRandomSource random, HashSet<Vector2Int> reserved)
+        // Gli arredi lasciano libere anche le celle accanto alle casse, che si aprono dal davanti
+        // (passo 11.7); casse e oggetti di scena no, per non cambiare i livelli dei semi già provati.
+        private static bool TryPlaceAgainstWall(DungeonLayout layout, RectInt room, char symbol, IRandomSource random, HashSet<Vector2Int> reserved, bool keepChestsFree = false)
         {
             var candidates = new List<Vector2Int>();
             for (int y = room.yMin; y < room.yMax; y++)
@@ -415,7 +417,8 @@ namespace DarkDescent.Levels
                 {
                     bool border = x == room.xMin || y == room.yMin || x == room.xMax - 1 || y == room.yMax - 1;
                     var cell = new Vector2Int(x, y);
-                    if (border && layout[x, y] == LevelMap.Floor && !reserved.Contains(cell) && !NearDoorway(layout, room, cell))
+                    if (border && layout[x, y] == LevelMap.Floor && !reserved.Contains(cell) && !NearDoorway(layout, room, cell)
+                        && !(keepChestsFree && NextToChestOrStairs(layout, cell)))
                     {
                         candidates.Add(cell);
                     }

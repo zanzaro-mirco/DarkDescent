@@ -76,7 +76,7 @@ namespace DarkDescent.Tests
             return DungeonPopulator.IsDecor(c) && c != DungeonPopulator.ColumnSymbol && !DungeonPopulator.IsScatter(c);
         }
 
-        [Test, Description("Ogni stanza ha un tema solo; le composizioni stanno sul bordo della stanza, contro un muro, e sono tante: almeno una a stanza")]
+        [Test, Description("Ogni stanza ha un tema solo; le composizioni stanno sul bordo della stanza, contro un muro, mai accanto a una cassa (si apre dal davanti), e sono tante: almeno una a stanza")]
         public void Decor_FollowsTheRoomTheme()
         {
             var generator = new DungeonGenerator(_settings);
@@ -94,6 +94,10 @@ namespace DarkDescent.Tests
                     {
                         bool border = cell.x == room.xMin || cell.y == room.yMin || cell.x == room.xMax - 1 || cell.y == room.yMax - 1;
                         Assert.IsTrue(border, $"seme {seed}: composizione in mezzo alla stanza");
+                        foreach (var step in new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right })
+                        {
+                            Assert.AreNotEqual(DungeonPopulator.ChestSymbol, layout[cell.x + step.x, cell.y + step.y], $"seme {seed}: composizione accanto a una cassa in ({cell.x}, {cell.y})");
+                        }
                     }
                 }
 
