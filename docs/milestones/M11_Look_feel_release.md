@@ -38,8 +38,8 @@ Confermate da Mirco il 12 ottobre 2026: tutte come proposte, tranne la D8 (tutti
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
-| D1 | **Correzioni dalla prova della M10** | Per prime: quello che esce dalla build provata da Mirco e dalla prova a cinque persone (piano, M10), comprese le tarature rimaste aperte (oro e prezzi, vita e danno del boss, misura del portale). Le pergamene del ritorno impilabili restano nell'`ICEBOX` | Sono le note su un gioco già finibile: vengono prima dell'aspetto |
-| D2 | **Shader retro** | Un passo a tutto schermo con la *Full Screen Pass Renderer Feature* di URP e un materiale Shader Graph: **palette limitata** da una texture di 32 colori scuri, caldi per fuochi e oro, freddi per l'ombra; **dithering ordinato** 4 × 4 tra un colore e l'altro. Senza abbassare la risoluzione di default. Un'**opzione** *Filtro retrò* (spento, leggero, pieno) nel menu delle opzioni, su *leggero* all'avvio | Dà a KayKit, Quaternius e alle caverne una pelle comune, come chiede il piano. La pixelatura sull'interfaccia rende illeggibili i testi in Cinzel, ed è per questo che resta fuori di default |
+| D1 | **Correzioni dalla prova della M10** | Per prime: quello che esce dalla build provata da Mirco e dalla prova a cinque persone (piano, M10), comprese le tarature rimaste aperte (oro e prezzi, vita e danno del boss, misura del portale). Le pergamene del ritorno impilabili restano nell'`ICEBOX` (superata al passo 11.7: la pergamena è diventata una magia) | Sono le note su un gioco già finibile: vengono prima dell'aspetto |
+| D2 | **Shader retro** | Un passo a tutto schermo con la *Full Screen Pass Renderer Feature* di URP e un materiale Shader Graph: **palette limitata** da una texture di 32 colori scuri, caldi per fuochi e oro, freddi per l'ombra; **dithering ordinato** 4 × 4 tra un colore e l'altro. Senza abbassare la risoluzione di default. Un'**opzione** *Filtro retrò* (spento, leggero, pieno) nel menu delle opzioni, su *leggero* all'avvio (*spento* dal passo 11.7, scelta di Mirco) | Dà a KayKit, Quaternius e alle caverne una pelle comune, come chiede il piano. La pixelatura sull'interfaccia rende illeggibili i testi in Cinzel, ed è per questo che resta fuori di default |
 | D3 | **Post-processing** | Un Volume globale in Core con un profilo nostro: tonemapping, vignetta, grana leggera, bloom con una soglia alta (solo fuochi, portali, incantesimi). Ogni `LevelTileset` porta un profilo suo per il colore (cripta fredda, caverne verdastre, accampamento caldo), sostituito entrando nel livello | Oggi è il profilo del template, uguale ovunque. Il profilo nel tileset segue la luce ambiente, che sta già lì |
 | D4 | **Dungeon più ricco** | Come nel piano v2.26: barili, tavoli, scaffali, libri, ossa, ragnatele, catene, sacchi e detriti, lungo i muri e negli angoli, mai sul percorso tra le porte né sulle scale. Un **tema per stanza** (deposito, biblioteca, ossario, cella) scelto dal seme. Caverne: funghi, cristalli e rocce del pacchetto, con una lista loro. Quello che blocca il passo entra nel NavMesh; il resto senza collider. Si misura la costruzione: sotto i 50 ms | Lo chiede Mirco; i modelli sono già scaricati, e il popolatore della M6 ha già le regole su porte e scale |
 | D5 | **Audio** | Una **musica per lo scontro con il boss** (CC0 da OpenGameArt, scaricata con il permesso di Mirco), che parte con la chiusura della porta e sfuma alla vittoria. Suoni mancanti: click nei menu, compravendita, salita di livello. Un giro di volumi su tutto | Il boss è il culmine della partita e oggi suona come un livello qualunque |
@@ -284,6 +284,65 @@ dello scontro, senza versi; vinto, torna la caverna. `VictoryTests`: i crediti c
 contatori mancanti e `Reset`, frame oltre la capacità, e aggiungere un frame non alloca.
 `QualitySettingsTests` (1, EditMode): la qualità PC ha il vSync. 308 EditMode e 197 PlayMode verdi.
 
+## Passo 11.7 — Build da provare e correzioni
+
+**Com'è andata (14 ott 2026).** Mirco ha provato la build normale dalla CI (run 38471688991); quella
+di sviluppo (run 38474083466) è pronta per il Profiler, se nella prova qualcosa scatta. Le sue note,
+e cosa è cambiato:
+
+- **Il filtro retrò parte spento.** Con il filtro la luce delle torce si spezza in bande, e a Mirco
+  non piace: l'opzione resta, ma *spento* è la scelta di partenza (D2 corretta). Chi l'aveva già
+  cambiato tiene la sua scelta.
+- **La pergamena del ritorno diventa una magia.** Il portale per l'accampamento lo apre la *magia del
+  portale* (`SpellKind.Portal`), in un posto suo a sinistra della cintura, con il tasto **T** o un
+  click: 10 di mana, nessuna ricarica, sempre nota e fuori dai posti F1–F3. Il portale e il ritorno
+  sono quelli della M10 (`TownPortals`); la magia chiede prima se lì si può (`IPortalOpener`):
+  - **in città** non parte, e l'HUD dice "Sei già all'accampamento";
+  - **nella sala del re vivo** non parte, e l'HUD dice "Il Re delle ossa non ti lascia fuggire":
+    durante lo scontro ovunque, prima dello scontro dentro il quadrato della sala (`BossController.
+    HoldsPlayerAt`, entro 10,5 m dal centro sui due assi: la sala è di 20 m, la porta a 12). Morto il re, si apre;
+  - **senza mana** suona sordo e il posto è già scuro, come per gli altri incantesimi.
+
+  La pergamena è sparita del tutto: oggetto, icona, drop di nemici, casse e re, il banco del mercante
+  (ora due pozioni e otto oggetti), quella di partenza, la riga del tooltip, il suo dominio del seme.
+  Un salvataggio di prima con una pergamena nello zaino la perde al caricamento, come ogni oggetto che
+  il database non conosce più: nessun salvataggio è ancora uscito dal PC di Mirco. L'avviso dello
+  zaino pieno è diventato `HudMessage`, che dice anche perché il portale non si apre.
+- **Vita e mana sulle sfere.** Con il mouse sopra una sfera compare quanto resta, "45 / 80"
+  (`OrbReadout`): arrotondato per eccesso, così chi è vivo non legge mai 0; il testo si riscrive sui
+  cambi della sfera, solo mentre si vede.
+- **Più arredi, e non solo contro i muri.**
+  - *Composizioni*: cinque per tema invece di tre. Con colonne e mucchietti entrano quindici modelli
+    nuovi del pacchetto KayKit *Dungeon* già in Downloads. Le otto nuove: forzieri impilati e barili, il tavolo con le bottiglie e la
+    botte, la tavola apparecchiata con le sedie, il tavolino con il pranzo e le monete, il giaciglio
+    a terra, il forziere con le chiavi, lo scudo con le spade appoggiato al muro, la botte rovesciata.
+    Una ogni quattro celle di lato invece che sei, fino a quattro per stanza.
+  - *Colonnati* (`DungeonPopulator.ColumnCells`): nell'85% delle stanze di almeno 5 × 5 celle, due
+    file di colonne decorate a una cella dai muri, lungo il lato lungo, una ogni due celle. Il
+    colonnato resta simmetrico: una colonna che non può stare (accanto a un passaggio, davanti a una
+    cassa, accanto alla scala) porta via le sue speculari, e con meno di due colonne non c'è.
+  - *Mucchietti a terra*: ossa e teschi, cianfrusaglie (piatti, bottiglie rovesciate, chiavi, una
+    candela), armi rotte; fino a due per stanza, di preferenza lontano dai muri, senza collider. Le
+    monete sono rimaste fuori: a terra sembrano oro da raccogliere.
+  - Con il seme di una partita di prova, nelle quattro profondità della cripta: da 26 a 32 arredi
+    per livello, colonne comprese, e da 7 a 14 mucchietti; prima erano da 18 a 29 composizioni. Le
+    caverne non cambiano. Generazione, costruzione e NavMesh fanno 22–25 ms, e 53 al primo livello
+    con l'avvio a freddo dell'editor (erano 48): sopra i 50 della D4 solo lì, e nella build il
+    benchmark dell'11.6 misurava 14–30 ms. Da rimisurare in build alla prossima prova.
+- **Per dopo la v1.0** (piano v2.34): un albero delle abilità, con lo stile da scegliere tra Diablo 2,
+  Sacred e World of Warcraft; i barili da rompere anche in mezzo alle stanze. Il movimento con WASD
+  c'era già, dalla v2.25.
+
+*Test.* `PortalSpellTests` (EditMode, al posto di `ReturnScrollTests`): la magia ha tipo, icona, costo
+e nome nelle due lingue, il cavaliere la ha fuori da F1–F3; la pergamena non c'è più da nessuna parte.
+`PortalTests` (PlayMode): nessuna pergamena all'inizio, in città la magia non parte e l'HUD lo dice, T
+apre il portale e spende il mana, un secondo lancio lo sposta, senza mana non parte e il posto è
+scuro. `BossPlayModeTests.Portal_IsRefusedInTheBossRoom`: rifiutato nella sala prima e durante lo
+scontro, aperto morto il re. `DecorTests`: colonnati solo nelle stanze grandi, simmetrici, mai accanto
+a passaggi, casse o scala e frequenti; mucchietti quasi tutti in mezzo e attraversabili; ogni arredo
+ha il suo prefab, con i collider giusti. `RetroFilterTests` e `RetroFilterPlayModeTests`: si parte da
+spento. 310 EditMode e 198 PlayMode verdi; in un giro `BossMusic_EntersAndFadesOut` è caduto perché con quel seme la sala del re era uscita senza porta (il generatore lo ammette), e rilanciato è passato: da sistemare nel test, che oggi dà la porta per certa.
+
 ---
 
 ## Trappole note
@@ -305,7 +364,10 @@ contatori mancanti e `Reset`, frame oltre la capacità, e aggiungere un frame no
    `-force-glcore`, e se passa ovunque tranne che in CI si ignora lì, dicendo perché.
 7. **Una finestra senza focus ferma il player**: `runInBackground` è spento, e un frame misurato
    mentre si guarda altro dura secondi. La misura in build lo accende per sé.
-8. **butler non deve mai stampare la chiave**, e i job delle pull request da fork non la ricevono.
+8. **Un solo run in attesa per gruppo di concorrenza**: test e build stanno nel gruppo `unity`, e un
+   run nuovo in attesa cancella quello che aspettava già. Due build lanciate insieme (normale e di
+   sviluppo) ne lasciano una sola: si lanciano una dopo l'altra.
+9. **butler non deve mai stampare la chiave**, e i job delle pull request da fork non la ricevono.
 
 ---
 
