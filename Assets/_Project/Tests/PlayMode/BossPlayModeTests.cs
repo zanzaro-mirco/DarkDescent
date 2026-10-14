@@ -31,18 +31,31 @@ namespace DarkDescent.Tests
 
         private static DamageInfo Damage(float amount) => new DamageInfo(amount, DamageType.Physical, null);
 
+        // Semi fissi, il primo con la porta: con il seme dell'orologio la sala a volte resta aperta
+        // (il generatore lo ammette, se nessuna porta tiene la sala raggiungibile) e i test della porta cadevano
         private IEnumerator GoToDepth8()
         {
             yield return LoadGeneratedCore();
-            Manager.LoadLevel("Level_Caves", "FromAbove", 8);
-            for (float t = 0f; Manager.IsTransitioning || Manager.CurrentLevel == null || Manager.CurrentLevel.Depth != 8; t += Time.unscaledDeltaTime)
+            for (ulong seed = 1; seed <= 10; seed++)
             {
-                Assert.Less(t, 15f, "la profondità 8 non arriva");
+                Manager.RunSeed = seed;
+                Manager.LoadLevel("Level_Caves", "FromAbove", 8);
                 yield return null;
+                for (float t = 0f; Manager.IsTransitioning || Manager.CurrentLevel == null || Manager.CurrentLevel.Depth != 8; t += Time.unscaledDeltaTime)
+                {
+                    Assert.Less(t, 15f, "la profondità 8 non arriva");
+                    yield return null;
+                }
+
+                yield return null;
+                yield return null;
+                if (Manager.CurrentLevel.BossGate != null)
+                {
+                    yield break;
+                }
             }
 
-            yield return null;
-            yield return null;
+            Assert.Fail("nessun seme da 1 a 10 dà una sala con la porta");
         }
 
         // il cavaliere resta in vita mentre il test aspetta: il re picchia forte
