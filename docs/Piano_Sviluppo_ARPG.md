@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.30**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.34**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.34 | 14 ott 2026 | Dalla prova della build del passo 11.7, su richiesta di Mirco: un **albero delle abilità** dopo la v1.0, con lo stile da scegliere tra Diablo 2, Sacred e World of Warcraft · i **barili da rompere** anche in mezzo alle stanze · la pergamena del ritorno lascia il posto alla **magia del portale** (scheda della M11) |
 | v2.33 | 12 ott 2026 | M10 chiusa (tag `m10`), con le lezioni · ADR-071…079 · la M10 resta nelle 19–26 h: le correzioni dopo la prova erano già in tabella |
 | v2.32 | 12 ott 2026 | Su richiesta di Mirco, dopo la v1.0: **barili da rompere**, più numerosi, con poco loot · **oggetti unici e set** con i bonus per numero di pezzi, che escono dal fuori ambito del § 1.1 |
 | v2.31 | 12 ott 2026 | Scheda della M11 scritta e decisioni confermate da Mirco: filtro retrò con opzione, post-processing per livello, musica del boss, profiling in una build di sviluppo, licenza MIT, itch.io solo Windows · M11 a 20–30 h · dalla prova della M10 i livelli lasciati restano com'erano (ADR-079) |
@@ -768,9 +769,10 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - Si valuta insieme ai nemici speciali, che toccano gli stessi numeri.
 - **Barili da rompere** (chiesto da Mirco il 12 ott 2026). Come in Diablo 1: un barile si rompe con un colpo, cliccandolo come un nemico, e a volte lascia qualcosa. Cosa comporta:
   - **Più barili.** Il popolatore li mette in gruppi da due a quattro, lungo i muri e negli angoli, più fitti nelle stanze a tema deposito degli arredi della M11 e mai sul percorso tra le porte. Indicativamente 4–8 per livello nella cripta e 2–5 nelle caverne, da provare in build.
-  - **Cosa lasciano.** Meno di uno scheletro, perché sono tanti e non fanno male. Per barile, con tiri separati: **oro 15%**, la metà della quantità di uno scheletro alla stessa profondità; **un oggetto 5%**, con la tabella delle rarità di sempre; **una pozione 4%**; **una pergamena del ritorno 1%**. Circa tre barili su quattro non lasciano niente. Con 6 barili a livello fanno in media un oggetto ogni tre livelli e un po' d'oro: un premio per chi esplora, non una fonte che cambia il bilanciamento della M10. I numeri sono una `LootTable` come le altre, quindi si tarano senza toccare il codice.
+  - **Cosa lasciano.** Meno di uno scheletro, perché sono tanti e non fanno male. Per barile, con tiri separati: **oro 15%**, la metà della quantità di uno scheletro alla stessa profondità; **un oggetto 5%**, con la tabella delle rarità di sempre; **una pozione 5%**. Circa tre barili su quattro non lasciano niente. Con 6 barili a livello fanno in media un oggetto ogni tre livelli e un po' d'oro: un premio per chi esplora, non una fonte che cambia il bilanciamento della M10. I numeri sono una `LootTable` come le altre, quindi si tarano senza toccare il codice.
   - **Il seme.** Un dominio suo, come l'oro (ADR-071), così il loot dei nemici e delle casse dei semi già provati non cambia.
   - **Nel codice.** Un componente `Breakable` con una `Health` di un colpo, il modello rotto (il pacchetto KayKit *Dungeon* ha i barili e i loro pezzi), il suono del legno, il collider che sparisce e l'ostacolo del NavMesh che si toglie. Il click del cavaliere lo tratta come un bersaglio, senza esperienza e senza barra in alto. Rotto, entra nei ricordi del livello come una cassa aperta (ADR-079).
+  - **Anche in mezzo alle stanze** (chiesto da Mirco il 14 ott 2026, nella prova del passo 11.7). Gli arredi della M11 stanno contro i muri perché non si spostano e non devono chiudere un passaggio; un barile si rompe, e quindi qualche gruppo può stare in mezzo a una stanza grande, come in Diablo 1. Resta la regola del percorso tra le porte: un gruppo in mezzo non lo taglia, così nemici e cavaliere non devono romperlo per passare.
   - **Variante da decidere insieme:** i barili esplosivi delle profondità più basse, che feriscono chi è vicino, cavaliere compreso.
   - Circa 2–3 h. Se si fa subito dopo la v1.0, riusa le regole degli arredi della M11.
 - **Oggetti unici e set** (chiesto da Mirco il 12 ott 2026). Oggi le rarità sono tre, normale, magico e raro, e una quarta leggendaria era stata chiesta e poi tolta alla M5 (ADR-027). Due gradi nuovi sopra il raro, come in Diablo 2:
@@ -780,6 +782,12 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Salvataggio.** Un formato nuovo: l'istanza dice se è un unico o un pezzo di set e quale.
   - **Con i nemici speciali.** Campioni e unici (sopra) sono il posto naturale da cui fanno cadere questi oggetti: conviene farli insieme.
   - È stato fuori ambito dalla v1 del piano (§ 1.1, `ICEBOX.md`): passa qui, dopo la v1.0. Circa 5–8 h con una decina di unici e due o tre set; scrivere oggetti a mano è la parte lunga.
+- **Albero delle abilità** (chiesto da Mirco il 14 ott 2026). Oggi il cavaliere cresce con i punti attributo (M8) e impara gli incantesimi dalle pergamene (M9). Un albero gli darebbe scelte che restano e che distinguono una partita dall'altra. Lo stile è da scegliere tra tre modelli, qui a grandi linee:
+  - **Diablo 2.** Per classe tre schede di abilità; un punto a ogni livello; un'abilità si apre a un certo livello e dopo quelle che la precedono, e ogni punto in più la rafforza. Si legge subito; in pratica i punti finiscono in poche abilità e le altre restano a zero.
+  - **Sacred.** Le arti di combattimento si imparano dalle rune e salgono di grado leggendone altre uguali; a certi livelli si sceglie un'abilità passiva (un tipo d'arma, la concentrazione, la difesa) che rafforza le arti e gli attributi. È il più vicino a quello che c'è già: le pergamene della M9 fanno già da rune.
+  - **World of Warcraft.** Talenti divisi per specializzazione, a righe che si aprono spendendo punti nell'albero, spesso con una scelta tra due o tre nodi per riga. Dà a ogni personaggio un'identità chiara, ma chiede più contenuti per ogni riga.
+  - **Nel codice**, con qualunque stile: un nodo è un dato (un asset con prerequisiti, livello minimo, grado massimo ed effetto), e l'effetto è un modificatore della `StatSheet` o un grado in più di un incantesimo, lo stesso meccanismo degli affissi. I punti vengono dal `CharacterProgress` della M8, accanto a quelli degli attributi; un pannello nuovo con il suo tasto; un formato nuovo del salvataggio con i gradi per id.
+  - Prima di cominciare: due o tre build provate su carta per ogni stile, e la scelta di Mirco. Senza le classi nuove (sopra) c'è un albero solo, quello del Guerriero. Circa 6–10 h per una quindicina di nodi; si fa insieme alle classi se arrivano prima.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---

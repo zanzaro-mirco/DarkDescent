@@ -52,6 +52,7 @@ MonoBehaviour:
     _weight: 1
   - _item: {fileID: 11400000, guid: 8f014bf2069c70947987bab32d0a778d, type: 2}
     _weight: 1
+  _minRarity: 0
   _potion: {fileID: 11400000, guid: c94daa5854b2b2f48851de7b3d27463c, type: 2}
   _potionChance: 0.2
   _manaPotion: {fileID: 11400000, guid: 7048aa0bfc559234bb73fa16ec0def3e, type: 2}
@@ -60,5 +61,3 @@ MonoBehaviour:
   _goldChance: 0.8
   _goldRange: {x: 8, y: 20}
   _goldPerDepth: 0.35
-  _returnScroll: {fileID: 11400000, guid: bf49831be2e81f545b7090f182399e97, type: 2}
-  _returnScrollChance: 0.03

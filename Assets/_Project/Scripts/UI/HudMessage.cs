@@ -1,19 +1,20 @@
 using System.Collections;
 using DarkDescent.Items;
 using DarkDescent.Localization;
+using DarkDescent.Magic;
 using TMPro;
 using UnityEngine;
 
 namespace DarkDescent.UI
 {
     /// <summary>
-    /// "Non c'è posto nell'inventario" al centro dello schermo, per un momento, quando il cavaliere
-    /// prova a raccogliere un oggetto che non entra (seconda prova della build M7). Prima lo diceva
-    /// l'etichetta dell'oggetto, e restava lì. Ascolta l'inventario; un altro tentativo la rimette a
-    /// piena luce.
+    /// Un avviso al centro dello schermo, per un momento: "Non c'è posto nell'inventario" quando il
+    /// cavaliere prova a raccogliere un oggetto che non entra (seconda prova della build M7), e dal
+    /// passo 11.7 della M11 perché la magia del portale non parte, in città o nella sala del re.
+    /// Ascolta inventario e magia; un altro avviso la rimette a piena luce.
     /// </summary>
     [DisallowMultipleComponent]
-    public class InventoryFullMessage : MonoBehaviour
+    public class HudMessage : MonoBehaviour
     {
         [SerializeField] private TMP_Text _text;
 
@@ -25,7 +26,9 @@ namespace DarkDescent.UI
         [SerializeField, Min(0.05f)] private float _fade = 0.6f;
 
         private PlayerInventory _inventory;
+        private PlayerMagic _magic;
         private Localizer _localizer;
+        private string _key;
         private bool _subscribed;
         private Coroutine _fading;
 
@@ -35,10 +38,11 @@ namespace DarkDescent.UI
         public string Text => _text.text;
 
         /// <summary>Come i pannelli: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
-        public void Bind(PlayerInventory inventory, Localizer localizer)
+        public void Bind(PlayerInventory inventory, PlayerMagic magic, Localizer localizer)
         {
             Unsubscribe();
             _inventory = inventory;
+            _magic = magic;
             _localizer = localizer;
             if (isActiveAndEnabled)
             {
@@ -71,7 +75,12 @@ namespace DarkDescent.UI
                 return;
             }
 
-            _inventory.PickUpRefused += Show;
+            _inventory.PickUpRefused += HandlePickUpRefused;
+            if (_magic != null)
+            {
+                _magic.PortalRefused += HandlePortalRefused;
+            }
+
             _localizer.LanguageChanged += Refresh;
             _subscribed = true;
         }
@@ -83,13 +92,37 @@ namespace DarkDescent.UI
                 return;
             }
 
-            _inventory.PickUpRefused -= Show;
+            _inventory.PickUpRefused -= HandlePickUpRefused;
+            if (_magic != null)
+            {
+                _magic.PortalRefused -= HandlePortalRefused;
+            }
+
             _localizer.LanguageChanged -= Refresh;
             _subscribed = false;
         }
 
-        private void Show(ItemInstance item)
+        private void HandlePickUpRefused(ItemInstance item)
         {
+            Show(TextKeys.InventoryFull);
+        }
+
+        // senza mana il posto del portale è già scuro, e il suono sordo basta: come gli altri incantesimi
+        private void HandlePortalRefused(PortalResult result)
+        {
+            if (result == PortalResult.InTown)
+            {
+                Show(TextKeys.PortalInTown);
+            }
+            else if (result == PortalResult.BossRoom)
+            {
+                Show(TextKeys.PortalBossRoom);
+            }
+        }
+
+        private void Show(string key)
+        {
+            _key = key;
             Refresh();
             if (_fading != null)
             {
@@ -116,7 +149,7 @@ namespace DarkDescent.UI
 
         private void Refresh()
         {
-            _text.text = _localizer != null ? _localizer.Get(TextKeys.InventoryFull) : string.Empty;
+            _text.text = _localizer != null && _key != null ? _localizer.Get(_key) : string.Empty;
         }
     }
 }

@@ -12,7 +12,9 @@ namespace DarkDescent.Magic
     /// La magia del cavaliere (M9): mana, incantesimi noti e lancio. Il mana massimo segue Magia,
     /// livello e affissi dalla scheda delle statistiche; si riempie salendo di livello e tornando in
     /// vita. Il tasto destro lancia l'incantesimo scelto verso il cursore e annuncia
-    /// <see cref="Cast"/>: che cosa succede nel mondo lo decidono gli incantesimi che ascoltano.
+    /// <see cref="Cast"/>: che cosa succede nel mondo lo decidono gli incantesimi che ascoltano. Dal
+    /// passo 11.7 della M11 c'è anche la magia del portale, con il suo tasto: sempre nota, apre il
+    /// portale per l'accampamento dove chi lo apre lo permette.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterStats), typeof(Health))]
@@ -20,6 +22,9 @@ namespace DarkDescent.Magic
     {
         [Tooltip("Gli incantesimi del gioco, nell'ordine dei posti F1, F2, F3.")]
         [SerializeField] private SpellDefinition[] _spells;
+
+        [Tooltip("La magia del portale per l'accampamento, fuori dai posti F1–F3 (passo 11.7 della M11).")]
+        [SerializeField] private SpellDefinition _portalSpell;
 
         [Tooltip("Il suono sordo di un lancio che non parte: niente mana, ricarica, incantesimo non noto.")]
         [SerializeField] private AudioClip _failClip;
@@ -37,17 +42,24 @@ namespace DarkDescent.Magic
         private ManaPool _mana;
         private SpellBook _book;
         private SpellCaster _caster;
+        private IPortalOpener _portalOpener;
         private bool _subscribed;
 
         // la pressione arriva da una callback dell'input, dove la UI risponde con il frame prima:
         // si esegue nel primo Update, come il click del movimento
         private bool _castPending;
+        private bool _portalPending;
 
         /// <summary>Un incantesimo è partito verso un punto del mondo: il mana è già speso.</summary>
         public event Action<SpellDefinition, Vector3> Cast;
 
         /// <summary>Un lancio non è partito, e perché.</summary>
         public event Action<CastResult> CastFailed;
+
+        /// <summary>La magia del portale non è partita, e perché: l'HUD lo dice per un momento.</summary>
+        public event Action<PortalResult> PortalRefused;
+
+        public SpellDefinition PortalSpell => _portalSpell;
 
         public ManaPool Mana => _mana ??= new ManaPool(MaxMana());
 
@@ -72,6 +84,52 @@ namespace DarkDescent.Magic
             {
                 Subscribe();
             }
+        }
+
+        /// <summary>Chi apre il portale per l'accampamento; senza, la magia del portale non parte.</summary>
+        public void SetPortalOpener(IPortalOpener opener)
+        {
+            _portalOpener = opener;
+        }
+
+        /// <summary>
+        /// La magia del portale (T o un click sul suo posto): se chi lo apre lo permette e il mana basta,
+        /// lo spende, annuncia <see cref="Cast"/> per gesto e suono, e apre il portale.
+        /// </summary>
+        public PortalResult TryCastPortal()
+        {
+            var result = CheckPortal();
+            if (result == PortalResult.Opened)
+            {
+                Mana.TrySpend(_portalSpell.ManaCost);
+                Cast?.Invoke(_portalSpell, transform.position);
+                _portalOpener.OpenTownPortal();
+                return result;
+            }
+
+            if (result != PortalResult.Unavailable && _audio != null && _failClip != null)
+            {
+                _audio.PlayOneShot(_failClip);
+            }
+
+            PortalRefused?.Invoke(result);
+            return result;
+        }
+
+        private PortalResult CheckPortal()
+        {
+            if (_portalSpell == null || _portalOpener == null || _health.IsDead)
+            {
+                return PortalResult.Unavailable;
+            }
+
+            var where = _portalOpener.CanOpenTownPortal();
+            if (where != PortalResult.Opened)
+            {
+                return where;
+            }
+
+            return Mana.Current >= _portalSpell.ManaCost ? PortalResult.Opened : PortalResult.NoMana;
         }
 
         /// <summary>Sceglie il posto da lanciare (F1–F3 o un click sulla barra); false se non è noto.</summary>
@@ -144,6 +202,7 @@ namespace DarkDescent.Magic
 
             Unsubscribe();
             _castPending = false;
+            _portalPending = false;
         }
 
         private void Subscribe()
@@ -155,6 +214,7 @@ namespace DarkDescent.Magic
 
             _reader.CastPressed += HandleCastPressed;
             _reader.SpellSelected += HandleSpellSelected;
+            _reader.PortalPressed += HandlePortalPressed;
             _subscribed = true;
         }
 
@@ -167,6 +227,7 @@ namespace DarkDescent.Magic
 
             _reader.CastPressed -= HandleCastPressed;
             _reader.SpellSelected -= HandleSpellSelected;
+            _reader.PortalPressed -= HandlePortalPressed;
             _subscribed = false;
         }
 
@@ -175,12 +236,19 @@ namespace DarkDescent.Magic
             if (_health.IsDead)
             {
                 _castPending = false;
+                _portalPending = false;
                 return;
             }
 
             float deltaTime = Time.deltaTime;
             Mana.Regenerate(deltaTime, CombatFormulas.ManaRegenPerSecond);
             Caster.Advance(deltaTime);
+
+            if (_portalPending)
+            {
+                _portalPending = false;
+                TryCastPortal();
+            }
 
             if (_castPending)
             {
@@ -204,6 +272,11 @@ namespace DarkDescent.Magic
         private void HandleCastPressed()
         {
             _castPending = true;
+        }
+
+        private void HandlePortalPressed()
+        {
+            _portalPending = true;
         }
 
         private void HandleSpellSelected(int slot)

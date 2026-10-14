@@ -22,5 +22,5 @@
 
 <!-- data — idea — perché mi piace -->
 
-- 12 ott 2026 — Pergamene del ritorno impilabili: più pergamene in una sola casella della borsa, con il numero sopra — se ne portano di scorta senza riempire la griglia.
+- ~~12 ott 2026 — Pergamene del ritorno impilabili: più pergamene in una sola casella della borsa, con il numero sopra — se ne portano di scorta senza riempire la griglia.~~ Superata il 14 ott 2026: al passo 11.7 della M11 la pergamena del ritorno è diventata una magia.
 

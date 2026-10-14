@@ -11,7 +11,7 @@ namespace DarkDescent.Items
     [CreateAssetMenu(fileName = "MerchantTable", menuName = "DarkDescent/Items/Merchant Table")]
     public sealed class MerchantTable : ScriptableObject
     {
-        [Tooltip("Sempre in vendita, normali e senza limite: pozioni e pergamene del ritorno.")]
+        [Tooltip("Sempre in vendita, normali e senza limite: le pozioni.")]
         [SerializeField] private List<ItemDefinition> _supplies = new List<ItemDefinition>();
 
         [Tooltip("Le basi degli oggetti in vendita, con il loro peso.")]

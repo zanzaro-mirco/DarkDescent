@@ -5,6 +5,7 @@ using System.Linq;
 using DarkDescent.Core;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Magic;
 using DarkDescent.Player;
 using DarkDescent.Save;
 using DarkDescent.Town;
@@ -17,12 +18,9 @@ using UnityEngine.TestTools;
 
 namespace DarkDescent.Tests
 {
-    /// <summary>La pergamena del ritorno e i portali tra il dungeon e la città (D6 della M10).</summary>
+    /// <summary>La magia del portale e i portali tra il dungeon e la città (D6 della M10, passo 11.7 della M11).</summary>
     public class PortalTests : SandboxFixture
     {
-        // la pergamena di partenza sta nell'ultima colonna dello zaino
-        private static readonly Vector2Int ScrollCell = new Vector2Int(9, 0);
-
         private string _folder;
 
         [SetUp]
@@ -50,7 +48,7 @@ namespace DarkDescent.Tests
 
         private static GameObject PlayerObject => GameObject.Find("Player");
 
-        private static PlayerInventory Bag => PlayerObject.GetComponent<PlayerInventory>();
+        private static PlayerMagic Magic => PlayerObject.GetComponent<PlayerMagic>();
 
         private static IEnumerator StartNewGame()
         {
@@ -78,7 +76,7 @@ namespace DarkDescent.Tests
         // dove si è aperto l'ultimo portale del dungeon
         private static Vector3 _dungeonPortal;
 
-        // una partita nuova, giù alla profondità 1, lontano dall'ingresso, la pergamena letta e il
+        // una partita nuova, giù alla profondità 1, lontano dall'ingresso, la magia lanciata e il
         // portale attraversato
         private static IEnumerator GoToTownThroughPortal()
         {
@@ -93,7 +91,7 @@ namespace DarkDescent.Tests
 
             PlayerObject.GetComponent<NavMeshAgent>().Warp(FarFromEntrance());
             yield return null;
-            Assert.IsTrue(Bag.UseAt(ScrollCell));
+            Assert.AreEqual(PortalResult.Opened, Magic.TryCastPortal());
             var portal = Portals.OpenPortal;
             _dungeonPortal = portal.transform.position;
             PlayerObject.GetComponent<PlayerController>().Use(portal.Interactable);
@@ -124,24 +122,29 @@ namespace DarkDescent.Tests
             return best;
         }
 
-        [UnityTest, Description("Si comincia con una pergamena del ritorno; in città non si legge. Letta nel dungeon apre un portale davanti al cavaliere, sul NavMesh e nella scena del livello; una seconda pergamena lo sposta")]
-        public IEnumerator Scroll_OpensAPortalInTheDungeon()
+        [UnityTest, Description("Nessuna pergamena all'inizio; in città la magia del portale non parte e l'HUD lo dice. Nel dungeon T apre un portale davanti al cavaliere, sul NavMesh e nella scena del livello, e spende il mana; un secondo lancio lo sposta; senza mana non parte e il posto è scuro")]
+        public IEnumerator Spell_OpensAPortalInTheDungeon()
         {
             yield return StartNewGame();
-            var grid = Bag.Inventory.Grid;
-            Assert.IsInstanceOf<ReturnScrollDefinition>(grid.ItemAt(ScrollCell)?.Definition, "la pergamena di partenza");
-            Assert.IsFalse(Bag.UseAt(ScrollCell), "in città non si legge");
-            Assert.IsNotNull(grid.ItemAt(ScrollCell));
+            var grid = PlayerObject.GetComponent<PlayerInventory>().Inventory.Grid;
+            Assert.AreEqual(0, grid.Placements.Count, "lo zaino comincia vuoto");
+            var slot = UnityEngine.Object.FindFirstObjectByType<PortalSlotView>();
+            Assert.IsTrue(slot.HasIcon);
+            Assert.AreEqual(PortalResult.InTown, Magic.TryCastPortal(), "in città non serve");
+            Assert.AreEqual("You are already at the camp", UnityEngine.Object.FindFirstObjectByType<HudMessage>().Text);
             Assert.IsNull(Portals.OpenPortal);
 
             Manager.LoadLevel("Level_Crypt", "Start", 1);
             yield return WaitUntilIn(level => level.Depth == 1, "la cripta non arriva");
-            var scroll = grid.ItemAt(ScrollCell);
-            Assert.IsTrue(Bag.UseAt(ScrollCell));
-            Assert.IsNull(grid.ItemAt(ScrollCell), "letta, sparisce");
+            Magic.Mana.Fill();
+            float full = Magic.Mana.Current;
+            Assert.GreaterOrEqual(full, Magic.PortalSpell.ManaCost, "si lancia già al primo livello");
+            PlayerObject.GetComponent<PlayerInputReader>().PressPortal();
+            yield return null;
+            Assert.AreEqual(full - Magic.PortalSpell.ManaCost, Magic.Mana.Current, 0.5f, "il mana è speso");
 
             var portal = Portals.OpenPortal;
-            Assert.IsNotNull(portal);
+            Assert.IsNotNull(portal, "T apre il portale");
             Assert.IsTrue(portal.IsOpening, "cresce con il suono dell'apertura");
             Assert.AreEqual("Portal to the Camp", portal.Interactable.GetLabel(Localizer));
             Assert.AreEqual(Manager.CurrentLevel.gameObject.scene, portal.gameObject.scene, "si scarica con il livello");
@@ -149,10 +152,16 @@ namespace DarkDescent.Tests
             Assert.That(distance, Is.InRange(1f, 2.6f), "davanti al cavaliere");
             Assert.IsTrue(NavMesh.SamplePosition(portal.transform.position, out _, 0.5f, NavMesh.AllAreas), "sul NavMesh, raggiungibile");
 
-            Assert.IsTrue(grid.TryPlace(scroll, ScrollCell));
-            Assert.IsTrue(Bag.UseAt(ScrollCell));
+            Magic.Mana.Fill();
+            Assert.AreEqual(PortalResult.Opened, Magic.TryCastPortal());
             yield return null;
             Assert.AreEqual(1, UnityEngine.Object.FindObjectsByType<Portal>(FindObjectsSortMode.None).Length, "uno solo per volta");
+
+            Magic.Mana.SetCurrent(Magic.PortalSpell.ManaCost - 1f);
+            Assert.IsFalse(slot.IsAffordable, "senza mana il posto è scuro");
+            Assert.AreEqual(PortalResult.NoMana, Magic.TryCastPortal());
+            Magic.Mana.Fill();
+            Assert.IsTrue(slot.IsAffordable);
         }
 
         [UnityTest, Description("Il portale porta in città, dove un portale aspetta accanto all'ingresso e il salvataggio lo ricorda; riattraversato, riporta nel punto della profondità in cui si era aperto e si chiude")]
@@ -200,7 +209,6 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, Portals.PortalDepth);
             Assert.AreEqual(_dungeonPortal, Portals.PortalSpot, "anche il punto del ritorno");
             Assert.IsNotNull(Portals.OpenPortal);
-            Assert.IsNull(Bag.Inventory.Grid.ItemAt(ScrollCell), "la pergamena letta non torna");
         }
     }
 }

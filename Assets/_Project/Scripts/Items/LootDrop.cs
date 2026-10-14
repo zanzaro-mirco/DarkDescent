@@ -69,12 +69,6 @@ namespace DarkDescent.Items
             return _roller?.RollGold(_lootTable, _depth, _cellX, _cellZ) ?? 0;
         }
 
-        /// <summary>La pergamena del ritorno che lascerà in più, senza cambiare niente; null se non ne lascia (D6 della M10).</summary>
-        public ItemInstance PreviewReturnScroll()
-        {
-            return _roller?.RollReturnScroll(_lootTable, _depth, _cellX, _cellZ);
-        }
-
         private void Awake()
         {
             _health = GetComponent<Health>();
@@ -127,13 +121,6 @@ namespace DarkDescent.Items
             if (gold > 0)
             {
                 GroundItem.SpawnGold(_groundItemPrefab, _lootTable.Gold, gold, front + transform.forward * _potionSideOffset, from);
-            }
-
-            // la pergamena del ritorno in diagonale, tra la pergamena dell'incantesimo e l'oro
-            var returnScroll = PreviewReturnScroll();
-            if (returnScroll != null)
-            {
-                GroundItem.Spawn(_groundItemPrefab, returnScroll, front + (transform.forward - transform.right) * _potionSideOffset, from);
             }
         }
     }

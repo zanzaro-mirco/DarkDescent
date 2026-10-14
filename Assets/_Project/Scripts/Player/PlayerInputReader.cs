@@ -41,6 +41,9 @@ namespace DarkDescent.Player
         /// <summary>F1–F3: il posto dell'incantesimo scelto, da 0.</summary>
         public event Action<int> SpellSelected;
 
+        /// <summary>T: la magia del portale per l'accampamento (passo 11.7 della M11).</summary>
+        public event Action PortalPressed;
+
         /// <summary>`Esc`: chiude le finestre aperte, o apre e chiude la pausa (D10 della M10).</summary>
         public event Action PausePressed;
 
@@ -77,6 +80,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.ShowLabels.performed += HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled += HandleLabelsCanceled;
             _controls.Gameplay.Pause.performed += HandlePausePerformed;
+            _controls.Gameplay.TownPortal.performed += HandlePortalPerformed;
             _controls.Gameplay.Enable();
         }
 
@@ -98,6 +102,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.ShowLabels.performed -= HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled -= HandleLabelsCanceled;
             _controls.Gameplay.Pause.performed -= HandlePausePerformed;
+            _controls.Gameplay.TownPortal.performed -= HandlePortalPerformed;
 
             // rete di sicurezza: il reader non deve mai ripartire "premuto" alla riattivazione
             IsMoveCommandHeld = false;
@@ -213,6 +218,17 @@ namespace DarkDescent.Player
             {
                 SpellSelected?.Invoke(key.keyCode - Key.F1);
             }
+        }
+
+        private void HandlePortalPerformed(InputAction.CallbackContext context)
+        {
+            PressPortal();
+        }
+
+        /// <summary>Come premere T: per i test.</summary>
+        public void PressPortal()
+        {
+            PortalPressed?.Invoke();
         }
 
         /// <summary>Come premere il tasto del posto (da 0): per i test, che non hanno una tastiera.</summary>

@@ -7,6 +7,8 @@ using DarkDescent.Core;
 using DarkDescent.Enemies;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Magic;
+using DarkDescent.Town;
 using DarkDescent.UI;
 using NUnit.Framework;
 using UnityEngine;
@@ -87,7 +89,7 @@ namespace DarkDescent.Tests
             Assert.AreSame(caves.Music, ambience.Music.clip);
         }
 
-        [UnityTest, Description("Entrando nella sala la porta si chiude e la vita del re resta in alto; le fasi: evoca lo sciame, poi in furia corre e telegrafa l'anello; morto, la porta si apre, la vittoria va nel salvataggio e lascia un oggetto raro e la pergamena del ritorno")]
+        [UnityTest, Description("Entrando nella sala la porta si chiude e la vita del re resta in alto; le fasi: evoca lo sciame, poi in furia corre e telegrafa l'anello; morto, la porta si apre, la vittoria va nel salvataggio e lascia un oggetto raro")]
         public IEnumerator Boss_FightsInThreePhases()
         {
             yield return GoToDepth8();
@@ -131,7 +133,38 @@ namespace DarkDescent.Tests
             var drops = UnityEngine.Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None)
                 .Where(g => g.Item != null && Vector3.Distance(g.transform.position, boss.transform.position) < 4f).ToList();
             Assert.IsTrue(drops.Any(g => g.Item.Rarity >= Rarity.Rare), "almeno un oggetto raro");
-            Assert.IsTrue(drops.Any(g => g.Item.Definition is ReturnScrollDefinition), "la pergamena del ritorno");
+        }
+
+        [UnityTest, Description("Nella sala del re, prima e durante lo scontro, il portale per l'accampamento non si apre e l'HUD dice perché; fuori dalla sala sì, e morto il re anche dentro")]
+        public IEnumerator Portal_IsRefusedInTheBossRoom()
+        {
+            yield return GoToDepth8();
+            var boss = Manager.CurrentLevel.Boss;
+            var magic = Player.GetComponent<PlayerMagic>();
+            var portals = UnityEngine.Object.FindFirstObjectByType<TownPortals>();
+            var message = UnityEngine.Object.FindFirstObjectByType<HudMessage>();
+            Vector3 home = boss.GetComponent<EnemyAI>().HomePosition;
+
+            // dentro la sala, il re ancora fermo: lo scontro non è cominciato
+            Assert.IsTrue(NavMesh.SamplePosition(home + Vector3.back * 9f, out var inside, 1.5f, NavMesh.AllAreas));
+            Player.GetComponent<NavMeshAgent>().Warp(inside.position);
+            magic.Mana.Fill();
+            float full = magic.Mana.Current;
+            Assert.AreEqual(PortalResult.BossRoom, magic.TryCastPortal());
+            Assert.AreEqual(full, magic.Mana.Current, "il mana non si spende");
+            Assert.IsNull(portals.OpenPortal);
+            Assert.AreEqual("The Bone King will not let you flee", message.Text);
+            Assert.AreEqual(1f, message.Alpha);
+
+            yield return EnterTheRoom(boss);
+            Assert.AreEqual(PortalResult.BossRoom, magic.TryCastPortal(), "durante lo scontro");
+            Assert.IsNull(portals.OpenPortal);
+
+            boss.Health.TakeDamage(Damage(boss.Health.Current));
+            yield return null;
+            magic.Mana.Fill();
+            Assert.AreEqual(PortalResult.Opened, magic.TryCastPortal(), "morto il re, il portale si apre");
+            Assert.IsNotNull(portals.OpenPortal);
         }
 
         [UnityTest, Description("Morto il cavaliere durante lo scontro, tornato in vita all'ingresso: la porta si riapre, gli evocati spariscono e il re ricomincia a vita piena")]

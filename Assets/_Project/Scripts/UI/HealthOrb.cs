@@ -14,10 +14,15 @@ namespace DarkDescent.UI
         [Tooltip("Image di tipo Filled, metodo Vertical, origine Bottom.")]
         [SerializeField] private Image _fill;
 
+        [Tooltip("Il numero che compare con il mouse sopra (passo 11.7 della M11).")]
+        [SerializeField] private OrbReadout _readout;
+
         private Health _health;
         private bool _subscribed;
 
         public float FillAmount => _fill.fillAmount;
+
+        public OrbReadout Readout => _readout;
 
         /// <summary>
         /// Collega la sfera a una vita. Bind e OnEnable arrivano in ordine qualsiasi (trappola 12):
@@ -73,6 +78,10 @@ namespace DarkDescent.UI
         private void HandleHealthChanged(float current, float max)
         {
             _fill.fillAmount = max > 0f ? Mathf.Clamp01(current / max) : 0f;
+            if (_readout != null)
+            {
+                _readout.SetValues(current, max);
+            }
         }
     }
 }

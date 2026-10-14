@@ -31,16 +31,16 @@ namespace DarkDescent.Tests
             Assert.Less(Mathf.Max(dark.r, dark.g, dark.b) - Mathf.Min(dark.r, dark.g, dark.b), 0.05f, "un grigio va su un grigio");
         }
 
-        [Test, Description("Le scelte girano spento, leggero, pieno; dalle preferenze un valore sbagliato vale leggero; ogni scelta ha un nome suo nelle due lingue")]
+        [Test, Description("Le scelte girano spento, leggero, pieno; dalle preferenze un valore sbagliato vale spento, la scelta di partenza; ogni scelta ha un nome suo nelle due lingue")]
         public void Modes_CycleAndHaveNames()
         {
             Assert.AreEqual(RetroMode.Light, RetroModes.Next(RetroMode.Off));
             Assert.AreEqual(RetroMode.Full, RetroModes.Next(RetroMode.Light));
             Assert.AreEqual(RetroMode.Off, RetroModes.Next(RetroMode.Full));
-            Assert.AreEqual(RetroMode.Light, RetroModes.Default);
+            Assert.AreEqual(RetroMode.Off, RetroModes.Default);
             Assert.AreEqual(RetroMode.Full, RetroModes.FromPreference(2));
-            Assert.AreEqual(RetroMode.Light, RetroModes.FromPreference(7));
-            Assert.AreEqual(RetroMode.Light, RetroModes.FromPreference(-1));
+            Assert.AreEqual(RetroMode.Off, RetroModes.FromPreference(7));
+            Assert.AreEqual(RetroMode.Off, RetroModes.FromPreference(-1));
 
             var table = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Data/Localization/Strings.csv").text;
             var keys = new[] { RetroMode.Off, RetroMode.Light, RetroMode.Full }.Select(RetroModes.NameKey).ToList();

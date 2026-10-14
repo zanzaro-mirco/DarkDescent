@@ -137,7 +137,7 @@ namespace DarkDescent.Tests
             yield return new WaitForSeconds(0.3f);
 
             Assert.IsTrue(drop != null, "deve restare a terra");
-            var message = Object.FindFirstObjectByType<InventoryFullMessage>();
+            var message = Object.FindFirstObjectByType<HudMessage>();
             Assert.AreEqual("No room in the inventory", message.Text);
             Assert.Greater(message.Alpha, 0.9f, "il messaggio si vede");
 

@@ -11,5 +11,11 @@ namespace DarkDescent.Magic
 
         /// <summary>Un effetto sul cavaliere per un po': la Pelle di pietra.</summary>
         Buff,
+
+        /// <summary>
+        /// Il portale per l'accampamento (passo 11.7 della M11), al posto della pergamena del ritorno:
+        /// sta a sinistra della cintura, con il suo tasto, fuori dai posti F1–F3.
+        /// </summary>
+        Portal,
     }
 }

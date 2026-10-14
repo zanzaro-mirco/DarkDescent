@@ -74,12 +74,12 @@ namespace DarkDescent.Tests
             return (byte)Mathf.RoundToInt(Mathf.Clamp01(Mathf.LinearToGammaSpace(Mathf.Clamp01(linear))) * 255f);
         }
 
-        [UnityTest, Description("Pieno, ogni pixel della cripta è un colore della palette; spento, l'immagine ne ha molti di più; il leggero è la scelta di partenza")]
+        [UnityTest, Description("Pieno, ogni pixel della cripta è un colore della palette; spento, l'immagine ne ha molti di più; spento è la scelta di partenza")]
         public IEnumerator Full_UsesOnlyThePalette()
         {
             yield return LoadGeneratedCore();
             var filter = UnityEngine.Object.FindFirstObjectByType<RetroFilter>();
-            Assert.AreEqual(RetroMode.Light, filter.Mode, "leggero all'avvio");
+            Assert.AreEqual(RetroMode.Off, filter.Mode, "spento all'avvio");
             yield return new WaitForSeconds(0.5f);
 
             var palette = AssetDatabase.LoadAssetAtPath<RetroPalette>("Assets/_Project/Data/RetroPalette.asset");
@@ -136,22 +136,21 @@ namespace DarkDescent.Tests
             var options = UnityEngine.Object.FindFirstObjectByType<OptionsPanel>(FindObjectsInactive.Include);
             var filter = UnityEngine.Object.FindFirstObjectByType<RetroFilter>();
             options.Open();
+            Assert.AreEqual("Retro filter: off", options.RetroText);
+            options.RetroButton.onClick.Invoke();
+            Assert.AreEqual(RetroMode.Light, filter.Mode);
             Assert.AreEqual("Retro filter: light", options.RetroText);
+            Assert.AreEqual((int)RetroMode.Light, PlayerPrefs.GetInt(RetroFilter.Preference, -1));
 
             options.RetroButton.onClick.Invoke();
             Assert.AreEqual(RetroMode.Full, filter.Mode);
             Assert.AreEqual("Retro filter: full", options.RetroText);
-            Assert.AreEqual((int)RetroMode.Full, PlayerPrefs.GetInt(RetroFilter.Preference, -1));
-
-            options.RetroButton.onClick.Invoke();
-            Assert.AreEqual(RetroMode.Off, filter.Mode);
-            Assert.AreEqual("Retro filter: off", options.RetroText);
 
             // riaperto il gioco, la scelta resta
             SceneManager.LoadScene("Core");
             yield return null;
             yield return null;
-            Assert.AreEqual(RetroMode.Off, UnityEngine.Object.FindFirstObjectByType<RetroFilter>().Mode);
+            Assert.AreEqual(RetroMode.Full, UnityEngine.Object.FindFirstObjectByType<RetroFilter>().Mode);
         }
     }
 }

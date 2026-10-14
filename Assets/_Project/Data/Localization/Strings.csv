@@ -63,6 +63,7 @@ combat.blocked,Blocked,Bloccato
 spell.firebolt,Firebolt,Dardo di fuoco
 spell.fire_ring,Ring of Fire,Anello di fuoco
 spell.stone_skin,Stone Skin,Pelle di pietra
+spell.town_portal,Town Portal,Portale
 
 # Oggetti a terra e scale
 exit.descend,Descend to level {0},Scendi al livello {0}
@@ -90,7 +91,6 @@ tooltip.drink,Right-click or 1–8 on the belt to drink,Click destro o 1–8 dal
 tooltip.restore_mana,Restores {0}% of mana,Rende il {0}% del mana
 tooltip.teaches,Teaches {0},Insegna {0}
 tooltip.read,Right-click to read,Click destro per leggere
-tooltip.return,Opens a portal to the camp,Apre un portale per l'accampamento
 tooltip.equip,Right-click to equip,Click destro per indossare
 gold.amount,{0} gold,{0} oro
 inventory.gold,Gold: {0},Oro: {0}
@@ -140,7 +140,6 @@ item.healing_potion,Healing Potion,Pozione di cura
 item.mana_potion,Mana Potion,Pozione di mana
 item.scroll_fire_ring,Scroll of Ring of Fire,Pergamena dell'Anello di fuoco
 item.scroll_stone_skin,Scroll of Stone Skin,Pergamena della Pelle di pietra
-item.scroll_return,Scroll of Return,Pergamena del ritorno
 item.bear_hat,Bear Hat,Copricapo d'orso
 item.knight_helm,Knight's Helm,Elmo da cavaliere
 item.leather_armor,Leather Armor,Armatura di cuoio
@@ -167,7 +166,6 @@ item.healing_potion.gender,n,f
 item.mana_potion.gender,n,f
 item.scroll_fire_ring.gender,n,f
 item.scroll_stone_skin.gender,n,f
-item.scroll_return.gender,n,f
 item.bear_hat.gender,n,m
 item.knight_helm.gender,n,m
 item.leather_armor.gender,n,f
@@ -220,6 +218,8 @@ shop.help,Right-click an item in your bag to sell it,Click destro su un oggetto 
 portal.to_town,Portal to the Camp,Portale per l'accampamento
 portal.to_depth,Portal to level {0},Portale per il livello {0}
 portal.victory,Leave the depths,Lascia le profondità
+portal.in_town,You are already at the camp,Sei già all'accampamento
+portal.boss_room,The Bone King will not let you flee,Il Re delle ossa non ti lascia fuggire
 victory.title,Victory,Vittoria
 victory.subtitle,The Bone King has fallen.,Il Re delle ossa è caduto.
 victory.time,Play time: {0},Tempo di gioco: {0}

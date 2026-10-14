@@ -56,7 +56,7 @@ namespace DarkDescent.Tests
             Assert.IsFalse(DungeonLevel.CreateMap(Caves, seed, 7, out _).Markers.Any(m => m.Symbol == CavePopulator.BossSymbol));
         }
 
-        [Test, Description("Il bottino del re: sempre un oggetto almeno raro del livello, una pozione, molto oro e la pergamena del ritorno")]
+        [Test, Description("Il bottino del re: sempre un oggetto almeno raro del livello, una pozione e molto oro")]
         public void BossLoot_IsGenerous()
         {
             var table = Asset<LootTable>("Data/Loot/BossLoot.asset");
@@ -71,7 +71,6 @@ namespace DarkDescent.Tests
                 Assert.GreaterOrEqual(item.Rarity, Rarity.Rare);
                 Assert.AreEqual(8, item.ItemLevel);
                 Assert.IsNotNull(roller.RollPotion(table, 8, i, 3 * i));
-                Assert.IsNotNull(roller.RollReturnScroll(table, 8, i, 3 * i));
                 Assert.Greater(roller.RollGold(table, 8, i, 3 * i), 150);
             }
         }

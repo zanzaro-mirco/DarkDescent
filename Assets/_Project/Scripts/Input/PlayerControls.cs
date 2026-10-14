@@ -213,6 +213,16 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""TownPortal"",
+                    ""type"": ""Button"",
+                    ""id"": ""21255719-cc4d-4c2f-bc53-dde2d8586a47"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -479,6 +489,17 @@ namespace DarkDescent.Input
                     ""action"": ""SelectSpell"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aa51d13c-f083-4eb4-9c54-4e77f03b82a8"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TownPortal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -499,6 +520,7 @@ namespace DarkDescent.Input
             m_Gameplay_SelectSpell = m_Gameplay.FindAction("SelectSpell", throwIfNotFound: true);
             m_Gameplay_ShowLabels = m_Gameplay.FindAction("ShowLabels", throwIfNotFound: true);
             m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
+            m_Gameplay_TownPortal = m_Gameplay.FindAction("TownPortal", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -591,6 +613,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_SelectSpell;
         private readonly InputAction m_Gameplay_ShowLabels;
         private readonly InputAction m_Gameplay_Pause;
+        private readonly InputAction m_Gameplay_TownPortal;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -650,6 +673,10 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/Pause".
             /// </summary>
             public InputAction @Pause => m_Wrapper.m_Gameplay_Pause;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/TownPortal".
+            /// </summary>
+            public InputAction @TownPortal => m_Wrapper.m_Gameplay_TownPortal;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -712,6 +739,9 @@ namespace DarkDescent.Input
                 @Pause.started += instance.OnPause;
                 @Pause.performed += instance.OnPause;
                 @Pause.canceled += instance.OnPause;
+                @TownPortal.started += instance.OnTownPortal;
+                @TownPortal.performed += instance.OnTownPortal;
+                @TownPortal.canceled += instance.OnTownPortal;
             }
 
             /// <summary>
@@ -759,6 +789,9 @@ namespace DarkDescent.Input
                 @Pause.started -= instance.OnPause;
                 @Pause.performed -= instance.OnPause;
                 @Pause.canceled -= instance.OnPause;
+                @TownPortal.started -= instance.OnTownPortal;
+                @TownPortal.performed -= instance.OnTownPortal;
+                @TownPortal.canceled -= instance.OnTownPortal;
             }
 
             /// <summary>
@@ -883,6 +916,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnPause(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "TownPortal" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnTownPortal(InputAction.CallbackContext context);
         }
     }
 }

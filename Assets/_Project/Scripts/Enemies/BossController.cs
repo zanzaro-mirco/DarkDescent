@@ -28,6 +28,9 @@ namespace DarkDescent.Enemies
         [Tooltip("Svegliato prima, da un incantesimo, lo scontro comincia se il cavaliere è entro tanti metri dal centro: dentro la sala.")]
         [SerializeField, Min(1f)] private float _roomRadius = 10f;
 
+        [Tooltip("Il mezzo lato del quadrato attorno al centro della sala dove, con il re vivo, il portale per l'accampamento non si apre: la sala è di 20 m, la porta a 12 (passo 11.7 della M11).")]
+        [SerializeField, Min(1f)] private float _noPortalHalfSize = 10.5f;
+
         [SerializeField] private AudioSource _audio;
 
         [Tooltip("Il ruggito all'inizio dello scontro.")]
@@ -104,6 +107,21 @@ namespace DarkDescent.Enemies
         public IReadOnlyList<EnemyAI> Summons => _summons;
 
         public Health Health => _health;
+
+        /// <summary>
+        /// Vero se il re, vivo, trattiene chi sta in <paramref name="position"/>: durante lo scontro
+        /// ovunque, prima dentro la sua sala, che è quadrata. Lì il portale per l'accampamento non si apre.
+        /// </summary>
+        public bool HoldsPlayerAt(Vector3 position)
+        {
+            if (_health.IsDead)
+            {
+                return false;
+            }
+
+            Vector3 offset = position - _ai.HomePosition;
+            return IsFighting || (Mathf.Abs(offset.x) <= _noPortalHalfSize && Mathf.Abs(offset.z) <= _noPortalHalfSize);
+        }
 
         public void Bind(Health player, BossGate gate, IRandomSource random)
         {

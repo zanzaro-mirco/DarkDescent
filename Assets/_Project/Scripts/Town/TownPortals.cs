@@ -1,15 +1,16 @@
 using DarkDescent.Combat;
-using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Localization;
+using DarkDescent.Magic;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace DarkDescent.Town
 {
     /// <summary>
-    /// I portali della pergamena del ritorno (D6 della M10), come il <i>Town Portal</i> di Diablo 1.
-    /// Letta nel dungeon, la pergamena apre un portale davanti al cavaliere che porta all'accampamento;
+    /// I portali per l'accampamento (D6 della M10), come il <i>Town Portal</i> di Diablo 1. Dal passo
+    /// 11.7 della M11 li apre la magia del portale, non più una pergamena: nel dungeon apre un portale
+    /// davanti al cavaliere che porta all'accampamento, ma non nella sala del re finché è vivo;
     /// arrivati, accanto all'ingresso aspetta un portale che riporta nel punto in cui si era aperto,
     /// nella profondità rigenerata dal seme (ADR-061). Riattraversato, si chiude. Profondità e punto del
     /// ritorno vanno nel salvataggio (D11): chiusa e ripresa la partita in città, il portale c'è ancora.
@@ -122,19 +123,29 @@ namespace DarkDescent.Town
             return null;
         }
 
-        public bool TryOpenPortal()
+        public PortalResult CanOpenTownPortal()
         {
             var level = _levelManager.CurrentLevel;
-            if (level == null || level.IsTown || _levelManager.IsTransitioning || _player == null || _playerHealth.IsDead)
+            if (level == null || _levelManager.IsTransitioning || _player == null || _playerHealth.IsDead)
             {
-                return false;
+                return PortalResult.Unavailable;
             }
 
-            // uno solo per volta: una pergamena nuova sposta il portale
+            if (level.IsTown)
+            {
+                return PortalResult.InTown;
+            }
+
+            // dallo scontro con il re non si fugge: né durante, né nella sua sala prima che cominci
+            return level.Boss != null && level.Boss.HoldsPlayerAt(_player.position) ? PortalResult.BossRoom : PortalResult.Opened;
+        }
+
+        public void OpenTownPortal()
+        {
+            // uno solo per volta: un portale nuovo sposta quello di prima
             Close();
             _open = Spawn(FindSpot());
             _open.Open(TextKeys.PortalToTown, null, _viewer, animate: true);
-            return true;
         }
 
         private Vector3 FindSpot()

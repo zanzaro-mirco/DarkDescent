@@ -2,7 +2,7 @@
 // Si comincia da '<'; la scala '>' scende alla profondità 1 della cripta. M è il banco del mercante.
 // Simboli dei mobili nel TownTileset: s scaffali, k botti di birra, t tavolo, r giaciglio,
 // u baule, x casse, b barile, l candela, f fuoco. P è l'arrivo dei portali (D6): il portale
-// della pergamena del ritorno compare due metri a nord.
+// per tornare nel dungeon compare due metri a nord.
 @depth 0
 @entrance Start
 @exit Level_Crypt Start 1

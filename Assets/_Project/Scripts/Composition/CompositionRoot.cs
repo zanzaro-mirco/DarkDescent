@@ -14,6 +14,7 @@ using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace DarkDescent.Core
 {
@@ -75,7 +76,9 @@ namespace DarkDescent.Core
         [Tooltip("La scritta del livello in cui si è: grande entrando, piccola sotto la minimappa.")]
         [SerializeField] private LevelTitle _levelTitle;
 
-        [SerializeField] private InventoryFullMessage _inventoryFullMessage;
+        [Tooltip("Gli avvisi al centro dello schermo: zaino pieno, portale che non si apre.")]
+        [FormerlySerializedAs("_inventoryFullMessage")]
+        [SerializeField] private HudMessage _hudMessage;
 
         [SerializeField] private ExperienceBar _experienceBar;
 
@@ -94,6 +97,9 @@ namespace DarkDescent.Core
 
         [Tooltip("I tre incantesimi accanto alla cintura (M9).")]
         [SerializeField] private SpellBarView _spellBar;
+
+        [Tooltip("La magia del portale, a sinistra della cintura (passo 11.7 della M11).")]
+        [SerializeField] private PortalSlotView _portalSlot;
 
         [Tooltip("I proiettili di tutti, in un pool per prefab (M9).")]
         [SerializeField] private Magic.ProjectilePools _projectiles;
@@ -115,7 +121,7 @@ namespace DarkDescent.Core
         [Tooltip("Le pergamene e quanto spesso un livello ne ha una (D5 della M9).")]
         [SerializeField] private ScrollTable _scrolls;
 
-        [Tooltip("I portali della pergamena del ritorno (D6 della M10).")]
+        [Tooltip("I portali per l'accampamento, che apre la magia del portale (D6 della M10, passo 11.7 della M11).")]
         [SerializeField] private Town.TownPortals _portals;
 
         [Tooltip("Il filtro retrò, regolato dalle opzioni (D2 della M11).")]
@@ -126,9 +132,6 @@ namespace DarkDescent.Core
 
         [Tooltip("La vittoria e i riconoscimenti (D9 della M10).")]
         [SerializeField] private VictoryScreen _victoryScreen;
-
-        [Tooltip("La pergamena del ritorno con cui comincia ogni partita nuova.")]
-        [SerializeField] private ReturnScrollDefinition _returnScroll;
 
         [Tooltip("La scena della città, dove comincia ogni partita nuova (D3 della M10).")]
         [SerializeField] private string _townScene = "Town";
@@ -230,7 +233,6 @@ namespace DarkDescent.Core
 
             // un salvataggio, se c'è, decide seme e livello (D10 della M8); -newgame e -seed lo ignorano
             _portals.Bind(_player.transform);
-            _player.GetComponent<PlayerInventory>().SetPortalOpener(_portals);
             _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats, _portals, _levelRecorder);
             // il menu iniziale nelle build, e nell'editor solo se un test lo chiede (D2 della M10).
             // -newgame e -seed lo saltano e giocano senza salvare; un file scelto da fuori si riprende
@@ -306,7 +308,6 @@ namespace DarkDescent.Core
             _footsteps.Bind(_sfxLimiter);
             _levelTitle.Bind(_localizer);
             _victoryScreen.Bind(_localizer);
-            _inventoryFullMessage.Bind(inventory, _localizer);
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);
             _targetMarker.Bind(controller);
@@ -315,8 +316,11 @@ namespace DarkDescent.Core
             _inventory = inventory;
             _scrollWanted = spell => !_magic.Book.Knows(spell) && !_inventory.CarriesScrollOf(spell);
             magic.Bind(_reader, controller);
+            magic.SetPortalOpener(_portals);
+            _hudMessage.Bind(inventory, magic, _localizer);
             _manaOrb.Bind(magic.Mana);
             _spellBar.Bind(magic);
+            _portalSlot.Bind(magic);
             // un generatore suo: i danni degli incantesimi non spostano i tiri della mischia (trappola 3 della M9)
             _player.GetComponent<Magic.PlayerSpells>().Bind(_projectiles, new SystemRandomSource(Environment.TickCount ^ 0x5A11));
             _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);
@@ -338,18 +342,12 @@ namespace DarkDescent.Core
             }
         }
 
-        // Una partita nuova comincia in città (D3 della M10), con una pergamena del ritorno nell'ultima
-        // colonna dello zaino (D6). Senza menu e senza riga di comando, cioè nell'editor e nei test, si
-        // parte invece dalla cripta, come prima: i test cercano i nemici lì.
+        // Una partita nuova comincia in città (D3 della M10). Senza menu e senza riga di comando, cioè
+        // nell'editor e nei test, si parte invece dalla cripta, come prima: i test cercano i nemici lì.
         private void StartInTown()
         {
             _levelManager.SetStartLevel(_townScene, TownEntrance, 0);
             _portals.Restore(0);
-            var grid = _player.GetComponent<PlayerInventory>().Inventory.Grid;
-            if (_returnScroll != null)
-            {
-                grid.TryPlace(new ItemInstance(_returnScroll), new Vector2Int(grid.Width - 1, 0));
-            }
         }
 
         private static string SaveFolder()

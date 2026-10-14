@@ -206,12 +206,12 @@ namespace DarkDescent.Tests
         [Test, Description("Il formato 5 va e torna: il punto del portale e i ricordi dei livelli, con nemici uccisi, casse aperte, oggetti e oro a terra; senza portale il punto non si salva")]
         public void FormatFive_RoundTrips()
         {
-            var scroll = AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/ReturnScroll.asset");
+            var potion = AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/HealingPotion.asset");
             var record = new LevelRecord("Level_Crypt", 2, 14, 3);
             record.AddKilled(0);
             record.AddKilled(7);
             record.AddOpened(2);
-            record.AddItem(new GroundItemRecord(new ItemInstance(scroll), new Vector3(4f, 0f, 9.5f)));
+            record.AddItem(new GroundItemRecord(new ItemInstance(potion), new Vector3(4f, 0f, 9.5f)));
             record.AddItem(new GroundItemRecord(37, new Vector3(5f, 0f, 9.5f)));
             var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(new StatSheet()));
             var data = SaveData.Create(9UL, "Town", "Portal", 0)
@@ -233,7 +233,7 @@ namespace DarkDescent.Tests
             var items = AssetDatabase.LoadAssetAtPath<ItemDatabase>("Assets/_Project/Data/ItemDatabase.asset");
             var affixes = AssetDatabase.LoadAssetAtPath<AffixDatabase>("Assets/_Project/Data/AffixDatabase.asset");
             Assert.IsTrue(level.Items[0].Item.Resolve(items, affixes));
-            Assert.AreEqual(scroll, level.Items[0].Item.Definition);
+            Assert.AreEqual(potion, level.Items[0].Item.Definition);
             Assert.AreEqual(new Vector3(4f, 0f, 9.5f), level.Items[0].Position);
             Assert.IsNull(level.Items[1].Item, "una pila d'oro");
             Assert.AreEqual(37, level.Items[1].Gold);

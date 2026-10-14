@@ -49,14 +49,6 @@ namespace DarkDescent.Core
             return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ GoldDomain);
         }
 
-        // "RETURN" in ASCII: la pergamena del ritorno di un nemico o di una cassa (D6 della M10)
-        private const ulong ReturnDomain = 0x52455455524EUL;
-
-        public static ulong ForReturnScroll(ulong runSeed, int depth, int cellX, int cellZ)
-        {
-            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ ReturnDomain);
-        }
-
         // "DECOR": gli arredi di un livello (D4 della M11), dopo tutto il resto e con il loro flusso
         private const ulong DecorDomain = 0x4445434F52UL;
 

@@ -65,19 +65,19 @@ namespace DarkDescent.Tests
             }
         }
 
-        [UnityTest, Description("Raggiunto il mercante si apre il banco con l'inventario accanto: due pozioni, la pergamena del ritorno e otto oggetti del livello 1, con il prezzo; il nome sopra è Mercante")]
+        [UnityTest, Description("Raggiunto il mercante si apre il banco con l'inventario accanto: due pozioni e otto oggetti del livello 1, con il prezzo; il nome sopra è Mercante")]
         public IEnumerator Merchant_OpensTheShop()
         {
             yield return OpenTheShop();
             Assert.IsTrue(Bag.IsOpen);
             Assert.IsTrue(Bag.IsTrading);
             Assert.AreEqual("Merchant", UnityEngine.Object.FindFirstObjectByType<LevelManager>().CurrentLevel.Merchant.GetComponent<Interactable>().GetLabel(Localizer));
-            for (int i = 0; i < 11; i++)
+            for (int i = 0; i < 10; i++)
             {
                 Assert.IsTrue(Shop.Slot(i).HasItem, $"posto {i} vuoto");
             }
 
-            Assert.IsFalse(Shop.Slot(11).HasItem);
+            Assert.IsFalse(Shop.Slot(10).HasItem);
             Assert.AreEqual("17", Shop.Slot(0).PriceText, "la pozione di cura");
         }
 

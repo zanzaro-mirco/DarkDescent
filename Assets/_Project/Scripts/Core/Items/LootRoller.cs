@@ -75,21 +75,6 @@ namespace DarkDescent.Items
         }
 
         /// <summary>
-        /// La pergamena del ritorno che lascia il nemico, o la cassa, partito da questa cella; null se
-        /// non ne lascia (D6 della M10). Un tiro a parte con un seme suo: il resto del loot non cambia.
-        /// </summary>
-        public ItemInstance RollReturnScroll(LootTable table, int depth, int cellX, int cellZ)
-        {
-            if (table == null || table.ReturnScroll == null)
-            {
-                return null;
-            }
-
-            var random = new SplitMix64Source(SeedMixer.ForReturnScroll(RunSeed, depth, cellX, cellZ));
-            return random.NextDouble() < table.ReturnScrollChance ? new ItemInstance(table.ReturnScroll) : null;
-        }
-
-        /// <summary>
         /// Gli oggetti del mercante (D5 della M10): <see cref="MerchantTable.StockSize"/> basi pesate,
         /// del livello <paramref name="depth"/>, da un seme di profondità e ritorno in città. Stessi
         /// ingressi, stesso assortimento: non si salva. <paramref name="into"/> viene svuotata prima.

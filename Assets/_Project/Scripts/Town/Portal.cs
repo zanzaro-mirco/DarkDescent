@@ -6,9 +6,9 @@ using UnityEngine;
 namespace DarkDescent.Town
 {
     /// <summary>
-    /// Un portale della pergamena del ritorno (D6 della M10): un ovale azzurro che gira, con una luce
-    /// e un ronzio. Raggiunto con un click, annuncia che il cavaliere ci è entrato: dove porta lo
-    /// decide <see cref="TownPortals"/>. L'ovale guarda sempre la camera, anche quando la camera gira.
+    /// Un portale per l'accampamento (D6 della M10; dal passo 11.7 della M11 lo apre una magia): un
+    /// ovale azzurro che gira, con una luce e un ronzio. Raggiunto con un click, annuncia che il
+    /// cavaliere ci è entrato: dove porta lo decide <see cref="TownPortals"/>. L'ovale guarda sempre la camera, anche quando la camera gira.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Interactable))]

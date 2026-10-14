@@ -50,7 +50,6 @@ namespace DarkDescent.Items
         private Health _health;
         private PlayerInputReader _reader;
         private PlayerMagic _magic;
-        private IPortalOpener _portalOpener;
         private Inventory _inventory;
 
         // Creato al primo accesso: modelli in mano e pannelli si iscrivono in OnEnable, e l'ordine
@@ -67,12 +66,6 @@ namespace DarkDescent.Items
         public WeaponDefinition Unarmed => _unarmed;
 
         public Belt Belt => Inventory.Belt;
-
-        /// <summary>Chi apre il portale delle pergamene del ritorno; senza, non si leggono.</summary>
-        public void SetPortalOpener(IPortalOpener opener)
-        {
-            _portalOpener = opener;
-        }
 
         /// <summary>Raccoglie un oggetto nella griglia; false se non c'è posto.</summary>
         public bool TryPickUp(ItemInstance item)
@@ -116,11 +109,6 @@ namespace DarkDescent.Items
             if (item?.Definition is ScrollDefinition scroll)
             {
                 return Read(item, scroll);
-            }
-
-            if (item?.Definition is ReturnScrollDefinition)
-            {
-                return ReadReturn(item);
             }
 
             if (item?.Definition != null && item.Definition.Slot != EquipSlot.None)
@@ -182,17 +170,6 @@ namespace DarkDescent.Items
             }
 
             return Inventory.Grid.Remove(item) && _magic.Learn(scroll.Spell);
-        }
-
-        // in città, o dove il portale non si apre, la pergamena resta nello zaino
-        private bool ReadReturn(ItemInstance item)
-        {
-            if (_portalOpener == null || _health.IsDead || !_portalOpener.TryOpenPortal())
-            {
-                return false;
-            }
-
-            return Inventory.Grid.Remove(item);
         }
 
         /// <summary>Vero se nella griglia c'è una pergamena di <paramref name="spell"/>: non ne cade un'altra.</summary>
