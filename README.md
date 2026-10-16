@@ -5,21 +5,29 @@
 Action RPG isometrico dark fantasy, ispirato ai classici hack & slash di fine anni '90.
 Progetto personale in Unity (URP) / C#.
 
-![Città e loop completo: dal menu iniziale si comincia nell'accampamento sotterraneo, il cavaliere va dal mercante e compra una pozione; poi, alla profondità 8 delle caverne, entra nella sala del Re delle ossa, la porta si chiude, il re evoca lo sciame e in furia telegrafa l'anello di fuoco con un cerchio rosso; morto il re si apre il portale della vittoria, che porta alla schermata con le statistiche della partita](docs/media/m10_camp_boss.gif)
+![La v1.0: il menu iniziale con la versione in basso a destra; l'accampamento; nella cripta, accanto a un colonnato tra barili e casse, il cavaliere affronta uno scheletro, e con il mouse sopra la sfera della vita si legge quanta ne resta; poi la magia del portale apre un portale azzurro che riporta all'accampamento](docs/media/v1_release.gif)
 
 ## Stato
 
-**M10 — "Città e loop completo"** chiusa il 12 ottobre 2026 (tag `m10`): il gioco è finibile.
-Parte da un menu con *Continua*, *Nuova partita* e tre salvataggi, una pausa con `Esc` e le
-opzioni (lingua, volumi). Si comincia in un accampamento sotterraneo con il mercante, che vende
-pozioni, pergamene del ritorno e oggetti tirati dal seme, e compra quello che si trova. L'oro cade
-da nemici e casse; la pergamena del ritorno apre un portale verso l'accampamento, e il portale
-riporta dove lo si era aperto. I livelli lasciati restano com'erano: nemici uccisi, casse aperte,
-oggetti a terra. Alla profondità 8 il Re delle ossa aspetta in una sala che si chiude, con tre
-fasi; morto lui, la schermata di vittoria e i riconoscimenti. Salvataggio al formato 5. Prossima:
-**M11 — "Look, feel e release"**, con la v1.0.
+**M11 — "Look, feel e release"**, in chiusura: la **v1.0**. Rispetto alla M10:
+
+- un **filtro retrò** a tutto schermo (palette scura e dithering), da attivare nelle opzioni,
+  e un post-processing diverso per cripta, caverne e accampamento;
+- **cripta e caverne arredate**: un tema per stanza (deposito, biblioteca, cella, rovine), colonnati
+  in mezzo alle sale grandi, ossa e cianfrusaglie a terra; cristalli, ossa e frane nelle caverne;
+- la **magia del portale** al posto della pergamena del ritorno, e i numeri di vita e mana sulle sfere;
+- una **musica per lo scontro con il re**, i suoni mancanti e un giro sui volumi;
+- prestazioni misurate in build con il Profiler e con un **benchmark** che gioca da solo;
+- la versione del gioco nel menu iniziale, presa dal tag dalla CI.
+
+La v1.0 esce prima in **beta ristretta** su itch.io, con una chiave per ogni tester, e poi pubblica.
 
 Milestone precedenti:
+
+- **M10 — "Città e loop completo"** (tag `m10`): il gioco è finibile. Menu con tre salvataggi,
+  pausa e opzioni; l'accampamento con il mercante; oro, portali per tornare in città, livelli che
+  restano com'erano; il Re delle ossa alla profondità 8, con tre fasi, la vittoria e i
+  riconoscimenti ([GIF](docs/media/m10_camp_boss.gif)).
 
 - **M9 — "Magia"** (tag `m9`): mana, Dardo di fuoco, Anello di fuoco e Pelle di pietra,
   pergamene, lo scheletro mago che tira da lontano ([GIF](docs/media/m9_magic.gif)).
@@ -65,6 +73,10 @@ Milestone precedenti:
 - click sinistro su un oggetto a terra per raccoglierlo, su una cassa per aprirla
 - `1`–`8` bevono la pozione in quel posto della cintura; click destro su una pozione,
   nella cintura o nell'inventario, per berla, o su una pergamena per imparare l'incantesimo
+- `T`, o un click sul posto a sinistra della cintura, lancia la **magia del portale** (10 di
+  mana): apre un portale per l'accampamento. Non serve in città, e nella sala del re non funziona
+  finché il re è vivo
+- con il mouse sopra la sfera della vita o del mana si legge quanto resta
 - click destro nel mondo per lanciare l'incantesimo scelto verso il cursore; `F1`–`F3`, o un
   click sui tre posti accanto alla sfera del mana, scelgono l'incantesimo
 - `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
@@ -82,12 +94,12 @@ Milestone precedenti:
 
 Il gioco parte da un **menu iniziale**: *Continua* riprende l'ultima partita, *Nuova partita*
 comincia nell'**accampamento** all'ingresso della cripta, da cui la scala scende al primo livello
-e dove il **mercante** vende pozioni, oggetti e la **pergamena del ritorno** (letta nel dungeon apre
-un portale per l'accampamento, e lì un portale riporta giù) e compra quelli della borsa (click destro);
+e dove il **mercante** vende pozioni e oggetti e compra quelli della borsa (click destro); nel dungeon
+la magia del portale apre un portale per l'accampamento, e lì un portale riporta dove lo si era aperto.
 e *Carica* usano tre posti di salvataggio (`save_1.json`…`save_3.json` nella cartella dei dati
 dell'applicazione), che si possono anche cancellare. Nelle **opzioni** ci sono la lingua
-(inglese, italiano), i volumi generale, della musica e degli effetti, e i nomi degli oggetti
-a terra sempre visibili; tutto resta per gli avvii successivi. In fondo alle caverne, alla
+(inglese, italiano), i volumi generale, della musica e degli effetti, i nomi degli oggetti
+a terra sempre visibili e il filtro retrò (spento, leggero, pieno); tutto resta per gli avvii successivi. In fondo alle caverne, alla
 profondità 8, aspetta nella sua sala il **Re delle ossa**: entrati, la porta si chiude finché
 uno dei due non cade. Morto il re, il portale della vittoria porta all'accampamento, alle statistiche
 della partita e ai riconoscimenti; la partita resta salvata e si può riscendere.
@@ -113,11 +125,46 @@ Due workflow di GitHub Actions, con [GameCI](https://game.ci) e la licenza Unity
   versione (`v*`), o ad avvio manuale da *Actions → Build → Run workflow*, dove si può
   scegliere anche la build Web (`WebGL`). Prima rifà i test; la build si scarica dagli
   *Artifacts* del run (`DarkDescent-Windows-<tag>` o `DarkDescent-Web-<ramo>`, 30
-  giorni). Eseguibile non firmato: al primo avvio Windows chiede conferma. La build Web
+  giorni). Sui tag di versione (`v1.0.0`) la versione del gioco è quella del tag; altrimenti
+  quella del progetto. Eseguibile non firmato: al primo avvio Windows chiede conferma. La build Web
   va servita da un server, anche locale (`python -m http.server` nella cartella di
   `index.html`): aperta con un doppio click non parte.
 
 Un run alla volta in tutto il repo, perché la licenza ha pochi posti di attivazione.
+
+## Architettura
+
+- **Scene.** `Core` resta sempre caricata, con cavaliere, camera, HUD, menu e `LevelManager`; i
+  livelli si caricano sopra, uno alla volta (ADR-014).
+  Accampamento, cripta e caverne li monta a runtime un solo `LevelBuilder`, da mappe di testo o
+  dai generatori (BSP per la cripta, random walk per le caverne), con il NavMesh cotto dai
+  collider (ADR-033, ADR-035, ADR-074).
+- **Logica pura in `Core`.** Due assembly: `DarkDescent.Core` (`Scripts/Core/`) ha logica e dati
+  senza componenti di scena (formule, statistiche, inventario, generatori di livelli e di loot,
+  IA dei nemici a stati, salvataggio) e si prova con test EditMode veloci; `DarkDescent`
+  (`Scripts/<Area>/`) ha i MonoBehaviour che la usano. Il confine lo controlla il compilatore
+  (ADR-032, ADR-042).
+- **Composition root.** Un `CompositionRoot` nella scena `Core` collega i sistemi all'avvio con dei
+  `Bind`: niente singleton statici, e i componenti non cercano niente da soli (ADR-007).
+- **Eventi.** I componenti si parlano con eventi C#, e la UI si aggiorna quando qualcosa cambia,
+  senza controllare a ogni frame. Ogni iscrizione ha la sua disiscrizione.
+- **Seme.** Un seme per partita, con un PRNG nostro, mescolato per livello e per dominio (loot,
+  oro, pozioni, mercante, arredi): la stessa partita si rigioca uguale con `-seed`, e un sistema
+  nuovo non cambia i livelli dei semi già provati (ADR-029, ADR-034, ADR-071).
+- **Dati.** Oggetti, incantesimi, tabelle del loot e impostazioni dei generatori sono
+  ScriptableObject immutabili; un oggetto nel salvataggio è solo il suo ID (ADR-022, ADR-064).
+- **Salvataggio versionato.** JSON scritto per sostituzione in tre posti, con il numero del formato
+  e una migrazione un passo alla volta; oggi è al formato 5, con i ricordi dei livelli lasciati
+  (ADR-061, ADR-062, ADR-079).
+
+Le decisioni, con il contesto e le alternative scartate, sono in [DECISIONS.md](DECISIONS.md).
+
+## Licenza
+
+Copyright © 2026 Mirco Zanzaro, tutti i diritti riservati ([LICENSE](LICENSE)). Il repository è
+pubblico perché si possa leggere, ma il codice e il gioco non si copiano, non si riusano e non si
+ridistribuiscono senza permesso. Gli asset di terzi restano con le loro licenze, elencate in
+[CREDITS.md](CREDITS.md).
 
 ## Documenti
 

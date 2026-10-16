@@ -37,10 +37,11 @@ namespace DarkDescent.Tests
             Assert.AreEqual(-1, magic.Book.SlotOf(spell), "non è tra F1, F2 e F3");
         }
 
-        [Test, Description("La pergamena del ritorno non c'è più: né oggetto, né nel database, né dal mercante, né tra le stringhe")]
+        [Test, Description("La pergamena del ritorno non c'è più: né oggetto, né modello, né nel database, né dal mercante, né tra le stringhe")]
         public void ReturnScroll_IsGone()
         {
             Assert.IsNull(Asset<Object>("Data/Items/ReturnScroll.asset"));
+            Assert.IsNull(Asset<Object>("Prefabs/Items/Scroll_Return.prefab"), "né il suo modello a terra");
             foreach (var item in Asset<ItemDatabase>("Data/ItemDatabase.asset").Items)
             {
                 Assert.AreNotEqual("item.scroll_return", item.NameKey);

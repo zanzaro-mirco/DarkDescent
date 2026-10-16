@@ -353,6 +353,44 @@ v1.0 (piano v2.35): tornare al livello di sopra con una scala in su, e i barili,
 romperanno, anche in mezzo alle stanze (già nella v2.34, ribadito). I tempi di costruzione dei
 livelli in build restano da rimisurare.
 
+## Passo 11.8 — Versione 1.0, licenza, README, crediti e GIF
+
+**Com'è andata (17 ott 2026).**
+
+- **Versione 1.0.0.** `bundleVersion` passa da 0.1.0 a 1.0.0, e il menu iniziale la mostra in
+  piccolo in basso a destra ("v1.0.0", `MainMenu._version`), letta da `Application.version`.
+- **La versione dal tag, ma non con `versioning: Tag`.** La D7 diceva `versioning: Tag`; nel codice
+  della CLI di GameCI (v0.1.71) quella strategia prende `git tag --points-at HEAD` per intero e toglie
+  solo una `v` iniziale. Con due tag sullo stesso commit, come `m11` e `v1.0.0` alla chiusura, la
+  versione sarebbe stata "m11\nv1.0.0"; senza tag, vuota. Un passo del workflow la ricava da sé: sui
+  tag `v*` è il nome del tag senza la `v`, passato come `versioning: Custom`; sugli altri tag e da
+  avvio manuale `None`, cioè il `bundleVersion` del progetto. Se il tag e il progetto non coincidono la
+  build esce lo stesso, con un avviso nel run. Il risultato è quello della D7.
+- **`LICENSE`**, in italiano e in inglese: tutti i diritti riservati (D8), il repo si legge ma non si
+  riusa. Eccezione: gli asset di `CREDITS.md`. Quelli di terzi restano con le loro licenze, e quelli
+  fatti per il progetto, che `CREDITS.md` dichiara CC0, restano CC0: la licenza non li
+  riprende indietro.
+- **`CREDITS.md`** aggiornato con quello che è cambiato nella M11: 86 modelli KayKit *Dungeon* invece
+  di 71, con colonne e mucchietti; i teschi e le ossa di Quaternius anche nella cripta; la pergamena
+  del ritorno tolta; una riga per le icone degli incantesimi e le sfere, disegnate da script. La
+  copia per i riconoscimenti (`Data/Credits.txt`, ADR-078) è rifatta.
+- **Pulizia.** Il prefab `Scroll_Return` e il suo materiale `M_ScrollReturn` erano rimasti dopo il
+  passo 11.7, senza più nessuno che li usasse: tolti.
+- **README.** In testa la GIF della v1.0 (`docs/media/v1_release.gif`, 640 × 360, 15 fps, 1,4 MB):
+  il menu con la versione, l'accampamento, uno scontro accanto a un colonnato della cripta con i
+  numeri sulla sfera, la magia del portale e il ritorno all'accampamento. La M10 passa tra le
+  milestone precedenti con la sua GIF. Lo stato dice cosa porta la v1.0; i comandi hanno la magia del
+  portale, i numeri sulle sfere e il filtro nelle opzioni, e non più la pergamena del ritorno. Due
+  sezioni nuove: **Architettura** (scene, logica pura in `Core`, composition root, eventi, seme, dati,
+  salvataggio versionato, con gli ADR) e **Licenza**.
+
+*Test.* `MenuTests.Menu_ShowsTheVersion`: il menu mostra "v" più `Application.version`, che comincia
+con 1. `PortalSpellTests.ReturnScroll_IsGone` controlla anche il prefab. Nel giro completo
+`PlayerAttackTests.ClickOnSkeleton_ApproachesAndHitsOnce` è caduto una volta, mentre da solo passava
+tre volte su tre: guardava lo stato dell'animator dopo 0,15 s fissi, e con un frame lento la reazione
+al colpo poteva non essere ancora iniziata o già finita. Ora controlla a ogni frame, per mezzo secondo
+al massimo, che lo scheletro entri nella reazione. 310 EditMode e 199 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -391,11 +429,11 @@ Da scrivere passo per passo.
 
 - [x] Decisioni D1–D11 confermate
 - [ ] Correzioni dalla prova della M10
-- [ ] Shader retro e post-processing
+- [x] Shader retro e post-processing
 - [x] Cripta e caverne arredate
 - [x] Audio rifinito
 - [x] Profiling in build
 - [ ] Test verdi in CI
 - [ ] v1.0 su itch.io dalla CI, in beta ristretta con le chiavi
-- [ ] README con GIF e architettura, `CREDITS.md` completo
+- [x] README con GIF e architettura, `CREDITS.md` completo
 - [ ] ADR, lezioni nel piano, tag `v1.0.0`

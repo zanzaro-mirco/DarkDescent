@@ -44,6 +44,9 @@ namespace DarkDescent.UI
 
         [SerializeField] private OptionsPanel _optionsPanel;
 
+        [Tooltip("La versione del gioco in piccolo, in basso a destra (D7 della M11): serve per le segnalazioni.")]
+        [SerializeField] private TMP_Text _version;
+
         private SaveSlots _saves;
         private Localizer _localizer;
         private bool _choosingNew;
@@ -62,6 +65,8 @@ namespace DarkDescent.UI
         public Button LoadButton => _load;
 
         public ConfirmDialog Confirm => _confirm;
+
+        public TMP_Text VersionText => _version;
 
         public SaveSlotView SlotView(int slot) => _slots[slot - 1];
 
@@ -84,6 +89,7 @@ namespace DarkDescent.UI
         private void Awake()
         {
             _root.SetActive(false);
+            _version.SetText("v" + Application.version);
         }
 
         private void OnEnable()

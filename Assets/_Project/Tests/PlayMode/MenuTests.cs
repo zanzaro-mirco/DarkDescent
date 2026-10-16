@@ -70,6 +70,15 @@ namespace DarkDescent.Tests
             File.SetLastWriteTimeUtc(slots.PathOf(slot), written);
         }
 
+        [UnityTest, Description("Il menu mostra la versione del gioco in piccolo, quella della build (D7 della M11)")]
+        public IEnumerator Menu_ShowsTheVersion()
+        {
+            yield return LoadWithMenu();
+            Assert.IsTrue(Menu.VersionText.gameObject.activeInHierarchy);
+            Assert.AreEqual("v" + Application.version, Menu.VersionText.text);
+            StringAssert.StartsWith("1.", Application.version, "la v1.0");
+        }
+
         [UnityTest, Description("Senza salvataggi: il menu copre tutto, Continua manca, il livello non parte; Nuova partita nel posto 1 parte dalla città e salva lì entrando")]
         public IEnumerator NewGame_StartsAndSavesInTheSlot()
         {

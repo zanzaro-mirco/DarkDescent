@@ -61,8 +61,16 @@ namespace DarkDescent.Tests
             Assert.AreEqual(_skeletonHealth.Max - damage, _skeletonHealth.Current, 0.001f, "il colpo deve arrivare");
             Assert.LessOrEqual(EdgeDistance(), _playerAttack.Weapon.Range + 0.05f, "il colpo deve partire a portata");
 
-            yield return new WaitForSeconds(0.15f);
-            Assert.AreEqual(HitHash, StateOf(_skeleton), "lo scheletro deve reagire al colpo");
+            // la reazione entra con la transizione dell'animator: si guarda a ogni frame per mezzo
+            // secondo, non dopo un'attesa fissa, che con un frame lento può cadere fuori dallo stato
+            bool reacted = false;
+            for (float waited = 0f; waited < 0.5f && !reacted; waited += Time.deltaTime)
+            {
+                yield return null;
+                reacted = StateOf(_skeleton) == HitHash;
+            }
+
+            Assert.IsTrue(reacted, "lo scheletro deve reagire al colpo");
 
             // un click = un colpo: dopo un altro intervallo d'attacco la vita è la stessa
             yield return new WaitForSeconds(_playerAttack.Weapon.AttackInterval + 0.5f);

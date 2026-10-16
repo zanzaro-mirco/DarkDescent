@@ -75,12 +75,30 @@ jobs:
             Library-${{ env.TARGET_PLATFORM }}-
             Library-
 
+      # La versione (D7 della M11): sui tag di versione è il tag senza la v (v1.0.0 → 1.0.0), passata
+      # come Custom. Non versioning: Tag, che legge `git tag --points-at HEAD` per intero: con due tag
+      # sullo stesso commit (m11 e v1.0.0) la versione sarebbe tutti e due, e senza tag sarebbe vuota.
+      # Sui tag di milestone e da avvio manuale resta il bundleVersion del progetto. Se il tag non
+      # coincide con il bundleVersion la build esce lo stesso, con un avviso: va allineato il progetto.
+      - name: Versione
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+            project=$(sed -n 's/^  bundleVersion: //p' ProjectSettings/ProjectSettings.asset)
+            if [ "$version" != "$project" ]; then
+              echo "::warning::Il tag $GITHUB_REF_NAME non coincide con il bundleVersion del progetto ($project)"
+            fi
+            echo "strategy=Custom" >> "$GITHUB_OUTPUT"
+            echo "version=$version" >> "$GITHUB_OUTPUT"
+          else
+            echo "strategy=None" >> "$GITHUB_OUTPUT"
+          fi
+
       # Windows con backend Mono: l'immagine windows-mono gira su runner Linux. Per il Web
       # GameCI sceglie da sé l'immagine webgl. Compressione Gzip con decompression fallback,
       # nelle impostazioni del progetto: la pagina parte anche da un server che non manda
       # gli header Content-Encoding, come un server locale o itch.io.
-      # versioning: None lascia il bundleVersion del progetto; la versione dal tag si valuta
-      # alla M10, con la prima build pubblica.
       # -Development: lo script di build di GameCI accende le BuildOptions con lo stesso nome
       # passate come parametri. La build di sviluppo si collega al Profiler dell'editor sulla
       # stessa rete e ha i contatori delle allocazioni; sui tag inputs è vuoto e la build è normale.
@@ -93,7 +111,8 @@ jobs:
           cliVersion: v0.1.71
           targetPlatform: ${{ env.TARGET_PLATFORM }}
           buildName: DarkDescent
-          versioning: None
+          versioning: ${{ steps.version.outputs.strategy }}
+          version: ${{ steps.version.outputs.version }}
           customParameters: ${{ inputs.development && '-Development' || '' }}
 
       - name: Artifact
