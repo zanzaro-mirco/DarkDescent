@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.35**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.36**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.36 | 17 ott 2026 | Su decisione di Mirco la **pubblicazione su itch.io** esce dalla M11 e passa alla fase dopo la v1.0: la M11 si chiude con il tag `v1.0.0` e la build della CI |
 | v2.35 | 17 ott 2026 | Dalla seconda prova della build del passo 11.7, su richiesta di Mirco, dopo la v1.0: **tornare al livello di sopra** con una scala in su · i **barili in mezzo alle stanze** confermati |
 | v2.34 | 14 ott 2026 | Dalla prova della build del passo 11.7, su richiesta di Mirco: un **albero delle abilità** dopo la v1.0, con lo stile da scegliere tra Diablo 2, Sacred e World of Warcraft · i **barili da rompere** anche in mezzo alle stanze · la pergamena del ritorno lascia il posto alla **magia del portale** (scheda della M11) |
 | v2.33 | 12 ott 2026 | M10 chiusa (tag `m10`), con le lezioni · ADR-071…079 · la M10 resta nelle 19–26 h: le correzioni dopo la prova erano già in tabella |
@@ -272,7 +273,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 16–22 | ✅ 11 ott |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | ✅ 11 ott |
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
-| M11 | "Look, feel e release" | arte, audio, shader, v1.0, **prima pubblicazione su itch.io** | 20–30 | |
+| M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | |
 
 ---
 
@@ -721,15 +722,13 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 ### M11 — "Look, feel e release" · 20–30 h (percorso base)
 
-**Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · rifinitura dell'audio (musica, rumori d'ambiente, audio posizionale e mixer a gruppi ci sono già: M3 e M7) · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · **dungeon più ricco** (v2.26), descritto sotto · release **v1.0** e **prima pubblicazione su itch.io**, descritta sotto.
-
-**Prima pubblicazione su itch.io** (spostata dalla M10 su decisione di Mirco, 11 ott 2026). È l'ultimo passo della M11, con la v1.0 pronta. Mirco crea la pagina del gioco e una chiave API di butler, e la mette tra i secrets del repo (`BUTLER_API_KEY`): le credenziali le mette lui. La CI, sui tag `v*`, dopo la build Windows la carica con butler sul canale `windows`; il canale Web si valuta allora (ADR-019). Il workflow non stampa mai la chiave, e i job delle pull request da fork non la ricevono. Circa 1 h.
+**Contenuto (percorso base):** asset CC0 resi coerenti dallo **shader retro** in Shader Graph (dithering ordinato, palette limitata, eventuale riduzione della risoluzione con una Renderer Feature di URP) · post-processing (vignetta, grana, bloom misurato) · rifinitura dell'audio (musica, rumori d'ambiente, audio posizionale e mixer a gruppi ci sono già: M3 e M7) · **profiling** completo (Profiler, Frame Debugger, Memory Profiler) · **dungeon più ricco** (v2.26), descritto sotto · release **v1.0**. La prima pubblicazione su itch.io viene dopo, nella fase che segue la v1.0 (v2.36).
 
 **Un dungeon meno spoglio** (v2.26, richiesta di Mirco). Oggi le stanze hanno pavimento, muri, torce, qualche colonna o cassa e gli stendardi. Mirco le trova monotone. Il pacchetto KayKit Dungeon ne ha già molte altre: per ora ne usiamo 42 su 211, e si possono aggiungere barili, tavoli, scaffali, libri, ossa, ragnatele, catene, candele, sacchi e detriti. Il popolatore della M6 le mette con poche regole: lungo i muri e negli angoli, mai sul percorso tra le porte, mai sopra le celle delle scale, e più fitte nelle stanze grandi. Un "tema" per stanza (deposito, biblioteca, ossario) le tiene coerenti, e il seme del livello le rende ripetibili come il resto. Tutto quello che blocca il passaggio entra nel NavMesh, e il resto è solo decorazione senza collider. Le caverne hanno una lista loro, con funghi, cristalli e rocce. Si misura in build: la decorazione non deve alzare il tempo di costruzione del livello oltre i 50 ms del punto di controllo D4 della M6. Circa 2–3 h, e per questo la stima sale.
 
 **Estensione opzionale — Blender.** Sostituire gli asset CC0 con modelli propri è **fuori** dalle 20–30 h: la sola modellazione, partendo da zero con Blender, vale facilmente 80–100 h, e lì il lavoro resta tutto di Mirco. Si valuta a M11 chiusa, con la v1.0 già pubblicata, e semmai diventa una v1.1. Non è un taglio: è il percorso base che non la prevede.
 
-**Definition of Done:** v1.0 pubblicata, `CREDITS.md` completo, README con GIF e sezione sull'architettura.
+**Definition of Done:** v1.0 con il tag `v1.0.0` e la build della CI, `CREDITS.md` completo, README con GIF e sezione sull'architettura.
 
 **Per il CV:** Shader Graph, ottimizzazione, pipeline di release.
 
@@ -796,6 +795,12 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Il re.** La scala in su della profondità 8 sta nella stanza di partenza, lontana dalla sala: non serve a scappare dallo scontro, come il portale non può (passo 11.7).
   - **Salvataggio.** Probabilmente nessun formato nuovo: si salvano già la profondità e i ricordi dei livelli, e *Continua* riparte dall'ingresso di sempre.
   - Circa 2–3 h, con la prova in build: una scala in su non deve chiudere il percorso tra le porte della stanza di partenza.
+- **Pubblicazione su itch.io** (spostata dalla M10 alla fine della M11 l'11 ott 2026, e dalla M11 a dopo la v1.0 il 17 ott 2026: decisioni di Mirco). Il primo passo della fase dopo la v1.0, con le scelte già prese nella D9 della M11:
+  - **Pagina e chiave.** Mirco crea la pagina del gioco e una chiave API di butler, e la mette tra i secrets del repo (`BUTLER_API_KEY`): le credenziali le mette lui.
+  - **La CI.** Sui tag `v*`, dopo la build Windows, un job la carica con butler sul canale `windows`. Il workflow non stampa mai la chiave, e i job delle pull request da fork non la ricevono.
+  - **Prima in beta.** La pagina parte in modalità ristretta, con una chiave di download per ogni tester scelto da Mirco, revocabile; diventa pubblica quando Mirco lo decide, senza toccare la CI. La beta è anche la prova a più persone su altri PC che il piano chiedeva dalla fine della M10.
+  - **Niente canale Web** alla prima uscita: salvataggio nel browser e prestazioni andrebbero riprovati da capo (ADR-019).
+  - Circa 1 h, più la prova del primo caricamento.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---
@@ -808,7 +813,7 @@ Dieci minuti di disciplina che tengono il progetto leggibile anche dopo un mese 
 2. Test verdi (da M2) e CI verde (da M2.5)
 3. GIF per il README
 4. `git tag m<N>` e push del tag (da M2.5 produce anche la build)
-5. Build aggiornata su itch.io (dalla M11)
+5. Build aggiornata su itch.io (da quando si pubblica, dopo la v1.0)
 6. Tabella "Stato del progetto" aggiornata
 7. Scheda della milestone successiva in `docs/milestones/`, scritta **prima** di cominciarla
 
@@ -839,7 +844,7 @@ Le schede si scrivono una alla volta, all'inizio di ogni milestone, con quello c
 | Blender (estensione opzionale) | dopo M11 |
 | Pubblicazione e release | M11 |
 
-**Come presentarlo:** repo pubblico con un README curato (GIF, schema dell'architettura, link agli ADR), build giocabile su itch.io dalla M11, e 3–4 articoli tecnici sulle parti più interessanti: il generatore di dungeon, il sistema di affissi, la pipeline di CI, lo shader retro.
+**Come presentarlo:** repo pubblico con un README curato (GIF, schema dell'architettura, link agli ADR), build giocabile su itch.io dopo la v1.0, e 3–4 articoli tecnici sulle parti più interessanti: il generatore di dungeon, il sistema di affissi, la pipeline di CI, lo shader retro.
 
 ---
 

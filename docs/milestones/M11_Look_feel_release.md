@@ -1,6 +1,7 @@
 # M11 — "Look, feel e release"
 
-**Cosa deve succedere (Definition of Done):** la **v1.0** è pubblicata su **itch.io** dalla CI. Il
+**Cosa deve succedere (Definition of Done):** la **v1.0** è pronta, con il tag `v1.0.0` e la build
+Windows della CI (la pubblicazione su itch.io è passata a dopo la v1.0, piano v2.36). Il
 gioco ha un aspetto suo e coerente: uno **shader retro** a tutto schermo e un post-processing
 misurato tengono insieme asset di pacchetti diversi. Le stanze della cripta e delle caverne sono
 **arredate**, l'audio è rifinito, e una partita completa gira fluida su un PC normale, misurata con il
@@ -11,8 +12,7 @@ completo.
 **Prerequisito:** M10 chiusa (tag `m10`).
 
 **Come si lavora:** come alla M10, il codice e i passaggi nell'editor li faccio io, in batchmode
-a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in build, la pagina di itch.io con
-la sua chiave e la revisione degli ADR. Dopo la prima build da provare c'è un passo per le correzioni.
+a Unity chiuso. A Mirco restano le decisioni qui sotto, le prove in build e la revisione degli ADR. Dopo la prima build da provare c'è un passo per le correzioni.
 
 ---
 
@@ -44,9 +44,9 @@ Confermate da Mirco il 12 ottobre 2026: tutte come proposte, tranne la D8 (tutti
 | D4 | **Dungeon più ricco** | Come nel piano v2.26: barili, tavoli, scaffali, libri, ossa, ragnatele, catene, sacchi e detriti, lungo i muri e negli angoli, mai sul percorso tra le porte né sulle scale. Un **tema per stanza** (deposito, biblioteca, ossario, cella) scelto dal seme. Caverne: funghi, cristalli e rocce del pacchetto, con una lista loro. Quello che blocca il passo entra nel NavMesh; il resto senza collider. Si misura la costruzione: sotto i 50 ms | Lo chiede Mirco; i modelli sono già scaricati, e il popolatore della M6 ha già le regole su porte e scale |
 | D5 | **Audio** | Una **musica per lo scontro con il boss** (CC0 da OpenGameArt, scaricata con il permesso di Mirco), che parte con la chiusura della porta e sfuma alla vittoria. Suoni mancanti: click nei menu, compravendita, salita di livello. Un giro di volumi su tutto | Il boss è il culmine della partita e oggi suona come un livello qualunque |
 | D6 | **Prestazioni** | Una **build di sviluppo** dalla CI (un parametro dell'avvio manuale) con il Profiler collegato sul PC di Mirco: frame a 1080p nella cripta, nelle caverne piene e nello scontro con il boss, con lo shader acceso. Obiettivo **60 fps**, nessuna allocazione a ogni frame, livello costruito sotto i 50 ms. Quello che non regge si corregge nello stesso passo | Il piano chiede il profiling completo, e le misure della M9 erano nell'editor |
-| D7 | **Versione 1.0** | `bundleVersion` **1.0.0**, la CI la prende dal tag `v*` (`versioning: Tag`). Il tag `v1.0.0` è l'ultimo passo e fa partire build e pubblicazione. Il titolo del menu mostra la versione in piccolo | Un numero di versione nel gioco serve per le segnalazioni dei giocatori |
+| D7 | **Versione 1.0** | `bundleVersion` **1.0.0**, la CI la prende dal tag `v*` (`versioning: Tag`). Il tag `v1.0.0` è l'ultimo passo e fa partire la build (la pubblicazione è passata a dopo la v1.0). Il titolo del menu mostra la versione in piccolo | Un numero di versione nel gioco serve per le segnalazioni dei giocatori |
 | D8 | **Licenza del codice** | **Tutti i diritti riservati** (scelta di Mirco, 12 ott 2026, al posto della MIT proposta): un file `LICENSE` con «Copyright © 2026 Mirco Zanzaro. Tutti i diritti riservati.», e una sezione del README che lo dice e ricorda che gli asset di terzi restano con le loro licenze, elencate in `CREDITS.md`. Il repo resta pubblico: si legge, ma il codice non si riusa né si ridistribuisce senza permesso | Il repo fa da portfolio e va letto; Mirco non vuole che il codice o il gioco si riusino. Senza una dicitura chi legge non sa cosa può fare |
-| D9 | **itch.io, prima in beta** | Mirco crea la pagina e una chiave di butler e la mette tra i secrets (`BUTLER_API_KEY`). La CI, sui tag `v*`, dopo la build Windows la carica con butler sul canale `windows`. La v1.0 esce prima in modalità **ristretta**, con una **chiave di download** per ogni tester scelto da Mirco, revocabile; la pagina diventa pubblica quando Mirco lo decide, senza toccare la CI (scelta di Mirco, 12 ott 2026). Niente canale Web alla v1.0: il salvataggio nel browser e le prestazioni andrebbero riprovati da capo (ADR-019) | Una beta chiusa raccoglie le note di persone scelte prima dell'uscita pubblica; le chiavi dicono chi ha accesso, una password si passa ad altri. Il canale Web può arrivare con una v1.1 |
+| D9 | **itch.io, prima in beta** | *Spostata dopo la v1.0 il 17 ott 2026, scelta di Mirco: le scelte restano valide per quando si pubblica (piano, "Dopo la v1.0").* Mirco crea la pagina e una chiave di butler e la mette tra i secrets (`BUTLER_API_KEY`). La CI, sui tag `v*`, dopo la build Windows la carica con butler sul canale `windows`. La v1.0 esce prima in modalità **ristretta**, con una **chiave di download** per ogni tester scelto da Mirco, revocabile; la pagina diventa pubblica quando Mirco lo decide, senza toccare la CI (scelta di Mirco, 12 ott 2026). Niente canale Web alla v1.0: il salvataggio nel browser e le prestazioni andrebbero riprovati da capo (ADR-019) | Una beta chiusa raccoglie le note di persone scelte prima dell'uscita pubblica; le chiavi dicono chi ha accesso, una password si passa ad altri. Il canale Web può arrivare con una v1.1 |
 | D10 | **README e GIF** | La GIF della M10 (città, mercante, portale, boss) e quella finale della v1.0 in testa al README. Una sezione **Architettura** breve: le scene, la logica pura in `Core`, il composition root, gli eventi, il seme, il salvataggio versionato, con i link agli ADR | Il piano lo chiede per la v1.0, e per il portfolio è la pagina che si legge per prima |
 | D11 | **Stima** | **20–30 h**, da 18–29: un'ora in più per l'opzione del filtro e per la musica del boss. Se servirà tagliare: il canale Web non c'è già; poi i temi delle stanze (resta la decorazione lungo i muri, circa 1 h in meno), poi il dithering (resta la palette) | Meglio deciderlo adesso che a metà milestone |
 
@@ -65,7 +65,7 @@ Confermate da Mirco il 12 ottobre 2026: tutte come proposte, tranne la D8 (tutti
 | 11.6 | Profiling in build e correzioni (D6) | 2–4 |
 | 11.7 | Build da provare e correzioni | 1,5–2 |
 | 11.8 | Versione 1.0, `LICENSE`, README, `CREDITS.md`, GIF (D7, D8, D10) | 1,5–2 |
-| 11.9 | itch.io con butler: pagina ristretta e chiave di Mirco, job della CI, chiavi dei tester (D9) | 1 |
+| 11.9 | ~~itch.io con butler~~: spostato dopo la v1.0 (D9, scelta di Mirco, 17 ott 2026) | 0 |
 | 11.10 | Chiusura: tag `v1.0.0`, pubblicazione, ADR, lezioni | 1–1,5 |
 
 
@@ -415,7 +415,7 @@ al massimo, che lo scheletro entri nella reazione. 310 EditMode e 199 PlayMode v
 8. **Un solo run in attesa per gruppo di concorrenza**: test e build stanno nel gruppo `unity`, e un
    run nuovo in attesa cancella quello che aspettava già. Due build lanciate insieme (normale e di
    sviluppo) ne lasciano una sola: si lanciano una dopo l'altra.
-9. **butler non deve mai stampare la chiave**, e i job delle pull request da fork non la ricevono.
+9. **butler non deve mai stampare la chiave** (per quando si pubblicherà, dopo la v1.0), e i job delle pull request da fork non la ricevono.
 
 ---
 
@@ -434,6 +434,6 @@ Da scrivere passo per passo.
 - [x] Audio rifinito
 - [x] Profiling in build
 - [ ] Test verdi in CI
-- [ ] v1.0 su itch.io dalla CI, in beta ristretta con le chiavi
+- [x] ~~v1.0 su itch.io dalla CI~~: spostata dopo la v1.0 (17 ott 2026)
 - [x] README con GIF e architettura, `CREDITS.md` completo
 - [ ] ADR, lezioni nel piano, tag `v1.0.0`

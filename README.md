@@ -20,7 +20,8 @@ Progetto personale in Unity (URP) / C#.
 - prestazioni misurate in build con il Profiler e con un **benchmark** che gioca da solo;
 - la versione del gioco nel menu iniziale, presa dal tag dalla CI.
 
-La v1.0 esce prima in **beta ristretta** su itch.io, con una chiave per ogni tester, e poi pubblica.
+La pubblicazione su itch.io viene dopo la v1.0: prima in **beta ristretta**, con una chiave per
+ogni tester, e poi pubblica.
 
 Milestone precedenti:
 
