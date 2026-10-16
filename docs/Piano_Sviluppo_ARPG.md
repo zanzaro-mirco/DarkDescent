@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.34**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.35**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.35 | 17 ott 2026 | Dalla seconda prova della build del passo 11.7, su richiesta di Mirco, dopo la v1.0: **tornare al livello di sopra** con una scala in su · i **barili in mezzo alle stanze** confermati |
 | v2.34 | 14 ott 2026 | Dalla prova della build del passo 11.7, su richiesta di Mirco: un **albero delle abilità** dopo la v1.0, con lo stile da scegliere tra Diablo 2, Sacred e World of Warcraft · i **barili da rompere** anche in mezzo alle stanze · la pergamena del ritorno lascia il posto alla **magia del portale** (scheda della M11) |
 | v2.33 | 12 ott 2026 | M10 chiusa (tag `m10`), con le lezioni · ADR-071…079 · la M10 resta nelle 19–26 h: le correzioni dopo la prova erano già in tabella |
 | v2.32 | 12 ott 2026 | Su richiesta di Mirco, dopo la v1.0: **barili da rompere**, più numerosi, con poco loot · **oggetti unici e set** con i bonus per numero di pezzi, che escono dal fuori ambito del § 1.1 |
@@ -772,7 +773,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Cosa lasciano.** Meno di uno scheletro, perché sono tanti e non fanno male. Per barile, con tiri separati: **oro 15%**, la metà della quantità di uno scheletro alla stessa profondità; **un oggetto 5%**, con la tabella delle rarità di sempre; **una pozione 5%**. Circa tre barili su quattro non lasciano niente. Con 6 barili a livello fanno in media un oggetto ogni tre livelli e un po' d'oro: un premio per chi esplora, non una fonte che cambia il bilanciamento della M10. I numeri sono una `LootTable` come le altre, quindi si tarano senza toccare il codice.
   - **Il seme.** Un dominio suo, come l'oro (ADR-071), così il loot dei nemici e delle casse dei semi già provati non cambia.
   - **Nel codice.** Un componente `Breakable` con una `Health` di un colpo, il modello rotto (il pacchetto KayKit *Dungeon* ha i barili e i loro pezzi), il suono del legno, il collider che sparisce e l'ostacolo del NavMesh che si toglie. Il click del cavaliere lo tratta come un bersaglio, senza esperienza e senza barra in alto. Rotto, entra nei ricordi del livello come una cassa aperta (ADR-079).
-  - **Anche in mezzo alle stanze** (chiesto da Mirco il 14 ott 2026, nella prova del passo 11.7). Gli arredi della M11 stanno contro i muri perché non si spostano e non devono chiudere un passaggio; un barile si rompe, e quindi qualche gruppo può stare in mezzo a una stanza grande, come in Diablo 1. Resta la regola del percorso tra le porte: un gruppo in mezzo non lo taglia, così nemici e cavaliere non devono romperlo per passare.
+  - **Anche in mezzo alle stanze** (chiesto da Mirco il 14 ott 2026, nella prova del passo 11.7). Gli arredi della M11 stanno contro i muri perché non si spostano e non devono chiudere un passaggio; un barile si rompe, e quindi qualche gruppo può stare in mezzo a una stanza grande, come in Diablo 1. Ribadito da Mirco il 17 ott 2026: quando i barili si rompono, non vanno solo vicino ai muri. Resta la regola del percorso tra le porte: un gruppo in mezzo non lo taglia, così nemici e cavaliere non devono romperlo per passare.
   - **Variante da decidere insieme:** i barili esplosivi delle profondità più basse, che feriscono chi è vicino, cavaliere compreso.
   - Circa 2–3 h. Se si fa subito dopo la v1.0, riusa le regole degli arredi della M11.
 - **Oggetti unici e set** (chiesto da Mirco il 12 ott 2026). Oggi le rarità sono tre, normale, magico e raro, e una quarta leggendaria era stata chiesta e poi tolta alla M5 (ADR-027). Due gradi nuovi sopra il raro, come in Diablo 2:
@@ -788,6 +789,13 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **World of Warcraft.** Talenti divisi per specializzazione, a righe che si aprono spendendo punti nell'albero, spesso con una scelta tra due o tre nodi per riga. Dà a ogni personaggio un'identità chiara, ma chiede più contenuti per ogni riga.
   - **Nel codice**, con qualunque stile: un nodo è un dato (un asset con prerequisiti, livello minimo, grado massimo ed effetto), e l'effetto è un modificatore della `StatSheet` o un grado in più di un incantesimo, lo stesso meccanismo degli affissi. I punti vengono dal `CharacterProgress` della M8, accanto a quelli degli attributi; un pannello nuovo con il suo tasto; un formato nuovo del salvataggio con i gradi per id.
   - Prima di cominciare: due o tre build provate su carta per ogni stile, e la scelta di Mirco. Senza le classi nuove (sopra) c'è un albero solo, quello del Guerriero. Circa 6–10 h per una quindicina di nodi; si fa insieme alle classi se arrivano prima.
+- **Tornare al livello di sopra** (chiesto da Mirco il 17 ott 2026, nella seconda prova del passo 11.7). Oggi la cripta si scende soltanto: l'ingresso di ogni livello è un punto di arrivo, e per risalire c'è il portale per l'accampamento (ADR-076), che ha scartato le scale in su perché avrebbero fatto rifare otto livelli a ritroso. Dal passo 10.9 però i livelli lasciati restano com'erano (ADR-079), e quindi risalire porta in un posto già ripulito, non in un livello nuovo da rifare. Cosa comporta:
+  - **La scala in su.** L'ingresso `<` del generatore diventa una scala che sale, con il suo modello accanto al punto di arrivo; il click la usa come la scala che scende. Porta al livello di sopra, davanti alla sua scala `>`: un ingresso nuovo `FromBelow` accanto a quello di sempre. Dalla profondità 1 porta all'accampamento, accanto alla discesa nella cripta.
+  - **Il livello di sopra** torna com'era, con i nemici uccisi e le casse aperte (ADR-079); il seme e la profondità bastano a rifarlo.
+  - **Nel codice.** `LevelExit` accetta una profondità di arrivo più bassa di quella attuale (oggi lo zero vuol dire "quella sotto"); `LevelManager` sceglie l'ingresso dal verso del viaggio. Le caverne hanno lo stesso ingresso e la stessa regola. L'automappa segna la scala in su con il suo simbolo.
+  - **Il re.** La scala in su della profondità 8 sta nella stanza di partenza, lontana dalla sala: non serve a scappare dallo scontro, come il portale non può (passo 11.7).
+  - **Salvataggio.** Probabilmente nessun formato nuovo: si salvano già la profondità e i ricordi dei livelli, e *Continua* riparte dall'ingresso di sempre.
+  - Circa 2–3 h, con la prova in build: una scala in su non deve chiudere il percorso tra le porte della stanza di partenza.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---

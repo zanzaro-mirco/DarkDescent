@@ -347,6 +347,12 @@ non ci arrivava. Gli arredi ora lasciano libere le celle accanto alle casse, com
 controllo vale solo per gli arredi, così casse, nemici e oggetti di scena dei semi già provati non
 cambiano. `DecorTests` lo verifica su cento semi.
 
+**Seconda prova (17 ott 2026).** Mirco ha provato la build del run 38636034523 (magia del portale,
+numeri sulle sfere, filtro spento, colonnati e mucchietti): va bene così. Due richieste per dopo la
+v1.0 (piano v2.35): tornare al livello di sopra con una scala in su, e i barili, quando si
+romperanno, anche in mezzo alle stanze (già nella v2.34, ribadito). I tempi di costruzione dei
+livelli in build restano da rimisurare.
+
 ---
 
 ## Trappole note
