@@ -9,7 +9,7 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
-**M11 — "Look, feel e release"**, in chiusura: la **v1.0**. Rispetto alla M10:
+**v1.0 — M11 "Look, feel e release"**, chiusa il 17 ottobre 2026 (tag `v1.0.0`). Rispetto alla M10:
 
 - un **filtro retrò** a tutto schermo (palette scura e dithering), da attivare nelle opzioni,
   e un post-processing diverso per cripta, caverne e accampamento;

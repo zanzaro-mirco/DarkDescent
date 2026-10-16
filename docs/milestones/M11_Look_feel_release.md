@@ -69,6 +69,15 @@ Confermate da Mirco il 12 ottobre 2026: tutte come proposte, tranne la D8 (tutti
 | 11.10 | Chiusura: tag `v1.0.0`, pubblicazione, ADR, lezioni | 1–1,5 |
 
 
+## Passo 11.0 — Correzioni dalla prova della M10
+
+**Com'è andata (17 ott 2026).** Il passo raccoglieva tre cose. Le note di Mirco sulle build sono
+arrivate con le due prove del passo 11.7 e sono corrette lì. Le tarature lasciate aperte alla
+chiusura della M10 (oro e prezzi, vita e danno del re, misura del portale) nelle prove non hanno
+dato niente da cambiare: restano come sono. La prova a cinque persone, e con lei la build su un PC
+che non è quello di Mirco, non si può fare adesso: la farà la beta ristretta su itch.io, dopo la
+v1.0, con una chiave per tester (decisione di Mirco). Nessun codice in questo passo.
+
 ## Passo 11.1 — Post-processing
 
 **Com'è andata (12 ott 2026).** Il Volume per livello c'era già dalla M6: il `LevelBuilder` lo crea
@@ -391,6 +400,15 @@ tre volte su tre: guardava lo stato dell'animator dopo 0,15 s fissi, e con un fr
 al colpo poteva non essere ancora iniziata o già finita. Ora controlla a ogni frame, per mezzo secondo
 al massimo, che lo scheletro entri nella reazione. 310 EditMode e 199 PlayMode verdi.
 
+## Passo 11.10 — Chiusura
+
+**Com'è andata (17 ott 2026).** ADR-080…088 in `DECISIONS.md`: post-processing per livello dal
+tileset, filtro retrò, arredi, il test dei pixel su llvmpipe, la musica del boss, il benchmark e il
+vSync, la magia del portale (con l'aggiornamento dell'ADR-076), la versione dal tag, la licenza.
+Lezioni della M11 e stato del progetto nel piano (v2.37); README con la v1.0. Il tag è `v1.0.0`
+(D7), senza un `m11` sullo stesso commit: farebbe partire una seconda build uguale. 310 EditMode e
+199 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -428,12 +446,12 @@ Da scrivere passo per passo.
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D11 confermate
-- [ ] Correzioni dalla prova della M10
+- [x] Correzioni dalla prova della M10
 - [x] Shader retro e post-processing
 - [x] Cripta e caverne arredate
 - [x] Audio rifinito
 - [x] Profiling in build
-- [ ] Test verdi in CI
+- [x] Test verdi in CI
 - [x] ~~v1.0 su itch.io dalla CI~~: spostata dopo la v1.0 (17 ott 2026)
 - [x] README con GIF e architettura, `CREDITS.md` completo
-- [ ] ADR, lezioni nel piano, tag `v1.0.0`
+- [x] ADR, lezioni nel piano, tag `v1.0.0`

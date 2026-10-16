@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.36**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.37**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.37 | 17 ott 2026 | M11 chiusa (tag `v1.0.0`), con le lezioni · ADR-080…088 · la v1.0 è pronta; la pubblicazione su itch.io è il primo lavoro dopo la v1.0 |
 | v2.36 | 17 ott 2026 | Su decisione di Mirco la **pubblicazione su itch.io** esce dalla M11 e passa alla fase dopo la v1.0: la M11 si chiude con il tag `v1.0.0` e la build della CI |
 | v2.35 | 17 ott 2026 | Dalla seconda prova della build del passo 11.7, su richiesta di Mirco, dopo la v1.0: **tornare al livello di sopra** con una scala in su · i **barili in mezzo alle stanze** confermati |
 | v2.34 | 14 ott 2026 | Dalla prova della build del passo 11.7, su richiesta di Mirco: un **albero delle abilità** dopo la v1.0, con lo stile da scegliere tra Diablo 2, Sacred e World of Warcraft · i **barili da rompere** anche in mezzo alle stanze · la pergamena del ritorno lascia il posto alla **magia del portale** (scheda della M11) |
@@ -48,7 +49,7 @@
 
 ---
 
-## Stato del progetto — aggiornato al 12 ottobre 2026
+## Stato del progetto — aggiornato al 17 ottobre 2026
 
 | | |
 |---|---|
@@ -59,11 +60,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) |
-| **Milestone corrente** | **M11 — "Look, feel e release"** → `docs/milestones/M11_Look_feel_release.md` |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) |
+| **Milestone corrente** | Nessuna: la **v1.0** è pronta. Il lavoro successivo è nel § 5, «Dopo la v1.0», a partire dalla pubblicazione su itch.io |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…079) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…088) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -273,7 +274,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M8 | "Progressione e persistenza" | livelli, attributi, equipaggiamento completo, salvataggio, zoom e rotazione della visuale | 16–22 | ✅ 11 ott |
 | M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | ✅ 11 ott |
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
-| M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | |
+| M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | ✅ 17 ott |
 
 ---
 
@@ -423,6 +424,21 @@ Chiusa il 12 ottobre 2026: 291 test EditMode e 192 PlayMode verdi, due build del
 - **L'ordine degli ascoltatori di un evento conta:** il salvataggio fatto entrando in un livello può arrivare prima che il livello sia rimesso com'era, e avrebbe sovrascritto il ricordo vero. Chi dipende dall'ordine va chiamato in modo esplicito dal composition root, non messo in fila sullo stesso evento.
 - **Gli operatori `??` e `?.` di C# non vedono gli oggetti distrutti di Unity:** un componente distrutto non è `null` per loro. Con gli oggetti di Unity si confronta con `== null`, o si usa un metodo che non restituisce un oggetto distrutto.
 - **Il menu nella scena Core, senza una scena a parte, ha reso semplici i test:** un test apre il menu, sceglie un posto e gioca, tutto nella stessa scena, con una cartella dei salvataggi temporanea da una variabile d'ambiente.
+
+
+### M11 — "Look, feel e release" ✅
+
+Chiusa il 17 ottobre 2026 con il tag `v1.0.0`: 310 test EditMode e 199 PlayMode verdi, due build della CI provate da Mirco. La pubblicazione su itch.io è passata a dopo la v1.0 (v2.36). Lezioni emerse:
+
+- **Un effetto di gusto va messo dietro un'opzione:** il filtro retrò, deciso sulla carta e acceso di partenza, nella prova è piaciuto meno della luce senza filtro. Essendo un'opzione, è bastato cambiare la scelta di partenza (ADR-081).
+- **Prima di usare un'opzione di uno strumento esterno se ne legge il codice:** `versioning: Tag` di GameCI sembrava fatta apposta, e con due tag sullo stesso commit avrebbe dato una versione rotta proprio alla release (ADR-087).
+- **Il renderer software della CI non è una scheda vera:** un test che legge i pixel di un effetto a tutto schermo passava ovunque tranne che su llvmpipe. Il test che si ignora dice nel motivo quello che serve a capire il perché, e ha fatto capire il resto al giro dopo (ADR-083).
+- **Un ostacolo nuovo va controllato contro tutto quello che si usa dal davanti:** gli arredi lasciavano liberi passaggi e scala, ma non la cella davanti alle casse, e un test dell'oro è caduto in CI con un seme casuale. Le colonne avevano già la regola: andava data a tutti gli ostacoli insieme.
+- **Un flusso del seme per gli arredi ha tenuto fermo il resto:** tre giri di arredi (cripta, caverne, colonnati) senza cambiare nemici, casse e mappe dei semi già provati, e i test lo controllano togliendo gli arredi.
+- **Le misure dei modelli si prendono dai contorni, non dal nome:** macerie lunghe 8 m, casse impilate da 3,5 m, modelli di Quaternius di pochi millimetri con una scala di 100. Ogni composizione si è costruita misurando, con una foto di prova renderizzata dall'editor.
+- **Un benchmark che gioca da solo trova anche quello che nessuno cercava:** il vSync spento, con la GPU al massimo per 700 fps, è uscito dalla prima misura in build.
+- **Un test che aspetta un tempo fisso cade quando la macchina è carica:** la reazione al colpo, guardata dopo 0,15 s esatti, è caduta una volta nel giro completo. Si aspetta l'evento a ogni frame, con un limite.
+- **Un gruppo di concorrenza della CI tiene un solo run in attesa:** due build lanciate insieme ne lasciano una sola. Si lanciano una dopo l'altra.
 
 ---
 
