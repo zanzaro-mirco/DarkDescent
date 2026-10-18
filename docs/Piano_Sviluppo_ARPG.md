@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.41**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.42**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.42 | 18 ott 2026 | I lavori dopo la v1.0 diventano milestone come le altre: la **M12 — "Nemici speciali"** (campioni con modificatori e scorta, due unici, forzieri e tesoro del re), scheda `docs/milestones/M12_Nemici_speciali.md`, confermata da Mirco, tag `v1.1.0` |
 | v2.41 | 18 ott 2026 | **v1.0.2** dalla prova di Mirco della v1.0.1: le spunte delle opzioni si vedono, e nel confronto i due riquadri tornano uguali, con "Equipaggiato" piccolo e grigio chiaro sopra il nome |
 | v2.40 | 18 ott 2026 | Le difficoltà prendono nomi nostri, scelti da Mirco al posto di quelli di Diablo: **Crepuscolo, Ombra, Tenebra, Abisso I–VI** |
 | v2.39 | 18 ott 2026 | Decisioni di Mirco sulle **difficoltà**: da Normale ai Tormenti, scelte liberamente all'accampamento fino all'ultima completata; livello massimo 50; **punizione alla morte** con oro ed esperienza, senza mai scendere di livello · un pilastro del design: **il gioco non finisce** (§ 2) |
@@ -65,7 +66,7 @@
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
 | **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) |
-| **Milestone corrente** | Nessuna: la **v1.0** è pronta. Il lavoro successivo è nel § 5, «Dopo la v1.0», a partire dalla pubblicazione su itch.io |
+| **Milestone corrente** | **M12 — "Nemici speciali"** → `docs/milestones/M12_Nemici_speciali.md`. La v1.0 è uscita (`v1.0.0`, poi `v1.0.1` e `v1.0.2`); gli altri lavori sono nel § 5, «Dopo la v1.0» |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
 | **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…088) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
@@ -281,6 +282,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | ✅ 11 ott |
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | ✅ 17 ott |
+| M12 | "Nemici speciali" | campioni, unici, forzieri e tesoro del re; v1.1 | 9–13 | in corso |
 
 ---
 
@@ -765,7 +767,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
 - **Una punizione alla morte** (chiesta da Mirco il 7 ott 2026). Dalla M7 morire non costa niente: si torna all'ingresso del livello con tutto (ADR-048). Quando il gioco sarà finibile andrà pensata una perdita che dia peso alla morte senza far ricominciare da capo. Idee da valutare: una parte dell'oro (che arriva con il mercante della M10), l'oggetto in mano lasciato dove si è morti da andare a riprendere come in Diablo 1, una perdita di esperienza (M8), o i nemici uccisi che in parte rinascono. Se le prove della M10 con cinque persone dicono che la morte non pesa, si anticipa.
   - **Decisa da Mirco il 18 ott 2026:** si perdono **una parte dell'oro e una parte dell'esperienza**, crescenti con la difficoltà (per esempio al Crepuscolo poco o niente, di più dall'Ombra, di più nell'Abisso; i numeri sono dati da provare). **L'esperienza persa non fa mai scendere di livello**: si ferma all'inizio del livello attuale (`CharacterProgress`). Si fa con le difficoltà.
 - **Barre della vita sopra i nemici** (chiesto da Mirco l'8 ott 2026, come alternativa alla barra in alto della M9). Una barra piccola sopra la testa, solo per i nemici feriti, così nello sciame non se ne vedono dieci intatte. È un'opzione del menu della M10, spenta di default. Le barre stanno in un solo canvas in world space, prese da un pool e non una per nemico, e si aggiornano su `HealthChanged` senza controlli a ogni frame.
-- **Nemici speciali** (chiesto da Mirco l'8 ott 2026). Oltre al boss finale della M10, nemici più forti dei normali che lasciano loot migliore, come i *nemici unici* e i *campioni* di Diablo:
+- **Nemici speciali** (chiesto da Mirco l'8 ott 2026; è la **M12**, con le casse di più tipi, dalla v2.42). Oltre al boss finale della M10, nemici più forti dei normali che lasciano loot migliore, come i *nemici unici* e i *campioni* di Diablo:
   - **Campioni:** un nemico normale reso più forte da un dato, non da un archetipo nuovo. Ha più vita e più danno, un nome colorato e una tinta del modello, è un po' più grande e ha uno o due modificatori presi da una lista (più veloce, colpi che rallentano, rigenera la vita, resiste al blocco). Arriva con una scorta di nemici normali.
   - **Unici:** un nemico con un nome suo e un modello suo, uno per tipo di livello, che lo spawn mette con una certa probabilità. Per esempio un capo degli scheletri nella cripta e un bruto più grande nelle caverne.
   - **Loot:** più oggetti, e una tabella delle rarità spostata verso magico e raro (una moltiplicazione dei pesi della `RarityTable`, da M5). Gli unici lasciano sempre almeno un oggetto raro.
