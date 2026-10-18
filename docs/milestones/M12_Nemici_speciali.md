@@ -65,6 +65,31 @@ Confermate da Mirco il 18 ottobre 2026: tutte come proposte.
 | 12.6 | Build da provare e correzioni | 1–2 |
 | 12.7 | Chiusura: tag `v1.1.0`, ADR, lezioni, README | 1 |
 
+## Passo 12.1 — Logica pura
+
+**Com'è andata (18 ott 2026).** In `Scripts/Core/Enemies`: `EnemyRank` (normale, campione, unico),
+`ChampionModifier` con il suo `ChampionModifierKind`, e `ChampionSettings` con i numeri dei due gradi
+(`RankNumbers`: vita, danno, esperienza, scala, colore) e la lista dei modificatori. I cinque
+modificatori sono asset in `Data/Enemies/Modifiers`, con i nomi nelle due lingue.
+
+In `Scripts/Core/Levels`: le regole per livello (`SpecialEnemyRules`, nelle impostazioni della
+cripta e delle caverne: un gruppo nella prima, due nelle seconde) e il pianificatore
+(`SpecialEnemyPlanner`). Il pianificatore lavora sul livello già popolato e arredato, con un seme suo
+(`SeedMixer.ForSpecials`): promuove nemici che ci sono già, mette l'unico (simbolo `u`) in una cella
+libera, e la scorta solo su celle di pavimento libere vicine al capo, nella sua stanza se è nella
+cripta. Quello che c'era resta dov'era. I campioni passano al builder con la direttiva
+`@champions x,y,id,id` (`ChampionSpawn`).
+
+**Una precisazione sulla D6.** "Una possibilità su tre per livello, e mai due volte nello stesso
+mondo" si fa senza salvare niente: per ogni profondità, in ordine, un tiro dal seme della partita
+(`SeedMixer.ForUnique`), e la prima che riesce è la sola dove sta l'unico (`UniqueDepth`). Nella
+cripta, su tre profondità, manca in circa tre mondi su dieci; nelle caverne non sta mai al livello
+del re. Ucciso, resta morto come ogni nemico del suo livello (ADR-079).
+
+Test: `SpecialEnemyPlannerTests` (i livelli dei semi già provati non cambiano, campioni e
+modificatori, gruppi, scorte, lontani da ingresso e re, stesso seme stesso risultato, l'unico e la
+sua profondità, la direttiva) e `ChampionDataTests`. 324 EditMode verdi.
+
 ---
 
 ## Trappole note

@@ -92,6 +92,9 @@ namespace DarkDescent.Levels
 
         public int SmoothPasses => _smoothPasses;
 
+        // l'unico non sta al livello del re: quello scontro resta del re
+        protected override int LastUniqueDepth => _bossDepth == LastDepth ? LastDepth - 1 : LastDepth;
+
         public override ILevelGenerator CreateGenerator()
         {
             return new CaveGenerator(this);

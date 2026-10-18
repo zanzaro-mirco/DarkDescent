@@ -30,3 +30,15 @@ MonoBehaviour:
   _depthsPerChest: 2
   _maxPropsPerRoom: 2
   _cellsPerTorch: 4
+  _specials:
+    _minDepth: 2
+    _groups: 1
+    _extraGroupChance: 0.4
+    _escort: {x: 2, y: 4}
+    _swarmEscort: {x: 4, y: 6}
+    _escortRadius: 2
+    _spacing: 4
+    _entranceDistance: 4
+    _twoModifiersFrom: 5
+    _uniqueChance: 0.33333334
+    _uniqueEscort: S

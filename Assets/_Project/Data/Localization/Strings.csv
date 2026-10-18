@@ -55,6 +55,11 @@ enemy.swarm,Skeleton Rogue,Scheletro predone
 enemy.brute,Skeleton Brute,Bruto scheletrico
 enemy.bone_king,The Bone King,Il Re delle ossa
 enemy.skeleton_mage,Skeleton Mage,Scheletro mago
+enemy.modifier.fast,Fast,Rapido
+enemy.modifier.frozen,Frozen,Gelido
+enemy.modifier.regenerating,Regenerating,Rigenerante
+enemy.modifier.unstoppable,Unstoppable,Inamovibile
+enemy.modifier.enraged,Enraged,Furioso
 
 # Combattimento
 combat.miss,Miss,Mancato

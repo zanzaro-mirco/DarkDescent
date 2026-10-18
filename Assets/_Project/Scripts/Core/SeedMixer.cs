@@ -66,6 +66,23 @@ namespace DarkDescent.Core
             return Mix(ForLevel(runSeed, depth) ^ ShopDomain ^ Mix((ulong)(uint)visit));
         }
 
+        // "SPECIAL": i nemici speciali di un livello (M12), dopo il popolatore e con il loro flusso
+        private const ulong SpecialDomain = 0x5350454349414CUL;
+
+        /// <summary>Il seme dei campioni e dell'unico, dal seme del livello: mappa, nemici, casse e arredi non cambiano.</summary>
+        public static ulong ForSpecials(ulong levelSeed)
+        {
+            return Mix(levelSeed ^ SpecialDomain);
+        }
+
+        // "UNIQUE": se l'unico del mondo sta a una profondità (D6 della M12), un tiro per profondità
+        private const ulong UniqueDomain = 0x554E49515545UL;
+
+        public static ulong ForUnique(ulong runSeed, int depth)
+        {
+            return Mix(ForLevel(runSeed, depth) ^ UniqueDomain);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

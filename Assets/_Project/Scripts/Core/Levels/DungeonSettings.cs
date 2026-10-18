@@ -79,6 +79,11 @@ namespace DarkDescent.Levels
         [Tooltip("Quanti maghi per livello, da (x) a (y), dalla prima profondità.")]
         [SerializeField] private Vector2Int _mages = new Vector2Int(1, 2);
 
+        [Header("Nemici speciali (M12)")]
+        [SerializeField] private SpecialEnemyRules _specials = new SpecialEnemyRules();
+
+        public SpecialEnemyRules Specials => _specials;
+
         public int Width => _width;
 
         public int Height => _height;
@@ -134,6 +139,18 @@ namespace DarkDescent.Levels
         {
             return _chestsBase + depth / _depthsPerChest;
         }
+
+        /// <summary>
+        /// La profondità dell'unico di questo tipo di livello in un mondo, o -1 se non c'è (D6 della
+        /// M12): dalla prima profondità con i nemici speciali all'ultima, senza quella del re.
+        /// </summary>
+        public int UniqueDepth(ulong runSeed)
+        {
+            return SpecialEnemyPlanner.UniqueDepth(runSeed, Mathf.Max(_firstDepth, _specials.MinDepth), LastUniqueDepth, _specials.UniqueChance);
+        }
+
+        /// <summary>L'ultima profondità dove può stare l'unico: le caverne tolgono quella del re.</summary>
+        protected virtual int LastUniqueDepth => _lastDepth;
 
         /// <summary>L'algoritmo di questi numeri: la cripta a BSP; le caverne lo cambiano.</summary>
         public virtual ILevelGenerator CreateGenerator()
