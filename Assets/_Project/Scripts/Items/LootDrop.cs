@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DarkDescent.Combat;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ namespace DarkDescent.Items
     /// Alla morte lascia a terra, davanti al corpo, quello che dice la sua loot table (D8 della M5).
     /// Il seme è quello della partita mescolato con la profondità e la cella di partenza: lo stesso
     /// nemico lascia lo stesso oggetto in qualunque ordine si uccida. Lo collega il CompositionRoot.
+    /// Campioni e unici hanno un bonus (D7 della M12): oggetti in più attorno al corpo e più oro.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Health))]
@@ -25,6 +27,9 @@ namespace DarkDescent.Items
         [Tooltip("Da che altezza partono gli oggetti in volo.")]
         [SerializeField, Min(0f)] private float _dropHeight = 1f;
 
+        [Tooltip("Di quanti gradi, dal davanti, cadono gli oggetti in più di campioni e unici.")]
+        [SerializeField, Range(0f, 180f)] private float _extraAngle = 75f;
+
         // la cella di partenza in decimetri: il nemico si muove, il suo seme no
         private const float CellsPerMeter = 10f;
 
@@ -33,8 +38,15 @@ namespace DarkDescent.Items
         private int _depth = 1;
         private int _cellX;
         private int _cellZ;
+        private LootBonus _bonus;
+
+        // riusata a ogni morte: gli oggetti in più non creano liste nuove
+        private readonly List<ItemInstance> _extra = new List<ItemInstance>();
 
         public LootTable LootTable => _lootTable;
+
+        /// <summary>Il loot in più di campioni e unici, o null per un nemico normale.</summary>
+        public LootBonus Bonus => _bonus;
 
         /// <summary>L'oggetto in più che porta, come la pergamena del livello (D5 della M9), o null.</summary>
         public ItemInstance Carried { get; private set; }
@@ -45,10 +57,11 @@ namespace DarkDescent.Items
             Carried = item;
         }
 
-        public void Bind(LootRoller roller, int depth)
+        public void Bind(LootRoller roller, int depth, LootBonus bonus = null)
         {
             _roller = roller;
             _depth = depth;
+            _bonus = bonus;
         }
 
         /// <summary>Quello che lascerà alla morte, senza cambiare niente: per i test e per rigiocare un seme.</summary>
@@ -66,7 +79,14 @@ namespace DarkDescent.Items
         /// <summary>L'oro che lascerà in più, senza cambiare niente; 0 se non ne lascia (D4 della M10).</summary>
         public int PreviewGold()
         {
-            return _roller?.RollGold(_lootTable, _depth, _cellX, _cellZ) ?? 0;
+            return _roller?.RollGold(_lootTable, _depth, _cellX, _cellZ, _bonus) ?? 0;
+        }
+
+        /// <summary>Gli oggetti in più che lascerà, in <paramref name="into"/>, senza cambiare niente; nessuno senza bonus.</summary>
+        public void PreviewExtra(List<ItemInstance> into)
+        {
+            into.Clear();
+            _roller?.RollExtra(_lootTable, _bonus, Preview(), _depth, _cellX, _cellZ, into);
         }
 
         private void Awake()
@@ -122,6 +142,17 @@ namespace DarkDescent.Items
             {
                 GroundItem.SpawnGold(_groundItemPrefab, _lootTable.Gold, gold, front + transform.forward * _potionSideOffset, from);
             }
+
+            // gli oggetti in più ai lati del corpo, alternati destra e sinistra e sempre più indietro
+            PreviewExtra(_extra);
+            for (int i = 0; i < _extra.Count; i++)
+            {
+                float angle = (i % 2 == 0 ? 1f : -1f) * (_extraAngle + 40f * (i / 2));
+                Vector3 direction = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
+                GroundItem.Spawn(_groundItemPrefab, _extra[i], transform.position + direction * (_forwardOffset + 0.3f), from);
+            }
+
+            _extra.Clear();
         }
     }
 }

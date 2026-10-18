@@ -43,6 +43,9 @@ namespace DarkDescent.Levels
         [Tooltip("Il simbolo dei nemici della scorta dell'unico: scheletri.")]
         [SerializeField] private string _uniqueEscort = "S";
 
+        [Tooltip("La probabilità che un campione abbia un forziere accanto; l'unico ce l'ha sempre (D8).")]
+        [SerializeField, Range(0f, 1f)] private float _goldChestChance = 0.5f;
+
         public SpecialEnemyRules()
         {
         }
@@ -75,6 +78,8 @@ namespace DarkDescent.Levels
         public int EntranceDistance => _entranceDistance;
 
         public float UniqueChance => _uniqueChance;
+
+        public float GoldChestChance => _goldChestChance;
 
         public char UniqueEscort => string.IsNullOrEmpty(_uniqueEscort) ? DungeonPopulator.EnemySymbol : _uniqueEscort[0];
 

@@ -18,12 +18,24 @@ MonoBehaviour:
     _experience: 4
     _scale: 1.15
     _color: {r: 0.45, g: 0.6, b: 1, a: 1}
+    _loot:
+      _extraRolls: 1
+      _magicFactor: 2
+      _rareFactor: 3
+      _guaranteed: 0
+      _goldFactor: 2.5
   _unique:
     _life: 5
     _damage: 1.8
     _experience: 8
     _scale: 1.3
     _color: {r: 0.9, g: 0.75, b: 0.35, a: 1}
+    _loot:
+      _extraRolls: 2
+      _magicFactor: 2
+      _rareFactor: 3
+      _guaranteed: 2
+      _goldFactor: 4
   _modifiers:
   - {fileID: 11400000, guid: e6a299124ee2dab4cab6419b31afcc58, type: 2}
   - {fileID: 11400000, guid: db97e41c4fba6734f885ea9a5642d367, type: 2}

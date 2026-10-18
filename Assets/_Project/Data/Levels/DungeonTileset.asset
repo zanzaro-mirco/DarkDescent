@@ -96,3 +96,7 @@ MonoBehaviour:
     _prefab: {fileID: 4501532332652946969, guid: e4d0a975c3c7187439bbed4241a8633c, type: 3}
   - _symbol: 117
     _prefab: {fileID: 9075545672073655182, guid: 0a2d996bfccee0143986bf0290b3fc6c, type: 3}
+  - _symbol: 102
+    _prefab: {fileID: 1495775306134700890, guid: fbac3bc09af328746800c85de0287d08, type: 3}
+  - _symbol: 116
+    _prefab: {fileID: 1495775306134700890, guid: cfcca19c65004774e806ef8f518cfda9, type: 3}

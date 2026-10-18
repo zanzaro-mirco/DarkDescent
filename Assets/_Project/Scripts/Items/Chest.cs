@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using DarkDescent.Interaction;
 using UnityEngine;
 
@@ -9,7 +10,9 @@ namespace DarkDescent.Items
     /// Una cassa che si apre con un click (D7 della scheda M6): il cavaliere ci va, il coperchio si
     /// alza, e davanti cade un oggetto della sua loot table, a volte con una pozione (D14). Una volta
     /// sola. Il seme viene dalla cella, come per i nemici (ADR-029): la stessa cassa dà lo stesso
-    /// oggetto. La collega il CompositionRoot.
+    /// oggetto. La collega il CompositionRoot. Forziere e tesoro del re (D8 della M12) sono casse con
+    /// un bonus: oggetti in più ai lati, una rarità garantita e più oro; il tesoro resta sigillato finché
+    /// il re è vivo.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Interactable))]
@@ -42,6 +45,12 @@ namespace DarkDescent.Items
         [Tooltip("Da che altezza partono gli oggetti in volo.")]
         [SerializeField, Min(0f)] private float _dropHeight = 0.7f;
 
+        [Tooltip("Il loot in più del forziere e del tesoro del re (D8 della M12); la cassa di sempre non ne ha.")]
+        [SerializeField] private LootBonus _bonus = new LootBonus();
+
+        [Tooltip("Sigillata finché il re è vivo: niente click fino a Unseal (il tesoro del re, D8 della M12).")]
+        [SerializeField] private bool _sealedUntilBossDies;
+
         [SerializeField] private AudioSource _audio;
 
         [SerializeField] private AudioClip[] _openClips;
@@ -52,10 +61,21 @@ namespace DarkDescent.Items
         private int _cellX;
         private int _cellZ;
 
+        // riusata a ogni apertura: gli oggetti in più non creano liste nuove
+        private readonly List<ItemInstance> _extra = new List<ItemInstance>();
+
         /// <summary>La cassa si è aperta; l'argomento è l'oggetto caduto, null se non ne è caduto nessuno.</summary>
         public event Action<GroundItem> Opened;
 
         public bool IsOpen { get; private set; }
+
+        /// <summary>Il tesoro del re con il re ancora vivo: non si clicca.</summary>
+        public bool IsSealed { get; private set; }
+
+        /// <summary>Si apre solo dopo la morte del re: il tesoro del re (D8 della M12).</summary>
+        public bool OpensWithBoss => _sealedUntilBossDies;
+
+        public LootBonus Bonus => _bonus;
 
         /// <summary>L'oggetto in più che porta, come la pergamena del livello (D5 della M9), o null.</summary>
         public ItemInstance Carried { get; private set; }
@@ -87,7 +107,29 @@ namespace DarkDescent.Items
         /// <summary>L'oro che lascerà in più, senza cambiare niente; 0 se non ne lascia (D4 della M10).</summary>
         public int PreviewGold()
         {
-            return _roller?.RollGold(_lootTable, _depth, _cellX, _cellZ) ?? 0;
+            return _roller?.RollGold(_lootTable, _depth, _cellX, _cellZ, _bonus) ?? 0;
+        }
+
+        /// <summary>Gli oggetti in più che lascerà, in <paramref name="into"/>, senza cambiare niente; nessuno per la cassa di sempre.</summary>
+        public void PreviewExtra(List<ItemInstance> into)
+        {
+            into.Clear();
+            _roller?.RollExtra(_lootTable, _bonus, Preview(), _depth, _cellX, _cellZ, into);
+        }
+
+        /// <summary>Il re è morto: il tesoro si può aprire. Su una cassa già aperta non riaccende il click.</summary>
+        public void Unseal()
+        {
+            if (!IsSealed)
+            {
+                return;
+            }
+
+            IsSealed = false;
+            if (_clickArea != null && !IsOpen)
+            {
+                _clickArea.enabled = true;
+            }
         }
 
         /// <summary>
@@ -114,6 +156,11 @@ namespace DarkDescent.Items
             _interactable = GetComponent<Interactable>();
             _cellX = Mathf.RoundToInt(transform.position.x * CellsPerMeter);
             _cellZ = Mathf.RoundToInt(transform.position.z * CellsPerMeter);
+            IsSealed = _sealedUntilBossDies;
+            if (IsSealed && _clickArea != null)
+            {
+                _clickArea.enabled = false;
+            }
         }
 
         private void OnEnable()
@@ -128,7 +175,7 @@ namespace DarkDescent.Items
 
         private void HandleUsed(GameObject user)
         {
-            if (IsOpen)
+            if (IsOpen || IsSealed)
             {
                 return;
             }
@@ -184,6 +231,15 @@ namespace DarkDescent.Items
                 GroundItem.SpawnGold(_groundItemPrefab, _lootTable.Gold, gold, front + transform.forward * _potionSideOffset, from);
             }
 
+            // gli oggetti in più sulla stessa riga, oltre pozione e pergamena, alternati destra e sinistra
+            PreviewExtra(_extra);
+            for (int i = 0; i < _extra.Count && _groundItemPrefab != null; i++)
+            {
+                float side = (i % 2 == 0 ? 1f : -1f) * (2 + i / 2) * _potionSideOffset;
+                GroundItem.Spawn(_groundItemPrefab, _extra[i], front + transform.right * side, from);
+            }
+
+            _extra.Clear();
             Opened?.Invoke(dropped);
         }
 

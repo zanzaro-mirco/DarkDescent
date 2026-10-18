@@ -91,8 +91,8 @@ namespace DarkDescent.Tests
                             else if (layout[x, y] != LevelMap.Floor)
                             {
                                 char placed = layout[x, y];
-                                Assert.IsTrue(SpecialEnemyPlanner.CanBeChampion(placed) || placed == SpecialEnemyPlanner.UniqueSymbol,
-                                    $"solo nemici nelle celle nuove, non '{placed}'");
+                                Assert.IsTrue(SpecialEnemyPlanner.CanBeChampion(placed) || placed == SpecialEnemyPlanner.UniqueSymbol
+                                    || placed == SpecialEnemyPlanner.GoldChestSymbol, $"solo nemici e forzieri nelle celle nuove, non '{placed}'");
                             }
                         }
                     }
@@ -333,6 +333,143 @@ namespace DarkDescent.Tests
             CollectionAssert.AreEqual(new[] { "fast", "frozen" }, spawns[0].Modifiers);
             Assert.AreEqual(3, spawns[1].X);
             Assert.IsEmpty(spawns[1].Modifiers);
+        }
+
+        private static List<Vector2Int> Find(DungeonLayout layout, char symbol)
+        {
+            var cells = new List<Vector2Int>();
+            for (int y = 0; y < layout.Height; y++)
+            {
+                for (int x = 0; x < layout.Width; x++)
+                {
+                    if (layout[x, y] == symbol)
+                    {
+                        cells.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+
+            return cells;
+        }
+
+        private static bool Walkable(DungeonLayout layout, Vector2Int cell)
+        {
+            char c = layout[cell.x, cell.y];
+            return c != LevelMap.Rock && c != DungeonGenerator.StairsSymbol && !DungeonPopulator.IsObstacle(c);
+        }
+
+        private static int Reachable(DungeonLayout layout)
+        {
+            var seen = new HashSet<Vector2Int> { layout.Entrance };
+            var queue = new Queue<Vector2Int>(seen);
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                foreach (var step in LevelGrid.Steps)
+                {
+                    var next = cell + step;
+                    if (Walkable(layout, next) && seen.Add(next))
+                    {
+                        queue.Enqueue(next);
+                    }
+                }
+            }
+
+            return seen.Count;
+        }
+
+        [Test, Description("Accanto all'unico c'è sempre un forziere, accanto ai campioni circa una volta su due; mai più forzieri che capi")]
+        public void GoldChests_BesideUniqueAndHalfTheChampions()
+        {
+            int champions = 0, withChest = 0, uniques = 0, uniqueWithChest = 0;
+            int radius = Rules.EscortRadius + 1 + SpecialEnemyPlanner.GoldChestReach;
+            foreach (var (settings, depth) in Cases())
+            {
+                for (ulong seed = 1; seed <= Seeds; seed++)
+                {
+                    var layout = Generate(settings, seed, depth);
+                    var spawns = Place(layout, depth, seed, withUnique: true);
+                    var chests = Find(layout, SpecialEnemyPlanner.GoldChestSymbol);
+                    var unique = Find(layout, SpecialEnemyPlanner.UniqueSymbol);
+                    Assert.LessOrEqual(chests.Count, spawns.Count + unique.Count, $"{settings.name} seme {seed}");
+                    foreach (var cell in unique)
+                    {
+                        uniques++;
+                        uniqueWithChest += chests.Any(c => Chebyshev(c, cell) <= radius) ? 1 : 0;
+                    }
+
+                    foreach (var spawn in spawns)
+                    {
+                        champions++;
+                        withChest += chests.Any(c => Chebyshev(c, new Vector2Int(spawn.X, spawn.Y)) <= radius) ? 1 : 0;
+                    }
+                }
+            }
+
+            Assert.Greater(uniqueWithChest / (double)uniques, 0.98, "l'unico ha il suo forziere");
+            Assert.AreEqual(0.5, withChest / (double)champions, 0.12, "un campione su due");
+        }
+
+        [Test, Description("Un forziere ha il davanti libero, come le casse, quasi sempre contro un muro, e non chiude nessun passaggio")]
+        public void GoldChests_AgainstAWallAndReachable()
+        {
+            int total = 0, againstWall = 0;
+            foreach (var (settings, depth) in Cases())
+            {
+                for (ulong seed = 1; seed <= Seeds; seed++)
+                {
+                    var layout = Generate(settings, seed, depth);
+                    int before = Reachable(layout);
+                    Place(layout, depth, seed, withUnique: true);
+                    var chests = Find(layout, SpecialEnemyPlanner.GoldChestSymbol);
+                    Assert.AreEqual(before - chests.Count, Reachable(layout), $"{settings.name} seme {seed}: si arriva ovunque come prima");
+                    foreach (var cell in chests)
+                    {
+                        total++;
+                        var front = SpecialEnemyPlanner.FrontOf(layout, cell, out bool wall);
+                        againstWall += wall ? 1 : 0;
+                        Assert.IsTrue(Walkable(layout, cell + front), $"{settings.name} seme {seed}: davanti al forziere ({cell.x}, {cell.y}) non si sta");
+                    }
+                }
+            }
+
+            Assert.Greater(againstWall / (double)total, 0.8, "di solito contro un muro");
+        }
+
+        [Test, Description("Il tesoro del re sta nella sala del boss, contro la parete di fronte alla porta; senza sala non c'è")]
+        public void KingsTreasure_FacesTheGate()
+        {
+            for (ulong seed = 1; seed <= Seeds; seed++)
+            {
+                var layout = Generate(Caves, seed, Caves.BossDepth);
+                if (!layout.HasBossRoom)
+                {
+                    Assert.IsFalse(SpecialEnemyPlanner.PlaceKingsTreasure(layout), $"seme {seed}: senza sala niente tesoro");
+                    continue;
+                }
+
+                Assert.IsTrue(SpecialEnemyPlanner.PlaceKingsTreasure(layout), $"seme {seed}");
+                var treasure = Find(layout, SpecialEnemyPlanner.TreasureSymbol);
+                Assert.AreEqual(1, treasure.Count);
+                var cell = treasure[0];
+                Assert.AreEqual(CaveGenerator.BossRoomHalf, Chebyshev(cell, layout.BossCell), "sul bordo della sala");
+                if (layout.GateCell.x >= 0)
+                {
+                    Assert.AreEqual(CaveGenerator.BossRoomHalf * 2 + 1, Chebyshev(cell, layout.GateCell), "dall'altra parte della porta");
+                    var toGate = SpecialEnemyPlanner.TowardGate(layout);
+                    Assert.AreEqual(layout.BossCell - toGate * CaveGenerator.BossRoomHalf, cell);
+                }
+
+                Assert.IsFalse(layout.IsFloor(cell.x - SpecialEnemyPlanner.TowardGate(layout).x, cell.y - SpecialEnemyPlanner.TowardGate(layout).y),
+                    "dietro c'è la roccia: il builder lo gira verso la sala");
+            }
+
+            for (ulong seed = 1; seed <= 20; seed++)
+            {
+                var crypt = Generate(Crypt, seed, 4);
+                Assert.IsFalse(SpecialEnemyPlanner.PlaceKingsTreasure(crypt));
+                Assert.IsEmpty(Find(crypt, SpecialEnemyPlanner.TreasureSymbol));
+            }
         }
     }
 }

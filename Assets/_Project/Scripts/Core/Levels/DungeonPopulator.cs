@@ -53,10 +53,16 @@ namespace DarkDescent.Levels
             _settings = settings != null ? settings : throw new ArgumentNullException(nameof(settings));
         }
 
-        /// <summary>Un simbolo che il cavaliere non attraversa: casse, oggetti di scena, arredi tranne i mucchietti.</summary>
+        /// <summary>Un simbolo che il cavaliere non attraversa: casse, forzieri, oggetti di scena, arredi tranne i mucchietti.</summary>
         public static bool IsObstacle(char symbol)
         {
-            return symbol == ChestSymbol || PropSymbols.IndexOf(symbol) >= 0 || (IsDecor(symbol) && !IsScatter(symbol)) || CavePopulator.IsDecor(symbol);
+            return IsChest(symbol) || PropSymbols.IndexOf(symbol) >= 0 || (IsDecor(symbol) && !IsScatter(symbol)) || CavePopulator.IsDecor(symbol);
+        }
+
+        /// <summary>Una cassa di qualunque tipo: quella di sempre, il forziere o il tesoro del re (D8 della M12).</summary>
+        public static bool IsChest(char symbol)
+        {
+            return symbol == ChestSymbol || symbol == SpecialEnemyPlanner.GoldChestSymbol || symbol == SpecialEnemyPlanner.TreasureSymbol;
         }
 
         /// <summary>Un arredo della M11: una composizione di mobili, una colonna o un mucchietto a terra.</summary>

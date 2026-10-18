@@ -547,6 +547,12 @@ namespace DarkDescent.Core
             foreach (var chest in level.Chests)
             {
                 chest.Bind(_loot, level.Depth);
+
+                // il tesoro del re (D8 della M12): con il re già sconfitto si apre subito
+                if (_runStats.BossDefeated)
+                {
+                    chest.Unseal();
+                }
             }
 
             PlaceScroll(level);
@@ -563,9 +569,11 @@ namespace DarkDescent.Core
         private void BindEnemy(EnemyAI enemy, int depth, bool rewarding)
         {
             enemy.Bind(_player);
+            LootBonus bonus = null;
             if (_championSettings != null && enemy.TryGetComponent(out SpecialEnemy special))
             {
                 special.Bind(_championSettings, _player, _playerSlow);
+                bonus = special.Numbers.Loot;
             }
 
             if (rewarding)
@@ -594,7 +602,7 @@ namespace DarkDescent.Core
             _trackedEnemies.Add(health);
             if (rewarding && enemy.TryGetComponent(out LootDrop loot))
             {
-                loot.Bind(_loot, depth);
+                loot.Bind(_loot, depth, bonus);
             }
         }
 
@@ -611,7 +619,7 @@ namespace DarkDescent.Core
             if (_runStats.BossDefeated)
             {
                 // al suo posto, il portale della vittoria resta aperto (D9)
-                _portals.OpenVictoryPortal(VictorySpot(_boss), animate: false);
+                _portals.OpenVictoryPortal(VictorySpot(_boss, level), animate: false);
                 _boss.gameObject.SetActive(false);
                 Destroy(_boss.gameObject);
                 _boss = null;
@@ -674,13 +682,33 @@ namespace DarkDescent.Core
             PlayBossMusic(false);
             _runStats.MarkBossDefeated();
             _saveGame.Save();
-            _portals.OpenVictoryPortal(VictorySpot(boss), animate: true);
+            var level = _levelManager.CurrentLevel;
+            _portals.OpenVictoryPortal(VictorySpot(boss, level), animate: true);
+
+            // il suo tesoro, in fondo alla sala, ora si apre (D8 della M12)
+            if (level != null)
+            {
+                foreach (var chest in level.Chests)
+                {
+                    chest.Unseal();
+                }
+            }
         }
 
-        // una cella a nord del centro della sala: il bottino cade attorno a dove è morto il re
-        private static Vector3 VictorySpot(BossController boss)
+        // Una cella dal centro della sala verso la porta: il bottino cade attorno a dove è morto il re, e
+        // dall'altra parte, contro la parete in fondo, c'è il suo tesoro (D8 della M12). Senza porta, a nord.
+        private static Vector3 VictorySpot(BossController boss, LevelContext level)
         {
-            return boss.GetComponent<EnemyAI>().HomePosition + Vector3.forward * LevelMap.CellSize;
+            Vector3 home = boss.GetComponent<EnemyAI>().HomePosition;
+            Vector3 toward = Vector3.forward;
+            var gate = level != null ? level.BossGate : null;
+            if (gate != null)
+            {
+                Vector3 delta = gate.transform.position - home;
+                toward = Mathf.Abs(delta.x) >= Mathf.Abs(delta.z) ? new Vector3(Mathf.Sign(delta.x), 0f, 0f) : new Vector3(0f, 0f, Mathf.Sign(delta.z));
+            }
+
+            return home + toward * LevelMap.CellSize;
         }
 
         // arrivati in città dal portale della vittoria: il gioco si ferma sulle statistiche

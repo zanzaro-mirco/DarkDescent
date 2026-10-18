@@ -1,5 +1,7 @@
 using System.Linq;
 using DarkDescent.Enemies;
+using DarkDescent.Interaction;
+using DarkDescent.Items;
 using DarkDescent.Levels;
 using NUnit.Framework;
 using UnityEditor;
@@ -86,6 +88,43 @@ namespace DarkDescent.Tests
                 Assert.AreNotEqual(UnityEngine.Color.white, special.Tint);
                 Assert.AreEqual(nameKey, prefab.GetComponent<EnemyAI>().Archetype.NameKey);
             }
+        }
+
+        [Test, Description("La mappa della profondità del re ha il suo tesoro, una volta sola; le altre no")]
+        public void CreateMap_KingsTreasureOnlyWithTheKing()
+        {
+            for (ulong seed = 1; seed <= 20; seed++)
+            {
+                var map = DungeonLevel.CreateMap(Caves, seed, Caves.BossDepth, out var layout);
+                Assert.AreEqual(layout.HasBossRoom ? 1 : 0, CountSymbol(map, SpecialEnemyPlanner.TreasureSymbol), $"seme {seed}");
+                Assert.AreEqual(0, CountSymbol(DungeonLevel.CreateMap(Caves, seed, Caves.BossDepth - 1, out _), SpecialEnemyPlanner.TreasureSymbol));
+                Assert.AreEqual(0, CountSymbol(DungeonLevel.CreateMap(Crypt, seed, 4, out _), SpecialEnemyPlanner.TreasureSymbol));
+            }
+        }
+
+        [Test, Description("I tileset hanno forziere e tesoro del re: casse con il loro nome, il loro loot in più (D8) e il tesoro sigillato finché il re è vivo")]
+        public void Tilesets_HaveGoldChestAndTreasure()
+        {
+            foreach (var tileset in new[] { "DungeonTileset", "CaveTileset" })
+            {
+                var asset = AssetDatabase.LoadAssetAtPath<LevelTileset>($"Assets/_Project/Data/Levels/{tileset}.asset");
+                var gold = asset.GetMarkerPrefab(SpecialEnemyPlanner.GoldChestSymbol).GetComponent<Chest>();
+                Assert.AreEqual("chest.gold", gold.GetComponent<Interactable>().LabelKey, tileset);
+                Assert.AreEqual(1, gold.Bonus.ExtraRolls);
+                Assert.AreEqual(Rarity.Magic, gold.Bonus.Guaranteed);
+                Assert.AreEqual(3f, gold.Bonus.GoldFactor);
+                Assert.IsFalse(gold.OpensWithBoss);
+
+                var treasure = asset.GetMarkerPrefab(SpecialEnemyPlanner.TreasureSymbol).GetComponent<Chest>();
+                Assert.AreEqual("chest.treasure", treasure.GetComponent<Interactable>().LabelKey, tileset);
+                Assert.AreEqual(2, treasure.Bonus.ExtraRolls);
+                Assert.AreEqual(Rarity.Rare, treasure.Bonus.Guaranteed);
+                Assert.IsTrue(treasure.OpensWithBoss);
+            }
+
+            var chest = AssetDatabase.LoadAssetAtPath<UnityEngine.GameObject>("Assets/_Project/Prefabs/Dungeon/Chest.prefab").GetComponent<Chest>();
+            Assert.AreEqual(0, chest.Bonus.ExtraRolls, "la cassa di sempre resta com'era");
+            Assert.IsFalse(chest.OpensWithBoss);
         }
     }
 }

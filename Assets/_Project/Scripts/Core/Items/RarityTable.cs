@@ -34,6 +34,21 @@ namespace DarkDescent.Items
             }
         }
 
+        /// <summary>
+        /// Una tabella nuova con i pesi di magici e rari moltiplicati, arrotondati (D7 della M12): magico
+        /// ×2 e raro ×3 danno 65, 56, 21. Questa resta com'è.
+        /// </summary>
+        public RarityTable Shifted(float magicFactor, float rareFactor)
+        {
+            if (magicFactor < 0f || rareFactor < 0f)
+            {
+                throw new ArgumentOutOfRangeException(nameof(magicFactor), "I fattori non possono essere negativi");
+            }
+
+            return new RarityTable(_weights[0], (int)Math.Round(_weights[1] * (double)magicFactor, MidpointRounding.AwayFromZero),
+                (int)Math.Round(_weights[2] * (double)rareFactor, MidpointRounding.AwayFromZero));
+        }
+
         /// <summary>La probabilità di una rarità, tra 0 e 1.</summary>
         public double Probability(Rarity rarity)
         {

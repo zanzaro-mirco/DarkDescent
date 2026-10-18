@@ -38,6 +38,8 @@ namespace DarkDescent.Levels
                 case CavePopulator.BruteSymbol: return Enemy;
                 case SpecialEnemyPlanner.UniqueSymbol: return Enemy;
                 case DungeonPopulator.ChestSymbol: return Chest;
+                case SpecialEnemyPlanner.GoldChestSymbol: return Chest;
+                case SpecialEnemyPlanner.TreasureSymbol: return Chest;
                 case DungeonPopulator.TorchSymbol: return Torch;
                 case CavePopulator.CandleSymbol: return Torch;
                 default: return DungeonPopulator.IsObstacle(symbol) ? Obstacle : Floor;
@@ -95,7 +97,7 @@ namespace DarkDescent.Levels
                     bool north = !map.IsFloor(x, y - 1), south = !map.IsFloor(x, y + 1);
                     bool west = !map.IsFloor(x - 1, y), east = !map.IsFloor(x + 1, y);
                     Color32 fill = symbol == DungeonGenerator.StairsSymbol ? ExploredStairs : ExploredFloor;
-                    Color32 mark = symbol == DungeonPopulator.ChestSymbol ? Chest : symbol == DungeonGenerator.EntranceSymbol ? Entrance : Unknown;
+                    Color32 mark = DungeonPopulator.IsChest(symbol) ? Chest : symbol == DungeonGenerator.EntranceSymbol ? Entrance : Unknown;
 
                     // la riga 0 della texture è in basso: la cella (x, y) parte dalla riga (altezza - 1 - y)
                     int originX = x * size, originY = (map.Height - 1 - y) * size;

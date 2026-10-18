@@ -107,6 +107,17 @@ namespace DarkDescent.Items
                 return false;
             }
 
+            item = PickBase(random);
+            return item != null;
+        }
+
+        /// <summary>
+        /// Una base estratta per peso, senza il tiro della probabilità: i tiri in più di campioni e
+        /// forzieri (D7 della M12) cadono sempre. Null se la tabella non ne ha.
+        /// </summary>
+        public ItemDefinition PickBase(IRandomSource random)
+        {
+            ItemDefinition item = null;
             int total = 0;
             foreach (var entry in _entries)
             {
@@ -118,7 +129,7 @@ namespace DarkDescent.Items
 
             if (total <= 0)
             {
-                return false;
+                return null;
             }
 
             double roll = random.NextDouble() * total;
@@ -137,7 +148,7 @@ namespace DarkDescent.Items
                 }
             }
 
-            return true;
+            return item;
         }
     }
 }

@@ -37,6 +37,21 @@ namespace DarkDescent.Items
             return Build(item, itemLevel, seed, _rarities.Roll(random), random);
         }
 
+        /// <summary>Le probabilità delle rarità di <see cref="Generate(ItemDefinition, int, ulong)"/>.</summary>
+        public RarityTable Rarities => _rarities;
+
+        /// <summary>Con un'altra tabella delle rarità, come quella spostata dei campioni (D7 della M12).</summary>
+        public ItemInstance Generate(ItemDefinition item, int itemLevel, ulong seed, RarityTable rarities)
+        {
+            if (rarities == null)
+            {
+                throw new ArgumentNullException(nameof(rarities));
+            }
+
+            var random = new SplitMix64Source(seed);
+            return Build(item, itemLevel, seed, rarities.Roll(random), random);
+        }
+
         /// <summary>Con la rarità decisa da fuori: per i test e per gli oggetti messi a mano.</summary>
         public ItemInstance Generate(ItemDefinition item, int itemLevel, ulong seed, Rarity rarity)
         {

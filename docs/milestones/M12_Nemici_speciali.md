@@ -145,6 +145,55 @@ blu dei campioni è leggera (`ChampionTint` 0,5): si giudica nella prova in buil
 `SpecialEnemyCombatTests` (numeri, anello, esperienza, i cinque modificatori) e il test del livello
 costruito controlla che tutti i nemici speciali siano legati. 327 EditMode e 207 PlayMode verdi.
 
+## Passo 12.4 — Loot, forzieri e tesoro del re
+
+**Com'è andata (18 ott 2026).** Il loot in più è un `LootBonus` (in `Scripts/Core/Items`): tiri in
+più, fattori di magici e rari, rarità garantita, fattore dell'oro. Sta nei `RankNumbers` dei due
+gradi e sulle casse nuove. `LootRoller.RollExtra` fa i tiri in più, ognuno con un seme suo
+(`SeedMixer.ForExtraLoot`, dominio "EXTRA") e con la tabella delle rarità spostata
+(`RarityTable.Shifted`: magico ×2 e raro ×3 danno 65, 56, 21). Se la rarità garantita manca tra il
+primo oggetto e i tiri in più, la prende l'ultimo tiro: stessa base e stesso seme, rifatto a quella
+rarità. Il primo tiro resta quello del nemico normale. I tiri in più cadono sempre, senza la
+probabilità della tabella: un campione che non lascia niente in più non sembrerebbe un campione.
+L'oro è lo stesso tiro moltiplicato. Campione: un tiro in più, oro ×2,5. Unico: due tiri in più,
+almeno un raro, oro ×4. Gli oggetti in più cadono ai lati del corpo, alternati destra e sinistra.
+
+Il **forziere** (`GoldChest`, simbolo `f`) e il **tesoro del re** (`KingsTreasure`, simbolo `t`)
+sono casse con un bonus e una loot table loro.
+- Forziere: un tiro in più, almeno un magico, oro ×3.
+- Tesoro del re: due tiri in più con le rarità spostate, almeno un raro, oro da 60 a 100 ×2,5.
+
+Il pianificatore mette i forzieri dopo tutti i gruppi: accanto all'unico sempre, accanto a un
+campione con un tiro suo (50%). Il forziere va contro un muro con il davanti libero, come le casse;
+se non c'è un muro, in mezzo alla caverna. Il conto delle celle raggiungibili controlla che non chiuda
+un passaggio. Se vicino al capo non c'è posto, si allarga di due celle anche fuori dalla stanza: le
+stanzette della cripta piene di arredi e di scorta lo chiedevano. Restano senza forziere solo i vicoli
+ciechi (meno del 2% degli unici nei test).
+
+Il tesoro sta nella sala del re, contro la parete di fronte alla porta, in una cella fissa:
+`PlaceKingsTreasure`, senza tiri. È sigillato (`Chest.IsSealed`, click spento) finché il re è vivo. Il
+composition root lo apre alla vittoria, o subito se il re era già sconfitto. Il portale della vittoria
+ora si apre una cella dal centro verso la porta, dall'altra parte del tesoro: prima stava a nord e
+poteva finire proprio davanti.
+
+Scostamenti dalla scheda:
+- Il tesoro è il modello `chest_gold` ingrandito ×1,5, non `trunk_large`. Il baule di KayKit è un
+  pezzo solo, senza coperchio da aprire.
+- Il `chest_gold` chiuso sembra la cassa di sempre: l'oro si vede solo dentro. Forziere e tesoro
+  hanno una luce calda (che si accende di più sotto il cursore) e pile di monete accanto.
+- Salvataggi di prima: i livelli con un forziere o con il tesoro hanno più casse e ripartono da capo
+  una volta (ADR-079).
+
+Test:
+- `LootBonusTests`: rarità spostate, tiri stabili, garanzia, oro.
+- Pianificatore: forzieri accanto ai capi, davanti libero e livello raggiungibile, tesoro di fronte
+  alla porta.
+- Tileset.
+- `SpecialLootTests` in PlayMode: cade tutto alla morte di Morvak, il forziere accanto a lui si apre,
+  il tesoro resta sigillato fino alla morte del re e il portale sta dall'altra parte.
+
+339 EditMode e 210 PlayMode verdi.
+
 ---
 
 ## Trappole note

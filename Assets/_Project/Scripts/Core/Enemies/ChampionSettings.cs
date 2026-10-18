@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DarkDescent.Items;
 using UnityEngine;
 
 namespace DarkDescent.Enemies
@@ -12,10 +13,12 @@ namespace DarkDescent.Enemies
     public sealed class ChampionSettings : ScriptableObject
     {
         [Header("Campioni (D2 della M12)")]
-        [SerializeField] private RankNumbers _champion = new RankNumbers(3f, 1.5f, 4f, 1.15f, new Color(0.45f, 0.6f, 1f, 1f));
+        [SerializeField] private RankNumbers _champion = new RankNumbers(3f, 1.5f, 4f, 1.15f, new Color(0.45f, 0.6f, 1f, 1f),
+            new LootBonus(1, 2f, 3f, Rarity.Normal, 2.5f));
 
         [Header("Unici (D6 della M12)")]
-        [SerializeField] private RankNumbers _unique = new RankNumbers(5f, 1.8f, 8f, 1.3f, new Color(0.9f, 0.75f, 0.35f, 1f));
+        [SerializeField] private RankNumbers _unique = new RankNumbers(5f, 1.8f, 8f, 1.3f, new Color(0.9f, 0.75f, 0.35f, 1f),
+            new LootBonus(2, 2f, 3f, Rarity.Rare, 4f));
 
         [Tooltip("I modificatori tra cui si sceglie per i campioni (D5 della M12); l'ordine conta per il seme.")]
         [SerializeField] private List<ChampionModifier> _modifiers = new List<ChampionModifier>();

@@ -62,6 +62,9 @@ namespace DarkDescent.Levels
                 directives[ChampionSpawn.Directive] = tokens;
             }
 
+            // il tesoro del re in fondo alla sua sala (D8 della M12): una cella fissa, nessun tiro
+            SpecialEnemyPlanner.PlaceKingsTreasure(layout);
+
             // Prima dell'ultima profondità la scala riporta in questa scena, all'ultima porta alla scena
             // dopo (dalla cripta alle caverne, D3 della M7); senza una scena dopo la scala non c'è.
             string target = depth < settings.LastDepth ? settings.SceneName : settings.NextScene;

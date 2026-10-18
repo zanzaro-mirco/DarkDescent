@@ -75,6 +75,64 @@ namespace DarkDescent.Items
         }
 
         /// <summary>
+        /// L'oro con il bonus di campioni, unici e forzieri (D7 della M12): lo stesso tiro di
+        /// <see cref="RollGold(LootTable, int, int, int)"/>, moltiplicato e arrotondato. Senza bonus è quello.
+        /// </summary>
+        public int RollGold(LootTable table, int depth, int cellX, int cellZ, LootBonus bonus)
+        {
+            int gold = RollGold(table, depth, cellX, cellZ);
+            if (bonus == null || gold <= 0)
+            {
+                return gold;
+            }
+
+            return Math.Max(gold, (int)Math.Round(gold * (double)bonus.GoldFactor, MidpointRounding.AwayFromZero));
+        }
+
+        /// <summary>
+        /// Gli oggetti in più di campioni, unici e forzieri (D7 e D8 della M12), in <paramref name="into"/>,
+        /// svuotata prima. Ogni tiro ha un seme suo e cade sempre, con le rarità spostate del bonus; se tra
+        /// <paramref name="first"/> e questi non c'è la rarità garantita, la prende l'ultimo. Senza bonus, niente.
+        /// </summary>
+        public void RollExtra(LootTable table, LootBonus bonus, ItemInstance first, int depth, int cellX, int cellZ, List<ItemInstance> into)
+        {
+            into.Clear();
+            if (table == null || bonus == null || bonus.ExtraRolls <= 0)
+            {
+                return;
+            }
+
+            var rarities = _generator.Rarities.Shifted(bonus.MagicFactor, bonus.RareFactor);
+            bool guaranteed = first != null && first.Rarity >= bonus.Guaranteed;
+            for (int i = 0; i < bonus.ExtraRolls; i++)
+            {
+                var random = new SplitMix64Source(SeedMixer.ForExtraLoot(RunSeed, depth, cellX, cellZ, i));
+                var item = table.PickBase(random);
+                if (item == null)
+                {
+                    return;
+                }
+
+                ulong seed = random.NextUInt64();
+                var generated = _generator.Generate(item, depth, seed, rarities);
+                var floor = generated.Rarity < table.MinRarity ? table.MinRarity : generated.Rarity;
+                if (!guaranteed && i == bonus.ExtraRolls - 1 && floor < bonus.Guaranteed)
+                {
+                    floor = bonus.Guaranteed;
+                }
+
+                // come in Roll: lo stesso oggetto con lo stesso seme, rifatto alla rarità che gli manca
+                if (floor > generated.Rarity)
+                {
+                    generated = _generator.Generate(item, depth, seed, floor);
+                }
+
+                guaranteed |= generated.Rarity >= bonus.Guaranteed;
+                into.Add(generated);
+            }
+        }
+
+        /// <summary>
         /// Gli oggetti del mercante (D5 della M10): <see cref="MerchantTable.StockSize"/> basi pesate,
         /// del livello <paramref name="depth"/>, da un seme di profondità e ritorno in città. Stessi
         /// ingressi, stesso assortimento: non si salva. <paramref name="into"/> viene svuotata prima.

@@ -10,12 +10,22 @@ namespace DarkDescent.Levels
     /// casse e arredi dei semi già provati restano dove sono. Un campione è un nemico già messo,
     /// promosso, con i suoi modificatori; l'unico è un simbolo suo in una cella libera. Ognuno ha una
     /// scorta di nemici normali in più, nelle celle libere attorno. Mai vicino all'ingresso né nella
-    /// sala del re. Logica pura.
+    /// sala del re. Accanto all'unico e a metà dei campioni c'è un forziere; in fondo alla sala del re
+    /// il suo tesoro (D8). Logica pura.
     /// </summary>
     public static class SpecialEnemyPlanner
     {
         /// <summary>L'unico del livello: il tileset dice quale (Morvak nella cripta, Grumm nelle caverne).</summary>
         public const char UniqueSymbol = 'u';
+
+        /// <summary>Il forziere accanto all'unico e ai campioni (D8 della M12).</summary>
+        public const char GoldChestSymbol = 'f';
+
+        /// <summary>Il tesoro del re, in fondo alla sua sala (D8 della M12).</summary>
+        public const char TreasureSymbol = 't';
+
+        /// <summary>Di quante celle, oltre la scorta e una, il forziere si può allontanare dal suo capo.</summary>
+        public const int GoldChestReach = 2;
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
@@ -45,6 +55,7 @@ namespace DarkDescent.Levels
             }
 
             var leaders = new List<Vector2Int>();
+            bool uniquePlaced = false;
             if (withUnique)
             {
                 var free = new List<Vector2Int>();
@@ -62,6 +73,7 @@ namespace DarkDescent.Levels
                     var pick = free[Range(random, 0, free.Count - 1)];
                     layout.TryPlace(UniqueSymbol, pick.x, pick.y);
                     leaders.Add(pick);
+                    uniquePlaced = true;
                     AddEscort(layout, rules, pick, rules.UniqueEscort, rules.Escort, random);
                 }
             }
@@ -95,7 +107,140 @@ namespace DarkDescent.Levels
                 AddEscort(layout, rules, cell, symbol, symbol == CavePopulator.SwarmSymbol ? rules.SwarmEscort : rules.Escort, random);
             }
 
+            // i forzieri dopo tutti i gruppi: accanto all'unico sempre, a un campione con un tiro suo
+            for (int i = 0; i < leaders.Count; i++)
+            {
+                if ((uniquePlaced && i == 0) || random.NextDouble() < rules.GoldChestChance)
+                {
+                    // vicino e nella sua stanza; se lì non c'è posto, un po' più in là anche fuori dalla stanza
+                    for (int extra = 0; extra <= GoldChestReach && !PlaceGoldChest(layout, rules, leaders[i], rules.EscortRadius + 1 + extra, extra == 0, random); extra++)
+                    {
+                    }
+                }
+            }
+
             return champions;
+        }
+
+        /// <summary>
+        /// Il tesoro del re (D8 della M12): nella sala del boss, contro la parete di fronte alla porta,
+        /// dove si arriva solo passando dal re. Senza porta, contro la parete sud. Nessun tiro: la mappa
+        /// dei semi già provati cambia solo di questa cella. False se il livello non ha la sala.
+        /// </summary>
+        public static bool PlaceKingsTreasure(DungeonLayout layout)
+        {
+            if (layout == null) throw new ArgumentNullException(nameof(layout));
+            if (!layout.HasBossRoom)
+            {
+                return false;
+            }
+
+            var toGate = TowardGate(layout);
+            var cell = layout.BossCell - toGate * CaveGenerator.BossRoomHalf;
+            return layout.TryPlace(TreasureSymbol, cell.x, cell.y);
+        }
+
+        /// <summary>Il passo, lungo un asse, dal centro della sala del re verso la sua porta; senza porta verso nord (y che cala).</summary>
+        public static Vector2Int TowardGate(DungeonLayout layout)
+        {
+            var gate = layout.GateCell;
+            if (gate.x < 0)
+            {
+                return Vector2Int.down;
+            }
+
+            var delta = gate - layout.BossCell;
+            return Math.Abs(delta.x) >= Math.Abs(delta.y) ? new Vector2Int(Math.Sign(delta.x), 0) : new Vector2Int(0, Math.Sign(delta.y));
+        }
+
+        // Una cella vicina al capo, nella sua stanza se è nella cripta e sameRoom, con il davanti libero: prima contro
+        // un muro, come le casse, che il builder gira verso la stanza; se non ce n'è, in mezzo alla caverna,
+        // girata verso la camera. Se chiude un passaggio si prova la dopo.
+        private static bool PlaceGoldChest(DungeonLayout layout, SpecialEnemyRules rules, Vector2Int leader, int radius, bool sameRoom, IRandomSource random)
+        {
+            RectInt? room = sameRoom ? RoomOf(layout, leader) : null;
+            var againstWall = new List<Vector2Int>();
+            var open = new List<Vector2Int>();
+            for (int y = leader.y - radius; y <= leader.y + radius; y++)
+            {
+                for (int x = leader.x - radius; x <= leader.x + radius; x++)
+                {
+                    var cell = new Vector2Int(x, y);
+                    if (layout[x, y] == LevelMap.Floor && Allowed(layout, rules, cell) && !NextToKeepClear(layout, cell)
+                        && (room == null || room.Value.Contains(cell)) && Walkable(layout, cell + FrontOf(layout, cell, out bool wall)))
+                    {
+                        (wall ? againstWall : open).Add(cell);
+                    }
+                }
+            }
+
+            Shuffle(againstWall, random);
+            Shuffle(open, random);
+            againstWall.AddRange(open);
+            int reachable = Reachable(layout);
+            foreach (var cell in againstWall)
+            {
+                layout.TryPlace(GoldChestSymbol, cell.x, cell.y);
+                if (Reachable(layout) == reachable - 1)
+                {
+                    return true;
+                }
+
+                layout.Remove(cell.x, cell.y);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Il passo verso il davanti di una cassa in questa cella, come la gira il builder: via dal primo
+        /// muro (nord, sud, ovest, est); senza muri verso sud, la camera.
+        /// </summary>
+        public static Vector2Int FrontOf(DungeonLayout layout, Vector2Int cell, out bool againstWall)
+        {
+            foreach (var step in new[] { Vector2Int.down, Vector2Int.up, Vector2Int.left, Vector2Int.right })
+            {
+                if (!layout.IsFloor(cell.x + step.x, cell.y + step.y))
+                {
+                    againstWall = true;
+                    return -step;
+                }
+            }
+
+            againstWall = false;
+            return Vector2Int.up;
+        }
+
+        private static bool Walkable(DungeonLayout layout, Vector2Int cell)
+        {
+            char c = layout[cell.x, cell.y];
+            return c != LevelMap.Rock && c != DungeonGenerator.StairsSymbol && !DungeonPopulator.IsObstacle(c);
+        }
+
+        // le celle dove si arriva a piedi dall'ingresso
+        private static int Reachable(DungeonLayout layout)
+        {
+            var seen = new bool[layout.Width, layout.Height];
+            var queue = new Queue<Vector2Int>();
+            seen[layout.Entrance.x, layout.Entrance.y] = true;
+            queue.Enqueue(layout.Entrance);
+            int count = 1;
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                foreach (var step in Steps)
+                {
+                    var next = cell + step;
+                    if (Walkable(layout, next) && !seen[next.x, next.y])
+                    {
+                        seen[next.x, next.y] = true;
+                        queue.Enqueue(next);
+                        count++;
+                    }
+                }
+            }
+
+            return count;
         }
 
         /// <summary>
@@ -179,7 +324,7 @@ namespace DarkDescent.Levels
             {
                 char symbol = layout[cell.x + step.x, cell.y + step.y];
                 if (symbol == DungeonPopulator.ChestSymbol || symbol == DungeonGenerator.StairsSymbol || symbol == DungeonGenerator.EntranceSymbol
-                    || symbol == CavePopulator.GateSymbol)
+                    || symbol == CavePopulator.GateSymbol || symbol == GoldChestSymbol || symbol == TreasureSymbol)
                 {
                     return true;
                 }

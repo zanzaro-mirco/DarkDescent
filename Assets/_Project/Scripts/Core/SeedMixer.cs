@@ -83,6 +83,15 @@ namespace DarkDescent.Core
             return Mix(ForLevel(runSeed, depth) ^ UniqueDomain);
         }
 
+        // "EXTRA": i tiri in più di campioni, unici e forzieri (D7 della M12), uno per indice
+        private const ulong ExtraDomain = 0x4558545241UL;
+
+        /// <summary>Il seme del tiro in più numero <paramref name="index"/>: il primo oggetto, la pozione e l'oro non cambiano.</summary>
+        public static ulong ForExtraLoot(ulong runSeed, int depth, int cellX, int cellZ, int index)
+        {
+            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ ExtraDomain ^ Mix((ulong)(uint)index));
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {
