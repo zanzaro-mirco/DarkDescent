@@ -54,6 +54,8 @@ namespace DarkDescent.Enemies
         private Health _target;
         private float _cooldown;
         private float _castTimer = -1f;
+        private float _damageMultiplier = 1f;
+        private float _speedMultiplier = 1f;
 
         /// <summary>Il gesto è partito e il dardo non ancora.</summary>
         public bool IsCasting => _castTimer >= 0f;
@@ -62,6 +64,20 @@ namespace DarkDescent.Enemies
         public bool IsReady => !IsCasting && _cooldown <= 0f && _pools != null && _projectile != null;
 
         public int MinDamage => _minDamage;
+
+        public float DamageMultiplier => _damageMultiplier;
+
+        /// <summary>Moltiplica il danno dei dardi: i campioni e gli unici, e il Furioso (M12).</summary>
+        public void SetDamageMultiplier(float multiplier)
+        {
+            _damageMultiplier = Mathf.Max(0f, multiplier);
+        }
+
+        /// <summary>Lancia più spesso di tanto: il Rapido (M12).</summary>
+        public void SetSpeedMultiplier(float multiplier)
+        {
+            _speedMultiplier = Mathf.Max(0.1f, multiplier);
+        }
 
         public int MaxDamage => _maxDamage;
 
@@ -86,8 +102,8 @@ namespace DarkDescent.Enemies
             }
 
             _target = target;
-            _castTimer = _castDelay;
-            _cooldown = _interval;
+            _castTimer = _castDelay / _speedMultiplier;
+            _cooldown = _interval / _speedMultiplier;
             if (_animator != null)
             {
                 _animator.PlayCast();
@@ -168,7 +184,7 @@ namespace DarkDescent.Enemies
             Vector3 direction = aim.normalized;
             Vector3 from = transform.position + Vector3.up * _launchHeight + direction * _launchForward;
             float damage = _minDamage + (int)(_random.NextDouble() * (_maxDamage - _minDamage + 1));
-            _pools.Launch(_projectile, from, direction, _speed, _range, Mathf.Min(damage, _maxDamage), gameObject, _targetLayers, _random);
+            _pools.Launch(_projectile, from, direction, _speed, _range, Mathf.Min(damage, _maxDamage) * _damageMultiplier, gameObject, _targetLayers, _random);
         }
     }
 }

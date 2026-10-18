@@ -60,6 +60,11 @@ namespace DarkDescent.Combat
         private int _minDamage;
         private int _maxDamage;
 
+        // i nemici speciali (M12): danno del grado e del Furioso, velocità del Rapido, l'Inamovibile
+        private float _damageMultiplier = 1f;
+        private float _speedMultiplier = 1f;
+        private bool _unblockable;
+
         // il colpo in corso: l'arma, oppure il colpo leggero quando tocca a lui
         private SwingPattern _pattern;
         private WeaponDefinition _swingWeapon;
@@ -113,6 +118,33 @@ namespace DarkDescent.Combat
 
         /// <summary>L'arma del colpo in corso, o quella dell'ultimo colpo: i suoi tempi danno la velocità dell'animazione.</summary>
         public WeaponDefinition SwingWeapon => _swingWeapon != null ? _swingWeapon : _weapon;
+
+        /// <summary>Quanto dura la carica del colpo, con la velocità dei campioni Rapidi (M12).</summary>
+        public float SwingHitDelay => SwingWeapon.HitDelay / _speedMultiplier;
+
+        public float DamageMultiplier => _damageMultiplier;
+
+        public float SpeedMultiplier => _speedMultiplier;
+
+        /// <summary>Lo scudo del bersaglio non ferma i suoi colpi: l'Inamovibile (M12).</summary>
+        public bool IsUnblockable => _unblockable;
+
+        /// <summary>Moltiplica il danno di ogni colpo: i campioni e gli unici, e il Furioso (M12).</summary>
+        public void SetDamageMultiplier(float multiplier)
+        {
+            _damageMultiplier = Mathf.Max(0f, multiplier);
+        }
+
+        /// <summary>Carica e intervallo tra i colpi si accorciano di tanto: il Rapido (M12).</summary>
+        public void SetSpeedMultiplier(float multiplier)
+        {
+            _speedMultiplier = Mathf.Max(0.1f, multiplier);
+        }
+
+        public void SetUnblockable(bool unblockable)
+        {
+            _unblockable = unblockable;
+        }
 
         private void Awake()
         {
@@ -308,8 +340,8 @@ namespace DarkDescent.Combat
 
             _attackRequested = false;
             _hitPending = true;
-            _hitTimer = _swingWeapon.HitDelay;
-            _cooldown = _swingWeapon.AttackInterval;
+            _hitTimer = _swingWeapon.HitDelay / _speedMultiplier;
+            _cooldown = _swingWeapon.AttackInterval / _speedMultiplier;
 
             _swingTarget = _target;
             _swingTransform = _targetTransform;
@@ -349,14 +381,14 @@ namespace DarkDescent.Combat
                     _swingTarget.Evade(info);
                     Missed?.Invoke(info);
                 }
-                else if (_swingTargetBlock == null || !_swingTargetBlock.TryBlock(new DamageInfo(0f, _swingWeapon.DamageType, gameObject), _random))
+                else if (_unblockable || _swingTargetBlock == null || !_swingTargetBlock.TryBlock(new DamageInfo(0f, _swingWeapon.DamageType, gameObject), _random))
                 {
                     // il colpo leggero ha i suoi danni; quello dell'arma, i danni con gli affissi
                     float amount = CombatFormulas.RollDamage(
                         _swingIsQuick ? _quickWeapon.MinDamage : _minDamage,
                         _swingIsQuick ? _quickWeapon.MaxDamage : _maxDamage,
                         CharacterStats.ValueOf(_stats, StatType.Strength), _random,
-                        CharacterStats.ValueOf(_stats, StatType.Level));
+                        CharacterStats.ValueOf(_stats, StatType.Level)) * _damageMultiplier;
 
                     // il critico per ultimo: i tiri di colpire, bloccare e del danno restano dove sono
                     bool critical = _canCrit && CombatFormulas.RollCrit(

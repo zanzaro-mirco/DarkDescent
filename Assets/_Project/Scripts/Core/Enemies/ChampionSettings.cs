@@ -20,7 +20,23 @@ namespace DarkDescent.Enemies
         [Tooltip("I modificatori tra cui si sceglie per i campioni (D5 della M12); l'ordine conta per il seme.")]
         [SerializeField] private List<ChampionModifier> _modifiers = new List<ChampionModifier>();
 
+        [Header("Si vedono da lontano (D9 della M12)")]
+        [Tooltip("L'anello luminoso sotto i piedi, tinto del colore del grado.")]
+        [SerializeField] private GameObject _ring;
+
+        [Tooltip("Quanto sopra il pavimento sta l'anello, per non sfarfallare con lui.")]
+        [SerializeField, Min(0f)] private float _ringHeight = 0.04f;
+
+        [Tooltip("Quanto il modello di un campione prende il colore del grado: 0 niente, 1 tutto.")]
+        [SerializeField, Range(0f, 1f)] private float _championTint = 0.5f;
+
         public IReadOnlyList<ChampionModifier> Modifiers => _modifiers;
+
+        public GameObject Ring => _ring;
+
+        public float RingHeight => _ringHeight;
+
+        public float ChampionTint => _championTint;
 
         /// <summary>Gli id dei modificatori, nello stesso ordine: quello che serve al popolatore, una volta per livello.</summary>
         public List<string> CollectModifierIds()

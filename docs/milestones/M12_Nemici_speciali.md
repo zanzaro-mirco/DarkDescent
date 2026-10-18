@@ -118,6 +118,33 @@ come gli altri nemici. Test: `SpecialEnemyMapTests` (mappa, prima profondità, u
 l'unico); i test della discesa e delle caverne contano i nemici del popolatore, prima delle
 scorte. 327 EditMode e 201 PlayMode verdi.
 
+## Passo 12.3 — In gioco
+
+**Com'è andata (18 ott 2026).** Il composition root lega ogni `SpecialEnemy` con le
+`ChampionSettings` quando lega i nemici del livello. Allora il nemico prende la vita del suo grado
+(`Health.MultiplyMax`, a vita piena), il danno (`MeleeAttack` e `RangedAttack` hanno un
+moltiplicatore), la scala e la tinta con un `MaterialPropertyBlock`: il colore del grado a metà per i
+campioni, quella del prefab per gli unici. Sotto i piedi ha un anello additivo (`SpecialRing`, una
+texture bianca nostra tinta del colore del grado), che si spegne alla morte. L'esperienza del nemico
+ucciso si moltiplica nel composition root.
+
+I modificatori:
+- **Rapido**: agent, carica e intervallo dei colpi del 30% più svelti; l'animazione dell'attacco
+  segue la carica (`MeleeAttack.SwingHitDelay`), e così il settore telegrafato del bruto.
+- **Gelido**: ogni suo colpo che arriva al cavaliere, anche un dardo, lo rallenta del 40% per 2 s
+  (`MovementSlow` sul cavaliere, l'unico che tocca la velocità dell'agent, con una tinta fredda sul
+  modello). Un secondo colpo rinnova la durata senza sommarsi.
+- **Rigenerante**: dopo 3 s senza colpi riprende il 2% della vita a ogni secondo.
+- **Inamovibile**: `HitRecovery` spento, e lo scudo del cavaliere non ne blocca i colpi in mischia.
+  I dardi di un mago Inamovibile si parano ancora.
+- **Furioso**: sotto metà della vita il danno sale di metà, una volta.
+
+Foto di prova dalla scena vera, con un test temporaneo: Morvak rosso ruggine con lo scudo chiodato e
+Grumm verde con l'elmo a corna, tutti e due con l'anello d'oro; i campioni con l'anello blu. La tinta
+blu dei campioni è leggera (`ChampionTint` 0,5): si giudica nella prova in build. Test:
+`SpecialEnemyCombatTests` (numeri, anello, esperienza, i cinque modificatori) e il test del livello
+costruito controlla che tutti i nemici speciali siano legati. 327 EditMode e 207 PlayMode verdi.
+
 ---
 
 ## Trappole note

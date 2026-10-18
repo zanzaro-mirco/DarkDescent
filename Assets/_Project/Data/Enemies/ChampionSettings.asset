@@ -30,3 +30,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b3d535669fdca52488dceeccce4b5087, type: 2}
   - {fileID: 11400000, guid: 90cb3dfb7c678f649862a656104e3dc5, type: 2}
   - {fileID: 11400000, guid: d486c03c28f50164eb41da79133da115, type: 2}
+  _ring: {fileID: 3356957279450528581, guid: da9f0f68b4b04c343bb6b7cc904193c0, type: 3}
+  _ringHeight: 0.04
+  _championTint: 0.5

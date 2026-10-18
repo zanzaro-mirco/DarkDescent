@@ -33,7 +33,7 @@ namespace DarkDescent.Tests
             Assert.Fail($"la profondità {depth} non si è caricata");
         }
 
-        [UnityTest, Description("Nel livello costruito i nemici della direttiva sono campioni con i loro modificatori, Morvak è l'unico, gli altri sono normali")]
+        [UnityTest, Description("Nel livello costruito i nemici della direttiva sono campioni con i loro modificatori, Morvak è l'unico, gli altri sono normali; tutti legati, con l'anello")]
         public IEnumerator BuiltLevel_HasChampionsAndMorvak()
         {
             yield return LoadGeneratedCore();
@@ -63,6 +63,16 @@ namespace DarkDescent.Tests
 
             var unique = specials.Single(s => s.Rank == EnemyRank.Unique);
             StringAssert.StartsWith("Morvak", unique.name);
+
+            // il composition root li ha legati: numeri del grado, modificatori risolti, anello (12.3)
+            foreach (var special in specials)
+            {
+                Assert.IsTrue(special.IsBound, special.name);
+                Assert.IsNotNull(special.Ring, special.name);
+                Assert.AreEqual(special.Modifiers.Count, special.ActiveModifiers.Count, special.name);
+            }
+
+            Assert.AreEqual(5f, unique.Numbers.Life);
             Assert.AreEqual(level.Enemies.Count, level.Map.Markers.Count(m => CavePopulator.IsEnemy(m.Symbol)));
         }
 

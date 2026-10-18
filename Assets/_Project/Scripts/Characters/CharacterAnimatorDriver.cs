@@ -224,7 +224,8 @@ namespace DarkDescent.Characters
             var weapon = _attack.SwingWeapon;
             if (_clipHitTime > 0f && weapon != null && weapon.HitDelay > 0f)
             {
-                return _clipHitTime / weapon.HitDelay;
+                // con la carica del colpo, che i campioni Rapidi accorciano (M12)
+                return _clipHitTime / _attack.SwingHitDelay;
             }
 
             return _attack.IsQuickSwing ? _quickAttackSpeed : _attackSpeed;

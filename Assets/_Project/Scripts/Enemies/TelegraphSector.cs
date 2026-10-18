@@ -93,7 +93,7 @@ namespace DarkDescent.Enemies
             }
 
             _elapsed = 0f;
-            _duration = _attack.Weapon.HitDelay;
+            _duration = _attack.Weapon.HitDelay / _attack.SpeedMultiplier;
             _fill.localScale = new Vector3(0f, 1f, 0f);
             _sector.SetActive(true);
         }

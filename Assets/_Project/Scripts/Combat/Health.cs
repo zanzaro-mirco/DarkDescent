@@ -85,6 +85,16 @@ namespace DarkDescent.Combat
             Revived?.Invoke();
         }
 
+        /// <summary>
+        /// Moltiplica la vita massima, e quella attuale con lei: i campioni e gli unici (M12), appena
+        /// nati e a vita piena. Senza numeri: non è un danno né una cura.
+        /// </summary>
+        public void MultiplyMax(float factor)
+        {
+            Model.SetMax(Model.Max * factor);
+            HealthChanged?.Invoke(Model.Current, Model.Max);
+        }
+
         /// <summary>La vita di un salvataggio (M8): senza danno né cura, quindi senza numeri né suoni.</summary>
         public void SetCurrent(float current)
         {

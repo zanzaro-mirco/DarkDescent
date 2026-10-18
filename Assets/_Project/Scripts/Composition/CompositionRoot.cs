@@ -109,6 +109,9 @@ namespace DarkDescent.Core
         [Tooltip("Nome e vita del nemico sotto il cursore, o di quello combattuto (M9), in alto al centro.")]
         [SerializeField] private EnemyBar _enemyBar;
 
+        [Tooltip("I numeri dei nemici speciali, campioni e unici, e i loro modificatori (M12).")]
+        [SerializeField] private ChampionSettings _championSettings;
+
         [Tooltip("Il cerchio rosso a terra sotto il nemico che ha il cursore addosso.")]
         [SerializeField] private Rendering.TargetMarker _targetMarker;
 
@@ -159,6 +162,7 @@ namespace DarkDescent.Core
         private SaveSlots _saves;
 
         private MeleeAttack _playerAttack;
+        private MovementSlow _playerSlow;
         private PlayerInputReader _reader;
         private Localizer _localizer;
         private LootRoller _loot;
@@ -275,6 +279,7 @@ namespace DarkDescent.Core
             Debug.Log($"[DarkDescent] seme della partita: {seed} (per rigiocarla: -seed {seed})");
 
             _playerAttack = _player.GetComponent<MeleeAttack>();
+            _playerSlow = _player.GetComponent<MovementSlow>();
             _playerInventory = _player.GetComponent<PlayerInventory>().Inventory;
             _random = new SystemRandomSource(Environment.TickCount);
             _playerAttack.SetRandomSource(_random);
@@ -558,6 +563,11 @@ namespace DarkDescent.Core
         private void BindEnemy(EnemyAI enemy, int depth, bool rewarding)
         {
             enemy.Bind(_player);
+            if (_championSettings != null && enemy.TryGetComponent(out SpecialEnemy special))
+            {
+                special.Bind(_championSettings, _player, _playerSlow);
+            }
+
             if (rewarding)
             {
                 enemy.Killed += HandleEnemyKilled;
@@ -818,8 +828,15 @@ namespace DarkDescent.Core
         {
             enemy.Killed -= HandleEnemyKilled;
             _rewardingEnemies.Remove(enemy);
-            _progress.AwardKill(enemy.Archetype.Experience, _depth);
+            _progress.AwardKill(ExperienceOf(enemy), _depth);
             _runStats.AddKill();
+        }
+
+        // i campioni e gli unici valgono più di un nemico normale dello stesso tipo (M12)
+        private static int ExperienceOf(EnemyAI enemy)
+        {
+            int experience = enemy.Archetype.Experience;
+            return enemy.TryGetComponent(out SpecialEnemy special) ? Mathf.RoundToInt(experience * special.ExperienceMultiplier) : experience;
         }
 
         /// <summary>Cambia il seme della partita: per i test e per rigiocare un seme senza riavviare.</summary>
