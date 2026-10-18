@@ -103,7 +103,7 @@ namespace DarkDescent.Tests
 
             string text = Write(With("BadgeShield", Rarity.Rare, ("Massive", 50), ("OfBlocking", 10), ("OfTheBear", 8)), header: "Equipaggiato");
 
-            StringAssert.StartsWith("<size=80%>", text);
+            StringAssert.StartsWith("<b><color=" + ItemDescription.HeaderColor + ">Equipaggiato", text);
             StringAssert.Contains("Equipaggiato", text);
             StringAssert.Contains("Scudo con stemma Massiccio della Parata", text);
             StringAssert.Contains("Armatura: 7", text);

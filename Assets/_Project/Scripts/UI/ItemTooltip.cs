@@ -3,6 +3,7 @@ using DarkDescent.Items;
 using DarkDescent.Localization;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace DarkDescent.UI
 {
@@ -30,13 +31,27 @@ namespace DarkDescent.UI
         [Tooltip("Oltre questa larghezza il nome va su due righe, divise a metà (M9, D1).")]
         [SerializeField, Min(100f)] private float _maxNameWidth = 480f;
 
+        [Tooltip("Il bordo del riquadro: nel confronto prende l'oro dell'oggetto addosso (v1.0.1).")]
+        [SerializeField] private Outline _frame;
+
+        [SerializeField] private Color _equippedFrameColor = new Color(0.91f, 0.77f, 0.35f, 1f);
+
+        [SerializeField] private Vector2 _equippedFrameDistance = new Vector2(3f, -3f);
+
         private readonly StringBuilder _builder = new StringBuilder(160);
         private readonly Vector3[] _corners = new Vector3[4];
         private RectTransform _container;
+        private Color _frameColor;
+        private Vector2 _frameDistance;
 
         public bool IsShowing => _box.gameObject.activeSelf;
 
         public string Text => _text.text;
+
+        /// <summary>Vero se il riquadro descrive l'oggetto addosso, con il bordo d'oro.</summary>
+        public bool IsMarkedEquipped { get; private set; }
+
+        public Outline Frame => _frame;
 
         /// <summary>Il riquadro, per controllare che resti dentro lo schermo.</summary>
         public RectTransform Box => _box;
@@ -45,6 +60,7 @@ namespace DarkDescent.UI
         /// <param name="trade">Le righe del mercante in fondo, con il negozio aperto (D5 della M10).</param>
         public void Show(ItemInstance item, bool meetsRequirements, Localizer localizer, RectTransform target, bool equipHint = false, string trade = null)
         {
+            MarkEquipped(false);
             Fill(item, meetsRequirements, localizer, null, equipHint, trade);
             GetLocalRect(target, out Vector2 min, out Vector2 max);
             PlaceAround(min, max);
@@ -56,6 +72,7 @@ namespace DarkDescent.UI
         /// </summary>
         public void ShowBeside(ItemInstance item, bool meetsRequirements, Localizer localizer, ItemTooltip anchor, string header, bool onRight = false)
         {
+            MarkEquipped(true);
             Fill(item, meetsRequirements, localizer, header, false, null);
             GetLocalRect(anchor.Box, out Vector2 min, out Vector2 max);
             PlaceBeside(min, max, onRight);
@@ -67,6 +84,7 @@ namespace DarkDescent.UI
         /// </summary>
         public void ShowText(string text, RectTransform beside, Vector3 worldPoint)
         {
+            MarkEquipped(false);
             _text.SetText(text);
             Resize();
             GetLocalRect(beside, out _, out Vector2 max);
@@ -84,7 +102,23 @@ namespace DarkDescent.UI
             _container = (RectTransform)transform;
             _box.anchorMin = _box.anchorMax = new Vector2(0.5f, 0.5f);
             _box.pivot = new Vector2(0.5f, 0.5f);
+            if (_frame != null)
+            {
+                _frameColor = _frame.effectColor;
+                _frameDistance = _frame.effectDistance;
+            }
+
             Hide();
+        }
+
+        private void MarkEquipped(bool equipped)
+        {
+            IsMarkedEquipped = equipped;
+            if (_frame != null)
+            {
+                _frame.effectColor = equipped ? _equippedFrameColor : _frameColor;
+                _frame.effectDistance = equipped ? _equippedFrameDistance : _frameDistance;
+            }
         }
 
         private void Fill(ItemInstance item, bool meetsRequirements, Localizer localizer, string header, bool equipHint, string trade)

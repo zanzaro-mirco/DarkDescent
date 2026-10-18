@@ -295,7 +295,7 @@ namespace DarkDescent.Core
             _pointsButton.Bind(_progress.Progress, _characterPanel);
             _shopPanel.Bind(_shop, inventory, _inventoryPanel, _localizer);
             _groundLabels.Bind(_reader, _player.GetComponent<PlayerController>(), _localizer);
-            _optionsPanel.Bind(_localizer, _groundLabels, _retroFilter);
+            _optionsPanel.Bind(_localizer, _groundLabels, _retroFilter, new[] { _healthOrb.Readout, _manaOrb.Readout });
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _cameraRotation = _playerCamera.GetComponent<Rendering.CameraRotation>();

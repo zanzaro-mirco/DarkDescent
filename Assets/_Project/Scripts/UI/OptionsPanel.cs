@@ -21,6 +21,7 @@ namespace DarkDescent.UI
         public const string MusicPreference = "volume.music";
         public const string SfxPreference = "volume.sfx";
         public const string LabelsPreference = "labels.always";
+        public const string OrbNumbersPreference = "orbs.numbers";
 
         // i parametri esposti del mixer Main
         public const string MasterParameter = "MasterVolume";
@@ -42,6 +43,9 @@ namespace DarkDescent.UI
 
         [SerializeField] private Toggle _labels;
 
+        [Tooltip("I numeri di vita e mana sempre sulle sfere, non solo con il mouse sopra (v1.0.1).")]
+        [SerializeField] private Toggle _orbNumbers;
+
         [Tooltip("Il filtro retrò: spento, leggero, pieno (D2 della M11).")]
         [SerializeField] private Button _retro;
 
@@ -54,6 +58,7 @@ namespace DarkDescent.UI
         private Localizer _localizer;
         private GroundLabels _groundLabels;
         private RetroFilter _retroFilter;
+        private OrbReadout[] _orbReadouts;
         private bool _subscribed;
 
         /// <summary>Il tasto della lingua: chi tiene le preferenze cambia lingua e la ricorda.</summary>
@@ -70,6 +75,8 @@ namespace DarkDescent.UI
 
         public Toggle Labels => _labels;
 
+        public Toggle OrbNumbers => _orbNumbers;
+
         public Button Back => _back;
 
         public Button RetroButton => _retro;
@@ -79,12 +86,14 @@ namespace DarkDescent.UI
         public string LanguageText => _languageLabel.text;
 
         /// <param name="retroFilter">Facoltativo: senza, il pulsante del filtro non fa niente.</param>
-        public void Bind(Localizer localizer, GroundLabels groundLabels, RetroFilter retroFilter = null)
+        /// <param name="orbReadouts">I numeri delle sfere, che l'opzione lascia sempre accesi.</param>
+        public void Bind(Localizer localizer, GroundLabels groundLabels, RetroFilter retroFilter = null, OrbReadout[] orbReadouts = null)
         {
             Unsubscribe();
             _localizer = localizer;
             _groundLabels = groundLabels;
             _retroFilter = retroFilter;
+            _orbReadouts = orbReadouts;
             if (isActiveAndEnabled)
             {
                 Subscribe();
@@ -121,6 +130,7 @@ namespace DarkDescent.UI
             _music.SetValueWithoutNotify(PlayerPrefs.GetFloat(MusicPreference, 1f));
             _sfx.SetValueWithoutNotify(PlayerPrefs.GetFloat(SfxPreference, 1f));
             _labels.SetIsOnWithoutNotify(PlayerPrefs.GetInt(LabelsPreference, 0) == 1);
+            _orbNumbers.SetIsOnWithoutNotify(PlayerPrefs.GetInt(OrbNumbersPreference, 0) == 1);
         }
 
         // il mixer non accetta valori in Awake: i volumi salvati si applicano qui
@@ -152,6 +162,7 @@ namespace DarkDescent.UI
             _music.onValueChanged.AddListener(HandleVolume);
             _sfx.onValueChanged.AddListener(HandleVolume);
             _labels.onValueChanged.AddListener(HandleLabels);
+            _orbNumbers.onValueChanged.AddListener(HandleOrbNumbers);
             if (_retro != null)
             {
                 _retro.onClick.AddListener(HandleRetro);
@@ -160,6 +171,7 @@ namespace DarkDescent.UI
             _localizer.LanguageChanged += RefreshLanguage;
             _subscribed = true;
             _groundLabels.SetAlwaysVisible(_labels.isOn);
+            ApplyOrbNumbers();
             RefreshLanguage();
         }
 
@@ -176,6 +188,7 @@ namespace DarkDescent.UI
             _music.onValueChanged.RemoveListener(HandleVolume);
             _sfx.onValueChanged.RemoveListener(HandleVolume);
             _labels.onValueChanged.RemoveListener(HandleLabels);
+            _orbNumbers.onValueChanged.RemoveListener(HandleOrbNumbers);
             if (_retro != null)
             {
                 _retro.onClick.RemoveListener(HandleRetro);
@@ -204,6 +217,26 @@ namespace DarkDescent.UI
             PlayerPrefs.SetInt(LabelsPreference, on ? 1 : 0);
             PlayerPrefs.Save();
             _groundLabels.SetAlwaysVisible(on);
+        }
+
+        private void HandleOrbNumbers(bool on)
+        {
+            PlayerPrefs.SetInt(OrbNumbersPreference, on ? 1 : 0);
+            PlayerPrefs.Save();
+            ApplyOrbNumbers();
+        }
+
+        private void ApplyOrbNumbers()
+        {
+            if (_orbReadouts == null)
+            {
+                return;
+            }
+
+            foreach (var readout in _orbReadouts)
+            {
+                readout.SetAlwaysVisible(_orbNumbers.isOn);
+            }
         }
 
         private void HandleRetro()

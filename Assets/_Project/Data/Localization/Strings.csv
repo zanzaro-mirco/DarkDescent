@@ -45,6 +45,7 @@ options.master,Master volume,Volume generale
 options.music,Music,Musica
 options.sfx,Effects,Effetti
 options.labels,Always show item names,Nomi degli oggetti sempre visibili
+options.orb_numbers,Always show life and mana numbers,Numeri di vita e mana sempre visibili
 options.retro,Retro filter: {0},Filtro retrò: {0}
 retro.off,off,spento
 retro.light,light,leggero

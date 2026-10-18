@@ -77,7 +77,8 @@ Milestone precedenti:
 - `T`, o un click sul posto a sinistra della cintura, lancia la **magia del portale** (10 di
   mana): apre un portale per l'accampamento. Non serve in città, e nella sala del re non funziona
   finché il re è vivo
-- con il mouse sopra la sfera della vita o del mana si legge quanto resta
+- con il mouse sopra la sfera della vita o del mana si legge quanto resta; un'opzione li lascia
+  sempre scritti
 - click destro nel mondo per lanciare l'incantesimo scelto verso il cursore; `F1`–`F3`, o un
   click sui tre posti accanto alla sfera del mana, scelgono l'incantesimo
 - `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
@@ -100,7 +101,8 @@ la magia del portale apre un portale per l'accampamento, e lì un portale riport
 e *Carica* usano tre posti di salvataggio (`save_1.json`…`save_3.json` nella cartella dei dati
 dell'applicazione), che si possono anche cancellare. Nelle **opzioni** ci sono la lingua
 (inglese, italiano), i volumi generale, della musica e degli effetti, i nomi degli oggetti
-a terra sempre visibili e il filtro retrò (spento, leggero, pieno); tutto resta per gli avvii successivi. In fondo alle caverne, alla
+a terra sempre visibili, i numeri di vita e mana sempre visibili e il filtro retrò (spento,
+leggero, pieno); tutto resta per gli avvii successivi. In fondo alle caverne, alla
 profondità 8, aspetta nella sua sala il **Re delle ossa**: entrati, la porta si chiude finché
 uno dei due non cade. Morto il re, il portale della vittoria porta all'accampamento, alle statistiche
 della partita e ai riconoscimenti; la partita resta salvata e si può riscendere.

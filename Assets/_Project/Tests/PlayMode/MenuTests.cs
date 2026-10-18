@@ -36,6 +36,7 @@ namespace DarkDescent.Tests
             Environment.SetEnvironmentVariable(CompositionRoot.SaveFolderVariable, null);
             PlayerPrefs.DeleteKey(OptionsPanel.MasterPreference);
             PlayerPrefs.DeleteKey(OptionsPanel.LabelsPreference);
+            PlayerPrefs.DeleteKey(OptionsPanel.OrbNumbersPreference);
             Time.timeScale = 1f;
             AudioListener.pause = false;
             yield return null;
@@ -222,6 +223,45 @@ namespace DarkDescent.Tests
             options.Back.onClick.Invoke();
             Assert.IsFalse(options.IsOpen);
             mixer.SetFloat(OptionsPanel.MasterParameter, 0f);
+        }
+
+        [UnityTest, Description("L'opzione dei numeri sulle sfere (v1.0.1): spenta di partenza, i numeri compaiono solo con il mouse sopra; accesa, vita e mana restano scritti e la scelta resta anche riaprendo il gioco")]
+        public IEnumerator Options_KeepOrbNumbersVisible()
+        {
+            yield return LoadCore();
+            var options = UnityEngine.Object.FindFirstObjectByType<OptionsPanel>();
+            var life = UnityEngine.Object.FindFirstObjectByType<HealthOrb>().Readout;
+            var mana = UnityEngine.Object.FindFirstObjectByType<ManaOrb>().Readout;
+            Assert.IsFalse(options.OrbNumbers.isOn, "spenta di partenza");
+            Assert.IsFalse(life.IsShowing);
+            Assert.IsFalse(mana.IsShowing);
+
+            options.Open();
+            options.OrbNumbers.isOn = true;
+            Assert.IsTrue(life.IsShowing, "la vita resta scritta");
+            Assert.IsTrue(mana.IsShowing, "il mana resta scritto");
+            StringAssert.Contains(" / ", life.Text);
+            life.Show(false);
+            Assert.IsTrue(life.IsShowing, "il mouse che esce non la spegne");
+            Assert.AreEqual(1, PlayerPrefs.GetInt(OptionsPanel.OrbNumbersPreference));
+            options.Back.onClick.Invoke();
+
+            // riaperto il gioco, la scelta resta: come LoadCore, senza dimenticare le preferenze
+            SceneManager.LoadScene("Core");
+            SceneManager.LoadScene("Level_01", LoadSceneMode.Additive);
+            yield return WaitForLevel();
+            yield return null;
+            options = UnityEngine.Object.FindFirstObjectByType<OptionsPanel>();
+            life = UnityEngine.Object.FindFirstObjectByType<HealthOrb>().Readout;
+            Assert.IsTrue(options.OrbNumbers.isOn);
+            Assert.IsTrue(life.IsShowing);
+
+            options.Open();
+            options.OrbNumbers.isOn = false;
+            Assert.IsFalse(life.IsShowing, "spenta, di nuovo solo con il mouse");
+            life.Show(true);
+            Assert.IsTrue(life.IsShowing);
+            options.Back.onClick.Invoke();
         }
     }
 }
