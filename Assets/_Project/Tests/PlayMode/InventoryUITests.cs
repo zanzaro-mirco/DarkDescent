@@ -308,10 +308,6 @@ namespace DarkDescent.Tests
             StringAssert.Contains("Round Shield", tooltip.Text);
             StringAssert.Contains("Equipped", compare.Text);
             StringAssert.Contains("Crest Shield", compare.Text);
-            // v1.0.1: il riquadro dell'oggetto addosso ha il bordo d'oro, quello dello zaino no
-            Assert.IsTrue(compare.IsMarkedEquipped, "il confronto è l'oggetto addosso");
-            Assert.IsFalse(tooltip.IsMarkedEquipped);
-            Assert.AreNotEqual(tooltip.Frame.effectColor, compare.Frame.effectColor, "i due bordi si distinguono");
             AssertInsideScreen(tooltip.Box);
             AssertInsideScreen(compare.Box);
             var a = new Vector3[4];

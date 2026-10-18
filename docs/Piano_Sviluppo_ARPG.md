@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.40**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.41**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.41 | 18 ott 2026 | **v1.0.2** dalla prova di Mirco della v1.0.1: le spunte delle opzioni si vedono, e nel confronto i due riquadri tornano uguali, con "Equipaggiato" piccolo e grigio chiaro sopra il nome |
 | v2.40 | 18 ott 2026 | Le difficoltà prendono nomi nostri, scelti da Mirco al posto di quelli di Diablo: **Crepuscolo, Ombra, Tenebra, Abisso I–VI** |
 | v2.39 | 18 ott 2026 | Decisioni di Mirco sulle **difficoltà**: da Normale ai Tormenti, scelte liberamente all'accampamento fino all'ultima completata; livello massimo 50; **punizione alla morte** con oro ed esperienza, senza mai scendere di livello · un pilastro del design: **il gioco non finisce** (§ 2) |
 | v2.38 | 18 ott 2026 | Dai suggerimenti dei tester della v1.0, dopo la v1.0: **v1.0.1** con i numeri delle sfere sempre visibili e l'oggetto indossato evidente nel confronto · **suggerimenti al primo uso e aiuto** · **nemici che scappano** · **casse di più tipi** · **ronde dei nemici** · la **schermata di creazione del personaggio** con le classi nuove · le **difficoltà dopo la vittoria** escono dal fuori ambito, da progettare · le quest restano fuori |
@@ -823,6 +824,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **L'oggetto indossato si riconosce nel confronto.** Oggi il tooltip di confronto ha sopra il nome una scritta "Equipaggiato" piccola e grigia. Diventa più grande e colorata, con una cornice diversa per l'oggetto indossato, così con due anelli si capisce subito quale tooltip è quale.
   - Circa 1–1,5 h, con la build da provare.
   - **Fatta il 18 ott 2026** (`bundleVersion` 1.0.1): l'opzione *Numeri di vita e mana sempre visibili* sotto quella dei nomi a terra, ricordata tra le preferenze (`OrbReadout.SetAlwaysVisible`); nel confronto la scritta "Equipaggiato" è in oro e grassetto, e il riquadro dell'oggetto addosso ha il bordo d'oro più spesso (`ItemTooltip.IsMarkedEquipped`). Test: `MenuTests.Options_KeepOrbNumbersVisible`, il confronto dello scudo in `InventoryUITests` controlla i due bordi. 310 EditMode e 200 PlayMode verdi. Esce con il tag `v1.0.1`.
+  - **v1.0.2, dalla prova di Mirco (18 ott 2026).** Le spunte delle opzioni non si vedevano: lo sprite *Checkmark* di Unity è già grigio scuro e, tinto d'oro, sul marrone del riquadro spariva. Al suo posto un segno bianco nostro (`Art/UI/check.png`), un po' più grande, che prende davvero l'oro. Nel confronto l'oro e il grassetto facevano sembrare raro l'oggetto addosso, e il bordo spesso dorava tutto il riquadro (l'`Outline` di Unity ricopia l'intera immagine): i due riquadri tornano uguali, e "Equipaggiato" resta sopra il nome al 70% (`ItemDescription.HeaderSize`), in un grigio chiaro (`HeaderColor`). Test: il test delle opzioni controlla la spunta. Esce con il tag `v1.0.2`.
 - **Suggerimenti al primo uso e pannello di aiuto** (dai tester, 18 ott 2026). Chi prova il gioco non conosce i comandi, che oggi stanno solo nel README.
   - **Suggerimenti**, non un livello di tutorial a parte: un riquadro breve la prima volta che serve (il primo nemico, il primo oggetto a terra, la prima pozione nella cintura, la prima scala, il primo punto attributo, la prima pergamena, il portale). Ognuno compare una volta sola e si ricorda tra le preferenze; un'opzione li spegne tutti o li fa ripartire.
   - **Pannello di aiuto** con i comandi, da F1 o dal menu di pausa, nelle due lingue.

@@ -233,6 +233,14 @@ namespace DarkDescent.Tests
             var life = UnityEngine.Object.FindFirstObjectByType<HealthOrb>().Readout;
             var mana = UnityEngine.Object.FindFirstObjectByType<ManaOrb>().Readout;
             Assert.IsFalse(options.OrbNumbers.isOn, "spenta di partenza");
+            // la spunta è il nostro segno bianco tinto d'oro: quello di Unity è già grigio scuro e sul
+            // marrone del riquadro non si vedeva (prova della v1.0.1)
+            foreach (var toggle in new[] { options.Labels, options.OrbNumbers })
+            {
+                var check = (UnityEngine.UI.Image)toggle.graphic;
+                Assert.AreEqual("check", check.sprite.texture.name, toggle.name);
+            }
+
             Assert.IsFalse(life.IsShowing);
             Assert.IsFalse(mana.IsShowing);
 

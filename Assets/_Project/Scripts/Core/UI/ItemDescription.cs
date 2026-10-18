@@ -19,8 +19,15 @@ namespace DarkDescent.UI
         /// <summary>Il colore delle righe degli affissi: quello dei magici.</summary>
         public const string AffixColor = "#7F9CFF";
 
-        /// <summary>Il titolo del confronto, "Equipaggiato": in oro, perché si veda quale riquadro è l'oggetto addosso (v1.0.1).</summary>
-        public const string HeaderColor = "#E8C55A";
+        /// <summary>
+        /// Il titolo del confronto, "Equipaggiato": piccolo, su una riga bassa, e più chiaro del grigio
+        /// di prima, perché si veda quale riquadro è l'oggetto addosso (v1.0.1); non oro né grassetto,
+        /// che lo farebbero sembrare un oggetto raro (prova di Mirco).
+        /// </summary>
+        public const string HeaderColor = "#CFC6B2";
+
+        /// <summary>La grandezza del titolo del confronto rispetto al testo: la sua riga resta bassa.</summary>
+        public const string HeaderSize = "70%";
 
         // il suggerimento sotto la pozione: più spento del testo, come un'istruzione e non un valore
         private const string HintColor = "#8C8577";
@@ -59,7 +66,7 @@ namespace DarkDescent.UI
         /// <summary>
         /// Scrive la descrizione in <paramref name="builder"/>, dopo averlo svuotato.
         /// <paramref name="meetsRequirements"/> colora di rosso la Forza richiesta quando è false;
-        /// <paramref name="header"/>, se c'è, va sopra il nome in oro e grassetto ("Equipped");
+        /// <paramref name="header"/>, se c'è, va sopra il nome in piccolo e in un grigio chiaro ("Equipped");
         /// <paramref name="twoLineName"/> divide il nome a metà, per i nomi lunghi;
         /// <paramref name="equipHint"/> aggiunge in fondo come indossarlo, per gli oggetti nella borsa;
         /// <paramref name="trade"/>, se c'è, va in fondo a tutto: le righe del mercante (<see cref="TradeText"/>).
@@ -69,7 +76,7 @@ namespace DarkDescent.UI
             builder.Clear();
             if (!string.IsNullOrEmpty(header))
             {
-                builder.Append("<b><color=").Append(HeaderColor).Append('>').Append(header).Append("</color></b>\n");
+                builder.Append("<size=").Append(HeaderSize).Append("><color=").Append(HeaderColor).Append('>').Append(header).Append("</color></size>\n");
             }
 
             builder.Append("<b><color=").Append(RarityColors.TextHex(item.Rarity)).Append('>')
