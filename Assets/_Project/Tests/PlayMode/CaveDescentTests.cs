@@ -55,15 +55,28 @@ namespace DarkDescent.Tests
             Assert.IsNotNull(volume, "post-processing delle caverne");
             Assert.AreEqual("CavePostProcessing", volume.sharedProfile.name, "con il profilo delle caverne, verdastro (D3 della M11)");
 
-            int skeletons = level.Map.Markers.Count(m => m.Symbol == DungeonPopulator.EnemySymbol);
-            int swarm = level.Map.Markers.Count(m => m.Symbol == CavePopulator.SwarmSymbol);
-            Assert.That(skeletons, Is.InRange(4, 6), "due gruppi di scheletri da 2 a 3 al 5 (D10)");
-            Assert.That(swarm, Is.InRange(3, 5), "un gruppo di sciame da 3 a 5 al 5 (ADR-049)");
-            int brutes = level.Map.Markers.Count(m => m.Symbol == CavePopulator.BruteSymbol);
-            Assert.AreEqual(1, brutes, "un bruto al 5");
-            int mages = level.Map.Markers.Count(m => m.Symbol == DungeonPopulator.MageSymbol);
-            Assert.AreEqual(1, mages, "un mago al 5 (M9)");
-            Assert.AreEqual(skeletons + swarm + brutes + mages, level.Enemies.Count);
+            // i numeri della D10 sono quelli del popolatore: la mappa ha in più le scorte e l'unico della M12
+            var caves = UnityEditor.AssetDatabase.LoadAssetAtPath<CaveSettings>("Assets/_Project/Data/Levels/CaveSettings.asset");
+            var populated = caves.CreateGenerator().Generate(DarkDescent.Core.SeedMixer.ForLevel(Manager.RunSeed, 5), 5);
+            int Count(char symbol)
+            {
+                int count = 0;
+                for (int y = 0; y < populated.Height; y++)
+                {
+                    for (int x = 0; x < populated.Width; x++)
+                    {
+                        count += populated[x, y] == symbol ? 1 : 0;
+                    }
+                }
+
+                return count;
+            }
+
+            Assert.That(Count(DungeonPopulator.EnemySymbol), Is.InRange(4, 6), "due gruppi di scheletri da 2 a 3 al 5 (D10)");
+            Assert.That(Count(CavePopulator.SwarmSymbol), Is.InRange(3, 5), "un gruppo di sciame da 3 a 5 al 5 (ADR-049)");
+            Assert.AreEqual(1, Count(CavePopulator.BruteSymbol), "un bruto al 5");
+            Assert.AreEqual(1, Count(DungeonPopulator.MageSymbol), "un mago al 5 (M9)");
+            Assert.AreEqual(level.Map.Markers.Count(m => CavePopulator.IsEnemy(m.Symbol)), level.Enemies.Count);
             foreach (var enemy in level.Enemies)
             {
                 Assert.IsTrue(enemy.GetComponent<NavMeshAgent>().isOnNavMesh, $"{enemy.name} fuori dal NavMesh");

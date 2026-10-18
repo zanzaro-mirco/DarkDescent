@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DarkDescent.Enemies;
 using DarkDescent.Interaction;
 using DarkDescent.Items;
@@ -204,6 +205,13 @@ namespace DarkDescent.Levels
         {
             int enemyCount = 0;
 
+            // i campioni della mappa (M12), per cella: il nemico messo lì viene promosso
+            var champions = new Dictionary<Vector2Int, ChampionSpawn>();
+            foreach (var spawn in ChampionSpawn.FromMap(map))
+            {
+                champions[new Vector2Int(spawn.X, spawn.Y)] = spawn;
+            }
+
             // gli oggetti a terra prendono, in ordine di lettura della mappa, i nomi di @items
             var itemNames = map.GetDirective("items");
             int itemCount = 0;
@@ -248,6 +256,16 @@ namespace DarkDescent.Levels
                         if (isEnemy)
                         {
                             placed.name = $"{prefab.name}_{++enemyCount:00}";
+                            if (champions.TryGetValue(new Vector2Int(marker.X, marker.Y), out var champion))
+                            {
+                                var special = placed.GetComponent<SpecialEnemy>();
+                                if (special == null)
+                                {
+                                    special = placed.AddComponent<SpecialEnemy>();
+                                }
+
+                                special.Promote(EnemyRank.Champion, champion.Modifiers);
+                            }
                         }
 
                         break;

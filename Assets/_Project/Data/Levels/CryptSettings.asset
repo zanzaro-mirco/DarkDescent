@@ -29,7 +29,12 @@ MonoBehaviour:
   _chestsBase: 1
   _depthsPerChest: 2
   _maxPropsPerRoom: 2
+  _maxDecorPerRoom: 4
+  _columnChance: 0.85
+  _maxScatterPerRoom: 2
   _cellsPerTorch: 4
+  _magesFirstDepth: 3
+  _mages: {x: 1, y: 2}
   _specials:
     _minDepth: 2
     _groups: 1
@@ -42,3 +47,4 @@ MonoBehaviour:
     _twoModifiersFrom: 5
     _uniqueChance: 0.33333334
     _uniqueEscort: S
+  _champions: {fileID: 11400000, guid: 6c05981de283add45a4556dbe018e6b4, type: 2}

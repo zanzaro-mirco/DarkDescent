@@ -29,11 +29,11 @@ namespace DarkDescent.Levels
         /// <summary>La porta della sala del boss, che si chiude quando comincia lo scontro.</summary>
         public const char GateSymbol = 'G';
 
-        /// <summary>Un simbolo di nemico: scheletro, sciame, bruto, mago o boss.</summary>
+        /// <summary>Un simbolo di nemico: scheletro, sciame, bruto, mago, boss o l'unico della M12.</summary>
         public static bool IsEnemy(char symbol)
         {
             return symbol == DungeonPopulator.EnemySymbol || symbol == SwarmSymbol || symbol == BruteSymbol || symbol == DungeonPopulator.MageSymbol
-                || symbol == BossSymbol;
+                || symbol == BossSymbol || symbol == SpecialEnemyPlanner.UniqueSymbol;
         }
 
         /// <summary>

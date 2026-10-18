@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using System.Text;
+using DarkDescent.Core;
 using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Levels;
@@ -18,6 +19,8 @@ namespace DarkDescent.Tests
         private const string CryptScene = "Level_Crypt";
 
         private static LevelManager Manager => Object.FindFirstObjectByType<LevelManager>();
+
+        private static DungeonSettings Crypt => UnityEditor.AssetDatabase.LoadAssetAtPath<DungeonSettings>("Assets/_Project/Data/Levels/CryptSettings.asset");
 
         private static IEnumerator WaitForDepth(int depth, float timeout = 15f)
         {
@@ -109,10 +112,23 @@ namespace DarkDescent.Tests
                 // nelle caverne scheletri, sciame e bruti sono quanti ne ha messi il popolatore: si contano sulla mappa
                 var map = Manager.CurrentLevel.Map;
                 int marked = map.Markers.Count(m => CavePopulator.IsEnemy(m.Symbol));
-                // nella cripta gli scheletri dei numeri, più i maghi dalla profondità 3 (M9)
-                int mages = map.Markers.Count(m => m.Symbol == DungeonPopulator.MageSymbol);
                 Assert.AreEqual(marked, Manager.CurrentLevel.Enemies.Count);
-                Assert.AreEqual(caves ? marked : 3 + 2 * (depth + 1) + mages, marked);
+                if (!caves)
+                {
+                    // nella cripta gli scheletri dei numeri: quelli del popolatore, prima delle scorte e
+                    // dell'unico della M12, che la mappa ha in più
+                    var populated = Crypt.CreateGenerator().Generate(SeedMixer.ForLevel(Manager.RunSeed, depth + 1), depth + 1);
+                    int skeletons = 0;
+                    for (int y = 0; y < populated.Height; y++)
+                    {
+                        for (int x = 0; x < populated.Width; x++)
+                        {
+                            skeletons += populated[x, y] == DungeonPopulator.EnemySymbol ? 1 : 0;
+                        }
+                    }
+
+                    Assert.AreEqual(3 + 2 * (depth + 1), skeletons);
+                }
             }
 
             Assert.AreEqual(0, Manager.CurrentLevel.Exits.Count, "l'ottavo livello non ha la scala: il boss arriva alla M10");

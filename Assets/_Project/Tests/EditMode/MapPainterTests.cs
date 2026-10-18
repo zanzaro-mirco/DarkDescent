@@ -1,3 +1,4 @@
+using System.Linq;
 using DarkDescent.Editor;
 using DarkDescent.Levels;
 using NUnit.Framework;
@@ -60,7 +61,11 @@ namespace DarkDescent.Tests
 
                 Assert.AreEqual(expected.ToText(), window.Map.ToText());
                 Assert.AreEqual(expected.Width, window.Preview.width);
-                StringAssert.Contains("7 scheletri", window.Stats);
+                // gli scheletri della mappa del gioco, scorte dei campioni comprese (M12)
+                int skeletons = expected.Markers.Count(m => m.Symbol == DungeonPopulator.EnemySymbol);
+                Assert.GreaterOrEqual(skeletons, 7);
+                StringAssert.Contains($"{skeletons} scheletri", window.Stats);
+                StringAssert.Contains("campioni", window.Stats);
                 StringAssert.Contains("scala a", window.Stats);
 
                 window.Generate(4711, settings.LastDepth);

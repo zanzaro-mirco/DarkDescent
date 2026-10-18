@@ -140,7 +140,7 @@ namespace DarkDescent.Editor
 
         private static string Describe(LevelMap map, DungeonLayout layout)
         {
-            int floor = 0, enemies = 0, swarm = 0, brutes = 0, chests = 0;
+            int floor = 0, enemies = 0, swarm = 0, brutes = 0, chests = 0, unique = 0;
             for (int y = 0; y < map.Height; y++)
             {
                 for (int x = 0; x < map.Width; x++)
@@ -151,6 +151,7 @@ namespace DarkDescent.Editor
                     swarm += c == CavePopulator.SwarmSymbol ? 1 : 0;
                     brutes += c == CavePopulator.BruteSymbol ? 1 : 0;
                     chests += c == DungeonPopulator.ChestSymbol ? 1 : 0;
+                    unique += c == SpecialEnemyPlanner.UniqueSymbol ? 1 : 0;
                 }
             }
 
@@ -160,7 +161,10 @@ namespace DarkDescent.Editor
                 : "nessuna scala (ultima profondità)";
             string rooms = layout.Rooms.Count > 0 ? $"{layout.Rooms.Count} stanze · " : "";
             string swarms = (swarm > 0 ? $" · {swarm} dello sciame" : "") + (brutes > 0 ? $" · {brutes} bruti" : "");
-            return $"{rooms}{floor} celle di pavimento · {enemies} scheletri{swarms} · {chests} casse · {stairs}";
+            // i nemici speciali della M12: i campioni dalla direttiva, l'unico dal suo simbolo
+            int champions = ChampionSpawn.FromMap(map).Count;
+            string specials = (champions > 0 ? $" · {champions} campioni" : "") + (unique > 0 ? " · l'unico" : "");
+            return $"{rooms}{floor} celle di pavimento · {enemies} scheletri{swarms}{specials} · {chests} casse · {stairs}";
         }
 
         // passi a piedi, girando attorno a casse e scenografia

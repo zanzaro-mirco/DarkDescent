@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 833b6cc625e6d0c4b9b122db26a91497, type: 3}
+  m_Name: Morvak
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Enemies.EnemyArchetype
+  _nameKey: enemy.morvak
+  _aggroRange: 8
+  _leashRange: 20
+  _experience: 70
+  _eyeHeight: 1.5
+  _perceptionInterval: 0.2
+  _corpseLifetime: 5
+  _packRadius: 0
+  _avoidanceSpread: 0
+  _recoverTime: 0
+  _castRange: 0
+  _retreatBelow: 4
+  _retreatDistance: 7
+  _retreatPause: 1.5
+  _retreatMaxDuration: 2
+  _criticalVoices:
+  - {fileID: 8300000, guid: 574b969740aa118449557e121ad9f05a, type: 3}
+  - {fileID: 8300000, guid: d1edfd4eeed68e042b50cfb755734873, type: 3}
+  _criticalPitch: {x: 1.1, y: 1.2}
+  _hurtVoices:
+  - {fileID: 8300000, guid: 682fe2c23867ab647af8d4df22e249b0, type: 3}
+  - {fileID: 8300000, guid: 6ac72c70d23a2d843afa96027701f8f7, type: 3}
+  - {fileID: 8300000, guid: e25396ee969da5b49a89da1866228325, type: 3}
+  - {fileID: 8300000, guid: bf3b4b2281d07174eb3e677979d2ad1b, type: 3}
+  - {fileID: 8300000, guid: 63577f2cbeb2b0e4a9bae3eed72c35d5, type: 3}
+  _hurtPitch: {x: 0.95, y: 1.05}
+  _hurtVolume: 0.6

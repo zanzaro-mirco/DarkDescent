@@ -90,6 +90,34 @@ Test: `SpecialEnemyPlannerTests` (i livelli dei semi già provati non cambiano, 
 modificatori, gruppi, scorte, lontani da ingresso e re, stesso seme stesso risultato, l'unico e la
 sua profondità, la direttiva) e `ChampionDataTests`. 324 EditMode verdi.
 
+## Passo 12.2 — Popolatori e builder
+
+**Com'è andata (18 ott 2026).** `DungeonLevel.CreateMap` chiama il pianificatore dopo il generatore,
+con le regole e i modificatori delle impostazioni del livello (`DungeonSettings.Champions`), e scrive
+i campioni nella direttiva `@champions`; l'unico c'è solo alla profondità che dice il seme. Il
+`LevelBuilder` legge la direttiva e dà al nemico messo in quella cella un `SpecialEnemy` con il grado
+e i modificatori. Per ora un campione si comporta e si vede come gli altri: numeri, tinta, anello e
+modificatori arrivano al passo 12.3.
+
+**Gli unici.** Due varianti di prefab, con il loro archetipo (copia di quello di partenza, con il
+nome loro) e un `SpecialEnemy` con grado, modificatori e tinta fissi. **Morvak il Carceriere** viene
+dallo scheletro, con lo scudo chiodato nella mano sinistra: Gelido e Inamovibile, tinta ruggine.
+**Grumm Spaccaossa** viene dal bruto: Furioso e Rigenerante, tinta verde palude. Il simbolo `u` della
+mappa li prende dal tileset: Morvak nella cripta, Grumm nelle caverne. Rispetto alla D6, Morvak parte
+dallo scheletro e non dal guerriero: il guerriero è già il bruto, e così Morvak combatte come uno
+scheletro, veloce e senza carica, mentre Grumm ha i colpi lenti e telegrafati del bruto.
+
+**I salvataggi di prima.** I ricordi di un livello (ADR-079) valgono se il numero di nemici e di
+casse è quello di quando è stato lasciato. Con le scorte un livello visitato prima della M12 ha più
+nemici, e al ritorno riparte da capo, nemici e casse compresi. Succede una volta per livello, e solo
+ai salvataggi di prima della v1.1.
+
+La finestra del generatore nell'editor conta campioni e unico; l'automappa dell'editor colora l'unico
+come gli altri nemici. Test: `SpecialEnemyMapTests` (mappa, prima profondità, unici dei tileset) e
+`SpecialEnemyLevelTests` (nel livello costruito i campioni hanno i loro modificatori e Morvak è
+l'unico); i test della discesa e delle caverne contano i nemici del popolatore, prima delle
+scorte. 327 EditMode e 201 PlayMode verdi.
+
 ---
 
 ## Trappole note

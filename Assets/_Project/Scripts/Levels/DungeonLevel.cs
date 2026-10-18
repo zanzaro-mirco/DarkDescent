@@ -39,12 +39,28 @@ namespace DarkDescent.Levels
         /// </summary>
         public static LevelMap CreateMap(DungeonSettings settings, ulong runSeed, int depth, out DungeonLayout layout)
         {
-            layout = settings.CreateGenerator().Generate(SeedMixer.ForLevel(runSeed, depth), depth);
+            ulong levelSeed = SeedMixer.ForLevel(runSeed, depth);
+            layout = settings.CreateGenerator().Generate(levelSeed, depth);
             var directives = new Dictionary<string, string[]>
             {
                 ["depth"] = new[] { depth.ToString() },
                 ["entrance"] = new[] { EntranceAt(depth) },
             };
+
+            // i nemici speciali (M12) dopo tutto il resto, con un seme loro: il livello di prima resta com'era
+            var modifiers = settings.Champions != null ? settings.Champions.CollectModifierIds() : new List<string>();
+            var champions = SpecialEnemyPlanner.Place(layout, depth, settings.Specials, modifiers, settings.UniqueDepth(runSeed) == depth,
+                new SplitMix64Source(SeedMixer.ForSpecials(levelSeed)));
+            if (champions.Count > 0)
+            {
+                var tokens = new string[champions.Count];
+                for (int i = 0; i < tokens.Length; i++)
+                {
+                    tokens[i] = champions[i].ToToken();
+                }
+
+                directives[ChampionSpawn.Directive] = tokens;
+            }
 
             // Prima dell'ultima profondità la scala riporta in questa scena, all'ultima porta alla scena
             // dopo (dalla cripta alle caverne, D3 della M7); senza una scena dopo la scala non c'è.

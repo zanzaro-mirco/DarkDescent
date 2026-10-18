@@ -82,7 +82,12 @@ namespace DarkDescent.Levels
         [Header("Nemici speciali (M12)")]
         [SerializeField] private SpecialEnemyRules _specials = new SpecialEnemyRules();
 
+        [Tooltip("I modificatori tra cui si scelgono quelli dei campioni. Vuoto: campioni senza modificatori.")]
+        [SerializeField] private Enemies.ChampionSettings _champions;
+
         public SpecialEnemyRules Specials => _specials;
+
+        public Enemies.ChampionSettings Champions => _champions;
 
         public int Width => _width;
 
