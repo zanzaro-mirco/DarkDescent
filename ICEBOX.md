@@ -8,7 +8,7 @@
 ## Fuori scope per decisione (sezione 1 del piano)
 
 - Multiplayer
-- Quest system
+- Quest system (chieste anche dai tester della v1.0, 18 ott 2026: restano fuori, decisione di Mirco)
 - NPC multipli e dialoghi
 - Crafting
 - Classi aggiuntive (Mago, Ladro): quando arriveranno, con loro le armi nuove (piano § 5, "Dopo la v1.0")
@@ -16,7 +16,7 @@
 - Cinematiche
 - Supporto gamepad
 - Achievement
-- Livelli di difficoltà multipli
+- ~~Livelli di difficoltà multipli~~: passati a «Dopo la v1.0» nel piano (v2.38, 18 ott 2026), per dare un seguito alla partita dopo la vittoria
 
 ## Idee raccolte lungo la strada
 
