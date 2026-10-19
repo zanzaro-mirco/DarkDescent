@@ -12,7 +12,8 @@ namespace DarkDescent.Enemies
     /// prefab, con modificatori e tinta fissi (D6); un nemico normale lo riceve dal builder quando la
     /// mappa lo fa campione (direttiva <c>@champions</c>). Il composition root lo lega con le
     /// <see cref="ChampionSettings"/>: allora prende vita e danno del suo grado, la scala, la tinta,
-    /// l'anello sotto i piedi (D9) e il comportamento dei modificatori (D5).
+    /// l'anello sotto i piedi (D9) e il comportamento dei modificatori (D5). Dalla v1.1.1 ogni
+    /// modificatore si vede e si sente: polvere, brina, bagliore verde, scintille, aura rossa.
     /// </summary>
     [DisallowMultipleComponent]
     public class SpecialEnemy : MonoBehaviour
@@ -28,9 +29,14 @@ namespace DarkDescent.Enemies
         [SerializeField] private Color _tint = Color.white;
 
         private readonly List<ChampionModifier> _active = new List<ChampionModifier>();
+        private readonly List<GameObject> _effects = new List<GameObject>();
         private Health _health;
         private MeleeAttack _attack;
         private RangedAttack _ranged;
+        private NavMeshAgent _agent;
+        private Animator _animator;
+        private AudioSource _audio;
+        private ChampionSettings _settings;
         private RankNumbers _numbers;
         private GameObject _ring;
         private Health _player;
@@ -39,7 +45,12 @@ namespace DarkDescent.Enemies
         private ChampionModifier _frozen;
         private ChampionModifier _regenerating;
         private ChampionModifier _enraged;
+        private ParticleSystem _regenEffect;
+        private ParticleSystem _sparksEffect;
+        private bool _unstoppable;
         private bool _isEnraged;
+        private float _baseSpeed;
+        private float _speedFactor = 1f;
         private float _sinceHit;
         private float _regenTimer;
 
@@ -65,6 +76,12 @@ namespace DarkDescent.Enemies
 
         /// <summary>L'anello sotto i piedi, o null.</summary>
         public GameObject Ring => _ring;
+
+        /// <summary>Gli effetti dei modificatori, figli del nemico: polvere, brina, aura rossa e gli altri.</summary>
+        public IReadOnlyList<GameObject> Effects => _effects;
+
+        /// <summary>Quanto è più veloce del normale, per il Rapido e il Furioso: 1 = come gli altri.</summary>
+        public float SpeedFactor => _speedFactor;
 
         /// <summary>Lo fa campione con questi modificatori: lo chiama il builder, prima che il nemico si svegli.</summary>
         public void Promote(EnemyRank rank, IReadOnlyList<string> modifiers)
@@ -107,6 +124,9 @@ namespace DarkDescent.Enemies
             _health = GetComponent<Health>();
             _attack = GetComponent<MeleeAttack>();
             _ranged = GetComponent<RangedAttack>();
+            _agent = GetComponent<NavMeshAgent>();
+            _animator = GetComponentInChildren<Animator>();
+            _audio = GetComponent<AudioSource>();
         }
 
         private void OnEnable()
@@ -142,12 +162,18 @@ namespace DarkDescent.Enemies
             {
                 _regenTimer -= 1f;
                 _health.Heal(_health.Max * _regenerating.Magnitude);
+                if (_regenEffect != null)
+                {
+                    _regenEffect.Play();
+                }
             }
         }
 
         private void Apply(ChampionSettings settings)
         {
+            _settings = settings;
             _numbers = settings.For(_rank) ?? new RankNumbers();
+            _baseSpeed = _agent != null ? _agent.speed : 0f;
             _active.Clear();
             foreach (var id in _modifiers)
             {
@@ -182,28 +208,16 @@ namespace DarkDescent.Enemies
                 switch (modifier.Kind)
                 {
                     case ChampionModifierKind.Fast:
-                        float speed = 1f + modifier.Magnitude;
-                        if (TryGetComponent(out NavMeshAgent agent))
-                        {
-                            agent.speed *= speed;
-                        }
-
-                        if (_attack != null)
-                        {
-                            _attack.SetSpeedMultiplier(speed);
-                        }
-
-                        if (_ranged != null)
-                        {
-                            _ranged.SetSpeedMultiplier(speed);
-                        }
-
+                        SetSpeed(_speedFactor * (1f + modifier.Magnitude));
+                        AddEffect(settings.DustTrail, "Fx_Dust");
                         break;
                     case ChampionModifierKind.Frozen:
                         _frozen = modifier;
+                        AddEffect(settings.FrostAura, "Fx_Frost");
                         break;
                     case ChampionModifierKind.Regenerating:
                         _regenerating = modifier;
+                        _regenEffect = ParticlesOf(AddEffect(settings.RegenBurst, "Fx_Regen"));
                         break;
                     case ChampionModifierKind.Unstoppable:
                         if (TryGetComponent(out HitRecovery recovery))
@@ -216,11 +230,38 @@ namespace DarkDescent.Enemies
                             _attack.SetUnblockable(true);
                         }
 
+                        _unstoppable = true;
+                        _sparksEffect = ParticlesOf(AddEffect(settings.Sparks, "Fx_Sparks"));
                         break;
                     case ChampionModifierKind.Enraged:
                         _enraged = modifier;
                         break;
                 }
+            }
+        }
+
+        // movimento, colpi e animazioni insieme: senza le animazioni un nemico veloce sembra scivolare
+        private void SetSpeed(float factor)
+        {
+            _speedFactor = factor;
+            if (_agent != null)
+            {
+                _agent.speed = _baseSpeed * factor;
+            }
+
+            if (_attack != null)
+            {
+                _attack.SetSpeedMultiplier(factor);
+            }
+
+            if (_ranged != null)
+            {
+                _ranged.SetSpeedMultiplier(factor);
+            }
+
+            if (_animator != null)
+            {
+                _animator.speed = factor;
             }
         }
 
@@ -237,12 +278,46 @@ namespace DarkDescent.Enemies
             }
         }
 
-        // la tinta con un MaterialPropertyBlock: i modelli KayKit condividono il materiale (trappola della M12)
+        private GameObject AddEffect(GameObject prefab, string effectName)
+        {
+            if (prefab == null)
+            {
+                return null;
+            }
+
+            var effect = Instantiate(prefab, transform);
+            effect.name = effectName;
+            effect.transform.localPosition = Vector3.zero;
+            effect.transform.localRotation = Quaternion.identity;
+            _effects.Add(effect);
+            return effect;
+        }
+
+        private static ParticleSystem ParticlesOf(GameObject effect)
+        {
+            return effect != null ? effect.GetComponentInChildren<ParticleSystem>() : null;
+        }
+
+        private void PlayClip(AudioClip clip, float volume)
+        {
+            if (_audio != null && clip != null)
+            {
+                _audio.PlayOneShot(clip, volume);
+            }
+        }
+
+        // la tinta con un MaterialPropertyBlock: i modelli KayKit condividono il materiale (trappola
+        // della M12); l'anello e gli effetti hanno il loro colore e restano fuori
         private void ApplyTint(Color color)
         {
             var block = new MaterialPropertyBlock();
             foreach (var renderer in GetComponentsInChildren<Renderer>())
             {
+                if (renderer is ParticleSystemRenderer || (_ring != null && renderer.transform.IsChildOf(_ring.transform)))
+                {
+                    continue;
+                }
+
                 renderer.GetPropertyBlock(block);
                 block.SetColor(BaseColorId, color);
                 renderer.SetPropertyBlock(block);
@@ -253,11 +328,32 @@ namespace DarkDescent.Enemies
         {
             _sinceHit = 0f;
             _regenTimer = 0f;
+            if (_unstoppable && !_health.IsDead)
+            {
+                if (_sparksEffect != null)
+                {
+                    _sparksEffect.Play();
+                }
+
+                PlayClip(_settings.ClangClip, 0.8f);
+            }
+
             if (_enraged != null && !_isEnraged && !_health.IsDead && _health.Current <= _health.Max * _enraged.Threshold)
             {
-                _isEnraged = true;
-                SetDamage(_numbers.Damage * (1f + _enraged.Magnitude));
+                Enrage();
             }
+        }
+
+        // il Furioso si accende una volta: più danno, più veloce, più grande, rosso, con un ruggito
+        private void Enrage()
+        {
+            _isEnraged = true;
+            SetDamage(_numbers.Damage * (1f + _enraged.Magnitude));
+            SetSpeed(_speedFactor * (1f + _enraged.SpeedBonus));
+            transform.localScale *= _settings.RageScale;
+            ApplyTint(_settings.RageTint);
+            AddEffect(_settings.RageAura, "Fx_Rage");
+            PlayClip(_settings.RageClip, 1f);
         }
 
         private void HandleDied()
@@ -265,6 +361,14 @@ namespace DarkDescent.Enemies
             if (_ring != null)
             {
                 _ring.SetActive(false);
+            }
+
+            foreach (var effect in _effects)
+            {
+                if (effect != null)
+                {
+                    effect.SetActive(false);
+                }
             }
         }
 

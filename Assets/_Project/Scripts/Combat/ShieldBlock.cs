@@ -27,6 +27,9 @@ namespace DarkDescent.Combat
         /// <summary>Lo scudo in mano è cambiato: chi mostra la probabilità di blocco la rilegge.</summary>
         public event Action ShieldChanged;
 
+        /// <summary>Lo scudo avrebbe fermato il colpo, ma era imparabile (l'Inamovibile della M12): la scritta.</summary>
+        public event Action<DamageInfo> Pierced;
+
         public bool HasShield => _hasShield;
 
         /// <summary>La probabilità attuale, in punti percentuali; 0 senza scudo.</summary>
@@ -50,6 +53,18 @@ namespace DarkDescent.Combat
 
             Blocked?.Invoke(info);
             return true;
+        }
+
+        /// <summary>
+        /// Per un colpo imparabile: tira il blocco come sempre e, se lo scudo l'avrebbe fermato, lo
+        /// dice. Il colpo passa comunque.
+        /// </summary>
+        public void RollPierced(in DamageInfo info, IRandomSource random)
+        {
+            if (_hasShield && !_health.IsDead && CombatFormulas.RollBlock(BlockChance, random))
+            {
+                Pierced?.Invoke(info);
+            }
         }
 
         private void Awake()

@@ -66,6 +66,7 @@ enemy.modifier.enraged,Enraged,Furioso
 # Combattimento
 combat.miss,Miss,Mancato
 combat.blocked,Blocked,Bloccato
+combat.unblockable,Unblockable!,Imparabile!
 
 # Incantesimi (M9)
 spell.firebolt,Firebolt,Dardo di fuoco

@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: regenerating
   _nameKey: enemy.modifier.regenerating
   _kind: 2
-  _magnitude: 0.02
-  _duration: 3
+  _magnitude: 0.03
+  _duration: 1
   _threshold: 0
+  _speedBonus: 0

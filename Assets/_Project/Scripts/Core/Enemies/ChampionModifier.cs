@@ -19,7 +19,7 @@ namespace DarkDescent.Enemies
 
         [SerializeField] private ChampionModifierKind _kind;
 
-        [Tooltip("Quanto: 0,3 = 30% più in fretta (Rapido), 40% di velocità in meno (Gelido), 2% della vita al secondo con 0,02 (Rigenerante), 50% di danno in più (Furioso).")]
+        [Tooltip("Quanto: 0,5 = 50% più in fretta (Rapido), 50% di velocità in meno (Gelido), 3% della vita al secondo con 0,03 (Rigenerante), 50% di danno in più (Furioso).")]
         [SerializeField, Min(0f)] private float _magnitude;
 
         [Tooltip("Secondi: quanto dura il rallentamento (Gelido), quanto aspetta a rigenerare dopo un colpo (Rigenerante).")]
@@ -27,6 +27,9 @@ namespace DarkDescent.Enemies
 
         [Tooltip("La parte della vita sotto cui si accende, tra 0 e 1 (Furioso).")]
         [SerializeField, Range(0f, 1f)] private float _threshold;
+
+        [Tooltip("Velocità in più, di movimento e di attacco, quando si accende: 0,25 = 25% (Furioso).")]
+        [SerializeField, Min(0f)] private float _speedBonus;
 
         public string Id => _id;
 
@@ -39,5 +42,7 @@ namespace DarkDescent.Enemies
         public float Duration => _duration;
 
         public float Threshold => _threshold;
+
+        public float SpeedBonus => _speedBonus;
     }
 }

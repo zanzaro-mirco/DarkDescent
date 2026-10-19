@@ -15,7 +15,10 @@ namespace DarkDescent.Player
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
         [Tooltip("La tinta del modello mentre è rallentato.")]
-        [SerializeField] private Color _tint = new Color(0.6f, 0.8f, 1f, 1f);
+        [SerializeField] private Color _tint = new Color(0.45f, 0.7f, 1f, 1f);
+
+        [Tooltip("I cristalli di ghiaccio attorno al cavaliere, acceso solo mentre è rallentato (v1.1.1).")]
+        [SerializeField] private GameObject _effect;
 
         private NavMeshAgent _agent;
         private MaterialPropertyBlock _block;
@@ -30,6 +33,9 @@ namespace DarkDescent.Player
         public float Fraction => IsSlowed ? _fraction : 0f;
 
         public float BaseSpeed => _baseSpeed;
+
+        /// <summary>I cristalli di ghiaccio, o null.</summary>
+        public GameObject Effect => _effect;
 
         /// <summary>Rallenta di <paramref name="fraction"/> per <paramref name="duration"/> secondi; già rallentato, tiene il più forte e il più lungo.</summary>
         public void Apply(float fraction, float duration)
@@ -48,6 +54,10 @@ namespace DarkDescent.Player
                 // i modelli in mano cambiano con l'equipaggiamento: si prendono a ogni rallentamento, non a ogni frame
                 _renderers = GetComponentsInChildren<Renderer>();
                 SetTint(_tint);
+                if (_effect != null)
+                {
+                    _effect.SetActive(true);
+                }
             }
         }
 
@@ -56,6 +66,10 @@ namespace DarkDescent.Player
             _agent = GetComponent<NavMeshAgent>();
             _baseSpeed = _agent.speed;
             _block = new MaterialPropertyBlock();
+            if (_effect != null)
+            {
+                _effect.SetActive(false);
+            }
         }
 
         private void Update()
@@ -86,6 +100,10 @@ namespace DarkDescent.Player
             _fraction = 0f;
             _agent.speed = _baseSpeed;
             SetTint(Color.white);
+            if (_effect != null)
+            {
+                _effect.SetActive(false);
+            }
         }
 
         private void SetTint(Color color)

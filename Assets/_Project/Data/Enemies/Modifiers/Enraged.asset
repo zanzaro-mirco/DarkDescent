@@ -18,3 +18,4 @@ MonoBehaviour:
   _magnitude: 0.5
   _duration: 0
   _threshold: 0.5
+  _speedBonus: 0.25

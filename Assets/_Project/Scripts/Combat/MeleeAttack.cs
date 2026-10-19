@@ -383,6 +383,12 @@ namespace DarkDescent.Combat
                 }
                 else if (_unblockable || _swingTargetBlock == null || !_swingTargetBlock.TryBlock(new DamageInfo(0f, _swingWeapon.DamageType, gameObject), _random))
                 {
+                    // imparabile: lo scudo che l'avrebbe fermato lo dice, così si capisce perché passa
+                    if (_unblockable && _swingTargetBlock != null)
+                    {
+                        _swingTargetBlock.RollPierced(new DamageInfo(0f, _swingWeapon.DamageType, gameObject), _random);
+                    }
+
                     // il colpo leggero ha i suoi danni; quello dell'arma, i danni con gli affissi
                     float amount = CombatFormulas.RollDamage(
                         _swingIsQuick ? _quickWeapon.MinDamage : _minDamage,

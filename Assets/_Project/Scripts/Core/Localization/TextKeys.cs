@@ -9,6 +9,7 @@ namespace DarkDescent.Localization
     {
         public const string Miss = "combat.miss";
         public const string Blocked = "combat.blocked";
+        public const string Unblockable = "combat.unblockable";
         public const string ExitDescend = "exit.descend";
         public const string InventoryFull = "hud.inventory_full";
 

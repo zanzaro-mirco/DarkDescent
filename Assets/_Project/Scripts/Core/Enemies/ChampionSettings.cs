@@ -33,7 +33,53 @@ namespace DarkDescent.Enemies
         [Tooltip("Quanto il modello di un campione prende il colore del grado: 0 niente, 1 tutto.")]
         [SerializeField, Range(0f, 1f)] private float _championTint = 0.5f;
 
+        [Header("I modificatori si vedono e si sentono (v1.1.1)")]
+        [Tooltip("Rapido: la polvere che alza correndo, figlia del nemico.")]
+        [SerializeField] private GameObject _dustTrail;
+
+        [Tooltip("Gelido: l'aura di brina attorno al nemico.")]
+        [SerializeField] private GameObject _frostAura;
+
+        [Tooltip("Rigenerante: il bagliore verde a ogni secondo di vita ripresa.")]
+        [SerializeField] private GameObject _regenBurst;
+
+        [Tooltip("Inamovibile: le scintille quando lo si colpisce.")]
+        [SerializeField] private GameObject _sparks;
+
+        [Tooltip("Inamovibile: il suono di metallo quando lo si colpisce.")]
+        [SerializeField] private AudioClip _clangClip;
+
+        [Tooltip("Furioso: l'aura rossa che resta da quando si accende.")]
+        [SerializeField] private GameObject _rageAura;
+
+        [Tooltip("Furioso: il ruggito quando si accende.")]
+        [SerializeField] private AudioClip _rageClip;
+
+        [Tooltip("Furioso: quanto cresce quando si accende.")]
+        [SerializeField, Min(1f)] private float _rageScale = 1.1f;
+
+        [Tooltip("Furioso: la tinta del modello quando si accende, al posto di quella del grado.")]
+        [SerializeField] private Color _rageTint = new Color(1f, 0.4f, 0.32f, 1f);
+
         public IReadOnlyList<ChampionModifier> Modifiers => _modifiers;
+
+        public GameObject DustTrail => _dustTrail;
+
+        public GameObject FrostAura => _frostAura;
+
+        public GameObject RegenBurst => _regenBurst;
+
+        public GameObject Sparks => _sparks;
+
+        public AudioClip ClangClip => _clangClip;
+
+        public GameObject RageAura => _rageAura;
+
+        public AudioClip RageClip => _rageClip;
+
+        public float RageScale => _rageScale;
+
+        public Color RageTint => _rageTint;
 
         public GameObject Ring => _ring;
 

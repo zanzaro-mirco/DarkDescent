@@ -45,3 +45,12 @@ MonoBehaviour:
   _ring: {fileID: 3356957279450528581, guid: da9f0f68b4b04c343bb6b7cc904193c0, type: 3}
   _ringHeight: 0.04
   _championTint: 0.5
+  _dustTrail: {fileID: 5341893297718393815, guid: e20a67a0693bd164ebf70584637cfb9a, type: 3}
+  _frostAura: {fileID: 4968345497345099239, guid: 5a1d9a64b75740b45ac9836256418091, type: 3}
+  _regenBurst: {fileID: 6891454904067756831, guid: 6e81e7c34eaa8444ca21c45bec2dc2ed, type: 3}
+  _sparks: {fileID: 2876589923091085355, guid: aed39363bab8af942912ef31046be04a, type: 3}
+  _clangClip: {fileID: 8300000, guid: 6f243950bb4ef944daeaef2ec73ad2ff, type: 3}
+  _rageAura: {fileID: 143752127292707480, guid: 6881049cea9cf1b4c9b0a3ad14f3c371, type: 3}
+  _rageClip: {fileID: 8300000, guid: 9e476919e1e7d7b40b088e312b39fc0a, type: 3}
+  _rageScale: 1.1
+  _rageTint: {r: 1, g: 0.4, b: 0.32, a: 1}
