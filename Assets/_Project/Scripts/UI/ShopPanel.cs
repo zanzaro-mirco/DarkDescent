@@ -64,6 +64,9 @@ namespace DarkDescent.UI
 
         public ShopSlotView Slot(int index) => _slots[index];
 
+        /// <summary>La cosa in vendita al posto <paramref name="index"/>, o null.</summary>
+        public ItemInstance ItemAt(int index) => _shop?.ItemAt(index);
+
         /// <summary>Come gli altri pannelli: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
         public void Bind(Shop shop, PlayerInventory inventory, InventoryPanel inventoryPanel, Localizer localizer)
         {
@@ -104,6 +107,7 @@ namespace DarkDescent.UI
             _window.SetActive(false);
             _hovered = -1;
             _tooltip.Hide();
+            _inventoryPanel.HideComparison();
             _showingTooltip = false;
             _inventoryPanel.SetTrade(null);
             OpenChanged?.Invoke(false);
@@ -240,6 +244,7 @@ namespace DarkDescent.UI
                 if (_showingTooltip)
                 {
                     _tooltip.Hide();
+                    _inventoryPanel.HideComparison();
                     _showingTooltip = false;
                 }
 
@@ -249,6 +254,9 @@ namespace DarkDescent.UI
             int price = ItemPricing.Price(item);
             string trade = ItemDescription.TradeText(_localizer, TextKeys.ShopPrice, price, price <= _inventory.Inventory.Gold, TextKeys.ShopBuyHint);
             _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, _slots[_hovered].Rect, trade: trade);
+
+            // accanto, quello che si toglierebbe indossandolo, come dalla borsa
+            _inventoryPanel.ShowComparison(item);
             _showingTooltip = true;
         }
     }

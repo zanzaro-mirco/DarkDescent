@@ -431,15 +431,30 @@ namespace DarkDescent.UI
             bool selling = _trade != null && _hoveredCell.HasValue;
             _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target,
                 equipHint: _hoveredCell.HasValue && !selling, trade: selling ? _trade.SellText(item) : null);
-            if (!_hoveredCell.HasValue || item.Definition.Slot == EquipSlot.None)
+            if (_hoveredCell.HasValue)
             {
-                _compareTooltip.Hide();
-                _secondCompareTooltip.Hide();
+                ShowComparison(item);
+            }
+            else
+            {
+                HideComparison();
+            }
+        }
+
+        /// <summary>
+        /// Accanto al tooltip, quello che si toglierebbe indossando <paramref name="item"/>: dalla
+        /// griglia e dal banco del mercante. Niente se non si indossa o se lo slot è vuoto.
+        /// </summary>
+        public void ShowComparison(ItemInstance item)
+        {
+            if (item == null || item.Definition.Slot == EquipSlot.None || _inventory == null)
+            {
+                HideComparison();
                 return;
             }
 
             // un anello con due anelli addosso: si toglierebbe l'uno o l'altro, quindi si vedono
-            // tutti e due, in fila dallo stesso lato (l'inventario sta sul bordo destro)
+            // tutti e due, in fila dallo stesso lato
             var equipment = _inventory.Equipment;
             var firstRing = equipment.Get(EquipSlot.Ring);
             var secondRing = equipment.Get(EquipSlot.Ring2);
@@ -451,7 +466,6 @@ namespace DarkDescent.UI
                 return;
             }
 
-            // dalla griglia, accanto c'è quello che si toglierebbe equipaggiandolo
             _secondCompareTooltip.Hide();
             var equipped = equipment.Get(equipment.TargetSlot(item.Definition));
             if (equipped != null)
@@ -462,6 +476,12 @@ namespace DarkDescent.UI
             {
                 _compareTooltip.Hide();
             }
+        }
+
+        public void HideComparison()
+        {
+            _compareTooltip.Hide();
+            _secondCompareTooltip.Hide();
         }
     }
 }

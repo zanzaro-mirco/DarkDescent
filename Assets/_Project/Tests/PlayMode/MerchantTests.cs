@@ -81,6 +81,85 @@ namespace DarkDescent.Tests
             Assert.AreEqual("17", Shop.Slot(0).PriceText, "la pozione di cura");
         }
 
+        [UnityTest, Description("Allontanandosi dal banco il negozio si chiude da solo, e con lui l'inventario; un passo accanto al banco lo lascia aperto")]
+        public IEnumerator WalkingAway_ClosesTheShop()
+        {
+            yield return OpenTheShop();
+            var merchant = UnityEngine.Object.FindFirstObjectByType<LevelManager>().CurrentLevel.Merchant;
+            var counter = merchant.GetComponent<Interactable>().ApproachPoint;
+            var agent = GameObject.Find("Player").GetComponent<UnityEngine.AI.NavMeshAgent>();
+
+            Assert.IsTrue(UnityEngine.AI.NavMesh.SamplePosition(agent.transform.position, out var near, 1f, UnityEngine.AI.NavMesh.AllAreas));
+            agent.Warp(near.position);
+            yield return null;
+            yield return null;
+            Assert.IsTrue(Shop.IsOpen, "accanto al banco resta aperto");
+
+            Vector3 far = Vector3.zero;
+            bool found = false;
+            for (int i = 0; i < 8 && !found; i++)
+            {
+                var direction = Quaternion.Euler(0f, i * 45f, 0f) * Vector3.forward;
+                if (UnityEngine.AI.NavMesh.SamplePosition(counter + direction * (merchant.LeaveDistance + 3f), out var hit, 1.5f, UnityEngine.AI.NavMesh.AllAreas)
+                    && Vector3.Distance(hit.position, counter) > merchant.LeaveDistance + 1f)
+                {
+                    far = hit.position;
+                    found = true;
+                }
+            }
+
+            Assert.IsTrue(found, "un punto lontano dal banco sul NavMesh");
+            agent.Warp(far);
+            yield return null;
+            yield return null;
+            Assert.IsFalse(Shop.IsOpen, "lontano dal banco il negozio si chiude");
+            Assert.IsFalse(Bag.IsOpen, "e con lui l'inventario");
+        }
+
+        [UnityTest, Description("Passando su un oggetto del banco si vede accanto quello indossato nello stesso posto, come dalla borsa; lasciandolo spariscono tutti e due")]
+        public IEnumerator Hover_ComparesWithTheEquipped()
+        {
+            yield return OpenTheShop();
+            var equipment = PlayerBag.Inventory.Equipment;
+            int index = -1;
+            for (int i = 0; i < 10 && index < 0; i++)
+            {
+                var item = Shop.ItemAt(i);
+                if (item != null && item.Definition.Slot != EquipSlot.None && item.Definition.Slot != EquipSlot.Ring)
+                {
+                    index = i;
+                }
+            }
+
+            Assert.GreaterOrEqual(index, 0, "il banco vende qualcosa da indossare");
+            var forSale = Shop.ItemAt(index);
+            var slot = equipment.TargetSlot(forSale.Definition);
+            if (equipment.Get(slot) == null)
+            {
+                Assert.IsTrue(equipment.TryEquip(new ItemInstance(forSale.Definition, Rarity.Normal, 1, 7UL, null), out _));
+            }
+
+            Shop.Hover(index);
+            yield return null;
+            Assert.IsTrue(Bag.Tooltip.IsShowing);
+            Assert.IsTrue(Bag.CompareTooltip.IsShowing, "accanto quello indossato");
+            StringAssert.Contains("Equipped", Bag.CompareTooltip.Text);
+            Assert.IsFalse(Bag.SecondCompareTooltip.IsShowing);
+            var a = new Vector3[4];
+            var b = new Vector3[4];
+            Bag.Tooltip.Box.GetWorldCorners(a);
+            Bag.CompareTooltip.Box.GetWorldCorners(b);
+            bool overlap = a[0].x < b[2].x && b[0].x < a[2].x && a[0].y < b[2].y && b[0].y < a[2].y;
+            Assert.IsFalse(overlap, "i due riquadri non si sovrappongono");
+            Assert.GreaterOrEqual(b[0].x, -0.5f, "il confronto esce a sinistra");
+            Assert.LessOrEqual(b[2].x, Screen.width + 0.5f, "il confronto esce a destra");
+
+            Shop.Hover(-1);
+            yield return null;
+            Assert.IsFalse(Bag.Tooltip.IsShowing);
+            Assert.IsFalse(Bag.CompareTooltip.IsShowing, "lasciato il banco il confronto sparisce");
+        }
+
         [UnityTest, Description("Comprare: senza oro lo dice, con l'oro la pozione va nella cintura e le monete suonano; il tooltip dice prezzo e tasto")]
         public IEnumerator Buy_NeedsGold()
         {
