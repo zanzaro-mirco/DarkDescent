@@ -79,6 +79,46 @@ Confermate da Mirco il 19 ottobre 2026, tutte come proposte.
 | 13.8 | Build da provare e correzioni | 1–2 |
 | 13.9 | Chiusura: tag `v1.2.0`, ADR, lezioni, README | 1 |
 
+## Passo 13.1 — Blender e audio
+
+**Com'è andata (19 ott 2026).** In `Tools/Blender/` la libreria comune (`meshlib.py`: colori
+dall'atlante KayKit, scatole, solidi di rivoluzione, anelli, prismi, cristalli, smusso, foto con la
+camera del gioco, export FBX) e `make.py`, che gira dentro Blender e costruisce tutti i modelli di
+`models/`, o quelli nominati:
+
+```
+blender --background --factory-startup --python Tools/Blender/make.py -- [nomi] [--photo DIR]
+```
+
+Gli FBX vanno in `Art/Models/DarkDescent/`; con `--photo` ogni modello ha anche la sua foto accanto
+al modello KayKit di confronto. Il primo modello è il **pozzo** della prova, in due FBX
+(`Well_Life`, `Well_Mana`: cambiano il liquido e il cristallo), 2,38 × 1,83 m, 646 facce.
+
+In Unity un `AssetPostprocessor` dell'editor (`GeneratedModelImporter`) dà agli FBX della cartella
+le impostazioni dei KayKit: niente materiali (il prefab mette `M_Dungeon`, che ha già l'atlante),
+niente animazioni, camere o luci. Gli FBX arrivano senza rotazione e in scala 1 al primo import:
+la trappola del `chest_gold` della M12 non si ripresenta, perché l'export applica la trasformazione
+(`bake_space_transform`). `GeneratedModelTests` lo controlla per ogni FBX della cartella (impostazioni,
+rotazione zero, scala 1, base a terra, misure da stanza) e, per il pozzo, che le misure siano quelle
+di Blender, cioè che gli assi non siano scambiati.
+
+In `Tools/Audio/` la libreria dei suoni (`sfxlib.py`), `make.py` e `preview.py` per la pagina di
+ascolto, con le versioni bloccate in `requirements.txt`:
+
+```
+python Tools/Audio/make.py [nomi] [--out DIR --page]
+```
+
+Uno script per suono in `sounds/`; il seme di ogni suono viene dal suo nome, così un WAV si rifà
+identico byte per byte e cambiare un suono non cambia gli altri. Dentro `Audio/SFX/Generated` ci sono
+i quattro della prova: `shrine_chime`, `trap_trigger`, `barrel_break_0` (sintetizzato),
+`barrel_break_1` (ibrido) e `well_drink`. Con il seme per nome i dettagli casuali sono un po' diversi
+da quelli ascoltati da Mirco (la stessa ricetta, altri tiri): si riascoltano in build. L'ibrido parte
+dallo schianto di ossa di Puadlung e ne prende la licenza, scritta nella riga di Puadlung di
+`CREDITS.md`; gli altri sono CC0, in una riga loro.
+
+ADR-094 (Blender 5.2 LTS e modelli da script) e ADR-095 (suoni da script). 343 EditMode verdi.
+
 ---
 
 ## Trappole note
@@ -130,8 +170,8 @@ Confermate da Mirco il 19 ottobre 2026, tutte come proposte.
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D14 confermate (19 ott 2026)
-- [ ] Libreria Blender e primo modello in Unity
-- [ ] Libreria audio e suoni della prova nel repo
+- [x] Libreria Blender e primo modello in Unity
+- [x] Libreria audio e suoni della prova nel repo
 - [ ] Arredi con un senso, senza colonnato
 - [ ] Modelli nuovi e tema della cappella
 - [ ] Barili da rompere
