@@ -44,7 +44,7 @@ e la prova in build.
 
 ## Decisioni
 
-Da confermare con Mirco.
+Confermate da Mirco il 19 ottobre 2026, tutte come proposte.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -129,7 +129,7 @@ Da confermare con Mirco.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D14 confermate
+- [x] Decisioni D1–D14 confermate (19 ott 2026)
 - [ ] Libreria Blender e primo modello in Unity
 - [ ] Libreria audio e suoni della prova nel repo
 - [ ] Arredi con un senso, senza colonnato
