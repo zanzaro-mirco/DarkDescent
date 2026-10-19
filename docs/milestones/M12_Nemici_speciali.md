@@ -281,4 +281,4 @@ di Mirco: fa partire la build Windows della release.
 - [x] Barra in alto e automappa
 - [x] ~~Build di prova~~: saltata su scelta di Mirco (19 ott 2026), si prova la build del tag
 - [x] ADR, lezioni nel piano, README
-- [ ] Tag `v1.1.0`, con il via di Mirco
+- [x] Tag `v1.1.0` (19 ott): build Windows e test in CI verdi
