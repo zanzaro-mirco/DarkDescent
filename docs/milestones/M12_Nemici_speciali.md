@@ -235,6 +235,18 @@ il loot in più con le casse dello stesso bonus. Lezioni della M12 e stato del p
 (v2.43); README con la v1.1 e una foto di Morvak; `bundleVersion` 1.1.0. Il tag `v1.1.0` aspetta il via
 di Mirco: fa partire la build Windows della release.
 
+## Dopo la chiusura — v1.1.1
+
+**19 ott 2026, dalla prova di Mirco della v1.1.0.** I modificatori non si notavano: funzionavano, ma
+con numeri timidi e senza segni. Ora Rapido +50% con le animazioni alla sua velocità e la polvere;
+Gelido 50% per 3 s, con la brina attorno al campione e i cristalli sul cavaliere; Rigenerante 3% al
+secondo dopo 1 s, con il bagliore e il numero verde; Inamovibile con scintille, suono di metallo e
+"Imparabile!" quando lo scudo l'avrebbe fermato; Furioso anche +25% di velocità, più grande, rosso,
+con l'aura e il ruggito (ADR-093). Nello stesso giro due correzioni del mercante: il negozio si
+chiude allontanandosi dal banco, e il confronto con l'oggetto indossato c'è anche per gli oggetti in
+vendita. `MageTests` usa un seme senza mago campione: con il seme a caso, la scorta di un mago
+campione cambiava il conto. Esce con il tag `v1.1.1`.
+
 ---
 
 ## Trappole note
@@ -261,6 +273,11 @@ di Mirco: fa partire la build Windows della release.
   renderizza in una texture non la vede: i test delle foto la passano alla camera per lo scatto.
 - **Il lampo dura 0,1 s veri.** In batchmode due frame bastano a perderlo: la foto si prende nello
   stesso frame del colpo.
+- **Un modificatore che funziona non basta: deve vedersi** (v1.1.1). Un numero più alto senza un
+  segno non lo nota nessuno; il Rigenerante che aspetta 3 s senza colpi non scatta mai in un
+  combattimento vero.
+- **Le curve della velocità delle particelle vanno tutte nello stesso modo.** Un asse costante e uno
+  tra due costanti danno un errore a ogni frame, che fa fallire i test PlayMode.
 
 ---
 

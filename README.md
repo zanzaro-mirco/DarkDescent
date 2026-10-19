@@ -20,6 +20,10 @@ Progetto personale in Unity (URP) / C#.
 - nella barra in alto il nome nel colore del grado, con i modificatori sotto, e i punti dei nemici
   speciali sull'automappa.
 
+**v1.1.1** (tag `v1.1.1`): i modificatori si vedono e si sentono (polvere, brina, bagliore verde,
+scintille, aura rossa), il negozio si chiude allontanandosi dal mercante, e il confronto con
+l'oggetto indossato c'è anche per gli oggetti in vendita.
+
 ![Morvak il Carceriere con l'anello d'oro e la sua scorta di scheletri; in alto il suo nome in oro con i modificatori Frozen e Unstoppable](docs/media/m12_morvak.png)
 
 **v1.0 — M11 "Look, feel e release"**, chiusa il 17 ottobre 2026 (tag `v1.0.0`). Rispetto alla M10:

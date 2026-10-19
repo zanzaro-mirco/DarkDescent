@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.46**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.47**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.47 | 19 ott 2026 | **v1.1.1** dalla prova di Mirco della v1.1.0: i **modificatori dei campioni si vedono e si sentono** (numeri più marcati, animazioni alla velocità del Rapido, polvere, brina, bagliore e numeri verdi, scintille e "Imparabile!", aura rossa e ruggito del Furioso; ADR-093), il **negozio si chiude allontanandosi** dal mercante, il **confronto con l'oggetto indossato** anche dal banco · ADR-001…093 |
 | v2.46 | 19 ott 2026 | Decisione di Mirco sull'**albero delle abilità**: stile **World of Warcraft** (albero della classe e albero della specializzazione affiancati, nodi collegati, a più gradi e a scelta), abilità e magie imparate **salendo di livello** e non più dalle pergamene, **distinte per classe**, un albero sensato per ogni classe disegnato e approvato prima del codice; dopo la M14, con le classi nuove |
 | v2.45 | 19 ott 2026 | Su richiesta di Mirco la **M13 — "Stanze vive"**: via il colonnato, arredi con un senso (mai doppioni, girati a caso, legati al tema), un punto d'interesse al centro delle stanze grandi, **barili da rompere**, **pozzi**, **santuari** e **trappole**, e una sezione di **modelli fatti in Blender** da script nel repo (Blender 5.2 LTS installato il 19 ott). Scheda `docs/milestones/M13_Stanze_vive.md`, tag `v1.2.0`; gradi degli affissi e difficoltà passano alla M14 · dalla lista di Mirco restano per dopo mimic, bauli maledetti, porte e leve, lore, prigionieri, statue che si animano |
 | v2.44 | 19 ott 2026 | Su richiesta di Mirco il progetto non è più descritto come didattico: tolti la nota sul metodo «io spiego, tu scrivi» del § 8 e l'«obiettivo di imparare» dell'appendice; la descrizione del repo su GitHub diventa «Progetto personale» |
@@ -73,7 +74,7 @@
 | **Milestone corrente** | **M13 — "Stanze vive"** (scheda `docs/milestones/M13_Stanze_vive.md`, decisioni da confermare). Dopo: gradi degli affissi e difficoltà (M14), oggetti unici e set (§ 5, «Dopo la v1.0») |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…092) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…093) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
