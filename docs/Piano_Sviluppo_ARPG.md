@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.42**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.44**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.44 | 19 ott 2026 | Su richiesta di Mirco il progetto non è più descritto come didattico: tolti la nota sul metodo «io spiego, tu scrivi» del § 8 e l'«obiettivo di imparare» dell'appendice; la descrizione del repo su GitHub diventa «Progetto personale» |
 | v2.43 | 19 ott 2026 | **M12 chiusa** (v1.1): campioni con cinque modificatori e scorta, Morvak e Grumm, loot migliore, forzieri e tesoro del re, nomi colorati con i modificatori nella barra in alto e punti sull'automappa. La build di prova è saltata su scelta di Mirco: si prova quella del tag `v1.1.0` |
 | v2.42 | 18 ott 2026 | I lavori dopo la v1.0 diventano milestone come le altre: la **M12 — "Nemici speciali"** (campioni con modificatori e scorta, due unici, forzieri e tesoro del re), scheda `docs/milestones/M12_Nemici_speciali.md`, confermata da Mirco, tag `v1.1.0` |
 | v2.41 | 18 ott 2026 | **v1.0.2** dalla prova di Mirco della v1.0.1: le spunte delle opzioni si vedono, e nel confronto i due riquadri tornano uguali, con "Equipaggiato" piccolo e grigio chiaro sopra il nome |
@@ -922,8 +923,6 @@ La versione operativa è **`CLAUDE.md`** nel repo, che Claude Code legge a ogni 
 - **Niente devlog** dal 30 set 2026: `DEVLOG.md` cancellato dal repo, la voce della M0 resta nella storia git.
 - **Rituale di chiusura** a ogni milestone (§ 6).
 
-> Fino al 30 settembre 2026 valeva il metodo **"io spiego, tu scrivi"**: Claude si fermava a concetti, architettura e sole firme, e il corpo dei metodi lo scrivevi tu. Rimosso su tua richiesta a M1 iniziata. Conseguenza sull'obiettivo doppio: la competenza tecnica non si acquisisce più scrivendo, quindi il valore da portfolio si sposta tutto su ciò che resta tuo — le decisioni negli ADR, le scelte di design e di ambito.
-
 ---
 
 ## 9. Rischi
@@ -942,6 +941,6 @@ La versione operativa è **`CLAUDE.md`** nel repo, che Claude Code legge a ogni 
 
 ## Appendice — Da v1 a v2
 
-Il piano v1 era tecnicamente corretto ma organizzato per sistemi, senza criteri di completamento, senza la parte che non è gameplay (Git, build, test, CI), senza un ambito definito, e si chiudeva con un prompt che chiedeva script completi — l'opposto dell'obiettivo di imparare. La v2 lo ha sostituito con milestone verticali, Definition of Done osservabili, una M0 dedicata all'infrastruttura, un ambito scritto e un protocollo di lavoro esplicito (§ 8).
+Il piano v1 era tecnicamente corretto ma organizzato per sistemi, senza criteri di completamento, senza la parte che non è gameplay (Git, build, test, CI), senza un ambito definito, e si chiudeva con un prompt che chiedeva tutti gli script in una volta. La v2 lo ha sostituito con milestone verticali, Definition of Done osservabili, una M0 dedicata all'infrastruttura, un ambito scritto e un protocollo di lavoro esplicito (§ 8).
 
 Le correzioni tecniche puntuali della v2.0 — Input System nuovo, `DamageInfo` come struct, camera in `LateUpdate` con rotazione `(30, 45, 0)`, `ObjectPool<T>` di Unity, ScriptableObject immutabili, disiscrizione dagli eventi in `OnDisable`, state machine a `enum` finché basta — sono ora assorbite dove servono: nelle milestone di questo documento, in `CONVENTIONS.md`, in `CLAUDE.md` e nelle schede.
