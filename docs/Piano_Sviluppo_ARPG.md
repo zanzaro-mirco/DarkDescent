@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.44**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.45**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.45 | 19 ott 2026 | Su richiesta di Mirco la **M13 — "Stanze vive"**: via il colonnato, arredi con un senso (mai doppioni, girati a caso, legati al tema), un punto d'interesse al centro delle stanze grandi, **barili da rompere**, **pozzi**, **santuari** e **trappole**, e una sezione di **modelli fatti in Blender** da script nel repo (Blender 5.2 LTS installato il 19 ott). Scheda `docs/milestones/M13_Stanze_vive.md`, tag `v1.2.0`; gradi degli affissi e difficoltà passano alla M14 · dalla lista di Mirco restano per dopo mimic, bauli maledetti, porte e leve, lore, prigionieri, statue che si animano |
 | v2.44 | 19 ott 2026 | Su richiesta di Mirco il progetto non è più descritto come didattico: tolti la nota sul metodo «io spiego, tu scrivi» del § 8 e l'«obiettivo di imparare» dell'appendice; la descrizione del repo su GitHub diventa «Progetto personale» |
 | v2.43 | 19 ott 2026 | **M12 chiusa** (v1.1): campioni con cinque modificatori e scorta, Morvak e Grumm, loot migliore, forzieri e tesoro del re, nomi colorati con i modificatori nella barra in alto e punti sull'automappa. La build di prova è saltata su scelta di Mirco: si prova quella del tag `v1.1.0` |
 | v2.42 | 18 ott 2026 | I lavori dopo la v1.0 diventano milestone come le altre: la **M12 — "Nemici speciali"** (campioni con modificatori e scorta, due unici, forzieri e tesoro del re), scheda `docs/milestones/M12_Nemici_speciali.md`, confermata da Mirco, tag `v1.1.0` |
@@ -68,7 +69,7 @@
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
 | **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) |
-| **Milestone corrente** | nessuna: la v1.1 è chiusa (`v1.1.0`). I prossimi lavori sono nel § 5, «Dopo la v1.0»: gradi degli affissi, difficoltà, oggetti unici e set |
+| **Milestone corrente** | **M13 — "Stanze vive"** (scheda `docs/milestones/M13_Stanze_vive.md`, decisioni da confermare). Dopo: gradi degli affissi e difficoltà (M14), oggetti unici e set (§ 5, «Dopo la v1.0») |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
 | **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…092) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
@@ -285,6 +286,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | ✅ 17 ott |
 | M12 | "Nemici speciali" | campioni, unici, forzieri e tesoro del re; v1.1 | 9–13 | ✅ 19 ott |
+| M13 | "Stanze vive" | arredi con un senso, barili da rompere, pozzi, santuari, trappole, modelli fatti in Blender; v1.2 | 16–22 | in corso |
 
 ---
 
@@ -808,7 +810,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Il rischio.** Se tutto cresce con il personaggio, salire di livello non si sente più. Il margine e la curva vanno provati in build, e la regola può essere un'opzione della difficoltà invece di valere sempre.
   - **Salvataggio.** Non cambia: i ricordi dei livelli (ADR-079) dicono solo quali nemici sono morti, non i loro numeri, e gli oggetti hanno già il loro livello.
   - Si valuta insieme ai nemici speciali, che toccano gli stessi numeri.
-- **Barili da rompere** (chiesto da Mirco il 12 ott 2026). Come in Diablo 1: un barile si rompe con un colpo, cliccandolo come un nemico, e a volte lascia qualcosa. Cosa comporta:
+- **Barili da rompere** (chiesto da Mirco il 12 ott 2026; è nella **M13**, dalla v2.45, con i barili esplosivi). Come in Diablo 1: un barile si rompe con un colpo, cliccandolo come un nemico, e a volte lascia qualcosa. Cosa comporta:
   - **Più barili.** Il popolatore li mette in gruppi da due a quattro, lungo i muri e negli angoli, più fitti nelle stanze a tema deposito degli arredi della M11 e mai sul percorso tra le porte. Indicativamente 4–8 per livello nella cripta e 2–5 nelle caverne, da provare in build.
   - **Cosa lasciano.** Meno di uno scheletro, perché sono tanti e non fanno male. Per barile, con tiri separati: **oro 15%**, la metà della quantità di uno scheletro alla stessa profondità; **un oggetto 5%**, con la tabella delle rarità di sempre; **una pozione 5%**. Circa tre barili su quattro non lasciano niente. Con 6 barili a livello fanno in media un oggetto ogni tre livelli e un po' d'oro: un premio per chi esplora, non una fonte che cambia il bilanciamento della M10. I numeri sono una `LootTable` come le altre, quindi si tarano senza toccare il codice.
   - **Il seme.** Un dominio suo, come l'oro (ADR-071), così il loot dei nemici e delle casse dei semi già provati non cambia.
@@ -857,7 +859,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Il personaggio** sale fino al livello **50** (oggi 20), con la curva dell'esperienza della `ProgressionSettings` da riguardare.
   - **La morte** costa di più salendo (la *punizione alla morte*, sopra): una parte dell'oro e dell'esperienza, crescente con la difficoltà.
   - **Salvataggio.** Formato 6: difficoltà corrente, la più alta completata, il seme del mondo corrente; un salvataggio vecchio parte dal Crepuscolo, con la vittoria già fatta se c'era.
-  - **Ordine consigliato:** nemici speciali (campioni, unici, forzieri), poi i gradi degli affissi, poi le difficoltà, poi unici e set. Ognuno si prova da solo, e le difficoltà arrivano quando c'è già un loot da cercare.
+  - **Ordine consigliato:** nemici speciali (campioni, unici, forzieri: M12), poi le stanze della M13 (v2.45), poi i gradi degli affissi e le difficoltà (M14), poi unici e set. Ognuno si prova da solo, e le difficoltà arrivano quando c'è già un loot da cercare.
   - Circa 5–7 h per le difficoltà, più 2–3 h per i gradi degli affissi e la curva fino al 50.
 - **Ronde dei nemici** (dai tester, 18 ott 2026). Oggi i nemici aspettano fermi finché non vedono il cavaliere. Alcuni camminano tra due o tre punti della loro stanza o del corridoio vicino, scelti dal seme, con una pausa a ogni punto; vedendo il cavaliere passano all'inseguimento come gli altri, e oltre il limite tornano alla ronda invece che a casa (ADR-050). I ricordi dei livelli (ADR-079) contano già i nemici per posto: un nemico vivo riparte dal suo punto di partenza. Circa 2–3 h.
 - **Pubblicazione su itch.io** (spostata dalla M10 alla fine della M11 l'11 ott 2026, e dalla M11 a dopo la v1.0 il 17 ott 2026: decisioni di Mirco). Il primo passo della fase dopo la v1.0, con le scelte già prese nella D9 della M11:
@@ -866,6 +868,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Prima in beta.** La pagina parte in modalità ristretta, con una chiave di download per ogni tester scelto da Mirco, revocabile; diventa pubblica quando Mirco lo decide, senza toccare la CI. La beta è anche la prova a più persone su altri PC che il piano chiedeva dalla fine della M10.
   - **Niente canale Web** alla prima uscita: salvataggio nel browser e prestazioni andrebbero riprovati da capo (ADR-019).
   - Circa 1 h, più la prova del primo caricamento.
+- **Dalla lista di Mirco del 19 ott 2026**, fuori dalla M13 (D11): **mimic** (mostri travestiti da forziere) e **bauli maledetti** (un'ondata di nemici prima di aprirsi), **porte, leve e stanze sigillate**, **lore** (leggii, diari, pergamene da leggere), **prigionieri** da liberare, **statue che si animano**, pozze di acido e lava, statue che sputano fuoco o fulmini. I modelli che servono si fanno in Blender, come nella M13.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
 
 ---
