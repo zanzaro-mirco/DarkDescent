@@ -125,7 +125,10 @@ namespace DarkDescent.Tests
             for (int i = 0; i < 10 && index < 0; i++)
             {
                 var item = Shop.ItemAt(i);
-                if (item != null && item.Definition.Slot != EquipSlot.None && item.Definition.Slot != EquipSlot.Ring)
+                // Il seme cambia a ogni partita: serve un oggetto che il cavaliere possa indossare
+                // (forza sufficiente) o uno per uno slot già occupato
+                if (item != null && item.Definition.Slot != EquipSlot.None && item.Definition.Slot != EquipSlot.Ring
+                    && (equipment.Get(item.Definition.Slot) != null || equipment.MeetsRequirements(item.Definition)))
                 {
                     index = i;
                 }
