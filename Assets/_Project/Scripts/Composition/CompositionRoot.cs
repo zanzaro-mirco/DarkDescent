@@ -166,6 +166,7 @@ namespace DarkDescent.Core
         private PlayerInputReader _reader;
         private Localizer _localizer;
         private LootRoller _loot;
+        private readonly List<SpecialEnemy> _specialsOnMap = new List<SpecialEnemy>();
         private Footsteps _footsteps;
         private PlayerProgress _progress;
         private Rendering.CameraRotation _cameraRotation;
@@ -561,6 +562,18 @@ namespace DarkDescent.Core
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
             _exploration.SetLevel(level.Map, level.Depth);
+
+            // i punti di campioni e unico sull'automappa (D9 della M12), già legati qui sopra
+            _specialsOnMap.Clear();
+            foreach (var enemy in level.Enemies)
+            {
+                if (enemy != null && enemy.gameObject.activeSelf && enemy.TryGetComponent(out SpecialEnemy special))
+                {
+                    _specialsOnMap.Add(special);
+                }
+            }
+
+            _automap.SetSpecials(_specialsOnMap);
             BindMerchant(level);
         }
 
@@ -795,6 +808,8 @@ namespace DarkDescent.Core
             }
 
             _rewardingEnemies.Clear();
+            _automap.ClearSpecials();
+            _specialsOnMap.Clear();
             _exploration.SetLevel(null, 0);
             ReleaseMerchant();
             ReleaseBoss();

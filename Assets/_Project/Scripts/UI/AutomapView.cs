@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using DarkDescent.Combat;
+using DarkDescent.Enemies;
 using DarkDescent.Levels;
 using DarkDescent.Player;
 using DarkDescent.Rendering;
@@ -10,7 +13,8 @@ namespace DarkDescent.UI
     /// la mostrano, la minimappa nell'angolo e la mappa sovrapposta al gioco, tutte e due centrate
     /// sul cavaliere. Il tasto <c>M</c> scorre le modalità: angolo, sovrapposta, spenta, e da capo.
     /// Si ridisegna solo quando si scopre una cella; per frame si sposta soltanto il punto del
-    /// cavaliere, e solo con una vista accesa.
+    /// cavaliere, e solo con una vista accesa. Insieme a lui si spostano i punti dei campioni e
+    /// dell'unico (D9 della M12), nel colore del grado, quando stanno su una cella già scoperta.
     /// </summary>
     [DisallowMultipleComponent]
     public class AutomapView : MonoBehaviour
@@ -28,6 +32,10 @@ namespace DarkDescent.UI
         private Texture2D _texture;
         private Color32[] _pixels;
         private bool _subscribed;
+
+        // i nemici speciali del livello e la loro vita, per spegnere il punto quando muoiono
+        private readonly List<SpecialEnemy> _specials = new List<SpecialEnemy>();
+        private readonly List<Health> _specialHealth = new List<Health>();
 
         /// <summary>La modalità scelta con <c>M</c>; si parte dalla minimappa. Resta anche passando per un livello senza mappa.</summary>
         public AutomapMode Mode { get; private set; } = AutomapMode.Corner;
@@ -52,6 +60,31 @@ namespace DarkDescent.UI
             {
                 Subscribe();
             }
+        }
+
+        /// <summary>I nemici speciali del livello: il composition root li dà quando lega il livello.</summary>
+        public void SetSpecials(IEnumerable<SpecialEnemy> specials)
+        {
+            ClearSpecials();
+            foreach (var special in specials)
+            {
+                if (special != null && special.IsBound)
+                {
+                    _specials.Add(special);
+                    _specialHealth.Add(special.GetComponent<Health>());
+                }
+            }
+
+            PlaceDot();
+        }
+
+        /// <summary>Il livello se ne va: niente più punti.</summary>
+        public void ClearSpecials()
+        {
+            _specials.Clear();
+            _specialHealth.Clear();
+            _corner.HideMarkers(0);
+            _overlay.HideMarkers(0);
         }
 
         /// <summary>Passa alla modalità dopo: angolo, sovrapposta, spenta, e di nuovo angolo.</summary>
@@ -179,7 +212,39 @@ namespace DarkDescent.UI
             }
 
             Vector3 position = _tracker.Player.position;
-            frame.Place(new Vector2(position.x / LevelMap.CellSize, -position.z / LevelMap.CellSize));
+            frame.Place(ToCell(position));
+            PlaceSpecials(frame);
+        }
+
+        // un punto per ogni nemico speciale vivo su una cella scoperta: visto, si sa dov'è
+        private void PlaceSpecials(AutomapFrame frame)
+        {
+            int shown = 0;
+            var exploration = _tracker.Exploration;
+            for (int i = 0; i < _specials.Count && exploration != null; i++)
+            {
+                var special = _specials[i];
+                if (special == null || _specialHealth[i] == null || _specialHealth[i].IsDead)
+                {
+                    continue;
+                }
+
+                Vector3 position = special.transform.position;
+                var cell = Exploration.CellAt(position);
+                if (!exploration.IsExplored(cell.x, cell.y))
+                {
+                    continue;
+                }
+
+                frame.PlaceMarker(shown++, ToCell(position), special.Numbers.Color);
+            }
+
+            frame.HideMarkers(shown);
+        }
+
+        private static Vector2 ToCell(Vector3 position)
+        {
+            return new Vector2(position.x / LevelMap.CellSize, -position.z / LevelMap.CellSize);
         }
     }
 }

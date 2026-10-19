@@ -194,6 +194,27 @@ Test:
 
 339 EditMode e 210 PlayMode verdi.
 
+## Passo 12.5 — Barra in alto e automappa
+
+**Com'è andata (19 ott 2026).** Nella barra in alto (`EnemyBar`) campioni e unici hanno il nome nel
+colore del grado. Sotto il nome c'è una riga piccola con i modificatori, nella lingua attiva:
+"Gelido · Inamovibile" per Morvak, "Frozen · Unstoppable" in inglese. La riga (`Modifiers`, un testo
+nuovo nella scena Core) si accende solo quando serve, e allora il pannello passa da 58 a 82 px. Un
+nemico normale resta com'era. La riga si compone quando cambia il nemico mostrato o la lingua, mai a
+ogni frame. Le stringhe dei modificatori c'erano già dal 12.1.
+
+Sull'automappa (`AutomapView`) il composition root dà i nemici speciali del livello. A ogni frame,
+insieme al punto del cavaliere, si spostano i loro punti: copie del punto del cavaliere, più piccole e
+sotto di lui, fatte una volta e riusate. Un punto compare solo quando il nemico sta su una cella già
+scoperta, e si spegne quando muore.
+
+Foto dalla scena vera, con un test temporaneo che aggancia la UI alla camera: il nome di Morvak in oro
+con "Gelido · Inamovibile", un mago campione in blu con "Inamovibile", il punto d'oro accanto al
+cavaliere nella minimappa. Il blu dei campioni sul fondo scuro si legge, ma è meno acceso dell'oro: si
+giudica in build insieme alla tinta. Test: `SpecialHudTests` (colore, riga, lingua, altezza del
+pannello; punto che compare quando la cella si scopre e si spegne alla morte). 339 EditMode e 212
+PlayMode verdi.
+
 ---
 
 ## Trappole note

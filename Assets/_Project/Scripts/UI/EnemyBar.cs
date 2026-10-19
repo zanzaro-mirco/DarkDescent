@@ -15,7 +15,8 @@ namespace DarkDescent.UI
     /// in Diablo, così si sa chi si sta per colpire. Senza un nemico sotto il cursore mostra quello che
     /// il cavaliere ha colpito per ultimo, di mischia o con un incantesimo, per qualche secondo dopo il
     /// colpo (D9 della M9): con i proiettili si colpisce senza il cursore sopra. Ascolta il controller
-    /// del cavaliere e i nemici del livello; sparisce quando non c'è nessuno da mostrare.
+    /// del cavaliere e i nemici del livello; sparisce quando non c'è nessuno da mostrare. Campioni e
+    /// unici (D10 della M12) hanno il nome nel colore del grado e, sotto, i loro modificatori.
     /// </summary>
     [DisallowMultipleComponent]
     public class EnemyBar : MonoBehaviour
@@ -23,6 +24,12 @@ namespace DarkDescent.UI
         [SerializeField] private GameObject _panel;
 
         [SerializeField] private TMP_Text _name;
+
+        [Tooltip("La riga piccola dei modificatori di campioni e unici, tra il nome e la vita.")]
+        [SerializeField] private TMP_Text _modifiers;
+
+        [Tooltip("L'altezza del pannello quando c'è la riga dei modificatori; senza, quella del prefab.")]
+        [SerializeField, Min(0f)] private float _heightWithModifiers = 82f;
 
         [Tooltip("La barra della vita: si accorcia da destra spostando il suo bordo destro, senza sprite.")]
         [SerializeField] private RectTransform _fill;
@@ -34,6 +41,9 @@ namespace DarkDescent.UI
         private Localizer _localizer;
         private Health _enemy;
         private string _nameKey;
+        private SpecialEnemy _special;
+        private Color _baseNameColor;
+        private float _baseHeight;
         private bool _subscribed;
 
         // i nemici seguiti: il colpo e lo schivato di ognuno, per sapere chi il cavaliere sta combattendo
@@ -53,6 +63,11 @@ namespace DarkDescent.UI
         public Health LastHit => _lastHit;
 
         public string NameText => _name.text;
+
+        public Color NameColor => _name.color;
+
+        /// <summary>La riga dei modificatori, vuota per un nemico normale.</summary>
+        public string ModifiersText => _modifiers != null ? _modifiers.text : string.Empty;
 
         public float FillAmount => _fill.anchorMax.x;
 
@@ -129,6 +144,8 @@ namespace DarkDescent.UI
         {
             _panel.SetActive(false);
             _lastHitWait = new WaitForSeconds(_lastHitDuration);
+            _baseNameColor = _name.color;
+            _baseHeight = ((RectTransform)_panel.transform).sizeDelta.y;
         }
 
         private void OnEnable()
@@ -247,6 +264,8 @@ namespace DarkDescent.UI
             _enemy.HealthChanged += HandleHealthChanged;
             _enemy.Died += Hide;
             _nameKey = _enemy.TryGetComponent(out EnemyAI ai) && ai.Archetype != null ? ai.Archetype.NameKey : null;
+            _special = _enemy.TryGetComponent(out SpecialEnemy special) && special.IsBound ? special : null;
+            _name.color = _special != null ? _special.Numbers.Color : _baseNameColor;
             RefreshName();
             HandleHealthChanged(_enemy.Current, _enemy.Max);
             _panel.SetActive(true);
@@ -265,6 +284,30 @@ namespace DarkDescent.UI
         private void RefreshName()
         {
             _name.text = string.IsNullOrEmpty(_nameKey) || _localizer == null ? string.Empty : _localizer.Get(_nameKey);
+            RefreshModifiers();
+        }
+
+        // "Rapido · Gelido", nella lingua attiva; il pannello si allunga solo quando la riga c'è
+        private void RefreshModifiers()
+        {
+            if (_modifiers == null)
+            {
+                return;
+            }
+
+            string text = string.Empty;
+            if (_special != null && _localizer != null)
+            {
+                foreach (var modifier in _special.ActiveModifiers)
+                {
+                    text = text.Length == 0 ? _localizer.Get(modifier.NameKey) : text + " · " + _localizer.Get(modifier.NameKey);
+                }
+            }
+
+            _modifiers.text = text;
+            _modifiers.gameObject.SetActive(text.Length > 0);
+            var panel = (RectTransform)_panel.transform;
+            panel.sizeDelta = new Vector2(panel.sizeDelta.x, text.Length > 0 ? _heightWithModifiers : _baseHeight);
         }
     }
 }
