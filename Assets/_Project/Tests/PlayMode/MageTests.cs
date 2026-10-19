@@ -105,15 +105,27 @@ namespace DarkDescent.Tests
             Assert.AreEqual(health.Max, health.Current, "niente danno");
         }
 
-        [UnityTest, Description("Nella cripta alla profondità 3 ci sono da 1 a 2 maghi, legati al cavaliere come gli altri nemici")]
+        [UnityTest, Description("Nella cripta alla profondità 3 ci sono da 1 a 2 maghi, legati al cavaliere come gli altri nemici. Su un seme senza mago campione: dalla M12 un mago campione porta una scorta di maghi, e con il seme a caso della partita il conto cambiava")]
         public IEnumerator Crypt_HasMagesFromDepthThree()
         {
             yield return LoadGeneratedCore();
             var manager = Object.FindFirstObjectByType<LevelManager>();
-            manager.LoadLevel("Level_Crypt", "FromAbove", 3);
-            for (float t = 0f; t < 10f && (manager.IsTransitioning || manager.CurrentLevel == null || manager.CurrentLevel.Depth != 3); t += Time.unscaledDeltaTime)
+            // il primo seme senza un mago campione: la sua scorta di maghi è un'altra regola (M12)
+            for (ulong seed = 4711; ; seed++)
             {
+                Assert.Less(seed, 4731UL, "nessun seme senza mago campione");
+                manager.RunSeed = seed;
+                manager.LoadLevel("Level_Crypt", "FromAbove", 3);
                 yield return null;
+                for (float t = 0f; t < 10f && (manager.IsTransitioning || manager.CurrentLevel == null || manager.CurrentLevel.Depth != 3); t += Time.unscaledDeltaTime)
+                {
+                    yield return null;
+                }
+
+                if (!manager.CurrentLevel.Enemies.Any(e => e.GetComponent<RangedAttack>() != null && e.GetComponent<SpecialEnemy>() != null))
+                {
+                    break;
+                }
             }
 
             var mages = manager.CurrentLevel.Enemies.Where(e => e.GetComponent<RangedAttack>() != null).ToArray();
