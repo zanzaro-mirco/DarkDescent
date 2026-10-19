@@ -56,5 +56,13 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2, caves.Specials.ModifiersAt(5));
             Assert.AreEqual('S', caves.Specials.UniqueEscort);
         }
+
+        [Test, Description("Il lampo del colpo non legge _BaseColor: la tinta di campioni, unici e cavaliere rallentato, data con un MaterialPropertyBlock, non lo colora")]
+        public void HitFlash_IgnoresTheTint()
+        {
+            var flash = AssetDatabase.LoadAssetAtPath<UnityEngine.Material>("Assets/_Project/Art/Materials/M_HitFlash.mat");
+            Assert.IsFalse(flash.HasProperty("_BaseColor"), "con _BaseColor il lampo di Morvak sarebbe rosso ruggine");
+            Assert.AreEqual(UnityEngine.Color.white, flash.color);
+        }
     }
 }
