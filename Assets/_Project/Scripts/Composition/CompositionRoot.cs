@@ -830,6 +830,7 @@ namespace DarkDescent.Core
             _loot.RollStock(_merchantTable, depth, _runStats.Kills, _stock);
             _shop.Restock(_merchantTable.Supplies, _stock);
             _merchant.Opened += HandleMerchantOpened;
+            _merchant.Left += HandleMerchantLeft;
         }
 
         private void ReleaseMerchant()
@@ -843,6 +844,7 @@ namespace DarkDescent.Core
             if (_merchant != null)
             {
                 _merchant.Opened -= HandleMerchantOpened;
+                _merchant.Left -= HandleMerchantLeft;
                 _merchant = null;
             }
         }
@@ -856,6 +858,18 @@ namespace DarkDescent.Core
             }
 
             _shopPanel.Open();
+        }
+
+        // allontanandosi dal banco il negozio si chiude, e con lui l'inventario che aveva aperto
+        private void HandleMerchantLeft()
+        {
+            if (!_shopPanel.IsOpen)
+            {
+                return;
+            }
+
+            _shopPanel.Close();
+            _inventoryPanel.SetOpen(false);
         }
 
         private void HandleCharacterOpenChanged(bool open)
