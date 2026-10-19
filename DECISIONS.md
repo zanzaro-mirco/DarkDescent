@@ -640,3 +640,31 @@ Formato:
 - **Decisione:** un `LICENSE` in italiano e in inglese: copyright di Mirco Zanzaro, tutti i diritti riservati; il repo si legge, ma il codice e i contenuti non si copiano, non si modificano e non si ridistribuiscono senza permesso. Eccezione: gli asset di `CREDITS.md`, quelli di terzi con le loro licenze e quelli fatti per il progetto CC0 come già dichiarato. Il README ha una sezione che lo dice.
 - **Alternative scartate:** la MIT proposta nella scheda, che permette il riuso; nessuna licenza, che per legge vuol dire lo stesso ma non lo dice a chi legge; riprendere indietro il CC0 degli asset già dichiarati.
 - **Conseguenze:** chi legge il repo sa cosa può fare. Un contributo esterno andrebbe concordato a parte. Un asset nuovo fatto per il progetto va dichiarato in `CREDITS.md` con la sua licenza.
+
+## ADR-089 — I nemici speciali come promozione dopo il popolatore, l'unico dal seme della partita
+- **Data:** 2026-10-18 (passi 12.1 e 12.2)
+- **Contesto:** la M12 aggiunge campioni con modificatori e scorta e un unico per mondo. Il popolatore delle cripte e delle caverne decide già nemici, casse e arredi, e i semi già provati non devono cambiare (trappola 10 della M7).
+- **Decisione:** `SpecialEnemyPlanner`, logica pura, gira dopo il generatore con un flusso suo del seme (`SeedMixer.ForSpecials`). Un campione è un nemico già messo, promosso: la mappa lo dice con la direttiva `@champions x,y,id,id`, e il builder aggiunge il `SpecialEnemy` al nemico di quella cella. La scorta va nelle celle libere attorno. L'unico ha un simbolo suo (`u`), e il tileset dice quale (Morvak nella cripta, Grumm nelle caverne). La profondità dell'unico la dice il seme della partita (`ForUnique`): una probabilità su tre a ogni profondità, e la prima che riesce è l'unica. Non si salva niente.
+- **Alternative scartate:** campioni con un simbolo loro, che sposterebbero i nemici di tutti i semi; l'unico salvato nel salvataggio, che vorrebbe un formato nuovo per una cosa che il seme sa già.
+- **Conseguenze:** un livello di un seme già provato ha gli stessi nemici, più le scorte. I ricordi dei livelli (ADR-079) di un salvataggio di prima non combaciano più e quei livelli ripartono da capo una volta.
+
+## ADR-090 — La tinta dei nemici con un MaterialPropertyBlock, e il lampo del colpo che non la legge
+- **Data:** 2026-10-19 (passi 12.3 e 12.6)
+- **Contesto:** campioni e unici si riconoscono anche dal colore del modello, e il cavaliere rallentato dal Gelido diventa più freddo. I modelli KayKit condividono un materiale: cambiarne il colore tingerebbe tutti gli scheletri. Il lampo del colpo (`HitFlash`) scambia i materiali con uno bianco.
+- **Decisione:** la tinta è un `MaterialPropertyBlock` su `_BaseColor`, per renderer. Il materiale del lampo usa `Unlit/Color`, che legge `_Color`: il blocco resta sul renderer anche con il materiale scambiato, ma non lo colora.
+- **Alternative scartate:** copie dei materiali per ogni nemico speciale, che rompono il batching e vanno distrutte; il lampo che salva e toglie il blocco per poi rimetterlo, che si scontra con chi cambia la tinta nello stesso colpo (il Gelido rallenta proprio quando il cavaliere viene colpito).
+- **Conseguenze:** chi aggiunge una tinta usa il blocco; chi aggiunge un materiale scambiato al volo controlla che non legga `_BaseColor`. Un test EditMode lo controlla per il lampo.
+
+## ADR-091 — Il rallentamento del Gelido come componente del cavaliere
+- **Data:** 2026-10-18 (passo 12.3)
+- **Contesto:** il modificatore Gelido rallenta il cavaliere. La `StatSheet` non ha una velocità di movimento, e la velocità dell'agent la fissa il cavaliere all'avvio.
+- **Decisione:** `MovementSlow` sul prefab del cavaliere è l'unico che tocca la velocità dell'agent: `Apply(frazione, durata)` la abbassa e rinnova la durata, senza sommare due rallentamenti, e alla fine la rimette com'era. Il `SpecialEnemy` Gelido ascolta i colpi che arrivano al cavaliere e lo chiama quando la sorgente è lui, dardi compresi.
+- **Alternative scartate:** una statistica di velocità nella `StatSheet`, che vorrebbe affissi e interfaccia per un solo uso; il rallentamento dentro il controller del cavaliere, che mescola input e stati.
+- **Conseguenze:** un altro effetto sulla velocità (una pozione, una trappola) passa da `MovementSlow` o da un componente fatto come lui, mai direttamente dall'agent.
+
+## ADR-092 — Il loot in più come bonus, con un seme per tiro, per nemici e casse
+- **Data:** 2026-10-19 (passo 12.4)
+- **Contesto:** campioni e unici devono lasciare loot migliore, e il piano voleva casse di più tipi: un forziere accanto ai capi e un tesoro del re. Il loot di un seme già provato non deve cambiare.
+- **Decisione:** `LootBonus` (tiri in più, fattori di magici e rari, rarità garantita, fattore dell'oro) sta nei numeri del grado e sulle casse. Il primo tiro resta quello di sempre; ogni tiro in più ha un seme suo (`ForExtraLoot`), cade sempre e usa la tabella delle rarità spostata. Se la rarità garantita manca, la prende l'ultimo tiro, rifatto con la stessa base e lo stesso seme. Forziere e tesoro sono `Chest` con un bonus e una loot table loro; il tesoro è sigillato finché il re è vivo, e lo stato si ricava dalla vittoria salvata, senza un campo nuovo.
+- **Alternative scartate:** loot table diverse per i campioni, che cambierebbero il primo oggetto dei nemici promossi; tiri in più con la probabilità della tabella, che lascerebbero campioni senza niente in più; un tipo di cassa nuovo, quando la cassa sapeva già fare tutto tranne il bonus.
+- **Conseguenze:** un nemico o una cassa nuovi con loot migliore sono un bonus nei dati. Il tesoro può portare la pergamena del livello, e allora la si prende dopo la vittoria.

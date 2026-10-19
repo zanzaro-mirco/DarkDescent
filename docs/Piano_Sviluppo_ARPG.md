@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.43 | 19 ott 2026 | **M12 chiusa** (v1.1): campioni con cinque modificatori e scorta, Morvak e Grumm, loot migliore, forzieri e tesoro del re, nomi colorati con i modificatori nella barra in alto e punti sull'automappa. La build di prova è saltata su scelta di Mirco: si prova quella del tag `v1.1.0` |
 | v2.42 | 18 ott 2026 | I lavori dopo la v1.0 diventano milestone come le altre: la **M12 — "Nemici speciali"** (campioni con modificatori e scorta, due unici, forzieri e tesoro del re), scheda `docs/milestones/M12_Nemici_speciali.md`, confermata da Mirco, tag `v1.1.0` |
 | v2.41 | 18 ott 2026 | **v1.0.2** dalla prova di Mirco della v1.0.1: le spunte delle opzioni si vedono, e nel confronto i due riquadri tornano uguali, con "Equipaggiato" piccolo e grigio chiaro sopra il nome |
 | v2.40 | 18 ott 2026 | Le difficoltà prendono nomi nostri, scelti da Mirco al posto di quelli di Diablo: **Crepuscolo, Ombra, Tenebra, Abisso I–VI** |
@@ -54,7 +55,7 @@
 
 ---
 
-## Stato del progetto — aggiornato al 17 ottobre 2026
+## Stato del progetto — aggiornato al 19 ottobre 2026
 
 | | |
 |---|---|
@@ -65,11 +66,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) |
-| **Milestone corrente** | **M12 — "Nemici speciali"** → `docs/milestones/M12_Nemici_speciali.md`. La v1.0 è uscita (`v1.0.0`, poi `v1.0.1` e `v1.0.2`); gli altri lavori sono nel § 5, «Dopo la v1.0» |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) |
+| **Milestone corrente** | nessuna: la v1.1 è chiusa (`v1.1.0`). I prossimi lavori sono nel § 5, «Dopo la v1.0»: gradi degli affissi, difficoltà, oggetti unici e set |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…088) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…092) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -282,7 +283,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M9 | "Magia" | mana, incantesimi, nemico a distanza, vita del nemico combattuto, cintura al centro | 10–13 | ✅ 11 ott |
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | ✅ 17 ott |
-| M12 | "Nemici speciali" | campioni, unici, forzieri e tesoro del re; v1.1 | 9–13 | in corso |
+| M12 | "Nemici speciali" | campioni, unici, forzieri e tesoro del re; v1.1 | 9–13 | ✅ 19 ott |
 
 ---
 
@@ -447,6 +448,19 @@ Chiusa il 17 ottobre 2026 con il tag `v1.0.0`: 310 test EditMode e 199 PlayMode 
 - **Un benchmark che gioca da solo trova anche quello che nessuno cercava:** il vSync spento, con la GPU al massimo per 700 fps, è uscito dalla prima misura in build.
 - **Un test che aspetta un tempo fisso cade quando la macchina è carica:** la reazione al colpo, guardata dopo 0,15 s esatti, è caduta una volta nel giro completo. Si aspetta l'evento a ogni frame, con un limite.
 - **Un gruppo di concorrenza della CI tiene un solo run in attesa:** due build lanciate insieme ne lasciano una sola. Si lanciano una dopo l'altra.
+
+---
+
+### M12 — "Nemici speciali" ✅
+
+Chiusa il 19 ottobre 2026 con il tag `v1.1.0`: 340 test EditMode e 212 PlayMode verdi. La build di prova è saltata su scelta di Mirco. Lezioni emerse:
+
+- **Promuovere quello che c'è costa meno che aggiungere:** i campioni sono nemici già messi, e la mappa di un seme già provato è cambiata solo delle scorte. Lo stesso per il loot: il primo tiro resta, il resto ha semi suoi (ADR-089, ADR-092).
+- **Una tinta per renderer resta anche quando il materiale cambia:** il lampo del colpo prendeva il colore di Morvak. Ogni scambio di materiale al volo va guardato contro chi tinge (ADR-090).
+- **Una rilettura vale una prova, quando la prova salta:** senza la build di prova, rileggere tutto il codice della milestone ha trovato il lampo colorato, che nei test non si vedeva.
+- **Le stanze piccole hanno sempre meno posto di quanto si pensi:** l'unico in una stanzetta della cripta piena di arredi e di scorta non trovava dove mettere il forziere. La ricerca si allarga, e un test conta quante volte manca.
+- **Un modello si guarda prima di sceglierlo per un ruolo:** `trunk_large` non ha un coperchio da aprire, e `chest_gold` chiuso sembra la cassa di sempre. Le foto di prova l'hanno detto prima di Mirco.
+- **Le foto della UI vanno costruite apposta:** la tela in overlay non finisce nella texture della camera, e il lampo dura meno di due frame in batchmode.
 
 ---
 

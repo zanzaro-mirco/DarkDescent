@@ -9,6 +9,19 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.1 — M12 "Nemici speciali"**, chiusa il 19 ottobre 2026 (tag `v1.1.0`). Rispetto alla v1.0:
+
+- i **campioni**: nemici più forti, più grandi e con un anello blu sotto i piedi, con uno o due
+  modificatori (Rapido, Gelido, Rigenerante, Inamovibile, Furioso) e una scorta;
+- due **unici**, uno per mondo: **Morvak il Carceriere** nella cripta e **Grumm Spaccaossa** nelle
+  caverne, con l'anello d'oro;
+- **loot migliore** da campioni e unici, un **forziere** accanto ai capi e il **tesoro del re**,
+  sigillato in fondo alla sua sala finché il re è vivo;
+- nella barra in alto il nome nel colore del grado, con i modificatori sotto, e i punti dei nemici
+  speciali sull'automappa.
+
+![Morvak il Carceriere con l'anello d'oro e la sua scorta di scheletri; in alto il suo nome in oro con i modificatori Frozen e Unstoppable](docs/media/m12_morvak.png)
+
 **v1.0 — M11 "Look, feel e release"**, chiusa il 17 ottobre 2026 (tag `v1.0.0`). Rispetto alla M10:
 
 - un **filtro retrò** a tutto schermo (palette scura e dithering), da attivare nelle opzioni,

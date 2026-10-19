@@ -215,6 +215,26 @@ giudica in build insieme alla tinta. Test: `SpecialHudTests` (colore, riga, ling
 pannello; punto che compare quando la cella si scopre e si spegne alla morte). 339 EditMode e 212
 PlayMode verdi.
 
+## Passo 12.6 — Correzioni
+
+**Com'è andata (19 ott 2026).** Mirco ha scelto di non lanciare la build di prova: la M12 si prova
+con la build del tag. Al posto della prova, una rilettura di tutto il codice della M12, che ha trovato
+un errore. Il lampo bianco del colpo (`HitFlash`) scambia i materiali con `M_HitFlash`, uno shader URP
+Unlit che legge `_BaseColor`. La tinta di campioni, unici e cavaliere rallentato è un
+`MaterialPropertyBlock` sullo stesso `_BaseColor`, e resta sul renderer anche con il materiale
+scambiato. Così Morvak lampeggiava rosso ruggine, i campioni azzurrini e il cavaliere rallentato
+azzurro: il colpo si vedeva meno. `M_HitFlash` ora usa `Unlit/Color`, che legge `_Color`, e la tinta
+non lo tocca più. Una foto presa nello stesso frame del colpo lo conferma, e un test EditMode controlla
+che il materiale non abbia `_BaseColor`. 340 EditMode e 212 PlayMode verdi.
+
+## Passo 12.7 — Chiusura
+
+**Com'è andata (19 ott 2026).** ADR-089…092 in `DECISIONS.md`: i nemici speciali come promozione
+dopo il popolatore, la tinta con il lampo che non la legge, il Gelido come componente del cavaliere,
+il loot in più con le casse dello stesso bonus. Lezioni della M12 e stato del progetto nel piano
+(v2.43); README con la v1.1 e una foto di Morvak; `bundleVersion` 1.1.0. Il tag `v1.1.0` aspetta il via
+di Mirco: fa partire la build Windows della release.
+
 ---
 
 ## Trappole note
@@ -231,3 +251,34 @@ PlayMode verdi.
 - **Gelido e la velocità.** La `StatSheet` non ha una velocità di movimento: il rallentamento è un
   componente suo sul cavaliere, l'unico che cambia la velocità dell'agent, con una durata. Un secondo
   colpo rinnova la durata senza sommarsi, e alla fine la velocità torna quella di prima.
+- **La tinta e il lampo.** Un `MaterialPropertyBlock` resta sul renderer anche quando il materiale
+  cambia: ogni materiale scambiato al volo (il lampo del colpo) non deve leggere la proprietà tinta,
+  o prende il colore del nemico (passo 12.6).
+- **Un oggetto nuovo nella mappa sposta i ricordi dei livelli.** Scorte, forzieri e tesoro cambiano il
+  numero di nemici e di casse: i livelli di un salvataggio di prima ripartono da capo una volta
+  (ADR-079). Va bene finché il ricordo controlla i conteggi.
+- **Una foto della UI vuole la tela sulla camera.** La tela dell'HUD è in overlay e una camera che
+  renderizza in una texture non la vede: i test delle foto la passano alla camera per lo scatto.
+- **Il lampo dura 0,1 s veri.** In batchmode due frame bastano a perderlo: la foto si prende nello
+  stesso frame del colpo.
+
+---
+
+## Test
+
+- EditMode: `SpecialEnemyPlannerTests`, `SpecialEnemyMapTests`, `ChampionDataTests`, `LootBonusTests`.
+- PlayMode: `SpecialEnemyLevelTests`, `SpecialEnemyCombatTests`, `SpecialLootTests`, `SpecialHudTests`.
+- Alla chiusura: 340 EditMode e 212 PlayMode verdi, anche in CI.
+
+---
+
+## Checklist di chiusura
+
+- [x] Decisioni D1–D12 confermate
+- [x] Logica pura, popolatori e builder
+- [x] Campioni e unici in gioco, con i cinque modificatori
+- [x] Loot in più, forzieri e tesoro del re
+- [x] Barra in alto e automappa
+- [x] ~~Build di prova~~: saltata su scelta di Mirco (19 ott 2026), si prova la build del tag
+- [x] ADR, lezioni nel piano, README
+- [ ] Tag `v1.1.0`, con il via di Mirco
