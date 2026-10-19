@@ -54,3 +54,7 @@ sysinfo.txt
 /[Ll]ibrary/com.unity.addressables/
 *_BurstDebugInformation_DoNotShip*/
 *_BackUpThisFolder_ButDontShipItWithYourGame/
+
+# Python (Tools/)
+__pycache__/
+*.pyc
