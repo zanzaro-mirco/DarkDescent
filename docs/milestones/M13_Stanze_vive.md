@@ -6,16 +6,19 @@ tutti girati allo stesso modo. Al centro delle stanze grandi c'è al più un **p
 gruppo di **barili da rompere**, un **pozzo** della vita o del mana, un **santuario** che dà un bonus
 per un minuto, o una zona di **trappole**. I modelli che i pacchetti non hanno (pozzi, santuari,
 sarcofagi, statue, anfore, gabbie e gli altri della D9) li facciamo **in Blender, da script** che
-stanno nel repo. Il **loot** torna a una quantità giusta, misurata: meno oggetti, ma migliori (D13).
+stanno nel repo. Anche i **suoni** nuovi (santuari, pozzi, trappole, barili) li generiamo **da
+script**, con Python, numpy e scipy (D14). Il **loot** torna a una quantità giusta, misurata: meno oggetti, ma migliori (D13).
 Esce con il tag `v1.2.0`.
 
-**Tempo stimato:** 18–24 h (D12).
-**Prerequisito:** M12 chiusa (tag `v1.1.0`), Blender 5.2 LTS installato (19 ott 2026).
+**Tempo stimato:** 19–25 h (D12).
+**Prerequisito:** M12 chiusa (tag `v1.1.0`), Blender 5.2 LTS installato (19 ott 2026), numpy 2.5.4 e scipy
+1.18.1 installati (19 ott 2026).
 
 **Come si lavora:** come alla M12: il codice, gli script di Blender e i passaggi nell'editor li faccio
 io, in batchmode a Unity chiuso. Ogni modello nuovo passa prima da una foto accanto a un modello
-KayKit, che Mirco approva. A Mirco restano le decisioni qui sotto, le foto dei modelli e la prova in
-build.
+KayKit, che Mirco approva, e ogni suono nuovo da una pagina di ascolto accanto al suono più vicino
+che il gioco ha già. A Mirco restano le decisioni qui sotto, le foto dei modelli, l'ascolto dei suoni
+e la prova in build.
 
 ---
 
@@ -32,6 +35,7 @@ build.
 | Ricordi dei livelli | `LevelRecord`: numero di nemici e casse, nemici uccisi, casse aperte, oggetti a terra (ADR-079, formato 5). I campi nuovi si leggono anche dai salvataggi vecchi (`??=`) |
 | Modelli | KayKit *Dungeon* (gratuito): niente statue, sarcofagi, urne, gabbie, altari, pozzi. Ha `floor_tile_big_spikes` (spuntoni), `keg`, `barrel_*`, `rubble_*`. Quaternius *Ultimate RPG Items* (zip già scaricato): libri, pergamene, ossa, teschi, cristalli |
 | Blender | 5.2.2 LTS in `C:\Program Files\Blender Foundation\Blender 5.2`. Il pozzo di prova (19 ott) si costruisce, si renderizza e si esporta in FBX da script in 4 secondi, con i colori dell'atlante KayKit |
+| Suoni | `Audio/SFX/Generated` ha 13 suoni sintetizzati da script Python durante le milestone precedenti (salire di livello, monete, portale, magie, click), ma gli script non sono nel repo. La prova del 19 ott, con numpy e scipy, ha fatto quattro suoni della M13: rintocco del santuario, scatto della trappola, barile che si rompe (tutto sintetizzato e ibrido) e sorso dal pozzo. Mirco li ha approvati tutti |
 | Git LFS | `.fbx`, `.blend` e `.png` vanno già in LFS |
 | Loot | Probabilità di un oggetto per nemico: scheletro 30%, mago 35%, bruto 60%, sciame 7%; le scorte dei campioni come i nemici normali. Campione: il tiro di sempre più uno sicuro; unico: tre oggetti, uno raro (`LootBonus`, ADR-092). Cassa: un oggetto sicuro; forziere d'oro: due, accanto all'unico e al 50% dei campioni. Rarità di base 65/28/7. Stima per la cripta alla profondità 3: **circa 10 oggetti a livello**, contro i 6,5 di prima della M12; Mirco, 19 ott: "troppo" |
 | Test | 340 EditMode e 212 PlayMode verdi |
@@ -55,7 +59,8 @@ Da confermare con Mirco.
 | D9 | **Modelli in Blender** | Script Python in **`Tools/Blender/`**: una libreria comune (forme, smusso, colori dall'atlante KayKit, render di prova, export FBX con gli assi di Unity) e uno script per modello. Gli FBX in `Art/Models/DarkDescent/`. **Blender 5.2 LTS** bloccato come Unity (un ADR). Ogni modello passa da una **foto accanto a un modello KayKit** prima di entrare in Unity. Modelli: **pozzo** (vita e mana), **stele del santuario**, **barile esplosivo**, **sacchi**, **anfore** (intera e rotta), **sarcofago**, **statua** del guardiano, **gabbia**, **altare** con candele, **mucchio di libri e pergamene**. Con questi i temi si arricchiscono: la cella prende la gabbia, il deposito anfore e sacchi, lo studio i libri, e un **quinto tema, la cappella** (sarcofago, statua, altare, candele) | Mirco, 19 ott: "una sezione dove creare oggetti nuovi con Blender per arricchire il gioco". Gli script nel repo rendono ogni modello rifacibile e modificabile; la licenza è nostra |
 | D10 | **Si capisce cosa si usa** | Pozzi e santuari si evidenziano al passaggio del mouse come le casse, con il nome nell'HUD ("Santuario della Furia", "Pozzo della vita"); usati, il nome dice "(vuoto)". I barili hanno il cerchio dei bersagli dei nemici. Tutto nelle due lingue | Senza, un pozzo è un arredo come gli altri |
 | D11 | **Fuori da questa milestone** | Dalla lista di Mirco restano per dopo, nel piano: **mimic** e **bauli maledetti** (un'ondata di nemici prima di aprirsi), **porte, leve e stanze sigillate**, **lore** (leggii, diari), **prigionieri** da liberare, **statue che si animano**, pozze di acido e lava, statue che sputano fuoco | Ognuna è un sistema a sé; questa milestone resta sulle stanze |
-| D12 | **Stima** | **18–24 h**. Se servirà tagliare: prima i barili esplosivi, poi il quinto tema, poi gli spuntoni. Il loot (D13) non si taglia | Meglio deciderlo adesso che a metà |
+| D12 | **Stima** | **19–25 h**. Se servirà tagliare: prima i barili esplosivi, poi il quinto tema, poi gli spuntoni. Il loot (D13) non si taglia | Meglio deciderlo adesso che a metà |
+| D14 | **Suoni da script** | Script Python in **`Tools/Audio/`**: una libreria comune (inviluppi, filtri, risonatori, rumore, campane, bolle, riverbero a convoluzione, lettura e cambio di tono dei sample, export WAV 44,1 kHz a 16 bit normalizzato) e uno script per suono, con un **seme fisso**, così ogni WAV si rifà uguale. Versioni bloccate in `Tools/Audio/requirements.txt` (numpy 2.5.4, scipy 1.18.1). I WAV in `Audio/SFX/Generated`, nei crediti come nostri. Ogni suono passa da una **pagina di ascolto** con lo spettrogramma, accanto al suono più vicino che il gioco ha già. Suoni: **santuario** (un rintocco per tipo, con il tono che cambia), **pozzo** (sorso), **barile che si rompe** in **due varianti**, la sintetizzata e l'ibrida, scelte a caso a ogni rottura, **spuntoni** (avviso e scatto), **barile esplosivo** (miccia ed esplosione) e **fine del bonus** del santuario | Mirco, 19 ott 2026: la prova va bene, e si tengono tutti e due i barili. I suoni "geometrici" (campane, meccanismi, acqua, magie) vengono bene da script; il legno e le esplosioni vengono meglio con un sample elaborato, le voci e le creature restano ai sample |
 | D13 | **Loot: meno oggetti, ma migliori** | Obiettivo **4–5 oggetti a livello** in media, con la stessa parte di magici e rari. Probabilità per nemico: scheletro **15%**, mago **25%**, bruto **35%**, sciame **4%**; le **scorte** dei campioni a **metà** della probabilità del loro tipo. **Campione**: un solo oggetto, **sicuro**, con le rarità spostate (al posto del tiro di sempre più uno). **Unico**: **due** oggetti, uno raro. **Cassa**: oggetto al **50%**, e senza oggetto più oro o una pozione. **Forziere d'oro**: accanto all'unico e al **25%** dei campioni. Barili, pozzi e santuari della M13 entrano nel conto. I numeri si **misurano**: uno strumento nell'editor genera 200 livelli per profondità e conta gli oggetti per fonte e per rarità; un test EditMode tiene la media nella fascia | Mirco, 19 ott 2026: con tutti i mostri e gli oggetti aggiunti il loot è troppo. In un ARPG un oggetto a terra deve contare; conviene tarare tutto insieme, dopo che barili, pozzi e santuari ci sono |
 
 ---
@@ -64,7 +69,7 @@ Da confermare con Mirco.
 
 | # | Passo | Ore |
 |---|---|---|
-| 13.1 | Blender: la libreria comune in `Tools/Blender/`, il pozzo rifatto con la libreria, l'import in Unity con gli assi giusti, l'ADR della versione (D9) | 1,5–2 |
+| 13.1 | Blender e audio: la libreria comune in `Tools/Blender/`, il pozzo rifatto con la libreria, l'import in Unity con gli assi giusti, l'ADR della versione (D9); la libreria in `Tools/Audio/` con i quattro suoni della prova (D14) | 2–3 |
 | 13.2 | Arredi con un senso: via il colonnato, mai doppioni, rotazione e scarto, mucchietti per tema, punto d'interesse nella logica pura, con i test (D2–D4) | 2–3 |
 | 13.3 | Modelli per gli arredi: sacchi, anfore, sarcofago, statua, gabbia, altare, libri; le composizioni nuove e il tema della cappella (D3, D9) | 3–4 |
 | 13.4 | Barili da rompere: `Breakable`, il click, il loot con il suo seme, i ricordi del livello (D5) | 2–3 |
@@ -100,6 +105,11 @@ Da confermare con Mirco.
 - **Il loot e i semi.** Cambiare le probabilità cambia quali nemici lasciano qualcosa nei semi già
   provati: i test che aspettano un oggetto da un nemico preciso vanno guardati uno per uno. Il seme
   di ogni tiro non cambia, cambia solo la soglia.
+- **Il volume dei suoni nuovi.** Un WAV normalizzato al picco può suonare più forte o più piano
+  dei sample Kenney e Puadlung: i suoni nuovi si portano allo stesso volume medio di quelli vicini
+  (come i suoni Puadlung alzati alla M11) e si giudicano in build, non solo nella pagina di ascolto.
+- **Le due varianti del barile.** Se la scelta tra le due clip venisse dal seme dei livelli, il
+  suono cambierebbe gli altri tiri: si sceglie con un `Random` dell'audio, fuori dai semi.
 - **Le luci.** Pozzi e santuari hanno una luce colorata: con il forziere d'oro, le torce e le
   scale, una stanza può averne troppe. Si misura in build.
 
@@ -113,13 +123,15 @@ Da confermare con Mirco.
 - PlayMode: rompere un barile, usare un pozzo e un santuario, la trappola che ferisce il cavaliere,
   il barile esplosivo che ferisce i nemici, i ricordi del livello.
 - Le foto dei modelli nuovi accanto ai KayKit, prima dei prefab.
+- La pagina di ascolto dei suoni nuovi, prima di metterli nei prefab.
 
 ---
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D13 confermate
+- [ ] Decisioni D1–D14 confermate
 - [ ] Libreria Blender e primo modello in Unity
+- [ ] Libreria audio e suoni della prova nel repo
 - [ ] Arredi con un senso, senza colonnato
 - [ ] Modelli nuovi e tema della cappella
 - [ ] Barili da rompere

@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.48**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.49**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.49 | 19 ott 2026 | Su richiesta di Mirco i **suoni** nuovi della M13 si fanno **da script** (D14), con Python, numpy e scipy in `Tools/Audio/`: la prova (santuario, trappola, barile, pozzo) è approvata, e il barile ha due varianti, sintetizzata e ibrida, scelte a caso · M13 da 18–24 a 19–25 h |
 | v2.48 | 19 ott 2026 | Su richiesta di Mirco il **loot** si ritara nella M13 (D13): con i mostri e gli oggetti aggiunti cadono circa 10 oggetti a livello; l'obiettivo è 4–5, con la stessa parte di magici e rari, misurato con uno strumento che genera 200 livelli per profondità · M13 da 16–22 a 18–24 h |
 | v2.47 | 19 ott 2026 | **v1.1.1** dalla prova di Mirco della v1.1.0: i **modificatori dei campioni si vedono e si sentono** (numeri più marcati, animazioni alla velocità del Rapido, polvere, brina, bagliore e numeri verdi, scintille e "Imparabile!", aura rossa e ruggito del Furioso; ADR-093), il **negozio si chiude allontanandosi** dal mercante, il **confronto con l'oggetto indossato** anche dal banco · ADR-001…093 |
 | v2.46 | 19 ott 2026 | Decisione di Mirco sull'**albero delle abilità**: stile **World of Warcraft** (albero della classe e albero della specializzazione affiancati, nodi collegati, a più gradi e a scelta), abilità e magie imparate **salendo di livello** e non più dalle pergamene, **distinte per classe**, un albero sensato per ogni classe disegnato e approvato prima del codice; dopo la M14, con le classi nuove |
@@ -289,7 +290,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | ✅ 17 ott |
 | M12 | "Nemici speciali" | campioni, unici, forzieri e tesoro del re; v1.1 | 9–13 | ✅ 19 ott |
-| M13 | "Stanze vive" | arredi con un senso, barili da rompere, pozzi, santuari, trappole, modelli fatti in Blender, loot ritarato; v1.2 | 18–24 | in corso |
+| M13 | "Stanze vive" | arredi con un senso, barili da rompere, pozzi, santuari, trappole, modelli fatti in Blender, suoni da script, loot ritarato; v1.2 | 19–25 | in corso |
 
 ---
 
