@@ -1,0 +1,487 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": ""
+    },
+    "_meta": {
+      "title": "image"
+    }
+  },
+  "2": {
+    "class_type": "LoadBackgroundRemovalModel",
+    "inputs": {
+      "bg_removal_name": "birefnet.safetensors"
+    },
+    "_meta": {
+      "title": "background_model"
+    }
+  },
+  "3": {
+    "class_type": "RemoveBackground",
+    "inputs": {
+      "bg_removal_model": [
+        "2",
+        0
+      ],
+      "image": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "background"
+    }
+  },
+  "4": {
+    "class_type": "ImageCropToMask",
+    "inputs": {
+      "images": [
+        "1",
+        0
+      ],
+      "masks": [
+        "3",
+        0
+      ],
+      "width": 1024,
+      "height": 1024,
+      "pad_factor": 1.0,
+      "grow_mask": 0,
+      "background": "#000000"
+    },
+    "_meta": {
+      "title": "crop"
+    }
+  },
+  "5": {
+    "class_type": "CLIPVisionLoader",
+    "inputs": {
+      "clip_name": "dino_v3_vit_l.safetensors"
+    },
+    "_meta": {
+      "title": "vision"
+    }
+  },
+  "6": {
+    "class_type": "Trellis2Conditioning",
+    "inputs": {
+      "clip_vision_model": [
+        "5",
+        0
+      ],
+      "image": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "conditioning"
+    }
+  },
+  "7": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "trellis_2_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "trellis"
+    }
+  },
+  "8": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "trellis_2_shape_vae_bf16.safetensors"
+    },
+    "_meta": {
+      "title": "shape_vae"
+    }
+  },
+  "9": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "trellis_2_texture_vae_bf16.safetensors"
+    },
+    "_meta": {
+      "title": "texture_vae"
+    }
+  },
+  "10": {
+    "class_type": "CFGOverride",
+    "inputs": {
+      "cfg": 1.0,
+      "start_percent": 0.667,
+      "end_percent": 1.0,
+      "model": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "structure_cfg"
+    }
+  },
+  "11": {
+    "class_type": "RescaleCFG",
+    "inputs": {
+      "multiplier": 0.7,
+      "model": [
+        "10",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "structure_rescale"
+    }
+  },
+  "12": {
+    "class_type": "ModelSamplingSD3",
+    "inputs": {
+      "shift": 5.0,
+      "model": [
+        "11",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "structure_shift"
+    }
+  },
+  "13": {
+    "class_type": "EmptyTrellis2LatentStructure",
+    "inputs": {
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "structure_latent"
+    }
+  },
+  "14": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 0,
+      "steps": 12,
+      "cfg": 7.5,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": [
+        "12",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "6",
+        1
+      ],
+      "latent_image": [
+        "13",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "structure"
+    }
+  },
+  "15": {
+    "class_type": "VaeDecodeStructureTrellis2",
+    "inputs": {
+      "resolution": "32",
+      "samples": [
+        "14",
+        0
+      ],
+      "vae": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "structure_decode"
+    }
+  },
+  "16": {
+    "class_type": "Trellis2ShapeStage",
+    "inputs": {
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "6",
+        1
+      ],
+      "voxel": [
+        "15",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "shape_stage"
+    }
+  },
+  "17": {
+    "class_type": "CFGOverride",
+    "inputs": {
+      "cfg": 1.0,
+      "start_percent": 0.769,
+      "end_percent": 1.0,
+      "model": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "shape_cfg"
+    }
+  },
+  "18": {
+    "class_type": "RescaleCFG",
+    "inputs": {
+      "multiplier": 0.5,
+      "model": [
+        "17",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "shape_rescale"
+    }
+  },
+  "19": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 0,
+      "steps": 20,
+      "cfg": 7.5,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": [
+        "18",
+        0
+      ],
+      "positive": [
+        "16",
+        0
+      ],
+      "negative": [
+        "16",
+        1
+      ],
+      "latent_image": [
+        "16",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "shape"
+    }
+  },
+  "20": {
+    "class_type": "VaeDecodeShapeTrellis",
+    "inputs": {
+      "samples": [
+        "19",
+        0
+      ],
+      "vae": [
+        "8",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "shape_decode"
+    }
+  },
+  "21": {
+    "class_type": "Trellis2TextureStage",
+    "inputs": {
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "6",
+        1
+      ],
+      "shape_latent": [
+        "19",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "texture_stage"
+    }
+  },
+  "22": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 0,
+      "steps": 12,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": [
+        "7",
+        0
+      ],
+      "positive": [
+        "21",
+        0
+      ],
+      "negative": [
+        "21",
+        1
+      ],
+      "latent_image": [
+        "21",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "texture"
+    }
+  },
+  "23": {
+    "class_type": "VaeDecodeTextureTrellis",
+    "inputs": {
+      "samples": [
+        "22",
+        0
+      ],
+      "vae": [
+        "9",
+        0
+      ],
+      "shape_subdivides": [
+        "20",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "texture_decode"
+    }
+  },
+  "24": {
+    "class_type": "RemeshMesh",
+    "inputs": {
+      "mesh": [
+        "20",
+        0
+      ],
+      "resolution": 512,
+      "sign_mode": "udf",
+      "sign_mode.qef": false,
+      "sign_mode.drop_inverted_components": false,
+      "sign_mode.drop_enclosed_components": false,
+      "band": 1.0,
+      "project_back": 0.0,
+      "fix_poles": false,
+      "smooth_iters": 20,
+      "drop_small_components": 0.01,
+      "precluster_max_verts": 20000000
+    },
+    "_meta": {
+      "title": "remesh"
+    }
+  },
+  "25": {
+    "class_type": "DecimateMesh",
+    "inputs": {
+      "target_face_count": 8000,
+      "placement_mode": "midpoint",
+      "mesh": [
+        "24",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "faces"
+    }
+  },
+  "26": {
+    "class_type": "MeshSmoothNormals",
+    "inputs": {
+      "crease_angle": 180.0,
+      "mesh": [
+        "25",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "normals"
+    }
+  },
+  "27": {
+    "class_type": "UnwrapMesh",
+    "inputs": {
+      "segmenter": "pec",
+      "resolution": 1024,
+      "padding": 1,
+      "weld_distance": 0.0002,
+      "mesh": [
+        "26",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "unwrap"
+    }
+  },
+  "28": {
+    "class_type": "BakeTextureFromVoxel",
+    "inputs": {
+      "texture_size": 1024,
+      "mesh": [
+        "27",
+        0
+      ],
+      "voxel_colors": [
+        "23",
+        0
+      ],
+      "reference_mesh": [
+        "20",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "bake"
+    }
+  },
+  "29": {
+    "class_type": "ApplyTextureToMesh",
+    "inputs": {
+      "mesh": [
+        "27",
+        0
+      ],
+      "base_color": [
+        "28",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "apply"
+    }
+  },
+  "30": {
+    "class_type": "SaveGLB",
+    "inputs": {
+      "filename_prefix": "darkdescent/model",
+      "mesh": [
+        "29",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "save"
+    }
+  }
+}

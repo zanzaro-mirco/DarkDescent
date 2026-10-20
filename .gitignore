@@ -58,3 +58,6 @@ sysinfo.txt
 # Python (Tools/)
 __pycache__/
 *.pyc
+
+# Modelli generati con ComfyUI prima della rifinitura (Tools/ComfyUI/make.py)
+/Tools/ComfyUI/out/
