@@ -68,6 +68,15 @@ namespace DarkDescent.Levels
                     }
                 }
 
+                // dove la scorta più piccola ci sta tutta, se c'è un posto così: con gli arredi della M13
+                // una cella stretta può lasciare l'unico da solo
+                int needed = Math.Min(rules.Escort.x, rules.Escort.y);
+                var roomy = free.FindAll(cell => EscortCells(layout, rules, cell).Count >= needed);
+                if (roomy.Count > 0)
+                {
+                    free = roomy;
+                }
+
                 if (free.Count > 0)
                 {
                     var pick = free[Range(random, 0, free.Count - 1)];
@@ -281,6 +290,18 @@ namespace DarkDescent.Levels
         // alla scala o alla porta del re: lì si deve poter arrivare.
         private static void AddEscort(DungeonLayout layout, SpecialEnemyRules rules, Vector2Int leader, char symbol, Vector2Int range, IRandomSource random)
         {
+            var free = EscortCells(layout, rules, leader);
+            int count = Range(random, Math.Min(range.x, range.y), Math.Max(range.x, range.y));
+            Shuffle(free, random);
+            for (int i = 0; i < count && i < free.Count; i++)
+            {
+                layout.TryPlace(symbol, free[i].x, free[i].y);
+            }
+        }
+
+        // Le celle libere attorno al capo dove può stare la scorta: nella sua stanza, se è in una stanza
+        private static List<Vector2Int> EscortCells(DungeonLayout layout, SpecialEnemyRules rules, Vector2Int leader)
+        {
             RectInt? room = RoomOf(layout, leader);
             var free = new List<Vector2Int>();
             int radius = rules.EscortRadius;
@@ -297,12 +318,7 @@ namespace DarkDescent.Levels
                 }
             }
 
-            int count = Range(random, Math.Min(range.x, range.y), Math.Max(range.x, range.y));
-            Shuffle(free, random);
-            for (int i = 0; i < count && i < free.Count; i++)
-            {
-                layout.TryPlace(symbol, free[i].x, free[i].y);
-            }
+            return free;
         }
 
         private static RectInt? RoomOf(DungeonLayout layout, Vector2Int cell)

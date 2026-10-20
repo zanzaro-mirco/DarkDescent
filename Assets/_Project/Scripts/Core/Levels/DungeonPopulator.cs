@@ -28,9 +28,11 @@ namespace DarkDescent.Levels
 
         /// <summary>
         /// Le composizioni di mobili per tema (D4 della M11), cinque per tema dal passo 11.7: deposito,
-        /// studio, cella, rovina. Ognuna occupa una cella contro un muro ed è un ostacolo.
+        /// studio, cella, rovina; dal passo 13.3 sacchi e anfore nel deposito, la gabbia nella cella e il
+        /// quinto tema, la cappella (sarcofago, statua, altare). Ognuna occupa una cella contro un muro
+        /// ed è un ostacolo. Le lettere sono finite: i simboli nuovi sono cifre e segni.
         /// </summary>
-        public static readonly string[] DecorThemes = { "DEFad", "LNOeg", "RUVhj", "WYZnq" };
+        public static readonly string[] DecorThemes = { "DEFad78", "LNOeg", "RUVhj9", "WYZnq", "+&%=" };
 
         /// <summary>
         /// Un gruppo di barili al centro della stanza, il punto d'interesse più comune (D4 della M13): un
@@ -42,21 +44,23 @@ namespace DarkDescent.Levels
         public const int MinFeatureRoom = 5;
 
         /// <summary>
-        /// I mucchietti a terra (passo 11.7 della M11): ossa e teschi, piatti e bottiglie, armi rotte.
-        /// Stanno anche in mezzo alla stanza e si attraversano: non sono ostacoli.
+        /// I mucchietti a terra (passo 11.7 della M11): ossa e teschi, piatti e bottiglie, armi rotte; dal
+        /// passo 13.3 libri, macerie, cocci, catene e candele. Stanno anche in mezzo alla stanza e si
+        /// attraversano: non sono ostacoli.
         /// </summary>
-        public const string ScatterSymbols = "vyz";
+        public const string ScatterSymbols = "vyz23456";
 
         /// <summary>Piatti e bottiglie: solo accanto a un mobile della stanza (D3 della M13).</summary>
         public const char TableScatterSymbol = 'y';
 
         /// <summary>
         /// I mucchietti di ogni tema, nello stesso ordine di <see cref="DecorThemes"/> (D3 della M13):
-        /// piatti e bottiglie nel deposito e nello studio, ossa nella cella, armi rotte nella rovina.
+        /// piatti e bottiglie e cocci nel deposito, piatti e bottiglie e libri nello studio, ossa e catene
+        /// nella cella, armi rotte e macerie nella rovina, candele nella cappella.
         /// </summary>
-        public static readonly string[] ScatterThemes = { "y", "y", "v", "z" };
+        public static readonly string[] ScatterThemes = { "y4", "y2", "v5", "z3", "6" };
 
-        private const string DecorSymbols = "DEFLNORUVWYZadeghjnq0vyz";
+        private static readonly string DecorSymbols = string.Concat(DecorThemes) + BarrelGroupSymbol + ScatterSymbols;
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 

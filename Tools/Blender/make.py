@@ -8,7 +8,8 @@ Senza nomi li fa tutti; --out cambia la cartella degli FBX (Assets/_Project/Art/
 
 Ogni modulo in models/ dichiara MODELS (nome del FBX -> funzione che riceve il materiale e restituisce
 l'oggetto), COMPARE (percorso sotto Art/Models/KayKit del modello di confronto e, se serve, i nomi delle
-mesh da tenere) e PHOTO (centro e ampiezza dell'inquadratura).
+mesh da tenere) e PHOTO (centro e ampiezza dell'inquadratura); COMPARES e PHOTOS, se ci sono, li
+cambiano per un modello solo.
 """
 import argparse
 import importlib
@@ -32,7 +33,8 @@ def modules():
 def photo(module, name, build, out_dir):
     meshlib.reset()
     mat = meshlib.material()
-    path, keep = module.COMPARE
+    path, keep = getattr(module, "COMPARES", {}).get(name, module.COMPARE)
+    framing = getattr(module, "PHOTOS", {}).get(name, module.PHOTO)
     ours = [build(mat)]
     lo, hi = meshlib.bounds(ours)
     gap = (hi.x - lo.x) / 2 + 0.4
@@ -40,7 +42,7 @@ def photo(module, name, build, out_dir):
     olo, ohi = meshlib.bounds(original)
     meshlib.place(original, -((ohi.x - olo.x) / 2 + 0.4))
     meshlib.place(ours, gap)
-    meshlib.render(os.path.join(out_dir, name + ".png"), Vector(module.PHOTO["target"]), module.PHOTO["ortho"])
+    meshlib.render(os.path.join(out_dir, name + ".png"), Vector(framing["target"]), framing["ortho"])
 
 
 def main():

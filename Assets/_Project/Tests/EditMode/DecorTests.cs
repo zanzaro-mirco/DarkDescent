@@ -141,6 +141,26 @@ namespace DarkDescent.Tests
             Assert.Greater(scatterSeen, Seeds, "almeno un mucchietto a livello");
         }
 
+        [Test, Description("Tutti e cinque i temi compaiono, cappella compresa, e ogni composizione e ogni mucchietto esce almeno una volta in 100 livelli (passo 13.3)")]
+        public void EveryThemeAndPieceShowsUp()
+        {
+            var generator = new DungeonGenerator(_settings);
+            var seen = new HashSet<char>();
+            for (ulong seed = 1; seed <= Seeds; seed++)
+            {
+                var layout = generator.Generate(seed, 2);
+                foreach (var cell in Cells(layout, DungeonPopulator.IsDecor))
+                {
+                    seen.Add(layout[cell.x, cell.y]);
+                }
+            }
+
+            foreach (char symbol in string.Concat(DungeonPopulator.DecorThemes) + DungeonPopulator.ScatterSymbols)
+            {
+                Assert.IsTrue(seen.Contains(symbol), $"'{symbol}' non esce mai");
+            }
+        }
+
         [Test, Description("Piatti e bottiglie stanno solo accanto a un mobile della stanza (D3 della M13)")]
         public void TableScatter_LiesBesideFurniture()
         {

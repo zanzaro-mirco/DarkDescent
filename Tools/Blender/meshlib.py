@@ -17,19 +17,33 @@ KAYKIT = os.path.join(ART, "KayKit")
 OUTPUT = os.path.join(ART, "DarkDescent")
 ATLAS = os.path.join(KAYKIT, "Dungeon", "dungeon_texture.png")
 
-# Riquadri dell'atlante: (colonna, riga dall'alto)
+# Riquadri dell'atlante: (colonna, riga dall'alto). Ogni riquadro è un gradiente, chiaro in alto.
 STONE_DARK = (0, 0)
 STEEL = (1, 0)
 WOOD_LIGHT = (2, 0)
 BLACK = (3, 0)
 WOOD = (4, 0)
 STONE = (5, 0)
+TERRACOTTA = (6, 0)
 WOOD_DARK = (7, 0)
-GREEN = (2, 2)
+WHITE = (0, 1)
+BURLAP = (1, 1)
+SLATE = (2, 1)
+VIOLET = (3, 1)
+CRIMSON = (4, 1)
+LEAF = (1, 2)
+PINK = (2, 2)
 RED = (3, 2)
 GOLD = (5, 2)
-PURPLE = (6, 2)
+SKY = (6, 2)
+FLAME = (7, 2)
+PAPER = (0, 3)
+OCHRE = (1, 3)
 BLUE = (2, 3)
+GREY = (5, 3)
+# nomi della prova del pozzo
+GREEN = PINK
+PURPLE = SKY
 
 
 # ---------------------------------------------------------------- scena e materiale
@@ -153,11 +167,93 @@ def crystal(bm, r, z0, zmid, z1, tile, sides=6, cx=0.0, cy=0.0):
     return faces
 
 
+def torus(bm, center, radius, thickness, tile, rot_z=0.0, rot_x=0.0, sides=10, segments=6):
+    """Un anello (una maglia di catena, un cerchio): raggio dell'anello e spessore, girato attorno a Z
+    e poi a X, centrato in center."""
+    m = Matrix.Translation(Vector(center)) @ Matrix.Rotation(rot_z, 4, "Z") @ Matrix.Rotation(rot_x, 4, "X")
+    rings = []
+    for i in range(sides):
+        a = 2 * math.pi * i / sides
+        ring_verts = []
+        for j in range(segments):
+            b = 2 * math.pi * j / segments
+            r = radius + thickness * math.cos(b)
+            ring_verts.append(bm.verts.new(m @ Vector((r * math.cos(a), r * math.sin(a), thickness * math.sin(b)))))
+        rings.append(ring_verts)
+    faces = []
+    for i in range(sides):
+        k = (i + 1) % sides
+        for j in range(segments):
+            l = (j + 1) % segments
+            faces.append(bm.faces.new((rings[i][j], rings[k][j], rings[k][l], rings[i][l])))
+    zs = [v.co.z for r in rings for v in r]
+    paint(bm, faces, tile, min(zs), max(zs))
+    return faces
+
+
+def rock(bm, rng, center, size, tile, jitter=0.25):
+    """Un sasso: una scatola con i vertici spostati a caso (rng è un random.Random con seme)."""
+    faces = box(bm, (0, 0, 0), size, tile)
+    verts = list({v for f in faces for v in f.verts})
+    verts.sort(key=lambda v: (round(v.co.x, 4), round(v.co.y, 4), round(v.co.z, 4)))
+    m = Matrix.Translation(Vector(center)) @ Matrix.Rotation(rng.uniform(0, 2 * math.pi), 4, "Z")
+    for v in verts:
+        v.co = Vector((v.co.x * (1 + rng.uniform(-jitter, jitter)), v.co.y * (1 + rng.uniform(-jitter, jitter)),
+                       v.co.z * (1 + rng.uniform(-jitter, jitter) * 0.6)))
+        v.co = m @ v.co
+    zs = [v.co.z for v in verts]
+    paint(bm, faces, tile, min(zs), max(zs))
+    return faces
+
+
+def jagged_lathe(bm, profile, sides, tile, rng, rim_drop=0.25, cap_bottom=None):
+    """Come lathe, ma l'ultimo anello scende a caso: un vaso rotto. Il bordo resta aperto."""
+    rings = [_circle(bm, sides, r, z) for r, z in profile]
+    top = rings[-1]
+    for v in top:
+        v.co.z -= rng.uniform(0, rim_drop)
+    z0, z1 = profile[0][1], profile[-1][1]
+    faces = []
+    for j in range(len(rings) - 1):
+        for i in range(sides):
+            k = (i + 1) % sides
+            faces.append(bm.faces.new((rings[j][i], rings[j][k], rings[j + 1][k], rings[j + 1][i])))
+    if cap_bottom is not None:
+        faces.append(bm.faces.new(list(reversed(rings[0]))))
+    paint(bm, faces, tile, z0, z1)
+    return faces
+
+
+def beam(bm, p0, p1, thickness, tile):
+    """Una trave a sezione quadrata da p0 a p1: un braccio, un bastone, una sbarra storta."""
+    a, b = Vector(p0), Vector(p1)
+    d = b - a
+    faces = box(bm, (0, 0, 0), (thickness, thickness, d.length), tile)
+    m = Matrix.Translation((a + b) / 2) @ Vector((0, 0, 1)).rotation_difference(d.normalized()).to_matrix().to_4x4()
+    for v in {v for f in faces for v in f.verts}:
+        v.co = m @ v.co
+    zs = [v.co.z for f in faces for v in f.verts]
+    paint(bm, faces, tile, min(zs), max(zs))
+    return faces
+
+
+def transform(faces, center=(0, 0, 0), rot_z=0.0, rot_x=0.0, rot_y=0.0):
+    """Sposta e gira un gruppo di facce già fatte (attorno all'origine)."""
+    m = (Matrix.Translation(Vector(center)) @ Matrix.Rotation(rot_z, 4, "Z") @ Matrix.Rotation(rot_y, 4, "Y")
+         @ Matrix.Rotation(rot_x, 4, "X"))
+    for v in {v for f in faces for v in f.verts}:
+        v.co = m @ v.co
+
+
 def finish(bm, name, mat, bevel=0.022):
-    """Spigoli smussati come nei KayKit, facce piatte, un oggetto nella scena."""
+    """Spigoli smussati come nei KayKit, facce piatte, la base a terra, un oggetto nella scena."""
     bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
     if bevel > 0:
         bmesh.ops.bevel(bm, geom=list(bm.edges), offset=bevel, segments=1, affect="EDGES", clamp_overlap=True)
+    # appoggiato a terra: un pezzo inclinato non deve finire sotto il pavimento
+    ground = min(v.co.z for v in bm.verts)
+    for v in bm.verts:
+        v.co.z -= ground
     mesh = bpy.data.meshes.new(name)
     bm.to_mesh(mesh)
     bm.free()

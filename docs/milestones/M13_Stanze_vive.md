@@ -153,6 +153,36 @@ profondità 3, tutti i tipi presenti; il tiro; la rotazione dalla cella) e `Dung
 accanto a Morvak solo a sud, dove ora c'è un gruppo di barili: prova i quattro lati. 348 EditMode
 e 215 PlayMode verdi.
 
+## Passo 13.3 — Modelli per gli arredi
+
+**Com'è andata (20 ott 2026).** Dieci modelli nuovi in `Tools/Blender/models/`, uno script per tema:
+`storage.py` (sacco rattoppato e legato, anfora, anfora rotta con i cocci curvi e il collo rotolato),
+`study.py` (pila di libri con segnalibri e angoli d'ottone, libro aperto, calamaio con la penna,
+pergamena), `cell.py` (catene con piastra imbullonata e manette, gabbia con porta, cardini e
+lucchetto), `ruin.py` (macerie con rocchio, capitello e asse spezzata), `chapel.py` (sarcofago con il
+coperchio appena scostato, statua del guardiano incappucciato con la spada, altare con drappo,
+candelabro e libro). Due giri di foto accanto ai KayKit; nel secondo Mirco ha chiesto di raffinarli
+ancora. La libreria ha preso `torus`, `rock`, `jagged_lathe`, `beam` e `transform`, i nomi di tutti i
+riquadri dell'atlante, e un confronto e un'inquadratura per modello (`COMPARES`, `PHOTOS`); `finish`
+appoggia ogni modello a terra (un libro inclinato finiva 4 cm sotto il pavimento).
+
+**Prefab e temi.** Le lettere sono finite: i simboli nuovi sono cifre e segni. Deposito: `7`
+(sacchi e anfora), `8` (anfore e sacco). Cella: `9` (la gabbia, con dentro le ossa del mucchietto di
+sempre). Il **quinto tema, la cappella**: `+` sarcofago, `&` statua con le candele, `%` altare, `=`
+due urne con le candele (prima era un secondo sarcofago: in una stanza sembravano copie). Mucchietti:
+`2` libri (studio), `3` macerie (rovina), `4` cocci (deposito), `5` catene (cella), `6` candele
+(cappella). Con cinque temi ogni stanza può cambiare tema rispetto a prima, come previsto nelle
+trappole note.
+
+**Una correzione al pianificatore dei nemici speciali.** Con più arredi l'unico poteva finire in una
+cella stretta, senza posto per la scorta (seme 32 della cripta): ora sceglie tra le celle dove la
+scorta più piccola ci sta, se ce ne sono (`SpecialEnemyPlanner.EscortCells`).
+
+Test: `DecorTests.EveryThemeAndPieceShowsUp` (in 100 livelli esce ogni composizione e ogni
+mucchietto, cappella compresa); gli altri test degli arredi coprono i simboli nuovi da soli
+(tileset, collider, dentro la cella, niente doppioni, mucchietti del tema). `CREDITS.md` ha la riga
+dei modelli fatti in Blender, pozzo compreso. 349 EditMode e 215 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -207,7 +237,7 @@ e 215 PlayMode verdi.
 - [x] Libreria Blender e primo modello in Unity
 - [x] Libreria audio e suoni della prova nel repo
 - [x] Arredi con un senso, senza colonnato
-- [ ] Modelli nuovi e tema della cappella
+- [x] Modelli nuovi e tema della cappella
 - [ ] ComfyUI configurato e provato, ADR delle licenze
 - [ ] Barili da rompere
 - [ ] Pozzi e santuari
