@@ -6,10 +6,11 @@ COMPARE = ("da script", "Generated/well_drink.wav")
 MAX_DUR = None
 SOUNDS = {
     "well_drink_sa": {
-        "prompt": ("Wooden bucket dipped into a stone well, water splashing, three quick gulps of "
-                   "drinking, drops falling back into the water with a soft echo"),
+        "prompt": ("Clear water splashing in a stone well: a wooden bucket plunges into the water with a "
+                   "bright splash, water sloshes and pours from the bucket, then drops trickle back and "
+                   "drip into the well, wet and close, echoing stone shaft"),
         "negative": "music, melody, speech, voice, low quality, distorted, noise hiss",
-        "seconds": 3.0,
-        "seed": 1304,
+        "seconds": 3.5,
+        "seed": 1402,
     },
 }

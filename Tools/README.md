@@ -17,3 +17,11 @@ In `ComfyUI/` i workflow sono in formato API in `workflows/` e il client cambia 
 del nodo; le ricette (`sounds/`, `models/`) tengono prompt e seme di ogni asset. Un modello generato
 esce in GLB in `ComfyUI/out/`, fuori dal repo, e `ComfyUI/views.py` lo fotografa in Blender accanto
 alla versione da script.
+
+ComfyUI si può avviare anche senza l'app, con il Python dell'installazione e i modelli della
+cartella condivisa, e poi si passa `--host 127.0.0.1:8199` a `make.py`:
+
+```
+%LOCALAPPDATA%\Comfy-Desktop\ComfyUI-Installs\DarkDescent\ComfyUI\.venv\Scripts\python.exe main.py --port 8199
+    --disable-auto-launch --extra-model-paths-config "%APPDATA%\Comfy Desktop\instance-model-paths\<istanza>.yaml"
+```

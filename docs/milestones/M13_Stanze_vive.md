@@ -63,7 +63,7 @@ Confermate da Mirco il 19 ottobre 2026, tutte come proposte.
 | D12 | **Stima** | **22–28 h**. Se servirà tagliare: prima i barili esplosivi, poi il quinto tema, poi gli spuntoni. Il loot (D13) non si taglia | Meglio deciderlo adesso che a metà |
 | D14 | **Suoni da script** | Script Python in **`Tools/Audio/`**: una libreria comune (inviluppi, filtri, risonatori, rumore, campane, bolle, riverbero a convoluzione, lettura e cambio di tono dei sample, export WAV 44,1 kHz a 16 bit normalizzato) e uno script per suono, con un **seme fisso**, così ogni WAV si rifà uguale. Versioni bloccate in `Tools/Audio/requirements.txt` (numpy 2.5.4, scipy 1.18.1). I WAV in `Audio/SFX/Generated`, nei crediti come nostri. Ogni suono passa da una **pagina di ascolto** con lo spettrogramma, accanto al suono più vicino che il gioco ha già. Suoni: **santuario** (un rintocco per tipo, con il tono che cambia), **pozzo** (sorso), **barile che si rompe** in **due varianti**, la sintetizzata e l'ibrida, scelte a caso a ogni rottura, **spuntoni** (avviso e scatto), **barile esplosivo** (miccia ed esplosione) e **fine del bonus** del santuario | Mirco, 19 ott 2026: la prova va bene, e si tengono tutti e due i barili. I suoni "geometrici" (campane, meccanismi, acqua, magie) vengono bene da script; il legno e le esplosioni vengono meglio con un sample elaborato, le voci e le creature restano ai sample |
 | D15 | **ComfyUI per suoni e modelli generati** | ComfyUI Desktop sul PC di Mirco, guidato da Claude attraverso l'API locale (`127.0.0.1:8188`) con un piccolo client Python in `Tools/ComfyUI/`: workflow in formato API nel repo, prompt e seme di ogni asset salvati accanto, così ogni risultato si rifà. **Audio**: Stable Audio 3.0 **Small SFX** (`stable_audio_3_small_sfx`, 2,27 GB, più l'encoder `t5gemma_b_b_ul2`, 1,19 GB), licenza *stable-audio-community*. **3D**: TRELLIS.2 in **int8** (`trellis_2_int8_convrot`, 5,25 GB, più i due VAE e DINOv3, circa 3,3 GB) a risoluzione 512 per i 12 GB di VRAM, senza il ramo Pixal3D (segnalato come bloccato nell'UE). I modelli li scarica Mirco. Ogni asset generato passa dalla stessa prova di quelli da script (pagina di ascolto o foto accanto ai KayKit), si rifinisce con `Tools/Audio` o `Tools/Blender`, e va in `CREDITS.md` con il modello e la licenza. Le licenze (DINOv3 sui risultati, registrazione Stability per l'uso commerciale) si chiudono in un ADR prima del primo asset nel gioco | Mirco, 20 ott 2026: ComfyUI installato per generare suoni e modelli. La prova del 19 ott ha mostrato che lo script regge le forme geometriche ma non quelle organiche (l'elmo); un modello generato può fare da base per la statua e i pezzi organici, e Stable Audio può dare il legno, l'acqua e i colpi che la sintesi fa peggio |
-| D16 | **Immagine di partenza: una foto da Blender, nello stile KayKit** | TRELLIS.2 parte da un'immagine. Quella standard è una **foto da Blender** di una bozza dell'oggetto: un modello di `Tools/Blender` o pezzi KayKit montati insieme (CC0), fotografati di tre quarti su sfondo uniforme con `Tools/ComfyUI/views.py reference`. La bozza può essere grossolana (proporzioni e colori giusti), il dettaglio organico lo aggiunge TRELLIS; lo stile resta KayKit perché forme e colori sono nostri, e la foto non porta licenze nuove. La foto sta nel repo accanto alla ricetta. **Facoltativo, da decidere dopo la prova**: un workflow testo → immagine per gli oggetti che non vale la pena abbozzare, con Z-Image-Turbo (Apache 2.0; int8 circa 12 GB, nvfp4 circa 8,3 GB) e un prompt in stile KayKit. Scartati: Flux.1 dev e SDXL-Turbo (licenze non commerciali), Flux.2 Klein 4B (il VAE dei workflow di ComfyUI viene da un repository con licenza non commerciale), i nodi API a pagamento. Il GLB diventa FBX con un comando di `views.py` (assi di Unity, scala della cella, base a terra, davanti verso la stanza) **solo dopo la foto e il sì di Mirco**: niente va dritto negli asset | Mirco, 20 ott 2026: una pipeline trovata in rete proponeva testo → immagine → TRELLIS → Blender → FBX in stile Diablo IV. Lo stile resta KayKit; della proposta si tiene la conversione in FBX, e per l'immagine Mirco sceglie la foto da Blender, senza scaricare un modello in più |
+| D16 | **Immagine di partenza: una foto da Blender, nello stile KayKit** | TRELLIS.2 parte da un'immagine. Quella standard è una **foto da Blender** di una bozza dell'oggetto: un modello di `Tools/Blender` o pezzi KayKit montati insieme (CC0), fotografati di tre quarti su sfondo uniforme con `Tools/ComfyUI/views.py reference`. La bozza può essere grossolana (proporzioni e colori giusti), il dettaglio organico lo aggiunge TRELLIS; lo stile resta KayKit perché forme e colori sono nostri, e la foto non porta licenze nuove. La foto sta nel repo accanto alla ricetta. Un workflow testo → immagine per gli oggetti che non vale la pena abbozzare, con Z-Image-Turbo (Apache 2.0, circa 8,3 GB in nvfp4) e un prompt in stile KayKit, è negli **sviluppi dopo la v1.0** (Mirco, 20 ott 2026, dopo la prova del 13.4). Scartati: Flux.1 dev e SDXL-Turbo (licenze non commerciali), Flux.2 Klein 4B (il VAE dei workflow di ComfyUI viene da un repository con licenza non commerciale), i nodi API a pagamento. Il GLB diventa FBX con un comando di `views.py` (assi di Unity, scala della cella, base a terra, davanti verso la stanza) **solo dopo la foto e il sì di Mirco**: niente va dritto negli asset | Mirco, 20 ott 2026: una pipeline trovata in rete proponeva testo → immagine → TRELLIS → Blender → FBX in stile Diablo IV. Lo stile resta KayKit; della proposta si tiene la conversione in FBX, e per l'immagine Mirco sceglie la foto da Blender, senza scaricare un modello in più |
 | D13 | **Loot: meno oggetti, ma migliori** | Obiettivo **4–5 oggetti a livello** in media, con la stessa parte di magici e rari. Probabilità per nemico: scheletro **15%**, mago **25%**, bruto **35%**, sciame **4%**; le **scorte** dei campioni a **metà** della probabilità del loro tipo. **Campione**: un solo oggetto, **sicuro**, con le rarità spostate (al posto del tiro di sempre più uno). **Unico**: **due** oggetti, uno raro. **Cassa**: oggetto al **50%**, e senza oggetto più oro o una pozione. **Forziere d'oro**: accanto all'unico e al **25%** dei campioni. Barili, pozzi e santuari della M13 entrano nel conto. I numeri si **misurano**: uno strumento nell'editor genera 200 livelli per profondità e conta gli oggetti per fonte e per rarità; un test EditMode tiene la media nella fascia | Mirco, 19 ott 2026: con tutti i mostri e gli oggetti aggiunti il loot è troppo. In un ARPG un oggetto a terra deve contare; conviene tarare tutto insieme, dopo che barili, pozzi e santuari ci sono |
 
 ---
@@ -184,6 +184,32 @@ mucchietto, cappella compresa); gli altri test degli arredi coprono i simboli nu
 (tileset, collider, dentro la cella, niente doppioni, mucchietti del tema). `CREDITS.md` ha la riga
 dei modelli fatti in Blender, pozzo compreso. 349 EditMode e 215 PlayMode verdi.
 
+## Passo 13.4 — ComfyUI
+
+**Com'è andata (20 ott 2026).** `Tools/ComfyUI/` guida ComfyUI attraverso l'API locale, con la sola
+libreria standard. `comfy.py` cambia gli ingressi per titolo del nodo, controlla i modelli che mancano
+(`make.py --check`), carica le immagini, mette in coda e scarica i risultati. Ci sono due workflow in
+formato API: `stable_audio_sfx` (8 passi, lcm) e `trellis2_image_to_model` (la pipeline a 512 senza
+Pixal3D, poi ricostruzione, riduzione a 8000 facce, UV, texture 1024 e GLB). Prima che Mirco scaricasse
+i modelli li ho validati su un ComfyUI temporaneo con file finti. I modelli sono nella cartella
+condivisa dell'app (`ComfyUI-Shared/models`), e per la prova ComfyUI è girato senza l'app, sulla porta
+8199. `soundfile` legge i FLAC che ComfyUI salva.
+
+**Suoni.** Quattro ricette, tre semi l'una, in 17 s; per il pozzo ne sono serviti quattro in più,
+con un prompt nuovo che parla solo d'acqua (il primo, con i sorsi, dava colpi cupi). Mirco ha scelto
+le versioni generate: barile 1301, santuario 1302, trappola 1303, pozzo 1402. Rigenerati da ricetta,
+i WAV escono identici a quelli ascoltati. Nei passi 13.5–13.7 il gioco usa le versioni `_sa`: il
+barile generato entra tra quelli scelti a caso, con i due da script (D14); santuario, trappola e pozzo
+usano il loro. I WAV da script restano come riserva.
+
+**Modelli.** TRELLIS ha rifatto la statua in 40 s partendo dalla foto della versione da script
+(`views.py reference`): 7996 facce contro 1721, quasi uguale, più morbida, con la targa copiata anche
+sul retro. Da una foto senza dettaglio non ne aggiunge: la statua resta quella da script. Mirco ha
+deciso di non scaricare Z-Image per ora: l'immagine di partenza da testo, la conversione da GLB a FBX
+e la lettura della licenza di DINOv3 vanno negli sviluppi dopo la v1.0 del piano.
+
+ADR-096 (suoni generati e licenze). `CREDITS.md` ha la riga dei suoni generati.
+
 ---
 
 ## Trappole note
@@ -239,7 +265,7 @@ dei modelli fatti in Blender, pozzo compreso. 349 EditMode e 215 PlayMode verdi.
 - [x] Libreria audio e suoni della prova nel repo
 - [x] Arredi con un senso, senza colonnato
 - [x] Modelli nuovi e tema della cappella
-- [ ] ComfyUI configurato e provato, con la foto di partenza da Blender e la conversione in FBX; ADR delle licenze
+- [x] ComfyUI configurato e provato: suoni generati nel gioco, TRELLIS provato sulla statua; ADR-096
 - [ ] Barili da rompere
 - [ ] Pozzi e santuari
 - [ ] Trappole

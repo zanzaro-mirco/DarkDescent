@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.51**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.52**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.52 | 20 ott 2026 | Passo 13.4 fatto: i suoni della M13 generati con Stable Audio 3 piacciono a Mirco ed entrano nel gioco (ADR-096). TRELLIS.2 da una foto da Blender rifà lo stesso modello: l'immagine di partenza da testo con Z-Image-Turbo va negli **sviluppi dopo la v1.0** |
 | v2.51 | 20 ott 2026 | Nella M13, D16: TRELLIS.2 parte da una **foto da Blender** di una bozza dell'oggetto, nello **stile KayKit**; un modello testo → immagine (Z-Image-Turbo, Apache 2.0) resta facoltativo, da decidere dopo la prova; il GLB diventa FBX dopo la foto e il sì di Mirco. Lo stile Diablo IV proposto da una pipeline trovata in rete è scartato · passo 13.4 da 1,5–2 a 2–3 h, M13 da 21–27 a 22–28 h |
 | v2.50 | 20 ott 2026 | Su richiesta di Mirco la **configurazione di ComfyUI** entra nella M13 come passo 13.4 (D15): Stable Audio 3.0 Small SFX e TRELLIS.2 in int8, guidati da Claude con l'API locale, per i suoni e i modelli organici che lo script fa peggio · M13 da 19–25 a 21–27 h |
 | v2.49 | 19 ott 2026 | Su richiesta di Mirco i **suoni** nuovi della M13 si fanno **da script** (D14), con Python, numpy e scipy in `Tools/Audio/`: la prova (santuario, trappola, barile, pozzo) è approvata, e il barile ha due varianti, sintetizzata e ibrida, scelte a caso · M13 da 18–24 a 19–25 h |
@@ -882,6 +883,12 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - Circa 1 h, più la prova del primo caricamento.
 - **Dalla lista di Mirco del 19 ott 2026**, fuori dalla M13 (D11): **mimic** (mostri travestiti da forziere) e **bauli maledetti** (un'ondata di nemici prima di aprirsi), **porte, leve e stanze sigillate**, **lore** (leggii, diari, pergamene da leggere), **prigionieri** da liberare, **statue che si animano**, pozze di acido e lava, statue che sputano fuoco o fulmini. I modelli che servono si fanno in Blender, come nella M13.
 - **Lingue nuove.** Dalla M5 una lingua è una colonna della tabella delle stringhe, più lo schema dei nomi e il genere delle basi. Una lingua con un altro alfabeto vuole anche un font di riserva per TextMesh Pro, con la sua licenza (ADR-004).
+- **Modelli generati con l'immagine di partenza da testo** (Mirco, 20 ott 2026, dopo la prova del passo 13.4). TRELLIS.2 rifà l'immagine che riceve: dalla foto della statua da script è uscita la stessa statua, più morbida e con quasi cinque volte le facce. Per i pezzi organici che gli script non fanno (una statua con un volto, radici, una fontana scolpita, resti di creature) l'immagine deve avere già il dettaglio. Cosa comporta:
+  - **Immagine.** Z-Image-Turbo in nvfp4 (Apache 2.0; `z_image_turbo_nvfp4` 4,51 GB, `qwen_3_4b_fp4_mixed` 3,48 GB, `ae` 0,34 GB, scaricati da Mirco), un terzo workflow in `Tools/ComfyUI` con un prompt nello stile KayKit e prompt e seme nella ricetta.
+  - **Conversione.** Un comando di `views.py` porta il GLB in FBX: assi di Unity, scala della cella, base a terra, davanti verso la stanza. Solo dopo la foto e il sì di Mirco.
+  - **Materiale.** Ogni modello generato ha una texture sua, non l'atlante KayKit: un materiale per modello in Unity. Va bene per pochi pezzi.
+  - **Limiti.** Mai per i nemici, che vogliono uno scheletro e le animazioni. Prima del primo modello nel gioco si legge la licenza di DINOv3 e si aggiunge all'ADR-096.
+  - Circa 1–1,5 h, più le foto.
 
 ---
 
