@@ -23,7 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
-| v2.51 | 20 ott 2026 | Nella M13, D16: TRELLIS.2 può partire da un'**immagine creata da testo** con Z-Image-Turbo in int8 (Apache 2.0), nello **stile KayKit**, e il GLB diventa FBX dopo la foto e il sì di Mirco; lo stile Diablo IV proposto da una pipeline trovata in rete è scartato · passo 13.4 da 1,5–2 a 2,5–3,5 h, M13 da 21–27 a 22–29 h |
+| v2.51 | 20 ott 2026 | Nella M13, D16: TRELLIS.2 parte da una **foto da Blender** di una bozza dell'oggetto, nello **stile KayKit**; un modello testo → immagine (Z-Image-Turbo, Apache 2.0) resta facoltativo, da decidere dopo la prova; il GLB diventa FBX dopo la foto e il sì di Mirco. Lo stile Diablo IV proposto da una pipeline trovata in rete è scartato · passo 13.4 da 1,5–2 a 2–3 h, M13 da 21–27 a 22–28 h |
 | v2.50 | 20 ott 2026 | Su richiesta di Mirco la **configurazione di ComfyUI** entra nella M13 come passo 13.4 (D15): Stable Audio 3.0 Small SFX e TRELLIS.2 in int8, guidati da Claude con l'API locale, per i suoni e i modelli organici che lo script fa peggio · M13 da 19–25 a 21–27 h |
 | v2.49 | 19 ott 2026 | Su richiesta di Mirco i **suoni** nuovi della M13 si fanno **da script** (D14), con Python, numpy e scipy in `Tools/Audio/`: la prova (santuario, trappola, barile, pozzo) è approvata, e il barile ha due varianti, sintetizzata e ibrida, scelte a caso · M13 da 18–24 a 19–25 h |
 | v2.48 | 19 ott 2026 | Su richiesta di Mirco il **loot** si ritara nella M13 (D13): con i mostri e gli oggetti aggiunti cadono circa 10 oggetti a livello; l'obiettivo è 4–5, con la stessa parte di magici e rari, misurato con uno strumento che genera 200 livelli per profondità · M13 da 16–22 a 18–24 h |
@@ -292,7 +292,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | ✅ 17 ott |
 | M12 | "Nemici speciali" | campioni, unici, forzieri e tesoro del re; v1.1 | 9–13 | ✅ 19 ott |
-| M13 | "Stanze vive" | arredi con un senso, barili da rompere, pozzi, santuari, trappole, modelli fatti in Blender, suoni da script, ComfyUI, loot ritarato; v1.2 | 22–29 | in corso |
+| M13 | "Stanze vive" | arredi con un senso, barili da rompere, pozzi, santuari, trappole, modelli fatti in Blender, suoni da script, ComfyUI, loot ritarato; v1.2 | 22–28 | in corso |
 
 ---
 
