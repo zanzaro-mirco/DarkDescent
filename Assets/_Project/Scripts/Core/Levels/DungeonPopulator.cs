@@ -216,7 +216,7 @@ namespace DarkDescent.Levels
 
         // Il punto d'interesse sulla cella libera più vicina al centro della stanza, lontano dai muri, dai
         // passaggi, da casse e scala e dal percorso tra le porte, e che non chiuda il cammino. La cella
-        // resta riservata: pozzi, santuari e trappole arrivano nei passi 13.5 e 13.6 nella stessa cella.
+        // resta riservata: pozzi, santuari e trappole arrivano nei passi 13.6 e 13.7 nella stessa cella.
         private static void PlaceFeature(DungeonLayout layout, int roomIndex, RoomFeatureKind kind, HashSet<Vector2Int> reserved)
         {
             RectInt room = layout.Rooms[roomIndex];

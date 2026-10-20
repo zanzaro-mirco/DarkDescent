@@ -10,7 +10,7 @@ stanno nel repo. Anche i **suoni** nuovi (santuari, pozzi, trappole, barili) li 
 script**, con Python, numpy e scipy (D14). Il **loot** torna a una quantità giusta, misurata: meno oggetti, ma migliori (D13).
 Esce con il tag `v1.2.0`.
 
-**Tempo stimato:** 19–25 h (D12).
+**Tempo stimato:** 21–27 h (D12).
 **Prerequisito:** M12 chiusa (tag `v1.1.0`), Blender 5.2 LTS installato (19 ott 2026), numpy 2.5.4 e scipy
 1.18.1 installati (19 ott 2026).
 
@@ -36,6 +36,7 @@ e la prova in build.
 | Modelli | KayKit *Dungeon* (gratuito): niente statue, sarcofagi, urne, gabbie, altari, pozzi. Ha `floor_tile_big_spikes` (spuntoni), `keg`, `barrel_*`, `rubble_*`. Quaternius *Ultimate RPG Items* (zip già scaricato): libri, pergamene, ossa, teschi, cristalli |
 | Blender | 5.2.2 LTS in `C:\Program Files\Blender Foundation\Blender 5.2`. Il pozzo di prova (19 ott) si costruisce, si renderizza e si esporta in FBX da script in 4 secondi, con i colori dell'atlante KayKit |
 | Suoni | `Audio/SFX/Generated` ha 13 suoni sintetizzati da script Python durante le milestone precedenti (salire di livello, monete, portale, magie, click), ma gli script non sono nel repo. La prova del 19 ott, con numpy e scipy, ha fatto quattro suoni della M13: rintocco del santuario, scatto della trappola, barile che si rompe (tutto sintetizzato e ibrido) e sorso dal pozzo. Mirco li ha approvati tutti |
+| ComfyUI | ComfyUI Desktop installato da Mirco il 20 ott 2026: istanza "DarkDescent", ComfyUI v0.42.1 con il Manager, nessun modello. Con l'app aperta risponde su `127.0.0.1:8188`. Stable Audio 3.0 e TRELLIS.2 sono nodi del core, senza nodi aggiuntivi |
 | Git LFS | `.fbx`, `.blend` e `.png` vanno già in LFS |
 | Loot | Probabilità di un oggetto per nemico: scheletro 30%, mago 35%, bruto 60%, sciame 7%; le scorte dei campioni come i nemici normali. Campione: il tiro di sempre più uno sicuro; unico: tre oggetti, uno raro (`LootBonus`, ADR-092). Cassa: un oggetto sicuro; forziere d'oro: due, accanto all'unico e al 50% dei campioni. Rarità di base 65/28/7. Stima per la cripta alla profondità 3: **circa 10 oggetti a livello**, contro i 6,5 di prima della M12; Mirco, 19 ott: "troppo" |
 | Test | 340 EditMode e 212 PlayMode verdi |
@@ -59,8 +60,9 @@ Confermate da Mirco il 19 ottobre 2026, tutte come proposte.
 | D9 | **Modelli in Blender** | Script Python in **`Tools/Blender/`**: una libreria comune (forme, smusso, colori dall'atlante KayKit, render di prova, export FBX con gli assi di Unity) e uno script per modello. Gli FBX in `Art/Models/DarkDescent/`. **Blender 5.2 LTS** bloccato come Unity (un ADR). Ogni modello passa da una **foto accanto a un modello KayKit** prima di entrare in Unity. Modelli: **pozzo** (vita e mana), **stele del santuario**, **barile esplosivo**, **sacchi**, **anfore** (intera e rotta), **sarcofago**, **statua** del guardiano, **gabbia**, **altare** con candele, **mucchio di libri e pergamene**. Con questi i temi si arricchiscono: la cella prende la gabbia, il deposito anfore e sacchi, lo studio i libri, e un **quinto tema, la cappella** (sarcofago, statua, altare, candele) | Mirco, 19 ott: "una sezione dove creare oggetti nuovi con Blender per arricchire il gioco". Gli script nel repo rendono ogni modello rifacibile e modificabile; la licenza è nostra |
 | D10 | **Si capisce cosa si usa** | Pozzi e santuari si evidenziano al passaggio del mouse come le casse, con il nome nell'HUD ("Santuario della Furia", "Pozzo della vita"); usati, il nome dice "(vuoto)". I barili hanno il cerchio dei bersagli dei nemici. Tutto nelle due lingue | Senza, un pozzo è un arredo come gli altri |
 | D11 | **Fuori da questa milestone** | Dalla lista di Mirco restano per dopo, nel piano: **mimic** e **bauli maledetti** (un'ondata di nemici prima di aprirsi), **porte, leve e stanze sigillate**, **lore** (leggii, diari), **prigionieri** da liberare, **statue che si animano**, pozze di acido e lava, statue che sputano fuoco | Ognuna è un sistema a sé; questa milestone resta sulle stanze |
-| D12 | **Stima** | **19–25 h**. Se servirà tagliare: prima i barili esplosivi, poi il quinto tema, poi gli spuntoni. Il loot (D13) non si taglia | Meglio deciderlo adesso che a metà |
+| D12 | **Stima** | **21–27 h**. Se servirà tagliare: prima i barili esplosivi, poi il quinto tema, poi gli spuntoni. Il loot (D13) non si taglia | Meglio deciderlo adesso che a metà |
 | D14 | **Suoni da script** | Script Python in **`Tools/Audio/`**: una libreria comune (inviluppi, filtri, risonatori, rumore, campane, bolle, riverbero a convoluzione, lettura e cambio di tono dei sample, export WAV 44,1 kHz a 16 bit normalizzato) e uno script per suono, con un **seme fisso**, così ogni WAV si rifà uguale. Versioni bloccate in `Tools/Audio/requirements.txt` (numpy 2.5.4, scipy 1.18.1). I WAV in `Audio/SFX/Generated`, nei crediti come nostri. Ogni suono passa da una **pagina di ascolto** con lo spettrogramma, accanto al suono più vicino che il gioco ha già. Suoni: **santuario** (un rintocco per tipo, con il tono che cambia), **pozzo** (sorso), **barile che si rompe** in **due varianti**, la sintetizzata e l'ibrida, scelte a caso a ogni rottura, **spuntoni** (avviso e scatto), **barile esplosivo** (miccia ed esplosione) e **fine del bonus** del santuario | Mirco, 19 ott 2026: la prova va bene, e si tengono tutti e due i barili. I suoni "geometrici" (campane, meccanismi, acqua, magie) vengono bene da script; il legno e le esplosioni vengono meglio con un sample elaborato, le voci e le creature restano ai sample |
+| D15 | **ComfyUI per suoni e modelli generati** | ComfyUI Desktop sul PC di Mirco, guidato da Claude attraverso l'API locale (`127.0.0.1:8188`) con un piccolo client Python in `Tools/ComfyUI/`: workflow in formato API nel repo, prompt e seme di ogni asset salvati accanto, così ogni risultato si rifà. **Audio**: Stable Audio 3.0 **Small SFX** (`stable_audio_3_small_sfx`, 2,27 GB, più l'encoder `t5gemma_b_b_ul2`, 1,19 GB), licenza *stable-audio-community*. **3D**: TRELLIS.2 in **int8** (`trellis_2_int8_convrot`, 5,25 GB, più i due VAE e DINOv3, circa 3,3 GB) a risoluzione 512 per i 12 GB di VRAM, senza il ramo Pixal3D (segnalato come bloccato nell'UE). I modelli li scarica Mirco. Ogni asset generato passa dalla stessa prova di quelli da script (pagina di ascolto o foto accanto ai KayKit), si rifinisce con `Tools/Audio` o `Tools/Blender`, e va in `CREDITS.md` con il modello e la licenza. Le licenze (DINOv3 sui risultati, registrazione Stability per l'uso commerciale) si chiudono in un ADR prima del primo asset nel gioco | Mirco, 20 ott 2026: ComfyUI installato per generare suoni e modelli. La prova del 19 ott ha mostrato che lo script regge le forme geometriche ma non quelle organiche (l'elmo); un modello generato può fare da base per la statua e i pezzi organici, e Stable Audio può dare il legno, l'acqua e i colpi che la sintesi fa peggio |
 | D13 | **Loot: meno oggetti, ma migliori** | Obiettivo **4–5 oggetti a livello** in media, con la stessa parte di magici e rari. Probabilità per nemico: scheletro **15%**, mago **25%**, bruto **35%**, sciame **4%**; le **scorte** dei campioni a **metà** della probabilità del loro tipo. **Campione**: un solo oggetto, **sicuro**, con le rarità spostate (al posto del tiro di sempre più uno). **Unico**: **due** oggetti, uno raro. **Cassa**: oggetto al **50%**, e senza oggetto più oro o una pozione. **Forziere d'oro**: accanto all'unico e al **25%** dei campioni. Barili, pozzi e santuari della M13 entrano nel conto. I numeri si **misurano**: uno strumento nell'editor genera 200 livelli per profondità e conta gli oggetti per fonte e per rarità; un test EditMode tiene la media nella fascia | Mirco, 19 ott 2026: con tutti i mostri e gli oggetti aggiunti il loot è troppo. In un ARPG un oggetto a terra deve contare; conviene tarare tutto insieme, dopo che barili, pozzi e santuari ci sono |
 
 ---
@@ -72,12 +74,13 @@ Confermate da Mirco il 19 ottobre 2026, tutte come proposte.
 | 13.1 | Blender e audio: la libreria comune in `Tools/Blender/`, il pozzo rifatto con la libreria, l'import in Unity con gli assi giusti, l'ADR della versione (D9); la libreria in `Tools/Audio/` con i quattro suoni della prova (D14) | 2–3 |
 | 13.2 | Arredi con un senso: via il colonnato, mai doppioni, rotazione e scarto, mucchietti per tema, punto d'interesse nella logica pura, con i test (D2–D4) | 2–3 |
 | 13.3 | Modelli per gli arredi: sacchi, anfore, sarcofago, statua, gabbia, altare, libri; le composizioni nuove e il tema della cappella (D3, D9) | 3–4 |
-| 13.4 | Barili da rompere: `Breakable`, il click, il loot con il suo seme, i ricordi del livello (D5) | 2–3 |
-| 13.5 | Pozzi e santuari: i modelli, il bonus a tempo, l'icona, i ricordi del livello (D6, D7, D10) | 3–4 |
-| 13.6 | Trappole: spuntoni e barili esplosivi (D8) | 2–3 |
-| 13.7 | Loot: lo strumento che conta gli oggetti per livello, i numeri nuovi, il test della fascia (D13) | 1,5–2 |
-| 13.8 | Build da provare e correzioni | 1–2 |
-| 13.9 | Chiusura: tag `v1.2.0`, ADR, lezioni, README | 1 |
+| 13.4 | ComfyUI: Mirco scarica i modelli; il client Python in `Tools/ComfyUI/` con i workflow in formato API (Stable Audio 3.0 Small SFX, TRELLIS.2 senza Pixal3D); la prova sui quattro suoni della M13 accanto a quelli da script e su un modello organico accanto alla versione da script; l'ADR con le licenze (D15) | 1,5–2 |
+| 13.5 | Barili da rompere: `Breakable`, il click, il loot con il suo seme, i ricordi del livello (D5) | 2–3 |
+| 13.6 | Pozzi e santuari: i modelli, il bonus a tempo, l'icona, i ricordi del livello (D6, D7, D10) | 3–4 |
+| 13.7 | Trappole: spuntoni e barili esplosivi (D8) | 2–3 |
+| 13.8 | Loot: lo strumento che conta gli oggetti per livello, i numeri nuovi, il test della fascia (D13) | 1,5–2 |
+| 13.9 | Build da provare e correzioni | 1–2 |
+| 13.10 | Chiusura: tag `v1.2.0`, ADR, lezioni, README | 1 |
 
 ## Passo 13.1 — Blender e audio
 
@@ -129,7 +132,7 @@ così le trappole prima della profondità 3. Mai nella stanza di partenza. Il pu
 libera più vicina al centro, lontano dai muri, dai passaggi, da casse e scala e dai **percorsi più
 brevi tra le porte** della stanza (`DoorPaths`), e solo se non chiude il cammino. Il layout ricorda
 ogni punto (`DungeonLayout.Features`: stanza, tipo, cella), e la cella resta riservata: pozzi,
-santuari e trappole arrivano nei passi 13.5 e 13.6 proprio lì, senza spostare gli altri arredi. Per
+santuari e trappole arrivano nei passi 13.6 e 13.7 proprio lì, senza spostare gli altri arredi. Per
 ora si vedono solo i **barili**: `Decor_BarrelGroup` (simbolo `0`), tre barili KayKit in diagonale.
 
 Le lettere per i simboli sono finite (tutte le maiuscole e quasi tutte le minuscole sono usate):
@@ -200,11 +203,12 @@ e 215 PlayMode verdi.
 
 ## Checklist di chiusura
 
-- [x] Decisioni D1–D14 confermate (19 ott 2026)
+- [x] Decisioni D1–D14 confermate (19 ott 2026); D15 (ComfyUI) aggiunta da Mirco il 20 ott 2026
 - [x] Libreria Blender e primo modello in Unity
 - [x] Libreria audio e suoni della prova nel repo
 - [x] Arredi con un senso, senza colonnato
 - [ ] Modelli nuovi e tema della cappella
+- [ ] ComfyUI configurato e provato, ADR delle licenze
 - [ ] Barili da rompere
 - [ ] Pozzi e santuari
 - [ ] Trappole
