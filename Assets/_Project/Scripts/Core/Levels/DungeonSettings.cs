@@ -60,11 +60,26 @@ namespace DarkDescent.Levels
         [Tooltip("Barili, casse di legno e pilastri: al più tanti per stanza, contro i muri.")]
         [SerializeField, Min(0)] private int _maxPropsPerRoom = 2;
 
-        [Tooltip("Arredi (D4 della M11): quante composizioni di mobili al massimo per stanza; 0 toglie tutti gli arredi, colonne e mucchietti compresi.")]
+        [Tooltip("Arredi (D4 della M11): quante composizioni di mobili al massimo per stanza; 0 toglie tutti gli arredi, punti d'interesse e mucchietti compresi.")]
         [SerializeField, Min(0)] private int _maxDecorPerRoom = 4;
 
-        [Tooltip("Probabilità che una stanza di almeno 5 × 5 celle abbia un colonnato in mezzo (passo 11.7 della M11).")]
-        [SerializeField, Range(0f, 1f)] private float _columnChance = 0.85f;
+        [Header("Punto d'interesse (D4 della M13)")]
+        [Tooltip("Probabilità che il punto d'interesse di una stanza di almeno 5 × 5 celle sia un gruppo di barili. Quello che manca all'1 tra le quattro è una stanza senza.")]
+        [SerializeField, Range(0f, 1f)] private float _barrelsChance = 0.35f;
+
+        [Tooltip("Probabilità di un pozzo della vita o del mana: al più uno per livello, un secondo diventa barili.")]
+        [SerializeField, Range(0f, 1f)] private float _wellChance = 0.15f;
+
+        [Tooltip("Probabilità di un santuario: al più uno per livello, un secondo diventa barili.")]
+        [SerializeField, Range(0f, 1f)] private float _shrineChance = 0.15f;
+
+        [Tooltip("Probabilità di una zona di trappole; prima della profondità delle trappole diventano barili.")]
+        [SerializeField, Range(0f, 1f)] private float _trapsChance = 0.10f;
+
+        [Tooltip("La prima profondità con le trappole.")]
+        [SerializeField, Min(1)] private int _trapsFirstDepth = 3;
+
+        [Space]
 
         [Tooltip("Mucchietti a terra (ossa, monete e carte, armi rotte) al più per stanza: non sono ostacoli.")]
         [SerializeField, Min(0)] private int _maxScatterPerRoom = 2;
@@ -123,11 +138,41 @@ namespace DarkDescent.Levels
 
         public int MaxDecorPerRoom => _maxDecorPerRoom;
 
-        public float ColumnChance => _columnChance;
 
         public int MaxScatterPerRoom => _maxScatterPerRoom;
 
         public int CellsPerTorch => _cellsPerTorch;
+
+        /// <summary>
+        /// Il punto d'interesse che dice il tiro <paramref name="roll"/> (da 0 a 1) a questa profondità,
+        /// prima del limite di un pozzo e un santuario per livello: barili, pozzo, santuario, trappole, e
+        /// oltre la loro somma niente. Le trappole prima della loro profondità diventano barili.
+        /// </summary>
+        public RoomFeatureKind FeatureFor(double roll, int depth)
+        {
+            double at = _barrelsChance;
+            if (roll < at)
+            {
+                return RoomFeatureKind.Barrels;
+            }
+
+            if (roll < (at += _wellChance))
+            {
+                return RoomFeatureKind.Well;
+            }
+
+            if (roll < (at += _shrineChance))
+            {
+                return RoomFeatureKind.Shrine;
+            }
+
+            if (roll < at + _trapsChance)
+            {
+                return depth >= _trapsFirstDepth ? RoomFeatureKind.Traps : RoomFeatureKind.Barrels;
+            }
+
+            return RoomFeatureKind.None;
+        }
 
         /// <summary>Quanti maghi, da quanti a quanti, a questa profondità della cripta: nessuno prima della prima.</summary>
         public Vector2Int MagesAt(int depth)

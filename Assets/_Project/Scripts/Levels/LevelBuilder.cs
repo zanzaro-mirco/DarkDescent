@@ -252,7 +252,15 @@ namespace DarkDescent.Levels
 
                         bool isEnemy = prefab.GetComponentInChildren<EnemyAI>() != null;
                         var facing = isEnemy ? Vector3.back : AwayFromWall(map, marker);
-                        var placed = Place(prefab, isEnemy ? enemies : props, center, Quaternion.LookRotation(facing));
+                        var rotation = Quaternion.LookRotation(facing);
+                        if (!isEnemy && IsJittered(map, marker))
+                        {
+                            Vector2 offset = DecorJitter.Offset(marker.X, marker.Y);
+                            center += new Vector3(offset.x, 0f, offset.y);
+                            rotation = Quaternion.Euler(0f, DecorJitter.Angle(marker.X, marker.Y), 0f);
+                        }
+
+                        var placed = Place(prefab, isEnemy ? enemies : props, center, rotation);
                         if (isEnemy)
                         {
                             placed.name = $"{prefab.name}_{++enemyCount:00}";
@@ -272,6 +280,16 @@ namespace DarkDescent.Levels
                     }
                 }
             }
+        }
+
+        // Mucchietti e barili in mezzo alla stanza, lontani dai muri, prendono rotazione e scarto da un
+        // hash della cella (D3 della M13): due uguali non sembrano copie. Accanto a un muro restano
+        // dritti, girati verso la stanza, per non entrarci dentro.
+        private static bool IsJittered(LevelMap map, MapMarker marker)
+        {
+            bool middle = DungeonPopulator.IsScatter(marker.Symbol) || marker.Symbol == DungeonPopulator.BarrelGroupSymbol;
+            return middle && map.IsFloor(marker.X, marker.Y - 1) && map.IsFloor(marker.X, marker.Y + 1)
+                && map.IsFloor(marker.X - 1, marker.Y) && map.IsFloor(marker.X + 1, marker.Y);
         }
 
         // Un oggetto di scena contro un muro guarda la stanza: una cassa si apre dal davanti, e lì il

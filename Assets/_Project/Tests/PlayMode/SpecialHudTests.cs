@@ -105,7 +105,11 @@ namespace DarkDescent.Tests
             var cell = DarkDescent.Levels.Exploration.CellAt(morvak.transform.position);
             Assert.IsFalse(Manager.CurrentLevel.Map != null && IsExplored(cell), "Morvak sta lontano dall'ingresso");
 
-            Assert.IsTrue(NavMesh.SamplePosition(morvak.transform.position + Vector3.back * 4f, out var hit, 3f, NavMesh.AllAreas));
+            // una cella libera accanto a lui: un lato può essere occupato da un arredo
+            NavMeshHit hit = default;
+            bool found = new[] { Vector3.back, Vector3.forward, Vector3.left, Vector3.right }
+                .Any(side => NavMesh.SamplePosition(morvak.transform.position + side * 4f, out hit, 1.5f, NavMesh.AllAreas));
+            Assert.IsTrue(found, "un posto accanto a Morvak");
             PlayerAgent.Warp(hit.position);
             for (float t = 0f; !IsExplored(cell); t += Time.deltaTime)
             {

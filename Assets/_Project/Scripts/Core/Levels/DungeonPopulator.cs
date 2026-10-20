@@ -10,7 +10,9 @@ namespace DarkDescent.Levels
     /// di scena contro i muri, scheletri a gruppi, più numerosi in profondità. Tutto come marcatori
     /// della mappa, gli stessi delle mappe a mano. Dalla M11 (D4) gli arredi: ogni stanza ha un tema e
     /// qualche composizione di mobili contro i muri, con un flusso suo del seme; dal passo 11.7 anche
-    /// un colonnato in mezzo alle stanze grandi e qualche mucchietto a terra. Logica pura.
+    /// qualche mucchietto a terra; dalla M13 (D2–D4) un punto d'interesse al centro delle stanze grandi
+    /// al posto del colonnato, mai due arredi uguali nella stessa stanza e mucchietti legati al tema.
+    /// Logica pura.
     /// </summary>
     public sealed class DungeonPopulator
     {
@@ -30,19 +32,31 @@ namespace DarkDescent.Levels
         /// </summary>
         public static readonly string[] DecorThemes = { "DEFad", "LNOeg", "RUVhj", "WYZnq" };
 
-        /// <summary>Una colonna di un colonnato, in mezzo alla stanza (passo 11.7 della M11): un ostacolo.</summary>
-        public const char ColumnSymbol = 'o';
+        /// <summary>
+        /// Un gruppo di barili al centro della stanza, il punto d'interesse più comune (D4 della M13): un
+        /// ostacolo. Le cifre sono i simboli della M13: le lettere sono finite.
+        /// </summary>
+        public const char BarrelGroupSymbol = '0';
 
-        /// <summary>Il lato minimo, in celle, di una stanza con il colonnato.</summary>
-        public const int MinColumnRoom = 5;
+        /// <summary>Il lato minimo, in celle, di una stanza con un punto d'interesse (dove andava il colonnato).</summary>
+        public const int MinFeatureRoom = 5;
 
         /// <summary>
-        /// I mucchietti a terra (passo 11.7 della M11): ossa e teschi, monete e carte, armi rotte. Stanno
-        /// anche in mezzo alla stanza e si attraversano: non sono ostacoli.
+        /// I mucchietti a terra (passo 11.7 della M11): ossa e teschi, piatti e bottiglie, armi rotte.
+        /// Stanno anche in mezzo alla stanza e si attraversano: non sono ostacoli.
         /// </summary>
         public const string ScatterSymbols = "vyz";
 
-        private const string DecorSymbols = "DEFLNORUVWYZadeghjnqovyz";
+        /// <summary>Piatti e bottiglie: solo accanto a un mobile della stanza (D3 della M13).</summary>
+        public const char TableScatterSymbol = 'y';
+
+        /// <summary>
+        /// I mucchietti di ogni tema, nello stesso ordine di <see cref="DecorThemes"/> (D3 della M13):
+        /// piatti e bottiglie nel deposito e nello studio, ossa nella cella, armi rotte nella rovina.
+        /// </summary>
+        public static readonly string[] ScatterThemes = { "y", "y", "v", "z" };
+
+        private const string DecorSymbols = "DEFLNORUVWYZadeghjnq0vyz";
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
@@ -65,7 +79,7 @@ namespace DarkDescent.Levels
             return symbol == ChestSymbol || symbol == SpecialEnemyPlanner.GoldChestSymbol || symbol == SpecialEnemyPlanner.TreasureSymbol;
         }
 
-        /// <summary>Un arredo della M11: una composizione di mobili, una colonna o un mucchietto a terra.</summary>
+        /// <summary>Un arredo: una composizione di mobili, un gruppo di barili al centro o un mucchietto a terra.</summary>
         public static bool IsDecor(char symbol)
         {
             return DecorSymbols.IndexOf(symbol) >= 0;
@@ -106,10 +120,10 @@ namespace DarkDescent.Levels
         /// Gli arredi (D4 della M11), dopo tutto il resto e con un flusso suo del seme: nemici, casse e
         /// mappa dei semi già provati non cambiano. Ogni stanza ha un tema e una composizione ogni
         /// quattro celle di lato, fino al massimo delle impostazioni, contro i muri e mai su un
-        /// passaggio. Dal passo 11.7 le stanze grandi possono avere un colonnato in mezzo, e ogni stanza
-        /// qualche mucchietto a terra, di preferenza lontano dai muri.
+        /// passaggio, e qualche mucchietto a terra del suo tema. Dalla M13 le stanze grandi hanno al
+        /// centro un punto d'interesse (D4), e nella stessa stanza nessun arredo si ripete (D3).
         /// </summary>
-        public void Decorate(DungeonLayout layout, IRandomSource random)
+        public void Decorate(DungeonLayout layout, int depth, IRandomSource random)
         {
             if (_settings.MaxDecorPerRoom <= 0)
             {
@@ -117,103 +131,234 @@ namespace DarkDescent.Levels
             }
 
             var reserved = Reserved(layout);
+            int wells = 0;
+            int shrines = 0;
             for (int i = 0; i < layout.Rooms.Count; i++)
             {
                 RectInt room = layout.Rooms[i];
-                string theme = DecorThemes[Range(random, 0, DecorThemes.Length - 1)];
+                int themeIndex = Range(random, 0, DecorThemes.Length - 1);
 
-                // il colonnato prima dei mobili: le colonne vogliono le celle in mezzo, i mobili il bordo
-                if (room.width >= MinColumnRoom && room.height >= MinColumnRoom && random.NextDouble() < _settings.ColumnChance)
+                // il punto d'interesse prima dei mobili: vuole il centro, i mobili il bordo
+                if (room.width >= MinFeatureRoom && room.height >= MinFeatureRoom)
                 {
-                    PlaceColumns(layout, room, reserved);
+                    var kind = _settings.FeatureFor(random.NextDouble(), depth);
+                    if ((kind == RoomFeatureKind.Well && wells++ > 0) || (kind == RoomFeatureKind.Shrine && shrines++ > 0))
+                    {
+                        kind = RoomFeatureKind.Barrels;
+                    }
+
+                    if (i != layout.StartRoom && kind != RoomFeatureKind.None)
+                    {
+                        PlaceFeature(layout, i, kind, reserved);
+                    }
                 }
 
+                var used = new HashSet<char>();
+                var compositions = new List<Vector2Int>();
                 int count = Math.Min(_settings.MaxDecorPerRoom, 1 + (room.width + room.height) / 4);
                 for (int d = 0; d < count; d++)
                 {
-                    TryPlaceAgainstWall(layout, room, theme[Range(random, 0, theme.Length - 1)], random, reserved, keepChestsFree: true);
+                    char symbol = PickUnused(DecorThemes[themeIndex], used, random);
+                    if (symbol == '\0')
+                    {
+                        break;
+                    }
+
+                    var cell = TryPlaceAgainstWall(layout, room, symbol, random, reserved, keepChestsFree: true);
+                    if (cell.HasValue)
+                    {
+                        compositions.Add(cell.Value);
+                    }
                 }
 
                 int scatter = Range(random, 0, _settings.MaxScatterPerRoom);
                 for (int s = 0; s < scatter; s++)
                 {
-                    TryPlaceScatter(layout, room, ScatterSymbols[Range(random, 0, ScatterSymbols.Length - 1)], random, reserved);
+                    char symbol = PickUnused(ScatterThemes[themeIndex], used, random);
+                    if (symbol == '\0')
+                    {
+                        break;
+                    }
+
+                    if (symbol == TableScatterSymbol)
+                    {
+                        TryPlaceBeside(layout, room, compositions, symbol, random, reserved);
+                    }
+                    else
+                    {
+                        TryPlaceScatter(layout, room, symbol, random, reserved);
+                    }
                 }
             }
         }
 
-        /// <summary>
-        /// Le celle delle colonne di una stanza: due file, a una cella dai muri, lungo il lato più lungo,
-        /// una colonna ogni due celle e simmetriche tra i due capi.
-        /// </summary>
-        public static List<Vector2Int> ColumnCells(RectInt room)
+        // Un simbolo del gruppo che la stanza non ha ancora, o '\0' se li ha tutti
+        private static char PickUnused(string symbols, HashSet<char> used, IRandomSource random)
         {
-            var cells = new List<Vector2Int>();
-            int left = room.xMin + 1;
-            int right = room.xMax - 2;
-            int bottom = room.yMin + 1;
-            int top = room.yMax - 2;
-            bool alongX = room.width >= room.height;
-            int from = alongX ? left : bottom;
-            int span = alongX ? right - left : top - bottom;
-            int count = span / 2 + 1;
-            for (int i = 0; i < count; i++)
+            var free = new List<char>();
+            foreach (char c in symbols)
             {
-                int at = from + (int)Math.Round(i * span / (double)Math.Max(1, count - 1));
-                cells.Add(alongX ? new Vector2Int(at, bottom) : new Vector2Int(left, at));
-                cells.Add(alongX ? new Vector2Int(at, top) : new Vector2Int(right, at));
+                if (!used.Contains(c))
+                {
+                    free.Add(c);
+                }
             }
 
-            return cells;
+            if (free.Count == 0)
+            {
+                return '\0';
+            }
+
+            char pick = free[Range(random, 0, free.Count - 1)];
+            used.Add(pick);
+            return pick;
         }
 
-        // Il colonnato resta simmetrico: una colonna che non può stare (accanto a un passaggio, a una
-        // cassa, che si apre dal davanti, o alla scala) porta via anche le sue speculari. Con meno di
-        // due colonne, o se il cammino si chiude, niente colonnato.
-        private static void PlaceColumns(DungeonLayout layout, RectInt room, HashSet<Vector2Int> reserved)
+        // Il punto d'interesse sulla cella libera più vicina al centro della stanza, lontano dai muri, dai
+        // passaggi, da casse e scala e dal percorso tra le porte, e che non chiuda il cammino. La cella
+        // resta riservata: pozzi, santuari e trappole arrivano nei passi 13.5 e 13.6 nella stessa cella.
+        private static void PlaceFeature(DungeonLayout layout, int roomIndex, RoomFeatureKind kind, HashSet<Vector2Int> reserved)
         {
-            var cells = ColumnCells(room);
-            var refused = new HashSet<Vector2Int>();
-            foreach (var cell in cells)
+            RectInt room = layout.Rooms[roomIndex];
+            var path = DoorPaths(layout, room);
+            var candidates = new List<Vector2Int>();
+            for (int y = room.yMin + 1; y < room.yMax - 1; y++)
             {
-                if (layout[cell.x, cell.y] != LevelMap.Floor || reserved.Contains(cell) || NearDoorway(layout, room, cell) || NextToChestOrStairs(layout, cell))
+                for (int x = room.xMin + 1; x < room.xMax - 1; x++)
                 {
-                    foreach (var mirror in Mirrors(room, cell))
+                    var cell = new Vector2Int(x, y);
+                    if (layout[x, y] == LevelMap.Floor && !reserved.Contains(cell) && !path.Contains(cell)
+                        && !NearDoorway(layout, room, cell) && !NextToChestOrStairs(layout, cell))
                     {
-                        refused.Add(mirror);
+                        candidates.Add(cell);
                     }
                 }
             }
 
-            cells.RemoveAll(refused.Contains);
-            if (cells.Count < 2)
+            // il centro della stanza in coordinate doppie, per restare sugli interi
+            int cx = room.xMin + room.xMax - 1;
+            int cy = room.yMin + room.yMax - 1;
+            candidates.Sort((a, b) => Distance2(a, cx, cy).CompareTo(Distance2(b, cx, cy)));
+            foreach (var cell in candidates)
             {
-                return;
-            }
-
-            foreach (var cell in cells)
-            {
-                layout.TryPlace(ColumnSymbol, cell.x, cell.y);
-            }
-
-            if (!IsConnected(layout))
-            {
-                foreach (var cell in cells)
+                // ogni punto d'interesse è un ostacolo tranne le trappole: si prova con i barili
+                layout.TryPlace(BarrelGroupSymbol, cell.x, cell.y);
+                bool connected = IsConnected(layout);
+                if (!connected || kind != RoomFeatureKind.Barrels)
                 {
                     layout.Remove(cell.x, cell.y);
+                }
+
+                if (connected)
+                {
+                    reserved.Add(cell);
+                    layout.AddFeature(new RoomFeature(roomIndex, kind, cell));
+                    return;
                 }
             }
         }
 
-        /// <summary>La cella e le sue speculari rispetto ai due assi della stanza.</summary>
-        public static IEnumerable<Vector2Int> Mirrors(RectInt room, Vector2Int cell)
+        private static int Distance2(Vector2Int cell, int cx, int cy)
         {
-            int mx = room.xMin + room.xMax - 1 - cell.x;
-            int my = room.yMin + room.yMax - 1 - cell.y;
-            yield return cell;
-            yield return new Vector2Int(mx, cell.y);
-            yield return new Vector2Int(cell.x, my);
-            yield return new Vector2Int(mx, my);
+            int dx = 2 * cell.x - cx;
+            int dy = 2 * cell.y - cy;
+            return dx * dx + dy * dy;
+        }
+
+        // Le celle dei percorsi più brevi, dentro la stanza, tra le porte, l'ingresso e la scala che
+        // stanno nella stanza: il punto d'interesse non le occupa, chi attraversa la stanza va dritto
+        private static HashSet<Vector2Int> DoorPaths(DungeonLayout layout, RectInt room)
+        {
+            var ends = new List<Vector2Int>();
+            for (int y = room.yMin; y < room.yMax; y++)
+            {
+                for (int x = room.xMin; x < room.xMax; x++)
+                {
+                    var cell = new Vector2Int(x, y);
+                    if (layout.IsFloor(x, y) && IsDoorway(layout, room, cell))
+                    {
+                        ends.Add(cell);
+                    }
+                }
+            }
+
+            if (room.Contains(layout.Entrance))
+            {
+                ends.Add(layout.Entrance);
+            }
+
+            if (room.Contains(layout.Stairs))
+            {
+                ends.Add(layout.Stairs);
+            }
+
+            var path = new HashSet<Vector2Int>();
+            for (int a = 0; a < ends.Count; a++)
+            {
+                var parents = PathsFrom(layout, room, ends[a]);
+                for (int b = a + 1; b < ends.Count; b++)
+                {
+                    for (var at = ends[b]; parents.ContainsKey(at); at = parents[at])
+                    {
+                        path.Add(at);
+                        if (at == ends[a])
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return path;
+        }
+
+        // Visita in ampiezza dentro la stanza: per ogni cella raggiunta, la cella da cui ci si arriva
+        private static Dictionary<Vector2Int, Vector2Int> PathsFrom(DungeonLayout layout, RectInt room, Vector2Int start)
+        {
+            var parents = new Dictionary<Vector2Int, Vector2Int> { [start] = start };
+            var queue = new Queue<Vector2Int>();
+            queue.Enqueue(start);
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                foreach (var step in Steps)
+                {
+                    var next = cell + step;
+                    if (room.Contains(next) && !parents.ContainsKey(next) && (Walkable(layout, next.x, next.y) || next == layout.Stairs))
+                    {
+                        parents[next] = cell;
+                        queue.Enqueue(next);
+                    }
+                }
+            }
+
+            return parents;
+        }
+
+        // Piatti e bottiglie su una cella libera accanto a un mobile della stanza, mai su un passaggio
+        private static bool TryPlaceBeside(DungeonLayout layout, RectInt room, List<Vector2Int> compositions, char symbol, IRandomSource random, HashSet<Vector2Int> reserved)
+        {
+            var candidates = new List<Vector2Int>();
+            foreach (var composition in compositions)
+            {
+                foreach (var step in Steps)
+                {
+                    var cell = composition + step;
+                    if (room.Contains(cell) && layout[cell.x, cell.y] == LevelMap.Floor && !reserved.Contains(cell)
+                        && !NearDoorway(layout, room, cell) && !candidates.Contains(cell))
+                    {
+                        candidates.Add(cell);
+                    }
+                }
+            }
+
+            if (candidates.Count == 0)
+            {
+                return false;
+            }
+
+            var pick = candidates[Range(random, 0, candidates.Count - 1)];
+            return layout.TryPlace(symbol, pick.x, pick.y);
         }
 
         private static bool NextToChestOrStairs(DungeonLayout layout, Vector2Int cell)
@@ -351,7 +496,7 @@ namespace DarkDescent.Levels
             int placed = 0;
             for (int i = 0; placed < _settings.ChestCount(depth) && i < rooms.Count * 2; i++)
             {
-                if (TryPlaceAgainstWall(layout, layout.Rooms[rooms[i % rooms.Count]], ChestSymbol, random, reserved))
+                if (TryPlaceAgainstWall(layout, layout.Rooms[rooms[i % rooms.Count]], ChestSymbol, random, reserved).HasValue)
                 {
                     placed++;
                 }
@@ -414,7 +559,7 @@ namespace DarkDescent.Levels
         // accanto: se comunque chiude il cammino verso un pezzo del livello, si toglie (trappola 5).
         // Gli arredi lasciano libere anche le celle accanto alle casse, che si aprono dal davanti
         // (passo 11.7); casse e oggetti di scena no, per non cambiare i livelli dei semi già provati.
-        private static bool TryPlaceAgainstWall(DungeonLayout layout, RectInt room, char symbol, IRandomSource random, HashSet<Vector2Int> reserved, bool keepChestsFree = false)
+        private static Vector2Int? TryPlaceAgainstWall(DungeonLayout layout, RectInt room, char symbol, IRandomSource random, HashSet<Vector2Int> reserved, bool keepChestsFree = false)
         {
             var candidates = new List<Vector2Int>();
             for (int y = room.yMin; y < room.yMax; y++)
@@ -439,13 +584,13 @@ namespace DarkDescent.Levels
                 layout.TryPlace(symbol, cell.x, cell.y);
                 if (IsConnected(layout))
                 {
-                    return true;
+                    return cell;
                 }
 
                 layout.Remove(cell.x, cell.y);
             }
 
-            return false;
+            return null;
         }
 
         // La cella, o una vicina dentro la stanza, confina con un pavimento fuori dalla stanza: un corridoio.

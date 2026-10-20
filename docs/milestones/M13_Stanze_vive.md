@@ -119,6 +119,37 @@ dallo schianto di ossa di Puadlung e ne prende la licenza, scritta nella riga di
 
 ADR-094 (Blender 5.2 LTS e modelli da script) e ADR-095 (suoni da script). 343 EditMode verdi.
 
+## Passo 13.2 — Arredi con un senso
+
+**Com'è andata (20 ott 2026).** Il **colonnato** non c'è più: via `ColumnChance`, le file di colonne
+e il prefab `Decor_Column`. Il tiro che lo decideva ora sceglie il **punto d'interesse** delle stanze
+da 5 × 5 in su (`DungeonSettings.FeatureFor`: barili 35%, pozzo 15%, santuario 15%, trappole 10% dalla
+profondità 3, niente il resto). Un secondo pozzo o santuario nello stesso livello diventa barili, e
+così le trappole prima della profondità 3. Mai nella stanza di partenza. Il punto sta nella cella
+libera più vicina al centro, lontano dai muri, dai passaggi, da casse e scala e dai **percorsi più
+brevi tra le porte** della stanza (`DoorPaths`), e solo se non chiude il cammino. Il layout ricorda
+ogni punto (`DungeonLayout.Features`: stanza, tipo, cella), e la cella resta riservata: pozzi,
+santuari e trappole arrivano nei passi 13.5 e 13.6 proprio lì, senza spostare gli altri arredi. Per
+ora si vedono solo i **barili**: `Decor_BarrelGroup` (simbolo `0`), tre barili KayKit in diagonale.
+
+Le lettere per i simboli sono finite (tutte le maiuscole e quasi tutte le minuscole sono usate):
+le cose nuove della M13 prendono le **cifre**, a partire da `0`.
+
+**Mai doppioni**: nella stessa stanza ogni composizione e ogni mucchietto compare al più una volta.
+**Mucchietti per tema** (`ScatterThemes`): ossa nella cella, armi rotte nella rovina, piatti e
+bottiglie nel deposito e nello studio, e questi solo **accanto a un mobile** della stanza. Sacchi,
+cocci, libri, catene e macerie arrivano con i modelli del passo 13.3. **Rotazione e scarto**: i
+mucchietti e i barili in mezzo alla stanza, senza muri accanto, prendono un angolo a passi di 15° e
+uno scarto fino a 0,6 m da un hash della cella (`DecorJitter`), non dal flusso del seme; contro un
+muro restano girati verso la stanza, per non entrarci dentro.
+
+Test: `DecorTests` (niente colonne, niente doppioni, mucchietti del tema, piatti accanto ai mobili,
+punto d'interesse in 400 livelli: dove sta, quanti pozzi e santuari, niente trappole prima della
+profondità 3, tutti i tipi presenti; il tiro; la rotazione dalla cella) e `DungeonContentTests`
+(in mezzo alle stanze solo i barili del punto d'interesse). `SpecialHudTests` cercava un posto
+accanto a Morvak solo a sud, dove ora c'è un gruppo di barili: prova i quattro lati. 348 EditMode
+e 215 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -172,7 +203,7 @@ ADR-094 (Blender 5.2 LTS e modelli da script) e ADR-095 (suoni da script). 343 E
 - [x] Decisioni D1–D14 confermate (19 ott 2026)
 - [x] Libreria Blender e primo modello in Unity
 - [x] Libreria audio e suoni della prova nel repo
-- [ ] Arredi con un senso, senza colonnato
+- [x] Arredi con un senso, senza colonnato
 - [ ] Modelli nuovi e tema della cappella
 - [ ] Barili da rompere
 - [ ] Pozzi e santuari

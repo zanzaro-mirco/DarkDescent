@@ -55,7 +55,7 @@ namespace DarkDescent.Levels
             var layout = new DungeonLayout(_cells, _rooms, start, exit, entrance, stairs);
             var populator = new DungeonPopulator(_settings);
             populator.Populate(layout, depth, _random);
-            populator.Decorate(layout, new SplitMix64Source(SeedMixer.ForDecor(seed)));
+            populator.Decorate(layout, depth, new SplitMix64Source(SeedMixer.ForDecor(seed)));
             return layout;
         }
 

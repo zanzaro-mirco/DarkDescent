@@ -12,6 +12,7 @@ namespace DarkDescent.Levels
     {
         private readonly char[,] _cells;
         private readonly List<RectInt> _rooms;
+        private readonly List<RoomFeature> _features = new List<RoomFeature>();
 
         public DungeonLayout(char[,] cells, List<RectInt> rooms, int startRoom, int exitRoom, Vector2Int entrance, Vector2Int stairs)
         {
@@ -72,6 +73,14 @@ namespace DarkDescent.Levels
 
             _cells[x, y] = symbol;
             return true;
+        }
+
+        /// <summary>I punti d'interesse delle stanze grandi (D4 della M13), nell'ordine delle stanze.</summary>
+        public IReadOnlyList<RoomFeature> Features => _features;
+
+        public void AddFeature(RoomFeature feature)
+        {
+            _features.Add(feature);
         }
 
         /// <summary>Toglie un marcatore messo con <see cref="TryPlace"/>: la cella torna pavimento.</summary>

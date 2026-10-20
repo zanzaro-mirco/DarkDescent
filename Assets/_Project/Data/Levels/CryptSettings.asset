@@ -30,7 +30,11 @@ MonoBehaviour:
   _depthsPerChest: 2
   _maxPropsPerRoom: 2
   _maxDecorPerRoom: 4
-  _columnChance: 0.85
+  _barrelsChance: 0.35
+  _wellChance: 0.15
+  _shrineChance: 0.15
+  _trapsChance: 0.1
+  _trapsFirstDepth: 3
   _maxScatterPerRoom: 2
   _cellsPerTorch: 4
   _magesFirstDepth: 3
