@@ -122,6 +122,14 @@ namespace DarkDescent.Core
             return Mix(ForBarrel(runSeed, depth, cellX, cellZ) ^ ExplosiveDomain);
         }
 
+        // "COMFORT": cosa dà la cassa senza oggetto, pozione o oro (D13 della M13)
+        private const ulong ComfortDomain = 0x434F4D464F5254UL;
+
+        public static ulong ForComfort(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ ComfortDomain);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

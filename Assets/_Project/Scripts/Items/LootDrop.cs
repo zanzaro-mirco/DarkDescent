@@ -33,12 +33,16 @@ namespace DarkDescent.Items
         // la cella di partenza in decimetri: il nemico si muove, il suo seme no
         private const float CellsPerMeter = 10f;
 
+        // la scorta di un campione o di un unico lascia un oggetto con metà della probabilità (D13 della M13)
+        private const float EscortChanceFactor = 0.5f;
+
         private Health _health;
         private LootRoller _roller;
         private int _depth = 1;
         private int _cellX;
         private int _cellZ;
         private LootBonus _bonus;
+        private float _chanceFactor = 1f;
 
         // riusata a ogni morte: gli oggetti in più non creano liste nuove
         private readonly List<ItemInstance> _extra = new List<ItemInstance>();
@@ -67,8 +71,22 @@ namespace DarkDescent.Items
         /// <summary>Quello che lascerà alla morte, senza cambiare niente: per i test e per rigiocare un seme.</summary>
         public ItemInstance Preview()
         {
-            return _roller?.Roll(_lootTable, _depth, _cellX, _cellZ);
+            // campioni e unici lasciano solo i tiri in più (D13 della M13)
+            if (_bonus != null && _bonus.ReplacesRoll)
+            {
+                return null;
+            }
+
+            return _roller?.Roll(_lootTable, _depth, _cellX, _cellZ, _chanceFactor);
         }
+
+        /// <summary>Un nemico di scorta (D13 della M13): lascia un oggetto con metà della probabilità del suo tipo.</summary>
+        public void MarkEscort()
+        {
+            _chanceFactor = EscortChanceFactor;
+        }
+
+        public bool IsEscort => _chanceFactor < 1f;
 
         /// <summary>La pozione che lascerà in più alla morte, senza cambiare niente; null se non ne lascia.</summary>
         public ItemInstance PreviewPotion()

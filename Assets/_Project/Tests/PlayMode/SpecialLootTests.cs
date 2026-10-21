@@ -87,7 +87,15 @@ namespace DarkDescent.Tests
 
                 Assert.AreSame(special.Numbers.Loot, drop.Bonus, enemy.name);
                 drop.PreviewExtra(extra);
-                Assert.AreEqual(special.Rank == EnemyRank.Unique ? 2 : 1, extra.Count, enemy.name);
+                if (special.Rank == EnemyRank.Unique)
+                {
+                    Assert.AreEqual(2, extra.Count, enemy.name);
+                }
+                else
+                {
+                    // l'oggetto del campione cade una volta su due (D13 della M13)
+                    Assert.LessOrEqual(extra.Count, 1, enemy.name);
+                }
             }
 
             var morvak = level.Enemies.Single(e => e.GetComponent<SpecialEnemy>()?.Rank == EnemyRank.Unique);
@@ -102,7 +110,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(before + expected, GroundItems, "cade tutto, anche gli oggetti in più");
         }
 
-        [UnityTest, Description("Accanto a Morvak c'è un forziere: si apre come una cassa e lascia un oggetto in più, almeno un magico e più oro di una cassa")]
+        [UnityTest, Description("Accanto a Morvak c'è un forziere: si apre come una cassa e lascia un oggetto sicuro, almeno magico, e più oro di una cassa")]
         public IEnumerator GoldChest_BesideMorvakOpens()
         {
             yield return EnterCryptWithMorvak();
@@ -116,7 +124,8 @@ namespace DarkDescent.Tests
             var extra = new List<ItemInstance>();
             chest.PreviewExtra(extra);
             Assert.AreEqual(1, extra.Count);
-            Assert.IsTrue(extra.Append(chest.Preview()).Any(i => i.Rarity >= Rarity.Magic), "almeno un magico");
+            Assert.IsNull(chest.Preview(), "solo l'oggetto sicuro");
+            Assert.GreaterOrEqual(extra[0].Rarity, Rarity.Magic, "almeno magico");
             Assert.Greater(chest.PreviewGold(), 0);
 
             int expected = Expected(chest, extra);

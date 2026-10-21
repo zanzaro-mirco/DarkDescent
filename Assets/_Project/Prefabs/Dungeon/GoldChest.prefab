@@ -216,10 +216,11 @@ MonoBehaviour:
   _dropHeight: 0.7
   _bonus:
     _extraRolls: 1
-    _magicFactor: 1
-    _rareFactor: 1
+    _magicFactor: 2
+    _rareFactor: 3
     _guaranteed: 1
     _goldFactor: 3
+    _replacesRoll: 1
   _sealedUntilBossDies: 0
   _audio: {fileID: 1793994670716697161}
   _openClips:

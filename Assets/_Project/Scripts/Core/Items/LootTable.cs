@@ -99,10 +99,10 @@ namespace DarkDescent.Items
         }
 
         /// <summary>Tira il drop: false se il nemico non lascia niente, altrimenti la base estratta per peso.</summary>
-        public bool TryRoll(IRandomSource random, out ItemDefinition item)
+        public bool TryRoll(IRandomSource random, out ItemDefinition item, float chanceFactor = 1f)
         {
             item = null;
-            if (random.NextDouble() >= _dropChance)
+            if (random.NextDouble() >= _dropChance * chanceFactor)
             {
                 return false;
             }

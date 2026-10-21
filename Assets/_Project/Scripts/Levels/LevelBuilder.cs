@@ -207,6 +207,7 @@ namespace DarkDescent.Levels
             int enemyCount = 0;
 
             // i campioni della mappa (M12), per cella: il nemico messo lì viene promosso
+            var escorts = SpecialEnemyPlanner.EscortsFromMap(map);
             var champions = new Dictionary<Vector2Int, ChampionSpawn>();
             foreach (var spawn in ChampionSpawn.FromMap(map))
             {
@@ -274,6 +275,10 @@ namespace DarkDescent.Levels
                                 }
 
                                 special.Promote(EnemyRank.Champion, champion.Modifiers);
+                            }
+                            else if (escorts.Contains(new Vector2Int(marker.X, marker.Y)) && placed.TryGetComponent(out LootDrop loot))
+                            {
+                                loot.MarkEscort();
                             }
                         }
 

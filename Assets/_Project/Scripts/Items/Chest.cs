@@ -77,6 +77,8 @@ namespace DarkDescent.Items
 
         public LootBonus Bonus => _bonus;
 
+        public LootTable LootTable => _lootTable;
+
         /// <summary>L'oggetto in più che porta, come la pergamena del livello (D5 della M9), o null.</summary>
         public ItemInstance Carried { get; private set; }
 
@@ -95,19 +97,63 @@ namespace DarkDescent.Items
         /// <summary>Quello che lascerà aprendosi, senza cambiare niente: per i test e per rigiocare un seme.</summary>
         public ItemInstance Preview()
         {
+            // il forziere lascia solo il suo tiro in più (D13 della M13)
+            if (_bonus != null && _bonus.ReplacesRoll)
+            {
+                return null;
+            }
+
             return _roller?.Roll(_lootTable, _depth, _cellX, _cellZ);
         }
 
-        /// <summary>La pozione che lascerà in più aprendosi, senza cambiare niente; null se non ne lascia.</summary>
+        /// <summary>
+        /// La pozione che lascerà in più aprendosi, senza cambiare niente; null se non ne lascia. Una
+        /// cassa senza oggetto può darla al posto dell'oggetto (D13 della M13).
+        /// </summary>
         public ItemInstance PreviewPotion()
         {
-            return _roller?.RollPotion(_lootTable, _depth, _cellX, _cellZ);
+            var potion = _roller?.RollPotion(_lootTable, _depth, _cellX, _cellZ);
+            if (potion == null && Comfort() == ChestComfort.Potion && _lootTable.Potion != null)
+            {
+                potion = new ItemInstance(_lootTable.Potion);
+            }
+
+            return potion;
         }
 
-        /// <summary>L'oro che lascerà in più, senza cambiare niente; 0 se non ne lascia (D4 della M10).</summary>
+        /// <summary>
+        /// L'oro che lascerà in più, senza cambiare niente; 0 se non ne lascia (D4 della M10). Una cassa
+        /// senza oggetto e senza la pozione di compenso ne dà il doppio (D13 della M13).
+        /// </summary>
         public int PreviewGold()
         {
-            return _roller?.RollGold(_lootTable, _depth, _cellX, _cellZ, _bonus) ?? 0;
+            int gold = _roller?.RollGold(_lootTable, _depth, _cellX, _cellZ, _bonus) ?? 0;
+            return Comfort() == ChestComfort.Gold ? gold * 2 : gold;
+        }
+
+        private enum ChestComfort
+        {
+            None,
+            Potion,
+            Gold,
+        }
+
+        // Senza oggetto, al suo posto una pozione o il doppio dell'oro: un tiro suo della cella; se la
+        // pozione c'è già per conto suo, l'oro
+        private ChestComfort Comfort()
+        {
+            if (_roller == null || (_bonus != null && _bonus.ExtraRolls > 0) || Preview() != null)
+            {
+                return ChestComfort.None;
+            }
+
+            bool potion = _roller.RollChestComfort(_depth, _cellX, _cellZ);
+            if (potion && _roller.RollPotion(_lootTable, _depth, _cellX, _cellZ) == null)
+            {
+                return ChestComfort.Potion;
+            }
+
+            return ChestComfort.Gold;
         }
 
         /// <summary>Gli oggetti in più che lascerà, in <paramref name="into"/>, senza cambiare niente; nessuno per la cassa di sempre.</summary>

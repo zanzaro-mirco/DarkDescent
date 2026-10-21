@@ -8,6 +8,7 @@ namespace DarkDescent.Items
     /// del re. Tiri in più della stessa tabella, ognuno con un seme suo, rarità spostate verso l'alto,
     /// una rarità garantita su tutto quello che cade e l'oro moltiplicato. Il primo tiro resta quello
     /// di sempre: un nemico promosso lascia lo stesso oggetto che lasciava da normale, più il resto.
+    /// Dalla M13 (D13) campioni e unici non hanno il tiro di sempre: lasciano solo i tiri in più.
     /// </summary>
     [Serializable]
     public sealed class LootBonus
@@ -27,12 +28,21 @@ namespace DarkDescent.Items
         [Tooltip("Per quanto si moltiplica l'oro, quando cade.")]
         [SerializeField, Min(1f)] private float _goldFactor = 1f;
 
+        [Tooltip("Senza il tiro di sempre: cadono solo i tiri in più (campioni, unici e forzieri, D13 della M13).")]
+        [SerializeField] private bool _replacesRoll;
+
+        [Tooltip("La probabilità che cada ogni tiro in più: 1 sempre, 0,5 il campione (D13 della M13).")]
+        [SerializeField, Range(0f, 1f)] private float _extraChance = 1f;
+
         public LootBonus()
         {
         }
 
-        public LootBonus(int extraRolls, float magicFactor, float rareFactor, Rarity guaranteed, float goldFactor)
+        public LootBonus(int extraRolls, float magicFactor, float rareFactor, Rarity guaranteed, float goldFactor, bool replacesRoll = false,
+            float extraChance = 1f)
         {
+            _replacesRoll = replacesRoll;
+            _extraChance = extraChance;
             _extraRolls = extraRolls;
             _magicFactor = magicFactor;
             _rareFactor = rareFactor;
@@ -49,5 +59,9 @@ namespace DarkDescent.Items
         public Rarity Guaranteed => _guaranteed;
 
         public float GoldFactor => _goldFactor;
+
+        public bool ReplacesRoll => _replacesRoll;
+
+        public float ExtraChance => _extraChance;
     }
 }

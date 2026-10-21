@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using DarkDescent.Combat;
+using DarkDescent.Core;
 using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Levels;
@@ -14,6 +15,8 @@ namespace DarkDescent.Tests
     public class ChestTests : SandboxFixture
     {
         private static LevelManager Manager => Object.FindFirstObjectByType<LevelManager>();
+
+        private static CompositionRoot Root => Object.FindFirstObjectByType<CompositionRoot>();
 
         private static string Describe(ItemInstance item)
         {
@@ -39,7 +42,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, chests.Count, "una cassa al livello 1 (D6)");
             foreach (var chest in chests)
             {
-                Assert.IsNotNull(chest.Preview(), "una cassa lascia sempre qualcosa");
+                Assert.IsNotNull(chest.LootTable, "la cassa ha il suo loot");
                 Vector3 approach = chest.GetComponent<Interactable>().ApproachPoint;
                 Assert.IsTrue(NavMesh.SamplePosition(approach, out _, 0.5f, NavMesh.AllAreas), $"davanti a {chest.name} non si arriva");
                 Assert.AreEqual("Chest", chest.GetComponent<Interactable>().GetLabel(Localizer));
@@ -54,6 +57,14 @@ namespace DarkDescent.Tests
             yield return null;
 
             var chest = Manager.CurrentLevel.Chests[0];
+
+            // la cassa lascia un oggetto una volta su tre (D13 della M13): un seme con l'oggetto
+            ulong seed = 1;
+            for (Root.UseLootSeed(seed); chest.Preview() == null; Root.UseLootSeed(++seed))
+            {
+                Assert.Less(seed, 100UL, "nessun seme con l'oggetto");
+            }
+
             string expected = Describe(chest.Preview());
             GroundItem dropped = null;
             int openings = 0;

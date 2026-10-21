@@ -43,8 +43,8 @@ namespace DarkDescent.Levels
         [Tooltip("Il simbolo dei nemici della scorta dell'unico: scheletri.")]
         [SerializeField] private string _uniqueEscort = "S";
 
-        [Tooltip("La probabilità che un campione abbia un forziere accanto; l'unico ce l'ha sempre (D8).")]
-        [SerializeField, Range(0f, 1f)] private float _goldChestChance = 0.5f;
+        [Tooltip("La probabilità che un campione abbia un forziere accanto; l'unico ce l'ha sempre (D8). Dal 50% al 25% con la D13 della M13.")]
+        [SerializeField, Range(0f, 1f)] private float _goldChestChance = 0.25f;
 
         public SpecialEnemyRules()
         {

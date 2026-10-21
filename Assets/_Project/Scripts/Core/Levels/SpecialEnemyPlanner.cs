@@ -24,6 +24,12 @@ namespace DarkDescent.Levels
         /// <summary>Il tesoro del re, in fondo alla sua sala (D8 della M12).</summary>
         public const char TreasureSymbol = 't';
 
+        /// <summary>
+        /// La direttiva con le celle delle scorte, "x,y" ciascuna (D13 della M13): i nemici di scorta lasciano
+        /// un oggetto con metà della probabilità del loro tipo.
+        /// </summary>
+        public const string EscortDirective = "escorts";
+
         /// <summary>Di quante celle, oltre la scorta e una, il forziere si può allontanare dal suo capo.</summary>
         public const int GoldChestReach = 2;
 
@@ -42,7 +48,7 @@ namespace DarkDescent.Levels
         /// profondità minima non cambia niente.
         /// </summary>
         public static List<ChampionSpawn> Place(DungeonLayout layout, int depth, SpecialEnemyRules rules, IReadOnlyList<string> modifierIds,
-            bool withUnique, IRandomSource random)
+            bool withUnique, IRandomSource random, List<Vector2Int> escorts = null)
         {
             if (layout == null) throw new ArgumentNullException(nameof(layout));
             if (rules == null) throw new ArgumentNullException(nameof(rules));
@@ -83,7 +89,7 @@ namespace DarkDescent.Levels
                     layout.TryPlace(UniqueSymbol, pick.x, pick.y);
                     leaders.Add(pick);
                     uniquePlaced = true;
-                    AddEscort(layout, rules, pick, rules.UniqueEscort, rules.Escort, random);
+                    AddEscort(layout, rules, pick, rules.UniqueEscort, rules.Escort, random, escorts);
                 }
             }
 
@@ -113,7 +119,7 @@ namespace DarkDescent.Levels
                 char symbol = layout[cell.x, cell.y];
                 champions.Add(new ChampionSpawn(cell.x, cell.y, PickModifiers(modifierIds, rules.ModifiersAt(depth), random)));
                 leaders.Add(cell);
-                AddEscort(layout, rules, cell, symbol, symbol == CavePopulator.SwarmSymbol ? rules.SwarmEscort : rules.Escort, random);
+                AddEscort(layout, rules, cell, symbol, symbol == CavePopulator.SwarmSymbol ? rules.SwarmEscort : rules.Escort, random, escorts);
             }
 
             // i forzieri dopo tutti i gruppi: accanto all'unico sempre, a un campione con un tiro suo
@@ -288,15 +294,47 @@ namespace DarkDescent.Levels
 
         // Una cella libera vicina al capo, nella sua stanza se è nella cripta, e non davanti a una cassa,
         // alla scala o alla porta del re: lì si deve poter arrivare.
-        private static void AddEscort(DungeonLayout layout, SpecialEnemyRules rules, Vector2Int leader, char symbol, Vector2Int range, IRandomSource random)
+        private static void AddEscort(DungeonLayout layout, SpecialEnemyRules rules, Vector2Int leader, char symbol, Vector2Int range, IRandomSource random,
+            List<Vector2Int> escorts)
         {
             var free = EscortCells(layout, rules, leader);
             int count = Range(random, Math.Min(range.x, range.y), Math.Max(range.x, range.y));
             Shuffle(free, random);
             for (int i = 0; i < count && i < free.Count; i++)
             {
-                layout.TryPlace(symbol, free[i].x, free[i].y);
+                if (layout.TryPlace(symbol, free[i].x, free[i].y))
+                {
+                    escorts?.Add(free[i]);
+                }
             }
+        }
+
+        /// <summary>Le celle delle scorte come gettoni della direttiva <see cref="EscortDirective"/>.</summary>
+        public static string[] EscortTokens(IReadOnlyList<Vector2Int> escorts)
+        {
+            var tokens = new string[escorts.Count];
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                tokens[i] = escorts[i].x + "," + escorts[i].y;
+            }
+
+            return tokens;
+        }
+
+        /// <summary>Le celle delle scorte scritte nella mappa; vuoto se non ce ne sono.</summary>
+        public static HashSet<Vector2Int> EscortsFromMap(LevelMap map)
+        {
+            var cells = new HashSet<Vector2Int>();
+            foreach (var token in map.GetDirective(EscortDirective))
+            {
+                var parts = token.Split(',');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int x) && int.TryParse(parts[1], out int y))
+                {
+                    cells.Add(new Vector2Int(x, y));
+                }
+            }
+
+            return cells;
         }
 
         // Le celle libere attorno al capo dove può stare la scorta: nella sua stanza, se è in una stanza

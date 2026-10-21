@@ -54,7 +54,7 @@ namespace DarkDescent.Tests
             CollectionAssert.AreNotEqual(first, other, "un seme diverso dà altri drop");
         }
 
-        [Test, Description("Su 10.000 nemici lascia qualcosa circa il 30%; il livello dell'oggetto è la profondità; le basi hanno tutte lo stesso peso, quindi le quattro armi sono circa 4 oggetti su 19")]
+        [Test, Description("Su 10.000 nemici lascia qualcosa circa il 15% (D13 della M13); il livello dell'oggetto è la profondità; le basi hanno tutte lo stesso peso, quindi le quattro armi sono circa 4 oggetti su 19")]
         public void Drops_FollowTheTable()
         {
             var roller = Roller(99UL);
@@ -73,7 +73,7 @@ namespace DarkDescent.Tests
                 bases[item.Definition.name] = bases.TryGetValue(item.Definition.name, out int n) ? n + 1 : 1;
             }
 
-            Assert.AreEqual(0.3, drops / 10000.0, 0.02);
+            Assert.AreEqual(0.15, drops / 10000.0, 0.015);
             Assert.AreEqual(19, bases.Count, "ogni base deve poter cadere, anche le undici della M8");
             int weapons = bases.Where(p => p.Key == "SkeletonBlade" || p.Key == "ShortSword" || p.Key == "Dagger" || p.Key == "Axe").Sum(p => p.Value);
             Assert.AreEqual(4.0 / 19.0, weapons / (double)drops, 0.03, "prima della prova della build M8 le armi pesavano di più ed erano un terzo");
@@ -82,19 +82,19 @@ namespace DarkDescent.Tests
         [Test, Description("La loot table: sotto la probabilità di drop cade la base estratta per peso, sopra niente")]
         public void LootTable_RollsDropThenBase()
         {
-            Assert.IsTrue(Skeleton.TryRoll(new FixedRandomSource(0.29, 0.0), out var first));
+            Assert.IsTrue(Skeleton.TryRoll(new FixedRandomSource(0.14, 0.0), out var first));
             Assert.AreEqual("SkeletonBlade", first.name, "la prima della lista");
-            // 0,31 e non 0,3: la probabilità salvata è un float, un poco sopra 0,3 in double
-            Assert.IsFalse(Skeleton.TryRoll(new FixedRandomSource(0.31), out _));
+            // 0,16 e non 0,15: la probabilità salvata è un float, un poco sopra 0,15 in double
+            Assert.IsFalse(Skeleton.TryRoll(new FixedRandomSource(0.16), out _));
             Assert.IsTrue(Skeleton.TryRoll(new FixedRandomSource(0.0, 0.999), out var last));
             Assert.AreEqual("Amulet", last.name, "l'ultima della lista");
         }
 
-        [Test, Description("Su 10.000 nemici delle caverne (D11, abbassato dopo la prova della build M8): lo sciame lascia un oggetto il 7% delle volte e una pozione il 3%, il bruto un oggetto il 60% e una pozione il 20%; il livello dell'oggetto è la profondità")]
+        [Test, Description("Su 10.000 nemici delle caverne (D11, abbassato dopo la prova della build M8): lo sciame lascia un oggetto il 4% delle volte (D13 della M13) e una pozione il 3%, il bruto un oggetto il 35% e una pozione il 20%; il livello dell'oggetto è la profondità")]
         public void CaveEnemies_DropAsD11()
         {
             var roller = Roller(4711UL);
-            foreach (var (name, items, potions) in new[] { ("SwarmLoot", 0.07, 0.03), ("BruteLoot", 0.6, 0.2) })
+            foreach (var (name, items, potions) in new[] { ("SwarmLoot", 0.04, 0.03), ("BruteLoot", 0.35, 0.2) })
             {
                 var table = AssetDatabase.LoadAssetAtPath<LootTable>($"Assets/_Project/Data/Loot/{name}.asset");
                 int dropped = 0, drunk = 0;

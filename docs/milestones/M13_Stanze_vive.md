@@ -64,7 +64,7 @@ Confermate da Mirco il 19 ottobre 2026, tutte come proposte.
 | D14 | **Suoni da script** | Script Python in **`Tools/Audio/`**: una libreria comune (inviluppi, filtri, risonatori, rumore, campane, bolle, riverbero a convoluzione, lettura e cambio di tono dei sample, export WAV 44,1 kHz a 16 bit normalizzato) e uno script per suono, con un **seme fisso**, così ogni WAV si rifà uguale. Versioni bloccate in `Tools/Audio/requirements.txt` (numpy 2.5.4, scipy 1.18.1). I WAV in `Audio/SFX/Generated`, nei crediti come nostri. Ogni suono passa da una **pagina di ascolto** con lo spettrogramma, accanto al suono più vicino che il gioco ha già. Suoni: **santuario** (un rintocco per tipo, con il tono che cambia), **pozzo** (sorso), **barile che si rompe** in **due varianti**, la sintetizzata e l'ibrida, scelte a caso a ogni rottura, **spuntoni** (avviso e scatto), **barile esplosivo** (miccia ed esplosione) e **fine del bonus** del santuario | Mirco, 19 ott 2026: la prova va bene, e si tengono tutti e due i barili. I suoni "geometrici" (campane, meccanismi, acqua, magie) vengono bene da script; il legno e le esplosioni vengono meglio con un sample elaborato, le voci e le creature restano ai sample |
 | D15 | **ComfyUI per suoni e modelli generati** | ComfyUI Desktop sul PC di Mirco, guidato da Claude attraverso l'API locale (`127.0.0.1:8188`) con un piccolo client Python in `Tools/ComfyUI/`: workflow in formato API nel repo, prompt e seme di ogni asset salvati accanto, così ogni risultato si rifà. **Audio**: Stable Audio 3.0 **Small SFX** (`stable_audio_3_small_sfx`, 2,27 GB, più l'encoder `t5gemma_b_b_ul2`, 1,19 GB), licenza *stable-audio-community*. **3D**: TRELLIS.2 in **int8** (`trellis_2_int8_convrot`, 5,25 GB, più i due VAE e DINOv3, circa 3,3 GB) a risoluzione 512 per i 12 GB di VRAM, senza il ramo Pixal3D (segnalato come bloccato nell'UE). I modelli li scarica Mirco. Ogni asset generato passa dalla stessa prova di quelli da script (pagina di ascolto o foto accanto ai KayKit), si rifinisce con `Tools/Audio` o `Tools/Blender`, e va in `CREDITS.md` con il modello e la licenza. Le licenze (DINOv3 sui risultati, registrazione Stability per l'uso commerciale) si chiudono in un ADR prima del primo asset nel gioco | Mirco, 20 ott 2026: ComfyUI installato per generare suoni e modelli. La prova del 19 ott ha mostrato che lo script regge le forme geometriche ma non quelle organiche (l'elmo); un modello generato può fare da base per la statua e i pezzi organici, e Stable Audio può dare il legno, l'acqua e i colpi che la sintesi fa peggio |
 | D16 | **Immagine di partenza: una foto da Blender, nello stile KayKit** | TRELLIS.2 parte da un'immagine. Quella standard è una **foto da Blender** di una bozza dell'oggetto: un modello di `Tools/Blender` o pezzi KayKit montati insieme (CC0), fotografati di tre quarti su sfondo uniforme con `Tools/ComfyUI/views.py reference`. La bozza può essere grossolana (proporzioni e colori giusti), il dettaglio organico lo aggiunge TRELLIS; lo stile resta KayKit perché forme e colori sono nostri, e la foto non porta licenze nuove. La foto sta nel repo accanto alla ricetta. Un workflow testo → immagine per gli oggetti che non vale la pena abbozzare, con Z-Image-Turbo (Apache 2.0, circa 8,3 GB in nvfp4) e un prompt in stile KayKit, è negli **sviluppi dopo la v1.0** (Mirco, 20 ott 2026, dopo la prova del 13.4). Scartati: Flux.1 dev e SDXL-Turbo (licenze non commerciali), Flux.2 Klein 4B (il VAE dei workflow di ComfyUI viene da un repository con licenza non commerciale), i nodi API a pagamento. Il GLB diventa FBX con un comando di `views.py` (assi di Unity, scala della cella, base a terra, davanti verso la stanza) **solo dopo la foto e il sì di Mirco**: niente va dritto negli asset | Mirco, 20 ott 2026: una pipeline trovata in rete proponeva testo → immagine → TRELLIS → Blender → FBX in stile Diablo IV. Lo stile resta KayKit; della proposta si tiene la conversione in FBX, e per l'immagine Mirco sceglie la foto da Blender, senza scaricare un modello in più |
-| D13 | **Loot: meno oggetti, ma migliori** | Obiettivo **4–5 oggetti a livello** in media, con la stessa parte di magici e rari. Probabilità per nemico: scheletro **15%**, mago **25%**, bruto **35%**, sciame **4%**; le **scorte** dei campioni a **metà** della probabilità del loro tipo. **Campione**: un solo oggetto, **sicuro**, con le rarità spostate (al posto del tiro di sempre più uno). **Unico**: **due** oggetti, uno raro. **Cassa**: oggetto al **50%**, e senza oggetto più oro o una pozione. **Forziere d'oro**: accanto all'unico e al **25%** dei campioni. Barili, pozzi e santuari della M13 entrano nel conto. I numeri si **misurano**: uno strumento nell'editor genera 200 livelli per profondità e conta gli oggetti per fonte e per rarità; un test EditMode tiene la media nella fascia | Mirco, 19 ott 2026: con tutti i mostri e gli oggetti aggiunti il loot è troppo. In un ARPG un oggetto a terra deve contare; conviene tarare tutto insieme, dopo che barili, pozzi e santuari ci sono |
+| D13 | **Loot: meno oggetti, ma migliori** | Obiettivo **4–5 oggetti a livello** in media, con la stessa parte di magici e rari. Probabilità per nemico: scheletro **15%**, mago **25%**, bruto **35%**, sciame **4%**; le **scorte** dei campioni a **metà** della probabilità del loro tipo. **Campione**: un solo oggetto, **sicuro**, con le rarità spostate (al posto del tiro di sempre più uno). **Unico**: **due** oggetti, uno raro. **Cassa**: oggetto al **50%**, e senza oggetto più oro o una pozione. **Forziere d'oro**: accanto all'unico e al **25%** dei campioni. Barili, pozzi e santuari della M13 entrano nel conto. I numeri si **misurano**: uno strumento nell'editor genera 200 livelli per profondità e conta gli oggetti per fonte e per rarità; un test EditMode tiene la media nella fascia. **Dopo la misura (21 ott 2026, passo 13.8)**: con questi numeri la media era 6,7; Mirco ha scelto il forziere a un oggetto sicuro, l'oggetto del campione al 50% e la cassa al 35%, e la media è 5,0 | Mirco, 19 ott 2026: con tutti i mostri e gli oggetti aggiunti il loot è troppo. In un ARPG un oggetto a terra deve contare; conviene tarare tutto insieme, dopo che barili, pozzi e santuari ci sono |
 
 ---
 
@@ -345,6 +345,44 @@ l'esplosione che ferisce cavaliere e nemico vicini e non quello lontano, i baril
 il seme dell'orologio, e con alcuni semi la sala del re resta senza porta: ora prova i semi fissi come
 gli altri test del re. 368 EditMode e 223 PlayMode verdi.
 
+## Passo 13.8 — Loot
+
+**Com'è andata (21 ott 2026).** **Lo strumento.** `LootCensus`, nell'editor (*DarkDescent → Conta il loot
+dei livelli*), genera i livelli come il gioco (`DungeonLevel.CreateMap`, nemici speciali e scorte
+compresi) e somma per ogni fonte gli oggetti attesi dai numeri delle tabelle, divisi per rarità: valori
+attesi e non tiri, quindi due conteggi uguali danno lo stesso risultato. Contano gli oggetti con una
+rarità; pozioni, oro e pergamene no.
+
+**Le scorte.** Il pianificatore dei nemici speciali scrive le celle delle scorte nella direttiva
+`escorts` della mappa; il costruttore la legge e segna quei nemici (`LootDrop.MarkEscort`), che lasciano
+un oggetto con metà della probabilità del loro tipo. Lo stesso tiro con la soglia dimezzata: quando
+l'oggetto cade è quello che avrebbe lasciato il nemico normale.
+
+**I numeri della D13 e la misura.** Con i numeri della D13 (scheletro 15%, mago 25%, bruto 35%, sciame
+4%, scorte a metà, campione un oggetto sicuro, unico due di cui uno raro, cassa 50% con compenso,
+forziere al 25% dei campioni) la media misurata era **6,7 oggetti a livello**, sopra l'obiettivo 4–5:
+pesavano i campioni (1,4 a livello nella cripta, 2,4 nelle caverne), i forzieri a due oggetti e la
+profondità 8. Mirco ha scelto tre tagli in più: il **forziere** lascia un oggetto sicuro con le rarità
+spostate, almeno magico, invece di due; l'oggetto del **campione** cade al **50%**, con le rarità
+spostate; la **cassa** lascia un oggetto al **35%**. `LootBonus` ha preso `ReplacesRoll` (niente tiro
+di sempre, solo i tiri in più) ed `ExtraChance` (la probabilità di ogni tiro in più).
+
+**La cassa senza oggetto** dà al suo posto una pozione o il doppio dell'oro, da un tiro suo della cella
+(`SeedMixer.ForComfort`); se la pozione c'è già per conto suo, l'oro.
+
+**Il risultato.** Media **5,0 oggetti a livello** (profondità 1: 1,5; cripta 2–4: da 4,3 a 4,9;
+caverne 5–7: da 5,2 a 5,6; profondità 8 con il re e il suo tesoro: 8,7), magici il 30% e rari il 17%,
+quasi come prima (30% e 15%). Barili, pozzi e santuari sono nel conto: i barili danno 0,2–0,35
+oggetti a livello, pozzi e santuari nessuno.
+
+Test: `LootCensusTests` (la media da 4 a 5,2 su 40 livelli per profondità e le parti di magici e rari, i
+numeri delle tabelle, i bonus che sostituiscono il tiro, la scorta che lascia lo stesso oggetto la metà
+delle volte, il tiro del campione una volta su due, le scorte nella mappa) e `LootCutsPlayModeTests` (la
+cassa vuota con la pozione o il doppio dell'oro, le scorte segnate vicino al loro capo, il campione con
+al più un oggetto). Aggiornati ai numeri nuovi `LootTests`, `SpecialEnemyPlannerTests`, `ChestTests` (la cassa non lascia più
+sempre un oggetto) e `SpecialLootTests` (il campione al più uno, il forziere uno sicuro). EditMode 374/374,
+PlayMode 225/225.
+
 ---
 
 ## Trappole note
@@ -404,7 +442,7 @@ gli altri test del re. 368 EditMode e 223 PlayMode verdi.
 - [x] Barili da rompere, anche nelle caverne, con i gruppi contro i muri
 - [x] Pozzi e santuari
 - [x] Trappole
-- [ ] Loot misurato e ritarato
+- [x] Loot misurato e ritarato: 5,0 oggetti a livello, con i tre tagli scelti da Mirco
 - [ ] Build di prova
 - [ ] ADR, lezioni nel piano, README
 - [ ] Tag `v1.2.0`, con il via di Mirco

@@ -23,10 +23,23 @@ namespace DarkDescent.Items
         /// <summary>Il seme della partita: da -seed, oppure casuale e scritto nel log.</summary>
         public ulong RunSeed { get; set; }
 
-        /// <summary>L'oggetto che lascia il nemico partito da questa cella, o null se non lascia niente.</summary>
-        public ItemInstance Roll(LootTable table, int depth, int cellX, int cellZ)
+        /// <summary>
+        /// L'oggetto che lascia il nemico partito da questa cella, o null se non lascia niente. Con
+        /// <paramref name="chanceFactor"/> la probabilità della tabella si moltiplica (le scorte, D13 della
+        /// M13); lo stesso tiro, quindi l'oggetto, se cade, è quello di sempre.
+        /// </summary>
+        public ItemInstance Roll(LootTable table, int depth, int cellX, int cellZ, float chanceFactor = 1f)
         {
-            return table != null ? RollFrom(table, depth, SeedMixer.ForEnemy(RunSeed, depth, cellX, cellZ)) : null;
+            return table != null ? RollFrom(table, depth, SeedMixer.ForEnemy(RunSeed, depth, cellX, cellZ), chanceFactor) : null;
+        }
+
+        /// <summary>
+        /// La cassa che non lascia un oggetto dà al suo posto una pozione o il doppio dell'oro (D13 della
+        /// M13): true per la pozione, da un tiro suo della cella.
+        /// </summary>
+        public bool RollChestComfort(int depth, int cellX, int cellZ)
+        {
+            return new SplitMix64Source(SeedMixer.ForComfort(RunSeed, depth, cellX, cellZ)).NextDouble() < 0.5;
         }
 
         /// <summary>
@@ -50,10 +63,10 @@ namespace DarkDescent.Items
             return table != null ? GoldFrom(table, depth, SeedMixer.ForBarrelGold(RunSeed, depth, cellX, cellZ)) : 0;
         }
 
-        private ItemInstance RollFrom(LootTable table, int depth, ulong rollSeed)
+        private ItemInstance RollFrom(LootTable table, int depth, ulong rollSeed, float chanceFactor = 1f)
         {
             var random = new SplitMix64Source(rollSeed);
-            if (!table.TryRoll(random, out var item))
+            if (!table.TryRoll(random, out var item, chanceFactor))
             {
                 return null;
             }
@@ -132,6 +145,13 @@ namespace DarkDescent.Items
             for (int i = 0; i < bonus.ExtraRolls; i++)
             {
                 var random = new SplitMix64Source(SeedMixer.ForExtraLoot(RunSeed, depth, cellX, cellZ, i));
+
+                // il tiro in più che non sempre cade (il campione, D13 della M13): un numero in più solo per lui
+                if (bonus.ExtraChance < 1f && random.NextDouble() >= bonus.ExtraChance)
+                {
+                    continue;
+                }
+
                 var item = table.PickBase(random);
                 if (item == null)
                 {

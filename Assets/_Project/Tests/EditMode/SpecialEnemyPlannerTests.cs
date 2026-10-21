@@ -378,7 +378,7 @@ namespace DarkDescent.Tests
             return seen.Count;
         }
 
-        [Test, Description("Accanto all'unico c'è sempre un forziere, accanto ai campioni circa una volta su due; mai più forzieri che capi")]
+        [Test, Description("Accanto all'unico c'è sempre un forziere, accanto ai campioni circa una volta su quattro (D13 della M13), qualcuna in più per il forziere dell'unico vicino; mai più forzieri che capi")]
         public void GoldChests_BesideUniqueAndHalfTheChampions()
         {
             int champions = 0, withChest = 0, uniques = 0, uniqueWithChest = 0;
@@ -407,7 +407,7 @@ namespace DarkDescent.Tests
             }
 
             Assert.Greater(uniqueWithChest / (double)uniques, 0.98, "l'unico ha il suo forziere");
-            Assert.AreEqual(0.5, withChest / (double)champions, 0.12, "un campione su due");
+            Assert.That(withChest / (double)champions, Is.InRange(0.18, 0.42), "un campione su quattro");
         }
 
         [Test, Description("Un forziere ha il davanti libero, come le casse, quasi sempre contro un muro, e non chiude nessun passaggio")]

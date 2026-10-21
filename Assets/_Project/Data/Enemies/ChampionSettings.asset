@@ -24,6 +24,8 @@ MonoBehaviour:
       _rareFactor: 3
       _guaranteed: 0
       _goldFactor: 2.5
+      _replacesRoll: 1
+      _extraChance: 0.5
   _unique:
     _life: 5
     _damage: 1.8
@@ -36,6 +38,7 @@ MonoBehaviour:
       _rareFactor: 3
       _guaranteed: 2
       _goldFactor: 4
+      _replacesRoll: 1
   _modifiers:
   - {fileID: 11400000, guid: e6a299124ee2dab4cab6419b31afcc58, type: 2}
   - {fileID: 11400000, guid: db97e41c4fba6734f885ea9a5642d367, type: 2}

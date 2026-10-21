@@ -49,8 +49,14 @@ namespace DarkDescent.Levels
 
             // i nemici speciali (M12) dopo tutto il resto, con un seme loro: il livello di prima resta com'era
             var modifiers = settings.Champions != null ? settings.Champions.CollectModifierIds() : new List<string>();
+            var escorts = new List<Vector2Int>();
             var champions = SpecialEnemyPlanner.Place(layout, depth, settings.Specials, modifiers, settings.UniqueDepth(runSeed) == depth,
-                new SplitMix64Source(SeedMixer.ForSpecials(levelSeed)));
+                new SplitMix64Source(SeedMixer.ForSpecials(levelSeed)), escorts);
+            if (escorts.Count > 0)
+            {
+                directives[SpecialEnemyPlanner.EscortDirective] = SpecialEnemyPlanner.EscortTokens(escorts);
+            }
+
             if (champions.Count > 0)
             {
                 var tokens = new string[champions.Count];

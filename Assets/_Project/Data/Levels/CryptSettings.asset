@@ -53,4 +53,5 @@ MonoBehaviour:
     _twoModifiersFrom: 5
     _uniqueChance: 0.33333334
     _uniqueEscort: S
+    _goldChestChance: 0.25
   _champions: {fileID: 11400000, guid: 6c05981de283add45a4556dbe018e6b4, type: 2}
