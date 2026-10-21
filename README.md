@@ -22,6 +22,9 @@ Progetto personale in Unity (URP) / C#.
 - modelli nuovi fatti **in Blender da script** e suoni nuovi fatti da script o con **Stable Audio 3**
   attraverso ComfyUI, tutti nel repo e rifacibili.
 
+**v1.2.1** (tag `v1.2.1`): il portale aperto in un angolo stretto, tra muri e barili, va sul punto
+libero più lontano, dove il cavaliere arriva.
+
 ![Una cappella della cripta: il cavaliere accanto al pozzo del mana, con il cristallo e la luce blu; intorno candele, un tavolo con un libro e una statua](docs/media/m13_well.png)
 
 **v1.1 — M12 "Nemici speciali"**, chiusa il 19 ottobre 2026 (tag `v1.1.0`). Rispetto alla v1.0:

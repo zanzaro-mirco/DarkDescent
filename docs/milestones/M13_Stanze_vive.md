@@ -417,6 +417,16 @@ stato del progetto nel piano (v2.53); README con la v1.2 e una foto del pozzo de
 `bundleVersion` 1.2.0. Il tag `v1.2.0` aspetta il via di Mirco: fa partire la build Windows della
 release.
 
+**Dopo il tag.** Il tag `v1.2.0` è partito mentre il run dei test dell'ultimo commit era appena fallito,
+senza che lo guardassi. Il test fallito, `PortalTests.SavedPortal_SurvivesContinue`, era già saltato una
+volta nel passo 13.5 e sembrava lento: non lo era. Con il seme della partita preso dal log della CI il
+caso si riproduce sempre: il punto lontano dall'ingresso era un angolo tra la balaustra e un gruppo di
+barili, chiuso da ogni parte a meno di 1,2 m. Lì `TownPortals` metteva il portale 1,2 m davanti al
+cavaliere anche fuori dal NavMesh, e il cavaliere non ci arrivava mai. L'errore c'era dalla M11; i
+barili contro i muri lo rendono più facile. Ora, quando nessuna direzione ha posto, il portale va sul
+punto libero più lontano. Test: `PortalTests.Spell_InATightCorner_OpensAReachablePortal`, che chiude il
+cavaliere tra quattro ostacoli (con il codice di prima falliva). Esce con il tag `v1.2.1`.
+
 ---
 
 ## Trappole note
@@ -483,4 +493,4 @@ release.
 - [x] Loot misurato e ritarato: 5,0 oggetti a livello, con i tre tagli scelti da Mirco
 - [x] Build di prova: al suo posto la rilettura del codice, scelta di Mirco; due errori corretti
 - [x] ADR, lezioni nel piano, README
-- [ ] Tag `v1.2.0`, con il via di Mirco
+- [x] Tag `v1.2.0`, con il via di Mirco (21 ott 2026), e `v1.2.1` con la correzione del portale
