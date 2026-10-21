@@ -105,6 +105,12 @@ namespace DarkDescent.Items
 
         public bool IsBroken { get; private set; }
 
+        /// <summary>
+        /// La miccia è accesa e il barile non è ancora esploso: lasciando il livello adesso il ricordo lo
+        /// tiene intero, perché né il danno né il loot sono arrivati.
+        /// </summary>
+        public bool IsFusing { get; private set; }
+
         /// <summary>Per <see cref="IDamageable"/>: un barile rotto non si colpisce più.</summary>
         public bool IsDead => IsBroken;
 
@@ -195,6 +201,7 @@ namespace DarkDescent.Items
                     _hitArea.enabled = false;
                 }
 
+                IsFusing = true;
                 Broken?.Invoke(this);
                 StartCoroutine(Fuse(source));
                 return;
@@ -239,6 +246,7 @@ namespace DarkDescent.Items
                 _fuseSparks.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
 
+            IsFusing = false;
             Shatter(source);
             if (_explosion != null)
             {

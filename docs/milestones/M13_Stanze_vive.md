@@ -383,6 +383,29 @@ al più un oggetto). Aggiornati ai numeri nuovi `LootTests`, `SpecialEnemyPlanne
 sempre un oggetto) e `SpecialLootTests` (il campione al più uno, il forziere uno sicuro). EditMode 374/374,
 PlayMode 225/225.
 
+## Passo 13.9 — Correzioni
+
+**Com'è andata (21 ott 2026).** Come per la M12, Mirco ha scelto di non lanciare la build di prova: la
+M13 si prova con la build del tag. Al posto della prova, una rilettura di tutto il codice della M13
+(barili, trappole, pozzi, santuari, bonus, ricordi dei livelli, loot, cerchio del bersaglio), che ha
+trovato due errori.
+
+**Il pozzo della stanza di partenza.** Il tiro del punto d'interesse si fa per ogni stanza grande, anche
+quella di partenza, che poi non lo prende. Il conteggio di "un pozzo e un santuario al più" però
+contava il tiro, non il pozzo messo: se la stanza di partenza tirava il pozzo, il livello restava senza,
+e così anche se il pozzo non trovava posto. Ora contano solo i pozzi e i santuari messi davvero; i tiri
+sono gli stessi, quindi gli altri arredi dei semi già provati non cambiano.
+
+**La miccia e il ricordo del livello.** Il barile esplosivo è "rotto" appena si accende la miccia, ma
+esplode e lascia il suo loot un secondo dopo. Lasciando il livello in quel secondo il ricordo lo teneva
+rotto: al ritorno erano a terra i pezzi, senza che l'esplosione o il loot fossero mai arrivati. Ora
+`Breakable.IsFusing` dice che la miccia è accesa, e il ricordo tiene intero il barile finché non è
+esploso.
+
+Test: `FeatureDataTests.StartRoomRoll_DoesNotUseTheWell` (con ogni stanza grande che vuole un pozzo, un
+pozzo in ogni livello che ha posto; con il codice di prima falliva) e
+`TrapPlayModeTests.FusingBarrel_IsRememberedIntact`. EditMode 375/375, PlayMode 226/226.
+
 ---
 
 ## Trappole note
@@ -443,6 +466,6 @@ PlayMode 225/225.
 - [x] Pozzi e santuari
 - [x] Trappole
 - [x] Loot misurato e ritarato: 5,0 oggetti a livello, con i tre tagli scelti da Mirco
-- [ ] Build di prova
+- [x] Build di prova: al suo posto la rilettura del codice, scelta di Mirco; due errori corretti
 - [ ] ADR, lezioni nel piano, README
 - [ ] Tag `v1.2.0`, con il via di Mirco

@@ -141,6 +141,44 @@ namespace DarkDescent.Tests
             Assert.Greater(shrines, 20, "santuari in 200 livelli");
         }
 
+        [Test, Description("Se ogni stanza grande vuole un pozzo, ogni livello con una stanza grande oltre a quella di partenza ne ha uno: il tiro della stanza di partenza, che non lo prende, non conta")]
+        public void StartRoomRoll_DoesNotUseTheWell()
+        {
+            var settings = Object.Instantiate(AssetDatabase.LoadAssetAtPath<DungeonSettings>("Assets/_Project/Data/Levels/CryptSettings.asset"));
+            try
+            {
+                var so = new SerializedObject(settings);
+                so.FindProperty("_barrelsChance").floatValue = 0f;
+                so.FindProperty("_wellChance").floatValue = 1f;
+                so.FindProperty("_shrineChance").floatValue = 0f;
+                so.FindProperty("_trapsChance").floatValue = 0f;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                var generator = settings.CreateGenerator();
+                int levels = 0;
+                int withWell = 0;
+                for (ulong seed = 1; seed <= 60; seed++)
+                {
+                    var layout = generator.Generate(seed, 2);
+                    bool bigRoom = layout.Rooms.Where((room, i) => i != layout.StartRoom
+                        && room.width >= DungeonPopulator.MinFeatureRoom && room.height >= DungeonPopulator.MinFeatureRoom).Any();
+                    if (!bigRoom)
+                    {
+                        continue;
+                    }
+
+                    levels++;
+                    withWell += layout.Features.Count(f => f.Kind == RoomFeatureKind.Well) == 1 ? 1 : 0;
+                }
+
+                Assert.Greater(levels, 20);
+                Assert.GreaterOrEqual(withWell, levels - 1, "un pozzo in ogni livello che ha posto");
+            }
+            finally
+            {
+                Object.DestroyImmediate(settings);
+            }
+        }
+
         [Test, Description("Il ricordo tiene i pozzi e i santuari usati e quanti erano; uno di prima non ne ha, e nemici, casse e barili restano validi")]
         public void LevelRecord_RemembersSpentFeatures()
         {

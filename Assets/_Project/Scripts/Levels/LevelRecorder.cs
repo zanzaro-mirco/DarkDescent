@@ -150,7 +150,8 @@ namespace DarkDescent.Levels
 
             for (int i = 0; i < level.Breakables.Count; i++)
             {
-                if (level.Breakables[i] != null && level.Breakables[i].IsBroken)
+                // con la miccia ancora accesa non è esploso: al ritorno è intero
+                if (level.Breakables[i] != null && level.Breakables[i].IsBroken && !level.Breakables[i].IsFusing)
                 {
                     record.AddBroken(i);
                 }

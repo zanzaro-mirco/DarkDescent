@@ -185,5 +185,27 @@ namespace DarkDescent.Tests
             Assert.IsTrue(barrel.transform.Find("Broken").gameObject.activeSelf);
             Assert.IsFalse(barrel.transform.Find("Explosive").gameObject.activeSelf);
         }
+
+        [UnityTest, Description("Con la miccia accesa il barile esplosivo non è ancora rotto per il ricordo del livello: lasciandolo adesso torna intero; esploso, resta rotto")]
+        public IEnumerator FusingBarrel_IsRememberedIntact()
+        {
+            yield return GoToCrypt(4, level => level.Breakables.Any(b => b.IsExplosive));
+            var level = Manager.CurrentLevel;
+            var recorder = UnityEngine.Object.FindFirstObjectByType<LevelRecorder>();
+            var barrel = level.Breakables.First(b => b.IsExplosive);
+            int index = level.Breakables.ToList().IndexOf(barrel);
+            barrel.Break(Player.gameObject);
+            Assert.IsTrue(barrel.IsFusing);
+            Assert.IsFalse(Broken(recorder, level).Contains(index), "la miccia è accesa, il barile non è esploso");
+
+            yield return new WaitForSeconds(1.3f);
+            Assert.IsFalse(barrel.IsFusing);
+            Assert.IsTrue(Broken(recorder, level).Contains(index), "esploso, resta rotto");
+        }
+
+        private static System.Collections.Generic.IReadOnlyList<int> Broken(LevelRecorder recorder, LevelContext level)
+        {
+            return recorder.Export(level).Single(r => r.Scene == level.gameObject.scene.name && r.Depth == level.Depth).Broken;
+        }
     }
 }

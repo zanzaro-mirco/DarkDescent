@@ -190,15 +190,18 @@ namespace DarkDescent.Levels
                 // il punto d'interesse prima dei mobili: vuole il centro, i mobili il bordo
                 if (room.width >= MinFeatureRoom && room.height >= MinFeatureRoom)
                 {
+                    // un pozzo e un santuario al più: il secondo diventa barili. Contano solo quelli messi,
+                    // non il tiro della stanza di partenza né quello senza posto
                     var kind = _settings.FeatureFor(random.NextDouble(), depth);
-                    if ((kind == RoomFeatureKind.Well && wells++ > 0) || (kind == RoomFeatureKind.Shrine && shrines++ > 0))
+                    if ((kind == RoomFeatureKind.Well && wells > 0) || (kind == RoomFeatureKind.Shrine && shrines > 0))
                     {
                         kind = RoomFeatureKind.Barrels;
                     }
 
-                    if (i != layout.StartRoom && kind != RoomFeatureKind.None)
+                    if (i != layout.StartRoom && kind != RoomFeatureKind.None && PlaceFeature(layout, i, kind, depth, reserved))
                     {
-                        PlaceFeature(layout, i, kind, depth, reserved);
+                        wells += kind == RoomFeatureKind.Well ? 1 : 0;
+                        shrines += kind == RoomFeatureKind.Shrine ? 1 : 0;
                     }
                 }
 
@@ -369,8 +372,8 @@ namespace DarkDescent.Levels
 
         // Il punto d'interesse sulla cella libera più vicina al centro della stanza, lontano dai muri, dai
         // passaggi, da casse e scala e dal percorso tra le porte, e che non chiuda il cammino. La cella
-        // resta riservata.
-        private static void PlaceFeature(DungeonLayout layout, int roomIndex, RoomFeatureKind kind, int depth, HashSet<Vector2Int> reserved)
+        // resta riservata. False se non c'è posto.
+        private static bool PlaceFeature(DungeonLayout layout, int roomIndex, RoomFeatureKind kind, int depth, HashSet<Vector2Int> reserved)
         {
             RectInt room = layout.Rooms[roomIndex];
             var path = DoorPaths(layout, room);
@@ -406,9 +409,11 @@ namespace DarkDescent.Levels
                 {
                     reserved.Add(cell);
                     layout.AddFeature(new RoomFeature(roomIndex, kind, cell));
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
 
         // Il simbolo del punto d'interesse; quale pozzo e quale santuario lo dice un hash della cella e della

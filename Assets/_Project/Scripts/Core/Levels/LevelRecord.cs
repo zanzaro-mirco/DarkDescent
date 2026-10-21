@@ -29,12 +29,12 @@ namespace DarkDescent.Levels
 
         public LevelRecord(string scene, int depth, int enemyCount, int chestCount, int breakableCount = 0, int featureCount = 0)
         {
-            _featureCount = featureCount;
             _scene = scene;
             _depth = depth;
             _enemyCount = enemyCount;
             _chestCount = chestCount;
             _breakableCount = breakableCount;
+            _featureCount = featureCount;
         }
 
         public string Scene => _scene;
