@@ -9,6 +9,21 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.2 — M13 "Stanze vive"**, chiusa il 21 ottobre 2026 (tag `v1.2.0`). Rispetto alla v1.1:
+
+- **arredi con un senso**: un tema per stanza, mai due composizioni uguali, oggetti in mezzo girati
+  a caso, e un quinto tema, la **cappella**; il colonnato non c'è più;
+- al centro delle stanze grandi un **punto d'interesse**: **barili da rompere** (anche contro i muri),
+  un **pozzo** della vita o del mana, un **santuario** che dà un bonus per un minuto (Furia, Vento,
+  Pietra, Sapienza), o gli **spuntoni**;
+- **trappole**: spuntoni nei corridoi e nei cunicoli, e dalla profondità 4 **barili esplosivi** che
+  feriscono anche i nemici;
+- **loot ritarato**: circa 5 oggetti a livello invece di quasi 7, con la stessa parte di magici e rari;
+- modelli nuovi fatti **in Blender da script** e suoni nuovi fatti da script o con **Stable Audio 3**
+  attraverso ComfyUI, tutti nel repo e rifacibili.
+
+![Una cappella della cripta: il cavaliere accanto al pozzo del mana, con il cristallo e la luce blu; intorno candele, un tavolo con un libro e una statua](docs/media/m13_well.png)
+
 **v1.1 — M12 "Nemici speciali"**, chiusa il 19 ottobre 2026 (tag `v1.1.0`). Rispetto alla v1.0:
 
 - i **campioni**: nemici più forti, più grandi e con un anello blu sotto i piedi, con uno o due

@@ -406,6 +406,15 @@ Test: `FeatureDataTests.StartRoomRoll_DoesNotUseTheWell` (con ogni stanza grande
 pozzo in ogni livello che ha posto; con il codice di prima falliva) e
 `TrapPlayModeTests.FusingBarrel_IsRememberedIntact`. EditMode 375/375, PlayMode 226/226.
 
+## Passo 13.10 — Chiusura
+
+**Com'è andata (21 ott 2026).** ADR-097…100 in `DECISIONS.md`: barili, pozzi, santuari e trappole nel
+flusso degli arredi con i ricordi contati a parte, il barile come bersaglio senza vita, il bonus del
+santuario come modificatori della scheda, il loot misurato con i valori attesi. Lezioni della M13 e
+stato del progetto nel piano (v2.53); README con la v1.2 e una foto del pozzo del mana nella cappella;
+`bundleVersion` 1.2.0. Il tag `v1.2.0` aspetta il via di Mirco: fa partire la build Windows della
+release.
+
 ---
 
 ## Trappole note
@@ -439,18 +448,22 @@ pozzo in ogni livello che ha posto; con il codice di prima falliva) e
   suono cambierebbe gli altri tiri: si sceglie con un `Random` dell'audio, fuori dai semi.
 - **Le luci.** Pozzi e santuari hanno una luce colorata: con il forziere d'oro, le torce e le
   scale, una stanza può averne troppe. Si misura in build.
+- **Un tiro che non diventa niente.** Il limite di un pozzo e un santuario per livello si conta su
+  quelli messi: la stanza di partenza tira come le altre ma non prende il punto d'interesse
+  (passo 13.9).
+- **La miccia e il ricordo.** Il barile esplosivo è rotto appena si accende la miccia, ma esplode un
+  secondo dopo: il ricordo del livello lo tiene intero finché non è esploso (passo 13.9).
 
 ---
 
 ## Test
 
-- EditMode: arredi (nessun doppione per stanza, mucchietti del tema, rotazione stabile per cella,
-  nessun colonnato, punto d'interesse nelle stanze grandi e al più un pozzo e un santuario per
-  livello), loot dei barili, bonus a tempo, media degli oggetti per livello nella fascia di D13.
-- PlayMode: rompere un barile, usare un pozzo e un santuario, la trappola che ferisce il cavaliere,
-  il barile esplosivo che ferisce i nemici, i ricordi del livello.
-- Le foto dei modelli nuovi accanto ai KayKit, prima dei prefab.
-- La pagina di ascolto dei suoni nuovi, prima di metterli nei prefab.
+- EditMode: `DecorTests`, `CaveDecorTests`, `GeneratedModelTests`, `BarrelDataTests`, `FeatureDataTests`,
+  `TrapDataTests`, `LootCensusTests`, con `LootTests` e `SpecialEnemyPlannerTests` aggiornati.
+- PlayMode: `BarrelPlayModeTests`, `FeaturePlayModeTests`, `TrapPlayModeTests`, `LootCutsPlayModeTests`,
+  con `ChestTests` e `SpecialLootTests` aggiornati.
+- Le foto dei modelli nuovi accanto ai KayKit e le pagine di ascolto dei suoni, prima dei prefab.
+- Alla chiusura: 375 EditMode e 226 PlayMode verdi.
 
 ---
 
@@ -467,5 +480,5 @@ pozzo in ogni livello che ha posto; con il codice di prima falliva) e
 - [x] Trappole
 - [x] Loot misurato e ritarato: 5,0 oggetti a livello, con i tre tagli scelti da Mirco
 - [x] Build di prova: al suo posto la rilettura del codice, scelta di Mirco; due errori corretti
-- [ ] ADR, lezioni nel piano, README
+- [x] ADR, lezioni nel piano, README
 - [ ] Tag `v1.2.0`, con il via di Mirco

@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.53 | 21 ott 2026 | **M13 chiusa** (v1.2): arredi con un senso e la cappella, barili da rompere, pozzi, santuari, spuntoni e barili esplosivi, modelli da Blender e suoni da script e da Stable Audio, loot misurato a 5,0 oggetti a livello. Come per la M12 la build di prova è saltata su scelta di Mirco, e al suo posto la rilettura del codice · ADR-097…100 |
 | v2.52 | 20 ott 2026 | Passo 13.4 fatto: i suoni della M13 generati con Stable Audio 3 piacciono a Mirco ed entrano nel gioco (ADR-096). TRELLIS.2 da una foto da Blender rifà lo stesso modello: l'immagine di partenza da testo con Z-Image-Turbo va negli **sviluppi dopo la v1.0** |
 | v2.51 | 20 ott 2026 | Nella M13, D16: TRELLIS.2 parte da una **foto da Blender** di una bozza dell'oggetto, nello **stile KayKit**; un modello testo → immagine (Z-Image-Turbo, Apache 2.0) resta facoltativo, da decidere dopo la prova; il GLB diventa FBX dopo la foto e il sì di Mirco. Lo stile Diablo IV proposto da una pipeline trovata in rete è scartato · passo 13.4 da 1,5–2 a 2–3 h, M13 da 21–27 a 22–28 h |
 | v2.50 | 20 ott 2026 | Su richiesta di Mirco la **configurazione di ComfyUI** entra nella M13 come passo 13.4 (D15): Stable Audio 3.0 Small SFX e TRELLIS.2 in int8, guidati da Claude con l'API locale, per i suoni e i modelli organici che lo script fa peggio · M13 da 19–25 a 21–27 h |
@@ -64,7 +65,7 @@
 
 ---
 
-## Stato del progetto — aggiornato al 19 ottobre 2026
+## Stato del progetto — aggiornato al 21 ottobre 2026
 
 | | |
 |---|---|
@@ -75,11 +76,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) |
-| **Milestone corrente** | **M13 — "Stanze vive"** (scheda `docs/milestones/M13_Stanze_vive.md`, D1–D14 confermate il 19 ott 2026). Dopo: gradi degli affissi e difficoltà (M14), oggetti unici e set (§ 5, «Dopo la v1.0») |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) · M13 — "Stanze vive" (21 ott 2026, tag `v1.2.0`) |
+| **Milestone corrente** | nessuna: la v1.2 è chiusa (`v1.2.0`). Dopo: gradi degli affissi e difficoltà (M14), oggetti unici e set (§ 5, «Dopo la v1.0») |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…093) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…100) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -293,7 +294,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M10 | "Città e loop completo" | il gioco è finibile, menu iniziale con tre salvataggi, livelli che restano com'erano | 19–26 | ✅ 12 ott |
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | ✅ 17 ott |
 | M12 | "Nemici speciali" | campioni, unici, forzieri e tesoro del re; v1.1 | 9–13 | ✅ 19 ott |
-| M13 | "Stanze vive" | arredi con un senso, barili da rompere, pozzi, santuari, trappole, modelli fatti in Blender, suoni da script, ComfyUI, loot ritarato; v1.2 | 22–28 | in corso |
+| M13 | "Stanze vive" | arredi con un senso, barili da rompere, pozzi, santuari, trappole, modelli fatti in Blender, suoni da script, ComfyUI, loot ritarato; v1.2 | 22–28 | ✅ 21 ott |
 
 ---
 
@@ -471,6 +472,20 @@ Chiusa il 19 ottobre 2026 con il tag `v1.1.0`: 340 test EditMode e 212 PlayMode 
 - **Le stanze piccole hanno sempre meno posto di quanto si pensi:** l'unico in una stanzetta della cripta piena di arredi e di scorta non trovava dove mettere il forziere. La ricerca si allarga, e un test conta quante volte manca.
 - **Un modello si guarda prima di sceglierlo per un ruolo:** `trunk_large` non ha un coperchio da aprire, e `chest_gold` chiuso sembra la cassa di sempre. Le foto di prova l'hanno detto prima di Mirco.
 - **Le foto della UI vanno costruite apposta:** la tela in overlay non finisce nella texture della camera, e il lampo dura meno di due frame in batchmode.
+
+---
+
+### M13 — "Stanze vive" ✅
+
+Chiusa il 21 ottobre 2026 con il tag `v1.2.0`: 375 test EditMode e 226 PlayMode verdi. La build di prova è saltata su scelta di Mirco, e al suo posto la rilettura del codice. Lezioni emerse:
+
+- **Ogni cosa nuova nel livello prende un dominio suo del seme:** barili, pozzi, santuari e trappole sono entrati senza spostare un nemico o una cassa dei semi già provati; quello che si sceglie per cella viene da un hash, non da un tiro (ADR-097).
+- **Un tiro conta quando diventa una cosa:** il pozzo tirato dalla stanza di partenza, che non lo prende, lasciava il livello senza pozzo. I limiti si contano su quello che è stato messo.
+- **Uno stato a metà va ricordato per com'è:** il barile con la miccia accesa era già "rotto" per il ricordo, senza esplosione né loot (ADR-098).
+- **Misurare prima di tagliare:** la stima a mano del loot era sbagliata di un terzo; con i valori attesi sui livelli veri Mirco ha scelto i tagli guardando i numeri (ADR-100).
+- **Un bersaglio che non è un nemico tocca più codice del previsto:** cerchio, raggio dell'attacco, click tenuto premuto, ricordi e magie andavano guardati uno per uno; la piastrella del pavimento nascondeva il cerchio, che è salito di 5 cm.
+- **Modelli e suoni da script passano dal giudizio di Mirco prima di Unity:** la foto accanto a un modello KayKit e la pagina di ascolto hanno fermato le prove venute male prima dei prefab, e i semi di Stable Audio si scelgono misurando inviluppo e attacco.
+- **Il NavMesh ritagliato sposta i warp dei test:** un nemico messo accanto a un barile può finire 3 m più in là; i test cercano un punto vicino che il NavMesh accetta davvero.
 
 ---
 
@@ -817,7 +832,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Il rischio.** Se tutto cresce con il personaggio, salire di livello non si sente più. Il margine e la curva vanno provati in build, e la regola può essere un'opzione della difficoltà invece di valere sempre.
   - **Salvataggio.** Non cambia: i ricordi dei livelli (ADR-079) dicono solo quali nemici sono morti, non i loro numeri, e gli oggetti hanno già il loro livello.
   - Si valuta insieme ai nemici speciali, che toccano gli stessi numeri.
-- **Barili da rompere** (chiesto da Mirco il 12 ott 2026; è nella **M13**, dalla v2.45, con i barili esplosivi). Come in Diablo 1: un barile si rompe con un colpo, cliccandolo come un nemico, e a volte lascia qualcosa. Cosa comporta:
+- **Barili da rompere** (chiesto da Mirco il 12 ott 2026; fatti nella **M13**, v1.2 del 21 ott 2026, con i barili esplosivi). Come in Diablo 1: un barile si rompe con un colpo, cliccandolo come un nemico, e a volte lascia qualcosa. Cosa comporta:
   - **Più barili.** Il popolatore li mette in gruppi da due a quattro, lungo i muri e negli angoli, più fitti nelle stanze a tema deposito degli arredi della M11 e mai sul percorso tra le porte. Indicativamente 4–8 per livello nella cripta e 2–5 nelle caverne, da provare in build.
   - **Cosa lasciano.** Meno di uno scheletro, perché sono tanti e non fanno male. Per barile, con tiri separati: **oro 15%**, la metà della quantità di uno scheletro alla stessa profondità; **un oggetto 5%**, con la tabella delle rarità di sempre; **una pozione 5%**. Circa tre barili su quattro non lasciano niente. Con 6 barili a livello fanno in media un oggetto ogni tre livelli e un po' d'oro: un premio per chi esplora, non una fonte che cambia il bilanciamento della M10. I numeri sono una `LootTable` come le altre, quindi si tarano senza toccare il codice.
   - **Il seme.** Un dominio suo, come l'oro (ADR-071), così il loot dei nemici e delle casse dei semi già provati non cambia.
