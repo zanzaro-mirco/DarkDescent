@@ -69,7 +69,9 @@ namespace DarkDescent.Tests
                         for (int x = 0; x < with.Width; x++)
                         {
                             char c = with[x, y];
-                            Assert.AreEqual(CavePopulator.IsDecor(c) ? LevelMap.Floor : c, without[x, y], $"seme {seed}, profondità {depth}, cella ({x}, {y})");
+                            // i gruppi di barili contro la roccia (D5 della M13) arrivano con gli arredi
+                            bool decor = CavePopulator.IsDecor(c) || DungeonPopulator.BarrelWallSymbols.IndexOf(c) >= 0;
+                            Assert.AreEqual(decor ? LevelMap.Floor : c, without[x, y], $"seme {seed}, profondità {depth}, cella ({x}, {y})");
                         }
                     }
                 }

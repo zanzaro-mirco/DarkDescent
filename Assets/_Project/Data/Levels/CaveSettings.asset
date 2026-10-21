@@ -35,6 +35,7 @@ MonoBehaviour:
   _shrineChance: 0.15
   _trapsChance: 0.1
   _trapsFirstDepth: 3
+  _barrelsPerLevel: {x: 2, y: 5}
   _maxScatterPerRoom: 2
   _cellsPerTorch: 4
   _magesFirstDepth: 3

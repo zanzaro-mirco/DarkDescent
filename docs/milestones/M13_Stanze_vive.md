@@ -210,6 +210,52 @@ e la lettura della licenza di DINOv3 vanno negli sviluppi dopo la v1.0 del piano
 
 ADR-096 (suoni generati e licenze). `CREDITS.md` ha la riga dei suoni generati.
 
+## Passo 13.5 — Barili da rompere
+
+**Com'è andata (21 ott 2026).** `Breakable` è un `IDamageable` senza `Health`: sta sul layer dei
+nemici, si clicca e si colpisce come loro, ma non dà esperienza e non ha la barra in alto. Si rompe al
+primo colpo, anche mancato. Rompendosi spegne il barile intero, il collider e l'ostacolo che ritaglia
+il NavMesh (il passaggio si apre), accende i pezzi a terra, fa volare le schegge (`Fx_BarrelSplinters`,
+cubetti di legno che rimbalzano sul pavimento) e suona una delle tre varianti (`barrel_break_0`, `_1`
+e `_sa`). Il loot cade verso chi l'ha colpito, mai dentro il muro dietro: l'oggetto davanti, la
+pozione e l'oro ai lati. Il cavaliere si ferma sul bordo del barile (`MeleeAttack` usa il raggio
+dell'ostacolo), e il cerchio rosso a terra segna il barile sotto il cursore, 10 cm sopra la sua base:
+il barile parte dal fondo della piastrella, 5 cm sotto il NavMesh dei piedi.
+
+**Loot e semi.** `BarrelLoot`: oggetto 5%, pozione 3% di vita e 2% di mana, oro 15% tra 2 e 5. I
+semi vengono da un dominio loro (`SeedMixer.ForBarrel`, e da lì pozione e oro), dalla cella del barile
+in decimetri: due barili dello stesso gruppo hanno semi diversi, e il loot di nemici e casse non cambia.
+
+**Ricordi del livello.** I barili rotti si ricordano a parte (`LevelRecord.Broken` e il loro numero):
+un salvataggio di prima non ha barili, i suoi nemici e le sue casse restano validi e i barili ripartono
+interi. Il formato del salvataggio non cambia.
+
+**Modelli e prefab.** Il barile rotto è fatto in Blender (`Tools/Blender/models/barrel.py`): il fondo
+con le doghe spezzate e il primo cerchio, doghe e cerchio di sopra a terra, schegge. Lo usano i tre
+barili (`Barrel_Large`, `Barrel_Small`, `Barrel_Decorated`), scalato sul raggio di ognuno. Il barile
+`b` della cripta e il gruppo `0` al centro della stanza si rompono; quello `b` della città resta un
+arredo. Nelle composizioni del deposito i barili in piedi sono diventati botti (`keg`): `StoreA`,
+`StoreC`, `StoreD`. Il barile coricato della rovina e la pila di barilotti restano: non si confondono
+con quelli da rompere.
+
+**Gruppi contro i muri.** Due composizioni nuove, `1` (un barile grande e uno piccolo) e `!` (grande,
+decorato e piccolo), contro un muro o in un angolo. Arrivano dopo tutti gli arredi, con il loro flusso,
+finché il livello non ha i barili tirati tra quelli delle impostazioni (`BarrelsPerLevel`): 4–8 nella
+cripta, 2–5 nelle caverne, dove il `b` è roccia e contano solo i gruppi. Nemici, casse e mappa dei semi
+già provati non cambiano. I gruppi sono di due e di tre e non di quattro: in una cella di 4 m quattro
+barili non ci stanno senza uscire dalla cella. Con i barili singoli e quelli al centro un livello della
+cripta può superare gli 8 (il seme 3 alla profondità 1 ne ha 9).
+
+Restano fuori: gli incantesimi non rompono i barili (colpiscono solo `Health`), e il crollo
+`CaveDecor_RockfallC` ha ancora un barile piccolo in piedi, mezzo tra le rocce, che non si rompe.
+
+Test: `BarrelDataTests` (semi separati, loot raro, ricordi e salvataggi di prima, prefab, tileset,
+nessun barile in piedi che non si rompe negli arredi della cripta, barili per livello in 100 cripte e
+100 caverne) e `BarrelPlayModeTests` (cerchio, click, loot dal seme verso il cavaliere, una rottura
+sola; barile rotto dopo il ritorno dalla città, senza loot doppio). `DecorTests` e `CaveDecorTests`
+conoscono i barili da rompere. 357 EditMode e 217 PlayMode verdi; in un primo giro
+`PortalTests.Portal_GoesToTownAndBack` ha sforato i 12 s di 0,2 ms, da solo e nel giro dopo è verde.
+
 ---
 
 ## Trappole note
@@ -266,7 +312,7 @@ ADR-096 (suoni generati e licenze). `CREDITS.md` ha la riga dei suoni generati.
 - [x] Arredi con un senso, senza colonnato
 - [x] Modelli nuovi e tema della cappella
 - [x] ComfyUI configurato e provato: suoni generati nel gioco, TRELLIS provato sulla statua; ADR-096
-- [ ] Barili da rompere
+- [x] Barili da rompere, anche nelle caverne, con i gruppi contro i muri
 - [ ] Pozzi e santuari
 - [ ] Trappole
 - [ ] Loot misurato e ritarato

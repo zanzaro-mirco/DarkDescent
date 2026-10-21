@@ -26,12 +26,33 @@ namespace DarkDescent.Items
         /// <summary>L'oggetto che lascia il nemico partito da questa cella, o null se non lascia niente.</summary>
         public ItemInstance Roll(LootTable table, int depth, int cellX, int cellZ)
         {
-            if (table == null)
-            {
-                return null;
-            }
+            return table != null ? RollFrom(table, depth, SeedMixer.ForEnemy(RunSeed, depth, cellX, cellZ)) : null;
+        }
 
-            var random = new SplitMix64Source(SeedMixer.ForEnemy(RunSeed, depth, cellX, cellZ));
+        /// <summary>
+        /// L'oggetto del barile da rompere di questa cella, o null (D5 della M13): la stessa regola dei
+        /// nemici con i semi del barile, che non toccano quelli di nemici e casse.
+        /// </summary>
+        public ItemInstance RollBarrel(LootTable table, int depth, int cellX, int cellZ)
+        {
+            return table != null ? RollFrom(table, depth, SeedMixer.ForBarrel(RunSeed, depth, cellX, cellZ)) : null;
+        }
+
+        /// <summary>La pozione del barile di questa cella, o null.</summary>
+        public ItemInstance RollBarrelPotion(LootTable table, int depth, int cellX, int cellZ)
+        {
+            return table != null ? PotionFrom(table, SeedMixer.ForBarrelPotion(RunSeed, depth, cellX, cellZ)) : null;
+        }
+
+        /// <summary>L'oro del barile di questa cella, 0 se non ne lascia.</summary>
+        public int RollBarrelGold(LootTable table, int depth, int cellX, int cellZ)
+        {
+            return table != null ? GoldFrom(table, depth, SeedMixer.ForBarrelGold(RunSeed, depth, cellX, cellZ)) : 0;
+        }
+
+        private ItemInstance RollFrom(LootTable table, int depth, ulong rollSeed)
+        {
+            var random = new SplitMix64Source(rollSeed);
             if (!table.TryRoll(random, out var item))
             {
                 return null;
@@ -50,13 +71,17 @@ namespace DarkDescent.Items
         /// </summary>
         public ItemInstance RollPotion(LootTable table, int depth, int cellX, int cellZ)
         {
-            if (table == null || (table.Potion == null && table.ManaPotion == null))
+            return table != null ? PotionFrom(table, SeedMixer.ForPotion(RunSeed, depth, cellX, cellZ)) : null;
+        }
+
+        private static ItemInstance PotionFrom(LootTable table, ulong seed)
+        {
+            if (table.Potion == null && table.ManaPotion == null)
             {
                 return null;
             }
 
-            var random = new SplitMix64Source(SeedMixer.ForPotion(RunSeed, depth, cellX, cellZ));
-            var potion = table.PotionFor(random.NextDouble());
+            var potion = table.PotionFor(new SplitMix64Source(seed).NextDouble());
             return potion != null ? new ItemInstance(potion) : null;
         }
 
@@ -66,12 +91,12 @@ namespace DarkDescent.Items
         /// </summary>
         public int RollGold(LootTable table, int depth, int cellX, int cellZ)
         {
-            if (table == null || table.Gold == null)
-            {
-                return 0;
-            }
+            return table != null ? GoldFrom(table, depth, SeedMixer.ForGold(RunSeed, depth, cellX, cellZ)) : 0;
+        }
 
-            return table.GoldFor(new SplitMix64Source(SeedMixer.ForGold(RunSeed, depth, cellX, cellZ)), depth);
+        private static int GoldFrom(LootTable table, int depth, ulong seed)
+        {
+            return table.Gold != null ? table.GoldFor(new SplitMix64Source(seed), depth) : 0;
         }
 
         /// <summary>

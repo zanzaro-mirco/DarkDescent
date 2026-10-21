@@ -457,9 +457,16 @@ namespace DarkDescent.Combat
             _swingTargetBlock = null;
         }
 
+        // il barile da rompere (D5 della M13) non ha agent: il suo raggio è quello dell'ostacolo che
+        // ritaglia il NavMesh, e senza il cavaliere non gli arriverebbe mai a portata
         private static float RadiusOf(Component target)
         {
-            return target.TryGetComponent(out NavMeshAgent agent) ? agent.radius : 0f;
+            if (target.TryGetComponent(out NavMeshAgent agent))
+            {
+                return agent.radius;
+            }
+
+            return target.TryGetComponent(out Breakable barrel) ? barrel.Radius : 0f;
         }
 
         private static Vector3 Flat(Vector3 v)

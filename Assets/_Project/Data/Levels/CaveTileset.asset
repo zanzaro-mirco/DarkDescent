@@ -80,3 +80,7 @@ MonoBehaviour:
     _prefab: {fileID: 1495775306134700890, guid: fbac3bc09af328746800c85de0287d08, type: 3}
   - _symbol: 116
     _prefab: {fileID: 1495775306134700890, guid: cfcca19c65004774e806ef8f518cfda9, type: 3}
+  - _symbol: 49
+    _prefab: {fileID: 1881914660805264014, guid: 0ebe1d71f70402848bf779812c49d159, type: 3}
+  - _symbol: 33
+    _prefab: {fileID: 8709004925221045444, guid: 7c37774735a52c346bf7d59d7c0267a0, type: 3}

@@ -8,7 +8,8 @@ namespace DarkDescent.Levels
     /// <summary>
     /// Ricorda com'erano i livelli lasciati e li rimette così rientrandoci (10.9 della M10), come in
     /// Diablo 1: il seme rigenera il livello, poi i nemici uccisi spariscono, le casse aperte restano
-    /// aperte e gli oggetti a terra tornano dov'erano, anche quelli messi dalla mappa. Prima del 10.9
+    /// aperte, i barili rotti (D5 della M13) restano a pezzi e gli oggetti a terra tornano dov'erano,
+    /// anche quelli messi dalla mappa. Prima del 10.9
     /// ogni livello ripartiva nuovo, e le casse ridavano gli stessi oggetti. Lo chiama il composition
     /// root: <see cref="Restore"/> appena caricato il livello, prima di collegare i nemici, e
     /// <see cref="Remember"/> prima di scaricarlo. I ricordi vanno nel salvataggio.
@@ -73,6 +74,15 @@ namespace DarkDescent.Levels
                 Debug.LogWarning($"[DarkDescent] il ricordo di {record.Scene} a profondità {record.Depth} non corrisponde al livello generato: nemici e casse ripartono nuovi.", this);
             }
 
+            // contati a parte: un ricordo di prima della M13 non ha barili, e questi ripartono interi
+            if (record.MatchesBreakables(level.Breakables.Count))
+            {
+                foreach (int index in record.Broken)
+                {
+                    level.Breakables[index].RestoreBroken();
+                }
+            }
+
             foreach (var item in record.Items)
             {
                 if (item.Gold > 0)
@@ -110,7 +120,7 @@ namespace DarkDescent.Levels
 
         private LevelRecord Record(LevelContext level)
         {
-            var record = new LevelRecord(level.gameObject.scene.name, level.Depth, level.Enemies.Count, level.Chests.Count);
+            var record = new LevelRecord(level.gameObject.scene.name, level.Depth, level.Enemies.Count, level.Chests.Count, level.Breakables.Count);
             for (int i = 0; i < level.Enemies.Count; i++)
             {
                 // un nemico morto da un po' è già sparito
@@ -126,6 +136,14 @@ namespace DarkDescent.Levels
                 if (level.Chests[i] != null && level.Chests[i].IsOpen)
                 {
                     record.AddOpened(i);
+                }
+            }
+
+            for (int i = 0; i < level.Breakables.Count; i++)
+            {
+                if (level.Breakables[i] != null && level.Breakables[i].IsBroken)
+                {
+                    record.AddBroken(i);
                 }
             }
 

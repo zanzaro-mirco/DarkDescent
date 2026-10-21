@@ -26,6 +26,7 @@ namespace DarkDescent.Levels
         private readonly List<LevelExit> _exits = new List<LevelExit>();
         private readonly List<EnemyAI> _enemies = new List<EnemyAI>();
         private readonly List<Chest> _chests = new List<Chest>();
+        private readonly List<Breakable> _breakables = new List<Breakable>();
 
         /// <summary>Il player ha raggiunto un'uscita.</summary>
         public event Action<LevelExit> ExitRequested;
@@ -37,6 +38,9 @@ namespace DarkDescent.Levels
 
         /// <summary>Le casse da aprire (dalla M6): il loot le collega come i nemici.</summary>
         public IReadOnlyList<Chest> Chests => _chests;
+
+        /// <summary>I barili da rompere (D5 della M13), nell'ordine in cui il livello li costruisce.</summary>
+        public IReadOnlyList<Breakable> Breakables => _breakables;
 
         /// <summary>Il mercante della città (D5 della M10); null negli altri livelli.</summary>
         public Merchant Merchant { get; private set; }
@@ -79,6 +83,7 @@ namespace DarkDescent.Levels
             var exits = new List<LevelExit>();
             var enemies = new List<EnemyAI>();
             var chests = new List<Chest>();
+            var breakables = new List<Breakable>();
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
                 root.GetComponentsInChildren(true, entrances);
@@ -89,6 +94,8 @@ namespace DarkDescent.Levels
                 _enemies.AddRange(enemies);
                 root.GetComponentsInChildren(true, chests);
                 _chests.AddRange(chests);
+                root.GetComponentsInChildren(true, breakables);
+                _breakables.AddRange(breakables);
                 if (Merchant == null)
                 {
                     Merchant = root.GetComponentInChildren<Merchant>(true);

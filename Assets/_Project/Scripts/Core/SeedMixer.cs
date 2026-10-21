@@ -92,6 +92,27 @@ namespace DarkDescent.Core
             return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ ExtraDomain ^ Mix((ulong)(uint)index));
         }
 
+        // "BARREL": il loot di un barile da rompere (D5 della M13), lontano da quello di nemici e casse
+        private const ulong BarrelDomain = 0x42415252454CUL;
+
+        /// <summary>Il seme dell'oggetto di un barile, dalla sua cella: il loot di nemici e casse non cambia.</summary>
+        public static ulong ForBarrel(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ BarrelDomain);
+        }
+
+        /// <summary>Il seme della pozione di un barile: come per i nemici, un tiro a parte dall'oggetto.</summary>
+        public static ulong ForBarrelPotion(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForBarrel(runSeed, depth, cellX, cellZ) ^ PotionDomain);
+        }
+
+        /// <summary>Il seme dell'oro di un barile, a parte da oggetto e pozione.</summary>
+        public static ulong ForBarrelGold(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForBarrel(runSeed, depth, cellX, cellZ) ^ GoldDomain);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

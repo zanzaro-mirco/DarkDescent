@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using DarkDescent.Items;
 using DarkDescent.Levels;
 using NUnit.Framework;
 using UnityEditor;
@@ -12,6 +13,7 @@ namespace DarkDescent.Tests
     {
         private const int Seeds = 100;
         private const int ObstacleLayer = 7;
+        private const int EnemyLayer = 8;
 
         private DungeonSettings _settings;
         private DungeonSettings _bare;
@@ -73,7 +75,8 @@ namespace DarkDescent.Tests
 
         private static bool IsComposition(char c)
         {
-            return DungeonPopulator.IsDecor(c) && c != DungeonPopulator.BarrelGroupSymbol && !DungeonPopulator.IsScatter(c);
+            return DungeonPopulator.IsDecor(c) && c != DungeonPopulator.BarrelGroupSymbol && DungeonPopulator.BarrelWallSymbols.IndexOf(c) < 0
+                && !DungeonPopulator.IsScatter(c);
         }
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
@@ -318,11 +321,12 @@ namespace DarkDescent.Tests
             Assert.Greater(inner, free * 3 / 4, "quasi tutti lontani dai muri");
         }
 
-        [Test, Description("Ogni arredo ha il suo prefab nel tileset della cripta: sta nella cella, a terra, con il materiale del dungeon (le ossa il loro); composizioni e barili hanno i collider sul layer degli ostacoli, i mucchietti nessun collider")]
+        [Test, Description("Ogni arredo ha il suo prefab nel tileset della cripta: sta nella cella, a terra, con il materiale del dungeon (le ossa il loro); composizioni e barili hanno i collider sul layer degli ostacoli, tranne i barili da rompere che stanno su quello dei nemici (D5 della M13), i mucchietti nessun collider")]
         public void Compositions_AreInTheTileset()
         {
             var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>("Assets/_Project/Data/Levels/DungeonTileset.asset");
-            foreach (char symbol in string.Concat(DungeonPopulator.DecorThemes) + DungeonPopulator.BarrelGroupSymbol + DungeonPopulator.ScatterSymbols)
+            foreach (char symbol in string.Concat(DungeonPopulator.DecorThemes) + DungeonPopulator.BarrelGroupSymbol + DungeonPopulator.BarrelWallSymbols
+                + DungeonPopulator.ScatterSymbols)
             {
                 var prefab = tileset.GetMarkerPrefab(symbol);
                 Assert.IsNotNull(prefab, $"'{symbol}' senza prefab");
@@ -336,7 +340,8 @@ namespace DarkDescent.Tests
                     Assert.Greater(colliders.Length, 0, prefab.name);
                 }
 
-                Assert.IsTrue(colliders.All(c => c.gameObject.layer == ObstacleLayer), prefab.name + ": collider fuori dal layer degli ostacoli");
+                var outside = colliders.Where(c => c.gameObject.layer != (c.GetComponentInParent<Breakable>(true) != null ? EnemyLayer : ObstacleLayer));
+                Assert.IsEmpty(outside.Select(c => $"{c.name} sul layer {c.gameObject.layer}"), prefab.name + ": collider fuori dal layer degli ostacoli");
                 foreach (var renderer in prefab.GetComponentsInChildren<MeshRenderer>())
                 {
                     Assert.IsTrue(renderer.sharedMaterials.All(m => m != null && (m.name == "M_Dungeon" || m.name == "M_Bone")), $"{prefab.name}: {renderer.name}");

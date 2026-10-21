@@ -40,6 +40,15 @@ namespace DarkDescent.Levels
         /// </summary>
         public const char BarrelGroupSymbol = '0';
 
+        /// <summary>
+        /// I gruppi di barili da rompere contro un muro o in un angolo (D5 della M13): due barili, o tre.
+        /// Arrivano dopo gli arredi, finché il livello non ha i barili delle impostazioni.
+        /// </summary>
+        public const string BarrelWallSymbols = "1!";
+
+        // il barile singolo degli oggetti di scena
+        private const char BarrelSymbol = 'b';
+
         /// <summary>Il lato minimo, in celle, di una stanza con un punto d'interesse (dove andava il colonnato).</summary>
         public const int MinFeatureRoom = 5;
 
@@ -60,7 +69,7 @@ namespace DarkDescent.Levels
         /// </summary>
         public static readonly string[] ScatterThemes = { "y4", "y2", "v5", "z3", "6" };
 
-        private static readonly string DecorSymbols = string.Concat(DecorThemes) + BarrelGroupSymbol + ScatterSymbols;
+        private static readonly string DecorSymbols = string.Concat(DecorThemes) + BarrelGroupSymbol + BarrelWallSymbols + ScatterSymbols;
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
@@ -93,6 +102,22 @@ namespace DarkDescent.Levels
         public static bool IsScatter(char symbol)
         {
             return ScatterSymbols.IndexOf(symbol) >= 0;
+        }
+
+        /// <summary>Quanti barili da rompere ci sono nei gruppi di barili: tre al centro, due o tre contro il muro.</summary>
+        public static int BarrelsInGroup(char symbol)
+        {
+            switch (symbol)
+            {
+                case BarrelGroupSymbol:
+                    return 3;
+                case '1':
+                    return 2;
+                case '!':
+                    return 3;
+                default:
+                    return 0;
+            }
         }
 
         public void Populate(DungeonLayout layout, int depth, IRandomSource random)
@@ -194,6 +219,51 @@ namespace DarkDescent.Levels
                     }
                 }
             }
+
+            PlaceWallBarrels(layout, random, reserved);
+        }
+
+        // I gruppi di barili contro i muri (D5 della M13), dopo tutti gli arredi: finché il livello non ha
+        // i barili del tiro, una stanza a caso, mai la stessa due volte, ne prende un gruppo. Di due se ne
+        // mancano due o meno, sennò di due o di tre
+        private void PlaceWallBarrels(DungeonLayout layout, IRandomSource random, HashSet<Vector2Int> reserved)
+        {
+            var range = _settings.BarrelsPerLevel;
+            int wanted = Range(random, range.x, range.y);
+            int count = CountBarrels(layout);
+            var rooms = new List<int>();
+            for (int i = 0; i < layout.Rooms.Count; i++)
+            {
+                rooms.Add(i);
+            }
+
+            while (count < wanted && rooms.Count > 0)
+            {
+                int pick = Range(random, 0, rooms.Count - 1);
+                char symbol = wanted - count <= 2 ? BarrelWallSymbols[0] : BarrelWallSymbols[Range(random, 0, BarrelWallSymbols.Length - 1)];
+                if (TryPlaceAgainstWall(layout, layout.Rooms[rooms[pick]], symbol, random, reserved, keepChestsFree: true).HasValue)
+                {
+                    count += BarrelsInGroup(symbol);
+                }
+
+                rooms.RemoveAt(pick);
+            }
+        }
+
+        /// <summary>I barili da rompere della cripta: quelli singoli e quelli dei gruppi.</summary>
+        public static int CountBarrels(DungeonLayout layout)
+        {
+            int count = 0;
+            for (int y = 0; y < layout.Height; y++)
+            {
+                for (int x = 0; x < layout.Width; x++)
+                {
+                    char symbol = layout[x, y];
+                    count += symbol == BarrelSymbol ? 1 : BarrelsInGroup(symbol);
+                }
+            }
+
+            return count;
         }
 
         // Un simbolo del gruppo che la stanza non ha ancora, o '\0' se li ha tutti

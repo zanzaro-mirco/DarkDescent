@@ -237,6 +237,46 @@ namespace DarkDescent.Levels
                     layout.Remove(cell.x, cell.y);
                 }
             }
+
+            PlaceWallBarrels(layout, random, candidates, placed);
+        }
+
+        // I gruppi di barili contro la roccia (D5 della M13), dopo le composizioni e lontani da loro come
+        // loro tra loro: finché la caverna non ha i barili del tiro. Il 'b' delle caverne è roccia, non conta
+        private void PlaceWallBarrels(DungeonLayout layout, IRandomSource random, List<Vector2Int> candidates, List<Vector2Int> placed)
+        {
+            var range = _settings.BarrelsPerLevel;
+            int wanted = Range(random, range.x, range.y);
+            int count = 0;
+            foreach (var cell in Shuffled(candidates, random))
+            {
+                if (count >= wanted)
+                {
+                    break;
+                }
+
+                if (placed.Exists(p => Chebyshev(p, cell) < _settings.DecorSpacing))
+                {
+                    continue;
+                }
+
+                string symbols = DungeonPopulator.BarrelWallSymbols;
+                char symbol = wanted - count <= 2 ? symbols[0] : symbols[Range(random, 0, symbols.Length - 1)];
+                if (!layout.TryPlace(symbol, cell.x, cell.y))
+                {
+                    continue;
+                }
+
+                if (IsConnected(layout))
+                {
+                    placed.Add(cell);
+                    count += DungeonPopulator.BarrelsInGroup(symbol);
+                }
+                else
+                {
+                    layout.Remove(cell.x, cell.y);
+                }
+            }
         }
 
         // accanto a una cassa, alla scala o alla porta del boss: lì il cavaliere deve poter arrivare

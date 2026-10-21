@@ -556,6 +556,12 @@ namespace DarkDescent.Core
                 }
             }
 
+            // i barili da rompere (D5 della M13): il loot con i loro semi, alla profondità del livello
+            foreach (var barrel in level.Breakables)
+            {
+                barrel.Bind(_loot, level.Depth);
+            }
+
             PlaceScroll(level);
 
             _pack = new EnemyPack(level.Enemies);

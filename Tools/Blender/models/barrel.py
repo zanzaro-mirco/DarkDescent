@@ -1,0 +1,61 @@
+"""Il barile rotto (D5 della M13): quello che resta del barile grande dei KayKit dopo il colpo. Il fondo
+con le doghe in piedi spezzate ad altezze diverse e il primo cerchio, doghe e il cerchio di sopra a
+terra, schegge sparse. Il pacchetto gratuito non ha i pezzi del barile."""
+import math
+import random
+
+import bmesh
+
+from meshlib import STEEL, WOOD, WOOD_DARK, finish, prism, rbox, ring, torus, transform
+
+COMPARE = ("Dungeon/barrel_large.fbx", None)
+PHOTO = {"target": (0.0, 0.0, 0.5), "ortho": 6.0}
+
+STAVES = 12
+RADIUS = 0.84
+
+
+def standing_stave(bm, rng, i):
+    """Una doga ancora in piedi, spezzata in cima: i due spigoli di sopra a altezze diverse."""
+    width = 2 * math.pi * RADIUS / STAVES * 0.96
+    height = rng.choice((0.3, 0.45, 0.6, 0.85, 1.05))
+    faces = rbox(bm, (0, 0, height / 2), (0.09, width, height), WOOD)
+    top = [v for v in {v for f in faces for v in f.verts} if v.co.z > height / 2]
+    for v in top:
+        v.co.z -= rng.uniform(0.0, 0.22) if v.co.y > 0 else rng.uniform(0.0, 0.08)
+    a = 2 * math.pi * i / STAVES
+    transform(faces, (RADIUS * math.cos(a), RADIUS * math.sin(a), 0.0), rot_z=a, rot_y=-0.05)
+
+
+def lying_stave(bm, center, length, rot_z):
+    """Una doga volata via, distesa a terra: lunga, stretta e appena curva."""
+    faces = rbox(bm, (0, 0, 0), (length, 0.32, 0.09), WOOD)
+    for v in {v for f in faces for v in f.verts}:
+        v.co.z += 0.08 * (1 - (2 * v.co.x / length) ** 2)
+    transform(faces, (center[0], center[1], 0.05), rot_z=rot_z)
+
+
+def build_barrel_broken(mat):
+    rng = random.Random(31)
+    bm = bmesh.new()
+    prism(bm, STAVES, 0.82, 0.82, 0.0, 0.08, WOOD_DARK)          # il fondo
+    for i in range(STAVES):
+        if i not in (2, 7):                                        # due doghe mancano del tutto
+            standing_stave(bm, rng, i)
+    ring(bm, STAVES, 0.93, 0.84, 0.12, 0.26, STEEL)               # il primo cerchio, ancora al suo posto
+    # le doghe volate via, verso dove mancano
+    lying_stave(bm, (1.35, 0.55, 0.0), 1.3, 0.5)
+    lying_stave(bm, (-1.15, 1.05, 0.0), 1.15, -0.8)
+    lying_stave(bm, (-1.3, -0.75, 0.0), 0.9, 2.2)
+    # il cerchio di sopra, caduto di lato e un po' storto
+    torus(bm, (0.35, -1.45, 0.05), 0.55, 0.045, STEEL, rot_x=0.06, sides=14, segments=4)
+    # schegge
+    for k in range(10):
+        a = rng.uniform(0, 2 * math.pi)
+        d = rng.uniform(1.05, 1.6)
+        chip = rbox(bm, (0, 0, 0), (rng.uniform(0.18, 0.32), 0.07, 0.05), WOOD)
+        transform(chip, (d * math.cos(a), d * math.sin(a), 0.025), rot_z=rng.uniform(0, math.pi))
+    return finish(bm, "Barrel_Broken", mat, bevel=0.012)
+
+
+MODELS = {"Barrel_Broken": build_barrel_broken}

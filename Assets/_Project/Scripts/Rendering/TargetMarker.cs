@@ -1,4 +1,5 @@
 using DarkDescent.Combat;
+using DarkDescent.Items;
 using DarkDescent.Player;
 using UnityEngine;
 using UnityEngine.AI;
@@ -9,7 +10,8 @@ namespace DarkDescent.Rendering
     /// Il cerchio rosso a terra sotto il nemico che ha il cursore addosso (prova della M7): nello
     /// sciame fitto si vede quale si colpirà. Sta in Core e segue il nemico finché è vivo e sotto il
     /// cursore; non gli si appende come figlio, così quando il livello se ne va il cerchio resta.
-    /// Un cerchio di LineRenderer con il materiale del settore del bruto, che si legge nel buio.
+    /// Un cerchio di LineRenderer con il materiale del settore del bruto, che si legge nel buio. Dalla
+    /// M13 segna anche il barile da rompere sotto il cursore (D5), che si clicca come un nemico.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(LineRenderer))]
@@ -23,13 +25,22 @@ namespace DarkDescent.Rendering
         [Tooltip("Altezza da terra: sopra il pavimento, sotto i piedi.")]
         [SerializeField, Min(0f)] private float _height = 0.04f;
 
+        [Tooltip("Altezza sotto un barile: il barile parte dal fondo della piastrella, 5 cm sotto il NavMesh dei piedi.")]
+        [SerializeField, Min(0f)] private float _barrelHeight = 0.1f;
+
         private LineRenderer _line;
         private PlayerController _controller;
         private Health _target;
+        private Breakable _barrel;
+        private Transform _followed;
+        private float _lift;
         private bool _subscribed;
 
-        /// <summary>Il nemico segnato, per i test; null se il cerchio è spento.</summary>
+        /// <summary>Il nemico segnato, per i test; null se il cerchio è spento o segna un barile.</summary>
         public Health Target => _target;
+
+        /// <summary>Il barile segnato, per i test; null se il cerchio è spento o segna un nemico.</summary>
+        public Breakable BarrelTarget => _barrel;
 
         private void Awake()
         {
@@ -80,8 +91,10 @@ namespace DarkDescent.Rendering
             }
 
             _controller.HoveredEnemyChanged += Mark;
+            _controller.HoveredBreakableChanged += MarkBarrel;
             _subscribed = true;
             Mark(_controller.HoveredEnemy);
+            MarkBarrel(_controller.HoveredBreakable);
         }
 
         private void Unsubscribe()
@@ -92,39 +105,92 @@ namespace DarkDescent.Rendering
             }
 
             _controller.HoveredEnemyChanged -= Mark;
+            _controller.HoveredBreakableChanged -= MarkBarrel;
             _subscribed = false;
-            Mark(null);
+            Detach();
         }
 
+        // Nemico e barile sotto il cursore arrivano con due eventi: il null dell'uno non spegne il cerchio
+        // dell'altro, che il controller ha appena acceso
         private void Mark(Health enemy)
+        {
+            if (enemy == null && ReferenceEquals(_target, null))
+            {
+                return;
+            }
+
+            Detach();
+            if (enemy == null || enemy.IsDead)
+            {
+                return;
+            }
+
+            _target = enemy;
+            _target.Died += Clear;
+            Show(enemy.transform, enemy.TryGetComponent(out NavMeshAgent agent) ? agent.radius * enemy.transform.lossyScale.x : 0.4f, _height);
+        }
+
+        private void MarkBarrel(Breakable barrel)
+        {
+            if (barrel == null && ReferenceEquals(_barrel, null))
+            {
+                return;
+            }
+
+            Detach();
+            if (barrel == null || barrel.IsBroken)
+            {
+                return;
+            }
+
+            _barrel = barrel;
+            _barrel.Broken += ClearBarrel;
+            Show(barrel.transform, barrel.Radius, _barrelHeight);
+        }
+
+        private void Show(Transform followed, float radius, float lift)
+        {
+            _followed = followed;
+            _lift = lift;
+            radius += _margin;
+            transform.localScale = new Vector3(radius, radius, 1f);
+            _line.enabled = true;
+            Follow();
+        }
+
+        // il nemico o il barile di prima possono essere già distrutti con il loro livello: ci si stacca lo stesso
+        private void Detach()
         {
             if (!ReferenceEquals(_target, null))
             {
                 _target.Died -= Clear;
             }
 
-            _target = enemy != null && !enemy.IsDead ? enemy : null;
-            _line.enabled = _target != null;
-            if (_target == null)
+            if (!ReferenceEquals(_barrel, null))
             {
-                return;
+                _barrel.Broken -= ClearBarrel;
             }
 
-            _target.Died += Clear;
-            float radius = (_target.TryGetComponent(out NavMeshAgent agent) ? agent.radius * _target.transform.lossyScale.x : 0.4f) + _margin;
-            transform.localScale = new Vector3(radius, radius, 1f);
-            Follow();
+            _target = null;
+            _barrel = null;
+            _followed = null;
+            _line.enabled = false;
         }
 
         private void Clear()
         {
-            Mark(null);
+            Detach();
+        }
+
+        private void ClearBarrel(Breakable barrel)
+        {
+            Detach();
         }
 
         // segue il nemico che si muove: un solo transform, solo mentre il cerchio è acceso
         private void LateUpdate()
         {
-            if (_target != null)
+            if (_followed != null)
             {
                 Follow();
             }
@@ -132,8 +198,8 @@ namespace DarkDescent.Rendering
 
         private void Follow()
         {
-            Vector3 position = _target.transform.position;
-            transform.position = new Vector3(position.x, position.y + _height, position.z);
+            Vector3 position = _followed.position;
+            transform.position = new Vector3(position.x, position.y + _lift, position.z);
         }
     }
 }

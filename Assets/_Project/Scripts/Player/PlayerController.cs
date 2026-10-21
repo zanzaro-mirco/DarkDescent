@@ -1,6 +1,7 @@
 using System;
 using DarkDescent.Combat;
 using DarkDescent.Interaction;
+using DarkDescent.Items;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -10,6 +11,7 @@ namespace DarkDescent.Player
     /// Collega input, movimento e attacco: ascolta il reader, guarda cosa c'è sotto il cursore e
     /// comanda il motor (terreno, oggetti da usare) o l'attacco (nemico). È l'unico a conoscere
     /// camera, layer e mondo 3D. Ogni frame guarda anche cosa c'è sotto il cursore, per evidenziarlo.
+    /// Dalla M13 un barile da rompere (D5) sta sul layer dei nemici e si colpisce come loro.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(PlayerMotor), typeof(PlayerInputReader), typeof(MeleeAttack))]
@@ -83,6 +85,11 @@ namespace DarkDescent.Player
 
         public Health HoveredEnemy { get; private set; }
 
+        /// <summary>Il barile intero sotto il cursore è cambiato; null = nessuno. Il cerchio a terra lo segna come un nemico.</summary>
+        public event Action<Breakable> HoveredBreakableChanged;
+
+        public Breakable HoveredBreakable { get; private set; }
+
         private void Awake()
         {
             _motor = GetComponent<PlayerMotor>();
@@ -110,6 +117,7 @@ namespace DarkDescent.Player
             // spento il controller (morte, cambio di livello) niente resta evidenziato né da usare
             SetHovered(null);
             SetHoveredEnemy(null);
+            SetHoveredBreakable(null);
             _pendingUse = null;
         }
 
@@ -229,16 +237,19 @@ namespace DarkDescent.Player
             int layerBit = 1 << hit.collider.gameObject.layer;
             // la tolleranza vale alla pressione: tenendo premuto e passando vicino a un nemico si
             // continua a camminare dove punta il cursore
-            var enemy = allowAttack || (_enemyLayers.value & layerBit) != 0 ? EnemyUnderCursor(hit) : null;
+            IDamageable target = allowAttack || (_enemyLayers.value & layerBit) != 0 ? EnemyUnderCursor(hit) : null;
+            if (target == null)
+            {
+                target = BreakableUnderCursor(hit);
+            }
 
-            if (enemy != null)
+            if (target != null)
             {
                 if (!allowAttack)
                 {
                     return;
                 }
 
-                IDamageable target = enemy;
                 if (target.IsAlive())
                 {
                     _heldTarget = target;
@@ -275,6 +286,7 @@ namespace DarkDescent.Player
         {
             Interactable hovered = null;
             Health enemy = null;
+            Breakable barrel = null;
             if (!IsPointerOverUI() && TryRaycastCursor(out RaycastHit hit))
             {
                 if ((_interactableLayers.value & (1 << hit.collider.gameObject.layer)) != 0)
@@ -284,11 +296,26 @@ namespace DarkDescent.Player
                 else
                 {
                     enemy = EnemyUnderCursor(hit);
+                    barrel = enemy == null ? BreakableUnderCursor(hit) : null;
                 }
             }
 
             SetHovered(hovered);
             SetHoveredEnemy(enemy);
+            SetHoveredBreakable(barrel);
+        }
+
+        // Il barile intero colpito dal raggio, sul layer dei nemici; null se non c'è. Senza la tolleranza
+        // del pavimento: i barili stanno fermi, e un click vicino deve poter camminare
+        private Breakable BreakableUnderCursor(RaycastHit hit)
+        {
+            if ((_enemyLayers.value & (1 << hit.collider.gameObject.layer)) == 0)
+            {
+                return null;
+            }
+
+            var barrel = hit.collider.GetComponentInParent<Breakable>();
+            return barrel != null && !barrel.IsBroken ? barrel : null;
         }
 
         // Il nemico vivo colpito dal raggio, oppure, se il raggio è finito sul pavimento, il nemico vivo
@@ -341,6 +368,17 @@ namespace DarkDescent.Player
 
             HoveredEnemy = enemy;
             HoveredEnemyChanged?.Invoke(enemy);
+        }
+
+        private void SetHoveredBreakable(Breakable barrel)
+        {
+            if (ReferenceEquals(barrel, HoveredBreakable))
+            {
+                return;
+            }
+
+            HoveredBreakable = barrel;
+            HoveredBreakableChanged?.Invoke(barrel);
         }
 
         private void SetHovered(Interactable hovered)
