@@ -122,6 +122,51 @@ namespace DarkDescent.Tests
             return best;
         }
 
+        [UnityTest, Description("Chiuso da ogni parte a meno di un metro e mezzo, come in un angolo tra muri e barili, il cavaliere apre il portale su un punto del NavMesh che raggiunge, e ci entra")]
+        public IEnumerator Spell_InATightCorner_OpensAReachablePortal()
+        {
+            yield return StartNewGame();
+            Manager.LoadLevel("Level_Crypt", "Start", 1);
+            yield return WaitUntilIn(level => level.Depth == 1, "la cripta non arriva");
+            foreach (var enemy in Manager.CurrentLevel.Enemies)
+            {
+                enemy.gameObject.SetActive(false);
+            }
+
+            var agent = PlayerObject.GetComponent<NavMeshAgent>();
+            agent.Warp(FarFromEntrance());
+            yield return null;
+            Vector3 center = PlayerObject.transform.position;
+            var walls = new GameObject("ZzStrettoia");
+            SceneManager.MoveGameObjectToScene(walls, Manager.CurrentLevel.gameObject.scene);
+            foreach (var side in new[] { Vector3.forward, Vector3.right, Vector3.back, Vector3.left })
+            {
+                var wall = new GameObject("Muro");
+                wall.transform.SetParent(walls.transform);
+                wall.transform.position = center + side * 1.1f;
+                wall.transform.rotation = Quaternion.LookRotation(side);
+                var obstacle = wall.AddComponent<NavMeshObstacle>();
+                obstacle.shape = NavMeshObstacleShape.Box;
+                obstacle.size = new Vector3(2.6f, 1f, 0.3f);
+                obstacle.carving = true;
+                obstacle.carveOnlyStationary = false;
+            }
+
+            yield return null;
+            yield return null;
+            foreach (var side in new[] { Vector3.forward, Vector3.right, Vector3.back, Vector3.left })
+            {
+                Assert.IsTrue(NavMesh.Raycast(center, center + side * 2.5f, out var hit, NavMesh.AllAreas) && hit.distance < 1.2f, "chiuso da ogni parte");
+            }
+
+            Assert.AreEqual(PortalResult.Opened, Magic.TryCastPortal());
+            var portal = Portals.OpenPortal;
+            Assert.IsTrue(NavMesh.SamplePosition(portal.transform.position, out _, 0.1f, NavMesh.AllAreas), "il portale sta sul NavMesh");
+            Assert.Less(Vector3.Distance(portal.transform.position, center), 1.2f, "dentro la strettoia");
+            PlayerObject.GetComponent<PlayerController>().Use(portal.Interactable);
+            yield return WaitUntilIn(level => level.IsTown, "il portale non porta in città");
+        }
+
         [UnityTest, Description("Nessuna pergamena all'inizio; in città la magia del portale non parte e l'HUD lo dice. Nel dungeon T apre un portale davanti al cavaliere, sul NavMesh e nella scena del livello, e spende il mana; un secondo lancio lo sposta; senza mana non parte e il posto è scuro")]
         public IEnumerator Spell_OpensAPortalInTheDungeon()
         {

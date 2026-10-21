@@ -152,6 +152,8 @@ namespace DarkDescent.Town
         {
             Vector3 origin = _player.position;
             Quaternion facing = Quaternion.LookRotation(Flat(_player.forward));
+            Vector3 roomiest = origin;
+            float roomiestDistance = 0f;
             foreach (var direction in Directions)
             {
                 Vector3 step = facing * direction;
@@ -167,9 +169,17 @@ namespace DarkDescent.Town
                 {
                     return hit.position - step * 0.3f;
                 }
+
+                if (hit.distance > roomiestDistance)
+                {
+                    roomiestDistance = hit.distance;
+                    roomiest = hit.position - step * Mathf.Min(0.3f, hit.distance);
+                }
             }
 
-            return origin + facing * Vector3.forward * _minDistance;
+            // stretto da ogni parte, in un angolo tra muri e barili: il punto libero più lontano, sul
+            // NavMesh, dove il cavaliere arriva (prima andava davanti a lui anche dentro un ostacolo)
+            return roomiest;
         }
 
         private static Vector3 Flat(Vector3 direction)
