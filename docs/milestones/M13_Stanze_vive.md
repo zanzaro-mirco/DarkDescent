@@ -334,7 +334,9 @@ altri barili; i nemici uccisi dall'esplosione danno l'esperienza come sempre.
 **Suoni.** Tre nuovi con Stable Audio, tre semi ciascuno, misurati (inviluppo, bassi, attacco) e
 scelti: `spike_warning_sa` (1702), `barrel_fuse_sa` (1704), `barrel_explosion_sa` (1703); lo scatto degli
 spuntoni è `trap_trigger_sa` del passo 13.4. Le ricette sono in `Tools/ComfyUI/sounds/`, e i WAV escono
-identici ai take ascoltati. La pagina di ascolto con i tre semi di ognuno va a Mirco.
+identici ai take ascoltati. La pagina di ascolto con i tre semi di ognuno è andata a Mirco, che il 21 ott
+ha approvato i suoni scelti, le foto del barile esplosivo e degli spuntoni, e la stele e `bonus_end` del
+passo 13.6.
 
 Test: `TrapDataTests` (i numeri delle regole, uno su cinque dalla profondità 4, gli spuntoni della
 cripta dalla 3 nei corridoi e al centro delle stanze, quelli delle caverne nei cunicoli, prefab e
