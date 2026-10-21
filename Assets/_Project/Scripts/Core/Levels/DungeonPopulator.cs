@@ -49,6 +49,12 @@ namespace DarkDescent.Levels
         // il barile singolo degli oggetti di scena
         private const char BarrelSymbol = 'b';
 
+        /// <summary>I pozzi del punto d'interesse (D7 della M13): della vita e del mana.</summary>
+        public const string WellSymbols = "()";
+
+        /// <summary>I santuari del punto d'interesse (D6 della M13): Furia, Vento, Pietra e Sapienza.</summary>
+        public const string ShrineSymbols = "[]{}";
+
         /// <summary>Il lato minimo, in celle, di una stanza con un punto d'interesse (dove andava il colonnato).</summary>
         public const int MinFeatureRoom = 5;
 
@@ -69,7 +75,8 @@ namespace DarkDescent.Levels
         /// </summary>
         public static readonly string[] ScatterThemes = { "y4", "y2", "v5", "z3", "6" };
 
-        private static readonly string DecorSymbols = string.Concat(DecorThemes) + BarrelGroupSymbol + BarrelWallSymbols + ScatterSymbols;
+        private static readonly string DecorSymbols = string.Concat(DecorThemes) + BarrelGroupSymbol + BarrelWallSymbols + WellSymbols
+            + ShrineSymbols + ScatterSymbols;
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
@@ -102,6 +109,12 @@ namespace DarkDescent.Levels
         public static bool IsScatter(char symbol)
         {
             return ScatterSymbols.IndexOf(symbol) >= 0;
+        }
+
+        /// <summary>Un pozzo o un santuario: si usa una volta, ed è un ostacolo al centro della stanza.</summary>
+        public static bool IsFeature(char symbol)
+        {
+            return WellSymbols.IndexOf(symbol) >= 0 || ShrineSymbols.IndexOf(symbol) >= 0;
         }
 
         /// <summary>Quanti barili da rompere ci sono nei gruppi di barili: tre al centro, due o tre contro il muro.</summary>
@@ -178,7 +191,7 @@ namespace DarkDescent.Levels
 
                     if (i != layout.StartRoom && kind != RoomFeatureKind.None)
                     {
-                        PlaceFeature(layout, i, kind, reserved);
+                        PlaceFeature(layout, i, kind, depth, reserved);
                     }
                 }
 
@@ -290,8 +303,8 @@ namespace DarkDescent.Levels
 
         // Il punto d'interesse sulla cella libera più vicina al centro della stanza, lontano dai muri, dai
         // passaggi, da casse e scala e dal percorso tra le porte, e che non chiuda il cammino. La cella
-        // resta riservata: pozzi, santuari e trappole arrivano nei passi 13.6 e 13.7 nella stessa cella.
-        private static void PlaceFeature(DungeonLayout layout, int roomIndex, RoomFeatureKind kind, HashSet<Vector2Int> reserved)
+        // resta riservata: le trappole arrivano nel passo 13.7 nella stessa cella.
+        private static void PlaceFeature(DungeonLayout layout, int roomIndex, RoomFeatureKind kind, int depth, HashSet<Vector2Int> reserved)
         {
             RectInt room = layout.Rooms[roomIndex];
             var path = DoorPaths(layout, room);
@@ -315,10 +328,12 @@ namespace DarkDescent.Levels
             candidates.Sort((a, b) => Distance2(a, cx, cy).CompareTo(Distance2(b, cx, cy)));
             foreach (var cell in candidates)
             {
-                // ogni punto d'interesse è un ostacolo tranne le trappole: si prova con i barili
-                layout.TryPlace(BarrelGroupSymbol, cell.x, cell.y);
+                // ogni punto d'interesse è un ostacolo tranne le trappole, che arrivano nel passo 13.7: per
+                // loro si prova con i barili e la cella resta vuota
+                bool traps = kind == RoomFeatureKind.Traps;
+                layout.TryPlace(traps ? BarrelGroupSymbol : FeatureSymbol(kind, cell, depth), cell.x, cell.y);
                 bool connected = IsConnected(layout);
-                if (!connected || kind != RoomFeatureKind.Barrels)
+                if (!connected || traps)
                 {
                     layout.Remove(cell.x, cell.y);
                 }
@@ -329,6 +344,35 @@ namespace DarkDescent.Levels
                     layout.AddFeature(new RoomFeature(roomIndex, kind, cell));
                     return;
                 }
+            }
+        }
+
+        // Il simbolo del punto d'interesse; quale pozzo e quale santuario lo dice un hash della cella e della
+        // profondità, non il flusso degli arredi: gli arredi dei semi già provati non scorrono
+        private static char FeatureSymbol(RoomFeatureKind kind, Vector2Int cell, int depth)
+        {
+            switch (kind)
+            {
+                case RoomFeatureKind.Well:
+                    return WellSymbols[CellPick(cell, depth, WellSymbols.Length)];
+                case RoomFeatureKind.Shrine:
+                    return ShrineSymbols[CellPick(cell, depth, ShrineSymbols.Length)];
+                default:
+                    return BarrelGroupSymbol;
+            }
+        }
+
+        private static int CellPick(Vector2Int cell, int depth, int count)
+        {
+            unchecked
+            {
+                uint h = (uint)cell.x * 0x9E3779B1u ^ (uint)cell.y * 0x85EBCA77u ^ (uint)depth * 0xC2B2AE3Du;
+                h ^= h >> 15;
+                h *= 0x2C1B3C6Du;
+                h ^= h >> 12;
+                h *= 0x297A2D39u;
+                h ^= h >> 15;
+                return (int)(h % (uint)count);
             }
         }
 

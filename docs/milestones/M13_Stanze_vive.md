@@ -256,6 +256,52 @@ sola; barile rotto dopo il ritorno dalla città, senza loot doppio). `DecorTests
 conoscono i barili da rompere. 357 EditMode e 217 PlayMode verdi; in un primo giro
 `PortalTests.Portal_GoesToTownAndBack` ha sforato i 12 s di 0,2 ms, da solo e nel giro dopo è verde.
 
+## Passo 13.6 — Pozzi e santuari
+
+**Com'è andata (21 ott 2026).** Il pozzo della prova è diviso in pezzi (`Tools/Blender/models/well.py`):
+`Well` (bacino, paracarri e piedistallo), `Well_Liquid` (il pelo del liquido) e `Crystal`, lo stesso
+cristallo per pozzi e santuari. Colore ed emissione vengono dal materiale: `M_WellLiquidLife` e
+`M_WellLiquidMana`, un `M_Crystal…` per tipo e `M_CrystalSpent` per il cristallo spento, tutti salvati con
+l'emissione già accesa o spenta (trappola 8 della M2). La stele del santuario è nuova
+(`models/shrine.py`): due gradini, una lastra che si stringe in alto, una runa d'oro davanti (un rombo
+attraversato da un'asta; la prima versione sembrava una croce) e un castone con quattro griffe.
+
+**Come funzionano.** `OneUseFeature` è la base comune: si clicca come una cassa, il cavaliere ci va e lo
+usa; usato, il cristallo prende il materiale spento, la luce colorata si spegne e il nome dice "(vuoto)".
+Si vede ancora al passaggio del mouse, ma un altro click non fa niente. `Well` riempie tutta la vita o
+tutto il mana, e il liquido scende di 30 cm in poco più di un secondo. `Shrine` dà a `ShrineBonus`, sul
+cavaliere, il bonus della sua `ShrineDefinition` (`Data/Shrines/`): Furia danno +25%, Vento velocità
++25%, Pietra armatura +50%, Sapienza esperienza +50%, per 60 s. Uno solo alla volta: un santuario nuovo
+prende il posto del vecchio. Danno ed esperienza sono due statistiche nuove in punti percentuali
+(`DamageBonus`, `ExperienceBonus`, in fondo a `StatType`), che valgono per la spada e per gli
+incantesimi (`CombatFormulas.WithBonus`); la velocità passa da `MovementSlow.SetHaste`, che si somma al
+rallentamento del Gelido. Il bonus finisce alla morte e non si salva: uscendo si perde, come proposto
+nelle trappole note.
+
+**HUD e suoni.** Accanto al portale, a sinistra della cintura, l'icona del cristallo
+(`Icons/Spells/ShrineCrystal.png`) prende il colore del santuario e mostra i secondi che restano,
+aggiornati una volta al secondo; un messaggio al centro dice il bonus ("Furia: danno +25% per 60
+secondi"). Il santuario suona `shrine_chime_sa` con un tono diverso per tipo, il pozzo `well_drink_sa`.
+Alla fine del bonus suona `bonus_end`, nuovo, da `Tools/Audio/sounds/bonus_end.py`: due campanelle che
+scendono di una quarta e un coro che cala.
+
+**Generatore.** Il punto d'interesse "pozzo" e "santuario" ora mette davvero il suo simbolo nella cella:
+`(` e `)` i pozzi della vita e del mana, `[` `]` `{` `}` Furia, Vento, Pietra e Sapienza. Quale pozzo e
+quale santuario lo dice un hash della cella e della profondità, non il flusso degli arredi: gli arredi
+dei semi già provati non scorrono. Le trappole restano una cella vuota fino al passo 13.7. Le caverne non
+hanno stanze e restano senza pozzi e santuari.
+
+**Ricordi del livello.** Pozzi e santuari usati si ricordano a parte, come i barili
+(`LevelRecord.Spent`, `MatchesFeatures`): i salvataggi di prima restano validi.
+
+Test: `FeatureDataTests` (tipi e numeri dei santuari, nomi nelle due lingue, prefab, al più un pozzo e
+un santuario per livello e mai nella stanza di partenza, ogni tipo esce in 200 livelli, ricordi e
+salvataggi di prima, il bonus in punti percentuali) e `FeaturePlayModeTests` (il click sul pozzo della
+vita, il liquido che scende e il nome da vuoto; il pozzo del mana; i quattro bonus, il cambio di bonus,
+la fine del tempo, l'icona e il messaggio; il santuario usato che resta vuoto al ritorno dalla città).
+`DecorTests` e `DungeonContentTests` conoscono pozzi e santuari al centro della stanza. 362 EditMode e
+221 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -313,7 +359,7 @@ conoscono i barili da rompere. 357 EditMode e 217 PlayMode verdi; in un primo gi
 - [x] Modelli nuovi e tema della cappella
 - [x] ComfyUI configurato e provato: suoni generati nel gioco, TRELLIS provato sulla statua; ADR-096
 - [x] Barili da rompere, anche nelle caverne, con i gruppi contro i muri
-- [ ] Pozzi e santuari
+- [x] Pozzi e santuari
 - [ ] Trappole
 - [ ] Loot misurato e ritarato
 - [ ] Build di prova

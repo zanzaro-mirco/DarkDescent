@@ -395,6 +395,7 @@ namespace DarkDescent.Combat
                         _swingIsQuick ? _quickWeapon.MaxDamage : _maxDamage,
                         CharacterStats.ValueOf(_stats, StatType.Strength), _random,
                         CharacterStats.ValueOf(_stats, StatType.Level)) * _damageMultiplier;
+                    amount = CombatFormulas.WithBonus(amount, CharacterStats.ValueOf(_stats, StatType.DamageBonus));
 
                     // il critico per ultimo: i tiri di colpire, bloccare e del danno restano dove sono
                     bool critical = _canCrit && CombatFormulas.RollCrit(

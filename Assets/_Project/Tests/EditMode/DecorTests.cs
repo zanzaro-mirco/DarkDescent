@@ -14,6 +14,7 @@ namespace DarkDescent.Tests
         private const int Seeds = 100;
         private const int ObstacleLayer = 7;
         private const int EnemyLayer = 8;
+        private const int InteractableLayer = 9;
 
         private DungeonSettings _settings;
         private DungeonSettings _bare;
@@ -76,7 +77,7 @@ namespace DarkDescent.Tests
         private static bool IsComposition(char c)
         {
             return DungeonPopulator.IsDecor(c) && c != DungeonPopulator.BarrelGroupSymbol && DungeonPopulator.BarrelWallSymbols.IndexOf(c) < 0
-                && !DungeonPopulator.IsScatter(c);
+                && !DungeonPopulator.IsFeature(c) && !DungeonPopulator.IsScatter(c);
         }
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
@@ -225,8 +226,11 @@ namespace DarkDescent.Tests
                             Assert.AreNotEqual(RoomFeatureKind.Traps, feature.Kind, $"seme {seed}: trappole alla profondità {depth}");
                         }
 
-                        char expected = feature.Kind == RoomFeatureKind.Barrels ? DungeonPopulator.BarrelGroupSymbol : LevelMap.Floor;
-                        Assert.AreEqual(expected, layout[cell.x, cell.y], $"seme {seed}: la cella del punto d'interesse ({feature.Kind})");
+                        // barili, pozzo e santuario stanno nella cella; le trappole arrivano nel passo 13.7
+                        string expected = feature.Kind == RoomFeatureKind.Barrels ? DungeonPopulator.BarrelGroupSymbol.ToString()
+                            : feature.Kind == RoomFeatureKind.Well ? DungeonPopulator.WellSymbols
+                            : feature.Kind == RoomFeatureKind.Shrine ? DungeonPopulator.ShrineSymbols : LevelMap.Floor.ToString();
+                        StringAssert.Contains(layout[cell.x, cell.y].ToString(), expected, $"seme {seed}: la cella del punto d'interesse ({feature.Kind})");
                         foreach (var next in Steps.Select(s => cell + s))
                         {
                             char c = layout[next.x, next.y];
@@ -238,6 +242,8 @@ namespace DarkDescent.Tests
 
                     Assert.AreEqual(layout.Features.Count(f => f.Kind == RoomFeatureKind.Barrels),
                         Cells(layout, c => c == DungeonPopulator.BarrelGroupSymbol).Count(), $"seme {seed}: gruppi di barili");
+                    Assert.AreEqual(layout.Features.Count(f => f.Kind == RoomFeatureKind.Well || f.Kind == RoomFeatureKind.Shrine),
+                        Cells(layout, DungeonPopulator.IsFeature).Count(), $"seme {seed}: pozzi e santuari");
                 }
             }
 
@@ -321,12 +327,12 @@ namespace DarkDescent.Tests
             Assert.Greater(inner, free * 3 / 4, "quasi tutti lontani dai muri");
         }
 
-        [Test, Description("Ogni arredo ha il suo prefab nel tileset della cripta: sta nella cella, a terra, con il materiale del dungeon (le ossa il loro); composizioni e barili hanno i collider sul layer degli ostacoli, tranne i barili da rompere che stanno su quello dei nemici (D5 della M13), i mucchietti nessun collider")]
+        [Test, Description("Ogni arredo ha il suo prefab nel tileset della cripta: sta nella cella, a terra, con il materiale del dungeon (le ossa il loro); composizioni e barili hanno i collider sul layer degli ostacoli, tranne i barili da rompere che stanno su quello dei nemici (D5 della M13) e il click di pozzi e santuari, i mucchietti nessun collider")]
         public void Compositions_AreInTheTileset()
         {
             var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>("Assets/_Project/Data/Levels/DungeonTileset.asset");
             foreach (char symbol in string.Concat(DungeonPopulator.DecorThemes) + DungeonPopulator.BarrelGroupSymbol + DungeonPopulator.BarrelWallSymbols
-                + DungeonPopulator.ScatterSymbols)
+                + DungeonPopulator.WellSymbols + DungeonPopulator.ShrineSymbols + DungeonPopulator.ScatterSymbols)
             {
                 var prefab = tileset.GetMarkerPrefab(symbol);
                 Assert.IsNotNull(prefab, $"'{symbol}' senza prefab");
@@ -340,11 +346,15 @@ namespace DarkDescent.Tests
                     Assert.Greater(colliders.Length, 0, prefab.name);
                 }
 
-                var outside = colliders.Where(c => c.gameObject.layer != (c.GetComponentInParent<Breakable>(true) != null ? EnemyLayer : ObstacleLayer));
+                // i barili da rompere stanno sul layer dei nemici; pozzi e santuari hanno anche il click
+                var outside = colliders.Where(c => c.gameObject.layer != (c.GetComponentInParent<Breakable>(true) != null ? EnemyLayer : ObstacleLayer)
+                    && !(c.gameObject.layer == InteractableLayer && DungeonPopulator.IsFeature(symbol)));
                 Assert.IsEmpty(outside.Select(c => $"{c.name} sul layer {c.gameObject.layer}"), prefab.name + ": collider fuori dal layer degli ostacoli");
                 foreach (var renderer in prefab.GetComponentsInChildren<MeshRenderer>())
                 {
-                    Assert.IsTrue(renderer.sharedMaterials.All(m => m != null && (m.name == "M_Dungeon" || m.name == "M_Bone")), $"{prefab.name}: {renderer.name}");
+                    Assert.IsTrue(renderer.sharedMaterials.All(m => m != null && (m.name == "M_Dungeon" || m.name == "M_Bone"
+                        || (DungeonPopulator.IsFeature(symbol) && (m.name.StartsWith("M_Crystal") || m.name.StartsWith("M_WellLiquid"))))),
+                        $"{prefab.name}: {renderer.name}");
                     var mesh = renderer.GetComponent<MeshFilter>().sharedMesh.bounds;
                     Vector3 min = prefab.transform.InverseTransformPoint(renderer.transform.TransformPoint(mesh.min));
                     Vector3 max = prefab.transform.InverseTransformPoint(renderer.transform.TransformPoint(mesh.max));

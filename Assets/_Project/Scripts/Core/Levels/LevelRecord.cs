@@ -9,8 +9,8 @@ namespace DarkDescent.Levels
     /// Diablo 1: i nemici uccisi e le casse aperte, per posto nell'ordine in cui il livello li
     /// costruisce, e gli oggetti rimasti a terra. Con quanti nemici e casse c'erano si riconosce un
     /// ricordo che non corrisponde più al livello generato: allora nemici e casse ripartono come nuovi.
-    /// Dalla M13 anche i barili rotti (D5), contati a parte: un salvataggio di prima non ha barili, e i
-    /// suoi nemici e le sue casse restano com'erano.
+    /// Dalla M13 anche i barili rotti (D5) e i pozzi e i santuari usati (D6, D7), contati a parte: un
+    /// salvataggio di prima non li ha, e i suoi nemici e le sue casse restano com'erano.
     /// </summary>
     [Serializable]
     public sealed class LevelRecord
@@ -23,10 +23,13 @@ namespace DarkDescent.Levels
         [SerializeField] private List<int> _opened = new List<int>();
         [SerializeField] private int _breakableCount;
         [SerializeField] private List<int> _broken = new List<int>();
+        [SerializeField] private int _featureCount;
+        [SerializeField] private List<int> _spent = new List<int>();
         [SerializeField] private List<GroundItemRecord> _items = new List<GroundItemRecord>();
 
-        public LevelRecord(string scene, int depth, int enemyCount, int chestCount, int breakableCount = 0)
+        public LevelRecord(string scene, int depth, int enemyCount, int chestCount, int breakableCount = 0, int featureCount = 0)
         {
+            _featureCount = featureCount;
             _scene = scene;
             _depth = depth;
             _enemyCount = enemyCount;
@@ -49,6 +52,9 @@ namespace DarkDescent.Levels
         /// <summary>I posti dei barili rotti (D5 della M13).</summary>
         public IReadOnlyList<int> Broken => _broken ??= new List<int>();
 
+        /// <summary>I posti dei pozzi e dei santuari usati (D6 e D7 della M13).</summary>
+        public IReadOnlyList<int> Spent => _spent ??= new List<int>();
+
         /// <summary>Il livello generato ha gli stessi nemici e le stesse casse del ricordo.</summary>
         public bool Matches(int enemyCount, int chestCount)
         {
@@ -59,6 +65,17 @@ namespace DarkDescent.Levels
         public bool MatchesBreakables(int breakableCount)
         {
             return breakableCount == _breakableCount;
+        }
+
+        /// <summary>Il livello generato ha gli stessi pozzi e santuari del ricordo; uno di prima della M13 non ne ha.</summary>
+        public bool MatchesFeatures(int featureCount)
+        {
+            return featureCount == _featureCount;
+        }
+
+        public void AddSpent(int index)
+        {
+            (_spent ??= new List<int>()).Add(index);
         }
 
         public void AddBroken(int index)

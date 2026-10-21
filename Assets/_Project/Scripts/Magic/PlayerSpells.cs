@@ -187,7 +187,7 @@ namespace DarkDescent.Magic
             // in piano, all'altezza del petto: il dardo passa sopra le balaustre e colpisce il busto
             Vector3 direction = aim.normalized;
             from += direction * _launchForward;
-            float damage = spell.RollDamage(_stats.Magic, _random);
+            float damage = RollDamage(spell);
             _pools.Launch(spell.Effect, from, direction, spell.Speed, spell.Range, damage, gameObject, _targetLayers);
         }
 
@@ -215,7 +215,7 @@ namespace DarkDescent.Magic
                     continue;
                 }
 
-                target.TakeDamage(new DamageInfo(spell.RollDamage(_stats.Magic, _random), DamageType.Fire, gameObject));
+                target.TakeDamage(new DamageInfo(RollDamage(spell), DamageType.Fire, gameObject));
             }
 
             _areaTargets.Clear();
@@ -231,6 +231,12 @@ namespace DarkDescent.Magic
             }
 
             return effect;
+        }
+
+        // il danno dell'incantesimo con il bonus del santuario della Furia (M13)
+        private float RollDamage(SpellDefinition spell)
+        {
+            return CombatFormulas.WithBonus(spell.RollDamage(_stats.Magic, _random), _stats.Sheet.Get(StatType.DamageBonus));
         }
 
         private void StartBuff(SpellDefinition spell)

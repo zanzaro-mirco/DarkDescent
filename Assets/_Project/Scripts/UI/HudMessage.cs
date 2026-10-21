@@ -1,7 +1,9 @@
 using System.Collections;
+using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Localization;
 using DarkDescent.Magic;
+using DarkDescent.Player;
 using TMPro;
 using UnityEngine;
 
@@ -10,8 +12,9 @@ namespace DarkDescent.UI
     /// <summary>
     /// Un avviso al centro dello schermo, per un momento: "Non c'è posto nell'inventario" quando il
     /// cavaliere prova a raccogliere un oggetto che non entra (seconda prova della build M7), e dal
-    /// passo 11.7 della M11 perché la magia del portale non parte, in città o nella sala del re.
-    /// Ascolta inventario e magia; un altro avviso la rimette a piena luce.
+    /// passo 11.7 della M11 perché la magia del portale non parte, in città o nella sala del re, e
+    /// dalla M13 il bonus di un santuario appena preso. Ascolta inventario, magia e bonus; un altro
+    /// avviso la rimette a piena luce.
     /// </summary>
     [DisallowMultipleComponent]
     public class HudMessage : MonoBehaviour
@@ -27,6 +30,7 @@ namespace DarkDescent.UI
 
         private PlayerInventory _inventory;
         private PlayerMagic _magic;
+        private ShrineBonus _bonus;
         private Localizer _localizer;
         private string _key;
         private bool _subscribed;
@@ -38,11 +42,12 @@ namespace DarkDescent.UI
         public string Text => _text.text;
 
         /// <summary>Come i pannelli: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
-        public void Bind(PlayerInventory inventory, PlayerMagic magic, Localizer localizer)
+        public void Bind(PlayerInventory inventory, PlayerMagic magic, Localizer localizer, ShrineBonus bonus = null)
         {
             Unsubscribe();
             _inventory = inventory;
             _magic = magic;
+            _bonus = bonus;
             _localizer = localizer;
             if (isActiveAndEnabled)
             {
@@ -81,6 +86,11 @@ namespace DarkDescent.UI
                 _magic.PortalRefused += HandlePortalRefused;
             }
 
+            if (_bonus != null)
+            {
+                _bonus.Started += HandleBonusStarted;
+            }
+
             _localizer.LanguageChanged += Refresh;
             _subscribed = true;
         }
@@ -96,6 +106,11 @@ namespace DarkDescent.UI
             if (_magic != null)
             {
                 _magic.PortalRefused -= HandlePortalRefused;
+            }
+
+            if (_bonus != null)
+            {
+                _bonus.Started -= HandleBonusStarted;
             }
 
             _localizer.LanguageChanged -= Refresh;
@@ -118,6 +133,11 @@ namespace DarkDescent.UI
             {
                 Show(TextKeys.PortalBossRoom);
             }
+        }
+
+        private void HandleBonusStarted(ShrineDefinition shrine)
+        {
+            Show(shrine.MessageKey);
         }
 
         private void Show(string key)

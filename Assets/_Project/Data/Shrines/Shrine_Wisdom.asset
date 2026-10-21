@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0774e7f5a05ab74fb74b9c552f966b1, type: 3}
+  m_Name: Shrine_Wisdom
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Interaction.ShrineDefinition
+  _effect: 3
+  _percent: 50
+  _duration: 60
+  _labelKey: shrine.wisdom
+  _messageKey: shrine.wisdom.message
+  _color: {r: 0.75, g: 0.4, b: 1, a: 1}
+  _crystal: {fileID: 2100000, guid: 5bcb56ea33cc7d6488bfb6a5bc2e85dd, type: 2}
+  _chimePitch: 1.25

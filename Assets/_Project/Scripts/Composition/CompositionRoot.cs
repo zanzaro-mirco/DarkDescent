@@ -80,6 +80,9 @@ namespace DarkDescent.Core
         [FormerlySerializedAs("_inventoryFullMessage")]
         [SerializeField] private HudMessage _hudMessage;
 
+        [Tooltip("L'icona del bonus del santuario accanto alla cintura (D6 della M13).")]
+        [SerializeField] private ShrineBonusView _shrineBonusView;
+
         [SerializeField] private ExperienceBar _experienceBar;
 
         [SerializeField] private PointsButton _pointsButton;
@@ -323,7 +326,9 @@ namespace DarkDescent.Core
             _scrollWanted = spell => !_magic.Book.Knows(spell) && !_inventory.CarriesScrollOf(spell);
             magic.Bind(_reader, controller);
             magic.SetPortalOpener(_portals);
-            _hudMessage.Bind(inventory, magic, _localizer);
+            var shrineBonus = _player.GetComponent<ShrineBonus>();
+            _hudMessage.Bind(inventory, magic, _localizer, shrineBonus);
+            _shrineBonusView.Bind(shrineBonus);
             _manaOrb.Bind(magic.Mana);
             _spellBar.Bind(magic);
             _portalSlot.Bind(magic);

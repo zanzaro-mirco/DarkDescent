@@ -119,6 +119,15 @@ namespace DarkDescent.Combat
             return Damage(roll, strength, level);
         }
 
+        /// <summary>
+        /// Un valore con un bonus in punti percentuali (il santuario della Furia e della Sapienza, M13):
+        /// 25 lo porta al 125%. Senza bonus resta quello.
+        /// </summary>
+        public static float WithBonus(float value, float percent)
+        {
+            return value * (1f + percent / 100f);
+        }
+
         /// <summary>Vita massima: 50 + 2 × Vitalità. Con la Vitalità 25 del cavaliere, 100.</summary>
         public static float MaxLife(float vitality)
         {

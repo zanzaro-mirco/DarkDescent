@@ -33,6 +33,7 @@ namespace DarkDescent.Progression
 
         private CharacterProgress _progress;
         private Health _health;
+        private CharacterStats _stats;
         private Coroutine _glowing;
         private int _lastSoundFrame = -1;
 
@@ -50,6 +51,7 @@ namespace DarkDescent.Progression
         private void Awake()
         {
             _health = GetComponent<Health>();
+            _stats = GetComponent<CharacterStats>();
             if (_glow != null)
             {
                 _glow.enabled = false;
@@ -83,6 +85,9 @@ namespace DarkDescent.Progression
             }
 
             int experience = _settings.ExperienceForKill(baseExperience, depth, Progress.Level);
+            // il santuario della Sapienza (M13): il bonus dopo la riduzione, arrotondato
+            float bonus = CharacterStats.ValueOf(_stats, StatType.ExperienceBonus);
+            experience = (int)Math.Round(CombatFormulas.WithBonus(experience, bonus), MidpointRounding.AwayFromZero);
             Progress.Add(experience);
             return experience;
         }

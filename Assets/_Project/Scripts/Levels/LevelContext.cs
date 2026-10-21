@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DarkDescent.Audio;
 using DarkDescent.Enemies;
+using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Town;
 using UnityEngine;
@@ -27,6 +28,7 @@ namespace DarkDescent.Levels
         private readonly List<EnemyAI> _enemies = new List<EnemyAI>();
         private readonly List<Chest> _chests = new List<Chest>();
         private readonly List<Breakable> _breakables = new List<Breakable>();
+        private readonly List<OneUseFeature> _features = new List<OneUseFeature>();
 
         /// <summary>Il player ha raggiunto un'uscita.</summary>
         public event Action<LevelExit> ExitRequested;
@@ -41,6 +43,9 @@ namespace DarkDescent.Levels
 
         /// <summary>I barili da rompere (D5 della M13), nell'ordine in cui il livello li costruisce.</summary>
         public IReadOnlyList<Breakable> Breakables => _breakables;
+
+        /// <summary>I pozzi e i santuari (D6 e D7 della M13), nell'ordine in cui il livello li costruisce.</summary>
+        public IReadOnlyList<OneUseFeature> Features => _features;
 
         /// <summary>Il mercante della città (D5 della M10); null negli altri livelli.</summary>
         public Merchant Merchant { get; private set; }
@@ -84,6 +89,7 @@ namespace DarkDescent.Levels
             var enemies = new List<EnemyAI>();
             var chests = new List<Chest>();
             var breakables = new List<Breakable>();
+            var features = new List<OneUseFeature>();
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
                 root.GetComponentsInChildren(true, entrances);
@@ -96,6 +102,8 @@ namespace DarkDescent.Levels
                 _chests.AddRange(chests);
                 root.GetComponentsInChildren(true, breakables);
                 _breakables.AddRange(breakables);
+                root.GetComponentsInChildren(true, features);
+                _features.AddRange(features);
                 if (Merchant == null)
                 {
                     Merchant = root.GetComponentInChildren<Merchant>(true);

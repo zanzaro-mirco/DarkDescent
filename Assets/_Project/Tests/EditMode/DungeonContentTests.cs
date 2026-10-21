@@ -161,7 +161,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("Gli ostacoli stanno contro i muri delle stanze, mai in un corridoio; in mezzo solo i barili del punto d'interesse (D4 della M13)")]
+        [Test, Description("Gli ostacoli stanno contro i muri delle stanze, mai in un corridoio; in mezzo solo il punto d'interesse: barili, pozzo o santuario (D4 della M13)")]
         public void Obstacles_StandAgainstRoomWalls()
         {
             foreach (var (seed, depth, layout) in Dungeons())
@@ -179,7 +179,8 @@ namespace DarkDescent.Tests
                         var room = layout.Rooms.FirstOrDefault(r => r.Contains(cell));
                         Assert.IsTrue(room.Contains(cell), $"seme {seed}: ostacolo in un corridoio in ({x}, {y})");
                         bool border = x == room.xMin || y == room.yMin || x == room.xMax - 1 || y == room.yMax - 1;
-                        Assert.IsTrue(border || layout[x, y] == DungeonPopulator.BarrelGroupSymbol, $"seme {seed}: ostacolo in mezzo alla stanza in ({x}, {y})");
+                        Assert.IsTrue(border || layout[x, y] == DungeonPopulator.BarrelGroupSymbol || DungeonPopulator.IsFeature(layout[x, y]),
+                            $"seme {seed}: ostacolo in mezzo alla stanza in ({x}, {y})");
 
                         // non dentro le balaustre della scala, non addosso al cavaliere appena entrato
                         Assert.AreNotEqual(1, Mathf.Abs(x - layout.Stairs.x) + Mathf.Abs(y - layout.Stairs.y), $"seme {seed}: ostacolo accanto alla scala");

@@ -94,6 +94,22 @@ tooltip.block,Block chance: {0}%,Blocco: {0}%
 chest,Chest,Cassa
 chest.gold,Gold chest,Forziere
 chest.treasure,The King's Hoard,Tesoro del re
+well.life,Life Well,Pozzo della vita
+well.life.spent,Life Well (empty),Pozzo della vita (vuoto)
+well.mana,Mana Well,Pozzo del mana
+well.mana.spent,Mana Well (empty),Pozzo del mana (vuoto)
+shrine.fury,Shrine of Fury,Santuario della Furia
+shrine.fury.spent,Shrine of Fury (empty),Santuario della Furia (vuoto)
+shrine.fury.message,Fury: +25% damage for 60 seconds,Furia: danno +25% per 60 secondi
+shrine.wind,Shrine of the Wind,Santuario del Vento
+shrine.wind.spent,Shrine of the Wind (empty),Santuario del Vento (vuoto)
+shrine.wind.message,Wind: +25% speed for 60 seconds,Vento: velocità +25% per 60 secondi
+shrine.stone,Shrine of Stone,Santuario della Pietra
+shrine.stone.spent,Shrine of Stone (empty),Santuario della Pietra (vuoto)
+shrine.stone.message,Stone: +50% armor for 60 seconds,Pietra: armatura +50% per 60 secondi
+shrine.wisdom,Shrine of Wisdom,Santuario della Sapienza
+shrine.wisdom.spent,Shrine of Wisdom (empty),Santuario della Sapienza (vuoto)
+shrine.wisdom.message,Wisdom: +50% experience for 60 seconds,Sapienza: esperienza +50% per 60 secondi
 tooltip.equipped,Equipped,Equipaggiato
 tooltip.equipped_ring1,Equipped – ring 1,Equipaggiato – anello 1
 tooltip.equipped_ring2,Equipped – ring 2,Equipaggiato – anello 2

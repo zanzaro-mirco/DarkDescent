@@ -8,9 +8,9 @@ namespace DarkDescent.Levels
     /// <summary>
     /// Ricorda com'erano i livelli lasciati e li rimette così rientrandoci (10.9 della M10), come in
     /// Diablo 1: il seme rigenera il livello, poi i nemici uccisi spariscono, le casse aperte restano
-    /// aperte, i barili rotti (D5 della M13) restano a pezzi e gli oggetti a terra tornano dov'erano,
-    /// anche quelli messi dalla mappa. Prima del 10.9
-    /// ogni livello ripartiva nuovo, e le casse ridavano gli stessi oggetti. Lo chiama il composition
+    /// aperte, i barili rotti (D5 della M13) restano a pezzi, pozzi e santuari usati restano vuoti, e
+    /// gli oggetti a terra tornano dov'erano, anche quelli messi dalla mappa. Prima del 10.9 ogni
+    /// livello ripartiva nuovo, e le casse ridavano gli stessi oggetti. Lo chiama il composition
     /// root: <see cref="Restore"/> appena caricato il livello, prima di collegare i nemici, e
     /// <see cref="Remember"/> prima di scaricarlo. I ricordi vanno nel salvataggio.
     /// </summary>
@@ -83,6 +83,14 @@ namespace DarkDescent.Levels
                 }
             }
 
+            if (record.MatchesFeatures(level.Features.Count))
+            {
+                foreach (int index in record.Spent)
+                {
+                    level.Features[index].RestoreSpent();
+                }
+            }
+
             foreach (var item in record.Items)
             {
                 if (item.Gold > 0)
@@ -120,7 +128,8 @@ namespace DarkDescent.Levels
 
         private LevelRecord Record(LevelContext level)
         {
-            var record = new LevelRecord(level.gameObject.scene.name, level.Depth, level.Enemies.Count, level.Chests.Count, level.Breakables.Count);
+            var record = new LevelRecord(level.gameObject.scene.name, level.Depth, level.Enemies.Count, level.Chests.Count, level.Breakables.Count,
+                level.Features.Count);
             for (int i = 0; i < level.Enemies.Count; i++)
             {
                 // un nemico morto da un po' è già sparito
@@ -144,6 +153,14 @@ namespace DarkDescent.Levels
                 if (level.Breakables[i] != null && level.Breakables[i].IsBroken)
                 {
                     record.AddBroken(i);
+                }
+            }
+
+            for (int i = 0; i < level.Features.Count; i++)
+            {
+                if (level.Features[i] != null && level.Features[i].IsSpent)
+                {
+                    record.AddSpent(i);
                 }
             }
 

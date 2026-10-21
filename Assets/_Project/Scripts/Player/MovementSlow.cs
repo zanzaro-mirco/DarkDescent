@@ -7,6 +7,7 @@ namespace DarkDescent.Player
     /// Il rallentamento del cavaliere (il Gelido dei campioni, D5 della M12): per qualche secondo
     /// l'agent va più piano e il modello prende una tinta fredda. È l'unico che cambia la velocità
     /// dell'agent: un secondo colpo rinnova la durata senza sommarsi, e alla fine torna quella di prima.
+    /// Dalla M13 tiene anche la velocità in più del santuario del Vento.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NavMeshAgent))]
@@ -26,6 +27,7 @@ namespace DarkDescent.Player
         private float _baseSpeed;
         private float _fraction;
         private float _remaining;
+        private float _haste;
 
         public bool IsSlowed => _remaining > 0f;
 
@@ -33,6 +35,9 @@ namespace DarkDescent.Player
         public float Fraction => IsSlowed ? _fraction : 0f;
 
         public float BaseSpeed => _baseSpeed;
+
+        /// <summary>Quanto della velocità si guadagna ora, dal santuario del Vento (M13): 0,25 vuol dire +25%.</summary>
+        public float Haste => _haste;
 
         /// <summary>I cristalli di ghiaccio, o null.</summary>
         public GameObject Effect => _effect;
@@ -48,7 +53,7 @@ namespace DarkDescent.Player
             bool wasSlowed = IsSlowed;
             _fraction = wasSlowed ? Mathf.Max(_fraction, Mathf.Clamp01(fraction)) : Mathf.Clamp01(fraction);
             _remaining = Mathf.Max(_remaining, duration);
-            _agent.speed = _baseSpeed * (1f - _fraction);
+            ApplySpeed();
             if (!wasSlowed)
             {
                 // i modelli in mano cambiano con l'equipaggiamento: si prendono a ogni rallentamento, non a ogni frame
@@ -59,6 +64,21 @@ namespace DarkDescent.Player
                     _effect.SetActive(true);
                 }
             }
+        }
+
+        /// <summary>
+        /// La velocità in più del santuario del Vento (M13), finché non la si toglie con 0: si somma al
+        /// rallentamento, che ne toglie una parte come alla velocità di sempre.
+        /// </summary>
+        public void SetHaste(float fraction)
+        {
+            _haste = Mathf.Max(0f, fraction);
+            ApplySpeed();
+        }
+
+        private void ApplySpeed()
+        {
+            _agent.speed = _baseSpeed * (1f - Fraction) * (1f + _haste);
         }
 
         private void Awake()
@@ -98,7 +118,7 @@ namespace DarkDescent.Player
         {
             _remaining = 0f;
             _fraction = 0f;
-            _agent.speed = _baseSpeed;
+            ApplySpeed();
             SetTint(Color.white);
             if (_effect != null)
             {

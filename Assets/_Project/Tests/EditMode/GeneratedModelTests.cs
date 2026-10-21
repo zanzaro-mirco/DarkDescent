@@ -74,20 +74,17 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("Il pozzo è largo 2,38 m e alto 1,83 come in Blender: gli assi non sono scambiati")]
+        [Test, Description("Il pozzo è largo 2,38 m e alto 1,07 come in Blender: gli assi non sono scambiati")]
         public void Well_KeepsTheBlenderSize()
         {
-            foreach (string name in new[] { "Well_Life", "Well_Mana" })
-            {
-                var model = AssetDatabase.LoadAssetAtPath<GameObject>(GeneratedModelImporter.Folder + name + ".fbx");
-                Assert.IsNotNull(model, name);
-                Bounds b = BoundsOf(model);
-                Assert.AreEqual(2.38f, b.size.x, 0.02f, name + ": larghezza");
-                Assert.AreEqual(1.83f, b.size.y, 0.02f, name + ": altezza");
-                Assert.AreEqual(2.38f, b.size.z, 0.02f, name + ": profondità");
-                Assert.AreEqual(0f, b.center.x, 0.02f, name + ": centrato");
-                Assert.AreEqual(0f, b.center.z, 0.02f, name + ": centrato");
-            }
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(GeneratedModelImporter.Folder + "Well.fbx");
+            Assert.IsNotNull(model);
+            Bounds b = BoundsOf(model);
+            Assert.AreEqual(2.38f, b.size.x, 0.02f, "larghezza");
+            Assert.AreEqual(1.07f, b.size.y, 0.02f, "altezza");
+            Assert.AreEqual(2.38f, b.size.z, 0.02f, "profondità");
+            Assert.AreEqual(0f, b.center.x, 0.02f, "centrato");
+            Assert.AreEqual(0f, b.center.z, 0.02f, "centrato");
         }
     }
 }

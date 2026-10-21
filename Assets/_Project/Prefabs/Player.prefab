@@ -791,6 +791,7 @@ GameObject:
   - component: {fileID: 2197471446205013170}
   - component: {fileID: 2157874775504651773}
   - component: {fileID: 2453725279522403638}
+  - component: {fileID: 7216540692975863265}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1310,6 +1311,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Player.MovementSlow
   _tint: {r: 0.45, g: 0.7, b: 1, a: 1}
   _effect: {fileID: 6392387101104603469}
+--- !u!114 &7216540692975863265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e785d40f062b3304da754a61231345f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Player.ShrineBonus
+  _audio: {fileID: 106908924181147097}
+  _endClip: {fileID: 8300000, guid: e1026789252917949ae7938c6ca5ce3c, type: 3}
+  _volume: 0.7
 --- !u!1001 &1532508494701324347
 PrefabInstance:
   m_ObjectHideFlags: 0

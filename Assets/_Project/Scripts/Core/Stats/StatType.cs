@@ -29,5 +29,11 @@ namespace DarkDescent.Stats
 
         /// <summary>Mana massimo in più, oltre a quello di Magia e livello (gli affissi della M9).</summary>
         Mana,
+
+        /// <summary>Punti percentuali in più al danno dei colpi e degli incantesimi (il santuario della Furia, M13).</summary>
+        DamageBonus,
+
+        /// <summary>Punti percentuali in più all'esperienza dei nemici uccisi (il santuario della Sapienza, M13).</summary>
+        ExperienceBonus,
     }
 }
