@@ -567,6 +567,12 @@ namespace DarkDescent.Core
                 barrel.Bind(_loot, level.Depth);
             }
 
+            // gli spuntoni (D8 della M13) feriscono il cavaliere, quanto lo dice la profondità
+            foreach (var trap in level.Traps)
+            {
+                trap.Bind(_player, level.Depth);
+            }
+
             PlaceScroll(level);
 
             _pack = new EnemyPack(level.Enemies);

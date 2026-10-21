@@ -226,10 +226,10 @@ namespace DarkDescent.Tests
                             Assert.AreNotEqual(RoomFeatureKind.Traps, feature.Kind, $"seme {seed}: trappole alla profondità {depth}");
                         }
 
-                        // barili, pozzo e santuario stanno nella cella; le trappole arrivano nel passo 13.7
+                        // barili, pozzo, santuario o spuntoni stanno nella cella
                         string expected = feature.Kind == RoomFeatureKind.Barrels ? DungeonPopulator.BarrelGroupSymbol.ToString()
                             : feature.Kind == RoomFeatureKind.Well ? DungeonPopulator.WellSymbols
-                            : feature.Kind == RoomFeatureKind.Shrine ? DungeonPopulator.ShrineSymbols : LevelMap.Floor.ToString();
+                            : feature.Kind == RoomFeatureKind.Shrine ? DungeonPopulator.ShrineSymbols : DungeonPopulator.SpikeSymbol.ToString();
                         StringAssert.Contains(layout[cell.x, cell.y].ToString(), expected, $"seme {seed}: la cella del punto d'interesse ({feature.Kind})");
                         foreach (var next in Steps.Select(s => cell + s))
                         {

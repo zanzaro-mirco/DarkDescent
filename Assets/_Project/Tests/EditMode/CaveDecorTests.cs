@@ -69,8 +69,8 @@ namespace DarkDescent.Tests
                         for (int x = 0; x < with.Width; x++)
                         {
                             char c = with[x, y];
-                            // i gruppi di barili contro la roccia (D5 della M13) arrivano con gli arredi
-                            bool decor = CavePopulator.IsDecor(c) || DungeonPopulator.BarrelWallSymbols.IndexOf(c) >= 0;
+                            // i gruppi di barili contro la roccia (D5 della M13) e gli spuntoni (D8) arrivano con gli arredi
+                            bool decor = CavePopulator.IsDecor(c) || DungeonPopulator.BarrelWallSymbols.IndexOf(c) >= 0 || c == DungeonPopulator.SpikeSymbol;
                             Assert.AreEqual(decor ? LevelMap.Floor : c, without[x, y], $"seme {seed}, profondità {depth}, cella ({x}, {y})");
                         }
                     }

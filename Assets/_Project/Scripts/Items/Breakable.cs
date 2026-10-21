@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using DarkDescent.Combat;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,7 +13,9 @@ namespace DarkDescent.Items
     /// i pezzi, spegne il collider e l'ostacolo del NavMesh, suona e a volte lascia oro, un oggetto o
     /// una pozione dalla sua loot table, con i semi del barile (<c>SeedMixer.ForBarrel</c>): lo stesso
     /// barile lascia sempre le stesse cose. Una volta sola; rotto, entra nei ricordi del livello. Lo
-    /// collega il CompositionRoot.
+    /// collega il CompositionRoot. Dalla profondità 4 uno su cinque dei barili dei gruppi è esplosivo
+    /// (D8): cerchiato di rosso, rotto accende la miccia e dopo un secondo esplode, ferisce tutti nel
+    /// raggio, nemici compresi, e rompe i barili vicini.
     /// </summary>
     [DisallowMultipleComponent]
     public class Breakable : MonoBehaviour, IDamageable
@@ -52,13 +56,52 @@ namespace DarkDescent.Items
         [Tooltip("Da che altezza partono gli oggetti in volo.")]
         [SerializeField, Min(0f)] private float _dropHeight = 0.6f;
 
+        [Header("Barile esplosivo (D8 della M13)")]
+        [Tooltip("Può essere esplosivo: i barili dei gruppi sì, quello singolo contro il muro no.")]
+        [SerializeField] private bool _canExplode;
+
+        [Tooltip("Il modello del barile esplosivo, al posto di quello intero.")]
+        [SerializeField] private GameObject _explosiveModel;
+
+        [SerializeField] private ParticleSystem _fuseSparks;
+
+        [SerializeField] private ParticleSystem _explosion;
+
+        [Tooltip("Il lampo dell'esplosione: si accende e si spegne in fretta.")]
+        [SerializeField] private Light _flash;
+
+        [SerializeField] private AudioClip _fuseClip;
+
+        [SerializeField] private AudioClip _explosionClip;
+
+        [SerializeField, Min(0f)] private float _fuseDuration = 1f;
+
+        [SerializeField, Min(0.5f)] private float _explosionRadius = 3f;
+
+        [SerializeField, Min(0.05f)] private float _flashDuration = 0.4f;
+
+        // riusati a ogni esplosione: niente liste nuove
+        private static readonly Collider[] Hits = new Collider[64];
+        private readonly HashSet<Health> _hurt = new HashSet<Health>();
+        private float _flashIntensity;
+
         private LootRoller _roller;
         private int _depth = 1;
         private int _cellX;
         private int _cellZ;
 
-        /// <summary>Il barile si è rotto, con un colpo o nei test.</summary>
+        /// <summary>Il barile si è rotto, con un colpo o nei test; quello esplosivo quando si accende la miccia.</summary>
         public event Action<Breakable> Broken;
+
+        /// <summary>Il barile esplosivo è esploso, dopo la miccia.</summary>
+        public event Action<Breakable> Exploded;
+
+        /// <summary>Esplosivo in questo livello: deciso a <see cref="Bind"/> dal seme della sua cella.</summary>
+        public bool IsExplosive { get; private set; }
+
+        public bool CanExplode => _canExplode;
+
+        public float ExplosionRadius => _explosionRadius;
 
         public bool IsBroken { get; private set; }
 
@@ -86,6 +129,11 @@ namespace DarkDescent.Items
         {
             _roller = roller;
             _depth = depth;
+            IsExplosive = _canExplode && roller != null && TrapRules.IsExplosiveBarrel(roller.RunSeed, depth, _cellX, _cellZ);
+            if (!IsBroken)
+            {
+                ShowIntact();
+            }
         }
 
         /// <summary>L'oggetto che lascerà rompendosi, senza cambiare niente; null se non ne lascia.</summary>
@@ -139,6 +187,26 @@ namespace DarkDescent.Items
             }
 
             IsBroken = true;
+            if (IsExplosive)
+            {
+                // la miccia: niente più click, il barile resta intero finché non esplode
+                if (_hitArea != null)
+                {
+                    _hitArea.enabled = false;
+                }
+
+                Broken?.Invoke(this);
+                StartCoroutine(Fuse(source));
+                return;
+            }
+
+            Shatter(source);
+            Broken?.Invoke(this);
+        }
+
+        // i pezzi a terra, le schegge, il suono e il loot
+        private void Shatter(GameObject source)
+        {
             ShowBroken();
             if (_burst != null)
             {
@@ -151,7 +219,93 @@ namespace DarkDescent.Items
             }
 
             DropLoot(source);
-            Broken?.Invoke(this);
+        }
+
+        private IEnumerator Fuse(GameObject source)
+        {
+            if (_fuseSparks != null)
+            {
+                _fuseSparks.Play();
+            }
+
+            if (_audio != null && _fuseClip != null)
+            {
+                _audio.PlayOneShot(_fuseClip);
+            }
+
+            yield return new WaitForSeconds(_fuseDuration);
+            if (_fuseSparks != null)
+            {
+                _fuseSparks.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+
+            Shatter(source);
+            if (_explosion != null)
+            {
+                _explosion.Play();
+            }
+
+            if (_audio != null && _explosionClip != null)
+            {
+                _audio.PlayOneShot(_explosionClip);
+            }
+
+            Explode();
+            Exploded?.Invoke(this);
+            if (_flash != null)
+            {
+                yield return Flash();
+            }
+        }
+
+        // tutti nel raggio, una volta sola anche con più collider: il cavaliere, i nemici e gli altri barili
+        private void Explode()
+        {
+            Vector3 center = transform.position + Vector3.up * 0.8f;
+            int count = Physics.OverlapSphereNonAlloc(center, _explosionRadius, Hits, ~0, QueryTriggerInteraction.Ignore);
+            _hurt.Clear();
+            float damage = TrapRules.ExplosionDamage(_depth);
+            for (int i = 0; i < count; i++)
+            {
+                var health = Hits[i].GetComponentInParent<Health>();
+                if (health != null && !health.IsDead && _hurt.Add(health))
+                {
+                    health.TakeDamage(new DamageInfo(damage, DamageType.Fire, gameObject));
+                }
+
+                var barrel = Hits[i].GetComponentInParent<Breakable>();
+                if (barrel != null && barrel != this)
+                {
+                    barrel.Break(gameObject);
+                }
+            }
+
+            _hurt.Clear();
+        }
+
+        private IEnumerator Flash()
+        {
+            _flash.enabled = true;
+            for (float t = 0f; t < _flashDuration; t += Time.deltaTime)
+            {
+                _flash.intensity = _flashIntensity * (1f - t / _flashDuration);
+                yield return null;
+            }
+
+            _flash.enabled = false;
+        }
+
+        private void ShowIntact()
+        {
+            if (_intact != null)
+            {
+                _intact.SetActive(!IsExplosive);
+            }
+
+            if (_explosiveModel != null)
+            {
+                _explosiveModel.SetActive(IsExplosive);
+            }
         }
 
         private void DropLoot(GameObject source)
@@ -194,6 +348,11 @@ namespace DarkDescent.Items
                 _intact.SetActive(false);
             }
 
+            if (_explosiveModel != null)
+            {
+                _explosiveModel.SetActive(false);
+            }
+
             if (_broken != null)
             {
                 _broken.SetActive(true);
@@ -212,6 +371,12 @@ namespace DarkDescent.Items
 
         private void Awake()
         {
+            if (_flash != null)
+            {
+                _flashIntensity = _flash.intensity;
+                _flash.enabled = false;
+            }
+
             _cellX = Mathf.RoundToInt(transform.position.x * CellsPerMeter);
             _cellZ = Mathf.RoundToInt(transform.position.z * CellsPerMeter);
         }

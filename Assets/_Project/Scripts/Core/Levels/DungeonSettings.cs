@@ -79,6 +79,9 @@ namespace DarkDescent.Levels
         [Tooltip("La prima profondità con le trappole.")]
         [SerializeField, Min(1)] private int _trapsFirstDepth = 3;
 
+        [Tooltip("Quanti spuntoni per livello dalla prima profondità con le trappole, da (x) a (y), contando quelli del punto d'interesse (D8 della M13).")]
+        [SerializeField] private Vector2Int _spikesPerLevel = new Vector2Int(0, 2);
+
         [Header("Barili da rompere (D5 della M13)")]
         [Tooltip("Quanti barili per livello, da (x) a (y): i gruppi contro i muri arrivano dopo gli arredi finché il livello ne ha almeno quanti dice il tiro. Barili singoli e gruppi al centro contano.")]
         [SerializeField] private Vector2Int _barrelsPerLevel = new Vector2Int(4, 8);
@@ -148,6 +151,10 @@ namespace DarkDescent.Levels
         public int CellsPerTorch => _cellsPerTorch;
 
         public Vector2Int BarrelsPerLevel => _barrelsPerLevel;
+
+        public int TrapsFirstDepth => _trapsFirstDepth;
+
+        public Vector2Int SpikesPerLevel => _spikesPerLevel;
 
         /// <summary>
         /// Il punto d'interesse che dice il tiro <paramref name="roll"/> (da 0 a 1) a questa profondità,

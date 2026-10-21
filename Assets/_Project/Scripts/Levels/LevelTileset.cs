@@ -94,6 +94,20 @@ namespace DarkDescent.Levels
 
         public string NameKey => _nameKey;
 
+        /// <summary>Il prefab di questo simbolo porta il suo pavimento: il costruttore non mette quello di sempre.</summary>
+        public bool ReplacesFloor(char symbol)
+        {
+            foreach (var marker in _markers)
+            {
+                if (marker.Symbol == symbol)
+                {
+                    return marker.ReplacesFloor;
+                }
+            }
+
+            return false;
+        }
+
         public GameObject GetMarkerPrefab(char symbol)
         {
             foreach (var marker in _markers)

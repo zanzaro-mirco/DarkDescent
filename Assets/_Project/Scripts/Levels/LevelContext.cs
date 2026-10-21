@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DarkDescent.Audio;
+using DarkDescent.Combat;
 using DarkDescent.Enemies;
 using DarkDescent.Interaction;
 using DarkDescent.Items;
@@ -29,6 +30,7 @@ namespace DarkDescent.Levels
         private readonly List<Chest> _chests = new List<Chest>();
         private readonly List<Breakable> _breakables = new List<Breakable>();
         private readonly List<OneUseFeature> _features = new List<OneUseFeature>();
+        private readonly List<SpikeTrap> _traps = new List<SpikeTrap>();
 
         /// <summary>Il player ha raggiunto un'uscita.</summary>
         public event Action<LevelExit> ExitRequested;
@@ -46,6 +48,9 @@ namespace DarkDescent.Levels
 
         /// <summary>I pozzi e i santuari (D6 e D7 della M13), nell'ordine in cui il livello li costruisce.</summary>
         public IReadOnlyList<OneUseFeature> Features => _features;
+
+        /// <summary>Gli spuntoni (D8 della M13).</summary>
+        public IReadOnlyList<SpikeTrap> Traps => _traps;
 
         /// <summary>Il mercante della città (D5 della M10); null negli altri livelli.</summary>
         public Merchant Merchant { get; private set; }
@@ -90,6 +95,7 @@ namespace DarkDescent.Levels
             var chests = new List<Chest>();
             var breakables = new List<Breakable>();
             var features = new List<OneUseFeature>();
+            var traps = new List<SpikeTrap>();
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
                 root.GetComponentsInChildren(true, entrances);
@@ -104,6 +110,8 @@ namespace DarkDescent.Levels
                 _breakables.AddRange(breakables);
                 root.GetComponentsInChildren(true, features);
                 _features.AddRange(features);
+                root.GetComponentsInChildren(true, traps);
+                _traps.AddRange(traps);
                 if (Merchant == null)
                 {
                     Merchant = root.GetComponentInChildren<Merchant>(true);

@@ -55,6 +55,12 @@ namespace DarkDescent.Levels
         /// <summary>I santuari del punto d'interesse (D6 della M13): Furia, Vento, Pietra e Sapienza.</summary>
         public const string ShrineSymbols = "[]{}";
 
+        /// <summary>
+        /// Gli spuntoni (D8 della M13): come punto d'interesse e nei corridoi della cripta, nei cunicoli
+        /// delle caverne. Si attraversano a tempo: non sono un ostacolo.
+        /// </summary>
+        public const char SpikeSymbol = '^';
+
         /// <summary>Il lato minimo, in celle, di una stanza con un punto d'interesse (dove andava il colonnato).</summary>
         public const int MinFeatureRoom = 5;
 
@@ -76,7 +82,7 @@ namespace DarkDescent.Levels
         public static readonly string[] ScatterThemes = { "y4", "y2", "v5", "z3", "6" };
 
         private static readonly string DecorSymbols = string.Concat(DecorThemes) + BarrelGroupSymbol + BarrelWallSymbols + WellSymbols
-            + ShrineSymbols + ScatterSymbols;
+            + ShrineSymbols + SpikeSymbol + ScatterSymbols;
 
         private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
@@ -90,7 +96,8 @@ namespace DarkDescent.Levels
         /// <summary>Un simbolo che il cavaliere non attraversa: casse, forzieri, oggetti di scena, arredi tranne i mucchietti.</summary>
         public static bool IsObstacle(char symbol)
         {
-            return IsChest(symbol) || PropSymbols.IndexOf(symbol) >= 0 || (IsDecor(symbol) && !IsScatter(symbol)) || CavePopulator.IsDecor(symbol);
+            return IsChest(symbol) || PropSymbols.IndexOf(symbol) >= 0 || (IsDecor(symbol) && !IsScatter(symbol) && symbol != SpikeSymbol)
+                || CavePopulator.IsDecor(symbol);
         }
 
         /// <summary>Una cassa di qualunque tipo: quella di sempre, il forziere o il tesoro del re (D8 della M12).</summary>
@@ -234,6 +241,65 @@ namespace DarkDescent.Levels
             }
 
             PlaceWallBarrels(layout, random, reserved);
+            PlaceSpikes(layout, depth, random, reserved);
+        }
+
+        // Gli spuntoni dei corridoi (D8 della M13), dopo tutto il resto: dalla prima profondità con le
+        // trappole, finché il livello non ne ha quanti dice il tiro, contando quelli del punto
+        // d'interesse. Su un corridoio dritto, lontani dalle stanze e tra loro
+        private void PlaceSpikes(DungeonLayout layout, int depth, IRandomSource random, HashSet<Vector2Int> reserved)
+        {
+            if (depth < _settings.TrapsFirstDepth)
+            {
+                return;
+            }
+
+            var range = _settings.SpikesPerLevel;
+            int wanted = Range(random, range.x, range.y);
+            int count = 0;
+            var corridors = new List<Vector2Int>();
+            for (int y = 0; y < layout.Height; y++)
+            {
+                for (int x = 0; x < layout.Width; x++)
+                {
+                    var cell = new Vector2Int(x, y);
+                    count += layout[x, y] == SpikeSymbol ? 1 : 0;
+                    if (layout[x, y] == LevelMap.Floor && !reserved.Contains(cell) && IsStraightCorridor(layout, cell))
+                    {
+                        corridors.Add(cell);
+                    }
+                }
+            }
+
+            while (count < wanted && corridors.Count > 0)
+            {
+                int pick = Range(random, 0, corridors.Count - 1);
+                var cell = corridors[pick];
+                layout.TryPlace(SpikeSymbol, cell.x, cell.y);
+                reserved.Add(cell);
+                count++;
+                corridors.RemoveAll(c => Math.Abs(c.x - cell.x) + Math.Abs(c.y - cell.y) < 4);
+            }
+        }
+
+        // Una cella di corridoio fuori dalle stanze, con il pavimento solo davanti e dietro, e mai accanto
+        // a una stanza: chi entra la vede arrivare
+        private static bool IsStraightCorridor(DungeonLayout layout, Vector2Int cell)
+        {
+            foreach (var room in layout.Rooms)
+            {
+                var grown = new RectInt(room.xMin - 1, room.yMin - 1, room.width + 2, room.height + 2);
+                if (grown.Contains(cell))
+                {
+                    return false;
+                }
+            }
+
+            bool northSouth = layout.IsFloor(cell.x, cell.y - 1) && layout.IsFloor(cell.x, cell.y + 1)
+                && !layout.IsFloor(cell.x - 1, cell.y) && !layout.IsFloor(cell.x + 1, cell.y);
+            bool eastWest = layout.IsFloor(cell.x - 1, cell.y) && layout.IsFloor(cell.x + 1, cell.y)
+                && !layout.IsFloor(cell.x, cell.y - 1) && !layout.IsFloor(cell.x, cell.y + 1);
+            return northSouth || eastWest;
         }
 
         // I gruppi di barili contro i muri (D5 della M13), dopo tutti gli arredi: finché il livello non ha
@@ -303,7 +369,7 @@ namespace DarkDescent.Levels
 
         // Il punto d'interesse sulla cella libera più vicina al centro della stanza, lontano dai muri, dai
         // passaggi, da casse e scala e dal percorso tra le porte, e che non chiuda il cammino. La cella
-        // resta riservata: le trappole arrivano nel passo 13.7 nella stessa cella.
+        // resta riservata.
         private static void PlaceFeature(DungeonLayout layout, int roomIndex, RoomFeatureKind kind, int depth, HashSet<Vector2Int> reserved)
         {
             RectInt room = layout.Rooms[roomIndex];
@@ -328,12 +394,10 @@ namespace DarkDescent.Levels
             candidates.Sort((a, b) => Distance2(a, cx, cy).CompareTo(Distance2(b, cx, cy)));
             foreach (var cell in candidates)
             {
-                // ogni punto d'interesse è un ostacolo tranne le trappole, che arrivano nel passo 13.7: per
-                // loro si prova con i barili e la cella resta vuota
-                bool traps = kind == RoomFeatureKind.Traps;
-                layout.TryPlace(traps ? BarrelGroupSymbol : FeatureSymbol(kind, cell, depth), cell.x, cell.y);
+                // ogni punto d'interesse è un ostacolo tranne gli spuntoni, che si attraversano
+                layout.TryPlace(FeatureSymbol(kind, cell, depth), cell.x, cell.y);
                 bool connected = IsConnected(layout);
-                if (!connected || traps)
+                if (!connected)
                 {
                     layout.Remove(cell.x, cell.y);
                 }
@@ -357,6 +421,8 @@ namespace DarkDescent.Levels
                     return WellSymbols[CellPick(cell, depth, WellSymbols.Length)];
                 case RoomFeatureKind.Shrine:
                     return ShrineSymbols[CellPick(cell, depth, ShrineSymbols.Length)];
+                case RoomFeatureKind.Traps:
+                    return SpikeSymbol;
                 default:
                     return BarrelGroupSymbol;
             }

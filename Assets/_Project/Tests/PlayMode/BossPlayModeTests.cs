@@ -207,16 +207,29 @@ namespace DarkDescent.Tests
         [UnityTest, Description("Sconfitto il re, la profondità 8 rigenerata non lo ha più, la porta resta aperta e il portale della vittoria c'è")]
         public IEnumerator DefeatedBoss_DoesNotComeBack()
         {
+            // la porta c'è con i semi fissi di GoToDepth8: con quello dell'orologio a volte la sala resta aperta
             yield return LoadGeneratedCore();
             Root.RunStats.MarkBossDefeated();
-            Manager.LoadLevel("Level_Caves", "FromAbove", 8);
-            for (float t = 0f; Manager.IsTransitioning || Manager.CurrentLevel == null || Manager.CurrentLevel.Depth != 8; t += Time.unscaledDeltaTime)
+            for (ulong seed = 1; seed <= 10; seed++)
             {
-                Assert.Less(t, 15f, "la profondità 8 non arriva");
+                Manager.RunSeed = seed;
+                var before = Manager.CurrentLevel;
+                Manager.LoadLevel("Level_Caves", "FromAbove", 8);
                 yield return null;
+                for (float t = 0f; Manager.IsTransitioning || Manager.CurrentLevel == null || Manager.CurrentLevel == before; t += Time.unscaledDeltaTime)
+                {
+                    Assert.Less(t, 15f, "la profondità 8 non arriva");
+                    yield return null;
+                }
+
+                yield return null;
+                if (Manager.CurrentLevel.BossGate != null)
+                {
+                    break;
+                }
             }
 
-            yield return null;
+            Assert.IsNotNull(Manager.CurrentLevel.BossGate, "nessun seme da 1 a 10 dà una sala con la porta");
             Assert.IsTrue(Manager.CurrentLevel.Boss == null, "il re non rinasce");
             Assert.IsFalse(Manager.CurrentLevel.BossGate.IsClosed);
             Assert.IsFalse(UnityEngine.Object.FindObjectsByType<BossController>(FindObjectsSortMode.None).Any());

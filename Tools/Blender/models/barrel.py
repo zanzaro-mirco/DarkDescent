@@ -1,12 +1,14 @@
 """Il barile rotto (D5 della M13): quello che resta del barile grande dei KayKit dopo il colpo. Il fondo
 con le doghe in piedi spezzate ad altezze diverse e il primo cerchio, doghe e il cerchio di sopra a
-terra, schegge sparse. Il pacchetto gratuito non ha i pezzi del barile."""
+terra, schegge sparse. Il pacchetto gratuito non ha i pezzi del barile. E il barile esplosivo (D8):
+grande come quello dei KayKit, con i cerchi rossi, una targa di pericolo davanti e la miccia in cima."""
 import math
 import random
 
 import bmesh
 
-from meshlib import STEEL, WOOD, WOOD_DARK, finish, prism, rbox, ring, torus, transform
+from meshlib import (BLACK, GOLD, PAPER, RED, STEEL, WOOD, WOOD_DARK, beam, box, finish, lathe, prism, rbox, ring, torus,
+                     transform)
 
 COMPARE = ("Dungeon/barrel_large.fbx", None)
 PHOTO = {"target": (0.0, 0.0, 0.5), "ortho": 6.0}
@@ -58,4 +60,22 @@ def build_barrel_broken(mat):
     return finish(bm, "Barrel_Broken", mat, bevel=0.012)
 
 
-MODELS = {"Barrel_Broken": build_barrel_broken}
+def build_barrel_explosive(mat):
+    bm = bmesh.new()
+    profile = [(0.78, 0.0), (0.87, 0.45), (0.92, 1.0), (0.87, 1.55), (0.78, 2.0)]
+    lathe(bm, profile, STAVES, lambda i, j: WOOD, cap_top=WOOD_DARK, cap_bottom=WOOD_DARK)
+    for z0, z1, r in ((0.16, 0.32, 0.86), (0.92, 1.08, 0.95), (1.68, 1.84, 0.86)):   # i cerchi rossi
+        ring(bm, STAVES, r, r - 0.08, z0, z1, RED)
+    # la targa di pericolo davanti (-Y): carta chiara con un rombo rosso
+    box(bm, (0, -0.88, 1.36), (0.5, 0.06, 0.4), PAPER)
+    mark = rbox(bm, (0, 0, 0), (0.22, 0.03, 0.22), RED)
+    transform(mark, (0, -0.92, 1.36), rot_y=0.785)
+    # la miccia: un tappo d'ottone sul coperchio e il cordone nero che si piega
+    prism(bm, 6, 0.08, 0.07, 2.0, 2.08, GOLD, cx=0.3, cy=0.15)
+    beam(bm, (0.3, 0.15, 2.06), (0.36, 0.2, 2.24), 0.04, BLACK)
+    beam(bm, (0.36, 0.2, 2.24), (0.5, 0.26, 2.3), 0.04, BLACK)
+    return finish(bm, "Barrel_Explosive", mat, bevel=0.012)
+
+
+MODELS = {"Barrel_Broken": build_barrel_broken, "Barrel_Explosive": build_barrel_explosive}
+PHOTOS = {"Barrel_Explosive": {"target": (0.0, 0.0, 1.2), "ortho": 6.0}}

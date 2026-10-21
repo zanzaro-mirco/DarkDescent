@@ -113,6 +113,15 @@ namespace DarkDescent.Core
             return Mix(ForBarrel(runSeed, depth, cellX, cellZ) ^ GoldDomain);
         }
 
+        // "BOOM": se un barile da rompere è esplosivo (D8 della M13), dalla sua cella: il loot non cambia
+        private const ulong ExplosiveDomain = 0x424F4F4DUL;
+
+        /// <summary>Il seme che decide se il barile di questa cella è esplosivo.</summary>
+        public static ulong ForExplosive(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForBarrel(runSeed, depth, cellX, cellZ) ^ ExplosiveDomain);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

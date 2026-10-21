@@ -302,6 +302,49 @@ la fine del tempo, l'icona e il messaggio; il santuario usato che resta vuoto al
 `DecorTests` e `DungeonContentTests` conoscono pozzi e santuari al centro della stanza. 362 EditMode e
 221 PlayMode verdi.
 
+## Passo 13.7 — Trappole
+
+**Com'è andata (21 ott 2026).** **Spuntoni.** Nel progetto mancava `floor_tile_big_spikes`: l'ho estratto
+dallo zip del *Dungeon Pack* già scaricato (la stessa versione `fbx(unity)` degli altri modelli). È la
+piastrella 4 × 4 con i buchi, con le punte come oggetto a parte. `SpikeTrap` fa il giro: riposo 2 s,
+mezzo secondo di avviso con le punte che affiorano e un suono, fuori 1 s. Ferisce solo il cavaliere che
+ci sta sopra, una volta per scatto, per il 10% della vita massima alla profondità 3, due punti in più a
+profondità, al più il 25% (`TrapRules.SpikeFraction`); i nemici passano senza danno. Ogni trappola
+parte da un punto del giro preso dalla sua cella, così due vicine non scattano insieme. Nella cripta la
+piastrella prende il posto del pavimento (`MarkerPrefab.ReplacesFloor`, con il collider del pavimento);
+nelle caverne restano solo le punte, che escono dalla roccia.
+
+**Dove.** Il simbolo `^` non è un ostacolo. Nella cripta, dalla profondità 3, il punto d'interesse
+"trappole" mette gli spuntoni al centro della stanza; dopo gli arredi altri spuntoni vanno sui corridoi
+dritti, lontani dalle stanze e tra loro, finché il livello non ne ha quanti dice il tiro
+(`SpikesPerLevel`, 0–2 contando quello del punto d'interesse). Nelle caverne 1–3 nei cunicoli, ad
+almeno quattro celle dall'ingresso. Tutto nel flusso degli arredi: nemici e casse dei semi già provati
+non cambiano.
+
+**Barili esplosivi.** Un modello nuovo in Blender (`Barrel_Explosive`): grande come il barile dei
+KayKit, con i cerchi rossi, una targa di pericolo davanti e la miccia in cima. I tre barili da rompere
+hanno la versione esplosiva spenta, le scintille della miccia (`Fx_FuseSparks`), la vampata
+(`Fx_BarrelExplosion`) e un lampo. Possono esserlo solo i barili dei gruppi (`0`, `1`, `!`), non quello
+singolo contro il muro; dalla profondità 4 uno su cinque lo è, dal seme della sua cella
+(`SeedMixer.ForExplosive`, `TrapRules.IsExplosiveBarrel`). Rotto, accende la miccia; dopo un secondo
+esplode: ferisce chiunque stia nel raggio di 3 m, cavaliere e nemici, per 15 + 6 a profondità, e rompe
+i barili vicini, che se sono esplosivi accendono la loro miccia. Il suo loot cade come quello degli
+altri barili; i nemici uccisi dall'esplosione danno l'esperienza come sempre.
+
+**Suoni.** Tre nuovi con Stable Audio, tre semi ciascuno, misurati (inviluppo, bassi, attacco) e
+scelti: `spike_warning_sa` (1702), `barrel_fuse_sa` (1704), `barrel_explosion_sa` (1703); lo scatto degli
+spuntoni è `trap_trigger_sa` del passo 13.4. Le ricette sono in `Tools/ComfyUI/sounds/`, e i WAV escono
+identici ai take ascoltati. La pagina di ascolto con i tre semi di ognuno va a Mirco.
+
+Test: `TrapDataTests` (i numeri delle regole, uno su cinque dalla profondità 4, gli spuntoni della
+cripta dalla 3 nei corridoi e al centro delle stanze, quelli delle caverne nei cunicoli, prefab e
+tileset, i barili esplosivi pronti e solo nei gruppi) e `TrapPlayModeTests` (lo scatto che ferisce il
+cavaliere una volta e non il nemico, niente fuori dalla piastrella; la miccia di un secondo,
+l'esplosione che ferisce cavaliere e nemico vicini e non quello lontano, i barili vicini rotti).
+`DecorTests` e `CaveDecorTests` conoscono gli spuntoni. `BossPlayModeTests.DefeatedBoss_DoesNotComeBack` usava
+il seme dell'orologio, e con alcuni semi la sala del re resta senza porta: ora prova i semi fissi come
+gli altri test del re. 368 EditMode e 223 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -360,7 +403,7 @@ la fine del tempo, l'icona e il messaggio; il santuario usato che resta vuoto al
 - [x] ComfyUI configurato e provato: suoni generati nel gioco, TRELLIS provato sulla statua; ADR-096
 - [x] Barili da rompere, anche nelle caverne, con i gruppi contro i muri
 - [x] Pozzi e santuari
-- [ ] Trappole
+- [x] Trappole
 - [ ] Loot misurato e ritarato
 - [ ] Build di prova
 - [ ] ADR, lezioni nel piano, README

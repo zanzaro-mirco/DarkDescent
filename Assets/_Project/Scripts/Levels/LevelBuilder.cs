@@ -158,8 +158,9 @@ namespace DarkDescent.Levels
             {
                 for (int x = 0; x < map.Width; x++)
                 {
-                    // dove c'è la scala che scende il pavimento manca: si scende nel buio
-                    if (map.IsFloor(x, y) && map.GetSymbol(x, y) != StairsDownSymbol)
+                    // dove c'è la scala che scende il pavimento manca: si scende nel buio; gli spuntoni della
+                    // cripta hanno la loro piastrella con i buchi
+                    if (map.IsFloor(x, y) && map.GetSymbol(x, y) != StairsDownSymbol && !_tileset.ReplacesFloor(map.GetSymbol(x, y)))
                     {
                         Place(Pick(_tileset.Floor, _tileset.FloorVariant, x, y, 0), parent, LevelMap.CellCenter(x, y), Quaternion.identity);
                     }

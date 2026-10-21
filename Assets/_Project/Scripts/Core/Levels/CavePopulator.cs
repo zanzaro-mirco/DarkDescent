@@ -239,6 +239,44 @@ namespace DarkDescent.Levels
             }
 
             PlaceWallBarrels(layout, random, candidates, placed);
+            PlaceSpikes(layout, random, reserved);
+        }
+
+        // Gli spuntoni nei cunicoli (D8 della M13): le caverne vengono tutte dopo la prima profondità con
+        // le trappole. Lontani dall'ingresso e tra loro; si attraversano, il cammino resta aperto
+        private void PlaceSpikes(DungeonLayout layout, IRandomSource random, HashSet<Vector2Int> reserved)
+        {
+            var range = _settings.SpikesPerLevel;
+            int wanted = Range(random, range.x, range.y);
+            var cells = new List<Vector2Int>();
+            for (int y = 0; y < layout.Height; y++)
+            {
+                for (int x = 0; x < layout.Width; x++)
+                {
+                    var cell = new Vector2Int(x, y);
+                    if (layout[x, y] == LevelMap.Floor && !reserved.Contains(cell) && IsPassage(layout, cell)
+                        && Chebyshev(cell, layout.Entrance) >= 4 && !NextToKeep(layout, cell))
+                    {
+                        cells.Add(cell);
+                    }
+                }
+            }
+
+            var placed = new List<Vector2Int>();
+            foreach (var cell in Shuffled(cells, random))
+            {
+                if (placed.Count >= wanted)
+                {
+                    break;
+                }
+
+                if (placed.Exists(p => Chebyshev(p, cell) < 4) || !layout.TryPlace(DungeonPopulator.SpikeSymbol, cell.x, cell.y))
+                {
+                    continue;
+                }
+
+                placed.Add(cell);
+            }
         }
 
         // I gruppi di barili contro la roccia (D5 della M13), dopo le composizioni e lontani da loro come
