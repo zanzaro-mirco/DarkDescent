@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51d7c7bf1c86d704fbaca69e6de210a5, type: 3}
+  m_Name: OfTheBulwark
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.AffixDefinition
+  _id: 93cfc95316f14848b196caa4712549b1
+  _nameKey: affix.of_the_bulwark
+  _kind: 1
+  _effect: 2
+  _min: 15
+  _max: 18
+  _minItemLevel: 15
+  _grade: 3
+  _targets: 2
+  _group: block

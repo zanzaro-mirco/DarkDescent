@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51d7c7bf1c86d704fbaca69e6de210a5, type: 3}
+  m_Name: OfTheCitadel
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.AffixDefinition
+  _id: 5c96fcaa43ed4688a6f70f963f99f297
+  _nameKey: affix.of_the_citadel
+  _kind: 1
+  _effect: 2
+  _min: 23
+  _max: 26
+  _minItemLevel: 35
+  _grade: 5
+  _targets: 2
+  _group: block

@@ -83,8 +83,8 @@ namespace DarkDescent.Tests
             StringAssert.Contains(RarityColors.TextHex(Rarity.Rare), dropped.GetComponent<Interactable>().GetLabel(Localizer));
         }
 
-        [UnityTest, Description("Nel livello 2 la profondità è 2 e gli oggetti che cadono sono di livello 2")]
-        public IEnumerator Level2_DropsLevel2Items()
+        [UnityTest, Description("Nel livello 2 la profondità è 2 e gli oggetti che cadono sono del livello della zona, 3 (D7 della M14)")]
+        public IEnumerator Level2_DropsZoneLevelItems()
         {
             yield return LoadCore();
             var manager = Object.FindFirstObjectByType<LevelManager>();
@@ -100,7 +100,7 @@ namespace DarkDescent.Tests
 
             Assert.AreEqual(2, manager.CurrentLevel.Depth);
             var item = UseLootSeedWithDrop(Skeletons()[0]);
-            Assert.AreEqual(2, item.ItemLevel);
+            Assert.AreEqual(3, item.ItemLevel);
         }
     }
 }

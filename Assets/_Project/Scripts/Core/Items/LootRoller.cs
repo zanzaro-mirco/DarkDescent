@@ -13,11 +13,23 @@ namespace DarkDescent.Items
     public sealed class LootRoller
     {
         private readonly ItemGenerator _generator;
+        private readonly Func<int, int> _itemLevel;
 
-        public LootRoller(ItemGenerator generator, ulong runSeed)
+        /// <param name="itemLevel">
+        /// Il livello degli oggetti di una profondità: nel gioco il livello della zona (D7 della M14).
+        /// Senza, la profondità stessa, come prima della M14.
+        /// </param>
+        public LootRoller(ItemGenerator generator, ulong runSeed, Func<int, int> itemLevel = null)
         {
             _generator = generator ?? throw new ArgumentNullException(nameof(generator));
             RunSeed = runSeed;
+            _itemLevel = itemLevel;
+        }
+
+        /// <summary>Il livello degli oggetti che cadono a questa profondità, almeno 1.</summary>
+        public int ItemLevel(int depth)
+        {
+            return Math.Max(1, _itemLevel != null ? _itemLevel(depth) : depth);
         }
 
         /// <summary>Il seme della partita: da -seed, oppure casuale e scritto nel log.</summary>
@@ -71,11 +83,12 @@ namespace DarkDescent.Items
                 return null;
             }
 
-            // il livello dell'oggetto è la profondità del livello (D8); sotto la rarità minima della
+            // il livello dell'oggetto viene dalla profondità (D7 della M14); sotto la rarità minima della
             // tabella, lo stesso oggetto con lo stesso seme rifatto a quella rarità
             ulong seed = random.NextUInt64();
-            var generated = _generator.Generate(item, depth, seed);
-            return generated.Rarity < table.MinRarity ? _generator.Generate(item, depth, seed, table.MinRarity) : generated;
+            int level = ItemLevel(depth);
+            var generated = _generator.Generate(item, level, seed);
+            return generated.Rarity < table.MinRarity ? _generator.Generate(item, level, seed, table.MinRarity) : generated;
         }
 
         /// <summary>
@@ -159,7 +172,7 @@ namespace DarkDescent.Items
                 }
 
                 ulong seed = random.NextUInt64();
-                var generated = _generator.Generate(item, depth, seed, rarities);
+                var generated = _generator.Generate(item, ItemLevel(depth), seed, rarities);
                 var floor = generated.Rarity < table.MinRarity ? table.MinRarity : generated.Rarity;
                 if (!guaranteed && i == bonus.ExtraRolls - 1 && floor < bonus.Guaranteed)
                 {
@@ -169,7 +182,7 @@ namespace DarkDescent.Items
                 // come in Roll: lo stesso oggetto con lo stesso seme, rifatto alla rarità che gli manca
                 if (floor > generated.Rarity)
                 {
-                    generated = _generator.Generate(item, depth, seed, floor);
+                    generated = _generator.Generate(item, ItemLevel(depth), seed, floor);
                 }
 
                 guaranteed |= generated.Rarity >= bonus.Guaranteed;
@@ -179,7 +192,7 @@ namespace DarkDescent.Items
 
         /// <summary>
         /// Gli oggetti del mercante (D5 della M10): <see cref="MerchantTable.StockSize"/> basi pesate,
-        /// del livello <paramref name="depth"/>, da un seme di profondità e ritorno in città. Stessi
+        /// del livello della profondità <paramref name="depth"/>, da un seme di profondità e ritorno in città. Stessi
         /// ingressi, stesso assortimento: non si salva. <paramref name="into"/> viene svuotata prima.
         /// </summary>
         public void RollStock(MerchantTable table, int depth, int visit, List<ItemInstance> into)
@@ -199,7 +212,7 @@ namespace DarkDescent.Items
                     return;
                 }
 
-                into.Add(_generator.Generate(item, depth, random.NextUInt64()));
+                into.Add(_generator.Generate(item, ItemLevel(depth), random.NextUInt64()));
             }
         }
 

@@ -277,7 +277,8 @@ namespace DarkDescent.Core
                 }
             }
 
-            _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed);
+            // il livello degli oggetti è quello della zona (D7 della M14)
+            _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed, _player.GetComponent<PlayerProgress>().Settings.ZoneLevel);
             // lo stesso seme fa anche i livelli generati: ognuno ne ricava uno suo (D8 della M6)
             _levelManager.RunSeed = seed;
             Debug.Log($"[DarkDescent] seme della partita: {seed} (per rigiocarla: -seed {seed})");

@@ -6,23 +6,60 @@ namespace DarkDescent.Items
 {
     /// <summary>
     /// Fa un oggetto a partire da base, livello e seme (D2, D3, D5 della M5): stesso ingresso, stesso
-    /// oggetto, sempre. Prima la rarità, poi gli affissi ammessi (tipo di oggetto, livello, gruppo
-    /// libero, limiti di prefissi e suffissi), poi i valori. Logica pura: si prova senza scena.
+    /// oggetto, sempre. Prima la rarità, poi per ogni affisso il gruppo, con lo stesso peso per tutti
+    /// i gruppi ammessi (tipo di oggetto, livello, gruppo libero, limiti di prefissi e suffissi), poi
+    /// il grado tra i due più alti che il livello ammette (D7 della M14), poi il valore. Logica pura:
+    /// si prova senza scena.
     /// </summary>
     public sealed class ItemGenerator
     {
-        private readonly IReadOnlyList<AffixDefinition> _pool;
+        /// <summary>Quanti gradi di un gruppo può tirare un oggetto: i più alti che il suo livello ammette.</summary>
+        public const int OpenGrades = 2;
+
         private readonly RarityTable _rarities;
 
+        // i gradi di ogni gruppo in ordine crescente, nell'ordine in cui i gruppi compaiono nel pool
+        private readonly List<List<AffixDefinition>> _groups = new List<List<AffixDefinition>>();
+
         // riusate a ogni generazione: un drop non deve creare liste nuove
-        private readonly List<AffixDefinition> _candidates = new List<AffixDefinition>();
+        private readonly List<int> _candidates = new List<int>();
+        private readonly List<AffixDefinition> _grades = new List<AffixDefinition>();
         private readonly List<ItemAffix> _rolled = new List<ItemAffix>();
-        private readonly HashSet<string> _usedGroups = new HashSet<string>(StringComparer.Ordinal);
+        private readonly HashSet<int> _usedGroups = new HashSet<int>();
 
         public ItemGenerator(IReadOnlyList<AffixDefinition> pool, RarityTable rarities)
         {
-            _pool = pool ?? throw new ArgumentNullException(nameof(pool));
+            if (pool == null)
+            {
+                throw new ArgumentNullException(nameof(pool));
+            }
+
             _rarities = rarities ?? throw new ArgumentNullException(nameof(rarities));
+
+            // un affisso senza gruppo è un gruppo da solo
+            var byKey = new Dictionary<string, List<AffixDefinition>>(StringComparer.Ordinal);
+            foreach (var affix in pool)
+            {
+                if (affix == null)
+                {
+                    continue;
+                }
+
+                string key = string.IsNullOrEmpty(affix.Group) ? "#" + affix.Id : affix.Group;
+                if (!byKey.TryGetValue(key, out var grades))
+                {
+                    grades = new List<AffixDefinition>();
+                    byKey.Add(key, grades);
+                    _groups.Add(grades);
+                }
+
+                grades.Add(affix);
+            }
+
+            foreach (var grades in _groups)
+            {
+                grades.Sort((a, b) => a.Grade != b.Grade ? a.Grade.CompareTo(b.Grade) : a.MinItemLevel.CompareTo(b.MinItemLevel));
+            }
         }
 
         /// <summary>Quanti prefissi può avere al più un oggetto di questa rarità; lo stesso vale per i suffissi.</summary>
@@ -82,12 +119,11 @@ namespace DarkDescent.Items
             for (int i = 0; i < count; i++)
             {
                 _candidates.Clear();
-                foreach (var affix in _pool)
+                for (int g = 0; g < _groups.Count; g++)
                 {
-                    bool kindFree = affix.Kind == AffixKind.Prefix ? prefixes < maxPerKind : suffixes < maxPerKind;
-                    if (kindFree && affix.AllowedOn(item, itemLevel) && (string.IsNullOrEmpty(affix.Group) || !_usedGroups.Contains(affix.Group)))
+                    if (!_usedGroups.Contains(g) && HasAllowedGrade(_groups[g], item, itemLevel, prefixes < maxPerKind, suffixes < maxPerKind))
                     {
-                        _candidates.Add(affix);
+                        _candidates.Add(g);
                     }
                 }
 
@@ -97,13 +133,22 @@ namespace DarkDescent.Items
                     break;
                 }
 
-                var chosen = _candidates[Index(random, _candidates.Count)];
+                int group = _candidates[Index(random, _candidates.Count)];
+                _grades.Clear();
+                foreach (var grade in _groups[group])
+                {
+                    if (grade.AllowedOn(item, itemLevel))
+                    {
+                        _grades.Add(grade);
+                    }
+                }
+
+                // i gradi sono in ordine crescente: si tira tra gli ultimi due
+                int lowest = Math.Max(0, _grades.Count - OpenGrades);
+                var chosen = _grades[lowest + Index(random, _grades.Count - lowest)];
                 int value = chosen.Min + Index(random, chosen.Max - chosen.Min + 1);
                 _rolled.Add(new ItemAffix(chosen, value));
-                if (!string.IsNullOrEmpty(chosen.Group))
-                {
-                    _usedGroups.Add(chosen.Group);
-                }
+                _usedGroups.Add(group);
 
                 if (chosen.Kind == AffixKind.Prefix)
                 {
@@ -116,6 +161,20 @@ namespace DarkDescent.Items
             }
 
             return new ItemInstance(item, rarity, itemLevel, seed, _rolled);
+        }
+
+        private static bool HasAllowedGrade(List<AffixDefinition> grades, ItemDefinition item, int itemLevel, bool prefixFree, bool suffixFree)
+        {
+            foreach (var grade in grades)
+            {
+                bool kindFree = grade.Kind == AffixKind.Prefix ? prefixFree : suffixFree;
+                if (kindFree && grade.AllowedOn(item, itemLevel))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static int Coin(IRandomSource random)

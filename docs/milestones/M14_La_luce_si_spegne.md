@@ -42,7 +42,7 @@ e la prova in build.
 
 ## Decisioni
 
-Da confermare da Mirco. Le D2, D3, D5 e D9 riprendono quello che ha già deciso il 18 ottobre 2026
+Confermate da Mirco il 21 ottobre 2026, tutte come proposte ("procedi con il 14.1"). Le D2, D3, D5 e D9 riprendono quello che ha già deciso il 18 ottobre 2026
 (piano v2.39 e v2.40); qui sono messe in numeri.
 
 | # | Decisione | Proposta | Perché |
@@ -95,13 +95,46 @@ Da confermare da Mirco. Le D2, D3, D5 e D9 riprendono quello che ha già deciso 
 della M13 lo segue. `AffixDefinition` resta com'è, con il livello minimo che c'è già; il "solo i due
 gradi più alti" lo decide il generatore, che raggruppa il pool per gruppo una volta sola, senza
 allocare a ogni oggetto. Gli asset nuovi si creano da uno script di editor temporaneo, con gli id
-generati una volta, e il database degli affissi si aggiorna con il menu di sempre. Prima del codice
+generati una volta, e il database degli affissi si aggiorna con il menu di sempre. Prima degli asset
 c'è la tabella dei 72 gradi (valori e nomi, inglese e italiano con le forme per genere), che approva
 Mirco.
+
+**La tabella dei gradi (da approvare).** Il grado I e II di ogni gruppo sono gli affissi di oggi, con
+gli stessi id: cambiano solo Feroce e del Grifone, che passano dal livello 2 al 6. I prefissi hanno
+in italiano anche le forme femminile e plurale (Affilata, Affilati), come oggi. I valori di
+Armatura, a colpire e blocco si ritoccano nella misura del passo 14.6, i nomi no.
+
+| Gruppo | I (liv. 1) | II (liv. 6) | III (liv. 15) | IV (liv. 25) | V (liv. 35) | VI (liv. 45) |
+|---|---|---|---|---|---|---|
+| **% danno** · prefisso · armi | Affilato (*Sharp*) 20–40 | Feroce (*Savage*) 41–65 | Crudele (*Cruel*) 66–90 | Spietato (*Merciless*) 91–120 | Brutale (*Brutal*) 121–150 | Sanguinario (*Bloodthirsty*) 151–190 |
+| **% a colpire** · prefisso · armi, gioielli | Preciso (*Accurate*) 5–10 | Sicuro (*Steady*) 11–15 | Infallibile (*Unerring*) 16–22 | Magistrale (*Masterful*) 23–30 | Impareggiabile (*Peerless*) 31–40 | Perfetto (*Flawless*) 41–50 |
+| **Armatura** · prefisso · scudi, armature | Robusto (*Sturdy*) 2–4 | Solido (*Solid*) 5–7 | Rinforzato (*Reinforced*) 8–11 | Temprato (*Tempered*) 12–15 | Fortificato (*Fortified*) 16–20 | Indistruttibile (*Unbreakable*) 21–26 |
+| **% Armatura dell'oggetto** · prefisso · scudi, armature · grado I dal liv. 2 | Massiccio (*Massive*) 25–50 | Ferrato (*Ironclad*) 51–70 | Corazzato (*Armored*) 71–90 | Colossale (*Colossal*) 91–110 | Impenetrabile (*Impenetrable*) 111–130 | Adamantino (*Adamantine*) 131–150 |
+| **% critico** · prefisso · gioielli · grado I dal liv. 2 | Letale (*Deadly*) 2–5 | Micidiale (*Lethal*) 6–8 | Assassino (*Murderous*) 9–11 | Implacabile (*Ruthless*) 12–14 | Fatale (*Fatal*) 15–17 | Funesto (*Baleful*) 18–20 |
+| **mana** · prefisso · gioielli, elmi | Arcano (*Arcane*) 5–15 | Mistico (*Mystic*) 16–25 | Occulto (*Occult*) 26–40 | Esoterico (*Esoteric*) 41–55 | Astrale (*Astral*) 56–75 | Eterno (*Eternal*) 76–100 |
+| **% blocco** · suffisso · scudi | della Parata (*of Blocking*) 5–10 | della Guardia (*of Warding*) 11–14 | del Baluardo (*of the Bulwark*) 15–18 | del Bastione (*of the Rampart*) 19–22 | della Cittadella (*of the Citadel*) 23–26 | della Fortezza (*of the Fortress*) 27–30 |
+| **Forza** · suffisso · tutto | della Forza (*of Strength*) 2–5 | del Vigore (*of Might*) 6–10 | del Bue (*of the Ox*) 11–16 | del Gigante (*of the Giant*) 17–24 | del Titano (*of the Titan*) 25–34 | del Colosso (*of the Colossus*) 35–45 |
+| **Destrezza** · suffisso · tutto | della Destrezza (*of Dexterity*) 2–5 | dell'Agilità (*of Agility*) 6–10 | della Volpe (*of the Fox*) 11–16 | della Pantera (*of the Panther*) 17–24 | del Falco (*of the Falcon*) 25–34 | del Vento (*of the Wind*) 35–45 |
+| **Vitalità** · suffisso · tutto | della Vitalità (*of Vitality*) 2–5 | della Salute (*of Health*) 6–10 | della Resistenza (*of Endurance*) 11–16 | della Quercia (*of the Oak*) 17–24 | della Montagna (*of the Mountain*) 25–34 | dell'Immortalità (*of Immortality*) 35–45 |
+| **vita** · suffisso · tutto | dell'Orso (*of the Bear*) 5–10 | del Grifone (*of the Griffin*) 11–20 | del Troll (*of the Troll*) 21–35 | del Mammut (*of the Mammoth*) 36–55 | dell'Idra (*of the Hydra*) 56–80 | del Drago (*of the Dragon*) 81–110 |
+| **Magia** · suffisso · gioielli, elmi · grado I dal liv. 2 | della Stregoneria (*of Sorcery*) 2–5 | dell'Incanto (*of Enchantment*) 6–10 | del Mago (*of the Magus*) 11–16 | dell'Arcimago (*of the Archmage*) 17–24 | delle Stelle (*of the Stars*) 25–34 | del Cosmo (*of the Cosmos*) 35–45 |
 
 Test: gradi ammessi per livello (mai più di due, mai uno sopra il livello), gruppo scelto con peso
 uguale su 10.000 oggetti, oggetti vecchi letti con i loro affissi, nomi presenti nelle due lingue
 per ogni grado e genere.
+
+**Com'è andata (21 ott 2026).** Mirco ha approvato i nomi. `AffixDefinition` ha il campo `_grade`
+(1–6, `MaxGrade`); il generatore raggruppa il pool per gruppo nel costruttore, sceglie il gruppo
+con lo stesso peso e poi il grado tra i due più alti ammessi (`OpenGrades`), senza allocare a ogni
+oggetto. `LootRoller` riceve il livello degli oggetti di una profondità (`ItemLevel`); nel gioco è
+`ProgressionSettings.ZoneLevel`, e il passo 14.2 ci aggiunge la difficoltà. Il tooltip scrive il
+grado in numeri romani, piccolo e grigio, dopo il valore (`ItemDescription.RomanGrade`). I 58 asset
+nuovi e le 116 righe di stringhe vengono da uno script Python che parte dalla tabella sopra; Feroce e
+del Grifone passano al grado II dal livello 6. Test nuovi in `AffixGradeTests`: due gradi aperti, gruppi
+con lo stesso peso su 10.000 oggetti, gradi dello stesso gruppo che si escludono, stesso seme stesso
+oggetto, gradi che crescono negli asset, 12 gruppi da 6 tutti nel database, id unici, numeri romani.
+`LootSeedTests.Level2_DropsZoneLevelItems`: alla profondità 2 gli oggetti sono di livello 3. 383
+EditMode e 227 PlayMode verdi.
 
 ## Passo 14.2 — Difficoltà in Core
 
@@ -199,8 +232,8 @@ seme derivato; morte che costa), lezioni nel piano, README con una foto dell'alt
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D16 confermate
-- [ ] Gradi degli affissi e nomi approvati
+- [x] Decisioni D1–D16 confermate
+- [x] Gradi degli affissi e nomi approvati
 - [ ] Difficoltà in Core, livello 50, morte che costa
 - [ ] In gioco: nemici, re, loot, mercante
 - [ ] Formato 6 del salvataggio

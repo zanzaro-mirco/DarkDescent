@@ -30,10 +30,15 @@ namespace DarkDescent.Items
         [Tooltip("Il livello dell'oggetto da cui l'affisso può comparire.")]
         [SerializeField, Min(1)] private int _minItemLevel = 1;
 
+        [Tooltip("Il grado nel gruppo, da 1 (D7 della M14): un oggetto tira solo i due gradi più alti che il suo livello ammette.")]
+        [SerializeField, Range(1, MaxGrade)] private int _grade = 1;
         [SerializeField] private AffixTargets _targets = AffixTargets.All;
 
         [Tooltip("Affissi dello stesso gruppo si escludono a vicenda sullo stesso oggetto (Affilato e Feroce).")]
         [SerializeField] private string _group;
+
+        /// <summary>Il grado più alto di un gruppo (D7 della M14).</summary>
+        public const int MaxGrade = 6;
 
         public string Id => _id;
         public string NameKey => _nameKey;
@@ -42,6 +47,7 @@ namespace DarkDescent.Items
         public int Min => _min;
         public int Max => _max;
         public int MinItemLevel => _minItemLevel;
+        public int Grade => _grade;
         public AffixTargets Targets => _targets;
         public string Group => _group;
 

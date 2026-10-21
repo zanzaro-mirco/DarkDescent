@@ -32,6 +32,11 @@ namespace DarkDescent.UI
         // il suggerimento sotto la pozione: più spento del testo, come un'istruzione e non un valore
         private const string HintColor = "#8C8577";
 
+        /// <summary>La dimensione del grado dopo il valore di un affisso (D8 della M14).</summary>
+        public const string GradeSize = "70%";
+
+        private static readonly string[] RomanGrades = { "I", "II", "III", "IV", "V", "VI" };
+
         // l'oro, come la scritta dell'inventario
         private const string GoldColor = "#E0BF61";
 
@@ -120,9 +125,11 @@ namespace DarkDescent.UI
                     continue;
                 }
 
+                // il grado in piccolo dopo il valore (D8 della M14)
                 builder.Append("\n<color=").Append(AffixColor).Append('>')
                     .AppendFormat(CultureInfo.InvariantCulture, localizer.Get(EffectKey(affix.Definition.Effect)), affix.Value)
-                    .Append("</color>");
+                    .Append("</color> <size=").Append(GradeSize).Append("><color=").Append(HintColor).Append('>')
+                    .Append(RomanGrade(affix.Definition.Grade)).Append("</color></size>");
             }
 
             if (equipHint && item.Definition.Slot != EquipSlot.None)
@@ -171,6 +178,12 @@ namespace DarkDescent.UI
         }
 
         /// <summary>La chiave della riga di un effetto, come "+{0}% damage".</summary>
+        /// <summary>Il grado di un affisso in numeri romani, da I a VI; vuoto fuori dall'intervallo.</summary>
+        public static string RomanGrade(int grade)
+        {
+            return grade >= 1 && grade <= RomanGrades.Length ? RomanGrades[grade - 1] : string.Empty;
+        }
+
         public static string EffectKey(AffixEffect effect)
         {
             switch (effect)

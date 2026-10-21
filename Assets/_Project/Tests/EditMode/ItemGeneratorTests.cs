@@ -181,7 +181,7 @@ namespace DarkDescent.Tests
                 .Select(guid => AssetDatabase.LoadAssetAtPath<AffixDefinition>(AssetDatabase.GUIDToAssetPath(guid)))
                 .ToList();
 
-            Assert.AreEqual(14, expected.Count, "gli undici affissi della M5, il Letale dei gioielli (M8), Arcano e della Stregoneria (M9)");
+            Assert.AreEqual(72, expected.Count, "dodici gruppi da sei gradi (D7 della M14)");
             CollectionAssert.AreEquivalent(expected, Affixes.Affixes);
             Assert.AreEqual(expected.Count, expected.Select(a => a.Id).Distinct().Count(), "ID ripetuti");
             foreach (var affix in expected)

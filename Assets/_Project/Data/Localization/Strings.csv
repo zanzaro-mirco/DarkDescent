@@ -234,6 +234,122 @@ affix.of_vitality,of Vitality,della Vitalità
 affix.of_the_bear,of the Bear,dell'Orso
 affix.of_the_griffin,of the Griffin,del Grifone
 affix.of_blocking,of Blocking,della Parata
+affix.cruel,Cruel,Crudele
+affix.cruel.f,Cruel,Crudele
+affix.cruel.mp,Cruel,Crudeli
+affix.merciless,Merciless,Spietato
+affix.merciless.f,Merciless,Spietata
+affix.merciless.mp,Merciless,Spietati
+affix.brutal,Brutal,Brutale
+affix.brutal.f,Brutal,Brutale
+affix.brutal.mp,Brutal,Brutali
+affix.bloodthirsty,Bloodthirsty,Sanguinario
+affix.bloodthirsty.f,Bloodthirsty,Sanguinaria
+affix.bloodthirsty.mp,Bloodthirsty,Sanguinari
+affix.steady,Steady,Sicuro
+affix.steady.f,Steady,Sicura
+affix.steady.mp,Steady,Sicuri
+affix.unerring,Unerring,Infallibile
+affix.unerring.f,Unerring,Infallibile
+affix.unerring.mp,Unerring,Infallibili
+affix.masterful,Masterful,Magistrale
+affix.masterful.f,Masterful,Magistrale
+affix.masterful.mp,Masterful,Magistrali
+affix.peerless,Peerless,Impareggiabile
+affix.peerless.f,Peerless,Impareggiabile
+affix.peerless.mp,Peerless,Impareggiabili
+affix.flawless,Flawless,Perfetto
+affix.flawless.f,Flawless,Perfetta
+affix.flawless.mp,Flawless,Perfetti
+affix.solid,Solid,Solido
+affix.solid.f,Solid,Solida
+affix.solid.mp,Solid,Solidi
+affix.reinforced,Reinforced,Rinforzato
+affix.reinforced.f,Reinforced,Rinforzata
+affix.reinforced.mp,Reinforced,Rinforzati
+affix.tempered,Tempered,Temprato
+affix.tempered.f,Tempered,Temprata
+affix.tempered.mp,Tempered,Temprati
+affix.fortified,Fortified,Fortificato
+affix.fortified.f,Fortified,Fortificata
+affix.fortified.mp,Fortified,Fortificati
+affix.unbreakable,Unbreakable,Indistruttibile
+affix.unbreakable.f,Unbreakable,Indistruttibile
+affix.unbreakable.mp,Unbreakable,Indistruttibili
+affix.ironclad,Ironclad,Ferrato
+affix.ironclad.f,Ironclad,Ferrata
+affix.ironclad.mp,Ironclad,Ferrati
+affix.armored,Armored,Corazzato
+affix.armored.f,Armored,Corazzata
+affix.armored.mp,Armored,Corazzati
+affix.colossal,Colossal,Colossale
+affix.colossal.f,Colossal,Colossale
+affix.colossal.mp,Colossal,Colossali
+affix.impenetrable,Impenetrable,Impenetrabile
+affix.impenetrable.f,Impenetrable,Impenetrabile
+affix.impenetrable.mp,Impenetrable,Impenetrabili
+affix.adamantine,Adamantine,Adamantino
+affix.adamantine.f,Adamantine,Adamantina
+affix.adamantine.mp,Adamantine,Adamantini
+affix.lethal,Lethal,Micidiale
+affix.lethal.f,Lethal,Micidiale
+affix.lethal.mp,Lethal,Micidiali
+affix.murderous,Murderous,Assassino
+affix.murderous.f,Murderous,Assassina
+affix.murderous.mp,Murderous,Assassini
+affix.ruthless,Ruthless,Implacabile
+affix.ruthless.f,Ruthless,Implacabile
+affix.ruthless.mp,Ruthless,Implacabili
+affix.fatal,Fatal,Fatale
+affix.fatal.f,Fatal,Fatale
+affix.fatal.mp,Fatal,Fatali
+affix.baleful,Baleful,Funesto
+affix.baleful.f,Baleful,Funesta
+affix.baleful.mp,Baleful,Funesti
+affix.mystic,Mystic,Mistico
+affix.mystic.f,Mystic,Mistica
+affix.mystic.mp,Mystic,Mistici
+affix.occult,Occult,Occulto
+affix.occult.f,Occult,Occulta
+affix.occult.mp,Occult,Occulti
+affix.esoteric,Esoteric,Esoterico
+affix.esoteric.f,Esoteric,Esoterica
+affix.esoteric.mp,Esoteric,Esoterici
+affix.astral,Astral,Astrale
+affix.astral.f,Astral,Astrale
+affix.astral.mp,Astral,Astrali
+affix.eternal,Eternal,Eterno
+affix.eternal.f,Eternal,Eterna
+affix.eternal.mp,Eternal,Eterni
+affix.of_warding,of Warding,della Guardia
+affix.of_the_bulwark,of the Bulwark,del Baluardo
+affix.of_the_rampart,of the Rampart,del Bastione
+affix.of_the_citadel,of the Citadel,della Cittadella
+affix.of_the_fortress,of the Fortress,della Fortezza
+affix.of_might,of Might,del Vigore
+affix.of_the_ox,of the Ox,del Bue
+affix.of_the_giant,of the Giant,del Gigante
+affix.of_the_titan,of the Titan,del Titano
+affix.of_the_colossus,of the Colossus,del Colosso
+affix.of_agility,of Agility,dell'Agilità
+affix.of_the_fox,of the Fox,della Volpe
+affix.of_the_panther,of the Panther,della Pantera
+affix.of_the_falcon,of the Falcon,del Falco
+affix.of_the_wind,of the Wind,del Vento
+affix.of_health,of Health,della Salute
+affix.of_endurance,of Endurance,della Resistenza
+affix.of_the_oak,of the Oak,della Quercia
+affix.of_the_mountain,of the Mountain,della Montagna
+affix.of_immortality,of Immortality,dell'Immortalità
+affix.of_the_troll,of the Troll,del Troll
+affix.of_the_mammoth,of the Mammoth,del Mammut
+affix.of_the_hydra,of the Hydra,dell'Idra
+affix.of_the_dragon,of the Dragon,del Drago
+affix.of_enchantment,of Enchantment,dell'Incanto
+affix.of_the_magus,of the Magus,del Mago
+affix.of_the_archmage,of the Archmage,dell'Arcimago
+affix.of_the_stars,of the Stars,delle Stelle
+affix.of_the_cosmos,of the Cosmos,del Cosmo
 merchant.name,Merchant,Mercante
 shop.price,Price: {0} gold,Prezzo: {0} oro
 shop.sell_price,Sells for {0} gold,Si vende a {0} oro

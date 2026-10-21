@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51d7c7bf1c86d704fbaca69e6de210a5, type: 3}
+  m_Name: OfTheFortress
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.AffixDefinition
+  _id: 9de8ff89b34f4734844dd3c84269ef4c
+  _nameKey: affix.of_the_fortress
+  _kind: 1
+  _effect: 2
+  _min: 27
+  _max: 30
+  _minItemLevel: 45
+  _grade: 6
+  _targets: 2
+  _group: block

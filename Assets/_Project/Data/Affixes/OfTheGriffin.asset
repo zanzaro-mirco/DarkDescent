@@ -18,6 +18,7 @@ MonoBehaviour:
   _effect: 8
   _min: 11
   _max: 20
-  _minItemLevel: 2
+  _minItemLevel: 6
+  _grade: 2
   _targets: 15
   _group: life
