@@ -298,7 +298,7 @@ seme derivato; morte che costa), lezioni nel piano, README con una foto dell'alt
 - [x] Difficoltà in Core, livello 50, morte che costa
 - [x] In gioco: nemici, re, loot, mercante
 - [x] Formato 6 del salvataggio
-- [ ] Altare, pannello e vittoria per difficoltà
+- [x] Altare, pannello e vittoria per difficoltà
 - [ ] Misura e taratura
 - [ ] Build provata da Mirco
 - [ ] ADR, lezioni nel piano, README
