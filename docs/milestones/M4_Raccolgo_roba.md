@@ -390,4 +390,4 @@ di Mirco il blocco con lo scudo entra nella M5.
 - [x] Scenario della Definition of Done provato in build
 - [x] Test verdi in CI
 - [x] GIF, ADR, lezioni nel piano, tag `m4`
-- [ ] Scheda della M5 scritta prima di cominciarla
+- [x] Scheda della M5 scritta prima di cominciarla

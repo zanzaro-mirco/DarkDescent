@@ -429,5 +429,5 @@ scritta, con le decisioni da confermare.
 - [x] Scenario della Definition of Done provato in build (run 38159433084; le correzioni del 9.8 si provano con la M10)
 - [x] Test verdi in CI
 - [x] GIF, ADR, lezioni nel piano
-- [ ] Tag `m9`
+- [x] Tag `m9`
 - [x] Scheda della M10 scritta prima di cominciarla
