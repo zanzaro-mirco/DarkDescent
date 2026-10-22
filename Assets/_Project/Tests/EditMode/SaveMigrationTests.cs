@@ -11,8 +11,8 @@ using UnityEngine;
 namespace DarkDescent.Tests
 {
     /// <summary>
-    /// I formati dal 2 al 5 e la migrazione (D9 della M8, D11 della M9, D11 e 10.9 della M10): i
-    /// salvataggi veri dei formati dall'1 al 4, congelati in <c>Fixtures/save_v1.json</c>…<c>save_v4.json</c>
+    /// I formati dal 2 al 6 e la migrazione (D9 della M8, D11 della M9, D11 e 10.9 della M10, D14 della
+    /// M14): i salvataggi veri dei formati dall'1 al 5, congelati in <c>Fixtures/save_v1.json</c>…<c>save_v5.json</c>
     /// quando erano quelli correnti, si caricano con il codice di oggi; la mappa scoperta di ogni profondità resta
     /// tornandoci e passa dal salvataggio.
     /// </summary>
@@ -58,7 +58,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(5, data.Version, "portato al formato corrente");
+            Assert.AreEqual(6, data.Version, "portato al formato corrente");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.IsNotNull(data.Explored);
             Assert.AreEqual(0, data.Explored.Count, "un salvataggio vecchio non ha mappe");
@@ -102,7 +102,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(5, data.Version, "passa anche dal 3 al 4 e dal 4 al 5");
+            Assert.AreEqual(6, data.Version, "passa anche dal 3 al 4, dal 4 al 5 e dal 5 al 6");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.KnownSpells.Count, "nessun incantesimo imparato: il Dardo è noto dall'inizio");
             Assert.AreEqual(0, data.SelectedSpell);
@@ -184,8 +184,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual((3600.5f, 210, 3, 4321, true), (read.PlayTime, read.Kills, read.Deaths, read.GoldCollected, read.BossDefeated));
         }
 
-        [Test, Description("Il salvataggio del formato 4 si carica con il codice del formato 5: il portale riporta all'ingresso della profondità e nessun livello è ricordato; oro, città, portale e contatori com'erano")]
-        public void FormatFour_LoadsWithFormatFiveCode()
+        [Test, Description("Il salvataggio del formato 4 si carica con il codice di oggi: il portale riporta all'ingresso della profondità, nessun livello è ricordato e, senza vittoria, si resta al Crepuscolo; oro, città, portale e contatori com'erano")]
+        public void FormatFour_LoadsWithTodaysCode()
         {
             var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v4.json");
             StringAssert.Contains("\"_version\": 4", fixture.text, "il file congelato è davvero del formato 4");
@@ -193,7 +193,8 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(5, data.Version);
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
+            Assert.AreEqual((0, -1, 0), (data.Difficulty, data.HighestDifficulty, data.World), "il re non era battuto: l'Ombra resta chiusa");
             Assert.AreEqual(6, data.PortalDepth);
             Assert.IsNull(data.PortalSpot, "riporta all'ingresso");
             Assert.AreEqual(0, data.Levels.Count);
@@ -201,6 +202,40 @@ namespace DarkDescent.Tests
             Assert.AreEqual((250, true), (data.Gold, data.InTown));
             Assert.AreEqual((1834.5f, 97, 2, 612, false), (data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated));
             Assert.AreEqual(1, data.Explored.Count);
+        }
+
+        [Test, Description("Il salvataggio vero del formato 5, con il re battuto, si carica con il codice di oggi: al Crepuscolo, completato, nel primo mondo; livelli ricordati, oro, livello e contatori com'erano")]
+        public void FormatFive_LoadsWithTodaysCode()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v5.json");
+            StringAssert.Contains("\"_version\": 5", fixture.text, "il file congelato è davvero del formato 5");
+            StringAssert.DoesNotContain("_difficulty", fixture.text);
+            File.WriteAllText(_path, fixture.text);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
+            Assert.AreEqual((0, 0, 0), (data.Difficulty, data.HighestDifficulty, data.World), "il Crepuscolo completato: l'Ombra si può scegliere");
+            Assert.IsTrue(data.BossDefeated);
+            Assert.AreEqual(("Level_Crypt", 1), (data.Scene, data.Depth));
+            Assert.AreEqual((14, 1200, 731), (data.Level, data.Experience, data.Gold));
+            Assert.AreEqual(2, data.Kills);
+            Assert.AreEqual(1, data.Levels.Count);
+            Assert.AreEqual(2, data.Levels[0].Killed.Count);
+        }
+
+        [Test, Description("Il formato 6 va e torna: difficoltà, la più alta completata e il mondo passano dal file")]
+        public void FormatSix_RoundTrips()
+        {
+            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(new StatSheet()));
+            var data = SaveData.Create(9UL, "Town", "Start", 0)
+                .WithInventory(InventorySnapshot.Capture(inventory))
+                .WithDifficulty(4, 5, 3);
+            SaveFile.Write(_path, data);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
+            Assert.AreEqual((4, 5, 3), (read.Difficulty, read.HighestDifficulty, read.World));
+            Assert.AreEqual((0, -1, 0), (SaveData.Create(9UL, "Town", "Start", 0).Difficulty, SaveData.Create(9UL, "Town", "Start", 0).HighestDifficulty, 0),
+                "una partita nuova è al Crepuscolo, senza niente di completato");
         }
 
         [Test, Description("Il formato 5 va e torna: il punto del portale e i ricordi dei livelli, con nemici uccisi, casse aperte, oggetti e oro a terra; senza portale il punto non si salva")]

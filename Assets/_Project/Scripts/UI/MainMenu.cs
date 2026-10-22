@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using DarkDescent.Localization;
+using DarkDescent.Progression;
 using DarkDescent.Save;
 using TMPro;
 using UnityEngine;
@@ -49,6 +50,7 @@ namespace DarkDescent.UI
 
         private SaveSlots _saves;
         private Localizer _localizer;
+        private DifficultyTable _difficulties;
         private bool _choosingNew;
 
         /// <summary>Una partita scelta: il posto e se è nuova (true) o da riprendere.</summary>
@@ -70,10 +72,12 @@ namespace DarkDescent.UI
 
         public SaveSlotView SlotView(int slot) => _slots[slot - 1];
 
-        public void Show(SaveSlots saves, Localizer localizer)
+        /// <param name="difficulties">Per scrivere la difficoltà di ogni posto (D14 della M14).</param>
+        public void Show(SaveSlots saves, Localizer localizer, DifficultyTable difficulties)
         {
             _saves = saves;
             _localizer = localizer;
+            _difficulties = difficulties;
             _root.SetActive(true);
             ShowMain();
         }
@@ -182,7 +186,7 @@ namespace DarkDescent.UI
             }
         }
 
-        // "Posto 2 – livello 9 · Caverne – Livello 6 · 12/10/2026 14:30"
+        // "Posto 2 – livello 9 · Caverne – Livello 6 · Ombra · 12/10/2026 14:30"
         private string Summary(int slot, SaveData data)
         {
             string place = data.InTown
@@ -190,7 +194,8 @@ namespace DarkDescent.UI
                 : _localizer.Format(TextKeys.LevelTitle, _localizer.Get(data.Scene == "Level_Caves" ? TextKeys.LevelCaves : TextKeys.LevelCrypt), data.Depth);
             DateTime? written = _saves.LastWrite(slot);
             string date = written.HasValue ? written.Value.ToLocalTime().ToString("g", Culture()) : string.Empty;
-            return _localizer.Format(TextKeys.SlotSummary, slot, data.Level, place) + " · " + date;
+            string difficulty = _localizer.Get(_difficulties.Tier(data.Difficulty).NameKey);
+            return _localizer.Format(TextKeys.SlotSummary, slot, data.Level, place) + " · " + difficulty + " · " + date;
         }
 
         private CultureInfo Culture()

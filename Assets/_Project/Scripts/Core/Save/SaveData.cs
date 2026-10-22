@@ -14,7 +14,8 @@ namespace DarkDescent.Save
     /// quello scelto e il mana (D11 della M9); dal formato 4 l'oro, la città, la profondità a cui
     /// riporta il portale e i contatori della partita (D11 della M10); dal formato 5 il punto in cui
     /// riporta il portale e i ricordi dei livelli visitati (10.9 della M10): nemici uccisi, casse aperte
-    /// e oggetti a terra, che un livello rigenerato dal seme rimette com'erano. Il campo
+    /// e oggetti a terra, che un livello rigenerato dal seme rimette com'erano; dal formato 6 la
+    /// difficoltà, la più alta completata e il numero del mondo (D14 della M14). Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
     /// </summary>
@@ -22,7 +23,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 5;
+        public const int CurrentVersion = 6;
 
         /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
         public const float FullMana = -1f;
@@ -71,6 +72,11 @@ namespace DarkDescent.Save
         [SerializeField] private bool _hasPortalSpot;
         [SerializeField] private Vector3 _portalSpot;
         [SerializeField] private List<LevelRecord> _levels = new List<LevelRecord>();
+
+        // formato 6: la difficoltà attuale, la più alta completata (−1: nessuna) e il numero del mondo
+        [SerializeField] private int _difficulty;
+        [SerializeField] private int _highestDifficulty = -1;
+        [SerializeField] private int _world;
 
         public int Version => _version;
 
@@ -131,6 +137,15 @@ namespace DarkDescent.Save
 
         /// <summary>I ricordi dei livelli visitati: nemici uccisi, casse aperte, oggetti a terra.</summary>
         public IReadOnlyList<LevelRecord> Levels => _levels;
+
+        /// <summary>La difficoltà a cui si gioca: 0 è il Crepuscolo.</summary>
+        public int Difficulty => _difficulty;
+
+        /// <summary>La difficoltà più alta completata, −1 se nessuna.</summary>
+        public int HighestDifficulty => _highestDifficulty;
+
+        /// <summary>Quanti mondi nuovi ci sono stati.</summary>
+        public int World => _world;
 
         public static SaveData Create(ulong runSeed, string scene, string entrance, int depth)
         {
@@ -210,6 +225,15 @@ namespace DarkDescent.Save
             return this;
         }
 
+        /// <summary>La difficoltà, la più alta completata (−1: nessuna) e il numero del mondo.</summary>
+        public SaveData WithDifficulty(int difficulty, int highestDifficulty, int world)
+        {
+            _difficulty = difficulty;
+            _highestDifficulty = highestDifficulty;
+            _world = world;
+            return this;
+        }
+
         /// <summary>I contatori della partita, per la schermata di vittoria.</summary>
         public SaveData WithStats(float playTime, int kills, int deaths, int goldCollected, bool bossDefeated)
         {
@@ -251,6 +275,15 @@ namespace DarkDescent.Save
             {
                 _hasPortalSpot = false;
                 _levels = new List<LevelRecord>();
+            }
+
+            // dal formato 5 al 6 (D14 della M14): si gioca al Crepuscolo, nel primo mondo; con il re già
+            // battuto il Crepuscolo è completato e l'Ombra aperta
+            if (_version < 6 && version >= 6)
+            {
+                _difficulty = 0;
+                _highestDifficulty = _bossDefeated ? 0 : -1;
+                _world = 0;
             }
 
             _version = version;

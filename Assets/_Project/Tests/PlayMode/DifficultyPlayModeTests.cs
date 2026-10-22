@@ -158,6 +158,20 @@ namespace DarkDescent.Tests
             Assert.AreEqual(health.Max, health.Current, "a vita piena");
         }
 
+        [UnityTest, Description("Il salvataggio porta la difficoltà, la più alta completata e il mondo, e li rimette (D14)")]
+        public IEnumerator Save_CarriesTheDifficulty()
+        {
+            yield return LoadSandboxWith("-difficulty 2");
+            var save = UnityEngine.Object.FindFirstObjectByType<Save.SaveGame>();
+            Root.Difficulty.NewWorld();
+            var data = save.Capture();
+            Assert.AreEqual((2, 1, 1), (data.Difficulty, data.HighestDifficulty, data.World));
+
+            Root.Difficulty.Restore(0, -1, 0);
+            save.Apply(data);
+            Assert.AreEqual((2, 1, 1), (Root.Difficulty.Current, Root.Difficulty.HighestCompleted, Root.Difficulty.World));
+        }
+
         [UnityTest, Description("Il re dell'Abisso I prende tre modificatori diversi, senza anello né punto sull'automappa")]
         public IEnumerator AbyssOne_BossHasThreeModifiers()
         {

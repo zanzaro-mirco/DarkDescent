@@ -48,6 +48,7 @@ namespace DarkDescent.Save
         private ExplorationTracker _exploration;
         private TownPortals _portals;
         private LevelRecorder _levels;
+        private DifficultyProgress _difficulty;
         private string _path;
         private bool _forced;
         private bool _subscribed;
@@ -66,12 +67,15 @@ namespace DarkDescent.Save
 
         /// <param name="portals">Facoltativo: senza, il salvataggio non ricorda il portale della città.</param>
         /// <param name="levels">Facoltativo: senza, il salvataggio non ricorda com'erano i livelli.</param>
-        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration, RunStats runStats, TownPortals portals = null, LevelRecorder levels = null)
+        /// <param name="difficulty">Facoltativo: senza, il salvataggio è sempre al Crepuscolo.</param>
+        public void Bind(LevelManager levelManager, GameObject player, ExplorationTracker exploration, RunStats runStats, TownPortals portals = null, LevelRecorder levels = null,
+            DifficultyProgress difficulty = null)
         {
             Unsubscribe();
             _levelManager = levelManager;
             _portals = portals;
             _levels = levels;
+            _difficulty = difficulty;
             _runStats = runStats;
             _exploration = exploration;
             _inventory = player.GetComponent<PlayerInventory>();
@@ -125,6 +129,11 @@ namespace DarkDescent.Save
                 .WithTown(_levelManager.CurrentLevel.IsTown, _portals != null ? _portals.PortalDepth : 0, _portals != null ? _portals.PortalSpot : null)
                 .WithStats(_runStats.PlayTime, _runStats.Kills, _runStats.Deaths, _runStats.GoldCollected, _runStats.BossDefeated)
                 .WithLevels(_levels != null ? _levels.Export(_levelManager.CurrentLevel) : null);
+
+            if (_difficulty != null)
+            {
+                data.WithDifficulty(_difficulty.Current, _difficulty.HighestCompleted, _difficulty.World);
+            }
 
             // da morto il mana torna pieno con la vita (Revived): si salva pieno
             if (_magic != null)
@@ -189,6 +198,9 @@ namespace DarkDescent.Save
             {
                 _levels.Memory.Import(data.Levels);
             }
+
+            // prima che il livello si colleghi: i nemici prendono i numeri della difficoltà (M14)
+            _difficulty?.Restore(data.Difficulty, data.HighestDifficulty, data.World);
 
             _health.SetCurrent(data.Life);
 

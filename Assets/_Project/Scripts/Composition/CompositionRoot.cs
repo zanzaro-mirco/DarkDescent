@@ -264,7 +264,7 @@ namespace DarkDescent.Core
 
             // un salvataggio, se c'è, decide seme e livello (D10 della M8); -newgame e -seed lo ignorano
             _portals.Bind(_player.transform);
-            _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats, _portals, _levelRecorder);
+            _saveGame.Bind(_levelManager, _player.gameObject, _exploration, _runStats, _portals, _levelRecorder, _difficulty);
             // il menu iniziale nelle build, e nell'editor solo se un test lo chiede (D2 della M10).
             // -newgame e -seed lo saltano e giocano senza salvare; un file scelto da fuori si riprende
             bool newGame = CommandLine.HasFlag(args, NewGameOption);
@@ -387,7 +387,7 @@ namespace DarkDescent.Core
             {
                 // fermo finché non si sceglie: niente tasti del gioco sotto il menu
                 _reader.enabled = false;
-                _mainMenu.Show(_saves, _localizer);
+                _mainMenu.Show(_saves, _localizer, _difficulties);
             }
         }
 

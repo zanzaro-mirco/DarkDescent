@@ -204,6 +204,17 @@ inizializzatori.
 Test: la fixture del formato 5 con il re battuto apre l'Ombra; quella senza vittoria resta al
 Crepuscolo; il formato 6 rilegge difficoltà, più alta completata e mondo.
 
+**Com'è andata (22 ott 2026).** `save_v5.json` è un salvataggio vero, scritto da un test PlayMode
+temporaneo con il codice del formato 5 (cripta 1, due nemici uccisi, 731 d'oro, livello 14, re
+battuto) e committato da solo prima del formato 6. `SaveData` ha `_difficulty`, `_highestDifficulty`
+(−1 di partenza) e `_world`; la migrazione 5 → 6 li mette a mano: Crepuscolo, mondo 0, e il
+Crepuscolo completato se il re era battuto. `SaveGame.Bind` riceve il `DifficultyProgress`, che
+`Capture` scrive e `Apply` rimette prima che il livello si colleghi. Il menu scrive la difficoltà di
+ogni posto dopo il luogo ("Posto 3 – livello 3 · Cripta – Livello 3 · Crepuscolo · data"). Test:
+formato 5 con il re battuto (Ombra aperta), formato 4 senza vittoria (Crepuscolo), formato 6 che va
+e torna, il salvataggio in gioco che porta e rimette la difficoltà, il riepilogo del menu. 402
+EditMode e 235 PlayMode verdi.
+
 ## Passo 14.5 — L'altare
 
 Un simbolo nuovo nella mappa dell'accampamento, accanto alla discesa. Il prefab è l'altare della M13
@@ -271,7 +282,7 @@ seme derivato; morte che costa), lezioni nel piano, README con una foto dell'alt
 - [x] Gradi degli affissi e nomi approvati
 - [x] Difficoltà in Core, livello 50, morte che costa
 - [x] In gioco: nemici, re, loot, mercante
-- [ ] Formato 6 del salvataggio
+- [x] Formato 6 del salvataggio
 - [ ] Altare, pannello e vittoria per difficoltà
 - [ ] Misura e taratura
 - [ ] Build provata da Mirco

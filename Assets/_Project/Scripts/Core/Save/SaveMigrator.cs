@@ -36,6 +36,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(5);
             }
 
+            // formato 5 → 6 (D14 della M14): arriva la difficoltà; un salvataggio vecchio è al Crepuscolo,
+            // completato se il re era già battuto
+            if (data.Version == 5)
+            {
+                data.UpgradeTo(6);
+            }
+
             return data;
         }
     }

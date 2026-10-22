@@ -113,7 +113,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Menu.ContinueButton.gameObject.activeSelf);
 
             Menu.LoadButton.onClick.Invoke();
-            StringAssert.Contains("Slot 3 – level 3 · Crypt – Level 3", Menu.SlotView(3).Text);
+            StringAssert.Contains("Slot 3 – level 3 · Crypt – Level 3 · Dusk", Menu.SlotView(3).Text);
             Assert.IsFalse(Menu.SlotView(2).Button.interactable, "un posto vuoto non si carica");
             Assert.IsFalse(Menu.SlotView(2).DeleteButton.gameObject.activeSelf);
 
