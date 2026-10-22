@@ -37,9 +37,11 @@ namespace DarkDescent.Progression
 
         /// <summary>
         /// Per ogni slot, la base di valore più alto tra <paramref name="bases"/> che il cavaliere può
-        /// portare, rara e del livello dato. Restituisce quanti oggetti ha messo.
+        /// portare, rara (o della rarità data, per la misura delle difficoltà) e del livello dato.
+        /// Restituisce quanti oggetti ha messo.
         /// </summary>
-        public static int Equip(Equipment equipment, IReadOnlyList<LootEntry> bases, ItemGenerator generator, int itemLevel, ulong runSeed)
+        public static int Equip(Equipment equipment, IReadOnlyList<LootEntry> bases, ItemGenerator generator, int itemLevel, ulong runSeed,
+            Rarity rarity = Rarity.Rare)
         {
             int equipped = 0;
             foreach (var slot in Slots)
@@ -54,7 +56,7 @@ namespace DarkDescent.Progression
                     }
                 }
 
-                if (best != null && equipment.TryEquip(generator.Generate(best, Math.Max(1, itemLevel), SeedMixer.ForHero(runSeed, (int)slot), Rarity.Rare), slot, out _))
+                if (best != null && equipment.TryEquip(generator.Generate(best, Math.Max(1, itemLevel), SeedMixer.ForHero(runSeed, (int)slot), rarity), slot, out _))
                 {
                     equipped++;
                 }

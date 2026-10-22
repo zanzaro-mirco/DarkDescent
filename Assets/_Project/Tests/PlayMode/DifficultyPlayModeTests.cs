@@ -46,7 +46,7 @@ namespace DarkDescent.Tests
 
         private GameObject Skeleton => GameObject.Find("Skeleton");
 
-        [UnityTest, Description("All'Ombra lo scheletro ha la vita per 3, il danno per 2 e 15 punti in più a colpire e di Armatura")]
+        [UnityTest, Description("All'Ombra lo scheletro ha la vita per 2,8, il danno per 2, 24 punti in più a colpire e 6 di Armatura (passo 14.6)")]
         public IEnumerator Shadow_SkeletonIsStronger()
         {
             yield return LoadSandbox();
@@ -63,14 +63,14 @@ namespace DarkDescent.Tests
             yield return null;
 
             Assert.AreEqual((1, 0), (Root.Difficulty.Current, Root.Difficulty.HighestCompleted), "l'Ombra, con il Crepuscolo completato");
-            Assert.AreEqual(life * 3f, Skeleton.GetComponent<Health>().Max, 0.01f);
+            Assert.AreEqual(life * 2.8f, Skeleton.GetComponent<Health>().Max, 0.01f);
             Assert.AreEqual(Skeleton.GetComponent<Health>().Max, Skeleton.GetComponent<Health>().Current, 0.01f, "a vita piena");
             Assert.AreEqual(2f, Skeleton.GetComponent<MeleeAttack>().DamageMultiplier);
-            Assert.AreEqual(toHit + 15f, Skeleton.GetComponent<CharacterStats>().ToHit);
-            Assert.AreEqual(armor + 15f, Skeleton.GetComponent<CharacterStats>().Armor);
+            Assert.AreEqual(toHit + 24f, Skeleton.GetComponent<CharacterStats>().ToHit);
+            Assert.AreEqual(armor + 6f, Skeleton.GetComponent<CharacterStats>().Armor);
         }
 
-        [UnityTest, Description("Un campione all'Ombra ha i due moltiplicatori insieme: vita 3 × 3, danno 2 × 1,5")]
+        [UnityTest, Description("Un campione all'Ombra ha i due moltiplicatori insieme: vita 2,8 × 3, danno 2 × 1,5")]
         public IEnumerator Shadow_ChampionHasBothMultipliers()
         {
             yield return LoadSandboxWith("-difficulty 1");
@@ -85,20 +85,20 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2f * Champions.For(EnemyRank.Champion).Damage, Skeleton.GetComponent<MeleeAttack>().DamageMultiplier, 1e-4f);
         }
 
-        [UnityTest, Description("All'Ombra uno scheletro vale quattro volte l'esperienza, con la zona alzata di 10")]
+        [UnityTest, Description("All'Ombra uno scheletro vale 2,3 volte l'esperienza, con la zona alzata di 10 (passo 14.6)")]
         public IEnumerator Shadow_KillGivesMoreExperience()
         {
             yield return LoadSandboxWith("-difficulty 1");
             var progress = Player.GetComponent<PlayerProgress>();
             int gained = 0;
             progress.Progress.ExperienceGained += amount => gained += amount;
-            int expected = progress.Settings.ExperienceForKill(70, Manager.CurrentLevel.Depth, 1, 10, 4f);
+            int expected = progress.Settings.ExperienceForKill(70, Manager.CurrentLevel.Depth, 1, 10, 2.3f);
 
             Skeleton.GetComponent<Health>().TakeDamage(Damage(100_000f));
             yield return null;
 
             Assert.AreEqual(expected, gained);
-            Assert.AreEqual(progress.Settings.ExperienceForKill(70, Manager.CurrentLevel.Depth, 1) * 4, gained, 1, "quattro volte il Crepuscolo");
+            Assert.AreEqual(progress.Settings.ExperienceForKill(70, Manager.CurrentLevel.Depth, 1) * 2.3, gained, 1, "2,3 volte il Crepuscolo");
         }
 
         [UnityTest, Description("Morire all'Ombra costa il 10% dell'oro e il 5% dell'esperienza del livello; la schermata lo dice")]
@@ -195,6 +195,62 @@ namespace DarkDescent.Tests
             Assert.AreEqual(3, special.ActiveModifiers.Distinct().Count());
             Assert.IsNull(special.Ring);
             Assert.AreEqual(1f, special.ExperienceMultiplier, "l'esperienza la alza la difficoltà, non il grado");
+        }
+
+        [UnityTest, Description("L'anello di fuoco del re cresce con la difficoltà, come i suoi colpi: all'Abisso I i 28–38 di sempre per il moltiplicatore del danno (passo 14.6)")]
+        public IEnumerator AbyssOne_RingGrowsWithTheDifficulty()
+        {
+            Environment.SetEnvironmentVariable(CompositionRoot.ArgumentsVariable, "-difficulty 3");
+            yield return LoadGeneratedCore();
+            Manager.RunSeed = 1;
+            Manager.LoadLevel("Level_Caves", "FromAbove", 8);
+            yield return null;
+            for (float t = 0f; Manager.IsTransitioning || Manager.CurrentLevel == null || Manager.CurrentLevel.Depth != 8; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 15f, "la profondità 8 non arriva");
+                yield return null;
+            }
+
+            yield return null;
+            var boss = Manager.CurrentLevel.Boss;
+            var attack = boss.GetComponent<MeleeAttack>();
+            Assert.GreaterOrEqual(attack.DamageMultiplier + 1e-4f, Root.CurrentDifficulty.Damage);
+
+            // il cavaliere regge tutto: conta solo il colpo di fuoco
+            var health = Player.GetComponent<Health>();
+            health.MultiplyMax(10_000f);
+            health.SetCurrent(health.Max);
+            float ring = 0f;
+            float multiplier = 0f;
+            void Record(DamageInfo info, float current)
+            {
+                if (info.Type == DamageType.Fire && ring == 0f)
+                {
+                    ring = info.Amount;
+                    multiplier = attack.DamageMultiplier;
+                }
+            }
+
+            health.Damaged += Record;
+            Vector3 home = boss.GetComponent<EnemyAI>().HomePosition;
+            Assert.IsTrue(UnityEngine.AI.NavMesh.SamplePosition(home + Vector3.back * 2f, out var hit, 2f, UnityEngine.AI.NavMesh.AllAreas));
+            Player.GetComponent<UnityEngine.AI.NavMeshAgent>().Warp(hit.position);
+            for (float t = 0f; !boss.IsFighting; t += Time.deltaTime)
+            {
+                Assert.Less(t, 3f, "lo scontro non comincia");
+                yield return null;
+            }
+
+            boss.Health.TakeDamage(Damage(boss.Health.Max * 0.8f));
+            for (float t = 0f; ring == 0f; t += Time.deltaTime)
+            {
+                Assert.Less(t, 12f, "l'anello non arriva");
+                yield return null;
+            }
+
+            health.Damaged -= Record;
+            Assert.That(ring / multiplier, Is.InRange(28f - 1e-3f, 38f + 1e-3f), "il colpo di sempre, moltiplicato");
+            Assert.GreaterOrEqual(ring, 28f * Root.CurrentDifficulty.Damage - 1e-3f);
         }
     }
 }

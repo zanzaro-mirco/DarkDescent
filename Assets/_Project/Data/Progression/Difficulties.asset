@@ -31,12 +31,12 @@ MonoBehaviour:
   - _nameKey: difficulty.shadow
     _color: {r: 0.6, g: 0.35, b: 0.9, a: 1}
     _zoneLevelBonus: 10
-    _life: 3
+    _life: 2.8
     _damage: 2
-    _toHit: 15
-    _armor: 15
+    _toHit: 24
+    _armor: 6
     _bossModifiers: 1
-    _experience: 4
+    _experience: 2.3
     _gold: 2
     _normalWeight: 55
     _magicWeight: 34
@@ -46,12 +46,12 @@ MonoBehaviour:
   - _nameKey: difficulty.darkness
     _color: {r: 0.2, g: 0.3, b: 0.75, a: 1}
     _zoneLevelBonus: 20
-    _life: 8
-    _damage: 3.5
-    _toHit: 30
-    _armor: 30
+    _life: 4.8
+    _damage: 2.9
+    _toHit: 32
+    _armor: 15
     _bossModifiers: 2
-    _experience: 10
+    _experience: 6.3
     _gold: 3
     _normalWeight: 45
     _magicWeight: 40
@@ -61,12 +61,12 @@ MonoBehaviour:
   - _nameKey: difficulty.abyss1
     _color: {r: 0.85, g: 0.15, b: 0.12, a: 1}
     _zoneLevelBonus: 30
-    _life: 18
-    _damage: 5.5
-    _toHit: 45
-    _armor: 45
+    _life: 13.5
+    _damage: 6
+    _toHit: 82
+    _armor: 44
     _bossModifiers: 3
-    _experience: 20
+    _experience: 11
     _gold: 4
     _normalWeight: 40
     _magicWeight: 42
@@ -76,12 +76,12 @@ MonoBehaviour:
   - _nameKey: difficulty.abyss2
     _color: {r: 0.85, g: 0.15, b: 0.12, a: 1}
     _zoneLevelBonus: 33
-    _life: 25
-    _damage: 6.9
-    _toHit: 50
-    _armor: 50
+    _life: 18.5
+    _damage: 6.8
+    _toHit: 88
+    _armor: 49
     _bossModifiers: 4
-    _experience: 26
+    _experience: 11.5
     _gold: 4.5
     _normalWeight: 39
     _magicWeight: 42
@@ -91,12 +91,12 @@ MonoBehaviour:
   - _nameKey: difficulty.abyss3
     _color: {r: 0.85, g: 0.15, b: 0.12, a: 1}
     _zoneLevelBonus: 36
-    _life: 35
-    _damage: 8.6
-    _toHit: 55
-    _armor: 55
+    _life: 27
+    _damage: 9
+    _toHit: 104
+    _armor: 69
     _bossModifiers: 5
-    _experience: 34
+    _experience: 12
     _gold: 5
     _normalWeight: 38
     _magicWeight: 42
@@ -106,12 +106,12 @@ MonoBehaviour:
   - _nameKey: difficulty.abyss4
     _color: {r: 0.85, g: 0.15, b: 0.12, a: 1}
     _zoneLevelBonus: 39
-    _life: 49
-    _damage: 10.7
-    _toHit: 60
-    _armor: 60
+    _life: 31
+    _damage: 9.5
+    _toHit: 108
+    _armor: 71
     _bossModifiers: 5
-    _experience: 44
+    _experience: 12.5
     _gold: 5.5
     _normalWeight: 37
     _magicWeight: 42
@@ -121,12 +121,12 @@ MonoBehaviour:
   - _nameKey: difficulty.abyss5
     _color: {r: 0.85, g: 0.15, b: 0.12, a: 1}
     _zoneLevelBonus: 42
-    _life: 69
-    _damage: 13.4
-    _toHit: 65
-    _armor: 65
+    _life: 32.5
+    _damage: 9.8
+    _toHit: 112
+    _armor: 74
     _bossModifiers: 5
-    _experience: 57
+    _experience: 13
     _gold: 6
     _normalWeight: 36
     _magicWeight: 42
@@ -136,12 +136,12 @@ MonoBehaviour:
   - _nameKey: difficulty.abyss6
     _color: {r: 0.85, g: 0.15, b: 0.12, a: 1}
     _zoneLevelBonus: 45
-    _life: 97
-    _damage: 16.8
-    _toHit: 70
-    _armor: 70
+    _life: 40.5
+    _damage: 12.3
+    _toHit: 128
+    _armor: 90
     _bossModifiers: 5
-    _experience: 74
+    _experience: 13.5
     _gold: 6.5
     _normalWeight: 35
     _magicWeight: 42

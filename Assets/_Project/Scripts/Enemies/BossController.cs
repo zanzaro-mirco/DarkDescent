@@ -312,7 +312,8 @@ namespace DarkDescent.Enemies
             if (!_player.IsDead && FlatDistance(_player.transform.position, center) <= _ringRadius + _targetAllowance)
             {
                 int amount = _random != null ? _ringDamage.x + (int)(_random.NextDouble() * (_ringDamage.y - _ringDamage.x + 1)) : _ringDamage.x;
-                _player.TakeDamage(new DamageInfo(Mathf.Min(amount, _ringDamage.y), DamageType.Fire, gameObject));
+                // l'anello cresce come i colpi: difficoltà e Furioso (passo 14.6)
+                _player.TakeDamage(new DamageInfo(Mathf.Min(amount, _ringDamage.y) * _attack.DamageMultiplier, DamageType.Fire, gameObject));
             }
         }
 

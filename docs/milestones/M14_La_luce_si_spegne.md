@@ -64,7 +64,7 @@ Confermate da Mirco il 21 ottobre 2026, tutte come proposte ("procedi con il 14.
 | D15 | **La vittoria** | Il `VictoryScreen` compare solo la **prima volta** che si completa una difficoltà, con una riga in più ("Si apre: Ombra"). Le volte dopo, il re lascia il portale della vittoria e l'HUD scrive "Il re è caduto". Il titolo del livello porta la difficoltà ("Cripta 3 · Ombra"), il Crepuscolo no | Rivedere la schermata e tornare al menu a ogni re ucciso stancherebbe. Il nome della difficoltà nel titolo dice sempre dove si è |
 | D16 | **Fuori da questa milestone** | **Unici e set**: la prossima milestone, che li fa cadere dall'Ombra in su. **Nemici e oggetti che crescono con il personaggio**: restano nel piano, da valutare dopo la prova delle difficoltà. **Basi migliori** delle armi e delle armature (versioni "eccezionali", come in Diablo 2): nel piano, da decidere con unici e set. **Nemici nuovi** per le difficoltà alte | Ognuna è un sistema a sé. Questa milestone resta sul gioco che continua |
 
-**Numeri indicativi della D5, D9 e D11** (escono dalla misura del passo 14.6):
+**Numeri indicativi della D5, D9 e D11** (escono dalla misura del passo 14.6; vita, danno, colpire, armatura ed esperienza sono stati sostituiti da quelli misurati, nel passo 14.6):
 
 | Difficoltà | Zona + | Vita × | Danno × | Colpire / Armatura + | Esperienza × | Oro × | Rarità N/M/R | Morte oro / esp. | Modificatori del re |
 |---|---|---|---|---|---|---|---|---|---|
@@ -247,6 +247,71 @@ nuovo. Test: 5 PlayMode in `AltarPlayModeTests`. 402 EditMode e 240 PlayMode ver
 dell'editor che scrive il CSV. I numeri della tabella si aggiustano finché le fasce della D10
 tengono. Il test EditMode ricalcola tutto con gli asset veri.
 
+**Com'è andata (22 ott 2026).**
+
+- **La misura.** `PowerCensus` in `Scripts/Core/Progression`, con `CensusFighter`, calcola quattro
+  cose. Il danno medio di un colpo arrivato: i tiri interi dell'arma con Forza e livello, per il
+  moltiplicatore e il critico atteso. La probabilità che un colpo arrivi, colpire e blocco insieme. I
+  colpi tirati per uccidere. I colpi arrivati che si reggono.
+- **Lo strumento.** `DifficultyCensus` sta nell'editor: menu *DarkDescent/Misura le difficoltà*, o
+  `-executeMethod` con la variabile `DARKDESCENT_CENSUS`, e scrive il CSV.
+  - Il cavaliere fa una discesa per difficoltà. Sale con l'esperienza dei livelli generati: 20 semi
+    per profondità, campioni e unici compresi.
+  - A ogni profondità porta in ogni slot la base migliore del mercante, al livello degli oggetti di
+    lì. La rarità è quella che la difficoltà fa trovare: normale al Crepuscolo, magica all'Ombra e
+    alla Tenebra, rara dall'Abisso. I colpi sono la media di 8 equipaggiamenti.
+  - `HeroSetup.Equip` prende la rarità.
+- **Cosa diceva la misura con i numeri indicativi.**
+  - Dall'Ombra il cavaliere colpiva quasi sempre (95%) e i nemici quasi mai (2–5%).
+  - Il cavaliere arrivava al 50 già all'Abisso II, dieci livelli sopra la zona.
+  - All'Abisso VI il re voleva 215 colpi.
+- **Come sono stati scelti i numeri nuovi.** Si fissano dei bersagli alla profondità 1, la più dura
+  di ogni discesa, e i numeri si ricavano da quelli:
+  - il bruto muore in 10–13,5 colpi, un po' di più a ogni gradino;
+  - il cavaliere regge da 4,2 a 3,3 colpi del bruto;
+  - il bruto colpisce il 50% delle volte prima dello scudo;
+  - il cavaliere colpisce il bruto il 70% delle volte senza i suoi affissi a colpire.
+
+  L'esperienza è scelta così: con una discesa il cavaliere arriva al livello della zona dell'ultima
+  profondità (20, 30, 40, poi 44, 47, 49, 50), con un moltiplicatore che non cala mai. Colpire e
+  Armatura dei nemici adesso sono due numeri distinti.
+
+| Difficoltà | Vita × | Danno × | Colpire + | Armatura + | Esperienza × |
+|---|---|---|---|---|---|
+| Crepuscolo | 1 | 1 | 0 | 0 | 1 |
+| Ombra | 2,8 | 2 | 24 | 6 | 2,3 |
+| Tenebra | 4,8 | 2,9 | 32 | 15 | 6,3 |
+| Abisso I | 13,5 | 6 | 82 | 44 | 11 |
+| Abisso II | 18,5 | 6,8 | 88 | 49 | 11,5 |
+| Abisso III | 27 | 9 | 104 | 69 | 12 |
+| Abisso IV | 31 | 9,5 | 108 | 71 | 12,5 |
+| Abisso V | 32,5 | 9,8 | 112 | 74 | 13 |
+| Abisso VI | 40,5 | 12,3 | 128 | 90 | 13,5 |
+
+Zona, oro, rarità, morte e modificatori del re restano quelli della tabella sopra.
+
+- **Cosa dice la misura adesso.**
+  - In tutte le 72 righe lo scheletro muore in 1,3–4,5 colpi e il bruto in 4,3–13,5.
+  - Il cavaliere regge almeno 3,3 colpi del bruto e 2,2 del re.
+  - Il cavaliere colpisce il bruto dal 69 al 95% delle volte; il bruto colpisce il cavaliere dal 7 al
+    41%.
+  - Alla profondità 8 il re vuole 29, 40, 44, 49, 57, 61, 69, 72 e 90 colpi.
+  - Il cavaliere comincia ogni difficoltà al più due livelli sotto la zona e arriva al 50 all'inizio
+    dell'Abisso IV.
+- **Il blocco.** Con uno scudo buono e la Destrezza alta arriva al 75%, il tetto di Diablo 1. I colpi
+  dei nemici non passano oltre il 24%: dall'Abisso il bruto colpisce dal 7 al 15% delle volte. Se in
+  prova l'Abisso sembra facile, il primo ritocco è il danno.
+- **L'esperienza** è più bassa dei numeri indicativi: Ombra 2,3 invece di 4, Abisso I 11 invece di 20.
+  Con quelli il cavaliere superava la zona di dieci livelli.
+- **Una correzione.** L'anello di fuoco del re faceva sempre 28–38. Ora segue il moltiplicatore del
+  danno, difficoltà e Furioso, come i suoi colpi.
+- **Test.**
+  - `DifficultyCensusTests` (8): le formule, il nemico, le fasce a ogni profondità, l'inizio di ogni
+    discesa, il re, l'esperienza, la rarità.
+  - `DifficultyPlayModeTests.AbyssOne_RingGrowsWithTheDifficulty`.
+  - I numeri dell'Ombra aggiornati nei test `Shadow_*`.
+  - Risultato: 410 EditMode e 241 PlayMode verdi.
+
 ## Passo 14.7 — Build da provare
 
 Build dalla CI su richiesta di Mirco, da provare al Crepuscolo con un salvataggio vecchio, all'Ombra
@@ -299,7 +364,7 @@ seme derivato; morte che costa), lezioni nel piano, README con una foto dell'alt
 - [x] In gioco: nemici, re, loot, mercante
 - [x] Formato 6 del salvataggio
 - [x] Altare, pannello e vittoria per difficoltà
-- [ ] Misura e taratura
+- [x] Misura e taratura
 - [ ] Build provata da Mirco
 - [ ] ADR, lezioni nel piano, README
 - [ ] Tag `v1.3.0` dopo i test verdi in CI: build Windows verde
