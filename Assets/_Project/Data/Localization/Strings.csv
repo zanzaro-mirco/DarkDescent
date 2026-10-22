@@ -377,3 +377,13 @@ credits.assets,With the work of,Con il lavoro di
 credits.own,"The amulet, the synthesized sounds and the textures were made for the game (CC0)","L'amuleto, i suoni sintetizzati e le texture sono stati fatti per il gioco (CC0)"
 credits.thanks,Thank you for playing,Grazie per aver giocato
 credits.back,Back to the menu,Torna al menu
+# Difficoltà (D2 della M14)
+difficulty.dusk,Dusk,Crepuscolo
+difficulty.shadow,Shadow,Ombra
+difficulty.darkness,Darkness,Tenebra
+difficulty.abyss1,Abyss I,Abisso I
+difficulty.abyss2,Abyss II,Abisso II
+difficulty.abyss3,Abyss III,Abisso III
+difficulty.abyss4,Abyss IV,Abisso IV
+difficulty.abyss5,Abyss V,Abisso V
+difficulty.abyss6,Abyss VI,Abisso VI

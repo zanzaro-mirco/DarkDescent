@@ -10,8 +10,8 @@ namespace DarkDescent.Progression
     [CreateAssetMenu(fileName = "Progression", menuName = "DarkDescent/Progression")]
     public sealed class ProgressionSettings : ScriptableObject
     {
-        [Tooltip("Il livello più alto nella v1.0 (D1).")]
-        [SerializeField, Min(2)] private int _maxLevel = 20;
+        [Tooltip("Il livello più alto: 20 nella v1.0 (D1), 50 con le difficoltà (D6 della M14).")]
+        [SerializeField, Min(2)] private int _maxLevel = 50;
 
         [Tooltip("Esperienza per passare dal livello L al successivo: base × L^esponente (D1).")]
         [SerializeField, Min(1)] private int _baseExperience = 100;
@@ -54,27 +54,34 @@ namespace DarkDescent.Progression
             return Mathf.Max(_rounding, Mathf.RoundToInt(raw / _rounding) * _rounding);
         }
 
-        /// <summary>Il livello dei nemici di una profondità, per la riduzione dell'esperienza.</summary>
+        /// <summary>Il livello dei nemici di una profondità, per la riduzione dell'esperienza e il livello degli oggetti.</summary>
         public int ZoneLevel(int depth)
         {
+            return ZoneLevel(depth, 0);
+        }
+
+        /// <summary>Il livello della zona con quello in più della difficoltà (D5 della M14).</summary>
+        public int ZoneLevel(int depth, int difficultyBonus)
+        {
             // mezzo in su, non al pari come RoundToInt: la profondità 2 vale il livello 3
-            return Mathf.Max(1, Mathf.FloorToInt(depth * _zoneLevelPerDepth + 0.5f));
+            return Mathf.Max(1, Mathf.FloorToInt(depth * _zoneLevelPerDepth + 0.5f)) + Mathf.Max(0, difficultyBonus);
         }
 
         /// <summary>
         /// Esperienza per un nemico che ne vale <paramref name="baseExperience"/>, ucciso alla
         /// profondità data da un cavaliere di quel livello: cresce con la profondità e cala se il
-        /// cavaliere è più forte della zona, come in Diablo. Almeno 1, se il nemico vale qualcosa.
+        /// cavaliere è più forte della zona, come in Diablo. La difficoltà alza il livello della
+        /// zona e moltiplica il resto (D5 della M14). Almeno 1, se il nemico vale qualcosa.
         /// </summary>
-        public int ExperienceForKill(int baseExperience, int depth, int heroLevel)
+        public int ExperienceForKill(int baseExperience, int depth, int heroLevel, int difficultyBonus = 0, float difficultyFactor = 1f)
         {
             if (baseExperience <= 0)
             {
                 return 0;
             }
 
-            float experience = baseExperience * (1f + _depthBonus * (Mathf.Max(1, depth) - 1));
-            int over = heroLevel - ZoneLevel(depth);
+            float experience = baseExperience * (1f + _depthBonus * (Mathf.Max(1, depth) - 1)) * Mathf.Max(1f, difficultyFactor);
+            int over = heroLevel - ZoneLevel(depth, difficultyBonus);
             if (over > 0)
             {
                 experience /= 1f + _overLevelPenalty * over;

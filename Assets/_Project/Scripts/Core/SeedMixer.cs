@@ -130,6 +130,18 @@ namespace DarkDescent.Core
             return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ ComfortDomain);
         }
 
+        // "WORLD": il seme di un mondo nuovo (D4 della M14), da quello del mondo prima e dal suo numero
+        private const ulong WorldDomain = 0x574F524C44UL;
+
+        /// <summary>
+        /// Il seme del mondo numero <paramref name="world"/>, ricavato da quello del mondo prima: niente
+        /// orologio, così la stessa partita rifà gli stessi mondi.
+        /// </summary>
+        public static ulong ForWorld(ulong previousSeed, int world)
+        {
+            return Mix(Mix(previousSeed ^ WorldDomain) ^ (ulong)(uint)world);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

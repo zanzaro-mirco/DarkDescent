@@ -148,6 +148,20 @@ togliere esperienza senza scendere sotto l'inizio del livello.
 Test: apertura solo della successiva, ritorno a una più bassa, seme del mondo stabile e diverso dal
 precedente, curva fino al 50, penalità ai bordi (oro 0, esperienza all'inizio del livello).
 
+**Com'è andata (22 ott 2026).** `DifficultyTable` in `Data/Progression/Difficulties.asset` con nove
+`DifficultyTier`: i numeri indicativi della tabella sopra, con i gradini dell'Abisso arrotondati
+(vita 18/25/35/49/69/97, danno 5,5/6,9/8,6/10,7/13,4/16,8, esperienza 20/26/34/44/57/74). Colpire e
+Armatura in più dei nemici sono lo stesso numero in due campi, da separare nella misura se serve.
+Nomi `difficulty.*` nelle due lingue. `DifficultyProgress` sceglie tra le completate e la successiva;
+cambiare difficoltà o rifare il mondo avanza il numero del mondo (`WorldChanged`), e
+`CompleteCurrent` dice se è la prima volta (per il `VictoryScreen` della D15). `SeedMixer.ForWorld`
+ricava il seme nuovo da quello del mondo prima e dal suo numero. `ProgressionSettings`: `MaxLevel`
+50, `ZoneLevel(profondità, bonus)` ed `ExperienceForKill` con il bonus della zona e il moltiplicatore
+della difficoltà. `DeathPenalty` arrotonda al più vicino (0,19f è 0,18999…); l'esperienza persa è
+la parte di quella che serve per il livello, ferma a quella già fatta, zero al livello massimo.
+`CharacterProgress.Remove` non fa mai scendere di livello. Test nuovi in `DifficultyTests` (14);
+`ExperienceTests` conta 86.890 fino al 20 e 979.430 fino al 50. 397 EditMode e 227 PlayMode verdi.
+
 ## Passo 14.3 — In gioco
 
 Il `CompositionRoot` legge la riga della difficoltà attuale quando lega nemici, casse e barili. I
@@ -234,7 +248,7 @@ seme derivato; morte che costa), lezioni nel piano, README con una foto dell'alt
 
 - [x] Decisioni D1–D16 confermate
 - [x] Gradi degli affissi e nomi approvati
-- [ ] Difficoltà in Core, livello 50, morte che costa
+- [x] Difficoltà in Core, livello 50, morte che costa
 - [ ] In gioco: nemici, re, loot, mercante
 - [ ] Formato 6 del salvataggio
 - [ ] Altare, pannello e vittoria per difficoltà

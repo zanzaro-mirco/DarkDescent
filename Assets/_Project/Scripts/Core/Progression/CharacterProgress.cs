@@ -85,6 +85,23 @@ namespace DarkDescent.Progression
             return Level - before;
         }
 
+        /// <summary>
+        /// Toglie esperienza, per la morte (D9 della M14): si ferma all'inizio del livello, non si
+        /// scende mai. Restituisce quanta se n'è tolta davvero.
+        /// </summary>
+        public int Remove(int amount)
+        {
+            int removed = Math.Min(Math.Max(0, amount), Experience);
+            if (removed == 0)
+            {
+                return 0;
+            }
+
+            Experience -= removed;
+            Changed?.Invoke();
+            return removed;
+        }
+
         /// <summary>Spende un punto su un attributo; false se non ci sono punti o se non è un attributo.</summary>
         public bool TrySpend(StatType stat)
         {

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 437aea6ff5a84762839a29e0acd8e777, type: 3}
   m_Name: Progression
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Progression.ProgressionSettings
-  _maxLevel: 20
+  _maxLevel: 50
   _baseExperience: 100
   _exponent: 1.6
   _rounding: 10

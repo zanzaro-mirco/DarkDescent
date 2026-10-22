@@ -25,14 +25,26 @@ namespace DarkDescent.Tests
             _progress = new CharacterProgress(_settings, _sheet);
         }
 
-        [Test, Description("La curva: 100 × L^1,6 arrotondata a 10; al livello 20, il massimo, non serve più niente")]
+        [Test, Description("La curva: 100 × L^1,6 arrotondata a 10, la stessa fino al 50 (D6 della M14); al massimo non serve più niente")]
         public void Curve_MatchesTheScheda()
         {
             Assert.AreEqual(100, _settings.ExperienceToNext(1));
             Assert.AreEqual(3360, _settings.ExperienceToNext(9));
             Assert.AreEqual(11120, _settings.ExperienceToNext(19));
-            Assert.AreEqual(0, _settings.ExperienceToNext(20));
-            Assert.AreEqual(20, _settings.MaxLevel);
+            Assert.AreEqual(12070, _settings.ExperienceToNext(20), "dopo il 20 la curva continua uguale");
+            Assert.AreEqual(50620, _settings.ExperienceToNext(49));
+            Assert.AreEqual(0, _settings.ExperienceToNext(50));
+            Assert.AreEqual(50, _settings.MaxLevel);
+
+            int toTwenty = 0, toFifty = 0;
+            for (int level = 1; level < 50; level++)
+            {
+                toFifty += _settings.ExperienceToNext(level);
+                toTwenty += level < 20 ? _settings.ExperienceToNext(level) : 0;
+            }
+
+            Assert.AreEqual(86_890, toTwenty, "i livelli 1–20 non cambiano");
+            Assert.AreEqual(979_430, toFifty, "il conto della scheda della M14");
         }
 
         [Test, Description("L'esperienza di un nemico cresce del 15% a profondità e cala quando il cavaliere supera il livello della zona")]
@@ -85,12 +97,12 @@ namespace DarkDescent.Tests
         public void MaxLevel_Stops()
         {
             _progress.Add(10_000_000);
-            Assert.AreEqual(20, _progress.Level);
+            Assert.AreEqual(50, _progress.Level);
             Assert.IsTrue(_progress.IsMaxLevel);
             Assert.AreEqual(0, _progress.Experience);
-            Assert.AreEqual(19 * 5, _progress.UnspentPoints);
+            Assert.AreEqual(49 * 5, _progress.UnspentPoints);
             Assert.AreEqual(0, _progress.Add(1000), "oltre il massimo niente");
-            Assert.AreEqual(38f, _sheet.Get(StatType.Life));
+            Assert.AreEqual(98f, _sheet.Get(StatType.Life));
         }
 
         [Test, Description("Un punto speso alza di uno il valore base di un attributo; senza punti, o su ciò che non è un attributo, no")]
@@ -118,7 +130,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(7f, _sheet.Get(StatType.Level));
 
             _progress.Restore(99, 99_999, -4);
-            Assert.AreEqual((20, 0, 0), (_progress.Level, _progress.Experience, _progress.UnspentPoints));
+            Assert.AreEqual((50, 0, 0), (_progress.Level, _progress.Experience, _progress.UnspentPoints));
         }
     }
 }
