@@ -1,0 +1,128 @@
+{
+    "_version": 5,
+    "_runSeed": "639282592998947897",
+    "_scene": "Level_Crypt",
+    "_entrance": "Start",
+    "_depth": 1,
+    "_level": 14,
+    "_experience": 1200,
+    "_unspentPoints": 0,
+    "_strength": 30.0,
+    "_dexterity": 20.0,
+    "_magic": 10.0,
+    "_vitality": 25.0,
+    "_life": 126.0,
+    "_inventory": {
+        "_gridItems": [],
+        "_gridPositions": [],
+        "_equipped": [
+            {
+                "_definitionId": "79db3768aa614aa9b28c0a633e7832e7",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            }
+        ],
+        "_equippedSlots": [
+            1
+        ],
+        "_beltItems": [
+            {
+                "_definitionId": "5884889cecd34d84a4e3669a6f910bf9",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            },
+            {
+                "_definitionId": "5884889cecd34d84a4e3669a6f910bf9",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            }
+        ],
+        "_beltSlots": [
+            0,
+            1
+        ],
+        "_loose": []
+    },
+    "_explored": [
+        {
+            "_depth": 1,
+            "_width": 28,
+            "_height": 28,
+            "_cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAADgAwAAPgAA8AcAAD4AAAAAAAAAAAAAAAA="
+        }
+    ],
+    "_knownSpells": [
+        "e2c15e94a83f46968664ca55fba8d084"
+    ],
+    "_selectedSpell": 0,
+    "_mana": 31.046207427978517,
+    "_gold": 731,
+    "_inTown": false,
+    "_portalDepth": 0,
+    "_playTime": 0.16082137823104859,
+    "_kills": 2,
+    "_deaths": 0,
+    "_goldCollected": 731,
+    "_bossDefeated": true,
+    "_hasPortalSpot": false,
+    "_portalSpot": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "_levels": [
+        {
+            "_scene": "Level_Crypt",
+            "_depth": 1,
+            "_enemyCount": 5,
+            "_chestCount": 1,
+            "_killed": [
+                3,
+                4
+            ],
+            "_opened": [],
+            "_breakableCount": 9,
+            "_broken": [],
+            "_featureCount": 0,
+            "_spent": [],
+            "_items": [
+                {
+                    "_item": {
+                        "_definitionId": "",
+                        "_rarity": 0,
+                        "_itemLevel": 0,
+                        "_seed": 0,
+                        "_affixes": []
+                    },
+                    "_gold": 8,
+                    "_position": {
+                        "x": 96.0,
+                        "y": 0.05000000447034836,
+                        "z": -72.83333587646485
+                    }
+                },
+                {
+                    "_item": {
+                        "_definitionId": "",
+                        "_rarity": 0,
+                        "_itemLevel": 0,
+                        "_seed": 0,
+                        "_affixes": []
+                    },
+                    "_gold": 9,
+                    "_position": {
+                        "x": 92.0,
+                        "y": 0.05000000447034836,
+                        "z": -72.83333587646485
+                    }
+                }
+            ]
+        }
+    ]
+}
