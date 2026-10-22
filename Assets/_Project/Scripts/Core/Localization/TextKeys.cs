@@ -19,6 +19,26 @@ namespace DarkDescent.Localization
 
         /// <summary>Cosa è costata la morte (D9 della M14): oro, esperienza.</summary>
         public const string DeathLoss = "death.loss";
+
+        /// <summary>L'altare delle difficoltà e il suo pannello (D3 della M14).</summary>
+        public const string AltarCurrent = "altar.current";
+
+        public const string AltarCompleted = "altar.completed";
+
+        public const string AltarLocked = "altar.locked";
+
+        public const string AltarConfirmDifficulty = "altar.confirm_difficulty";
+
+        public const string AltarConfirmNewWorld = "altar.confirm_new_world";
+
+        /// <summary>Il nome del livello con la difficoltà, "Cripta – Livello 3 · Ombra" (D15 della M14).</summary>
+        public const string LevelWithDifficulty = "level.with_difficulty";
+
+        /// <summary>La riga della vittoria con la difficoltà che si apre.</summary>
+        public const string VictoryUnlocked = "victory.unlocked";
+
+        /// <summary>Il re battuto di nuovo, senza schermata di vittoria.</summary>
+        public const string KingFallen = "hud.king_fallen";
         public const string CharacterLevel = "hud.character_level";
         public const string CharacterPoints = "hud.character_points";
         public const string TooltipDamage = "tooltip.damage";

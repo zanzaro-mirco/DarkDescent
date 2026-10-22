@@ -69,7 +69,8 @@ namespace DarkDescent.UI
         }
 
         /// <summary>Ferma il gioco e mostra i contatori della partita vinta.</summary>
-        public void Show(RunStats stats, int level)
+        /// <param name="unlockedKey">Il nome della difficoltà che si apre (D15 della M14); null se nessuna.</param>
+        public void Show(RunStats stats, int level, string unlockedKey = null)
         {
             var builder = new StringBuilder();
             builder.AppendLine(_localizer.Format(TextKeys.VictoryTime, RunStats.FormatTime(stats.PlayTime)));
@@ -77,6 +78,12 @@ namespace DarkDescent.UI
             builder.AppendLine(_localizer.Format(TextKeys.VictoryKills, stats.Kills));
             builder.AppendLine(_localizer.Format(TextKeys.VictoryDeaths, stats.Deaths));
             builder.Append(_localizer.Format(TextKeys.VictoryGold, stats.GoldCollected));
+            if (!string.IsNullOrEmpty(unlockedKey))
+            {
+                builder.AppendLine();
+                builder.AppendLine();
+                builder.Append(_localizer.Format(TextKeys.VictoryUnlocked, _localizer.Get(unlockedKey)));
+            }
             _stats.text = builder.ToString();
             Time.timeScale = 0f;
             _creditsWindow.SetActive(false);

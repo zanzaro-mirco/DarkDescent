@@ -30,6 +30,7 @@ namespace DarkDescent.UI
         private bool _subscribed;
         private string _nameKey;
         private int _depth;
+        private string _difficultyKey;
         private Coroutine _fading;
 
         /// <summary>Il testo mostrato, per i test; vuoto senza livello.</summary>
@@ -47,12 +48,14 @@ namespace DarkDescent.UI
         }
 
         /// <summary>
-        /// Il livello in cui si è entrati. Senza nome (una scena di prova) le scritte si spengono.
+        /// Il livello in cui si è entrati. Senza nome (una scena di prova) le scritte si spengono. Con
+        /// <paramref name="difficultyKey"/> il nome porta anche la difficoltà (D15 della M14).
         /// </summary>
-        public void Show(string nameKey, int depth)
+        public void Show(string nameKey, int depth, string difficultyKey = null)
         {
             _nameKey = nameKey;
             _depth = depth;
+            _difficultyKey = difficultyKey;
             Refresh();
 
             if (_fading != null)
@@ -131,6 +134,11 @@ namespace DarkDescent.UI
             string text = _localizer == null || string.IsNullOrEmpty(_nameKey)
                 ? string.Empty
                 : _depth > 0 ? _localizer.Format(TextKeys.LevelTitle, _localizer.Get(_nameKey), _depth) : _localizer.Get(_nameKey);
+            if (text.Length > 0 && !string.IsNullOrEmpty(_difficultyKey))
+            {
+                text = _localizer.Format(TextKeys.LevelWithDifficulty, text, _localizer.Get(_difficultyKey));
+            }
+
             _banner.text = text;
             _corner.text = text;
         }

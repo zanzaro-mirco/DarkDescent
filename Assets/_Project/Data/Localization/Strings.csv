@@ -379,6 +379,17 @@ credits.own,"The amulet, the synthesized sounds and the textures were made for t
 credits.thanks,Thank you for playing,Grazie per aver giocato
 credits.back,Back to the menu,Torna al menu
 # Difficoltà (D2 della M14)
+altar.name,Altar of Darkness,Altare della Tenebra
+altar.title,Difficulty,Difficoltà
+altar.current,{0} · current,{0} · attuale
+altar.completed,{0} · completed,{0} · completata
+altar.locked,{0} · locked,{0} · chiusa
+altar.new_world,Remake the world,Rifai il mondo
+altar.confirm_difficulty,"Descend into {0}? The dungeon changes and the king is reborn. Your hero, items and gold stay.","Scendere a {0}? Il dungeon cambia e il re rinasce. Personaggio, oggetti e oro restano."
+altar.confirm_new_world,"Remake the world? The dungeon changes and the king is reborn. Your hero, items and gold stay.","Rifare il mondo? Il dungeon cambia e il re rinasce. Personaggio, oggetti e oro restano."
+level.with_difficulty,{0} · {1},{0} · {1}
+victory.unlocked,Unlocked: {0},Si apre: {0}
+hud.king_fallen,The king has fallen,Il re è caduto
 difficulty.dusk,Dusk,Crepuscolo
 difficulty.shadow,Shadow,Ombra
 difficulty.darkness,Darkness,Tenebra

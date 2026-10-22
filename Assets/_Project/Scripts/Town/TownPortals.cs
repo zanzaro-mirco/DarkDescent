@@ -109,6 +109,16 @@ namespace DarkDescent.Town
             PortalSpot = PortalDepth > 0 ? portalSpot : null;
         }
 
+        /// <summary>
+        /// Un mondo nuovo (D4 della M14) non ha una profondità a cui tornare: il portale della città si
+        /// chiude e si dimentica.
+        /// </summary>
+        public void Forget()
+        {
+            Close();
+            Restore(0);
+        }
+
         /// <summary>La scena generata che contiene <paramref name="depth"/>; null se nessuna.</summary>
         public string SceneFor(int depth)
         {

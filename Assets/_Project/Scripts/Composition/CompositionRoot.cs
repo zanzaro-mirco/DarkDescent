@@ -143,6 +143,9 @@ namespace DarkDescent.Core
         [Tooltip("Le difficoltà, dal Crepuscolo all'ultimo Abisso (D2 della M14).")]
         [SerializeField] private DifficultyTable _difficulties;
 
+        [Tooltip("Il pannello dell'altare dell'accampamento (D3 della M14).")]
+        [SerializeField] private DifficultyPanel _difficultyPanel;
+
         [Tooltip("La scena della città, dove comincia ogni partita nuova (D3 della M10).")]
         [SerializeField] private string _townScene = "Town";
 
@@ -191,6 +194,12 @@ namespace DarkDescent.Core
         private readonly Shop _shop = new Shop();
         private readonly List<ItemInstance> _stock = new List<ItemInstance>();
         private Town.Merchant _merchant;
+
+        // l'altare della città, se è il livello corrente (D3 della M14)
+        private Town.DifficultyAltar _altar;
+
+        // il re è caduto per la prima volta a questa difficoltà: arrivati in città, la vittoria (D15 della M14)
+        private bool _firstVictory;
 
         // il boss del livello corrente, se c'è e non è ancora stato sconfitto (D8 della M10)
         private BossController _boss;
@@ -350,6 +359,7 @@ namespace DarkDescent.Core
             _footsteps.Bind(_sfxLimiter);
             _levelTitle.Bind(_localizer);
             _victoryScreen.Bind(_localizer);
+            _difficultyPanel.Bind(_difficulties, _difficulty, _localizer);
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);
             _targetMarker.Bind(controller);
@@ -503,6 +513,12 @@ namespace DarkDescent.Core
                 return;
             }
 
+            if (_difficultyPanel.IsOpen)
+            {
+                _difficultyPanel.Close();
+                return;
+            }
+
             if (_inventoryPanel.IsOpen || _characterPanel.IsOpen)
             {
                 _inventoryPanel.SetOpen(false);
@@ -575,6 +591,9 @@ namespace DarkDescent.Core
             _optionsPanel.LanguageCycleRequested += CycleLanguage;
             _playerInventory.GoldAdded += HandleGoldAdded;
             _difficulty.Changed += ApplyDifficultyToLoot;
+            _difficulty.WorldChanged += HandleWorldChanged;
+            _difficultyPanel.SelectRequested += HandleDifficultySelected;
+            _difficultyPanel.NewWorldRequested += HandleNewWorldRequested;
             _deathScreen.RestartRequested += Restart;
             _playerAttack.HitLanded += HandlePlayerHitLanded;
             _levelManager.LevelLoaded += BindLevel;
@@ -595,6 +614,9 @@ namespace DarkDescent.Core
             _optionsPanel.LanguageCycleRequested -= CycleLanguage;
             _playerInventory.GoldAdded -= HandleGoldAdded;
             _difficulty.Changed -= ApplyDifficultyToLoot;
+            _difficulty.WorldChanged -= HandleWorldChanged;
+            _difficultyPanel.SelectRequested -= HandleDifficultySelected;
+            _difficultyPanel.NewWorldRequested -= HandleNewWorldRequested;
             _deathScreen.RestartRequested -= Restart;
             _playerAttack.HitLanded -= HandlePlayerHitLanded;
             _levelManager.LevelLoaded -= BindLevel;
@@ -634,7 +656,7 @@ namespace DarkDescent.Core
             _ambience.Play(level.Ambience);
             var tileset = level.Tileset;
             _footsteps.SetSurface(tileset != null ? tileset.Footsteps : null);
-            _levelTitle.Show(tileset != null ? tileset.NameKey : null, level.Depth);
+            _levelTitle.Show(tileset != null ? tileset.NameKey : null, level.Depth, DifficultyTitleKey());
             _depth = level.Depth;
 
             // prima di tutto il resto: i nemici già uccisi non si collegano
@@ -694,6 +716,94 @@ namespace DarkDescent.Core
 
             _automap.SetSpecials(_specialsOnMap);
             BindMerchant(level);
+            BindAltar(level);
+        }
+
+        // il Crepuscolo non si scrive nel titolo: è il gioco di sempre (D15 della M14)
+        private string DifficultyTitleKey()
+        {
+            return _difficulty.Current > 0 ? CurrentDifficulty.NameKey : null;
+        }
+
+        private void BindAltar(LevelContext level)
+        {
+            _altar = level.Altar;
+            if (_altar == null)
+            {
+                return;
+            }
+
+            _altar.ShowColor(CurrentDifficulty.Color);
+            _altar.Opened += HandleAltarOpened;
+        }
+
+        private void ReleaseAltar()
+        {
+            if (_difficultyPanel != null)
+            {
+                _difficultyPanel.Close();
+            }
+
+            if (_altar != null)
+            {
+                _altar.Opened -= HandleAltarOpened;
+                _altar = null;
+            }
+        }
+
+        // l'altare chiude gli altri pannelli: si guarda solo lui
+        private void HandleAltarOpened()
+        {
+            _shopPanel.Close();
+            _inventoryPanel.SetOpen(false);
+            if (_characterPanel.IsOpen)
+            {
+                _characterPanel.Toggle();
+            }
+
+            _difficultyPanel.Open();
+        }
+
+        private void HandleDifficultySelected(int index)
+        {
+            _difficultyPanel.Close();
+            _difficulty.Select(index);
+        }
+
+        private void HandleNewWorldRequested()
+        {
+            _difficultyPanel.Close();
+            _difficulty.NewWorld();
+        }
+
+        // Un mondo nuovo (D4 della M14), per un'altra difficoltà o per "rifai il mondo": un seme ricavato dal
+        // vecchio, i ricordi dei livelli, la mappa scoperta e il portale che ripartono, il re vivo con il
+        // suo tesoro sigillato. Personaggio, oggetti, oro e contatori restano. Si è in città: nessun
+        // livello del mondo vecchio è aperto
+        private void HandleWorldChanged(int world)
+        {
+            ulong seed = SeedMixer.ForWorld(_loot.RunSeed, world);
+            _loot.RunSeed = seed;
+            _levelManager.RunSeed = seed;
+            _levelRecorder.Memory.Import(null);
+            _exploration.Memory.Import(null);
+            _portals.Forget();
+            _runStats.Restore(_runStats.PlayTime, _runStats.Kills, _runStats.Deaths, _runStats.GoldCollected, false);
+            _firstVictory = false;
+            RestockMerchant();
+            if (_altar != null)
+            {
+                _altar.ShowColor(CurrentDifficulty.Color);
+            }
+
+            var level = _levelManager.CurrentLevel;
+            if (level != null)
+            {
+                _levelTitle.Show(level.Tileset != null ? level.Tileset.NameKey : null, level.Depth, DifficultyTitleKey());
+            }
+
+            _saveGame.Save();
+            Debug.Log($"[DarkDescent] mondo {world} alla difficoltà {_difficulty.Current}: seme {seed}");
         }
 
         // Un nemico del livello, o un evocato del boss: chi colpire, i tiri, suoni, numeri e barra. Solo
@@ -852,6 +962,15 @@ namespace DarkDescent.Core
             _enemyBar.Unpin();
             PlayBossMusic(false);
             _runStats.MarkBossDefeated();
+
+            // la prima volta a questa difficoltà si apre la successiva, e in città c'è la vittoria; le
+            // volte dopo basta una scritta (D15 della M14)
+            _firstVictory = _difficulty.CompleteCurrent();
+            if (!_firstVictory)
+            {
+                _hudMessage.Show(TextKeys.KingFallen);
+            }
+
             _saveGame.Save();
             var level = _levelManager.CurrentLevel;
             _portals.OpenVictoryPortal(VictorySpot(boss, level), animate: true);
@@ -885,8 +1004,15 @@ namespace DarkDescent.Core
         // arrivati in città dal portale della vittoria: il gioco si ferma sulle statistiche
         private void HandleVictoryReached()
         {
+            if (!_firstVictory)
+            {
+                return;
+            }
+
+            _firstVictory = false;
             _reader.enabled = false;
-            _victoryScreen.Show(_runStats, _progress.Progress.Level);
+            int next = _difficulty.Current + 1;
+            _victoryScreen.Show(_runStats, _progress.Progress.Level, next < _difficulties.Count ? _difficulties.Tier(next).NameKey : null);
         }
 
         // finiti i riconoscimenti, si salva in città e si torna al menu: con Continua si riprende lì
@@ -970,6 +1096,7 @@ namespace DarkDescent.Core
             _specialsOnMap.Clear();
             _exploration.SetLevel(null, 0);
             ReleaseMerchant();
+            ReleaseAltar();
             ReleaseBoss();
         }
 
@@ -984,11 +1111,21 @@ namespace DarkDescent.Core
                 return;
             }
 
+            RestockMerchant();
+            _merchant.Opened += HandleMerchantOpened;
+            _merchant.Left += HandleMerchantLeft;
+        }
+
+        private void RestockMerchant()
+        {
+            if (_merchant == null)
+            {
+                return;
+            }
+
             int depth = Math.Max(1, _exploration.Memory.DeepestDepth);
             _loot.RollStock(_merchantTable, depth, _runStats.Kills, _stock);
             _shop.Restock(_merchantTable.Supplies, _stock);
-            _merchant.Opened += HandleMerchantOpened;
-            _merchant.Left += HandleMerchantLeft;
         }
 
         private void ReleaseMerchant()

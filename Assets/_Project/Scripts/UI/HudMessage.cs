@@ -140,7 +140,8 @@ namespace DarkDescent.UI
             Show(shrine.MessageKey);
         }
 
-        private void Show(string key)
+        /// <summary>Una scritta che sfuma, dalla sua chiave: anche "Il re è caduto" (D15 della M14).</summary>
+        public void Show(string key)
         {
             _key = key;
             Refresh();

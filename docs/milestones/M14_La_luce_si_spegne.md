@@ -226,6 +226,21 @@ difficoltà, viene da `Tools/Audio` con la sua pagina di ascolto.
 Test PlayMode: il pannello apre solo le difficoltà permesse; dopo la conferma il livello 1 è nuovo e
 il re è vivo; la vittoria apre la successiva e mostra il `VictoryScreen` solo la prima volta.
 
+**Com'è andata (22 ott 2026).** L'altare è il simbolo `A` di `Town.txt`, contro la parete nord
+subito a sinistra della discesa: nel primo posto provato, in basso a sinistra, la parete lo copriva
+alla camera. Il prefab `Prefabs/Town/DifficultyAltar` nasce dal santuario del Vento: modello
+`Altar.fbx`, cristallo una volta e mezza più grande, luce più forte, `DifficultyAltar` che tinge
+cristallo e luce con il colore del gradino (`MaterialPropertyBlock`). Il `DifficultyPanel` nasce da
+una copia della pausa: le righe si creano una volta da un modello, i nomi aperti vanno un po' verso
+il bianco (il blu notte sul fondo scuro non si leggeva), e la conferma è quella del menu. Cambiare
+difficoltà o rifare il mondo passa da `HandleWorldChanged`: seme da `SeedMixer.ForWorld`, ricordi dei
+livelli e mappa svuotati, portale dimenticato (`TownPortals.Forget`), re vivo, mercante riassortito,
+titolo e altare ricolorati, salvataggio. `CompleteCurrent` decide la vittoria: la prima volta
+`VictoryScreen` con "Si apre: …", le volte dopo "Il re è caduto" e il portale senza schermata. Il
+titolo porta la difficoltà dopo il nome (`level.with_difficulty`), il Crepuscolo no. Nessun suono
+nuovo. Test: 5 PlayMode in `AltarPlayModeTests`. 402 EditMode e 240 PlayMode verdi; foto dell'altare
+(oro, viola, rosso) e del pannello per Mirco.
+
 ## Passo 14.6 — Misura e taratura
 
 `PowerCensus` in `Scripts/Core` (logica pura, valori attesi come il `LootCensus`) e uno strumento

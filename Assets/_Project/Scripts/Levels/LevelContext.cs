@@ -55,6 +55,9 @@ namespace DarkDescent.Levels
         /// <summary>Il mercante della città (D5 della M10); null negli altri livelli.</summary>
         public Merchant Merchant { get; private set; }
 
+        /// <summary>L'altare delle difficoltà della città (D3 della M14); null negli altri livelli.</summary>
+        public DifficultyAltar Altar { get; private set; }
+
         /// <summary>Il boss della sala in fondo alle caverne (D8 della M10); null negli altri livelli.</summary>
         public BossController Boss { get; private set; }
 
@@ -115,6 +118,11 @@ namespace DarkDescent.Levels
                 if (Merchant == null)
                 {
                     Merchant = root.GetComponentInChildren<Merchant>(true);
+                }
+
+                if (Altar == null)
+                {
+                    Altar = root.GetComponentInChildren<DifficultyAltar>(true);
                 }
 
                 if (Boss == null)
