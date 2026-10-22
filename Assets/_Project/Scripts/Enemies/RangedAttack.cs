@@ -55,6 +55,7 @@ namespace DarkDescent.Enemies
         private float _cooldown;
         private float _castTimer = -1f;
         private float _damageMultiplier = 1f;
+        private float _difficultyMultiplier = 1f;
         private float _speedMultiplier = 1f;
 
         /// <summary>Il gesto è partito e il dardo non ancora.</summary>
@@ -65,12 +66,19 @@ namespace DarkDescent.Enemies
 
         public int MinDamage => _minDamage;
 
-        public float DamageMultiplier => _damageMultiplier;
+        /// <summary>Il danno in più del grado e della difficoltà insieme (M14).</summary>
+        public float DamageMultiplier => _damageMultiplier * _difficultyMultiplier;
 
         /// <summary>Moltiplica il danno dei dardi: i campioni e gli unici, e il Furioso (M12).</summary>
         public void SetDamageMultiplier(float multiplier)
         {
             _damageMultiplier = Mathf.Max(0f, multiplier);
+        }
+
+        /// <summary>Moltiplica il danno dei dardi per la difficoltà (D5 della M14), insieme a quello del grado.</summary>
+        public void SetDifficultyMultiplier(float multiplier)
+        {
+            _difficultyMultiplier = Mathf.Max(0f, multiplier);
         }
 
         /// <summary>Lancia più spesso di tanto: il Rapido (M12).</summary>
@@ -184,7 +192,7 @@ namespace DarkDescent.Enemies
             Vector3 direction = aim.normalized;
             Vector3 from = transform.position + Vector3.up * _launchHeight + direction * _launchForward;
             float damage = _minDamage + (int)(_random.NextDouble() * (_maxDamage - _minDamage + 1));
-            _pools.Launch(_projectile, from, direction, _speed, _range, Mathf.Min(damage, _maxDamage) * _damageMultiplier, gameObject, _targetLayers, _random);
+            _pools.Launch(_projectile, from, direction, _speed, _range, Mathf.Min(damage, _maxDamage) * DamageMultiplier, gameObject, _targetLayers, _random);
         }
     }
 }

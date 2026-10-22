@@ -142,6 +142,22 @@ namespace DarkDescent.Core
             return Mix(Mix(previousSeed ^ WorldDomain) ^ (ulong)(uint)world);
         }
 
+        // "BOSS": i modificatori del re alle difficoltà alte (D5 della M14), uno per mondo
+        private const ulong BossDomain = 0x424F5353UL;
+
+        public static ulong ForBoss(ulong runSeed)
+        {
+            return Mix(runSeed ^ BossDomain);
+        }
+
+        // "HERO": l'equipaggiamento del cavaliere di -herolevel (D13 della M14), un seme per slot
+        private const ulong HeroDomain = 0x4845524FUL;
+
+        public static ulong ForHero(ulong runSeed, int slot)
+        {
+            return Mix(Mix(runSeed ^ HeroDomain) ^ (ulong)(uint)slot);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {

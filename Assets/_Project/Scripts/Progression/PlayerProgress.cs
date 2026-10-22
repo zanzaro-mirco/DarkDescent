@@ -75,16 +75,19 @@ namespace DarkDescent.Progression
 
         /// <summary>
         /// Un nemico che vale <paramref name="baseExperience"/> è morto alla profondità data:
-        /// l'esperienza, già ridotta se il cavaliere è più forte della zona. Da morto niente.
+        /// l'esperienza, già ridotta se il cavaliere è più forte della zona. La difficoltà alza il
+        /// livello della zona e moltiplica (D5 della M14). Da morto niente.
         /// </summary>
-        public int AwardKill(int baseExperience, int depth)
+        public int AwardKill(int baseExperience, int depth, DifficultyTier difficulty = null)
         {
             if (_health.IsDead)
             {
                 return 0;
             }
 
-            int experience = _settings.ExperienceForKill(baseExperience, depth, Progress.Level);
+            int experience = difficulty != null
+                ? _settings.ExperienceForKill(baseExperience, depth, Progress.Level, difficulty.ZoneLevelBonus, difficulty.Experience)
+                : _settings.ExperienceForKill(baseExperience, depth, Progress.Level);
             // il santuario della Sapienza (M13): il bonus dopo la riduzione, arrotondato
             float bonus = CharacterStats.ValueOf(_stats, StatType.ExperienceBonus);
             experience = (int)Math.Round(CombatFormulas.WithBonus(experience, bonus), MidpointRounding.AwayFromZero);

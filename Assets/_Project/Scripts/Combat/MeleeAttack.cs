@@ -62,6 +62,7 @@ namespace DarkDescent.Combat
 
         // i nemici speciali (M12): danno del grado e del Furioso, velocità del Rapido, l'Inamovibile
         private float _damageMultiplier = 1f;
+        private float _difficultyMultiplier = 1f;
         private float _speedMultiplier = 1f;
         private bool _unblockable;
 
@@ -122,7 +123,8 @@ namespace DarkDescent.Combat
         /// <summary>Quanto dura la carica del colpo, con la velocità dei campioni Rapidi (M12).</summary>
         public float SwingHitDelay => SwingWeapon.HitDelay / _speedMultiplier;
 
-        public float DamageMultiplier => _damageMultiplier;
+        /// <summary>Il danno in più del grado e della difficoltà insieme: i due si moltiplicano qui e solo qui (M14).</summary>
+        public float DamageMultiplier => _damageMultiplier * _difficultyMultiplier;
 
         public float SpeedMultiplier => _speedMultiplier;
 
@@ -133,6 +135,12 @@ namespace DarkDescent.Combat
         public void SetDamageMultiplier(float multiplier)
         {
             _damageMultiplier = Mathf.Max(0f, multiplier);
+        }
+
+        /// <summary>Moltiplica il danno per la difficoltà (D5 della M14), insieme a quello del grado.</summary>
+        public void SetDifficultyMultiplier(float multiplier)
+        {
+            _difficultyMultiplier = Mathf.Max(0f, multiplier);
         }
 
         /// <summary>Carica e intervallo tra i colpi si accorciano di tanto: il Rapido (M12).</summary>
@@ -394,7 +402,7 @@ namespace DarkDescent.Combat
                         _swingIsQuick ? _quickWeapon.MinDamage : _minDamage,
                         _swingIsQuick ? _quickWeapon.MaxDamage : _maxDamage,
                         CharacterStats.ValueOf(_stats, StatType.Strength), _random,
-                        CharacterStats.ValueOf(_stats, StatType.Level)) * _damageMultiplier;
+                        CharacterStats.ValueOf(_stats, StatType.Level)) * DamageMultiplier;
                     amount = CombatFormulas.WithBonus(amount, CharacterStats.ValueOf(_stats, StatType.DamageBonus));
 
                     // il critico per ultimo: i tiri di colpire, bloccare e del danno restano dove sono

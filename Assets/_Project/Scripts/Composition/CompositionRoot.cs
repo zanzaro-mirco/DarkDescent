@@ -10,6 +10,7 @@ using DarkDescent.Localization;
 using DarkDescent.Player;
 using DarkDescent.Progression;
 using DarkDescent.Save;
+using DarkDescent.Stats;
 using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -139,6 +140,9 @@ namespace DarkDescent.Core
         [Tooltip("La vittoria e i riconoscimenti (D9 della M10).")]
         [SerializeField] private VictoryScreen _victoryScreen;
 
+        [Tooltip("Le difficoltà, dal Crepuscolo all'ultimo Abisso (D2 della M14).")]
+        [SerializeField] private DifficultyTable _difficulties;
+
         [Tooltip("La scena della città, dove comincia ogni partita nuova (D3 della M10).")]
         [SerializeField] private string _townScene = "Town";
 
@@ -148,6 +152,13 @@ namespace DarkDescent.Core
         private const string LanguageOption = "-lang";
 
         private const string SeedOption = "-seed";
+
+        // una partita nuova a una difficoltà e a un livello del cavaliere, per provarle (D13 della M14)
+        private const string DifficultyOption = "-difficulty";
+        private const string HeroLevelOption = "-herolevel";
+
+        /// <summary>Opzioni in più, separate da spazi, come se fossero sulla riga di comando: per i test.</summary>
+        public const string ArgumentsVariable = "DARKDESCENT_ARGS";
 
         // salta il menu e comincia una partita nuova, senza salvarla (D2 della M10)
         private const string NewGameOption = "-newgame";
@@ -195,6 +206,11 @@ namespace DarkDescent.Core
         // il salvataggio da rimettere sul cavaliere in Start, quando tutti ascoltano già (D10 della M8)
         private SaveData _pendingSave;
 
+        // a che difficoltà si gioca (D3 della M14), e il livello di -herolevel da dare in Start (0: niente)
+        private DifficultyProgress _difficulty;
+        private int _heroLevel;
+        private readonly List<string> _bossModifiers = new List<string>();
+
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
         private IRandomSource _random;
 
@@ -214,6 +230,12 @@ namespace DarkDescent.Core
         /// <summary>Il seme della partita, da cui viene ogni drop (D5 della M5).</summary>
         public ulong LootSeed => _loot.RunSeed;
 
+        /// <summary>La difficoltà della partita, quelle completate e il mondo (M14).</summary>
+        public DifficultyProgress Difficulty => _difficulty;
+
+        /// <summary>Il gradino della difficoltà attuale.</summary>
+        public DifficultyTier CurrentDifficulty => _difficulties.Tier(_difficulty.Current);
+
         private void Awake()
         {
             // la lingua per prima: chi viene collegato dopo mostra già il testo giusto. La riga di
@@ -232,7 +254,8 @@ namespace DarkDescent.Core
 
             // il seme del loot: da riga di comando per rigiocare una partita, altrimenti dall'orologio.
             // Separato dai tiri del combattimento: un colpo mancato in più non cambia i drop (D5)
-            string[] args = Environment.GetCommandLineArgs();
+            string[] args = Arguments();
+            _difficulty = new DifficultyProgress(_difficulties.Count);
             bool seedGiven = CommandLine.TryGetValue(args, SeedOption, out string seedText) && ulong.TryParse(seedText, out _);
             if (!seedGiven || !ulong.TryParse(seedText, out ulong seed))
             {
@@ -260,6 +283,7 @@ namespace DarkDescent.Core
             else if (seedGiven || newGame)
             {
                 StartInTown();
+                ReadNewGameOptions(args);
             }
             else
             {
@@ -275,10 +299,18 @@ namespace DarkDescent.Core
                 {
                     Debug.LogWarning($"[DarkDescent] salvataggio non caricato ({read}): partita nuova, e il prossimo salvataggio lo sostituisce");
                 }
+
+                if (read != SaveReadResult.Ok)
+                {
+                    ReadNewGameOptions(args);
+                }
             }
 
-            // il livello degli oggetti è quello della zona (D7 della M14)
-            _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed, _player.GetComponent<PlayerProgress>().Settings.ZoneLevel);
+            // il livello degli oggetti è quello della zona, con la difficoltà (D7 della M14)
+            var progression = _player.GetComponent<PlayerProgress>().Settings;
+            _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed,
+                depth => progression.ZoneLevel(depth, CurrentDifficulty.ZoneLevelBonus));
+            ApplyDifficultyToLoot();
             // lo stesso seme fa anche i livelli generati: ognuno ne ricava uno suo (D8 della M6)
             _levelManager.RunSeed = seed;
             Debug.Log($"[DarkDescent] seme della partita: {seed} (per rigiocarla: -seed {seed})");
@@ -346,6 +378,11 @@ namespace DarkDescent.Core
                 _pendingSave = null;
             }
 
+            if (_heroLevel > 0)
+            {
+                PrepareHero(_heroLevel);
+            }
+
             if (_saves != null)
             {
                 // fermo finché non si sceglie: niente tasti del gioco sotto il menu
@@ -360,6 +397,59 @@ namespace DarkDescent.Core
         {
             _levelManager.SetStartLevel(_townScene, TownEntrance, 0);
             _portals.Restore(0);
+        }
+
+        // la riga di comando e, dietro, le opzioni della variabile: quella dell'editor non si cambia
+        private static string[] Arguments()
+        {
+            string[] args = Environment.GetCommandLineArgs();
+            string extra = Environment.GetEnvironmentVariable(ArgumentsVariable);
+            if (string.IsNullOrWhiteSpace(extra))
+            {
+                return args;
+            }
+
+            string[] more = extra.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var all = new string[args.Length + more.Length];
+            args.CopyTo(all, 0);
+            more.CopyTo(all, args.Length);
+            return all;
+        }
+
+        // -difficulty e -herolevel (D13 della M14): solo in una partita nuova, non in una ripresa.
+        // La difficoltà chiesta è aperta, come se si fossero battuti i re prima di lei
+        private void ReadNewGameOptions(string[] args)
+        {
+            if (CommandLine.TryGetValue(args, DifficultyOption, out string text) && int.TryParse(text, out int difficulty))
+            {
+                difficulty = Mathf.Clamp(difficulty, 0, _difficulties.Count - 1);
+                _difficulty.Restore(difficulty, difficulty - 1, 0);
+                Debug.Log($"[DarkDescent] difficoltà {difficulty} da riga di comando");
+            }
+
+            if (CommandLine.TryGetValue(args, HeroLevelOption, out text) && int.TryParse(text, out int level))
+            {
+                _heroLevel = Math.Max(0, level);
+            }
+        }
+
+        /// <summary>
+        /// Il cavaliere di <c>-herolevel</c>: al livello dato, con i punti spesi e un oggetto raro per
+        /// slot di quel livello, dal seme della partita, e a vita piena. Anche per i test.
+        /// </summary>
+        public void PrepareHero(int level)
+        {
+            HeroSetup.RaiseTo(_progress.Progress, level);
+            int equipped = HeroSetup.Equip(_playerInventory.Equipment, _merchantTable.Stock, _loot.Generator, level, _loot.RunSeed);
+            _player.Heal(_player.Max);
+            Debug.Log($"[DarkDescent] cavaliere di livello {level} da riga di comando, {equipped} oggetti");
+        }
+
+        // rarità e oro del loot seguono la difficoltà (D5 e D11 della M14); il livello degli oggetti la legge da sé
+        private void ApplyDifficultyToLoot()
+        {
+            var tier = CurrentDifficulty;
+            _loot.UseDifficulty(tier.Rarities, tier.Gold);
         }
 
         private static string SaveFolder()
@@ -377,6 +467,7 @@ namespace DarkDescent.Core
             _saveGame.UseFile(_saves.PathOf(slot));
             ulong seed = (ulong)DateTime.UtcNow.Ticks;
             _runStats.Restore(0f, 0, 0, 0, false);
+            _difficulty.Restore(0, -1, 0);
             if (!isNew && _saves.TryRead(slot, out SaveData save))
             {
                 seed = save.RunSeed;
@@ -459,6 +550,14 @@ namespace DarkDescent.Core
         private void HandlePlayerDied()
         {
             _runStats.AddDeath();
+
+            // morire costa (D9 della M14): una parte dell'oro e dell'esperienza del livello, mai un livello
+            var tier = CurrentDifficulty;
+            var progress = _progress.Progress;
+            int gold = DeathPenalty.GoldLost(_playerInventory.Gold, tier.DeathGold);
+            _playerInventory.TrySpendGold(gold);
+            int experience = progress.Remove(DeathPenalty.ExperienceLost(progress.Experience, progress.ExperienceToNext, tier.DeathExperience));
+            _deathScreen.ShowLoss(gold > 0 || experience > 0 ? _localizer.Format(TextKeys.DeathLoss, gold, experience) : null);
         }
 
         private void HandleGoldAdded(int amount)
@@ -475,6 +574,7 @@ namespace DarkDescent.Core
             _pauseMenu.QuitRequested += HandleQuitToMenu;
             _optionsPanel.LanguageCycleRequested += CycleLanguage;
             _playerInventory.GoldAdded += HandleGoldAdded;
+            _difficulty.Changed += ApplyDifficultyToLoot;
             _deathScreen.RestartRequested += Restart;
             _playerAttack.HitLanded += HandlePlayerHitLanded;
             _levelManager.LevelLoaded += BindLevel;
@@ -494,6 +594,7 @@ namespace DarkDescent.Core
             _pauseMenu.QuitRequested -= HandleQuitToMenu;
             _optionsPanel.LanguageCycleRequested -= CycleLanguage;
             _playerInventory.GoldAdded -= HandleGoldAdded;
+            _difficulty.Changed -= ApplyDifficultyToLoot;
             _deathScreen.RestartRequested -= Restart;
             _playerAttack.HitLanded -= HandlePlayerHitLanded;
             _levelManager.LevelLoaded -= BindLevel;
@@ -585,7 +686,7 @@ namespace DarkDescent.Core
             _specialsOnMap.Clear();
             foreach (var enemy in level.Enemies)
             {
-                if (enemy != null && enemy.gameObject.activeSelf && enemy.TryGetComponent(out SpecialEnemy special))
+                if (enemy != null && enemy.gameObject.activeSelf && enemy.TryGetComponent(out SpecialEnemy special) && special.Rank != EnemyRank.Boss)
                 {
                     _specialsOnMap.Add(special);
                 }
@@ -604,8 +705,10 @@ namespace DarkDescent.Core
             if (_championSettings != null && enemy.TryGetComponent(out SpecialEnemy special))
             {
                 special.Bind(_championSettings, _player, _playerSlow);
-                bonus = special.Numbers.Loot;
+                bonus = special.Rank != EnemyRank.Boss ? special.Numbers.Loot : null;
             }
+
+            ApplyDifficulty(enemy);
 
             if (rewarding)
             {
@@ -637,6 +740,42 @@ namespace DarkDescent.Core
             }
         }
 
+        // La difficoltà sopra il grado (D5 della M14): vita e danno moltiplicati, colpire e Armatura in
+        // più. Un nemico si lega una volta: ogni livello caricato ha nemici nuovi
+        private void ApplyDifficulty(EnemyAI enemy)
+        {
+            var tier = CurrentDifficulty;
+            enemy.GetComponent<Health>().MultiplyMax(tier.Life);
+            enemy.GetComponent<MeleeAttack>().SetDifficultyMultiplier(tier.Damage);
+            if (enemy.TryGetComponent(out RangedAttack ranged))
+            {
+                ranged.SetDifficultyMultiplier(tier.Damage);
+            }
+
+            if (enemy.TryGetComponent(out CharacterStats stats))
+            {
+                stats.Sheet.RemoveModifiersFrom(tier);
+                stats.Sheet.AddModifier(new StatModifier(StatType.ToHit, ModifierKind.Flat, tier.ToHit, tier));
+                stats.Sheet.AddModifier(new StatModifier(StatType.Armor, ModifierKind.Flat, tier.Armor, tier));
+            }
+        }
+
+        // Il re prende i modificatori dei campioni secondo la difficoltà (D5 della M14), dal seme del
+        // mondo. Legato subito: la sua velocità di partenza comprende già il Rapido
+        private void PromoteBoss(BossController boss)
+        {
+            int count = CurrentDifficulty.BossModifiers;
+            if (count <= 0 || _championSettings == null || boss.TryGetComponent(out SpecialEnemy _))
+            {
+                return;
+            }
+
+            BossModifiers.Pick(_championSettings.CollectModifierIds(), count, _loot.RunSeed, _bossModifiers);
+            var special = boss.gameObject.AddComponent<SpecialEnemy>();
+            special.Promote(EnemyRank.Boss, _bossModifiers);
+            special.Bind(_championSettings, _player, _playerSlow);
+        }
+
         // Il boss della profondità 8 (D8 della M10): già sconfitto non rinasce (trappola 4), e il
         // livello rigenerato lo toglie prima di legare i nemici
         private void BindBoss(LevelContext level)
@@ -657,6 +796,7 @@ namespace DarkDescent.Core
                 return;
             }
 
+            PromoteBoss(_boss);
             _boss.Bind(_player, level.BossGate, _random);
             _boss.FightStarted += HandleBossFightStarted;
             _boss.FightReset += HandleBossFightReset;
@@ -903,7 +1043,7 @@ namespace DarkDescent.Core
         {
             enemy.Killed -= HandleEnemyKilled;
             _rewardingEnemies.Remove(enemy);
-            _progress.AwardKill(ExperienceOf(enemy), _depth);
+            _progress.AwardKill(ExperienceOf(enemy), _depth, CurrentDifficulty);
             _runStats.AddKill();
         }
 

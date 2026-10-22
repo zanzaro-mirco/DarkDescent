@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DarkDescent.Core;
+using DarkDescent.Enemies;
 using DarkDescent.Items;
 using DarkDescent.Localization;
 using DarkDescent.Progression;
@@ -234,6 +235,70 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0, progress.Remove(-5));
             Assert.AreEqual(2, changes, "solo quando cambia qualcosa");
             Assert.AreEqual(9f, sheet.Get(StatType.Level));
+        }
+
+        [Test, Description("Il re prende tanti modificatori quanti ne dice il gradino, tutti diversi, sempre gli stessi per lo stesso mondo")]
+        public void BossModifiers_AreDistinctAndSeeded()
+        {
+            var ids = new[] { "a", "b", "c", "d", "e" };
+            var first = new List<string>();
+            var again = new List<string>();
+            BossModifiers.Pick(ids, 3, 42UL, first);
+            BossModifiers.Pick(ids, 3, 42UL, again);
+            Assert.AreEqual(3, first.Count);
+            CollectionAssert.AllItemsAreUnique(first);
+            CollectionAssert.AreEqual(first, again, "stesso mondo, stesso re");
+
+            BossModifiers.Pick(ids, 9, 42UL, again);
+            CollectionAssert.AreEquivalent(ids, again, "più di quanti ce ne sono: tutti");
+            BossModifiers.Pick(ids, 0, 42UL, again);
+            Assert.IsEmpty(again);
+
+            var seen = new HashSet<string>();
+            for (ulong seed = 1; seed <= 200; seed++)
+            {
+                BossModifiers.Pick(ids, 1, seed, again);
+                seen.Add(again[0]);
+            }
+
+            Assert.AreEqual(5, seen.Count, "con mondi diversi esce ognuno");
+        }
+
+        [Test, Description("Con la difficoltà il loot ha le sue rarità e l'oro moltiplicato; lo stesso tiro, quindi lo stesso oggetto base")]
+        public void Loot_FollowsTheDifficulty()
+        {
+            var affixes = AssetDatabase.LoadAssetAtPath<AffixDatabase>("Assets/_Project/Data/AffixDatabase.asset");
+            var table = AssetDatabase.LoadAssetAtPath<LootTable>("Assets/_Project/Data/Loot/ChestLoot.asset");
+            var dusk = new LootRoller(new ItemGenerator(affixes.Affixes, RarityTable.Default), 99UL);
+            var shadow = new LootRoller(new ItemGenerator(affixes.Affixes, RarityTable.Default), 99UL);
+            shadow.UseDifficulty(Table.Tier(1).Rarities, Table.Tier(1).Gold);
+            Assert.AreSame(Table.Tier(1).Rarities, shadow.Rarities);
+
+            int rareDusk = 0, rareShadow = 0;
+            for (int x = 0; x < 400; x++)
+            {
+                int gold = dusk.RollGold(table, 3, x, 7);
+                Assert.That(shadow.RollGold(table, 3, x, 7), Is.EqualTo(gold * 2).Within(1), $"cella {x}");
+                var a = dusk.Roll(table, 3, x, 7);
+                var b = shadow.Roll(table, 3, x, 7);
+                Assert.AreEqual(a?.Definition, b?.Definition, $"cella {x}: la stessa base");
+                rareDusk += a != null && a.Rarity == Rarity.Rare ? 1 : 0;
+                rareShadow += b != null && b.Rarity == Rarity.Rare ? 1 : 0;
+            }
+
+            Assert.Greater(rareShadow, rareDusk, "all'Ombra più rari");
+        }
+
+        [Test, Description("Il cavaliere di -herolevel: al livello chiesto, tutti i punti spesi, due in Forza e in Vitalità e uno in Destrezza a livello")]
+        public void HeroSetup_SpendsBalancedPoints()
+        {
+            var sheet = new StatSheet();
+            var progress = new CharacterProgress(Settings, sheet);
+            HeroSetup.RaiseTo(progress, 32);
+            Assert.AreEqual((32, 0, 0), (progress.Level, progress.Experience, progress.UnspentPoints));
+            Assert.AreEqual(62f, sheet.GetBase(StatType.Strength));
+            Assert.AreEqual(62f, sheet.GetBase(StatType.Vitality));
+            Assert.AreEqual(31f, sheet.GetBase(StatType.Dexterity));
         }
     }
 }

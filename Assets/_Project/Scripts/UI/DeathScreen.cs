@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using DarkDescent.Combat;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,8 @@ namespace DarkDescent.UI
     /// <summary>
     /// Schermata di morte: compare quando il player muore, dopo il tempo dell'animazione, e offre
     /// di continuare. Non fa niente da sé: annuncia la richiesta, chi collega la scena decide.
-    /// Sparisce quando il player torna in vita.
+    /// Dalla M14 dice anche cosa è costata la morte, se è costata qualcosa (D9). Sparisce quando il
+    /// player torna in vita.
     /// </summary>
     [DisallowMultipleComponent]
     public class DeathScreen : MonoBehaviour
@@ -18,6 +20,9 @@ namespace DarkDescent.UI
         [SerializeField] private GameObject _panel;
 
         [SerializeField] private Button _restartButton;
+
+        [Tooltip("La riga di oro ed esperienza persi (D9 della M14); spenta quando morire non costa niente.")]
+        [SerializeField] private TMP_Text _loss;
 
         [Tooltip("Secondi tra la morte e la schermata, per lasciar vedere la caduta. In tempo reale: non risente di Time.timeScale.")]
         [SerializeField, Min(0f)] private float _showDelay = 2f;
@@ -30,6 +35,16 @@ namespace DarkDescent.UI
         public event Action RestartRequested;
 
         public bool IsShown => _panel.activeSelf;
+
+        /// <summary>La riga di cosa è costata la morte; vuota se non è costata niente.</summary>
+        public string LossText => _loss.gameObject.activeSelf ? _loss.text : string.Empty;
+
+        /// <summary>Scrive cosa è costata la morte; vuoto o null spegne la riga.</summary>
+        public void ShowLoss(string text)
+        {
+            _loss.text = text ?? string.Empty;
+            _loss.gameObject.SetActive(!string.IsNullOrEmpty(text));
+        }
 
         /// <summary>Come la sfera: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
         public void Bind(Health health)

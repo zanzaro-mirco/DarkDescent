@@ -187,8 +187,14 @@ namespace DarkDescent.Enemies
             _health.MultiplyMax(_numbers.Life);
             SetDamage(_numbers.Damage);
             transform.localScale *= _numbers.Scale;
-            ApplyTint(_rank == EnemyRank.Unique ? _tint : Color.Lerp(Color.white, _numbers.Color, settings.ChampionTint));
-            if (settings.Ring != null)
+
+            // il re (M14) resta com'è: si riconosce già, e i modificatori si vedono dai loro effetti
+            if (_rank != EnemyRank.Boss)
+            {
+                ApplyTint(_rank == EnemyRank.Unique ? _tint : Color.Lerp(Color.white, _numbers.Color, settings.ChampionTint));
+            }
+
+            if (settings.Ring != null && _rank != EnemyRank.Boss)
             {
                 _ring = Instantiate(settings.Ring, transform);
                 _ring.name = "SpecialRing";

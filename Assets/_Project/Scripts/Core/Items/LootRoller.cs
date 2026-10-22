@@ -24,6 +24,26 @@ namespace DarkDescent.Items
             _generator = generator ?? throw new ArgumentNullException(nameof(generator));
             RunSeed = runSeed;
             _itemLevel = itemLevel;
+            Rarities = generator.Rarities;
+        }
+
+        /// <summary>Il generatore degli oggetti: anche per l'equipaggiamento di <c>-herolevel</c>.</summary>
+        public ItemGenerator Generator => _generator;
+
+        /// <summary>Le rarità degli oggetti che cadono: quelle della difficoltà (D11 della M14).</summary>
+        public RarityTable Rarities { get; private set; }
+
+        /// <summary>Quanto vale l'oro che cade rispetto al Crepuscolo (D5 della M14).</summary>
+        public float GoldFactor { get; private set; } = 1f;
+
+        /// <summary>
+        /// Rarità e oro di una difficoltà; il livello degli oggetti lo dà già la funzione del
+        /// costruttore. Gli stessi tiri: alla stessa difficoltà, lo stesso loot.
+        /// </summary>
+        public void UseDifficulty(RarityTable rarities, float goldFactor)
+        {
+            Rarities = rarities ?? throw new ArgumentNullException(nameof(rarities));
+            GoldFactor = Math.Max(0f, goldFactor);
         }
 
         /// <summary>Il livello degli oggetti che cadono a questa profondità, almeno 1.</summary>
@@ -87,7 +107,7 @@ namespace DarkDescent.Items
             // tabella, lo stesso oggetto con lo stesso seme rifatto a quella rarità
             ulong seed = random.NextUInt64();
             int level = ItemLevel(depth);
-            var generated = _generator.Generate(item, level, seed);
+            var generated = _generator.Generate(item, level, seed, Rarities);
             return generated.Rarity < table.MinRarity ? _generator.Generate(item, level, seed, table.MinRarity) : generated;
         }
 
@@ -120,9 +140,10 @@ namespace DarkDescent.Items
             return table != null ? GoldFrom(table, depth, SeedMixer.ForGold(RunSeed, depth, cellX, cellZ)) : 0;
         }
 
-        private static int GoldFrom(LootTable table, int depth, ulong seed)
+        private int GoldFrom(LootTable table, int depth, ulong seed)
         {
-            return table.Gold != null ? table.GoldFor(new SplitMix64Source(seed), depth) : 0;
+            int gold = table.Gold != null ? table.GoldFor(new SplitMix64Source(seed), depth) : 0;
+            return gold > 0 && GoldFactor != 1f ? Math.Max(1, (int)Math.Round(gold * (double)GoldFactor, MidpointRounding.AwayFromZero)) : gold;
         }
 
         /// <summary>
@@ -153,7 +174,7 @@ namespace DarkDescent.Items
                 return;
             }
 
-            var rarities = _generator.Rarities.Shifted(bonus.MagicFactor, bonus.RareFactor);
+            var rarities = Rarities.Shifted(bonus.MagicFactor, bonus.RareFactor);
             bool guaranteed = first != null && first.Rarity >= bonus.Guaranteed;
             for (int i = 0; i < bonus.ExtraRolls; i++)
             {
@@ -212,7 +233,7 @@ namespace DarkDescent.Items
                     return;
                 }
 
-                into.Add(_generator.Generate(item, ItemLevel(depth), random.NextUInt64()));
+                into.Add(_generator.Generate(item, ItemLevel(depth), random.NextUInt64(), Rarities));
             }
         }
 

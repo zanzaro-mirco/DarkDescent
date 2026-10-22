@@ -174,6 +174,27 @@ Test PlayMode: uno scheletro all'Ombra ha la vita moltiplicata, il re dell'Abiss
 modificatori, alla morte all'Ombra l'oro cala del 10%, `-difficulty` e `-herolevel` preparano la
 partita.
 
+**Com'è andata (22 ott 2026).** Il `CompositionRoot` tiene la `DifficultyTable` (campo nuovo nella
+scena Core) e un `DifficultyProgress`. Nemici: `ApplyDifficulty` in `BindEnemy` moltiplica la vita
+(`Health.MultiplyMax`, che si compone con quella del grado), dà il danno della difficoltà con
+`SetDifficultyMultiplier` su `MeleeAttack` e `RangedAttack`, e aggiunge colpire e Armatura come
+modificatori della scheda con il gradino come sorgente. Il danno di grado e difficoltà si moltiplica
+in un punto solo, `DamageMultiplier`: il Furioso riscrive solo il suo. Il re: `PromoteBoss` gli
+aggiunge un `SpecialEnemy` di grado nuovo `EnemyRank.Boss` (niente numeri in più, tinta, anello,
+loot né punto sull'automappa), con i modificatori scelti da `BossModifiers.Pick` dal seme del mondo
+(`SeedMixer.ForBoss`), legato prima del `BossController` perché la sua velocità di partenza comprenda
+il Rapido. Loot: `LootRoller.UseDifficulty` cambia rarità e oro (gli stessi tiri, la stessa base),
+e il livello degli oggetti, mercante compreso, legge il bonus della zona. Esperienza:
+`PlayerProgress.AwardKill` con il gradino. Morte: `HandlePlayerDied` toglie oro ed esperienza con
+`DeathPenalty` e il `DeathScreen` ha una riga nuova (`death.loss`, spenta quando non costa niente),
+messa nella scena da uno script di editor temporaneo. `-difficulty` e `-herolevel` valgono solo per
+una partita nuova; i test li passano con la variabile `DARKDESCENT_ARGS`. Il cavaliere di prova
+(`HeroSetup`) spende due punti in Forza, due in Vitalità e uno in Destrezza a livello e porta un raro
+del suo livello per slot, la base di valore più alto del mercante che può portare. Le trappole non
+cambiano: tolgono già una parte della vita massima. Test nuovi: 3 EditMode (re, loot, punti) e 7
+PlayMode (scheletro e campione all'Ombra, esperienza, morte all'Ombra e al Crepuscolo, riga di
+comando, re dell'Abisso I). 400 EditMode e 234 PlayMode verdi.
+
 ## Passo 14.4 — Salvataggio
 
 Prima una fixture vera del formato 5 (`save_v5.json`), poi il formato 6 con la migrazione 5 → 6.
@@ -249,7 +270,7 @@ seme derivato; morte che costa), lezioni nel piano, README con una foto dell'alt
 - [x] Decisioni D1–D16 confermate
 - [x] Gradi degli affissi e nomi approvati
 - [x] Difficoltà in Core, livello 50, morte che costa
-- [ ] In gioco: nemici, re, loot, mercante
+- [x] In gioco: nemici, re, loot, mercante
 - [ ] Formato 6 del salvataggio
 - [ ] Altare, pannello e vittoria per difficoltà
 - [ ] Misura e taratura

@@ -16,6 +16,9 @@ namespace DarkDescent.Localization
         // la crescita del cavaliere (M8): barra dell'esperienza e testata del pannello
         public const string ExperienceLevel = "hud.experience";
         public const string ExperienceMaxLevel = "hud.experience_max";
+
+        /// <summary>Cosa è costata la morte (D9 della M14): oro, esperienza.</summary>
+        public const string DeathLoss = "death.loss";
         public const string CharacterLevel = "hud.character_level";
         public const string CharacterPoints = "hud.character_points";
         public const string TooltipDamage = "tooltip.damage";
