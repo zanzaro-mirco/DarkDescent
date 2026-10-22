@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.52**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.56**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.56 | 22 ott 2026 | Su richiesta di Mirco, tra i lavori dopo la v1.0: **l'equipaggiamento si vede addosso al cavaliere** (elmo, armatura, guanti e stivali con le parti dei personaggi KayKit, oltre ad arma e scudo). La M8 l'aveva rimandato alla M11, che non l'ha ripreso |
 | v2.55 | 21 ott 2026 | Scheda della **M14 — "La luce si spegne"** (`docs/milestones/M14_La_luce_si_spegne.md`, D1–D16 da confermare): difficoltà Crepuscolo, Ombra, Tenebra, Abisso I–VI scelte da un altare all'accampamento, rifare il mondo, livello 50, sei gradi per gruppo di affissi dal livello della zona, morte che costa oro ed esperienza, numeri misurati da una simulazione; tag `v1.3.0`, 12–16 h |
 | v2.54 | 21 ott 2026 | **v1.2.1**: il portale aperto in un angolo stretto, chiuso da ogni parte da muri e barili, finiva dove il cavaliere non arrivava; ora va sul punto libero più lontano. L'ha trovato un test dei portali fallito in CI dopo il tag `v1.2.0` |
 | v2.53 | 21 ott 2026 | **M13 chiusa** (v1.2): arredi con un senso e la cappella, barili da rompere, pozzi, santuari, spuntoni e barili esplosivi, modelli da Blender e suoni da script e da Stable Audio, loot misurato a 5,0 oggetti a livello. Come per la M12 la build di prova è saltata su scelta di Mirco, e al suo posto la rilettura del codice · ADR-097…100 |
@@ -696,7 +697,7 @@ Nella v2.0 tutto questo stava dentro M6, che sarebbe diventata una milestone di 
 
 - **Slot nuovi** accanto ad arma e scudo: elmo, armatura, guanti, stivali, due anelli, amuleto. Diablo 1 ne ha meno (niente guanti e stivali): qui si tengono perché danno al pannello più varietà con poco lavoro. `EquipSlot` e l'`Equipment` di oggi crescono di valori, non di struttura.
 - **Pezzi d'armatura** con l'Armatura e la Forza richiesta, come lo scudo; **anelli e amuleto** senza difesa, fatti dei loro affissi (vita, attributi, colpire, critico). Un affisso nuovo cambia il loot dei semi provati (trappola 10 della M7): i test che fissano i drop si aggiornano insieme.
-- **Modelli e icone.** Elmi e pezzi d'armatura dai pacchetti KayKit già scaricati, se ci sono; per anelli e amuleti un pacchetto CC0 da scaricare con il permesso di Mirco, o icone piatte. Si decide nella scheda. L'armatura indossata non cambia il modello del cavaliere: resta per la M11.
+- **Modelli e icone.** Elmi e pezzi d'armatura dai pacchetti KayKit già scaricati, se ci sono; per anelli e amuleti un pacchetto CC0 da scaricare con il permesso di Mirco, o icone piatte. Si decide nella scheda. L'armatura indossata non cambia il modello del cavaliere: resta per la M11 (non ripreso nella M11: dalla v2.56 è tra i lavori dopo la v1.0).
 - **Prima del salvataggio**, così il formato 1 contiene già tutti gli slot.
 - Circa 4–6 h in più.
 
@@ -821,6 +822,14 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Coerenza.** Personaggi realistici in un dungeon KayKit si vedono fuori posto: cripta, caverne, oggetti e icone vanno cambiati insieme, o almeno avvicinati con lo shader retro della M11.
   - **Codice.** Quasi niente: modelli, animator e icone sono dati. Restano da rifare i punti di aggancio delle armi (`handslot`), i raggi degli agent e i tempi dei colpi misurati sulle clip.
   - Si valuta a v1.0 pubblicata, insieme all'estensione Blender della M11, di cui è la versione completa.
+- **L'equipaggiamento si vede addosso al cavaliere** (chiesto da Mirco il 22 ott 2026). Oggi il modello del cavaliere cambia solo con l'arma e lo scudo, agganciati alle mani (`handslot`). Elmo, armatura, guanti e stivali restano quelli del Knight di KayKit, qualunque cosa si indossi. La M8 l'aveva rimandato alla M11 (D6 della scheda della M8), e la M11 non l'ha ripreso. Diventa: ogni pezzo indossato si vede.
+  - **Quali slot.** Elmo, armatura, guanti e stivali cambiano il modello; arma e scudo come oggi. Anelli e amuleto no: alla distanza della camera non si vedrebbero.
+  - **Da dove vengono i pezzi.** I personaggi KayKit (Knight, Rogue_Hooded, Barbarian) sono divisi in parti: testa, busto, braccio sinistro e destro, gamba sinistra e destra, elmo o copricapo, e il mantello del Knight. Sono gli stessi personaggi da cui sono nati gli oggetti (ADR-056), tutti sullo scheletro `Rig_Medium` (ADR-005). Una parte di un altro personaggio si lega alle ossa del cavaliere e segue le sue animazioni senza clip nuove. L'elmo cambia l'elmo, l'armatura il busto (e il mantello, che va con la corazza), i guanti le due braccia, gli stivali le due gambe: in KayKit mani e piedi non sono parti a sé.
+  - **Le varianti di colore**, come la corazza nera, sono la stessa parte con il loro materiale, come l'oggetto a terra e l'icona.
+  - **Slot vuoto.** KayKit non ha un corpo senza armatura. Senza elmo si vede la testa, che è già una parte a sé. Per busto, braccia e gambe senza niente si sceglie nella scheda tra le parti più semplici dei tre personaggi, o una loro copia con la texture schiarita. Si guardano in foto prima di scegliere.
+  - **Nel codice.** Ogni definizione di un oggetto da indossare dice quali parti mette (un dato in più, come il modello a terra). Un componente sul cavaliere ascolta il `Changed` dell'`Equipment` e cambia le mesh delle parti: niente controlli a ogni frame, nessun oggetto creato a ogni cambio. Il salvataggio non cambia: l'aspetto si ricava dall'equipaggiamento.
+  - **Le prove.** Una foto del cavaliere con ogni pezzo, accanto a quello di oggi, prima dei prefab; un test PlayMode che indossa e toglie ogni pezzo e controlla la mesh della sua parte.
+  - Circa 3–5 h, più le foto. Si può fare in qualsiasi momento, anche prima delle *Nuove classi*: ogni classe nuova riusa lo stesso componente con le sue parti di partenza.
 - **Movimento con WASD** (chiesto da Mirco il 9 ott 2026). Oggi il cavaliere si muove con il click (ADR-006). Con WASD si muove anche da tastiera, e il mouse resta per attaccare, raccogliere e interagire. Cosa comporta:
   - **Direzioni relative alla camera.** W va verso l'alto dello schermo, non verso nord: con la rotazione della M8 (ADR-052) le direzioni del mondo cambiano a ogni scatto. Le diagonali vengono da due tasti insieme.
   - **NavMesh.** Il `NavMeshAgent` resta: ogni frame riceve una destinazione poco avanti nella direzione dei tasti, o si sposta con `NavMeshAgent.Move`, così i muri e gli ostacoli fermano il cavaliere come oggi e i nemici continuano a trovarlo.
