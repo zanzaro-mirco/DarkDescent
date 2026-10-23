@@ -130,7 +130,31 @@ ogni push sulla forma non provavano mai (solo la profondità 5):
 I tre livelli sbagliati sono test con il seme fisso in `BossTests` (`Depth8_AlwaysHasTheKing`,
 `BossRing_LeavesNoDiagonals`), visti cadere prima della correzione. Dopo: 420 EditMode e 242
 PlayMode verdi, e la ronda pulita con sei semi della notte (4711, 20261023, 98765, 1, 31337,
-20261024), 24.000 mappe. Le due correzioni cambiano il gioco: escono con la v1.3.1 (D1).
+20261024), 24.000 mappe. Le due correzioni cambiano il gioco: escono con la v1.3.1 (D1), con il tag a fine M15 (Mirco, 23 ott
+2026), insieme a quello che troveranno le notti dopo.
+
+### 15.3 Livelli costruiti
+
+**Com'è andata (23 ott 2026).** `NightlyPlayModeTests.BuiltLevels_AreWhole` gioca 25 partite nuove
+dalla profondità 1 all'8, caricate con il `LevelManager` come nel gioco (cripta fino al 4, caverne
+dal 5), e svuota la memoria dei livelli a ogni caricamento, perché i ricordi sono per scena e
+profondità e non per seme. Su ogni livello, dall'ingresso e a piedi sul NavMesh: la scala, ogni
+cassa e forziere (il tesoro del re compreso), pozzi e santuari, il re; i nemici sul NavMesh; nessun
+pezzo sopra un altro; il portale aperto all'ingresso e davanti a ogni cassa, pozzo e santuario,
+girati verso il pezzo, su un punto che si raggiunge (tranne nella sala del re, dove non si apre);
+i tempi, con l'errore sopra i 150 ms. I barili si provano come li rompe chi gioca: se da un punto
+raggiungibile l'arma più corta (0,5 m dal bordo) arriva al barile, lo si rompe spegnendo il suo
+ostacolo e si riprova con gli altri, così quello in fondo a un gruppo contro il muro si apre dopo
+quelli davanti. Il riassunto dice quanti pezzi ha provato (circa 750 raggiunti, 1100 barili, 720
+portali a notte): un controllo che non trova niente da provare passa sempre. 200 livelli in 81 s;
+i tempi sul mio PC sono 26–30 ms di media e 36 al massimo, per ogni profondità.
+
+Due falsi allarmi, corretti nel controllo e non nel gioco: i barili in fondo ai gruppi "fuori dal
+NavMesh" (prima il controllo cercava il punto più vicino entro 2 m, ignorando che i vicini si
+rompono) e un portale "irraggiungibile" che lo era: con un raggio di 0,3 m `SamplePosition` non
+trovava il NavMesh sotto il punto, con 0,6 sì e nello stesso punto (partita 3019584370815887483,
+profondità 4, riprodotta con un test temporaneo). Ora si cerca entro 1 m e si vuole il punto entro
+30 cm. Nessun errore del gioco su cinque semi (4711, 20261023, 98765, 1, 31337), 1000 livelli.
 
 ---
 
@@ -170,8 +194,9 @@ PlayMode verdi, e la ronda pulita con sei semi della notte (4711, 20261023, 9876
 - [x] Decisioni D1–D12 confermate
 - [x] Categoria `Nightly` esclusa dai test di ogni push, verificato in CI
 - [x] `nightly.yml` pianificato e provato a mano
-- [ ] Mappe (fatto, passo 15.2), livelli costruiti, partita da sola, misure, tempi
+- [ ] Mappe (passo 15.2), livelli costruiti e tempi (15.3), partita da sola, misure
 - [ ] Rapporto nella pagina del run e artefatto
 - [ ] Issue sui fallimenti provata una volta
 - [ ] Prima notte pianificata verde
 - [ ] ADR, lezioni nel piano, README
+- [ ] `bundleVersion` 1.3.1 e tag `v1.3.1` dopo i Tests verdi (le correzioni trovate dalla ronda)
