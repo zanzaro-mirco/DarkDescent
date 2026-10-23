@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using DarkDescent.Core;
+using DarkDescent.Editor;
+using DarkDescent.Enemies;
 using DarkDescent.Levels;
+using DarkDescent.Progression;
 using NUnit.Framework;
 using UnityEditor;
 using Debug = UnityEngine.Debug;
@@ -17,6 +20,19 @@ namespace DarkDescent.Tests
         // le parti della ronda: ognuna ricava i suoi semi da quello della notte (SeedMixer.ForNightly)
         private const int CryptPart = 1;
         private const int CavePart = 2;
+
+        // 3 e 4 sono in PlayMode: i livelli costruiti e la partita da sola
+        private const int LootPart = 5;
+        private const int DifficultyMapPart = 6;
+        private const int GearPart = 7;
+
+        /// <summary>Partite per profondità della misura del loot (D5 della M15, parte d); i test di ogni push ne fanno 40.</summary>
+        private const int LootGames = 250;
+
+        /// <summary>Partite per profondità per l'esperienza della misura delle difficoltà, ed equipaggiamenti per i colpi; a ogni push 20 e 8.</summary>
+        private const int DifficultyGames = 100;
+
+        private const int GearSets = 256;
 
         /// <summary>Livelli per parte (D5 della M15); se la notte si allunga si riducono qui (D10).</summary>
         private const int Levels = 2000;
@@ -79,6 +95,45 @@ namespace DarkDescent.Tests
                     CaveChecks.Candles(layout, settings),
                 };
             });
+        }
+
+        [Test, Timeout(TenMinutes), Description("La misura del loot su 250 partite nuove per profondità, dalla 1 alla 8, con le fasce del suo test di ogni push")]
+        public void LootCensus_OnNewSeeds()
+        {
+            ulong night = NightlyRun.Seed();
+            var seeds = NightSeeds(night, LootPart, LootGames);
+            var champions = AssetDatabase.LoadAssetAtPath<ChampionSettings>("Assets/_Project/Data/Enemies/ChampionSettings.asset");
+            var total = LootCensus.Range(Asset<DungeonSettings>("CryptSettings"), AssetDatabase.LoadAssetAtPath<LevelTileset>(LootCensus.CryptTileset), champions, 1, 4, seeds);
+            total.Merge(LootCensus.Range(Asset<CaveSettings>("CaveSettings"), AssetDatabase.LoadAssetAtPath<LevelTileset>(LootCensus.CaveTileset), champions, 5, 8, seeds));
+            Debug.Log($"[DarkDescent] ronda notturna, misura del loot: {CensusChecks.DescribeLoot(total)}");
+            MapChecks.Pass($"misura del loot (per rifare la notte: {NightlyRun.SeedOption} {night})", CensusChecks.Loot(total));
+        }
+
+        [Test, Timeout(TenMinutes), Description("La misura delle difficoltà con l'esperienza di 100 partite nuove per profondità e 32 equipaggiamenti nuovi, con le fasce dei suoi test di ogni push")]
+        public void DifficultyCensus_OnNewSeeds()
+        {
+            ulong night = NightlyRun.Seed();
+            var table = AssetDatabase.LoadAssetAtPath<DifficultyTable>(DifficultyCensus.DifficultiesPath);
+            var census = new DifficultyCensus(NightSeeds(night, DifficultyMapPart, DifficultyGames), NightSeeds(night, GearPart, GearSets));
+            var rows = census.Measure(table);
+            Assert.AreEqual(table.Count * 8, rows.Count);
+            Debug.Log($"[DarkDescent] ronda notturna, misura delle difficoltà: {CensusChecks.DescribeDifficulties(rows)}");
+            var errors = new[]
+            {
+                CensusChecks.EveryDepth(rows),
+                CensusChecks.EachDifficultyStartsHarder(rows, table.Count),
+                CensusChecks.KingLastsALittleLonger(rows),
+                CensusChecks.ExperienceKeepsUp(rows, table, census.Settings),
+            }.Where(e => e != null).ToList();
+            if (errors.Count > 0)
+            {
+                Assert.Fail($"misura delle difficoltà (per rifare la notte: {NightlyRun.SeedOption} {night}):\n" + string.Join("\n", errors));
+            }
+        }
+
+        private static List<ulong> NightSeeds(ulong night, int part, int count)
+        {
+            return Enumerable.Range(0, count).Select(i => SeedMixer.ForNightly(night, part, i)).ToList();
         }
 
         // l'ultima profondità senza una scena dopo non ha la scala (DungeonLevel.CreateMap)

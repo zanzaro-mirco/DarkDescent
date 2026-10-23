@@ -178,6 +178,34 @@ vuole il testo uguale e i numeri entro un millimetro; quei due falsi allarmi dic
 confronto si accorge di una differenza. Nessun errore del gioco su sei notti (4711, 20261023,
 98765, 1, 31337, 20261039), con le difficoltà 3, 4, 6, 7 e 8; con l'8 l'altare rifà il mondo.
 
+### 15.5 Le misure di notte
+
+**Com'è andata (23 ott 2026).** `LootCensus.Range` e `DifficultyCensus` prendono i semi da fuori
+(i costruttori di sempre usano gli stessi semi di prima, `LootCensus.FixedSeeds` e i semi degli
+equipaggiamenti); le fasce dei loro test sono in `CensusChecks`, comuni ai test di ogni push e alla
+ronda, e il log scrive i numeri misurati accanto alle fasce. La ronda misura il loot su 250
+partite nuove per profondità (2000 livelli: 5,0 oggetti a livello, rari 16,7%, magici 30,1%,
+sempre dentro) e le difficoltà con l'esperienza di 100 partite per profondità e 256
+equipaggiamenti, in circa 3 s.
+
+La misura delle difficoltà ha trovato una cosa vera. Con 32 equipaggiamenti cadeva su punti
+diversi ogni notte (rumore); con 256 restava una cosa sola, su tutte le notti: **l'Abisso I
+comincia più facile della Tenebra**, dal 2 al 5,5% (bruto alla profondità 1, a volte il re),
+perché dall'Abisso I l'equipaggiamento diventa raro. I test di ogni push non lo vedevano: i loro 8
+equipaggiamenti fissi stanno per caso dalla parte buona. Alla profondità 1 Tenebra, Abisso I e II
+sono quasi pari, e da una notte all'altra la misura oscilla del 3% (il livello del cavaliere, un
+intero, viene dall'esperienza delle mappe della notte). Decisione di Mirco, dopo tre prove:
+
+- la vita dei nemici dell'**Abisso I passa da ×13,5 a ×14,2** (+5%): da solo spostava l'inversione
+  sull'Abisso II;
+- le due regole d'ordine (ogni discesa e il re non più facili della difficoltà prima) hanno una
+  **tolleranza del 5%** (`CensusChecks.StepTolerance`), a ogni push e di notte: da sola, a gioco
+  invariato, due notti su sei cadevano ancora.
+
+Insieme, ogni inversione resta entro il 3,4%: ronda verde su otto notti (4711, 20261023, 98765, 1,
+31337, 20261039, 20261024, 777), 420 EditMode verdi. Il ritocco esce con la v1.3.1, ed è nelle
+prove della build.
+
 ---
 
 ## Trappole note
@@ -216,7 +244,7 @@ confronto si accorge di una differenza. Nessun errore del gioco su sei notti (47
 - [x] Decisioni D1–D12 confermate
 - [x] Categoria `Nightly` esclusa dai test di ogni push, verificato in CI
 - [x] `nightly.yml` pianificato e provato a mano
-- [ ] Mappe (passo 15.2), livelli costruiti e tempi (15.3), partita da sola con i salvataggi (15.4), misure
+- [x] Mappe (passo 15.2), livelli costruiti e tempi (15.3), partita da sola con i salvataggi (15.4), misure (15.5)
 - [ ] Rapporto nella pagina del run e artefatto
 - [ ] Issue sui fallimenti provata una volta
 - [ ] Prima notte pianificata verde

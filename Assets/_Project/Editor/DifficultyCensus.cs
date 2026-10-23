@@ -48,8 +48,8 @@ namespace DarkDescent.Editor
         private readonly IReadOnlyList<LootEntry> _stock;
         private readonly ItemGenerator _generator;
         private readonly Dictionary<int, List<int>> _experience;
-        private readonly int _mapSeeds;
-        private readonly int _gearSeeds;
+        private readonly IReadOnlyList<ulong> _mapSeeds;
+        private readonly IReadOnlyList<ulong> _gearSeeds;
         private readonly Numbers _player;
         private readonly Numbers _skeleton;
         private readonly Numbers _brute;
@@ -57,12 +57,27 @@ namespace DarkDescent.Editor
 
         /// <summary>
         /// Carica gli asset e genera, una volta, <paramref name="mapSeeds"/> livelli per profondità per
-        /// l'esperienza; i colpi sono la media di <paramref name="gearSeeds"/> equipaggiamenti.
+        /// l'esperienza; i colpi sono la media di <paramref name="gearSeeds"/> equipaggiamenti. Sempre
+        /// gli stessi semi.
         /// </summary>
         public DifficultyCensus(int mapSeeds, int gearSeeds)
+            : this(LootCensus.FixedSeeds(Math.Max(1, mapSeeds)), GearSeeds(Math.Max(1, gearSeeds)))
         {
-            _mapSeeds = Math.Max(1, mapSeeds);
-            _gearSeeds = Math.Max(1, gearSeeds);
+        }
+
+        /// <summary>
+        /// Lo stesso con i semi dati: quelli delle partite per l'esperienza e quelli degli
+        /// equipaggiamenti; la ronda notturna dà i suoi (M15).
+        /// </summary>
+        public DifficultyCensus(IReadOnlyList<ulong> mapSeeds, IReadOnlyList<ulong> gearSeeds)
+        {
+            if (mapSeeds == null || mapSeeds.Count == 0 || gearSeeds == null || gearSeeds.Count == 0)
+            {
+                throw new ArgumentException("servono semi per le mappe e per gli equipaggiamenti");
+            }
+
+            _mapSeeds = mapSeeds;
+            _gearSeeds = gearSeeds;
             _settings = Load<ProgressionSettings>(ProgressionPath);
             _stock = Load<MerchantTable>(MerchantPath).Stock;
             _generator = new ItemGenerator(Load<AffixDatabase>(AffixesPath).Affixes, RarityTable.Default);
@@ -167,8 +182,8 @@ namespace DarkDescent.Editor
             var king = _king.Foe(tier);
 
             // la media su più equipaggiamenti dello stesso livello: un solo seme dice poco
-            double n = _gearSeeds;
-            for (int g = 1; g <= _gearSeeds; g++)
+            double n = _gearSeeds.Count;
+            foreach (ulong gearSeed in _gearSeeds)
             {
                 var sheet = new StatSheet();
                 sheet.SetBase(StatType.Strength, _player.Strength);
@@ -177,7 +192,7 @@ namespace DarkDescent.Editor
                 sheet.SetBase(StatType.Vitality, _player.Vitality);
                 HeroSetup.RaiseTo(new CharacterProgress(_settings, sheet), heroLevel);
                 var equipment = new Equipment(sheet);
-                HeroSetup.Equip(equipment, _stock, _generator, row.ItemLevel, (ulong)g * 104729UL, row.Gear);
+                HeroSetup.Equip(equipment, _stock, _generator, row.ItemLevel, gearSeed, row.Gear);
                 var hero = PowerCensus.Hero(sheet, equipment);
 
                 row.HeroLife += hero.Life / n;
@@ -201,7 +216,7 @@ namespace DarkDescent.Editor
         /// <summary>L'esperienza attesa di un livello a quella profondità, per un cavaliere di quel livello.</summary>
         public double ExperienceAt(DifficultyTier tier, int depth, int heroLevel)
         {
-            return _experience[depth].Sum(b => (double)_settings.ExperienceForKill(b, depth, heroLevel, tier.ZoneLevelBonus, tier.Experience)) / _mapSeeds;
+            return _experience[depth].Sum(b => (double)_settings.ExperienceForKill(b, depth, heroLevel, tier.ZoneLevelBonus, tier.Experience)) / _mapSeeds.Count;
         }
 
         [MenuItem("DarkDescent/Misura le difficoltà")]
@@ -247,7 +262,19 @@ namespace DarkDescent.Editor
 
         // l'esperienza di base di ogni nemico dei livelli generati, per profondità, già moltiplicata
         // per il grado di campioni e unici come in CompositionRoot.ExperienceOf
-        private static Dictionary<int, List<int>> ExperienceByDepth(int seeds)
+        // i semi degli equipaggiamenti di sempre
+        private static List<ulong> GearSeeds(int count)
+        {
+            var seeds = new List<ulong>(count);
+            for (ulong g = 1; g <= (ulong)count; g++)
+            {
+                seeds.Add(g * 104729UL);
+            }
+
+            return seeds;
+        }
+
+        private static Dictionary<int, List<int>> ExperienceByDepth(IReadOnlyList<ulong> seeds)
         {
             var champions = Load<ChampionSettings>(ChampionsPath);
             var byDepth = new Dictionary<int, List<int>>();
@@ -258,9 +285,9 @@ namespace DarkDescent.Editor
                 for (int depth = dungeon.FirstDepth; depth <= dungeon.LastDepth; depth++)
                 {
                     var list = new List<int>();
-                    for (ulong seed = 1; seed <= (ulong)seeds; seed++)
+                    foreach (ulong seed in seeds)
                     {
-                        var map = DungeonLevel.CreateMap(dungeon, seed * 7919UL, depth, out _);
+                        var map = DungeonLevel.CreateMap(dungeon, seed, depth, out _);
                         var leaders = new HashSet<Vector2Int>(ChampionSpawn.FromMap(map).Select(c => new Vector2Int(c.X, c.Y)));
                         foreach (var marker in map.Markers)
                         {

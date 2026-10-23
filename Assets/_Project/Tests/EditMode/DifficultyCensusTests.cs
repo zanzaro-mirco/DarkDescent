@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using DarkDescent.Editor;
 using DarkDescent.Progression;
 using NUnit.Framework;
@@ -60,53 +59,25 @@ namespace DarkDescent.Tests
         public void EveryDepth_StaysInTheBands()
         {
             Assert.AreEqual(_table.Count * 8, _rows.Count);
-            foreach (var row in _rows)
-            {
-                string where = $"{row.TierName} profondità {row.Depth}";
-                Assert.That(row.SkeletonSwings, Is.InRange(1.0, 5.0), where);
-                Assert.That(row.BruteSwings, Is.InRange(4.0, 14.0), where);
-                Assert.GreaterOrEqual(row.BruteHitsTaken, 3.0, where);
-                Assert.GreaterOrEqual(row.KingHitsTaken, 2.0, where);
-                Assert.GreaterOrEqual(row.HeroLandsOnBrute, 0.65, where);
-                Assert.That(row.BruteLandsOnHero, Is.InRange(0.05, 0.45), where);
-            }
+            MapChecks.Pass("misura delle difficoltà", CensusChecks.EveryDepth(_rows));
         }
 
-        [Test, Description("Dall'Ombra ogni discesa comincia dura (bruto in 9–14 colpi alla profondità 1), un po' più dura della precedente")]
+        [Test, Description("Dall'Ombra ogni discesa comincia dura (bruto in 9–14 colpi alla profondità 1), non più facile della precedente oltre il 5%")]
         public void EachDifficulty_StartsHarder()
         {
-            double previous = 0.0;
-            for (int t = 1; t < _table.Count; t++)
-            {
-                var first = _rows.Single(r => r.Tier == t && r.Depth == 1);
-                Assert.That(first.BruteSwings, Is.InRange(9.0, 14.0), first.TierName);
-                Assert.GreaterOrEqual(first.BruteSwings, previous, first.TierName);
-                previous = first.BruteSwings;
-            }
+            MapChecks.Pass("misura delle difficoltà", CensusChecks.EachDifficultyStartsHarder(_rows, _table.Count));
         }
 
-        [Test, Description("Il re dura un po' di più a ogni gradino: più colpi del precedente, ma meno di una volta e mezza")]
+        [Test, Description("Il re dura un po' di più a ogni gradino: non meno del 95% dei colpi del precedente, e meno di una volta e mezza")]
         public void King_LastsALittleLonger()
         {
-            var kings = _rows.Where(r => r.Depth == 8).OrderBy(r => r.Tier).Select(r => r.KingSwings).ToList();
-            for (int t = 1; t < kings.Count; t++)
-            {
-                Assert.Greater(kings[t], kings[t - 1], _table.Tier(t).NameKey);
-                Assert.Less(kings[t], kings[t - 1] * 1.5, _table.Tier(t).NameKey);
-            }
+            MapChecks.Pass("misura delle difficoltà", CensusChecks.KingLastsALittleLonger(_rows));
         }
 
         [Test, Description("Con una discesa per difficoltà il cavaliere comincia ognuna al più due livelli sotto la zona, e arriva al 50 prima dell'Abisso IV")]
         public void Experience_KeepsUpWithTheZone()
         {
-            for (int t = 1; t < _table.Count; t++)
-            {
-                var first = _rows.Single(r => r.Tier == t && r.Depth == 1);
-                int zone = _census.Settings.ZoneLevel(1, _table.Tier(t).ZoneLevelBonus);
-                Assert.GreaterOrEqual(first.HeroLevel, System.Math.Min(_census.Settings.MaxLevel, zone - 2), first.TierName);
-            }
-
-            Assert.AreEqual(_census.Settings.MaxLevel, _rows.Single(r => r.Tier == 6 && r.Depth == 1).HeroLevel, "all'Abisso IV si è al massimo");
+            MapChecks.Pass("misura delle difficoltà", CensusChecks.ExperienceKeepsUp(_rows, _table, _census.Settings));
         }
 
         [Test, Description("La rarità dell'equipaggiamento segue la difficoltà: normale al Crepuscolo, magica all'Ombra e alla Tenebra, rara dall'Abisso")]

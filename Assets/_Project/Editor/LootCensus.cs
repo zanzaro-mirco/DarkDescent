@@ -114,19 +114,37 @@ namespace DarkDescent.Editor
             return tally;
         }
 
-        /// <summary>Le profondità da <paramref name="first"/> a <paramref name="last"/>, <paramref name="seeds"/> partite ciascuna.</summary>
+        /// <summary>Le profondità da <paramref name="first"/> a <paramref name="last"/>, <paramref name="seeds"/> partite ciascuna: sempre le stesse.</summary>
         public static Tally Range(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, int first, int last, int seeds)
+        {
+            return Range(settings, tileset, champions, first, last, FixedSeeds(seeds));
+        }
+
+        /// <summary>Le profondità da <paramref name="first"/> a <paramref name="last"/>, una partita per seme: la ronda notturna dà i suoi (M15).</summary>
+        public static Tally Range(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, int first, int last, IReadOnlyList<ulong> runSeeds)
         {
             var total = new Tally();
             for (int depth = first; depth <= last; depth++)
             {
-                for (ulong seed = 1; seed <= (ulong)seeds; seed++)
+                foreach (ulong seed in runSeeds)
                 {
-                    total.Merge(Level(settings, tileset, champions, seed * 7919UL, depth));
+                    total.Merge(Level(settings, tileset, champions, seed, depth));
                 }
             }
 
             return total;
+        }
+
+        /// <summary>I semi delle partite di sempre, da 1 a <paramref name="count"/>, sparsi.</summary>
+        public static List<ulong> FixedSeeds(int count)
+        {
+            var seeds = new List<ulong>(count);
+            for (ulong seed = 1; seed <= (ulong)count; seed++)
+            {
+                seeds.Add(seed * 7919UL);
+            }
+
+            return seeds;
         }
 
         // Il tiro di sempre con la probabilità della tabella, se il bonus non lo toglie, più i tiri in più,

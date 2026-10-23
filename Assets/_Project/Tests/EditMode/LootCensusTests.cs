@@ -32,9 +32,7 @@ namespace DarkDescent.Tests
             var total = LootCensus.Range(crypt, AssetDatabase.LoadAssetAtPath<LevelTileset>(LootCensus.CryptTileset), Champions, 1, 4, 40);
             total.Merge(LootCensus.Range(caves, AssetDatabase.LoadAssetAtPath<LevelTileset>(LootCensus.CaveTileset), Champions, 5, 8, 40));
             Assert.AreEqual(320, total.Levels);
-            Assert.That(total.PerLevel, Is.InRange(4.0, 5.2), "oggetti a livello");
-            Assert.That(total.Rare / total.Items, Is.InRange(0.1, 0.25), "parte dei rari");
-            Assert.That(total.Magic / total.Items, Is.InRange(0.25, 0.35), "parte dei magici");
+            MapChecks.Pass("misura del loot", CensusChecks.Loot(total));
         }
 
         [Test, Description("I numeri della D13: scheletro 15%, mago 25%, bruto 35%, sciame 4%, cassa 35%; forziere accanto al 25% dei campioni")]

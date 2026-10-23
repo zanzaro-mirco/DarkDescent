@@ -24,6 +24,10 @@ prossima build da provare è quella del tag `v1.3.0`.
 - **Il re c'è sempre**: `DarkDescent.exe -newgame -seed 455840980255010401`, scendere fino all'8:
   c'è la sala del re (prima della correzione mancava, e il mondo non si finiva). Lunga: si fa se
   capita, i test la coprono.
+- **Abisso I un po' più duro**: la vita dei nemici è ×14,2 invece di ×13,5. Con
+  `DarkDescent.exe -difficulty 3 -herolevel 32` e *Nuova partita*: il bruto della profondità 1 non
+  deve sembrare più facile di quello della Tenebra (`-difficulty 2 -herolevel 22`, il livello della
+  sua zona).
 
 ## Dalla M14 — "La luce si spegne" (v1.3.0)
 
