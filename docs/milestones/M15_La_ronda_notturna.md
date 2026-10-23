@@ -34,8 +34,8 @@ alla prova dell'issue (passo 15.7), che ne apre una vera sul repo.
 
 ## Decisioni
 
-Da confermare con Mirco. La D3 cambia una riga della voce del piano (v2.58): la suite normale di
-notte non si rifà mai.
+Confermate da Mirco il 23 ottobre 2026, tutte come proposte ("confermo tutto, pusha e procedi"). La
+D3 cambia una riga della voce del piano (v2.58): la suite normale di notte non si rifà mai.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -102,7 +102,7 @@ notte non si rifà mai.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D12 confermate
+- [x] Decisioni D1–D12 confermate
 - [ ] Categoria `Nightly` esclusa dai test di ogni push, verificato in CI
 - [ ] `nightly.yml` pianificato e provato a mano
 - [ ] Mappe, livelli costruiti, partita da sola, misure, tempi
