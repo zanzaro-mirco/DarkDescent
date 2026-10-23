@@ -67,6 +67,30 @@ D3 cambia una riga della voce del piano (v2.58): la suite normale di notte non s
 | 15.7 | L'issue sui fallimenti, provata una volta con un errore voluto dall'avvio a mano (con l'ok di Mirco: apre un'issue vera, che poi si chiude) | 0,5 |
 | 15.8 | Chiusura: ADR, lezioni nel piano, README (la sezione della CI) | 0,5 |
 
+### 15.1 La categoria e il primo run
+
+**Com'è andata (23 ott 2026).** `NightlyRun` (in `Scripts/Core/`) tiene il nome della categoria e
+trova il seme della notte: prima `-nightly-seed` sulla riga di comando, poi
+`DARKDESCENT_NIGHTLY_SEED`, poi la data UTC come aaaammgg. Nel container di GameCI le variabili
+d'ambiente non arrivano, quindi `nightly.yml` lo passa come argomento. `SeedMixer.ForNightly(seme,
+parte, indice)` dà a ogni caso il suo seme, in un dominio separato da quelli del gioco. `tests.yml`
+aggiunge `-testCategory !Nightly`: in locale l'EditMode ha eseguito 414 test senza la ronda e
+`Nightly` da sola un test; in CI il run 39931995937 ha eseguito 656 test (uno saltato come prima)
+e il comando arrivato a Unity contiene `!Nightly` intatto. `nightly.yml` gira alle 01:00 UTC e a
+mano con il seme come input; il primo run a mano (39932016183, seme 4711) ha eseguito solo i due
+test `Nightly`, ha scritto "seme della notte 4711" nel log e il riassunto nella pagina del run.
+NightlyRunTests (3) resta nella suite normale.
+
+Il primo giro di `!Nightly` in locale ha fatto cadere tre test PlayMode che dipendevano dal seme
+dell'orologio, cioè proprio quello che la ronda deve trovare:
+`ExplosiveBarrel_HurtsEveryoneNearby` spostava il nemico lontano con `Warp` su un punto fuori dal
+NavMesh, che fallisce senza dirlo (ora sceglie un punto del NavMesh tra 5 e 9 m e controlla il
+risultato); `Firebolt_StopsOnWall` prendeva per muro il bordo del NavMesh ritagliato da un tronco
+alto 1 m, sopra cui il dardo passa (ora il bordo deve avere davanti un collider sotto `Walls`);
+`LeftLevel_StaysAsItWas` contava sull'oggetto sempre presente nella cassa, che dal passo 13.8 esce
+solo il 35% delle volte (ora uccide e apre finché a terra ci sono due cose). Riprodotti con il seme
+del run caduto, poi verdi: 414 EditMode e 242 PlayMode.
+
 ---
 
 ## Trappole note
@@ -103,8 +127,8 @@ D3 cambia una riga della voce del piano (v2.58): la suite normale di notte non s
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D12 confermate
-- [ ] Categoria `Nightly` esclusa dai test di ogni push, verificato in CI
-- [ ] `nightly.yml` pianificato e provato a mano
+- [x] Categoria `Nightly` esclusa dai test di ogni push, verificato in CI
+- [x] `nightly.yml` pianificato e provato a mano
 - [ ] Mappe, livelli costruiti, partita da sola, misure, tempi
 - [ ] Rapporto nella pagina del run e artefatto
 - [ ] Issue sui fallimenti provata una volta
