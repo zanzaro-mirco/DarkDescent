@@ -61,6 +61,9 @@ namespace DarkDescent.Tests
         private int _pickedUp;
         private int _resumes;
 
+        // il passo in corso, per il rapporto di una partita che si ferma a metà
+        private string _step = "l'avvio del gioco";
+
         private static CompositionRoot Root => Object.FindFirstObjectByType<CompositionRoot>();
 
         private static LevelManager Manager => Object.FindFirstObjectByType<LevelManager>();
@@ -109,61 +112,78 @@ namespace DarkDescent.Tests
             var table = AssetDatabase.LoadAssetAtPath<DifficultyTable>("Assets/_Project/Data/Progression/Difficulties.asset");
             int difficulty = (int)(SeedMixer.ForNightly(night, GamePart, 1) % (ulong)table.Count);
             var watch = Stopwatch.StartNew();
+            bool reported = false;
 
-            // una partita nuova dal menu, nel posto 1, alla difficoltà del seme; poi il seme della partita
-            ForgetPreferences();
-            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
-            Environment.SetEnvironmentVariable(CompositionRoot.ArgumentsVariable, $"-difficulty {difficulty}");
-            SceneManager.LoadScene("Core");
-            yield return null;
-            yield return null;
-            Menu.NewGameButton.onClick.Invoke();
-            Menu.SlotView(1).Button.onClick.Invoke();
-            yield return Arrive(level => level.IsTown, "la partita nuova in città");
-            Root.UseLootSeed(seed);
-            Manager.RunSeed = seed;
-            Assert.AreEqual(difficulty, Root.Difficulty.Current, "la difficoltà del seme");
-            Guard();
-            Debug.Log($"[DarkDescent] ronda notturna, partita da sola: seme {seed}, difficoltà {difficulty}");
-
-            for (int depth = 1; depth <= LastDepth; depth++)
+            // il rapporto si scrive anche se un passo si ferma a metà (trappola della M15)
+            try
             {
-                yield return TakeStairs(depth);
-                yield return ClearLevel();
-                if (depth == PortalDepth)
+                // una partita nuova dal menu, nel posto 1, alla difficoltà del seme; poi il seme della partita
+                ForgetPreferences();
+                Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+                Environment.SetEnvironmentVariable(CompositionRoot.ArgumentsVariable, $"-difficulty {difficulty}");
+                SceneManager.LoadScene("Core");
+                yield return null;
+                yield return null;
+                Menu.NewGameButton.onClick.Invoke();
+                Menu.SlotView(1).Button.onClick.Invoke();
+                yield return Arrive(level => level.IsTown, "la partita nuova in città");
+                Root.UseLootSeed(seed);
+                Manager.RunSeed = seed;
+                Assert.AreEqual(difficulty, Root.Difficulty.Current, "la difficoltà del seme");
+                Guard();
+                Debug.Log($"[DarkDescent] ronda notturna, partita da sola: seme {seed}, difficoltà {difficulty}");
+
+                for (int depth = 1; depth <= LastDepth; depth++)
                 {
-                    yield return PortalToTownAndBack(depth);
+                    yield return TakeStairs(depth);
+                    yield return ClearLevel();
+                    if (depth == PortalDepth)
+                    {
+                        yield return PortalToTownAndBack(depth);
+                    }
+
+                    yield return SaveAndResume(level => level.Depth == depth, $"profondità {depth}");
                 }
 
-                yield return SaveAndResume(level => level.Depth == depth, $"profondità {depth}");
-            }
+                yield return KillTheKing();
+                yield return ChangeTheWorld(seed, difficulty, table.Count);
+                for (int depth = 1; depth <= NewWorldDepths; depth++)
+                {
+                    yield return TakeStairs(depth);
+                    yield return ClearLevel();
+                    yield return SaveAndResume(level => level.Depth == depth, $"profondità {depth} del mondo nuovo");
+                }
 
-            yield return KillTheKing();
-            yield return ChangeTheWorld(seed, difficulty, table.Count);
-            for (int depth = 1; depth <= NewWorldDepths; depth++)
-            {
-                yield return TakeStairs(depth);
-                yield return ClearLevel();
-                yield return SaveAndResume(level => level.Depth == depth, $"profondità {depth} del mondo nuovo");
-            }
+                if (_deaths > 0)
+                {
+                    _errors.Add($"il cavaliere è morto {_deaths} volte, invulnerabile");
+                }
 
-            if (_deaths > 0)
-            {
-                _errors.Add($"il cavaliere è morto {_deaths} volte, invulnerabile");
+                string summary = $"seme della partita {seed}, difficoltà {difficulty}: {_kills} nemici, {_chests} casse, {_pickedUp} cose raccolte, "
+                    + $"{_resumes} riprese dal menu, livello {Hero.GetComponent<PlayerProgress>().Progress.Level}, in {watch.Elapsed.TotalSeconds:F0} s";
+                Debug.Log($"[DarkDescent] ronda notturna, partita da sola: {summary}");
+                NightlyReport.Append(NightlyReport.Part("Partita da sola", summary, _errors));
+                reported = true;
+                if (_errors.Count > 0)
+                {
+                    Assert.Fail($"partita da sola (seme {seed}, difficoltà {difficulty}; per rifare la notte: {NightlyRun.SeedOption} {night}):\n\n"
+                        + string.Join("\n\n", _errors));
+                }
             }
-
-            Debug.Log($"[DarkDescent] ronda notturna, partita da sola: {_kills} nemici, {_chests} casse, {_pickedUp} cose raccolte, "
-                + $"{_resumes} riprese dal menu, livello {Hero.GetComponent<PlayerProgress>().Progress.Level}, in {watch.Elapsed.TotalSeconds:F0} s");
-            if (_errors.Count > 0)
+            finally
             {
-                Assert.Fail($"partita da sola (seme {seed}, difficoltà {difficulty}; per rifare la notte: {NightlyRun.SeedOption} {night}):\n\n"
-                    + string.Join("\n\n", _errors));
+                if (!reported)
+                {
+                    _errors.Add($"{_step}: la partita si è fermata qui (il perché è nei risultati dei test)");
+                    NightlyReport.Append(NightlyReport.Part("Partita da sola", $"seme della partita {seed}, difficoltà {difficulty}: interrotta dopo {_resumes} riprese", _errors));
+                }
             }
         }
 
         // il passo arriva entro il suo tempo, o la partita si ferma lì (D6)
-        private static IEnumerator Arrive(Func<LevelContext, bool> arrived, string what)
+        private IEnumerator Arrive(Func<LevelContext, bool> arrived, string what)
         {
+            _step = what;
             for (float t = 0f; Manager == null || Manager.IsTransitioning || Manager.CurrentLevel == null || !arrived(Manager.CurrentLevel); t += Time.unscaledDeltaTime)
             {
                 Assert.Less(t, StepTime, $"{what}: non arriva");

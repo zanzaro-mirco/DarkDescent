@@ -55,8 +55,9 @@ jobs:
           restore-keys: |
             Library-
 
-      # Il seme arriva a Unity sulla riga di comando: nel container di GameCI le variabili
-      # d'ambiente del job non passano (D4).
+      # Il seme e il percorso del rapporto arrivano a Unity sulla riga di comando: nel container di
+      # GameCI le variabili d'ambiente del job non passano (D4). Il rapporto va nella cartella dei
+      # risultati, relativo al progetto: EditMode e PlayMode ci aggiungono le loro parti (D8).
       - name: Seme della notte
         id: seed
         env:
@@ -78,7 +79,8 @@ jobs:
         with:
           cliVersion: v0.1.71
           testMode: all
-          customParameters: -assemblyNames DarkDescent.Tests.EditMode;DarkDescent.Tests.PlayMode -testCategory Nightly -nightly-seed ${{ steps.seed.outputs.value }}
+          artifactsPath: artifacts
+          customParameters: -assemblyNames DarkDescent.Tests.EditMode;DarkDescent.Tests.PlayMode -testCategory Nightly -nightly-seed ${{ steps.seed.outputs.value }} -nightly-report artifacts/rapporto.md
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: Risultati della ronda
 
@@ -96,6 +98,12 @@ jobs:
             echo "- Esito dei test: $OUTCOME"
             echo
             echo "Per rifarla: avvio a mano con il seme \`$SEED\`, o in locale con \`-nightly-seed $SEED\`."
+            echo
+            if [ -f artifacts/rapporto.md ]; then
+              cat artifacts/rapporto.md
+            else
+              echo "Nessun rapporto: i test non sono arrivati a scriverlo. Il perché è nei risultati della ronda."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Risultati

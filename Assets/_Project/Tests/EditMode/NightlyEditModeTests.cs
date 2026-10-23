@@ -37,9 +37,6 @@ namespace DarkDescent.Tests
         /// <summary>Livelli per parte (D5 della M15); se la notte si allunga si riducono qui (D10).</summary>
         private const int Levels = 2000;
 
-        /// <summary>Gli errori scritti per intero nel messaggio: gli altri sono solo contati.</summary>
-        private const int Shown = 10;
-
         private const int TenMinutes = 600000;
 
         private static T Asset<T>(string name) where T : UnityEngine.Object
@@ -105,8 +102,11 @@ namespace DarkDescent.Tests
             var champions = AssetDatabase.LoadAssetAtPath<ChampionSettings>("Assets/_Project/Data/Enemies/ChampionSettings.asset");
             var total = LootCensus.Range(Asset<DungeonSettings>("CryptSettings"), AssetDatabase.LoadAssetAtPath<LevelTileset>(LootCensus.CryptTileset), champions, 1, 4, seeds);
             total.Merge(LootCensus.Range(Asset<CaveSettings>("CaveSettings"), AssetDatabase.LoadAssetAtPath<LevelTileset>(LootCensus.CaveTileset), champions, 5, 8, seeds));
-            Debug.Log($"[DarkDescent] ronda notturna, misura del loot: {CensusChecks.DescribeLoot(total)}");
-            MapChecks.Pass($"misura del loot (per rifare la notte: {NightlyRun.SeedOption} {night})", CensusChecks.Loot(total));
+            string describe = CensusChecks.DescribeLoot(total);
+            string error = CensusChecks.Loot(total);
+            Debug.Log($"[DarkDescent] ronda notturna, misura del loot: {describe}");
+            NightlyReport.Append(NightlyReport.Part("Misura del loot", describe, error != null ? new[] { error } : Array.Empty<string>()));
+            MapChecks.Pass($"misura del loot (per rifare la notte: {NightlyRun.SeedOption} {night})", error);
         }
 
         [Test, Timeout(TenMinutes), Description("La misura delle difficoltà con l'esperienza di 100 partite nuove per profondità e 32 equipaggiamenti nuovi, con le fasce dei suoi test di ogni push")]
@@ -117,7 +117,8 @@ namespace DarkDescent.Tests
             var census = new DifficultyCensus(NightSeeds(night, DifficultyMapPart, DifficultyGames), NightSeeds(night, GearPart, GearSets));
             var rows = census.Measure(table);
             Assert.AreEqual(table.Count * 8, rows.Count);
-            Debug.Log($"[DarkDescent] ronda notturna, misura delle difficoltà: {CensusChecks.DescribeDifficulties(rows)}");
+            string describe = CensusChecks.DescribeDifficulties(rows);
+            Debug.Log($"[DarkDescent] ronda notturna, misura delle difficoltà: {describe}");
             var errors = new[]
             {
                 CensusChecks.EveryDepth(rows),
@@ -125,6 +126,8 @@ namespace DarkDescent.Tests
                 CensusChecks.KingLastsALittleLonger(rows),
                 CensusChecks.ExperienceKeepsUp(rows, table, census.Settings),
             }.Where(e => e != null).ToList();
+            NightlyReport.Append(NightlyReport.Part("Misura delle difficoltà", $"{rows.Count} righe, da {table.Count} difficoltà per 8 profondità; di ogni misura il valore più basso e il più alto:", errors,
+                "- " + describe.Replace("; ", "\n- ")));
             if (errors.Count > 0)
             {
                 Assert.Fail($"misura delle difficoltà (per rifare la notte: {NightlyRun.SeedOption} {night}):\n" + string.Join("\n", errors));
@@ -184,11 +187,13 @@ namespace DarkDescent.Tests
                 }
             }
 
-            Debug.Log($"[DarkDescent] ronda notturna, mappe {name}: {Levels} livelli, {failed} con errori, in {watch.Elapsed.TotalSeconds:F1} s");
+            string summary = $"{Levels} livelli, {failed} con errori, in {watch.Elapsed.TotalSeconds:F1} s";
+            Debug.Log($"[DarkDescent] ronda notturna, mappe {name}: {summary}");
+            NightlyReport.Append(NightlyReport.Part($"Mappe {name}", summary, errors));
             if (errors.Count > 0)
             {
                 Assert.Fail($"mappe {name}: {failed} livelli su {Levels} con errori (per rifare la notte: {NightlyRun.SeedOption} {night}); i primi:\n\n"
-                    + string.Join("\n\n", errors.Take(Shown)));
+                    + string.Join("\n\n", errors.Take(NightlyReport.ShownErrors)));
             }
         }
 

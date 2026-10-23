@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
 using DarkDescent.Interaction;
@@ -45,9 +46,6 @@ namespace DarkDescent.Tests
         /// <summary>Due pezzi più vicini di così stanno nello stesso punto.</summary>
         private const float SamePlace = 0.3f;
 
-        /// <summary>Gli errori scritti per intero nel messaggio: gli altri sono solo contati.</summary>
-        private const int Shown = 10;
-
         private const int OneHour = 3600000;
 
         // quanti pezzi la ronda ha provato davvero, per il riassunto: un controllo che non trova niente
@@ -73,56 +71,77 @@ namespace DarkDescent.Tests
         [UnityTest, Timeout(OneHour), Description("25 partite nuove dalla profondità 1 all'8, costruite come nel gioco: dall'ingresso si arriva sul NavMesh alla scala, a casse e forzieri, pozzi e santuari e al re, e si rompe ogni barile; i nemici stanno sul NavMesh, il portale trova un posto raggiungibile, nessun pezzo sta sopra un altro, e nessun livello supera i 150 ms")]
         public IEnumerator BuiltLevels_AreWhole()
         {
-            yield return LoadGeneratedCore();
             ulong night = NightlyRun.Seed();
             var errors = new List<string>();
             var timings = Enumerable.Range(0, Depths + 1).Select(_ => new List<long>()).ToArray();
             int failed = 0;
+            int built = 0;
+            string where = "l'avvio del gioco";
+            bool reported = false;
             var watch = Stopwatch.StartNew();
-            for (int game = 0; game < Games; game++)
+
+            // il rapporto si scrive anche se un passo si ferma a metà (trappola della M15)
+            try
             {
-                ulong runSeed = SeedMixer.ForNightly(night, BuiltPart, game);
-                Manager.RunSeed = runSeed;
-                for (int depth = 1; depth <= Depths; depth++)
+                yield return LoadGeneratedCore();
+                for (int game = 0; game < Games; game++)
                 {
-                    string where = $"partita {runSeed}, profondità {depth}";
-                    var previous = Manager.CurrentLevel;
-                    Manager.LoadLevel(depth <= CryptDepths ? "Level_Crypt" : "Level_Caves", DungeonLevel.EntranceAt(depth), depth);
-                    yield return WaitForNewLevel(previous, depth, where);
-
-                    // i ricordi sono per scena e profondità, non per seme: quelli della partita di prima non valgono
-                    Recorder.Memory.Import(null);
-
-                    // un frame per gli agent dei nemici, uno per i barili che ritagliano il NavMesh
-                    yield return null;
-                    yield return null;
-
-                    int before = errors.Count;
-                    Vector3 entrance = Player.position;
-                    timings[depth].Add(CheckLevel(where, errors));
-                    yield return CheckBarrels(entrance, where, errors);
-                    if (errors.Count > before)
+                    ulong runSeed = SeedMixer.ForNightly(night, BuiltPart, game);
+                    Manager.RunSeed = runSeed;
+                    for (int depth = 1; depth <= Depths; depth++)
                     {
-                        failed++;
+                        where = $"partita {runSeed}, profondità {depth}";
+                        var previous = Manager.CurrentLevel;
+                        Manager.LoadLevel(depth <= CryptDepths ? "Level_Crypt" : "Level_Caves", DungeonLevel.EntranceAt(depth), depth);
+                        yield return WaitForNewLevel(previous, depth, where);
+
+                        // i ricordi sono per scena e profondità, non per seme: quelli della partita di prima non valgono
+                        Recorder.Memory.Import(null);
+
+                        // un frame per gli agent dei nemici, uno per i barili che ritagliano il NavMesh
+                        yield return null;
+                        yield return null;
+
+                        int before = errors.Count;
+                        Vector3 entrance = Player.position;
+                        timings[depth].Add(CheckLevel(where, errors));
+                        yield return CheckBarrels(entrance, where, errors);
+                        built++;
+                        if (errors.Count > before)
+                        {
+                            failed++;
+                        }
                     }
+
+                    // le scene si scaricano, gli asset no (trappola della M15)
+                    yield return Resources.UnloadUnusedAssets();
                 }
 
-                // le scene si scaricano, gli asset no (trappola della M15)
-                yield return Resources.UnloadUnusedAssets();
-            }
+                var table = new StringBuilder("| Profondità | Media | Massimo |\n|---|---|---|\n");
+                for (int depth = 1; depth <= Depths; depth++)
+                {
+                    Debug.Log($"[DarkDescent] ronda notturna, tempi della profondità {depth}: media {timings[depth].Average():F0} ms, massimo {timings[depth].Max()} ms");
+                    table.Append($"| {depth} | {timings[depth].Average():F0} ms | {timings[depth].Max()} ms |\n");
+                }
 
-            for (int depth = 1; depth <= Depths; depth++)
-            {
-                Debug.Log($"[DarkDescent] ronda notturna, tempi della profondità {depth}: media {timings[depth].Average():F0} ms, massimo {timings[depth].Max()} ms");
+                string summary = $"{built} livelli, {failed} con errori, in {watch.Elapsed.TotalSeconds:F0} s; provati {_pieces} pezzi raggiunti, "
+                    + $"{_barrels} barili rotti, {_portals} portali. Tempi di generazione, costruzione e NavMesh (errore oltre {SlowestLevel} ms):";
+                Debug.Log($"[DarkDescent] ronda notturna, livelli costruiti: {summary}");
+                NightlyReport.Append(NightlyReport.Part("Livelli costruiti", summary, errors, table.ToString()));
+                reported = true;
+                if (errors.Count > 0)
+                {
+                    Assert.Fail($"livelli costruiti: {failed} livelli su {built} con errori (per rifare la notte: {NightlyRun.SeedOption} {night}); i primi:\n\n"
+                        + string.Join("\n", errors.Take(NightlyReport.ShownErrors)));
+                }
             }
-
-            int levels = Games * Depths;
-            Debug.Log($"[DarkDescent] ronda notturna, livelli costruiti: {levels} livelli, {failed} con errori, in {watch.Elapsed.TotalSeconds:F0} s; "
-                + $"provati {_pieces} pezzi raggiunti, {_barrels} barili rotti, {_portals} portali");
-            if (errors.Count > 0)
+            finally
             {
-                Assert.Fail($"livelli costruiti: {failed} livelli su {levels} con errori (per rifare la notte: {NightlyRun.SeedOption} {night}); i primi:\n\n"
-                    + string.Join("\n", errors.Take(Shown)));
+                if (!reported)
+                {
+                    errors.Add($"{where}: la parte si è fermata qui (il perché è nei risultati dei test)");
+                    NightlyReport.Append(NightlyReport.Part("Livelli costruiti", $"interrotta dopo {built} livelli, a {where}", errors));
+                }
             }
         }
 

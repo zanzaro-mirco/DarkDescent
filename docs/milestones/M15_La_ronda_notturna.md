@@ -206,6 +206,22 @@ Insieme, ogni inversione resta entro il 3,4%: ronda verde su otto notti (4711, 2
 31337, 20261039, 20261024, 777), 420 EditMode verdi. Il ritocco esce con la v1.3.1, ed è nelle
 prove della build.
 
+### 15.6 Il rapporto
+
+**Com'è andata (23 ott 2026).** `NightlyReport` (in `Scripts/Core`, per EditMode e PlayMode) tiene
+il percorso del rapporto, che arriva sulla riga di comando con `-nightly-report` (o
+`DARKDESCENT_NIGHTLY_REPORT` in locale), e scrive le parti in Markdown: titolo, spunta o croce con
+i numeri, i dettagli e i primi dieci errori in un blocco che si apre, con il testo com'è. Ogni
+parte aggiunge la sua: mappe della cripta e delle caverne, misura del loot, misura delle difficoltà
+(il valore più basso e il più alto di ogni misura, accanto alla fascia), livelli costruiti (con la
+tabella dei tempi per profondità) e partita da sola. Le due parti PlayMode lo scrivono anche se un
+passo si ferma a metà (`try`/`finally`), con il passo a cui si sono fermate. `nightly.yml` passa
+`-nightly-report artifacts/rapporto.md` (relativo al progetto, nella cartella dei risultati), e il
+riassunto della pagina del run aggiunge il file sotto seme, commit ed esito; l'artefatto
+`rapporto-notturno` lo porta con i risultati XML. `NightlyReportTests` (4) prova il percorso, una
+parte verde, una con errori e l'aggiunta al file. In locale: 424 EditMode verdi, la ronda intera
+con il rapporto in un file solo.
+
 ---
 
 ## Trappole note
