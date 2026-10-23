@@ -353,11 +353,15 @@ namespace DarkDescent.Levels
                 }
             }
 
+            // senza porta la sala scavata resta aperta, ma i suoi angoli possono toccare la caverna solo
+            // in diagonale (ronda notturna del 23 ott 2026, seme 16557588204245213777): senza anello da
+            // tenere chiuso si scava, che non stacca niente
             foreach (var cell in ring)
             {
                 _cells[cell.x, cell.y] = LevelMap.Floor;
             }
 
+            DigDiagonals(center);
             return true;
         }
 
@@ -426,6 +430,36 @@ namespace DarkDescent.Levels
                 if (changed)
                 {
                     RemoveUnreachable(entrance);
+                }
+            }
+        }
+
+        // Attorno alla sala senza porta: dove due pavimenti si toccano solo in diagonale si scava una
+        // delle due rocce tra loro, la più lontana dalla sala. Ogni scavo può lasciarne un'altra accanto:
+        // si ripassa finché non ce ne sono più (semi 8230148923540967550 e 9793415644043241166, dove
+        // riempire staccava la sala o mezza caverna)
+        private void DigDiagonals(Vector2Int center)
+        {
+            int Far(Vector2Int cell) => Math.Max(Math.Abs(cell.x - center.x), Math.Abs(cell.y - center.y));
+            bool changed = true;
+            for (int guard = 0; changed && guard < 10; guard++)
+            {
+                changed = false;
+                for (int y = 1; y < _height - 2; y++)
+                {
+                    for (int x = 1; x < _width - 2; x++)
+                    {
+                        bool a = IsFloor(x, y), b = IsFloor(x + 1, y), c = IsFloor(x, y + 1), d = IsFloor(x + 1, y + 1);
+                        if ((a && d && !b && !c) || (b && c && !a && !d))
+                        {
+                            // le due rocce tra i pavimenti
+                            var first = a ? new Vector2Int(x + 1, y) : new Vector2Int(x, y);
+                            var second = a ? new Vector2Int(x, y + 1) : new Vector2Int(x + 1, y + 1);
+                            var rock = Far(second) > Far(first) ? second : first;
+                            _cells[rock.x, rock.y] = LevelMap.Floor;
+                            changed = true;
+                        }
+                    }
                 }
             }
         }

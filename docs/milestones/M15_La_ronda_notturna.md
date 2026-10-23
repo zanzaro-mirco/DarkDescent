@@ -254,6 +254,22 @@ In locale la ronda intera dura circa 24 minuti di test (EditMode 3 min e 49 s, P
 livelli costruiti 647 s, partite da sole 46 s l'una, partita lunga 129 s); 424 EditMode e 244
 PlayMode verdi.
 
+In CI (Nightly #3, seme 20261023, dopo i Tests verdi del push): **35 minuti**, di cui circa 30 di
+test. PlayMode 21 minuti (livelli costruiti 711 s, partite da sole 49 s l'una, partita lunga
+131 s, niente che cresce); EditMode circa 9 (mappe della cripta 275 s, delle caverne 223 s: sul
+runner le mappe vanno a metà della velocità del mio PC). Rossa per **una mappa delle caverne su
+20000**: alla profondità 8 della partita 16557588204245213777 la sala del re resta senza porta (il
+caso di riserva) e un suo angolo tocca la caverna solo in diagonale: nel caso di riserva l'anello
+tornava pavimento e nessuno chiudeva le diagonali. Chiuderle come attorno all'anello, riempiendo,
+non va: sulle mappe di altre notti staccava la sala (la cella fuori era l'unica strada) o mezza
+caverna. Senza un anello da tenere chiuso si può **scavare**: `DigDiagonals` apre la roccia più
+lontana dalla sala tra i due pavimenti, che non stacca niente. Sei notti di caverne in locale
+(120000 mappe) hanno dato altri due semi dello stesso errore, già presente prima (8230148923540967550,
+7000665500740811585), e un controllo troppo stretto: con la porta, l'anello lascia il **24,85%** di
+pavimento (9793415644043241166), e il minimo con la sala del re scende dal 25 al **22%**
+(`CaveChecks.LeastBossFloor`). I quattro semi sono casi di `BossTests.BossRing_LeavesNoDiagonals`,
+che ora controlla anche la forma; 429 EditMode verdi.
+
 ---
 
 ## Trappole note
