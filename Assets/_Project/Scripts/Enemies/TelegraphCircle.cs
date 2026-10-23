@@ -21,6 +21,7 @@ namespace DarkDescent.Enemies
 
         [SerializeField, Range(8, 96)] private int _segments = 48;
 
+        private Mesh _mesh;
         private GameObject _circle;
         private Transform _fill;
         private float _elapsed;
@@ -31,12 +32,18 @@ namespace DarkDescent.Enemies
 
         private void Awake()
         {
-            var mesh = TelegraphSector.BuildMesh(360f, _segments);
-            _circle = TelegraphSector.CreatePart("Telegraph", transform, mesh, _material);
+            _mesh = TelegraphSector.BuildMesh(360f, _segments);
+            _circle = TelegraphSector.CreatePart("Telegraph", transform, _mesh, _material);
             _circle.transform.localPosition = Vector3.up * _height;
-            _fill = TelegraphSector.CreatePart("Fill", _circle.transform, mesh, _fillMaterial).transform;
+            _fill = TelegraphSector.CreatePart("Fill", _circle.transform, _mesh, _fillMaterial).transform;
             _fill.localPosition = Vector3.up * 0.01f;
             _circle.SetActive(false);
+        }
+
+        // la mesh fatta in Awake non è della scena: se ne va con il re (partita lunga della M15)
+        private void OnDestroy()
+        {
+            Destroy(_mesh);
         }
 
         /// <summary>Mostra il cerchio di raggio <paramref name="radius"/>, pieno dopo <paramref name="duration"/> secondi.</summary>

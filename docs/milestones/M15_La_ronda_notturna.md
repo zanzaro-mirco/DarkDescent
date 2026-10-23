@@ -51,6 +51,7 @@ D3 cambia una riga della voce del piano (v2.58): la suite normale di notte non s
 | D10 | **Durata e posto** | Un job solo, nel gruppo `unity`, con un tetto di **120 minuti**; obiettivo sotto i 60. Se una parte si allunga, si riducono i suoi casi (sono costanti in testa ai test) | Un job lungo tiene la licenza e blocca i push del mattino |
 | D11 | **Fuori da questa milestone** | La **build notturna** e il **benchmark in build**: il runner Linux non ha una GPU e non esegue la build Windows, i tempi non direbbero niente. Le prove di **sensazione** (restano in `docs/Da_provare.md`). Click a caso sull'interfaccia | Ognuna chiede un'infrastruttura sua; la ronda resta sui controlli che danno un sì o un no |
 | D12 | **Stima** | **5–8 h**. Se servirà tagliare: prima il secondo mondo della partita da sola, poi le misure di notte (restano quelle di ogni push) | La parte (b) e il rapporto con l'issue sono quello che serve davvero |
+| D13 | **La ronda più fitta** | Aggiunta dopo la prima ronda in CI (Mirco, 23 ott 2026: «troppo veloce», 4 minuti e mezzo di test su un obiettivo di 60). **Più casi**: 20000 mappe per tipo, 200 partite costruite, misure su 2000 partite per profondità e su 400 con 1024 equipaggiamenti. **Una partita da sola per ogni difficoltà**, con il mondo nuovo intero fino al suo re. **La partita lunga**: sei mondi di fila alla stessa difficoltà, senza tornare al menu; dopo ogni re, in città, conta oggetti in scena, oggetti di Unity per tipo, gestori degli eventi e memoria, ed è un errore una misura che cresce a ogni mondo. Fuori, per ora: lo stesso seme rifatto due volte, la partita mortale, l'inventario a caso, i salvataggi rovinati | Il tempo della notte c'era. La partita lunga cerca quello che nessun test vede: il gioco non chiama mai `UnloadUnusedAssets`, e un `+=` senza il suo `-=` non dà errori |
 
 ---
 
@@ -64,6 +65,7 @@ D3 cambia una riga della voce del piano (v2.58): la suite normale di notte non s
 | 15.4 | La partita da sola, con i salvataggi (parti c ed e) | 1,5–2 |
 | 15.5 | Le misure di notte (parte d) | 0,5 |
 | 15.6 | Il rapporto: il file che i test scrivono, la pagina del run, l'artefatto | 0,5–1 |
+| 15.6b | La ronda più fitta (D13): più casi, una partita da sola per ogni difficoltà, la partita lunga | 1 |
 | 15.7 | L'issue sui fallimenti, provata una volta con un errore voluto dall'avvio a mano (con l'ok di Mirco: apre un'issue vera, che poi si chiude) | 0,5 |
 | 15.8 | Chiusura: ADR, lezioni nel piano, README (la sezione della CI) | 0,5 |
 
@@ -222,6 +224,36 @@ riassunto della pagina del run aggiunge il file sotto seme, commit ed esito; l'a
 parte verde, una con errori e l'aggiunta al file. In locale: 424 EditMode verdi, la ronda intera
 con il rapporto in un file solo.
 
+In CI, avvio a mano (Nightly #2, seme 20261023): verde in 11 minuti, di cui circa 4 e mezzo di
+test; il file arriva ai test con `-nightly-report` e finisce nell'artefatto `rapporto-notturno`.
+Lanciata subito dopo un push, la ronda ha preso il posto in attesa nel gruppo `unity` e ha fatto
+annullare i test di quel push, rilanciati quando la ronda è partita (verdi): l'ordine giusto è
+push, test del push in corso, poi l'avvio a mano.
+
+### 15.6b La ronda più fitta
+
+**Com'è andata (23 ott 2026).** Dopo la prima ronda in CI, D13: più casi nelle stesse parti (20000
+mappe per tipo, 200 partite costruite, loot su 2000 partite per profondità, difficoltà su 400 con
+1024 equipaggiamenti), una partita da sola per ogni difficoltà (`ValueSource` sulla tabella, 9
+partite, con il mondo nuovo intero fino al suo re) e la partita lunga
+(`NightlyGameTests.LongGame_LeavesNothingBehind`): sei mondi di fila alla stessa difficoltà, rifatti
+all'altare, senza tornare al menu dopo la prima vittoria; dopo ogni re, in città, conta gli oggetti
+in scena, gli oggetti di Unity per tipo, i gestori attaccati agli eventi dei componenti del gioco e
+la memoria, ed è un errore una misura che cresce a ogni mondo. Il rapporto ne scrive la tabella.
+
+La partita lunga ha trovato una perdita vera, la prima notte (seme 20261024): **11 `NavMeshData` e
+10–20 `Mesh` in più a ogni mondo**. `BuildNavMesh` crea un NavMesh nuovo a ogni livello e i
+telegrafi del bruto e del re una mesh a testa in `Awake`; la scena che si scarica non distrugge gli
+oggetti fatti a runtime, e il gioco non chiama mai `UnloadUnusedAssets` (lo fa solo il ritorno al
+menu, che ricarica Core). Ora `BuiltLevel` distrugge il suo NavMesh e i telegrafi la loro mesh in
+`OnDestroy`; `LeftBehindTests` (2, nella suite normale) scende tre livelli con il seme di quella
+partita e crea e distrugge un bruto e il re, rossi prima della correzione. Dopo: NavMesh e mesh
+fermi da un mondo all'altro, la memoria di Unity ferma a 263 MB. La correzione esce con la v1.3.1.
+
+In locale la ronda intera dura circa 24 minuti di test (EditMode 3 min e 49 s, PlayMode 20 min:
+livelli costruiti 647 s, partite da sole 46 s l'una, partita lunga 129 s); 424 EditMode e 244
+PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -239,6 +271,9 @@ con il rapporto in un file solo.
 - **Un errore non deve fermare la notte.** Una parte prova tutti i suoi casi, raccoglie gli errori e
   fallisce alla fine con l'elenco; il rapporto si scrive anche quando un test cade
   (`if: always()`).
+- **Il gioco non scarica gli asset.** Le scene dei livelli si scaricano, ma quello che il codice
+  crea con `new` (mesh, NavMesh, materiali) resta finché qualcuno non lo distrugge: chi lo crea lo
+  distrugge in `OnDestroy`. La partita lunga lo controlla ogni notte.
 - **I semi fissi restano fissi.** Le funzioni comuni prendono i semi da fuori: i test di ogni push
   continuano a provare 1–500, la notte i suoi.
 - **Il permesso delle issue.** Senza `issues: write` il token non le apre; l'etichetta `ronda` va
@@ -249,7 +284,8 @@ con il rapporto in un file solo.
 ## Test
 
 - EditMode `Nightly`: mappe su semi nuovi, misure.
-- PlayMode `Nightly`: livelli costruiti, partita da sola con i salvataggi.
+- PlayMode `Nightly`: livelli costruiti, una partita da sola per ogni difficoltà con i salvataggi, la
+  partita lunga.
 - Nella suite normale: le funzioni comuni dei controlli (sui semi di sempre) e la scrittura del
   rapporto.
 
@@ -257,11 +293,12 @@ con il rapporto in un file solo.
 
 ## Checklist di chiusura
 
-- [x] Decisioni D1–D12 confermate
+- [x] Decisioni D1–D13 confermate
 - [x] Categoria `Nightly` esclusa dai test di ogni push, verificato in CI
 - [x] `nightly.yml` pianificato e provato a mano
 - [x] Mappe (passo 15.2), livelli costruiti e tempi (15.3), partita da sola con i salvataggi (15.4), misure (15.5)
-- [ ] Rapporto nella pagina del run e artefatto
+- [x] Rapporto nella pagina del run e artefatto
+- [x] La ronda più fitta e la partita lunga (passo 15.6b)
 - [ ] Issue sui fallimenti provata una volta
 - [ ] Prima notte pianificata verde
 - [ ] ADR, lezioni nel piano, README

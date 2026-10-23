@@ -30,6 +30,7 @@ namespace DarkDescent.Enemies
         [SerializeField, Range(4, 64)] private int _segments = 24;
 
         private MeleeAttack _attack;
+        private Mesh _mesh;
         private Transform _fill;
         private GameObject _sector;
         private float _elapsed;
@@ -50,13 +51,19 @@ namespace DarkDescent.Enemies
             float ownRadius = TryGetComponent(out NavMeshAgent agent) ? agent.radius : 0f;
             Radius = ownRadius + weapon.Range + weapon.RangeTolerance + _targetAllowance;
 
-            var mesh = BuildMesh(weapon.Arc, _segments);
-            _sector = CreatePart("Telegraph", transform, mesh, _material);
+            _mesh = BuildMesh(weapon.Arc, _segments);
+            _sector = CreatePart("Telegraph", transform, _mesh, _material);
             _sector.transform.localPosition = Vector3.up * _height;
             _sector.transform.localScale = new Vector3(Radius, 1f, Radius);
-            _fill = CreatePart("Fill", _sector.transform, mesh, _fillMaterial).transform;
+            _fill = CreatePart("Fill", _sector.transform, _mesh, _fillMaterial).transform;
             _fill.localPosition = Vector3.up * 0.01f;
             _sector.SetActive(false);
+        }
+
+        // la mesh fatta in Awake non è della scena: se ne va con il bruto (partita lunga della M15)
+        private void OnDestroy()
+        {
+            Destroy(_mesh);
         }
 
         private void OnEnable()
