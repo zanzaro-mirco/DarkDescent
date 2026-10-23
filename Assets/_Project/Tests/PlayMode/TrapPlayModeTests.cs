@@ -102,6 +102,35 @@ namespace DarkDescent.Tests
             return center;
         }
 
+        // il punto del NavMesh più lontano dal barile tra 5 e 9 m, dalla parte opposta a chi va evitato
+        private static Vector3 Away(Vector3 center, Vector3 avoid)
+        {
+            Vector3 best = center;
+            float bestScore = float.MinValue;
+            for (int ring = 5; ring <= 9; ring++)
+            {
+                for (int i = 0; i < 32; i++)
+                {
+                    float angle = i * 11.25f * Mathf.Deg2Rad;
+                    Vector3 probe = center + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * ring;
+                    if (!NavMesh.SamplePosition(probe, out var hit, 0.6f, NavMesh.AllAreas) || FlatDistance(hit.position, center) < 5f)
+                    {
+                        continue;
+                    }
+
+                    float score = FlatDistance(hit.position, center) + FlatDistance(hit.position, avoid);
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        best = hit.position;
+                    }
+                }
+            }
+
+            Assert.Greater(bestScore, float.MinValue, $"lontano da {center} non c'è posto");
+            return best;
+        }
+
         [UnityTest, Description("Gli spuntoni feriscono il cavaliere che ci sta sopra quando escono, una volta per scatto e per la parte della vita della profondità; fuori dalla piastrella niente, e un nemico sopra non si fa male")]
         public IEnumerator Spikes_HurtOnlyTheKnight()
         {
@@ -154,7 +183,8 @@ namespace DarkDescent.Tests
             Vector3 center = barrel.transform.position;
             enemies[0].GetComponent<NavMeshAgent>().Warp(Around(center, 0f, 2.5f));
             PlayerAgent.Warp(Around(center, 180f, 2.5f));
-            enemies[1].GetComponent<NavMeshAgent>().Warp(Player.position + (Player.position - center).normalized * 6f);
+            // lontano, ma su un punto del NavMesh: fuori, Warp non lo sposta e resta dov'era (passo 15.1)
+            Assert.IsTrue(enemies[1].GetComponent<NavMeshAgent>().Warp(Away(center, Player.position)), "il nemico lontano non si sposta");
             yield return null;
             Assert.Less(FlatDistance(enemies[0].transform.position, center), 2.6f);
             Assert.Greater(FlatDistance(enemies[1].transform.position, center), 4f);

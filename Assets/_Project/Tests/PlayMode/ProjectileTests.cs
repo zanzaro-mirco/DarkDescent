@@ -92,7 +92,10 @@ namespace DarkDescent.Tests
                 for (int i = 0; i < 16 && aim == Vector3.zero; i++)
                 {
                     Vector3 direction = Quaternion.Euler(0f, i * 22.5f, 0f) * Vector3.forward;
-                    if (NavMesh.Raycast(start.position, start.position + direction * 8f, out var hit, NavMesh.AllAreas) && hit.distance > 2f)
+                    // il bordo del NavMesh deve essere un muro: un arredo basso lo ritaglia, ma il
+                    // dardo gli passa sopra e si ferma più avanti (passo 15.1)
+                    if (NavMesh.Raycast(start.position, start.position + direction * 8f, out var hit, NavMesh.AllAreas) && hit.distance > 2f
+                        && WallAhead(start.position, direction, hit.distance))
                     {
                         origin = start.position;
                         wall = hit.position;
@@ -116,6 +119,26 @@ namespace DarkDescent.Tests
             Vector3 flat = projectile.transform.position - wall;
             flat.y = 0f;
             Assert.Less(flat.magnitude, 0.6f, "esploso sul muro, non oltre");
+        }
+
+        // il primo collider a mezzo metro d'altezza è un muro del livello, non un arredo basso che
+        // ritaglia il NavMesh e che il dardo sorvola
+        private static bool WallAhead(Vector3 from, Vector3 direction, float distance)
+        {
+            if (!Physics.Raycast(from + Vector3.up * 0.5f, direction, out var hit, distance + 1f, ~0, QueryTriggerInteraction.Ignore))
+            {
+                return false;
+            }
+
+            for (var t = hit.collider.transform; t != null; t = t.parent)
+            {
+                if (t.name == "Walls")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         [UnityTest, Description("Il pool riusa i proiettili: dieci lanci, poi altri dieci dopo l'esplosione, ne creano dieci; trenta lanci di fila dal pool caldo non allocano memoria gestita")]

@@ -83,6 +83,11 @@ namespace DarkDescent.Tests
                 .ToList();
         }
 
+        private static GroundItem[] GroundItems()
+        {
+            return UnityEngine.Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None);
+        }
+
         private static bool IsGone(EnemyAI enemy)
         {
             return enemy == null || !enemy.gameObject.activeSelf;
@@ -99,18 +104,38 @@ namespace DarkDescent.Tests
 
             var level = Manager.CurrentLevel;
             int enemyCount = level.Enemies.Count;
-            // la cassa lascia sempre un oggetto e l'oro: a terra resta qualcosa con qualunque seme
-            int victim = level.Enemies.ToList().FindIndex(e => e != null && e.TryGetComponent(out LootDrop _));
-            Assert.GreaterOrEqual(victim, 0, "un nemico con il suo loot");
-            var health = level.Enemies[victim].GetComponent<Health>();
-            health.TakeDamage(new DamageInfo(health.Max, DamageType.Physical, null));
             Assert.Greater(level.Chests.Count, 0);
-            level.Chests[0].GetComponent<Interactable>().Use(PlayerObject);
-            Assert.IsTrue(level.Chests[0].IsOpen);
-            yield return new WaitForSeconds(1f);
+
+            // dal passo 13.8 la cassa lascia un oggetto solo a volte: si uccide e si apre finché a terra
+            // ci sono almeno due cose, una da raccogliere e una che resta, con qualunque seme
+            var victims = new List<int>();
+            int opened = 0;
+            for (int i = 0; i < level.Enemies.Count && GroundItems().Length < 2; i++)
+            {
+                var enemy = level.Enemies[i];
+                if (enemy == null || !enemy.TryGetComponent(out LootDrop _))
+                {
+                    continue;
+                }
+
+                var health = enemy.GetComponent<Health>();
+                health.TakeDamage(new DamageInfo(health.Max, DamageType.Physical, null));
+                victims.Add(i);
+                if (opened < level.Chests.Count)
+                {
+                    level.Chests[opened].GetComponent<Interactable>().Use(PlayerObject);
+                    Assert.IsTrue(level.Chests[opened].IsOpen);
+                    opened++;
+                }
+
+                yield return new WaitForSeconds(1f);
+            }
+
+            Assert.Greater(victims.Count, 0, "un nemico con il suo loot");
+            Assert.GreaterOrEqual(GroundItems().Length, 2, "due cose a terra");
 
             // raccolto, non torna
-            var taken = UnityEngine.Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).First(g => g.Gold > 0);
+            var taken = GroundItems().OrderByDescending(g => g.Gold).First();
             taken.GetComponent<Interactable>().Use(PlayerObject);
             yield return null;
             var before = Ground();
@@ -120,21 +145,21 @@ namespace DarkDescent.Tests
             yield return Travel("Level_Crypt", "Start", 1);
             level = Manager.CurrentLevel;
             Assert.AreEqual(enemyCount, level.Enemies.Count, "lo stesso livello dal seme");
-            Assert.IsTrue(IsGone(level.Enemies[victim]), "il nemico ucciso non rinasce");
-            Assert.AreEqual(enemyCount - 1, level.Enemies.Count(e => !IsGone(e)), "gli altri ci sono");
-            Assert.IsTrue(level.Chests[0].IsOpen, "la cassa resta aperta");
+            Assert.IsTrue(victims.All(v => IsGone(level.Enemies[v])), "i nemici uccisi non rinascono");
+            Assert.AreEqual(enemyCount - victims.Count, level.Enemies.Count(e => !IsGone(e)), "gli altri ci sono");
+            Assert.IsTrue(level.Chests.Take(opened).All(c => c.IsOpen), "le casse restano aperte");
             yield return null;
             CollectionAssert.AreEqual(before, Ground(), "gli oggetti a terra dov'erano, senza quello raccolto e senza doppioni");
 
             // salvato entrando: Continua rimette tutto com'era
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(Path.Combine(_folder, "save_1.json"), out SaveData data));
-            Assert.IsTrue(data.Levels.Any(l => l.Scene == "Level_Crypt" && l.Depth == 1 && l.Killed.Contains(victim)));
+            Assert.IsTrue(data.Levels.Any(l => l.Scene == "Level_Crypt" && l.Depth == 1 && victims.All(l.Killed.Contains)));
             yield return OpenMenu();
             Menu.ContinueButton.onClick.Invoke();
             yield return WaitUntilIn(l => l.Depth == 1, "Continua non riporta nella cripta");
             level = Manager.CurrentLevel;
-            Assert.IsTrue(IsGone(level.Enemies[victim]));
-            Assert.IsTrue(level.Chests[0].IsOpen);
+            Assert.IsTrue(victims.All(v => IsGone(level.Enemies[v])));
+            Assert.IsTrue(level.Chests.Take(opened).All(c => c.IsOpen));
             yield return null;
             CollectionAssert.AreEqual(before, Ground());
         }
