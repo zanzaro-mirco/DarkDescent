@@ -16,6 +16,13 @@ namespace DarkDescent.Tests
     /// </summary>
     public static class MapChecks
     {
+        /// <summary>
+        /// La scala sta almeno a questa parte della distanza massima dall'ingresso. Era metà: una caverna
+        /// con un corridoio lungo in fondo la lasciava a 22 passi su 46 (ronda notturna 31337, partita
+        /// 10984456463612733930, profondità 7), e la scala va nella zona aperta, non in un corridoio.
+        /// </summary>
+        public const float LeastStairsShare = 0.45f;
+
         public static string Text(LevelMap map)
         {
             var sb = new StringBuilder();
@@ -139,7 +146,7 @@ namespace DarkDescent.Tests
 
         /// <summary>
         /// Un ingresso; se c'è la scala, una sola, con la roccia a nord (lo stendardo) e il pavimento a sud
-        /// (da dove si arriva), ad almeno metà della distanza massima dall'ingresso.
+        /// (da dove si arriva), ad almeno il 45% della distanza massima dall'ingresso (<see cref="LeastStairsShare"/>).
         /// </summary>
         public static string Exits(DungeonLayout layout, bool stairs)
         {
@@ -179,7 +186,7 @@ namespace DarkDescent.Tests
 
             int steps = front + 1;
             int farthest = distances.Values.Max();
-            return steps * 2 < farthest ? $"scala a {steps} passi, il punto più lontano a {farthest}\n{Text(layout)}" : null;
+            return steps < farthest * LeastStairsShare ? $"scala a {steps} passi, il punto più lontano a {farthest}\n{Text(layout)}" : null;
         }
 
         /// <summary>Il bordo della mappa resta roccia.</summary>

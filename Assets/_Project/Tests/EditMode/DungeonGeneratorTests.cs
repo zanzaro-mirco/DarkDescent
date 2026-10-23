@@ -58,7 +58,7 @@ namespace DarkDescent.Tests
             Debug.Log($"stanze per livello su {Seeds} semi: da {fewest} a {most}");
         }
 
-        [Test, Description("Un ingresso e una scala; la scala è ad almeno metà della distanza massima, con la roccia a nord (lo stendardo) e il pavimento a sud (da dove si arriva); ingresso e scala in stanze diverse")]
+        [Test, Description("Un ingresso e una scala; la scala è ad almeno il 45% della distanza massima, con la roccia a nord (lo stendardo) e il pavimento a sud (da dove si arriva); ingresso e scala in stanze diverse")]
         public void Stairs_AreFarAndFacingSouth()
         {
             for (ulong seed = 1; seed <= Seeds; seed++)

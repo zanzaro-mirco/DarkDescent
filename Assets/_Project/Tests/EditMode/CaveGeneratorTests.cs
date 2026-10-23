@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DarkDescent.Core;
 using DarkDescent.Levels;
 using NUnit.Framework;
 using UnityEngine;
@@ -73,7 +74,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("Un ingresso in uno spazio aperto e una scala ad almeno metà della distanza massima, con la roccia a nord e il pavimento a sud")]
+        [Test, Description("Un ingresso in uno spazio aperto e una scala ad almeno il 45% della distanza massima, con la roccia a nord e il pavimento a sud")]
         public void Stairs_AreFarAndFacingSouth()
         {
             int shortest = int.MaxValue;
@@ -85,6 +86,14 @@ namespace DarkDescent.Tests
             }
 
             Debug.Log($"passi minimi dall'ingresso alla scala su {Seeds} semi: {shortest}");
+        }
+
+        [Test, Description("Con un corridoio lungo in fondo alla caverna la scala resta nella zona aperta, a 22 passi su 46: abbastanza lontana (ronda notturna 31337)")]
+        public void Stairs_BeforeALongCorridor_AreFarEnough()
+        {
+            const ulong RunSeed = 10984456463612733930UL;
+            var layout = _generator.Generate(SeedMixer.ForLevel(RunSeed, 7), 7);
+            MapChecks.Pass($"seme {RunSeed}", MapChecks.Exits(layout, stairs: true));
         }
 
         [Test, Description("Lo stesso seme dà la stessa caverna, anche da un generatore nuovo; semi diversi caverne diverse")]

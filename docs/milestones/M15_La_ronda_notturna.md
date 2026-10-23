@@ -270,6 +270,14 @@ pavimento (9793415644043241166), e il minimo con la sala del re scende dal 25 al
 (`CaveChecks.LeastBossFloor`). I quattro semi sono casi di `BossTests.BossRing_LeavesNoDiagonals`,
 che ora controlla anche la forma; 429 EditMode verdi.
 
+La notte 31337 ha dato un altro controllo troppo stretto, alla profondità 7: la scala nella zona
+aperta più lontana, a 22 passi, e un corridoio lungo in fondo alla caverna, a 46. La regola voleva
+la scala ad almeno metà del punto più lontano; ora ad almeno il **45%** (`MapChecks.LeastStairsShare`,
+decisione di Mirco), e il seme è `CaveGeneratorTests.Stairs_BeforeALongCorridor_AreFarEnough`. Mappe
+delle caverne di notte verdi su sei notti (20261023, 4711, 98765, 20261024, 31337, 1); 430 EditMode
+verdi. Da qui la ronda gira solo di notte (Mirco): le correzioni si provano in locale e l'esito in
+CI si legge la mattina dopo.
+
 ---
 
 ## Trappole note
