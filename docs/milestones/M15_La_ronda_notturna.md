@@ -156,6 +156,28 @@ trovava il NavMesh sotto il punto, con 0,6 sì e nello stesso punto (partita 301
 profondità 4, riprodotta con un test temporaneo). Ora si cerca entro 1 m e si vuole il punto entro
 30 cm. Nessun errore del gioco su cinque semi (4711, 20261023, 98765, 1, 31337), 1000 livelli.
 
+### 15.4 La partita da sola
+
+**Com'è andata (23 ott 2026).** `NightlyGameTests.Game_FromTownToTheKingAndBeyond` gioca una
+partita nuova dal menu, nel posto 1 di una cartella temporanea, alla difficoltà che viene dal seme
+della notte (`-difficulty`, che vale dal menu dal passo 14.7), con il seme della partita dato con
+`UseLootSeed` e `RunSeed` appena arrivati in città. Il cavaliere è invulnerabile: ogni colpo gli
+rimette la vita piena, e una morte si conta come errore. Scende dalla città all'8 per le scale; a
+ogni livello uccide i nemici, rompe i barili, apre le casse, usa pozzi e santuari e raccoglie
+quello che c'è a terra; alla profondità 3 torna in città con il portale e riparte da lì. A ogni
+livello va al menu dalla pausa (che salva), legge il file, preme Continua e confronta lo stato
+ripreso con il file campo per campo, con il tempo di gioco e il mana del file come in
+`SaveLoadTests`. All'8 uccide il re, prende il portale della vittoria, chiude la schermata (che
+torna al menu) e continua; all'altare sceglie la difficoltà dopo, o rifà il mondo all'ultima, e
+scende due livelli del mondo nuovo, sempre salvando e riprendendo. Ogni passo ha 20 s per
+arrivare. Circa 30 s a partita; tutta la ronda PlayMode 122 s.
+
+Un falso allarme, nel confronto: un oggetto a terra torna a x = 99,54547119 da 99,54547882, il
+rumore dei float nel passare la posizione (semi della notte 20261023 e 98765). Il confronto ora
+vuole il testo uguale e i numeri entro un millimetro; quei due falsi allarmi dicono anche che il
+confronto si accorge di una differenza. Nessun errore del gioco su sei notti (4711, 20261023,
+98765, 1, 31337, 20261039), con le difficoltà 3, 4, 6, 7 e 8; con l'8 l'altare rifà il mondo.
+
 ---
 
 ## Trappole note
@@ -194,7 +216,7 @@ profondità 4, riprodotta con un test temporaneo). Ora si cerca entro 1 m e si v
 - [x] Decisioni D1–D12 confermate
 - [x] Categoria `Nightly` esclusa dai test di ogni push, verificato in CI
 - [x] `nightly.yml` pianificato e provato a mano
-- [ ] Mappe (passo 15.2), livelli costruiti e tempi (15.3), partita da sola, misure
+- [ ] Mappe (passo 15.2), livelli costruiti e tempi (15.3), partita da sola con i salvataggi (15.4), misure
 - [ ] Rapporto nella pagina del run e artefatto
 - [ ] Issue sui fallimenti provata una volta
 - [ ] Prima notte pianificata verde
