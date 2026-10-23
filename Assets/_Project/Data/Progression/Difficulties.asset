@@ -61,7 +61,7 @@ MonoBehaviour:
   - _nameKey: difficulty.abyss1
     _color: {r: 0.85, g: 0.15, b: 0.12, a: 1}
     _zoneLevelBonus: 30
-    _life: 13.5
+    _life: 14.2
     _damage: 6
     _toHit: 82
     _armor: 44
