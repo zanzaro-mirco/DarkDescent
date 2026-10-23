@@ -27,8 +27,8 @@ namespace DarkDescent.Tests
         // 1 e 2 sono le mappe in EditMode
         private const int BuiltPart = 3;
 
-        /// <summary>Partite della parte (b), ognuna dalla profondità 1 all'8 (D5 della M15); se la notte si allunga si riducono qui (D10).</summary>
-        private const int Games = 25;
+        /// <summary>Partite della parte (b), ognuna dalla profondità 1 all'8 (D5 e D13 della M15); se la notte si allunga si riducono qui (D10).</summary>
+        private const int Games = 200;
 
         private const int Depths = 8;
 
@@ -68,7 +68,7 @@ namespace DarkDescent.Tests
             Debug.Log($"[DarkDescent] ronda notturna, PlayMode: seme della notte {seed} (per rifarla: {NightlyRun.SeedOption} {seed})");
         }
 
-        [UnityTest, Timeout(OneHour), Description("25 partite nuove dalla profondità 1 all'8, costruite come nel gioco: dall'ingresso si arriva sul NavMesh alla scala, a casse e forzieri, pozzi e santuari e al re, e si rompe ogni barile; i nemici stanno sul NavMesh, il portale trova un posto raggiungibile, nessun pezzo sta sopra un altro, e nessun livello supera i 150 ms")]
+        [UnityTest, Timeout(OneHour), Description("200 partite nuove dalla profondità 1 all'8, costruite come nel gioco: dall'ingresso si arriva sul NavMesh alla scala, a casse e forzieri, pozzi e santuari e al re, e si rompe ogni barile; i nemici stanno sul NavMesh, il portale trova un posto raggiungibile, nessun pezzo sta sopra un altro, e nessun livello supera i 150 ms")]
         public IEnumerator BuiltLevels_AreWhole()
         {
             ulong night = NightlyRun.Seed();

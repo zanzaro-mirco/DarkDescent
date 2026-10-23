@@ -26,16 +26,16 @@ namespace DarkDescent.Tests
         private const int DifficultyMapPart = 6;
         private const int GearPart = 7;
 
-        /// <summary>Partite per profondità della misura del loot (D5 della M15, parte d); i test di ogni push ne fanno 40.</summary>
-        private const int LootGames = 250;
+        /// <summary>Partite per profondità della misura del loot (D5 e D13 della M15, parte d); i test di ogni push ne fanno 40.</summary>
+        private const int LootGames = 2000;
 
         /// <summary>Partite per profondità per l'esperienza della misura delle difficoltà, ed equipaggiamenti per i colpi; a ogni push 20 e 8.</summary>
-        private const int DifficultyGames = 100;
+        private const int DifficultyGames = 400;
 
-        private const int GearSets = 256;
+        private const int GearSets = 1024;
 
-        /// <summary>Livelli per parte (D5 della M15); se la notte si allunga si riducono qui (D10).</summary>
-        private const int Levels = 2000;
+        /// <summary>Livelli per parte (D5 e D13 della M15); se la notte si allunga si riducono qui (D10).</summary>
+        private const int Levels = 20000;
 
         private const int TenMinutes = 600000;
 
@@ -52,7 +52,7 @@ namespace DarkDescent.Tests
             Debug.Log($"[DarkDescent] ronda notturna, EditMode: seme della notte {seed} (per rifarla: {NightlyRun.SeedOption} {seed})");
         }
 
-        [Test, Timeout(TenMinutes), Description("Le mappe della cripta su 2000 partite nuove: i controlli dei test di ogni push e la mappa che il gioco costruisce")]
+        [Test, Timeout(TenMinutes), Description("Le mappe della cripta su 20000 partite nuove: i controlli dei test di ogni push e la mappa che il gioco costruisce")]
         public void CryptMaps_OnNewSeeds()
         {
             var settings = Asset<DungeonSettings>("CryptSettings");
@@ -72,7 +72,7 @@ namespace DarkDescent.Tests
             });
         }
 
-        [Test, Timeout(TenMinutes), Description("Le mappe delle caverne su 2000 partite nuove, sala del re compresa: i controlli dei test di ogni push e la mappa che il gioco costruisce")]
+        [Test, Timeout(TenMinutes), Description("Le mappe delle caverne su 20000 partite nuove, sala del re compresa: i controlli dei test di ogni push e la mappa che il gioco costruisce")]
         public void CaveMaps_OnNewSeeds()
         {
             var settings = Asset<CaveSettings>("CaveSettings");
@@ -94,7 +94,7 @@ namespace DarkDescent.Tests
             });
         }
 
-        [Test, Timeout(TenMinutes), Description("La misura del loot su 250 partite nuove per profondità, dalla 1 alla 8, con le fasce del suo test di ogni push")]
+        [Test, Timeout(TenMinutes), Description("La misura del loot su 2000 partite nuove per profondità, dalla 1 alla 8, con le fasce del suo test di ogni push")]
         public void LootCensus_OnNewSeeds()
         {
             ulong night = NightlyRun.Seed();
@@ -109,7 +109,7 @@ namespace DarkDescent.Tests
             MapChecks.Pass($"misura del loot (per rifare la notte: {NightlyRun.SeedOption} {night})", error);
         }
 
-        [Test, Timeout(TenMinutes), Description("La misura delle difficoltà con l'esperienza di 100 partite nuove per profondità e 32 equipaggiamenti nuovi, con le fasce dei suoi test di ogni push")]
+        [Test, Timeout(TenMinutes), Description("La misura delle difficoltà con l'esperienza di 400 partite nuove per profondità e 1024 equipaggiamenti nuovi, con le fasce dei suoi test di ogni push")]
         public void DifficultyCensus_OnNewSeeds()
         {
             ulong night = NightlyRun.Seed();
