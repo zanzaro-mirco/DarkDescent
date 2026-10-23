@@ -723,3 +723,38 @@ Formato:
 - **Decisione:** `LootCensus`, nell'editor, genera i livelli come il gioco (`DungeonLevel.CreateMap`, nemici speciali e scorte compresi) e somma per ogni fonte gli oggetti attesi, divisi per rarità: valori attesi, non tiri, quindi senza rumore. Un test EditMode tiene la media tra 4 e 5,2 su 40 livelli per profondità. `LootBonus` ha `ReplacesRoll` (solo i tiri in più) ed `ExtraChance` (la probabilità di ogni tiro in più); le scorte, scritte nella direttiva `escorts` della mappa, tirano lo stesso numero con la soglia dimezzata; la cassa senza oggetto dà una pozione o il doppio dell'oro.
 - **Alternative scartate:** simulare i tiri, più lento e con un rumore da tollerare nel test; stimare a mano, che con i numeri della D13 dava 4–5 e la misura 6,7.
 - **Conseguenze:** ogni fonte di loot nuova va nel conteggio, e il test dice quando la media esce dalla fascia. I tagli si decidono con i numeri davanti: la D13 è passata da 6,7 a 5,0 con tre tagli scelti da Mirco.
+
+## ADR-101 — I gradi degli affissi sono asset, e il generatore sceglie prima il gruppo
+- **Data:** 2026-10-22 (passo 14.1)
+- **Contesto:** con le difficoltà il livello degli oggetti arriva a 55, e gli affissi di prima (due per gruppo) non bastavano. Il generatore pescava tra tutti gli affissi ammessi: un gruppo con più voci usciva più spesso, e danno e vita uscivano il doppio degli altri.
+- **Decisione:** ogni gruppo ha sei gradi, dal livello dell'oggetto 1, 6, 15, 25, 35 e 45; ogni grado è un `AffixDefinition` con il suo id e il campo `_grade`. Il livello dell'oggetto è il livello della zona, con quello della difficoltà. Il generatore sceglie prima il gruppo, con lo stesso peso per tutti quelli ammessi, poi il grado tra i due più alti che il livello consente (`OpenGrades`), poi il valore. Gli affissi di prima restano i gradi I e II con gli stessi id; il tooltip scrive il grado in piccolo dopo il valore.
+- **Alternative scartate:** un affisso per gruppo con il valore che cresce con il livello, che avrebbe cambiato gli oggetti salvati e tolto i nomi per grado; pescare tra tutti i gradi ammessi, che dà a un oggetto dell'Abisso un +3 Forza.
+- **Conseguenze:** gli oggetti salvati non cambiano, perché salvano gli id. Lo stesso seme fa un oggetto diverso da prima: i test con valori scritti sono stati rivisti uno per uno. Un grado nuovo è un asset con un id nuovo: duplicando un asset si copia anche l'id.
+
+## ADR-102 — La difficoltà è una tabella di moltiplicatori sopra i numeri dei nemici
+- **Data:** 2026-10-22 (passi 14.2 e 14.3)
+- **Contesto:** vita e danno dei nemici sono numeri fissi per tipo nei prefab, senza una formula da far crescere. Servivano nove gradini, dal Crepuscolo all'Abisso VI, tarabili senza codice.
+- **Decisione:** una `DifficultyTable`, un asset con una riga per gradino (`DifficultyTier`): livello della zona in più, moltiplicatori di vita, danno, esperienza e oro, punti a colpire e di Armatura in più dei nemici, quanti modificatori dei campioni prende il re, i pesi delle rarità e quanto costa morire. Il composition root li applica a ogni nemico che lega, re ed evocati compresi. Il danno del grado e quello della difficoltà sono due campi distinti di `MeleeAttack` e `RangedAttack`, composti in `DamageMultiplier` e solo lì; l'anello di fuoco del re lo usa come i suoi colpi. `DifficultyProgress`, in Core, tiene la difficoltà attuale, la più alta completata e il numero del mondo.
+- **Alternative scartate:** prefab o livelli diversi per difficoltà, che moltiplicano gli asset; nemici che crescono con il livello del cavaliere, che tolgono il senso di salire (resta nel piano da valutare).
+- **Conseguenze:** un gradino in più è una riga in più. Ogni fonte di danno nuova deve passare da `DamageMultiplier`, o resta uguale a ogni difficoltà come l'anello del re fino al passo 14.6. Cambiando difficoltà, `Changed` arriva prima di `WorldChanged`: chi rifà il mondo legge già i numeri nuovi (passo 14.7).
+
+## ADR-103 — Un mondo nuovo viene da un seme ricavato dal vecchio
+- **Data:** 2026-10-22 (passo 14.5)
+- **Contesto:** cambiare difficoltà o rifare il mondo deve dare un dungeon nuovo, con il re vivo e il suo tesoro sigillato, senza toccare personaggio, oggetti e oro. Un seme dall'orologio renderebbe la partita non riproducibile.
+- **Decisione:** `SeedMixer.ForWorld(seme di prima, numero del mondo)`, con un dominio suo. Il cambio avviene all'accampamento: si svuotano insieme i ricordi dei livelli, la mappa scoperta e il portale salvato, il re torna vivo, il mercante si rifornisce e si salva. Il salvataggio (formato 6) porta il seme del mondo attuale, la difficoltà, la più alta completata e il numero del mondo.
+- **Alternative scartate:** un seme nuovo dall'orologio; tenere i ricordi dei livelli, che rimetterebbero casse aperte e nemici uccisi in un livello diverso.
+- **Conseguenze:** la stessa partita rifà gli stessi mondi, e un test li rifà uguali. Ogni stato nuovo legato al mondo va azzerato nello stesso punto, `HandleWorldChanged`.
+
+## ADR-104 — Morire costa oro ed esperienza, mai un livello
+- **Data:** 2026-10-22 (passi 14.2 e 14.3)
+- **Contesto:** dalla M7 morire non costava niente (ADR-048). Mirco ha deciso il 18 ottobre 2026 una perdita di oro ed esperienza che cresce con la difficoltà.
+- **Decisione:** `DeathPenalty`, in Core: una parte dell'oro addosso e una parte dell'esperienza che serve per il livello successivo, mai più di quella già fatta nel livello (`CharacterProgress.Remove`). Al livello massimo non si perde esperienza. Le parti stanno nella riga della difficoltà: niente al Crepuscolo, dal 10% e 5% dell'Ombra fino al 30% e 25% dell'Abisso VI. La schermata della morte scrive quanto si è perso. Il resto di ADR-048 resta.
+- **Alternative scartate:** lasciare l'oggetto in mano dove si è morti, come in Diablo 1, che chiede un recupero e un salvataggio dell'oggetto a terra; scendere di livello, che rimette in discussione i punti spesi.
+- **Conseguenze:** al Crepuscolo il gioco resta quello che i tester conoscono. La penalità si regola come gli altri numeri della tabella.
+
+## ADR-105 — Le difficoltà si misurano con le formule del gioco
+- **Data:** 2026-10-22 (passo 14.6)
+- **Contesto:** nove gradini non si tarano provando. I numeri indicativi della scheda facevano salire il cavaliere troppo in fretta, lasciavano il colpire della formula di Diablo 1 schiacciato ai limiti e allungavano troppo il re.
+- **Decisione:** `PowerCensus`, in Core, calcola con le formule del combattimento quanti colpi servono per uccidere scheletro, bruto e re e quanti colpi arrivati regge il cavaliere: valori attesi, come `LootCensus` (ADR-100). `DifficultyCensus`, nell'editor, fa una discesa per difficoltà, una dopo l'altra: a ogni profondità il cavaliere ha il livello portato dall'esperienza dei livelli generati e la base migliore del mercante in ogni slot, al livello della zona e della rarità del gradino. Un test EditMode tiene le fasce a ogni profondità e l'inizio di ogni discesa.
+- **Alternative scartate:** simulare i combattimenti, con un rumore da tollerare; tarare a mano provando in build.
+- **Conseguenze:** i numeri della tabella sono scelti guardando le fasce. Il tetto del blocco al 75% decide quanto i nemici colpiscono dall'Abisso: se in prova è troppo facile, il primo numero da alzare è il danno.

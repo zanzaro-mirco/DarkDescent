@@ -352,6 +352,11 @@ ADR (gradi come asset e scelta per gruppo; difficoltà come tabella di moltiplic
 seme derivato; morte che costa), lezioni nel piano, README con una foto dell'altare, `bundleVersion`
 1.3.0, tag `v1.3.0` solo con la *conclusion* del run dei test a `success`.
 
+**Com'è andata (23 ott 2026).** ADR-101…105: ai quattro previsti si aggiunge la misura delle
+difficoltà, come l'ADR-100 per il loot. Lezioni nella voce della M14 del piano (v2.59). Il README ha
+la sezione della v1.3 con la foto del pannello dell'altare (`docs/media/m14_altar.png`, presa al
+passo 14.5). `bundleVersion` 1.3.0. Test: 411 EditMode e 242 PlayMode verdi.
+
 ---
 
 ## Trappole note
@@ -396,5 +401,5 @@ seme derivato; morte che costa), lezioni nel piano, README con una foto dell'alt
 - [x] Misura e taratura
 - [x] Build di prova: Mirco non ha potuto provarla; al suo posto la rilettura del codice, due errori
   corretti. Le prove sono in `docs/Da_provare.md`
-- [ ] ADR, lezioni nel piano, README
+- [x] ADR, lezioni nel piano, README
 - [ ] Tag `v1.3.0` dopo i test verdi in CI: build Windows verde

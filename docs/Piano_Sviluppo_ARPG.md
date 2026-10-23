@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.58**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.59**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.59 | 23 ott 2026 | **M14 chiusa** (tag `v1.3.0`), con le lezioni · difficoltà Crepuscolo, Ombra, Tenebra e Abisso I–VI dall'altare, sei gradi per gruppo di affissi, livello 50, morte che costa · la build non è stata provata: al suo posto la rilettura del codice, e le prove restano in `docs/Da_provare.md` · ADR-101…105 |
 | v2.58 | 22 ott 2026 | Su richiesta di Mirco, tra i lavori dopo la v1.0: i **test notturni**, un workflow che ogni notte prova centinaia di semi nuovi, una partita automatica, le due misure, i tempi e i salvataggi vecchi, con un report nel run e un'issue solo quando qualcosa fallisce. Subito dopo la chiusura della M14 |
 | v2.57 | 22 ott 2026 | Rilettura del piano e delle schede, su richiesta di Mirco: tornano tra i lavori dopo la v1.0 quattro punti rimasti per strada, il **boss a metà discesa** (M12), **pozzi e santuari nelle caverne** e **due avanzi dei barili** (M13), i **tempi di costruzione dei livelli in build** (M11). I muri trasparenti vicino al cavaliere (D5 della M3) si chiudono: bastano i muri bassi che seguono la camera. Spuntate le caselle già fatte delle schede M2.5, M4 e M9 |
 | v2.56 | 22 ott 2026 | Su richiesta di Mirco, tra i lavori dopo la v1.0: **l'equipaggiamento si vede addosso al cavaliere** (elmo, armatura, guanti e stivali con le parti dei personaggi KayKit, oltre ad arma e scudo). La M8 l'aveva rimandato alla M11, che non l'ha ripreso |
@@ -70,7 +71,7 @@
 
 ---
 
-## Stato del progetto — aggiornato al 21 ottobre 2026
+## Stato del progetto — aggiornato al 23 ottobre 2026
 
 | | |
 |---|---|
@@ -81,11 +82,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) · M13 — "Stanze vive" (21 ott 2026, tag `v1.2.0`) |
-| **Milestone corrente** | M14 — "La luce si spegne": difficoltà, gradi degli affissi, livello 50 e morte che costa (scheda `docs/milestones/M14_La_luce_si_spegne.md`, decisioni da confermare). Dopo: i test notturni, poi oggetti unici e set (§ 5, «Dopo la v1.0») |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) · M13 — "Stanze vive" (21 ott 2026, tag `v1.2.0`) · M14 — "La luce si spegne" (23 ott 2026, tag `v1.3.0`) |
+| **Milestone corrente** | Nessuna. Prossimi i **test notturni** (§ 5, «Dopo la v1.0», v2.58), poi oggetti unici e set |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `docs/Da_provare.md` (le prove in build non ancora fatte) · `DECISIONS.md` (ADR-001…100) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `docs/Da_provare.md` (le prove in build non ancora fatte) · `DECISIONS.md` (ADR-001…105) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -300,6 +301,7 @@ Ogni milestone si chiude con una **build eseguibile** e con il rituale del § 6.
 | M11 | "Look, feel e release" | arte, audio, shader, v1.0 (itch.io dopo la v1.0, dalla v2.36) | 20–30 | ✅ 17 ott |
 | M12 | "Nemici speciali" | campioni, unici, forzieri e tesoro del re; v1.1 | 9–13 | ✅ 19 ott |
 | M13 | "Stanze vive" | arredi con un senso, barili da rompere, pozzi, santuari, trappole, modelli fatti in Blender, suoni da script, ComfyUI, loot ritarato; v1.2 | 22–28 | ✅ 21 ott |
+| M14 | "La luce si spegne" | nove difficoltà dall'altare, mondi nuovi, gradi degli affissi, livello 50, morte che costa, numeri misurati; v1.3 | 12–16 | ✅ 23 ott |
 
 ---
 
@@ -492,6 +494,21 @@ Chiusa il 21 ottobre 2026 con il tag `v1.2.0`: 375 test EditMode e 226 PlayMode 
 - **Modelli e suoni da script passano dal giudizio di Mirco prima di Unity:** la foto accanto a un modello KayKit e la pagina di ascolto hanno fermato le prove venute male prima dei prefab, e i semi di Stable Audio si scelgono misurando inviluppo e attacco.
 - **Un test che salta due volte va riprodotto, non chiamato instabile:** il portale "lento" del passo 13.5 era un portale irraggiungibile in un angolo tra i barili; il seme della partita nel log della CI l'ha rifatto uguale in locale. E il tag parte solo dopo aver letto l'esito dei test, non solo la fine del run (v1.2.1).
 - **Il NavMesh ritagliato sposta i warp dei test:** un nemico messo accanto a un barile può finire 3 m più in là; i test cercano un punto vicino che il NavMesh accetta davvero.
+
+---
+
+### M14 — "La luce si spegne" ✅
+
+Chiusa il 23 ottobre 2026 con il tag `v1.3.0`: 411 test EditMode e 242 PlayMode verdi. Mirco non ha potuto provare la build: al suo posto la rilettura del codice, e le prove restano in `docs/Da_provare.md` per la prossima build. Lezioni emerse:
+
+- **Misurare prima di tarare, anche il combattimento:** i numeri indicativi facevano arrivare il cavaliere dieci livelli sopra la zona e il re durava il doppio del previsto. Con i valori attesi delle formule del gioco, nove gradini si tarano guardando le fasce (ADR-105).
+- **La formula di Diablo 1 si satura:** colpire e Armatura vanno tarati sul colpire grezzo, senza gli affissi del cavaliere, che cambiano troppo da un seme all'altro; e il tetto del blocco al 75% decide da solo quanto colpiscono i nemici delle difficoltà alte.
+- **Un moltiplicatore in un punto solo, e ogni fonte di danno passa da lì:** campione e difficoltà si compongono in `DamageMultiplier`, ma l'anello di fuoco del re aveva un danno suo e restava uguale all'Abisso (ADR-102).
+- **Gli strumenti di prova si provano dalla strada della build:** `-difficulty` e `-herolevel` funzionavano nei test, che partono con `-newgame`, ma nelle build c'è sempre il menu, e il menu non le leggeva. L'ha trovato la rilettura, non un test.
+- **L'ordine di due eventi è un contratto:** annunciare il mondo nuovo prima del cambio di difficoltà faceva rifornire il mercante con le rarità di prima. Un test ora tiene l'ordine.
+- **Asset con id propri tengono fermi i salvataggi:** i gradi nuovi sono asset nuovi e quelli di prima tengono gli id, così nessun oggetto salvato è cambiato, anche se lo stesso seme ora fa un oggetto diverso (ADR-101).
+- **Prima della migrazione, una fixture vera del formato vecchio:** il salvataggio del formato 5 è stato congelato da una partita vera prima di toccare il codice, e la migrazione al 6 si prova su quello.
+- **Una lista delle prove saltate:** tre milestone di fila senza build provata lasciavano le prove sparse tra schede e memoria. Ora stanno in `docs/Da_provare.md`, che si svuota alla prima build provata.
 
 ---
 
@@ -892,7 +909,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - Nel codice: i momenti sono eventi che esistono già (nemico visto, oggetto a terra, salita di livello); un componente li ascolta e mostra il testo dalla tabella delle stringhe. Circa 4–5 h.
 - **Nemici che scappano** (dai tester, 18 ott 2026). Oggi scappa solo il mago, per tenere la distanza (M9). Uno stato di **fuga** nella macchina a stati della M7 (ADR-042): scatta con poca vita, dopo un certo numero di colpi presi o quando muore un compagno vicino; il nemico corre lontano dal cavaliere sul NavMesh per qualche secondo, poi torna a combattere o chiama i compagni. Per lo sciame e gli scheletri semplici, non per il bruto né per il re. Le soglie sono dati dell'archetipo. Circa 2–3 h.
 - **Casse di più tipi** (dai tester, 18 ott 2026, come in *Titan Quest*). Oggi le casse sono tutte uguali. Tre tipi, ognuno con la sua `LootTable` e un modello suo del pacchetto KayKit: la **cassa** di sempre; il **forziere**, più raro, accanto alla scorta di un campione o di un unico, con più oggetti e rarità spostate verso magico e raro; il **tesoro del re** nella sala del boss, che si apre quando il re muore. Si fa insieme ai nemici speciali, che danno il posto ai forzieri. Il seme ha già il suo dominio per le casse: il tipo si tira a parte, così il contenuto delle casse dei semi già provati non cambia. Circa 2–3 h.
-- **Difficoltà dopo la vittoria** (dai tester, 18 ott 2026; decisioni di Mirco del 18 ott 2026, come in Diablo 3). **È la M14** (scheda `docs/milestones/M14_La_luce_si_spegne.md`, v2.55), con i gradi degli affissi, il livello 50 e la punizione alla morte. Oggi, sconfitto il re, la partita resta salvata ma i livelli sono ripuliti e non resta niente da trovare: contro il pilastro del § 2. Cosa comporta:
+- **Difficoltà dopo la vittoria** (dai tester, 18 ott 2026; decisioni di Mirco del 18 ott 2026, come in Diablo 3). **Fatta nella M14** (v1.3.0, 23 ott 2026) (scheda `docs/milestones/M14_La_luce_si_spegne.md`, v2.55), con i gradi degli affissi, il livello 50 e la punizione alla morte. Oggi, sconfitto il re, la partita resta salvata ma i livelli sono ripuliti e non resta niente da trovare: contro il pilastro del § 2. Cosa comporta:
   - **Le difficoltà**, con nomi nostri (scelti da Mirco, v2.40): la luce che si spegne scendendo. **Crepuscolo** (*Dusk*), **Ombra** (*Shadow*), **Tenebra** (*Darkness*), poi l'**Abisso** (*Abyss*) in numeri romani: da I a VI per cominciare, quanti siano è un dato. Si parte dal Crepuscolo.
   - **Come si sceglie.** All'accampamento, da un altare accanto alla discesa nella cripta (o dal portale per la cripta), liberamente **tra quelle già completate e quella subito dopo**: uccidere il re a una difficoltà apre la successiva. Si può sempre tornare a una più bassa.
   - **Cambiare difficoltà rifà il mondo**: un seme nuovo per il dungeon, i ricordi dei livelli (ADR-079) ripartono, il re rinasce. Personaggio, equipaggiamento, zaino, oro e livello restano. Lo stesso altare permette di **rifare il mondo** senza cambiare difficoltà, per ricominciarlo con un dungeon nuovo, dopo una conferma.

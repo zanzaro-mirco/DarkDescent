@@ -9,6 +9,22 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.3 — M14 "La luce si spegne"**, chiusa il 23 ottobre 2026 (tag `v1.3.0`). Rispetto alla v1.2:
+
+- **nove difficoltà**: Crepuscolo, Ombra, Tenebra e Abisso I–VI, scelte da un **altare**
+  all'accampamento. Battere il re apre la successiva, e si può tornare indietro o **rifare il mondo**:
+  un dungeon nuovo con il re vivo, mentre personaggio, oggetti e oro restano;
+- nemici con più vita, più danno, più colpire e più Armatura, e un **re** che prende i modificatori
+  dei campioni; più esperienza, più oro e oggetti più rari;
+- **sei gradi** per ogni gruppo di affissi, dal livello della zona: un nome per grado e il grado in
+  piccolo nel tooltip;
+- **livello 50**;
+- **morire costa** una parte dell'oro e dell'esperienza del livello, dall'Ombra in su, senza mai
+  scendere di livello;
+- i numeri delle difficoltà sono **misurati** con le formule del gioco, non indovinati.
+
+![Il pannello dell'altare all'accampamento: il Crepuscolo completato, l'Ombra attuale, la Tenebra aperta, i sei Abissi chiusi in grigio; sotto, Rifai il mondo e Indietro](docs/media/m14_altar.png)
+
 **v1.2 — M13 "Stanze vive"**, chiusa il 21 ottobre 2026 (tag `v1.2.0`). Rispetto alla v1.1:
 
 - **arredi con un senso**: un tema per stanza, mai due composizioni uguali, oggetti in mezzo girati
