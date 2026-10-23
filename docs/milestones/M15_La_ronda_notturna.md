@@ -91,6 +91,47 @@ alto 1 m, sopra cui il dardo passa (ora il bordo deve avere davanti un collider 
 solo il 35% delle volte (ora uccide e apre finché a terra ci sono due cose). Riprodotti con il seme
 del run caduto, poi verdi: 414 EditMode e 242 PlayMode.
 
+### 15.2 Mappe su semi nuovi
+
+**Com'è andata (23 ott 2026).** I controlli delle mappe dei test di ogni push sono in funzioni
+comuni, che restituiscono il primo errore o null: `MapChecks` (raggiungibilità, ostacoli che non
+chiudono passaggi, ingresso e scala, bordo), `CryptChecks` (stanze, scheletri e casse, torce,
+ostacoli contro i muri), `CaveChecks` (forma, pilastri e diagonali, ingresso aperto, nemici della
+tabella, cunicoli, candele, sala del re). `DungeonGeneratorTests`, `CaveGeneratorTests`,
+`DungeonContentTests`, `CaveContentTests` e `BossTests` le chiamano sui semi di sempre, con
+`MapChecks.Pass` che fa cadere il test al primo errore; `MapChecksTests` prova che i controlli
+trovano gli errori su mappe scritte a mano. La ronda (`NightlyEditModeTests`) prova 2000 partite
+nuove per la cripta e 2000 per le caverne, dalla prima all'ultima profondità a turno, con gli asset
+veri delle impostazioni: tutti i controlli sul livello generato, poi raggiungibilità e ostacoli
+sulla mappa che il gioco costruisce (nemici speciali, forzieri, tesoro del re, scala tolta all'8) e
+la sala del re. Gli errori si raccolgono e il test cade alla fine con i primi dieci, ognuno con il
+seme della partita e la profondità. Circa 8 s per le caverne e 9 s per la cripta.
+
+La prima notte provata (seme 4711) ha trovato 27 livelli con errori, tutti all'8, che i test di
+ogni push sulla forma non provavano mai (solo la profondità 5):
+
+- **Un errore vero, grave: la profondità 8 senza il re** (partita 455840980255010401, 1 livello su
+  500 all'8). La zona aperta più lontana a piedi era a due passi dall'ingresso in linea d'aria, in
+  una caverna a U: `TryCarveBossRoom` rinunciava alla sala, e senza sala il popolatore non metteva
+  il re. Senza re non si apre il portale della vittoria e il mondo non si finisce. Ora
+  `TryPlaceBossRoom` prova le zone aperte dalla più lontana in giù e prende la prima abbastanza
+  lontana; dove la prima andava, la sala è quella di prima.
+- **Un errore vero, piccolo: pavimenti uniti solo in diagonale attorno a un angolo dell'anello**
+  (2 su 500), che il NavMesh non collega. `CloseRingDiagonals` riempie il pavimento più lontano
+  dalla sala, o l'altro se quello chiudeva la strada per la porta, e toglie quello che resta
+  tagliato fuori.
+- **Previsti dal progetto, corretti nei controlli**: il pavimento all'8 fuori dal 35–45% (l'anello
+  taglia fuori parte della caverna, fino al 30%; la sala scavata nella roccia aggiunge fino al 4%,
+  il 46% con il seme 98765): con la sala la fascia è 25–50%. La sala senza porta (4 su 500), che è
+  il ripiego scritto in `TryCarveBossRoom` e che il gioco regge (`BossController` controlla la
+  porta nulla): il controllo chiede solo che al re si arrivi, e le candele agli angoli della sala
+  non devono stare contro la roccia.
+
+I tre livelli sbagliati sono test con il seme fisso in `BossTests` (`Depth8_AlwaysHasTheKing`,
+`BossRing_LeavesNoDiagonals`), visti cadere prima della correzione. Dopo: 420 EditMode e 242
+PlayMode verdi, e la ronda pulita con sei semi della notte (4711, 20261023, 98765, 1, 31337,
+20261024), 24.000 mappe. Le due correzioni cambiano il gioco: escono con la v1.3.1 (D1).
+
 ---
 
 ## Trappole note
@@ -129,7 +170,7 @@ del run caduto, poi verdi: 414 EditMode e 242 PlayMode.
 - [x] Decisioni D1–D12 confermate
 - [x] Categoria `Nightly` esclusa dai test di ogni push, verificato in CI
 - [x] `nightly.yml` pianificato e provato a mano
-- [ ] Mappe, livelli costruiti, partita da sola, misure, tempi
+- [ ] Mappe (fatto, passo 15.2), livelli costruiti, partita da sola, misure, tempi
 - [ ] Rapporto nella pagina del run e artefatto
 - [ ] Issue sui fallimenti provata una volta
 - [ ] Prima notte pianificata verde

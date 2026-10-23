@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using DarkDescent.Levels;
 using NUnit.Framework;
 using UnityEngine;
@@ -46,21 +45,7 @@ namespace DarkDescent.Tests
         {
             for (ulong seed = 1; seed <= Seeds; seed++)
             {
-                var layout = _generator.Generate(seed, 5);
-                var map = Map(layout);
-                var distances = MapChecks.Walk(map, layout.Entrance);
-                for (int y = 0; y < map.Height; y++)
-                {
-                    for (int x = 0; x < map.Width; x++)
-                    {
-                        if (map.IsFloor(x, y) && map.GetSymbol(x, y) != DungeonGenerator.StairsSymbol && !distances.ContainsKey(new Vector2Int(x, y)))
-                        {
-                            Assert.Fail($"seme {seed}: ({x}, {y}) irraggiungibile\n{MapChecks.Text(map)}");
-                        }
-                    }
-                }
-
-                Assert.IsTrue(distances.ContainsKey(layout.Stairs + Vector2Int.up), $"seme {seed}: davanti alla scala non si arriva");
+                MapChecks.Pass($"seme {seed}", MapChecks.Reachable(_generator.Generate(seed, 5), stairs: true));
             }
         }
 
@@ -68,35 +53,12 @@ namespace DarkDescent.Tests
         public void Floor_IsAboutFortyPercentAndInsideTheBorder()
         {
             float least = 1f, most = 0f;
-            int interior = (_settings.Width - 2) * (_settings.Height - 2);
             for (ulong seed = 1; seed <= Seeds; seed++)
             {
                 var layout = _generator.Generate(seed, 5);
-                int floor = 0;
-                for (int y = 0; y < layout.Height; y++)
-                {
-                    for (int x = 0; x < layout.Width; x++)
-                    {
-                        if (!layout.IsFloor(x, y))
-                        {
-                            continue;
-                        }
-
-                        floor++;
-                        if (x == 0 || y == 0 || x == layout.Width - 1 || y == layout.Height - 1)
-                        {
-                            Assert.Fail($"seme {seed}: pavimento sul bordo in ({x}, {y})");
-                        }
-                    }
-                }
-
-                float fraction = floor / (float)interior;
-                least = Mathf.Min(least, fraction);
-                most = Mathf.Max(most, fraction);
-                if (fraction < 0.35f || fraction > 0.45f)
-                {
-                    Assert.Fail($"seme {seed}: pavimento al {fraction:P0}\n{MapChecks.Text(Map(layout))}");
-                }
+                least = Mathf.Min(least, CaveChecks.FloorFraction(layout));
+                most = Mathf.Max(most, CaveChecks.FloorFraction(layout));
+                MapChecks.Pass($"seme {seed}", CaveChecks.Shape(layout));
             }
 
             Debug.Log($"pavimento delle caverne su {Seeds} semi: da {least:P1} a {most:P1}");
@@ -107,23 +69,7 @@ namespace DarkDescent.Tests
         {
             for (ulong seed = 1; seed <= Seeds; seed++)
             {
-                var layout = _generator.Generate(seed, 5);
-                for (int y = 1; y < layout.Height - 1; y++)
-                {
-                    for (int x = 1; x < layout.Width - 1; x++)
-                    {
-                        if (!layout.IsFloor(x, y) && layout.IsFloor(x - 1, y) && layout.IsFloor(x + 1, y) && layout.IsFloor(x, y - 1) && layout.IsFloor(x, y + 1))
-                        {
-                            Assert.Fail($"seme {seed}: pilastro in ({x}, {y})\n{MapChecks.Text(Map(layout))}");
-                        }
-
-                        bool a = layout.IsFloor(x, y), b = layout.IsFloor(x + 1, y), c = layout.IsFloor(x, y + 1), d = layout.IsFloor(x + 1, y + 1);
-                        if ((a && d && !b && !c) || (b && c && !a && !d))
-                        {
-                            Assert.Fail($"seme {seed}: pavimenti uniti solo in diagonale in ({x}, {y})\n{MapChecks.Text(Map(layout))}");
-                        }
-                    }
-                }
+                MapChecks.Pass($"seme {seed}", CaveChecks.PillarsAndDiagonals(_generator.Generate(seed, 5)));
             }
         }
 
@@ -134,27 +80,8 @@ namespace DarkDescent.Tests
             for (ulong seed = 1; seed <= Seeds; seed++)
             {
                 var layout = _generator.Generate(seed, 5);
-                var map = Map(layout);
-                Assert.AreEqual(1, map.Markers.Count(m => m.Symbol == DungeonGenerator.EntranceSymbol), $"seme {seed}");
-                Assert.AreEqual(1, map.Markers.Count(m => m.Symbol == DungeonGenerator.StairsSymbol), $"seme {seed}");
-
-                for (int dy = -1; dy <= 1; dy++)
-                {
-                    for (int dx = -1; dx <= 1; dx++)
-                    {
-                        Assert.IsTrue(map.IsFloor(layout.Entrance.x + dx, layout.Entrance.y + dy), $"seme {seed}: l'ingresso non è in uno spazio aperto");
-                    }
-                }
-
-                Assert.IsFalse(map.IsFloor(layout.Stairs.x, layout.Stairs.y - 1), $"seme {seed}: a nord della scala va la roccia");
-                var distances = MapChecks.Walk(map, layout.Entrance);
-                int stairs = distances[layout.Stairs + Vector2Int.up] + 1;
-                int farthest = distances.Values.Max();
-                shortest = Mathf.Min(shortest, stairs);
-                if (stairs * 2 < farthest)
-                {
-                    Assert.Fail($"seme {seed}: scala a {stairs} passi, il punto più lontano a {farthest}\n{MapChecks.Text(map)}");
-                }
+                MapChecks.Pass($"seme {seed}", MapChecks.Exits(layout, stairs: true) ?? CaveChecks.OpenEntrance(layout));
+                shortest = Mathf.Min(shortest, MapChecks.Walk(layout, c => c != DungeonGenerator.StairsSymbol)[layout.Stairs + Vector2Int.up] + 1);
             }
 
             Debug.Log($"passi minimi dall'ingresso alla scala su {Seeds} semi: {shortest}");

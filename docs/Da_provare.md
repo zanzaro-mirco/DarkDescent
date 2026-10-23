@@ -19,6 +19,12 @@ prossima build da provare è quella del tag `v1.3.0`.
 - **Suoni nuovi** nel gioco: escono con tiri diversi da quelli della pagina di ascolto.
 - **Loot**: circa 5 oggetti a livello; troppo o troppo poco?
 
+## Dalla M15 — "La ronda notturna" (v1.3.1)
+
+- **Il re c'è sempre**: `DarkDescent.exe -newgame -seed 455840980255010401`, scendere fino all'8:
+  c'è la sala del re (prima della correzione mancava, e il mondo non si finiva). Lunga: si fa se
+  capita, i test la coprono.
+
 ## Dalla M14 — "La luce si spegne" (v1.3.0)
 
 - **La riga della morte**: quanto oro ed esperienza si perde, nella schermata della morte. Mai vista

@@ -12,8 +12,6 @@ namespace DarkDescent.Tests
     {
         private const int Seeds = 200;
 
-        private static readonly Vector2Int[] Steps = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
-
         private static CaveSettings Caves => AssetDatabase.LoadAssetAtPath<CaveSettings>("Assets/_Project/Data/Levels/CaveSettings.asset");
 
         private static DungeonSettings Crypt => AssetDatabase.LoadAssetAtPath<DungeonSettings>("Assets/_Project/Data/Levels/CryptSettings.asset");
@@ -29,51 +27,6 @@ namespace DarkDescent.Tests
                     yield return (seed, depth, generator.Generate(seed * 31 + (ulong)depth, depth));
                 }
             }
-        }
-
-        private static List<Vector2Int> Find(DungeonLayout layout, Func<char, bool> wanted)
-        {
-            var cells = new List<Vector2Int>();
-            for (int y = 0; y < layout.Height; y++)
-            {
-                for (int x = 0; x < layout.Width; x++)
-                {
-                    if (wanted(layout[x, y]))
-                    {
-                        cells.Add(new Vector2Int(x, y));
-                    }
-                }
-            }
-
-            return cells;
-        }
-
-        private static bool Walkable(DungeonLayout layout, Vector2Int c)
-        {
-            return layout.IsFloor(c.x, c.y) && layout[c.x, c.y] != DungeonGenerator.StairsSymbol && !DungeonPopulator.IsObstacle(layout[c.x, c.y]);
-        }
-
-        // passi a piedi dall'ingresso, girando attorno a casse e scenografia
-        private static Dictionary<Vector2Int, int> Walk(DungeonLayout layout)
-        {
-            var distance = new Dictionary<Vector2Int, int> { [layout.Entrance] = 0 };
-            var queue = new Queue<Vector2Int>();
-            queue.Enqueue(layout.Entrance);
-            while (queue.Count > 0)
-            {
-                var cell = queue.Dequeue();
-                foreach (var step in Steps)
-                {
-                    var next = cell + step;
-                    if (Walkable(layout, next) && !distance.ContainsKey(next))
-                    {
-                        distance[next] = distance[cell] + 1;
-                        queue.Enqueue(next);
-                    }
-                }
-            }
-
-            return distance;
         }
 
         [Test, Description("Le profondità si concatenano: la cripta dall'1 al 4, la scala del 4 porta alle caverne al 5, l'8 non ha la scala")]
@@ -100,52 +53,19 @@ namespace DarkDescent.Tests
             var settings = Caves;
             foreach (var (seed, depth, layout) in Levels())
             {
-                var row = settings.SpawnTable.For(depth);
-                var enemies = Find(layout, CavePopulator.IsEnemy);
-                int swarm = enemies.Count(c => layout[c.x, c.y] == CavePopulator.SwarmSymbol);
-                int brutes = enemies.Count(c => layout[c.x, c.y] == CavePopulator.BruteSymbol);
-                int mages = enemies.Count(c => layout[c.x, c.y] == DungeonPopulator.MageSymbol);
-                int bosses = enemies.Count(c => layout[c.x, c.y] == CavePopulator.BossSymbol);
-                int skeletons = enemies.Count - swarm - brutes - mages - bosses;
-                string where = $"seme {seed}, profondità {depth}";
-                Assert.AreEqual(depth == settings.BossDepth ? 1 : 0, bosses, $"{where}: il boss");
-                Assert.That(brutes, Is.InRange(row.Brutes.x, row.Brutes.y), $"{where}: bruti");
-                Assert.That(mages, Is.InRange(row.Mages.x, row.Mages.y), $"{where}: maghi");
-                Assert.That(swarm, Is.InRange(row.SwarmGroups.x * settings.MinSwarm, row.SwarmGroups.y * settings.MaxSwarm), $"{where}: sciame");
-                Assert.That(skeletons, Is.InRange(row.SkeletonGroups.x * settings.MinGroup, row.SkeletonGroups.y * settings.MaxGroup), $"{where}: scheletri");
-                var chests = Find(layout, c => c == DungeonPopulator.ChestSymbol);
-                Assert.AreEqual(settings.ChestCount(depth), chests.Count, $"seme {seed}, profondità {depth}: casse");
-
-                // senza ostacoli: i passi della caverna com'è, non i giri attorno alle casse
-                var bare = LevelGrid.Distances(Cells(layout, plain: true), layout.Entrance);
-                foreach (var cell in enemies.Concat(chests))
-                {
-                    Assert.GreaterOrEqual(bare[cell.x, cell.y], settings.QuietSteps, $"seme {seed}, profondità {depth}: {layout[cell.x, cell.y]} in {cell} troppo vicino all'ingresso");
-                }
+                MapChecks.Pass($"seme {seed}, profondità {depth}", CaveChecks.Population(layout, settings, depth));
             }
         }
 
         [Test, Description("Su 200 semi per profondità, con casse e scenografia ogni pavimento si raggiunge a piedi, e nessun ostacolo chiude un cunicolo largo una cella")]
         public void Obstacles_NeverCutTheCave()
         {
+            int last = Caves.LastDepth;
             foreach (var (seed, depth, layout) in Levels())
             {
-                var reached = Walk(layout);
-                foreach (var cell in Find(layout, c => c != LevelMap.Rock))
-                {
-                    if (Walkable(layout, cell))
-                    {
-                        Assert.IsTrue(reached.ContainsKey(cell), $"seme {seed}, profondità {depth}: {cell} irraggiungibile");
-                    }
-                }
-
-                Assert.IsTrue(reached.ContainsKey(layout.Stairs + Vector2Int.up) || depth == Caves.LastDepth, $"seme {seed}, profondità {depth}: davanti alla scala non si arriva");
-                foreach (var cell in Find(layout, DungeonPopulator.IsObstacle))
-                {
-                    bool northSouth = !layout.IsFloor(cell.x, cell.y - 1) && !layout.IsFloor(cell.x, cell.y + 1);
-                    bool eastWest = !layout.IsFloor(cell.x - 1, cell.y) && !layout.IsFloor(cell.x + 1, cell.y);
-                    Assert.IsFalse(northSouth || eastWest, $"seme {seed}, profondità {depth}: ostacolo in un cunicolo in {cell}");
-                }
+                string where = $"seme {seed}, profondità {depth}";
+                MapChecks.Pass(where, MapChecks.ObstaclesLeavePath(layout, stairs: depth < last));
+                MapChecks.Pass(where, CaveChecks.Corridors(layout));
             }
         }
 
@@ -156,7 +76,7 @@ namespace DarkDescent.Tests
             var sums = new Dictionary<int, (float skeletons, float swarm, float brutes)>();
             foreach (var (_, depth, layout) in Levels())
             {
-                var enemies = Find(layout, CavePopulator.IsEnemy).Select(c => layout[c.x, c.y]).ToList();
+                var enemies = MapChecks.Find(layout, CavePopulator.IsEnemy).Select(c => layout[c.x, c.y]).ToList();
                 sums.TryGetValue(depth, out var sum);
                 sums[depth] = (sum.skeletons + enemies.Count(c => c == DungeonPopulator.EnemySymbol),
                     sum.swarm + enemies.Count(c => c == CavePopulator.SwarmSymbol),
@@ -193,19 +113,8 @@ namespace DarkDescent.Tests
             int least = int.MaxValue;
             foreach (var (seed, depth, layout) in Levels())
             {
-                var candles = Find(layout, c => c == CavePopulator.CandleSymbol);
-                least = Math.Min(least, candles.Count);
-                Assert.Greater(candles.Count, 3, $"seme {seed}, profondità {depth}: poche candele");
-                for (int i = 0; i < candles.Count; i++)
-                {
-                    var c = candles[i];
-                    Assert.IsTrue(Steps.Any(s => !layout.IsFloor(c.x + s.x, c.y + s.y)), $"seme {seed}: candela lontana dalla roccia in {c}");
-                    for (int j = i + 1; j < candles.Count; j++)
-                    {
-                        int apart = Math.Max(Math.Abs(c.x - candles[j].x), Math.Abs(c.y - candles[j].y));
-                        Assert.GreaterOrEqual(apart, settings.CandleSpacing, $"seme {seed}: candele troppo vicine in {c} e {candles[j]}");
-                    }
-                }
+                least = Math.Min(least, MapChecks.Count(layout, CavePopulator.CandleSymbol));
+                MapChecks.Pass($"seme {seed}, profondità {depth}", CaveChecks.Candles(layout, settings));
             }
 
             Debug.Log($"candele minime in una caverna: {least}");

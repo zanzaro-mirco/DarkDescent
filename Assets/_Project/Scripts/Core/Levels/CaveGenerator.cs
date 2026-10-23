@@ -298,9 +298,7 @@ namespace DarkDescent.Levels
         {
             const int Ring = BossRoomHalf + 1;
             gate = new Vector2Int(-1, -1);
-            Vector2Int far = FarthestOpenCell(entrance);
-            center = new Vector2Int(Mathf.Clamp(far.x, Ring + 1, _width - Ring - 2), Mathf.Clamp(far.y, Ring + 1, _height - Ring - 2));
-            if (Math.Max(Math.Abs(center.x - entrance.x), Math.Abs(center.y - entrance.y)) <= Ring + 2)
+            if (!TryPlaceBossRoom(entrance, Ring, out center))
             {
                 return false;
             }
@@ -350,6 +348,7 @@ namespace DarkDescent.Levels
                 {
                     gate = door;
                     RemoveUnreachable(entrance);
+                    CloseRingDiagonals(entrance, center);
                     return true;
                 }
             }
@@ -360,6 +359,99 @@ namespace DarkDescent.Levels
             }
 
             return true;
+        }
+
+        // Il centro della sala: la zona aperta più lontana a piedi dall'ingresso, tenuta dentro la mappa
+        // con il suo anello. In una caverna a U la più lontana a piedi può stare a due passi in linea
+        // d'aria: allora la successiva, perché senza sala non c'è il re e la partita non si finisce
+        // (ronda notturna del 23 ott 2026). Dove la prima va bene, la sala è quella di prima.
+        private bool TryPlaceBossRoom(Vector2Int entrance, int ring, out Vector2Int center)
+        {
+            int[,] distances = LevelGrid.Distances(_cells, entrance);
+            var open = new List<Vector2Int>();
+            for (int y = 1; y < _height - 1; y++)
+            {
+                for (int x = 1; x < _width - 1; x++)
+                {
+                    if (distances[x, y] >= 0 && FloorAround(_cells, x, y) == 8)
+                    {
+                        open.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+
+            // ordine stabile: prima la più lontana, poi la più a nord, poi la più a ovest (come FarthestOpenCell)
+            open.Sort((a, b) => distances[a.x, a.y] != distances[b.x, b.y] ? distances[b.x, b.y].CompareTo(distances[a.x, a.y])
+                : a.y != b.y ? a.y.CompareTo(b.y)
+                : a.x.CompareTo(b.x));
+            foreach (var far in open)
+            {
+                center = new Vector2Int(Mathf.Clamp(far.x, ring + 1, _width - ring - 2), Mathf.Clamp(far.y, ring + 1, _height - ring - 2));
+                if (Math.Max(Math.Abs(center.x - entrance.x), Math.Abs(center.y - entrance.y)) > ring + 2)
+                {
+                    return true;
+                }
+            }
+
+            center = default;
+            return false;
+        }
+
+        // Un angolo dell'anello può lasciare fuori dalla sala due pavimenti che si toccano solo in
+        // diagonale, che il NavMesh non collega (trappola 2; ronda notturna del 23 ott 2026). Scavare
+        // l'angolo aprirebbe l'anello: si riempie il pavimento più lontano dalla sala, o l'altro se
+        // quello chiudeva la strada per la porta, e quello che resta tagliato fuori torna roccia.
+        private void CloseRingDiagonals(Vector2Int entrance, Vector2Int center)
+        {
+            bool changed = true;
+            for (int guard = 0; changed && guard < 10; guard++)
+            {
+                changed = false;
+                for (int y = 1; y < _height - 2; y++)
+                {
+                    for (int x = 1; x < _width - 2; x++)
+                    {
+                        bool a = IsFloor(x, y), b = IsFloor(x + 1, y), c = IsFloor(x, y + 1), d = IsFloor(x + 1, y + 1);
+                        if (a && d && !b && !c)
+                        {
+                            changed |= FillOne(entrance, center, new Vector2Int(x, y), new Vector2Int(x + 1, y + 1));
+                        }
+                        else if (b && c && !a && !d)
+                        {
+                            changed |= FillOne(entrance, center, new Vector2Int(x + 1, y), new Vector2Int(x, y + 1));
+                        }
+                    }
+                }
+
+                if (changed)
+                {
+                    RemoveUnreachable(entrance);
+                }
+            }
+        }
+
+        // riempie uno dei due pavimenti, prima il più lontano dalla sala, se la sala resta raggiungibile
+        private bool FillOne(Vector2Int entrance, Vector2Int center, Vector2Int first, Vector2Int second)
+        {
+            int Far(Vector2Int cell) => Math.Max(Math.Abs(cell.x - center.x), Math.Abs(cell.y - center.y));
+            var order = Far(second) > Far(first) ? new[] { second, first } : new[] { first, second };
+            foreach (var cell in order)
+            {
+                if (cell == entrance)
+                {
+                    continue;
+                }
+
+                _cells[cell.x, cell.y] = LevelMap.Rock;
+                if (LevelGrid.Distances(_cells, entrance)[center.x, center.y] >= 0)
+                {
+                    return true;
+                }
+
+                _cells[cell.x, cell.y] = LevelMap.Floor;
+            }
+
+            return false;
         }
 
         private void RemoveUnreachable(Vector2Int from)

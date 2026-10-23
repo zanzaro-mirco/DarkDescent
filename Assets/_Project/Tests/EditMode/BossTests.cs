@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using System.Linq;
 using DarkDescent.Combat;
+using DarkDescent.Core;
 using DarkDescent.Enemies;
 using DarkDescent.Items;
 using DarkDescent.Levels;
@@ -33,27 +33,23 @@ namespace DarkDescent.Tests
         {
             Assert.AreEqual(8, Caves.BossDepth);
             var map = DungeonLevel.CreateMap(Caves, seed, 8, out _);
-            var king = map.Markers.Single(m => m.Symbol == CavePopulator.BossSymbol);
-            var gate = map.Markers.Single(m => m.Symbol == CavePopulator.GateSymbol);
-            Assert.IsFalse(map.Markers.Any(m => m.Symbol == '>'), "l'ultima profondità non ha scala");
-
-            for (int dy = -2; dy <= 2; dy++)
-            {
-                for (int dx = -2; dx <= 2; dx++)
-                {
-                    Assert.IsTrue(map.IsFloor(king.X + dx, king.Y + dy), $"la sala è piena in ({dx}, {dy})");
-                }
-            }
-
-            Assert.IsFalse(map.Markers.Any(m => CavePopulator.IsEnemy(m.Symbol) && m.Symbol != CavePopulator.BossSymbol
-                && Mathf.Max(Mathf.Abs(m.X - king.X), Mathf.Abs(m.Y - king.Y)) <= 3), "nella sala c'è solo il re");
-            Assert.AreEqual(3, Mathf.Max(Mathf.Abs(gate.X - king.X), Mathf.Abs(gate.Y - king.Y)), "la porta sta nell'anello attorno alla sala");
-
-            var entrance = map.Markers.Single(m => m.Symbol == '<');
-            Assert.IsTrue(Reaches(map, entrance, king, blockGate: false), "dalla porta si entra");
-            Assert.IsFalse(Reaches(map, entrance, king, blockGate: true), "chiusa la porta, non si entra da nessun'altra parte");
+            MapChecks.Pass($"seme {seed}", CaveChecks.BossRoom(map));
+            Assert.AreEqual(1, map.Markers.Count(m => m.Symbol == CavePopulator.GateSymbol), "una porta sola");
 
             Assert.IsFalse(DungeonLevel.CreateMap(Caves, seed, 7, out _).Markers.Any(m => m.Symbol == CavePopulator.BossSymbol));
+        }
+
+        [Test, Description("Alla profondità 8 c'è sempre il re, anche quando la zona aperta più lontana a piedi è vicina all'ingresso in linea d'aria (ronda notturna del 23 ott 2026)")]
+        public void Depth8_AlwaysHasTheKing([Values(455840980255010401UL)] ulong seed)
+        {
+            MapChecks.Pass($"seme {seed}", CaveChecks.BossRoom(DungeonLevel.CreateMap(Caves, seed, 8, out _)));
+        }
+
+        [Test, Description("L'anello della sala del re non lascia pavimenti uniti solo in diagonale attorno ai suoi angoli (ronda notturna del 23 ott 2026)")]
+        public void BossRing_LeavesNoDiagonals([Values(10720979491319261754UL, 9929082385448978859UL)] ulong seed)
+        {
+            var layout = Caves.CreateGenerator().Generate(SeedMixer.ForLevel(seed, 8), 8);
+            MapChecks.Pass($"seme {seed}", CaveChecks.PillarsAndDiagonals(layout) ?? MapChecks.Reachable(layout, stairs: false));
         }
 
         [Test, Description("Il bottino del re: sempre un oggetto almeno raro del livello, una pozione e molto oro")]
@@ -90,35 +86,6 @@ namespace DarkDescent.Tests
             var tileset = Asset<LevelTileset>("Data/Levels/CaveTileset.asset");
             Assert.AreEqual(king, tileset.GetMarkerPrefab(CavePopulator.BossSymbol));
             Assert.IsNotNull(tileset.GetMarkerPrefab(CavePopulator.GateSymbol).GetComponent<BossGate>());
-        }
-
-        // a piedi in quattro direzioni dall'ingresso; con la porta chiusa la cella della porta è roccia
-        private static bool Reaches(LevelMap map, MapMarker from, MapMarker to, bool blockGate)
-        {
-            var seen = new HashSet<Vector2Int>();
-            var queue = new Queue<Vector2Int>();
-            queue.Enqueue(new Vector2Int(from.X, from.Y));
-            seen.Add(new Vector2Int(from.X, from.Y));
-            while (queue.Count > 0)
-            {
-                var cell = queue.Dequeue();
-                if (cell.x == to.X && cell.y == to.Y)
-                {
-                    return true;
-                }
-
-                foreach (var step in new[] { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left })
-                {
-                    var next = cell + step;
-                    bool gate = map.Markers.Any(m => m.Symbol == CavePopulator.GateSymbol && m.X == next.x && m.Y == next.y);
-                    if (map.IsFloor(next.x, next.y) && !(blockGate && gate) && seen.Add(next))
-                    {
-                        queue.Enqueue(next);
-                    }
-                }
-            }
-
-            return false;
         }
     }
 }
