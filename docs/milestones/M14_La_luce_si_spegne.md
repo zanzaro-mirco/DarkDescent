@@ -402,4 +402,4 @@ passo 14.5). `bundleVersion` 1.3.0. Test: 411 EditMode e 242 PlayMode verdi.
 - [x] Build di prova: Mirco non ha potuto provarla; al suo posto la rilettura del codice, due errori
   corretti. Le prove sono in `docs/Da_provare.md`
 - [x] ADR, lezioni nel piano, README
-- [ ] Tag `v1.3.0` dopo i test verdi in CI: build Windows verde
+- [x] Tag `v1.3.0` dopo i test verdi in CI (run 39925185136): build Windows verde (run 39926834552)
