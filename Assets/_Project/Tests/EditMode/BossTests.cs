@@ -39,17 +39,17 @@ namespace DarkDescent.Tests
             Assert.IsFalse(DungeonLevel.CreateMap(Caves, seed, 7, out _).Markers.Any(m => m.Symbol == CavePopulator.BossSymbol));
         }
 
-        [Test, Description("Alla profondità 8 c'è sempre il re, anche quando la zona aperta più lontana a piedi è vicina all'ingresso in linea d'aria (ronda notturna del 23 ott 2026)")]
-        public void Depth8_AlwaysHasTheKing([Values(455840980255010401UL)] ulong seed)
+        [Test, Description("Alla profondità 8 c'è sempre il re, con la sala libera, anche quando la zona aperta più lontana a piedi è vicina all'ingresso in linea d'aria o la sala resta senza porta (ronde notturne del 23 ott 2026)")]
+        public void Depth8_AlwaysHasTheKing([Values(455840980255010401UL, 8230148923540967550UL)] ulong seed)
         {
             MapChecks.Pass($"seme {seed}", CaveChecks.BossRoom(DungeonLevel.CreateMap(Caves, seed, 8, out _)));
         }
 
-        [Test, Description("L'anello della sala del re non lascia pavimenti uniti solo in diagonale attorno ai suoi angoli (ronda notturna del 23 ott 2026)")]
-        public void BossRing_LeavesNoDiagonals([Values(10720979491319261754UL, 9929082385448978859UL)] ulong seed)
+        [Test, Description("L'anello della sala del re non lascia pavimenti uniti solo in diagonale attorno ai suoi angoli, nemmeno quando la sala resta senza porta (ronde notturne del 23 ott 2026)")]
+        public void BossRing_LeavesNoDiagonals([Values(10720979491319261754UL, 9929082385448978859UL, 16557588204245213777UL, 8230148923540967550UL, 7000665500740811585UL, 9793415644043241166UL)] ulong seed)
         {
             var layout = Caves.CreateGenerator().Generate(SeedMixer.ForLevel(seed, 8), 8);
-            MapChecks.Pass($"seme {seed}", CaveChecks.PillarsAndDiagonals(layout) ?? MapChecks.Reachable(layout, stairs: false));
+            MapChecks.Pass($"seme {seed}", CaveChecks.PillarsAndDiagonals(layout) ?? MapChecks.Reachable(layout, stairs: false) ?? CaveChecks.Shape(layout));
         }
 
         [Test, Description("Il bottino del re: sempre un oggetto almeno raro del livello, una pozione e molto oro")]
