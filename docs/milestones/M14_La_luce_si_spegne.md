@@ -317,6 +317,35 @@ Zona, oro, rarità, morte e modificatori del re restano quelli della tabella sop
 Build dalla CI su richiesta di Mirco, da provare al Crepuscolo con un salvataggio vecchio, all'Ombra
 battendo il re, e all'Abisso con `-difficulty 3 -herolevel 32`. Le correzioni vanno in questo passo.
 
+**Com'è andata (23 ott 2026).**
+
+- **La build.** Fatta dalla CI su `c413b46` (run 39779388494), con test e build Windows verdi. Mirco
+  non ha potuto provarla e ha chiesto di andare avanti. Le prove restano in `docs/Da_provare.md`,
+  insieme a quelle della M13: la lista vive nel repo e si svuota alla prima build provata.
+- **La rilettura.** Al posto della prova, come per la M12 e la M13, una rilettura di tutto il codice
+  della M14. Ha trovato due errori veri e due ritocchi.
+- **Le opzioni di prova nelle build.** `-difficulty` e `-herolevel` si leggevano solo con `-newgame`
+  o `-seed`. Nelle build però il menu iniziale c'è sempre: lanciando il gioco con le due opzioni si
+  arrivava al menu, e una partita nuova scelta lì restava al Crepuscolo e al livello 1. La prova
+  all'Abisso del passo non sarebbe riuscita. Ora una partita nuova scelta dal menu prende le due
+  opzioni (dopo il seme, da cui viene l'equipaggiamento) e le salva nel suo posto; una partita
+  ripresa no.
+- **Il mercante dopo il cambio di difficoltà.** `DifficultyProgress` annunciava prima il mondo nuovo
+  e poi il cambio. Rifacendo il mondo si rifornisce il mercante, e il loot aveva ancora le rarità
+  della difficoltà di prima: all'Abisso il mercante vendeva per un giro gli oggetti dell'Ombra. Ora
+  arriva prima `Changed` e poi `WorldChanged`.
+- **Due ritocchi.** In `ItemDescription` il commento di `EffectKey` era finito sopra `RomanGrade`, e
+  in `AffixDefinition` mancava una riga vuota tra due campi.
+- **Riletto senza problemi.** Gradi e generatore, tabella e gradini, penalità alla morte (non scende
+  mai di livello, niente al livello 50), migrazione 5 → 6, semi del mondo, del re e del cavaliere,
+  i due moltiplicatori del danno composti in un punto solo, il re con i modificatori (legato due
+  volte, ma `SpecialEnemy.Bind` applica i numeri una volta sola), altare e pannello con le loro
+  iscrizioni, titolo, vittoria e menu.
+- **Test.**
+  - `MenuTests.NewGame_TakesTheTestOptions`: le opzioni valgono per una partita nuova dal menu e
+    finiscono nel salvataggio, non per una ripresa.
+  - `DifficultyTests.Select_ChangesBeforeTheWorld`: l'ordine dei due eventi.
+
 ## Passo 14.8 — Chiusura
 
 ADR (gradi come asset e scelta per gruppo; difficoltà come tabella di moltiplicatori; mondo nuovo da
@@ -365,6 +394,7 @@ seme derivato; morte che costa), lezioni nel piano, README con una foto dell'alt
 - [x] Formato 6 del salvataggio
 - [x] Altare, pannello e vittoria per difficoltà
 - [x] Misura e taratura
-- [ ] Build provata da Mirco
+- [x] Build di prova: Mirco non ha potuto provarla; al suo posto la rilettura del codice, due errori
+  corretti. Le prove sono in `docs/Da_provare.md`
 - [ ] ADR, lezioni nel piano, README
 - [ ] Tag `v1.3.0` dopo i test verdi in CI: build Windows verde

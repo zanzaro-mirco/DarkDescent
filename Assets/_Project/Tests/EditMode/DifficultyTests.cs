@@ -105,6 +105,22 @@ namespace DarkDescent.Tests
             Assert.IsFalse(progress.CanSelect(-1));
         }
 
+        [Test, Description("Cambiando difficoltà, Changed arriva prima di WorldChanged: il mercante del mondo nuovo ha già le rarità della difficoltà nuova (passo 14.7)")]
+        public void Select_ChangesBeforeTheWorld()
+        {
+            var progress = new DifficultyProgress(9);
+            var events = new List<string>();
+            progress.Changed += () => events.Add($"changed {progress.Current}");
+            progress.WorldChanged += w => events.Add($"world {w}");
+
+            progress.CompleteCurrent();
+            events.Clear();
+            progress.Select(1);
+            progress.NewWorld();
+
+            CollectionAssert.AreEqual(new[] { "changed 1", "world 1", "changed 1", "world 2" }, events);
+        }
+
         [Test, Description("Si torna a una difficoltà più bassa e si risale; cambiare difficoltà fa un mondo nuovo, sceglierne la stessa no")]
         public void Progress_GoesBackAndForth()
         {

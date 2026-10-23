@@ -79,11 +79,12 @@ namespace DarkDescent.Progression
             Changed?.Invoke();
         }
 
+        // prima Changed: chi rifà il mondo trova già pronti i numeri della difficoltà nuova (passo 14.7)
         private void AdvanceWorld()
         {
             World++;
-            WorldChanged?.Invoke(World);
             Changed?.Invoke();
+            WorldChanged?.Invoke(World);
         }
     }
 }

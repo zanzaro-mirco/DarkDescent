@@ -5,6 +5,7 @@ using DarkDescent.Core;
 using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Player;
+using DarkDescent.Progression;
 using DarkDescent.Save;
 using DarkDescent.Stats;
 using DarkDescent.UI;
@@ -34,6 +35,7 @@ namespace DarkDescent.Tests
         {
             Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, null);
             Environment.SetEnvironmentVariable(CompositionRoot.SaveFolderVariable, null);
+            Environment.SetEnvironmentVariable(CompositionRoot.ArgumentsVariable, null);
             PlayerPrefs.DeleteKey(OptionsPanel.MasterPreference);
             PlayerPrefs.DeleteKey(OptionsPanel.LabelsPreference);
             PlayerPrefs.DeleteKey(OptionsPanel.OrbNumbersPreference);
@@ -78,6 +80,43 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Menu.VersionText.gameObject.activeInHierarchy);
             Assert.AreEqual("v" + Application.version, Menu.VersionText.text);
             StringAssert.StartsWith("1.", Application.version, "la v1.0");
+        }
+
+        [UnityTest, Description("Nelle build il menu c'è sempre: -difficulty 2 -herolevel 20 valgono per una partita nuova scelta dal menu, che le salva; riprendendola non contano più (passo 14.7)")]
+        public IEnumerator NewGame_TakesTheTestOptions()
+        {
+            WriteSlot(2, 3, DateTime.UtcNow);
+            Environment.SetEnvironmentVariable(CompositionRoot.ArgumentsVariable, "-difficulty 2 -herolevel 20");
+            yield return LoadWithMenu();
+            var root = UnityEngine.Object.FindFirstObjectByType<CompositionRoot>();
+            Assert.AreEqual(0, root.Difficulty.Current, "sotto il menu non c'è ancora una partita");
+
+            Menu.NewGameButton.onClick.Invoke();
+            Menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Assert.AreEqual((2, 1), (root.Difficulty.Current, root.Difficulty.HighestCompleted));
+            Assert.AreEqual(20, GameObject.Find("Player").GetComponent<PlayerProgress>().Progress.Level);
+            Assert.IsNotNull(GameObject.Find("Player").GetComponent<PlayerInventory>().Equipment.Get(EquipSlot.Weapon), "l'equipaggiamento del livello");
+
+            string path = Path.Combine(_folder, "save_1.json");
+            for (float t = 0f; !File.Exists(path); t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 5f, "entrando nel livello non ha salvato nel posto 1");
+                yield return null;
+            }
+
+            yield return null;
+            Assert.IsTrue(new SaveSlots(_folder).TryRead(1, out SaveData saved));
+            Assert.AreEqual((2, 20), (saved.Difficulty, saved.Level));
+
+            // il posto 2 è una partita da riprendere: le opzioni non la toccano
+            yield return LoadWithMenu();
+            root = UnityEngine.Object.FindFirstObjectByType<CompositionRoot>();
+            Menu.LoadButton.onClick.Invoke();
+            Menu.SlotView(2).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Assert.AreEqual(0, root.Difficulty.Current, "ripresa, resta la difficoltà salvata");
+            Assert.AreEqual(3, GameObject.Find("Player").GetComponent<PlayerProgress>().Progress.Level);
         }
 
         [UnityTest, Description("Senza salvataggi: il menu copre tutto, Continua manca, il livello non parte; Nuova partita nel posto 1 parte dalla città e salva lì entrando")]

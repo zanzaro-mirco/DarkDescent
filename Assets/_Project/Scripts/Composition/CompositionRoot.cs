@@ -478,7 +478,9 @@ namespace DarkDescent.Core
             ulong seed = (ulong)DateTime.UtcNow.Ticks;
             _runStats.Restore(0f, 0, 0, 0, false);
             _difficulty.Restore(0, -1, 0);
-            if (!isNew && _saves.TryRead(slot, out SaveData save))
+            SaveData save = null;
+            bool resumed = !isNew && _saves.TryRead(slot, out save);
+            if (resumed)
             {
                 seed = save.RunSeed;
                 _levelManager.SetStartLevel(save.Scene, save.Entrance, save.Depth);
@@ -494,6 +496,18 @@ namespace DarkDescent.Core
             _loot.RunSeed = seed;
             _levelManager.RunSeed = seed;
             Debug.Log($"[DarkDescent] seme della partita: {seed} (per rigiocarla: -seed {seed})");
+
+            // nelle build il menu c'è sempre: -difficulty e -herolevel valgono anche per una partita
+            // nuova scelta qui (passo 14.7), dopo il seme, da cui viene l'equipaggiamento
+            if (!resumed)
+            {
+                ReadNewGameOptions(Arguments());
+                if (_heroLevel > 0)
+                {
+                    PrepareHero(_heroLevel);
+                }
+            }
+
             _mainMenu.Hide();
             _reader.enabled = true;
             _levelManager.Begin();

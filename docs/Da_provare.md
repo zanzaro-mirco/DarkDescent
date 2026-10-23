@@ -1,0 +1,35 @@
+# Da provare nella prossima build
+
+Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una milestone salta la
+prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
+automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
+
+Ultimo aggiornamento: 23 ott 2026, build della M14 (`c413b46`, run 39779388494) non provata. La
+prossima build da provare è quella del tag `v1.3.0`.
+
+## Dalla M13 — "Stanze vive" (v1.2.x, build saltata il 21 ott 2026)
+
+- **Barili**: si rompono con l'arma e a volte lasciano oro, una pozione o un oggetto.
+- **Barili esplosivi** dalla profondità 4: cerchiati di rosso, miccia di 1 s, l'esplosione ferisce
+  anche i nemici.
+- **Spuntoni** dalla profondità 3: si attraversano a tempo, con l'avviso e lo scatto.
+- **Pozzi e santuari** (solo nella cripta, al più uno per tipo a livello): il bonus del santuario
+  dura 60 s, con l'icona accanto alla cintura e il suono di fine.
+- **Arredi**: niente doppioni nella stessa stanza, oggetti girati, mucchietti per tema, la cappella.
+- **Suoni nuovi** nel gioco: escono con tiri diversi da quelli della pagina di ascolto.
+- **Loot**: circa 5 oggetti a livello; troppo o troppo poco?
+
+## Dalla M14 — "La luce si spegne" (v1.3.0)
+
+- **La riga della morte**: quanto oro ed esperienza si perde, nella schermata della morte. Mai vista
+  a schermo.
+- **L'altare all'accampamento**: pannello, conferma, mondo nuovo. Manca l'ok sulle foto del passo 14.5.
+- **I gradi degli affissi**: il numero romano nel tooltip e i nomi nelle due lingue.
+- **Crepuscolo con un salvataggio vecchio**: si carica, si resta al Crepuscolo, l'equipaggiamento
+  è intatto.
+- **Ombra fino al re**: il bruto regge una decina di colpi già alla profondità 1; battuto il re,
+  "Si apre" e la Tenebra si sblocca.
+- **Abisso**: lanciare `DarkDescent.exe -difficulty 3 -herolevel 32` e scegliere *Nuova partita* in un
+  posto libero (dal passo 14.7 le due opzioni valgono anche dal menu). Il cavaliere regge almeno 3
+  colpi del bruto e l'anello di fuoco del re fa male. Col blocco al 75% i nemici colpiscono
+  poco: se è troppo facile, il primo numero da alzare è il loro danno.

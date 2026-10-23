@@ -177,13 +177,13 @@ namespace DarkDescent.UI
             }
         }
 
-        /// <summary>La chiave della riga di un effetto, come "+{0}% damage".</summary>
         /// <summary>Il grado di un affisso in numeri romani, da I a VI; vuoto fuori dall'intervallo.</summary>
         public static string RomanGrade(int grade)
         {
             return grade >= 1 && grade <= RomanGrades.Length ? RomanGrades[grade - 1] : string.Empty;
         }
 
+        /// <summary>La chiave della riga di un effetto, come "+{0}% damage".</summary>
         public static string EffectKey(AffixEffect effect)
         {
             switch (effect)

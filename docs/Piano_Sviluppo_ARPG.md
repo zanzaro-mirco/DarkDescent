@@ -85,7 +85,7 @@
 | **Milestone corrente** | M14 — "La luce si spegne": difficoltà, gradi degli affissi, livello 50 e morte che costa (scheda `docs/milestones/M14_La_luce_si_spegne.md`, decisioni da confermare). Dopo: i test notturni, poi oggetti unici e set (§ 5, «Dopo la v1.0») |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale (ADR-011…013, ADR-019) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `DECISIONS.md` (ADR-001…100) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `docs/Da_provare.md` (le prove in build non ancora fatte) · `DECISIONS.md` (ADR-001…100) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
