@@ -1,0 +1,107 @@
+# La ronda notturna (M15): ogni notte solo i test della categoria Nightly, quelli che i push non
+# eseguono, con un seme nuovo dalla data. Anche ad avvio manuale, con un seme da rifare.
+name: Nightly
+
+on:
+  schedule:
+    # Le 3 in Italia con l'ora legale, le 2 con quella solare: il cron è in UTC (D2). GitHub esegue
+    # le pianificazioni solo dal branch principale, a volte in ritardo.
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Seme della notte da rifare (vuoto: la data di oggi, aaaammgg)'
+        required: false
+        default: ''
+
+# Lo stesso gruppo dei test e delle build: la licenza Personal ha pochi posti di attivazione.
+concurrency:
+  group: unity
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  nightly:
+    name: Ronda notturna
+    runs-on: ubuntu-24.04
+    # Obiettivo sotto l'ora; il tetto tiene libero il gruppo per i push del mattino (D10).
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          lfs: false
+
+      - name: Lista degli oggetti LFS
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Cache LFS
+        uses: actions/cache@v6
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Pull LFS
+        run: git lfs pull
+
+      - name: Cache Library
+        uses: actions/cache@v6
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      # Il seme arriva a Unity sulla riga di comando: nel container di GameCI le variabili
+      # d'ambiente del job non passano (D4).
+      - name: Seme della notte
+        id: seed
+        env:
+          INPUT_SEED: ${{ inputs.seed }}
+        run: |
+          seed="${INPUT_SEED:-$(date -u +%Y%m%d)}"
+          case "$seed" in
+            ''|*[!0-9]*) echo "Seme non valido: '$seed'"; exit 1 ;;
+          esac
+          echo "value=$seed" >> "$GITHUB_OUTPUT"
+
+      - name: Test della ronda
+        id: tests
+        uses: game-ci/unity-test-runner@v4.4.0
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          GAME_CI_COVERAGE_ENABLED: 'false'
+        with:
+          cliVersion: v0.1.71
+          testMode: all
+          customParameters: -assemblyNames DarkDescent.Tests.EditMode;DarkDescent.Tests.PlayMode -testCategory Nightly -nightly-seed ${{ steps.seed.outputs.value }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Risultati della ronda
+
+      - name: Riassunto
+        if: always()
+        env:
+          SEED: ${{ steps.seed.outputs.value }}
+          OUTCOME: ${{ steps.tests.outcome }}
+        run: |
+          {
+            echo "## Ronda notturna"
+            echo
+            echo "- Seme della notte: \`$SEED\`"
+            echo "- Commit: \`${GITHUB_SHA::7}\`"
+            echo "- Esito dei test: $OUTCOME"
+            echo
+            echo "Per rifarla: avvio a mano con il seme \`$SEED\`, o in locale con \`-nightly-seed $SEED\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Risultati
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: rapporto-notturno
+          path: ${{ steps.tests.outputs.artifactsPath }}
+          retention-days: 30

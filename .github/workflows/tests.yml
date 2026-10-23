@@ -71,8 +71,9 @@ jobs:
           cliVersion: v0.1.71
           testMode: all
           # Solo i nostri assembly: i test interni dell'Input System (tra i testables del
-          # manifest) restano fuori.
-          customParameters: -assemblyNames DarkDescent.Tests.EditMode;DarkDescent.Tests.PlayMode
+          # manifest) restano fuori. Senza i test della ronda notturna, che girano di notte
+          # (nightly.yml, D3 della M15).
+          customParameters: -assemblyNames DarkDescent.Tests.EditMode;DarkDescent.Tests.PlayMode -testCategory !Nightly
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: Risultati dei test
 

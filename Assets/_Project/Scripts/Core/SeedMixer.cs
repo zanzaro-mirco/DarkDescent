@@ -158,6 +158,18 @@ namespace DarkDescent.Core
             return Mix(Mix(runSeed ^ HeroDomain) ^ (ulong)(uint)slot);
         }
 
+        // "NIGHT": i semi della ronda notturna (D4 della M15), uno per parte e per caso
+        private const ulong NightDomain = 0x4E49474854UL;
+
+        /// <summary>
+        /// Il seme del caso numero <paramref name="index"/> della parte <paramref name="part"/> nella
+        /// notte <paramref name="nightSeed"/>: ogni parte ha i suoi, e una notte nuova li cambia tutti.
+        /// </summary>
+        public static ulong ForNightly(ulong nightSeed, int part, int index)
+        {
+            return Mix(Mix(Mix(nightSeed ^ NightDomain) ^ (ulong)(uint)part) ^ (ulong)(uint)index);
+        }
+
         // il finale di SplitMix64: ogni bit dell'ingresso cambia metà dei bit dell'uscita
         private static ulong Mix(ulong value)
         {
