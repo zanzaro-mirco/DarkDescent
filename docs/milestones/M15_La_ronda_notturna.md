@@ -278,6 +278,13 @@ delle caverne di notte verdi su sei notti (20261023, 4711, 98765, 20261024, 3133
 verdi. Da qui la ronda gira solo di notte (Mirco): le correzioni si provano in locale e l'esito in
 CI si legge la mattina dopo.
 
+La prima notte pianificata (24 ott 2026, seme 20261024, su `cd86fdb`): **verde in 32 minuti e
+mezzo**, tutte le parti senza errori (mappe 208 + 172 s, livelli costruiti 684 s, nove partite da
+sole, partita lunga 130 s con niente che cresce). Il cron dell'1 UTC è partito alle **5:35 UTC**,
+quattro ore e mezza dopo: il ritardo delle pianificazioni di GitHub nelle ore piene, che la scheda
+dava in decine di minuti, può essere di ore. Alle 7:35 italiane la ronda tiene il gruppo `unity`
+fino alle 8:10: un push del mattino aspetta.
+
 ---
 
 ## Trappole note
@@ -324,6 +331,6 @@ CI si legge la mattina dopo.
 - [x] Rapporto nella pagina del run e artefatto
 - [x] La ronda più fitta e la partita lunga (passo 15.6b)
 - [ ] Issue sui fallimenti provata una volta
-- [ ] Prima notte pianificata verde
+- [x] Prima notte pianificata verde (24 ott 2026)
 - [ ] ADR, lezioni nel piano, README
 - [ ] `bundleVersion` 1.3.1 e tag `v1.3.1` dopo i Tests verdi (le correzioni trovate dalla ronda)
