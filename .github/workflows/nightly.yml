@@ -1,5 +1,6 @@
 # La ronda notturna (M15): ogni notte solo i test della categoria Nightly, quelli che i push non
-# eseguono, con un seme nuovo dalla data. Anche ad avvio manuale, con un seme da rifare.
+# eseguono, con un seme nuovo dalla data. Anche ad avvio manuale, con un seme da rifare. Se fallisce
+# apre un'issue `ronda`, o commenta quella ancora aperta (D9).
 name: Nightly
 
 on:
@@ -13,6 +14,10 @@ on:
         description: 'Seme della notte da rifare (vuoto: la data di oggi, aaaammgg)'
         required: false
         default: ''
+      issue_test:
+        description: "Prova dell'issue: niente Unity, un rapporto con un errore finto e l'issue (passo 15.7)"
+        type: boolean
+        default: false
 
 # Lo stesso gruppo dei test e delle build: la licenza Personal ha pochi posti di attivazione.
 concurrency:
@@ -22,6 +27,7 @@ concurrency:
 permissions:
   contents: read
   checks: write
+  issues: write
 
 jobs:
   nightly:
@@ -36,18 +42,22 @@ jobs:
           lfs: false
 
       - name: Lista degli oggetti LFS
+        if: ${{ !inputs.issue_test }}
         run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
 
       - name: Cache LFS
+        if: ${{ !inputs.issue_test }}
         uses: actions/cache@v6
         with:
           path: .git/lfs
           key: lfs-${{ hashFiles('.lfs-assets-id') }}
 
       - name: Pull LFS
+        if: ${{ !inputs.issue_test }}
         run: git lfs pull
 
       - name: Cache Library
+        if: ${{ !inputs.issue_test }}
         uses: actions/cache@v6
         with:
           path: Library
@@ -70,6 +80,7 @@ jobs:
           echo "value=$seed" >> "$GITHUB_OUTPUT"
 
       - name: Test della ronda
+        if: ${{ !inputs.issue_test }}
         id: tests
         uses: game-ci/unity-test-runner@v4.4.0
         env:
@@ -83,6 +94,26 @@ jobs:
           customParameters: -assemblyNames DarkDescent.Tests.EditMode;DarkDescent.Tests.PlayMode -testCategory Nightly -nightly-seed ${{ steps.seed.outputs.value }} -nightly-report artifacts/rapporto.md
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: Risultati della ronda
+
+      # la prova dell'issue scrive il rapporto che i test scriverebbero, con una parte rossa
+      - name: Rapporto della prova
+        if: ${{ inputs.issue_test }}
+        run: |
+          mkdir -p artifacts
+          cat > artifacts/rapporto.md <<'EOF'
+          ### Prova dell'issue
+
+          ❌ un errore finto: in questo run la ronda non ha girato
+
+          <details><summary>1 errore</summary>
+
+          ```
+          prova dell'issue (passo 15.7 della M15): nessun errore vero, l'issue si chiude a mano
+          ```
+
+          </details>
+
+          EOF
 
       - name: Riassunto
         if: always()
@@ -111,5 +142,16 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: rapporto-notturno
-          path: ${{ steps.tests.outputs.artifactsPath }}
+          path: ${{ steps.tests.outputs.artifactsPath || 'artifacts' }}
           retention-days: 30
+
+      # un passo fallito, i test o prima (la licenza, LFS): l'issue, o un commento a quella aperta
+      - name: Issue
+        if: ${{ failure() || inputs.issue_test }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SEED: ${{ steps.seed.outputs.value }}
+        run: >-
+          bash .github/scripts/ronda-issue.sh artifacts/rapporto.md "$SEED"
+          "$GITHUB_SHA" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
