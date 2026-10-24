@@ -758,3 +758,31 @@ Formato:
 - **Decisione:** `PowerCensus`, in Core, calcola con le formule del combattimento quanti colpi servono per uccidere scheletro, bruto e re e quanti colpi arrivati regge il cavaliere: valori attesi, come `LootCensus` (ADR-100). `DifficultyCensus`, nell'editor, fa una discesa per difficoltà, una dopo l'altra: a ogni profondità il cavaliere ha il livello portato dall'esperienza dei livelli generati e la base migliore del mercante in ogni slot, al livello della zona e della rarità del gradino. Un test EditMode tiene le fasce a ogni profondità e l'inizio di ogni discesa.
 - **Alternative scartate:** simulare i combattimenti, con un rumore da tollerare; tarare a mano provando in build.
 - **Conseguenze:** i numeri della tabella sono scelti guardando le fasce. Il tetto del blocco al 75% decide quanto i nemici colpiscono dall'Abisso: se in prova è troppo facile, il primo numero da alzare è il danno.
+
+## ADR-106 — La ronda notturna prova di notte quello che i push non vedono
+- **Data:** 2026-10-24 (M15)
+- **Contesto:** a ogni push la CI rifà tutta la suite, ma con semi fissi: vede sempre gli stessi livelli. Tre errori veri erano usciti solo per caso, da un seme diverso.
+- **Decisione:** `nightly.yml`, solo con la pianificazione dell'1 UTC, esegue i test della categoria `Nightly`, che i test di ogni push escludono. Il seme della notte viene dalla data (o da `-nightly-seed`), e ogni parte ricava i suoi con `SeedMixer.ForNightly`. I controlli stanno in funzioni comuni (`MapChecks`, `CryptChecks`, `CaveChecks`, `CensusChecks`): i test di ogni push le usano sui semi fissi, la notte sui suoi. Ogni notte: 20000 mappe per tipo, 200 partite costruite con il NavMesh, una partita da sola per ogni difficoltà con salvataggio e ripresa a ogni livello, la partita lunga, le misure di loot e difficoltà. Il rapporto in Markdown va nella pagina del run e in un artefatto. Ogni errore trovato diventa un test con il seme fisso nella suite normale, poi si corregge.
+- **Alternative scartate:** rifare di notte la suite di ogni push, che non trova niente di nuovo; semi casuali nei test di ogni push, rossi a caso; avvii a mano per provare le correzioni (Mirco, 23 ott 2026): 35 minuti nel gruppo `unity`, che fermano i push.
+- **Conseguenze:** 30–35 minuti a notte. Il cron di GitHub può partire ore dopo e tenere il gruppo `unity` al mattino. I controlli con una soglia (il pavimento, la distanza della scala) si allargano quando una mappa vera al limite li fa cadere, e quella mappa resta come test.
+
+## ADR-107 — L'Abisso I più duro, e le regole d'ordine delle difficoltà con il 5% di tolleranza
+- **Data:** 2026-10-23 (passo 15.5)
+- **Contesto:** con 256 equipaggiamenti per notte la misura delle difficoltà (ADR-105) trova l'Abisso I più facile della Tenebra dal 2 al 5,5%, perché da lì l'equipaggiamento diventa raro; da una notte all'altra la misura oscilla del 3%. Gli 8 equipaggiamenti fissi dei test di ogni push stavano per caso dalla parte buona.
+- **Decisione (Mirco):** la vita dei nemici dell'Abisso I passa da ×13,5 a ×14,2, e le due regole d'ordine (ogni discesa e il re non più facili della difficoltà prima) hanno una tolleranza del 5% (`CensusChecks.StepTolerance`), a ogni push e di notte.
+- **Alternative scartate:** solo il ritocco, che spostava l'inversione sull'Abisso II; solo la tolleranza, con cui a gioco invariato due notti su sei cadevano ancora; ritoccare tutte le difficoltà alte.
+- **Conseguenze:** ogni inversione resta entro il 3,4%. Il ritocco esce con la v1.3.1.
+
+## ADR-108 — Chi crea un oggetto di Unity a runtime lo distrugge
+- **Data:** 2026-10-23 (passo 15.6b)
+- **Contesto:** la partita lunga della ronda, sei mondi senza tornare al menu, ha trovato 11 `NavMeshData` e 10–20 mesh in più a ogni mondo. Scaricare una scena non distrugge gli oggetti fatti con `new` o da `BuildNavMesh`, e il gioco non chiama mai `UnloadUnusedAssets`: lo fa solo il ritorno al menu, che ricarica Core.
+- **Decisione:** chi crea l'oggetto lo distrugge in `OnDestroy`: `BuiltLevel` il NavMesh che cuoce, `TelegraphSector` e `TelegraphCircle` la loro mesh. `LeftBehindTests` lo prova a ogni push; di notte la partita lunga segnala ogni misura che cresce a ogni mondo (oggetti di Unity per tipo, oggetti in scena, gestori degli eventi, memoria).
+- **Alternative scartate:** `UnloadUnusedAssets` a ogni cambio di livello, che costa decine di millisecondi a ogni scala e nasconde chi perde; una mesh sola per tutti i telegrafi, che vorrebbe uno stato statico (ADR-007).
+- **Conseguenze:** una regola per il codice nuovo: un `new Mesh`, un `new Material` o un NavMesh cotto hanno il loro `Destroy`. La memoria di Unity resta ferma da un mondo all'altro.
+
+## ADR-109 — L'issue della ronda solo quando fallisce, un commento se è ancora aperta
+- **Data:** 2026-10-24 (passo 15.7)
+- **Contesto:** una ronda rossa deve farsi vedere senza aprire la pagina delle Actions ogni mattina, e una ronda verde non deve fare rumore (D9 della M15).
+- **Decisione:** il passo `Issue` di `nightly.yml` parte quando un passo qualsiasi fallisce, i test o prima. `.github/scripts/ronda-issue.sh` scrive il titolo con la data e il numero di errori, e nel corpo il link al run, il seme, il commit, come rifarla in locale e solo le parti rosse del rapporto. Se un'issue `ronda` è aperta la commenta; si chiude a mano quando l'errore è corretto. L'avvio a mano con `issue_test` prova il passo senza Unity, con un rapporto finto.
+- **Alternative scartate:** un'issue nuova per ogni notte rossa, che per lo stesso errore diventa rumore; la sola mail di GitHub sul run fallito, che non resta come lavoro da fare; provarla con una notte rossa voluta, che ne chiede due e un commit da togliere.
+- **Conseguenze:** il workflow ha il permesso `issues: write`. La prova veloce resta, per riprovare il passo quando cambia.

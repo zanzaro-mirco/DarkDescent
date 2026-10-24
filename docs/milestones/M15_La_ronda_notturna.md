@@ -302,6 +302,14 @@ avvio ha aperto [l'issue #2](https://github.com/zanzaro-mirco/DarkDescent/issues
 (15 s) l'ha commentata; chiusa a mano. Lo script con `set -o pipefail` cadeva su un rapporto senza
 errori (un `grep` che non trova niente): ora il conto è un `awk` solo.
 
+### 15.8 Chiusura
+
+**Com'è andata (24 ott 2026).** ADR-106 (la ronda), ADR-107 (l'Abisso I e la tolleranza), ADR-108
+(chi crea un oggetto di Unity lo distrugge) e ADR-109 (l'issue); le lezioni nel piano (v2.61); nel
+README la ronda nella sezione della CI e la v1.3.1 nello stato; `bundleVersion` 1.3.1. Il tag
+`v1.3.1` porta le correzioni trovate dalla ronda: il re all'8, le diagonali attorno alla sua sala,
+l'Abisso I, NavMesh e mesh distrutti.
+
 ---
 
 ## Trappole note
@@ -349,5 +357,5 @@ errori (un `grep` che non trova niente): ora il conto è un `awk` solo.
 - [x] La ronda più fitta e la partita lunga (passo 15.6b)
 - [x] Issue sui fallimenti provata una volta (#2, aperta, commentata e chiusa)
 - [x] Prima notte pianificata verde (24 ott 2026)
-- [ ] ADR, lezioni nel piano, README
+- [x] ADR, lezioni nel piano, README
 - [ ] `bundleVersion` 1.3.1 e tag `v1.3.1` dopo i Tests verdi (le correzioni trovate dalla ronda)

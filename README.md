@@ -23,6 +23,11 @@ Progetto personale in Unity (URP) / C#.
   scendere di livello;
 - i numeri delle difficoltà sono **misurati** con le formule del gioco, non indovinati.
 
+**v1.3.1** (tag `v1.3.1`, M15 "La ronda notturna"): le correzioni trovate dai test notturni. All'8
+il re c'è sempre e la sua sala non tocca più la caverna solo per un angolo; l'Abisso I non comincia
+più facile della Tenebra; cambiando livello il gioco non tiene più in memoria il NavMesh e i
+telegrafi dei livelli lasciati.
+
 ![Il pannello dell'altare all'accampamento: il Crepuscolo completato, l'Ombra attuale, la Tenebra aperta, i sei Abissi chiusi in grigio; sotto, Rifai il mondo e Indietro](docs/media/m14_altar.png)
 
 **v1.2 — M13 "Stanze vive"**, chiusa il 21 ottobre 2026 (tag `v1.2.0`). Rispetto alla v1.1:
@@ -170,7 +175,7 @@ della partita e ai riconoscimenti; la partita resta salvata e si può riscendere
 
 ## CI
 
-Due workflow di GitHub Actions, con [GameCI](https://game.ci) e la licenza Unity Personal
+Tre workflow di GitHub Actions, con [GameCI](https://game.ci) e la licenza Unity Personal
 (ADR-011…013):
 
 - **[Tests](.github/workflows/tests.yml)**: test EditMode e PlayMode a ogni push su
@@ -183,6 +188,13 @@ Due workflow di GitHub Actions, con [GameCI](https://game.ci) e la licenza Unity
   quella del progetto. Eseguibile non firmato: al primo avvio Windows chiede conferma. La build Web
   va servita da un server, anche locale (`python -m http.server` nella cartella di
   `index.html`): aperta con un doppio click non parte.
+- **[Nightly](.github/workflows/nightly.yml)**: la ronda notturna (ADR-106). Ogni notte, con un
+  seme nuovo dalla data, i test della categoria `Nightly`, che i push non eseguono: 40000 mappe,
+  200 partite costruite con il NavMesh, una partita da sola per ogni difficoltà con salvataggi e
+  riprese, una partita lunga di sei mondi che cerca quello che resta in memoria, e le misure di loot
+  e difficoltà. Il rapporto sta nella pagina del run e nell'artefatto `rapporto-notturno`; se
+  qualcosa fallisce apre un'issue `ronda`, o commenta quella ancora aperta (ADR-109). In locale una
+  notte si rifà con `-testCategory Nightly -nightly-seed <seme>`.
 
 Un run alla volta in tutto il repo, perché la licenza ha pochi posti di attivazione.
 
