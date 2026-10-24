@@ -285,6 +285,23 @@ quattro ore e mezza dopo: il ritardo delle pianificazioni di GitHub nelle ore pi
 dava in decine di minuti, può essere di ore. Alle 7:35 italiane la ronda tiene il gruppo `unity`
 fino alle 8:10: un push del mattino aspetta.
 
+### 15.7 L'issue sui fallimenti
+
+**Com'è andata (24 ott 2026).** `.github/scripts/ronda-issue.sh` scrive l'issue: il titolo della D9
+con la data e il numero di errori, sommati dai blocchi del rapporto ("Ronda del 24 ott 2026: 13
+errori"; "non è arrivata alla fine" se il rapporto non c'è o non ha errori), e nel corpo il link al
+run, il seme, il commit, come rifarla in locale e **solo le parti rosse** del rapporto. Se un'issue
+`ronda` è aperta la commenta; l'etichetta si crea la prima volta (`--force`). Il passo `Issue` di
+`nightly.yml` parte quando un passo qualsiasi fallisce, i test o prima (la licenza, LFS), con il
+permesso `issues: write`. Lo script si prova a secco con `DRY_RUN=1`: rapporto con due parti rosse,
+verde e mancante.
+
+Con la ronda solo di notte, la prova è un avvio a mano con **`issue_test`** (decisione di Mirco):
+niente LFS, cache e Unity, un rapporto con una parte rossa finta, poi il passo `Issue`. Il primo
+avvio ha aperto [l'issue #2](https://github.com/zanzaro-mirco/DarkDescent/issues/2), il secondo
+(15 s) l'ha commentata; chiusa a mano. Lo script con `set -o pipefail` cadeva su un rapporto senza
+errori (un `grep` che non trova niente): ora il conto è un `awk` solo.
+
 ---
 
 ## Trappole note
@@ -330,7 +347,7 @@ fino alle 8:10: un push del mattino aspetta.
 - [x] Mappe (passo 15.2), livelli costruiti e tempi (15.3), partita da sola con i salvataggi (15.4), misure (15.5)
 - [x] Rapporto nella pagina del run e artefatto
 - [x] La ronda più fitta e la partita lunga (passo 15.6b)
-- [ ] Issue sui fallimenti provata una volta
+- [x] Issue sui fallimenti provata una volta (#2, aperta, commentata e chiusa)
 - [x] Prima notte pianificata verde (24 ott 2026)
 - [ ] ADR, lezioni nel piano, README
 - [ ] `bundleVersion` 1.3.1 e tag `v1.3.1` dopo i Tests verdi (le correzioni trovate dalla ronda)
