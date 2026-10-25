@@ -1,0 +1,128 @@
+# M16 — "Tesori con un nome"
+
+**Cosa deve succedere (Definition of Done):** sopra il raro ci sono due rarità nuove, come in
+Diablo 2. Gli **unici** hanno il nome in oro e sono oggetti scritti a mano, con un nome loro ("La
+Mannaia del Re") e proprietà fisse. I **pezzi di set** hanno il nome in verde: ognuno ha le sue
+proprietà, e indossando **due, tre o tutti** i pezzi dello stesso set si accendono bonus in più. Il
+tooltip di un pezzo elenca il set, i pezzi indossati e i bonus accesi. Unici e set cadono **dall'Ombra
+in su**, più spesso dai campioni, dagli unici, dai forzieri e dal re; al Crepuscolo solo il tesoro
+del re può lasciarne uno. Con loro arrivano **quattro proprietà nuove** che gli oggetti di oggi non
+hanno: velocità d'attacco, rubavita, danno ridotto e tutti gli attributi. Quanti ne cadono lo
+**misura** uno strumento, come il loot della M13. Esce con il tag `v1.4.0`.
+
+**Tempo stimato:** 10–14 h (D14).
+**Prerequisito:** M15 chiusa (tag `v1.3.1`, 25 ott 2026).
+
+**Come si lavora:** come alle M13 e M14. Il codice, i dati e i passaggi nell'editor li faccio io, in
+batchmode a Unity chiuso. A Mirco restano le decisioni qui sotto, la tabella degli unici e dei set
+(nomi e proprietà, passo 16.1), l'ascolto del suono nuovo e la prova in build.
+
+---
+
+## Stato verificato il 25 ottobre 2026
+
+| Cosa | Stato |
+|---|---|
+| Rarità | `Rarity` ha tre valori, **Normal, Magic, Rare**, salvati come numero: se ne aggiungono in fondo senza toccare i salvataggi. Una quarta leggendaria era stata chiesta e tolta alla M5 (ADR-027). Colori in `RarityColors` (testo, cella dell'inventario, luce a terra): bianco, blu `#7F9CFF`, giallo `#FFD84A` |
+| Basi | **19 da indossare**: 4 armi (spada corta, pugnale, ascia, lama dello scheletro), 4 scudi, 2 elmi (elmo del cavaliere, copricapo d'orso), 3 armature (cuoio, corazza, corazza nera), 2 guanti, 2 stivali, anello, amuleto. Più pozioni e pergamene |
+| Affissi | 12 gruppi da 6 gradi (M14), 72 asset. Gli effetti (`AffixEffect`) sono 12: tre dell'oggetto (% danno, % Armatura, blocco) e nove del personaggio (Armatura, a colpire, Forza, Destrezza, Vitalità, vita, critico, Magia, mana) |
+| Istanza | `ItemInstance` salva id della base, rarità, livello, seme e la lista degli affissi (id e valore). Il nome non si salva: lo compone `ItemNamer` |
+| Statistiche | `StatSheet` con modificatori per sorgente; `Equipment` mette quelli dell'oggetto con l'oggetto come sorgente e li toglie tutti insieme. `StatType` ha già `DamageBonus` ed `ExperienceBonus` (i santuari della M13), che nessun oggetto usa |
+| Generazione | `ItemGenerator`: rarità dalla `RarityTable`, poi gruppi e gradi. `LootRoller` fa cadere gli oggetti con un seme per nemico, cassa e barile (`SeedMixer`), e i tiri in più di campioni, unici, forzieri e tesoro del re (`LootBonus`, ADR-092) |
+| Difficoltà | `DifficultyTier` ha, tra gli altri, i pesi delle tre rarità (65/28/7 al Crepuscolo, 35/42/23 all'Abisso VI). Livello degli oggetti = livello della zona, da 1 a 55 |
+| Prezzi | `ItemPricing`: valore della base × rarità (1, 3, 6) × (1 + livello / 10). Il mercante vende dalla `MerchantTable` |
+| Salvataggio | **Formato 6** (difficoltà, ADR-101…105). Le fixture congelate arrivano a `save_v5.json` |
+| Censimento | `Editor/LootCensus.cs` conta gli oggetti per livello e per rarità su 200 livelli per profondità (M13); la ronda notturna lo ripete su semi nuovi (M15) |
+| Test | 437 EditMode verdi in locale; PlayMode verde in CI (run 40207035287) |
+
+---
+
+## Decisioni
+
+Da confermare. Le D2, D3, D7 e D10 riprendono quello che Mirco ha chiesto il 12 ottobre 2026 (piano
+v2.32) e la D16 della M14 (unici e set dall'Ombra in su); qui sono messe in numeri.
+
+| # | Decisione | Proposta | Perché |
+|---|---|---|---|
+| D1 | **Versione e nome** | **M16 "Tesori con un nome"**, tag **`v1.4.0`**. Dentro: le due rarità, una dozzina di unici, due set, le quattro proprietà nuove, il loot, il tooltip, il salvataggio e la misura | Cambia il gioco e aggiunge cose da cercare: una versione minore, come la M14 |
+| D2 | **Due rarità nuove** | `Rarity` prende **Unique** e **Set**, in fondo. **Unico in oro scuro** (`#C9A55C`, come in Diablo 2, distinto dal giallo dei rari), **set in verde** (`#4FD45A`). Lo stesso colore per il nome, la cella dell'inventario e la luce a terra, più forte di quella dei rari | Due gradi sopra il raro, come nel piano. Il colore dice cos'è prima di leggere il nome |
+| D3 | **Unici** | **12 unici**, uno per base scelta: le 4 armi, 2 scudi, i 2 elmi, 2 armature, l'anello e l'amuleto. Ognuno ha un **nome suo** nelle due lingue, la **base** da cui nasce (il modello e l'icona restano quelli della base), un **livello minimo** e **3–5 proprietà**: le stesse degli affissi, più forti di quelle di un raro dello stesso livello, e quasi sempre una delle proprietà nuove (D5). Nomi legati al gioco: il Re delle ossa, Morvak il Carceriere, Grumm Spaccaossa, la cripta, la luce che si spegne. Esempi: *La Mannaia del Re* (ascia), *Zanna di Morvak* (pugnale), *Il Guscio di Grumm* (scudo), *L'Ultima Candela* (amuleto). La tabella completa la approva Mirco al passo 16.1 | Una dozzina è quello che il piano stimava, ed è scrivibile a mano bene. Senza arte nuova si resta nelle ore |
+| D4 | **Set** | **Due set da quattro pezzi**. *L'armatura del Custode* (elmo del cavaliere, corazza, guanti di ferro, stivali di ferro): difesa, vita, blocco. *Le spoglie del Cacciatore* (copricapo d'orso, armatura di cuoio, guanti di cuoio, stivali di cuoio): Destrezza, critico, velocità d'attacco. Ogni pezzo ha 2–3 proprietà sue; i bonus si accendono con **2, 3 e 4 pezzi** indossati: per esempio il Custode +vita con due, +Armatura con tre, danno ridotto con tutti. Un terzo set di gioielli (anello, anello, amuleto) resta **facoltativo**, dopo la misura | Due set sulle armature si leggono subito e usano le basi che ci sono. Il terzo si aggiunge solo se le ore lo permettono (D14) |
+| D5 | **Quattro proprietà nuove** | Solo su unici e set, per ora: **velocità d'attacco** (% in più, accorcia l'intervallo dell'arma), **rubavita** (% del danno dei colpi inflitti che torna in vita), **danno ridotto** (punti tolti a ogni colpo preso, mai sotto 1) e **tutti gli attributi** (+ a Forza, Destrezza, Magia e Vitalità). In più usano **+% danno** ed **+% esperienza**, che le statistiche hanno già dai santuari. Ognuna è un `AffixEffect` nuovo e, dove serve, una `StatType` nuova in fondo | Un unico deve fare qualcosa che un raro non fa. Le statistiche dei santuari ci sono già, le quattro nuove toccano un punto solo ciascuna (attacco, colpo inflitto, colpo preso, attributi) |
+| D6 | **Valori che crescono con il livello** | Ogni proprietà di un unico o di un pezzo di set ha un **valore al suo livello minimo** e uno **al livello 55**; l'oggetto prende il valore del suo livello, in linea retta, con un tiro di **±10%**. Così *La Mannaia del Re* trovata all'Ombra è buona all'Ombra, e ritrovata all'Abisso è buona all'Abisso. Il valore uscito si salva, come quello degli affissi | Con le nove difficoltà, un unico a valori fissi diventerebbe inutile due gradini dopo. Il gioco non finisce (§ 2): ritrovare un unico più forte è un motivo per scendere ancora |
+| D7 | **Quando cadono** | Un **tiro a parte**, con un **dominio suo** del seme (`SeedMixer.ForNamed`), dopo l'oggetto di sempre: se riesce, l'oggetto diventa l'unico o un pezzo di set della **sua base**, se ne esiste uno al suo livello; altrimenti resta com'è. Probabilità per oggetto, nella `DifficultyTier`: **Crepuscolo 0%**, **Ombra 1% unico e 1% set**, **Tenebra 1,5% e 1,5%**, **Abisso I 2% e 2%**, poi +0,2% a gradino fino a **3% e 3%** all'Abisso VI. Campioni, unici e forzieri moltiplicano la probabilità per **3**, il tesoro del re per **10**. **Il tesoro del re al Crepuscolo** ha un tiro suo del **25%** di lasciare un unico o un pezzo di set, così chi gioca la prima volta ne vede uno. Il mercante **non li vende** mai. I numeri escono dalla misura (D11) | Con il tiro a parte il loot dei semi già provati non cambia: un oggetto può solo diventare un unico, mai cambiare base o sparire. Con circa 40 oggetti a discesa, all'Ombra cade in media un unico o un pezzo di set ogni discesa e un po', di più all'Abisso |
+| D8 | **Il nome e il tooltip** | Il nome dell'unico o del pezzo al posto del nome composto, nel suo colore, con sotto la **base** in piccolo ("Ascia"). Le proprietà in blu come gli affissi, quelle nuove con la loro riga. Per un pezzo di set, sotto le proprietà: il **nome del set**, i **pezzi** (indossati in bianco, gli altri in grigio) e i **bonus** (accesi in verde, gli altri in grigio, con "(2 pezzi)", "(3 pezzi)", "(set completo)"). Il confronto con l'oggetto indossato funziona come oggi | Come in Diablo 2 e 3, e come nel piano (v2.32) |
+| D9 | **Bonus dei set nel codice** | Un `SetBonuses` in `Scripts/Core/Items`, accanto all'`Equipment`: ascolta il suo `Changed`, conta i pezzi di ogni set indossati e mette i modificatori dei bonus accesi con il **set come sorgente**, togliendo tutti quelli di prima. Due pezzi uguali (lo stesso unico non può esserci due volte, ma i due anelli sì) contano una volta | Lo stesso meccanismo degli affissi, senza controlli a ogni frame. Ricalcolare tutto a ogni cambio è semplice e costa poco: gli slot sono nove |
+| D10 | **Le definizioni** | Asset, come le basi e gli affissi: **`UniqueDefinition`** (id, chiave del nome, base, livello minimo, proprietà con effetto e valori ai due livelli) e **`SetDefinition`** (id, chiave del nome, i pezzi, i bonus con il numero di pezzi). Un pezzo è una `UniqueDefinition` con il suo set. Un **`NamedItemDatabase`** li trova per id, come `ItemDatabase`. Gli asset nascono da uno script Python che legge la tabella approvata, come i gradi della M14 | Una definizione sola per unici e pezzi tiene corto il codice: cambia solo il colore e il set |
+| D11 | **Si misura** | Il `LootCensus` conta anche unici e set, **per difficoltà**: quanti a discesa e quanti dai nemici speciali, dai forzieri e dal re. Obiettivo: all'**Ombra 1–2 a discesa**, all'**Abisso VI 3–5**. Un test EditMode tiene le fasce, e la ronda notturna le controlla su semi nuovi. Le proprietà si confrontano con un raro dello stesso livello: un unico deve dare **almeno il 30% in più**, misurato con il `PowerCensus` della M14 (colpi per uccidere e colpi presi) su un cavaliere che lo indossa al posto del raro | Senza misura le probabilità della D7 sono indovinate. Il confronto con il raro tiene gli unici sopra senza renderli tutti uguali |
+| D12 | **Prezzi** | Unico **×10**, set **×8** nella formula di `ItemPricing`. Il mercante li compra (un quarto del prezzo, come tutto) ma non li vende | Venderli dev'essere una scelta che costa: un unico vale molto più di un raro (×6) |
+| D13 | **Salvataggio** | **Formato 7**: l'istanza aggiunge l'id dell'unico o del pezzo e i valori delle sue proprietà, in ordine. Prima si **congela una fixture vera del formato 6**. Gli oggetti vecchi non cambiano. Un unico che il database non conosce più si legge come un raro della sua base senza affissi, con un avviso nel log, come un affisso sconosciuto | Come alla M14: la fixture prima del formato nuovo. Salvare i valori e non solo il seme tiene gli oggetti trovati uguali anche se si ritarano le tabelle |
+| D14 | **Stima e linee di taglio** | **10–14 h**. Scrivere gli oggetti è la parte lunga. Se servirà tagliare: prima il terzo set (già facoltativo), poi due unici, poi il rubavita. La misura (D11) non si taglia | Meglio deciderlo adesso che a metà |
+| D15 | **Per provare** | Un argomento della riga di comando **`-namedchance <x>`**, che moltiplica le probabilità della D7, come `-difficulty` e `-herolevel` della M14: con `-namedchance 50` all'Ombra quasi ogni oggetto è un unico o un pezzo di set. Un suono suo quando ne cade uno, **da script** come quelli della M13, con la pagina di ascolto. I test PlayMode lo usano per far cadere un pezzo e indossare un set intero | Senza, vedere un set completo in build vorrebbe ore di gioco |
+| D16 | **Fuori da questa milestone** | **Modelli e icone propri** per unici e pezzi (restano quelli della base; un colore del materiale si può valutare dopo la prova). **Basi eccezionali** delle armi e delle armature. **Le proprietà nuove sugli affissi** degli oggetti magici e rari. **Ricerca magica** (*magic find*). Un **forziere personale** all'accampamento, che con i set diventa utile: nel piano, da decidere dopo la prova | Ognuna è un sistema o un lavoro d'arte a sé. Il forziere è il primo candidato dopo questa milestone |
+
+---
+
+## Passi
+
+| # | Passo | Ore |
+|---|---|---|
+| 16.1 | La tabella degli unici e dei set: nomi nelle due lingue, base, livello, proprietà con i valori ai due livelli, bonus dei set. La approva Mirco prima del codice (D3, D4, D6) | 1–1,5 |
+| 16.2 | Core: le due rarità e i colori, le quattro proprietà nuove come effetti e statistiche, `UniqueDefinition`, `SetDefinition`, `NamedItemDatabase`, l'istanza con l'id e i valori, la generazione con i valori del livello, `SetBonuses`, i prezzi, i test (D2, D5, D6, D9, D10, D12) | 2–3 |
+| 16.3 | In gioco: velocità d'attacco, rubavita, danno ridotto e tutti gli attributi nel combattimento; il tiro del loot con il dominio suo, i bonus di campioni, forzieri e re, il tesoro del re al Crepuscolo; la luce a terra e il suono; `-namedchance` (D5, D7, D15) | 2–3 |
+| 16.4 | Tooltip e inventario: nome e base, proprietà, set con pezzi e bonus, confronto, celle colorate, stringhe nelle due lingue; gli asset dallo script (D8, D10) | 1,5–2 |
+| 16.5 | Salvataggio: fixture del formato 6, formato 7, migrazione, oggetto sconosciuto (D13) | 1 |
+| 16.6 | Misura e taratura: il censimento per difficoltà, il confronto con i rari, il test delle fasce, la ronda notturna (D11) | 1–1,5 |
+| 16.7 | Build da provare (Ombra con `-difficulty 1 -namedchance 50`) e correzioni | 1–2 |
+| 16.8 | Chiusura: ADR, lezioni, piano, README, `bundleVersion` 1.4.0, tag `v1.4.0` dopo i test verdi in CI | 1 |
+
+---
+
+## Trappole note
+
+- **I valori delle rarità.** `Rarity` si salva come numero e fa da indice in più posti (pesi della
+  `RarityTable`, `RarityMultiplier`, colori). I due valori nuovi vanno in fondo, e ogni `switch` e
+  ogni array indicizzato per rarità va guardato uno per uno: un `default` che torna bianco nasconderebbe
+  un unico.
+- **Il tiro a parte non deve spostare gli altri.** Il dominio nuovo del `SeedMixer` non consuma tiri
+  del nemico, della cassa o del barile: il loot dei semi già provati e dei test con i valori scritti
+  resta uguale. Un test lo controlla, al Crepuscolo e all'Ombra.
+- **"Più forte di un raro" con la rarità minima.** `RollFrom` rifà l'oggetto alla rarità minima della
+  tabella quando esce sotto; il tiro dell'unico va dopo questo, o un forziere che garantisce un raro
+  lo rifarebbe raro.
+- **Velocità d'attacco e animazioni.** L'intervallo dell'arma governa anche la velocità della clip
+  (come il campione Rapido, v1.1.1): accorciarlo senza accelerare l'animazione farebbe partire il
+  colpo prima che il braccio arrivi.
+- **Rubavita e nemici immortali.** Il rubavita cura sul danno davvero inflitto, dopo armatura e
+  blocco, e mai su un barile o un nemico già morto. Il cavaliere invulnerabile della ronda non deve
+  falsare le misure.
+- **Danno ridotto e il minimo di 1.** Con il danno ridotto alto i nemici dei primi livelli farebbero
+  0: il minimo resta 1, come la formula di oggi.
+- **Set e anelli.** Due anelli dello stesso set sono due pezzi diversi (due definizioni); lo stesso
+  pezzo indossato due volte conta una volta sola.
+- **Id degli asset.** Come alla M14: id nuovi generati una volta, mai duplicando un asset.
+
+## Test
+
+- EditMode: rarità e colori, valori per livello con il ±10%, tiro con il dominio suo (stesso seme,
+  stesso oggetto; loot di sempre invariato), bonus dei set accesi e spenti mettendo e togliendo pezzi,
+  proprietà nuove sulle statistiche, prezzi, tooltip del set, migrazione 6 → 7, fasce della misura,
+  nomi presenti nelle due lingue per ogni unico, pezzo e set.
+- PlayMode: un unico che cade con `-namedchance`, il set completo indossato con i bonus nel pannello
+  del personaggio, velocità d'attacco e rubavita in combattimento, salvataggio e caricamento di un
+  pezzo di set.
+
+---
+
+## Checklist di chiusura
+
+- [ ] Decisioni D1–D16 confermate
+- [ ] Tabella degli unici e dei set approvata
+- [ ] Core: rarità, definizioni, proprietà nuove, bonus dei set
+- [ ] In gioco: combattimento, loot, luce e suono
+- [ ] Tooltip, inventario e stringhe
+- [ ] Formato 7 del salvataggio
+- [ ] Misura e taratura
+- [ ] Build di prova
+- [ ] ADR, lezioni nel piano, README
+- [ ] `bundleVersion` 1.4.0 e tag `v1.4.0` dopo i test verdi in CI
