@@ -308,6 +308,13 @@ Test: `NamedCensusTests` (5: fasce a discesa, crescita con la difficoltà, conto
 veri, unici contro rari, set contro rari) e, nella ronda, `NamedCensus_OnNewSeeds` con 400 partite
 e 64 equipaggiamenti nuovi a notte. I numeri della tabella nei test del 16.3 seguono la taratura.
 
+## Passo 16.7 — Build da provare
+
+Build dalla CI su `c832894` (run 40239824483, artefatto `DarkDescent-Windows-main`), con test e build
+Windows verdi. Si prova all'Ombra con `-difficulty 1 -herolevel 12 -namedchance 50`, scegliendo
+*Nuova partita* dal menu: `-herolevel 12` è il livello della zona, senza il cavaliere sarebbe al
+livello 1. Le prove sono in `docs/Da_provare.md`; le correzioni vanno in questo passo.
+
 ## Trappole note
 
 - **I valori delle rarità.** `Rarity` si salva come numero e fa da indice in più posti (pesi della

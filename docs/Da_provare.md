@@ -4,8 +4,24 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 23 ott 2026, build della M14 (`c413b46`, run 39779388494) non provata. La
-prossima build da provare è quella del tag `v1.3.0`.
+Ultimo aggiornamento: 26 ott 2026, build della M16 da provare (passo 16.7).
+
+## Dalla M16 — "Tesori con un nome" (v1.4.0)
+
+Si lancia `DarkDescent.exe -difficulty 1 -herolevel 12 -namedchance 50` e si sceglie *Nuova partita*
+in un posto libero: all'Ombra quasi ogni oggetto è un unico o un pezzo di set.
+
+- **A terra**: il nome in oro (unico) o in verde (set), la luce più forte del colore suo e il suono
+  di quando cade. Si distingue da un raro anche da lontano?
+- **Il tooltip**: il nome, la base sotto, le proprietà in blu. Di un pezzo di set i pezzi del set
+  (bianchi se indossati, grigi se no) e i bonus, verdi quando sono attivi, in inglese e in italiano.
+- **Un set intero**: indossando i quattro pezzi i bonus si accendono uno alla volta nel tooltip, e
+  i valori della scheda del cavaliere salgono con loro.
+- **Le proprietà nuove**: la velocità d'attacco si vede nei colpi, il rubavita nella vita che torna,
+  il danno ridotto nei colpi del bruto. L'Ultima Candela ora dà Vitalità invece del mana.
+- **Salvare e riprendere**: unici e set restano con nome e valori, indossati e nello zaino.
+- **Senza `-namedchance`**: quanti ne cadono davvero. La misura dice circa uno a discesa all'Ombra e
+  quasi quattro all'ultimo Abisso; al Crepuscolo solo, a volte, dal tesoro del re.
 
 ## Dalla M13 — "Stanze vive" (v1.2.x, build saltata il 21 ott 2026)
 
