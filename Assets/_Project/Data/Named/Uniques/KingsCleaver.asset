@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f9ddc50b0602f4aa640698aab1ecf6, type: 3}
+  m_Name: KingsCleaver
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.UniqueDefinition
+  _id: 4dfb2ccd417e4bb59b3b8331d2ebc589
+  _nameKey: unique.kings_cleaver
+  _base: {fileID: 11400000, guid: a152012fd4f58a948a88fd205e5cbeee, type: 2}
+  _minLevel: 10
+  _properties:
+  - _effect: 0
+    _low: 70
+    _high: 200
+  - _effect: 5
+    _low: 10
+    _high: 40
+  - _effect: 13
+    _low: 3
+    _high: 6
+  - _effect: 8
+    _low: 15
+    _high: 80
+  _set: {fileID: 0}

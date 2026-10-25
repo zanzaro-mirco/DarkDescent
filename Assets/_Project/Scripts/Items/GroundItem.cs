@@ -50,10 +50,17 @@ namespace DarkDescent.Items
         [Tooltip("Il colore del nome e della luce di una pila d'oro (D4 della M10).")]
         [SerializeField] private Color _goldColor = new Color(0.88f, 0.75f, 0.38f);
 
+        [Tooltip("Un unico tocca terra (D15 della M16), sopra il suono di sempre.")]
+        [SerializeField] private AudioClip _uniqueClip;
+
+        [Tooltip("Un pezzo di set tocca terra (D15 della M16).")]
+        [SerializeField] private AudioClip _setClip;
+
         private Interactable _interactable;
         private ItemInstance _item;
         private GameObject _model;
         private Light _glow;
+        private float _glowIntensity;
         private Vector3 _restPosition;
         private Quaternion _restRotation;
         private Vector3 _restCenter;
@@ -165,6 +172,7 @@ namespace DarkDescent.Items
             _interactable = GetComponent<Interactable>();
             _interactable.SetLabelSource(this);
             _glow = GetComponentInChildren<Light>(true);
+            _glowIntensity = _glow != null ? _glow.intensity : 0f;
         }
 
         private void Start()
@@ -193,6 +201,9 @@ namespace DarkDescent.Items
             if (_glow != null)
             {
                 _glow.color = _gold > 0 ? _goldColor : RarityColors.Light(item.Rarity);
+
+                // unici e set si vedono da più lontano (D2 della M16)
+                _glow.intensity = _glowIntensity * (_gold > 0 ? 1f : RarityColors.LightBoost(item.Rarity));
             }
 
             if (_model != null)
@@ -277,6 +288,13 @@ namespace DarkDescent.Items
             // la variante dal punto, non da Random, come per le casse
             Vector3 p = transform.position;
             _audio.PlayOneShot(clips[Mathf.Abs(Mathf.RoundToInt(p.x * 10f) + Mathf.RoundToInt(p.z * 10f)) % clips.Length]);
+
+            // un unico o un pezzo di set si sente anche da lontano (D15 della M16)
+            var named = _item == null ? null : _item.Rarity == Rarity.Unique ? _uniqueClip : _item.Rarity == Rarity.Set ? _setClip : null;
+            if (named != null)
+            {
+                _audio.PlayOneShot(named);
+            }
         }
 
         private void HandleUsed(GameObject user)

@@ -7466,6 +7466,7 @@ MonoBehaviour:
   _targetMarker: {fileID: 143598250}
   _strings: {fileID: 4900000, guid: 2fda7ed2ca7aa064bafe58a844401558, type: 3}
   _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
+  _namedItems: {fileID: 11400000, guid: 4500eba5239e457a9c24daefbace1a65, type: 2}
   _scrolls: {fileID: 11400000, guid: 8523e7faa83f38c4288193ee90254b01, type: 2}
   _portals: {fileID: 428672407}
   _retroFilter: {fileID: 622853135}
@@ -27857,6 +27858,7 @@ MonoBehaviour:
   _combatCooldown: 5
   _items: {fileID: 11400000, guid: be8dcda66dcc39645ad4c3fca0b208ce, type: 2}
   _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
+  _named: {fileID: 11400000, guid: 4500eba5239e457a9c24daefbace1a65, type: 2}
 --- !u!4 &1516830422
 Transform:
   m_ObjectHideFlags: 0
@@ -33337,6 +33339,7 @@ MonoBehaviour:
   _gold: {fileID: 11400000, guid: 9cf671510ba2f7542961474e74af6247, type: 2}
   _items: {fileID: 11400000, guid: be8dcda66dcc39645ad4c3fca0b208ce, type: 2}
   _affixes: {fileID: 11400000, guid: efd87df016773694ea6550cc0360ebb2, type: 2}
+  _named: {fileID: 11400000, guid: 4500eba5239e457a9c24daefbace1a65, type: 2}
 --- !u!1 &1769313802
 GameObject:
   m_ObjectHideFlags: 0

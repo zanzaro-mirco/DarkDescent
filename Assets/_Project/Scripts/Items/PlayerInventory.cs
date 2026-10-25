@@ -51,12 +51,26 @@ namespace DarkDescent.Items
         private PlayerInputReader _reader;
         private PlayerMagic _magic;
         private Inventory _inventory;
+        private SetBonuses _setBonuses;
 
         // Creato al primo accesso: modelli in mano e pannelli si iscrivono in OnEnable, e l'ordine
-        // degli Awake tra componenti e oggetti non è garantito
-        public Inventory Inventory => _inventory ??= new Inventory(
-            new InventoryGrid(_gridSize.x, _gridSize.y),
-            new Equipment(GetComponent<CharacterStats>().Sheet));
+        // degli Awake tra componenti e oggetti non è garantito. I bonus dei set (D9 della M16) nascono
+        // con l'equipaggiamento e lo seguono finché vive il cavaliere
+        public Inventory Inventory
+        {
+            get
+            {
+                if (_inventory == null)
+                {
+                    var sheet = GetComponent<CharacterStats>().Sheet;
+                    var equipment = new Equipment(sheet);
+                    _inventory = new Inventory(new InventoryGrid(_gridSize.x, _gridSize.y), equipment);
+                    _setBonuses = new SetBonuses(equipment, sheet);
+                }
+
+                return _inventory;
+            }
+        }
 
         /// <summary>Un oggetto non è entrato perché non c'era posto: l'HUD lo dice per un momento.</summary>
         public event Action<ItemInstance> PickUpRefused;
@@ -223,6 +237,11 @@ namespace DarkDescent.Items
             {
                 _reader.BeltSlotUsed -= HandleBeltSlotUsed;
             }
+        }
+
+        private void OnDestroy()
+        {
+            _setBonuses?.Dispose();
         }
 
         private void HandleBeltSlotUsed(int slot)

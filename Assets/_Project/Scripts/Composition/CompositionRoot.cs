@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using DarkDescent.Audio;
 using DarkDescent.Characters;
 using DarkDescent.Combat;
@@ -125,6 +126,9 @@ namespace DarkDescent.Core
         [Tooltip("Gli affissi che il generatore può tirare (D3 della M5).")]
         [SerializeField] private AffixDatabase _affixes;
 
+        [Tooltip("Gli unici e i pezzi di set che il loot può far cadere (M16).")]
+        [SerializeField] private NamedItemDatabase _namedItems;
+
         [Tooltip("Le pergamene e quanto spesso un livello ne ha una (D5 della M9).")]
         [SerializeField] private ScrollTable _scrolls;
 
@@ -159,6 +163,7 @@ namespace DarkDescent.Core
         // una partita nuova a una difficoltà e a un livello del cavaliere, per provarle (D13 della M14)
         private const string DifficultyOption = "-difficulty";
         private const string HeroLevelOption = "-herolevel";
+        private const string NamedChanceOption = "-namedchance";
 
         /// <summary>Opzioni in più, separate da spazi, come se fossero sulla riga di comando: per i test.</summary>
         public const string ArgumentsVariable = "DARKDESCENT_ARGS";
@@ -319,6 +324,8 @@ namespace DarkDescent.Core
             var progression = _player.GetComponent<PlayerProgress>().Settings;
             _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed,
                 depth => progression.ZoneLevel(depth, CurrentDifficulty.ZoneLevelBonus));
+            _loot.UseNamed(_namedItems);
+            ReadNamedChance(args);
             ApplyDifficultyToLoot();
             // lo stesso seme fa anche i livelli generati: ognuno ne ricava uno suo (D8 della M6)
             _levelManager.RunSeed = seed;
@@ -460,6 +467,18 @@ namespace DarkDescent.Core
         {
             var tier = CurrentDifficulty;
             _loot.UseDifficulty(tier.Rarities, tier.Gold);
+            _loot.UseNamedChances(tier.UniqueChance, tier.SetChance);
+        }
+
+        // -namedchance (D15 della M16): unici e set più spessi, per provarli. Vale anche in una ripresa
+        private void ReadNamedChance(string[] args)
+        {
+            if (CommandLine.TryGetValue(args, NamedChanceOption, out string text)
+                && float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float factor) && factor > 0f)
+            {
+                _loot.NamedChanceFactor = factor;
+                Debug.Log($"[DarkDescent] probabilità di unici e set ×{factor} da riga di comando");
+            }
         }
 
         private static string SaveFolder()
@@ -1209,6 +1228,12 @@ namespace DarkDescent.Core
         public void UseLootSeed(ulong seed)
         {
             _loot.RunSeed = seed;
+        }
+
+        /// <summary>Moltiplica le probabilità di unici e set, come <c>-namedchance</c> (D15 della M16): per i test.</summary>
+        public void UseNamedChance(float factor)
+        {
+            _loot.NamedChanceFactor = Mathf.Max(0f, factor);
         }
 
         /// <summary>

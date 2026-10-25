@@ -15,6 +15,12 @@ namespace DarkDescent.Items
         private readonly ItemGenerator _generator;
         private readonly Func<int, int> _itemLevel;
 
+        // gli unici e i pezzi di set da cui scegliere (M16); senza, nessun oggetto lo diventa
+        private NamedItemDatabase _named;
+
+        // riusata a ogni tiro dell'unico
+        private readonly List<UniqueDefinition> _candidates = new List<UniqueDefinition>();
+
         /// <param name="itemLevel">
         /// Il livello degli oggetti di una profondità: nel gioco il livello della zona (D7 della M14).
         /// Senza, la profondità stessa, come prima della M14.
@@ -35,6 +41,28 @@ namespace DarkDescent.Items
 
         /// <summary>Quanto vale l'oro che cade rispetto al Crepuscolo (D5 della M14).</summary>
         public float GoldFactor { get; private set; } = 1f;
+
+        /// <summary>La probabilità che un oggetto caduto diventi un unico, alla difficoltà attuale (D7 della M16).</summary>
+        public float UniqueChance { get; private set; }
+
+        /// <summary>La probabilità che un oggetto caduto diventi un pezzo di set (D7 della M16).</summary>
+        public float SetChance { get; private set; }
+
+        /// <summary>Moltiplica le probabilità di unici e set per provarli: <c>-namedchance</c> (D15 della M16). 1 nel gioco.</summary>
+        public float NamedChanceFactor { get; set; } = 1f;
+
+        /// <summary>Gli unici e i pezzi di set da cui scegliere (M16).</summary>
+        public void UseNamed(NamedItemDatabase named)
+        {
+            _named = named;
+        }
+
+        /// <summary>Le probabilità di unici e set di una difficoltà (D7 della M16).</summary>
+        public void UseNamedChances(float uniqueChance, float setChance)
+        {
+            UniqueChance = Math.Max(0f, uniqueChance);
+            SetChance = Math.Max(0f, setChance);
+        }
 
         /// <summary>
         /// Rarità e oro di una difficoltà; il livello degli oggetti lo dà già la funzione del
@@ -108,7 +136,53 @@ namespace DarkDescent.Items
             ulong seed = random.NextUInt64();
             int level = ItemLevel(depth);
             var generated = _generator.Generate(item, level, seed, Rarities);
-            return generated.Rarity < table.MinRarity ? _generator.Generate(item, level, seed, table.MinRarity) : generated;
+            generated = generated.Rarity < table.MinRarity ? _generator.Generate(item, level, seed, table.MinRarity) : generated;
+
+            // dopo la rarità minima: un unico rifatto raro tornerebbe raro (trappole della M16)
+            return Promote(generated, 1f);
+        }
+
+        /// <summary>
+        /// L'oggetto caduto che diventa un unico o un pezzo di set della sua base (D7 della M16), con un
+        /// tiro a parte dal suo seme; altrimenti, o se la base non ne ha al suo livello, quello di prima.
+        /// <paramref name="factor"/> moltiplica le probabilità: i tiri in più di campioni e forzieri.
+        /// </summary>
+        public ItemInstance Promote(ItemInstance item, float factor)
+        {
+            if (item?.Definition == null || item.IsNamed || _named == null)
+            {
+                return item;
+            }
+
+            double unique = UniqueChance * (double)factor * NamedChanceFactor;
+            double set = SetChance * (double)factor * NamedChanceFactor;
+            if (unique + set <= 0.0)
+            {
+                return item;
+            }
+
+            var random = new SplitMix64Source(SeedMixer.ForNamed(item.Seed));
+            double roll = random.NextDouble();
+            if (roll >= unique + set)
+            {
+                return item;
+            }
+
+            return Become(item, roll < unique ? Rarity.Unique : Rarity.Set, random) ?? item;
+        }
+
+        // un unico o un pezzo di set della base e del livello dell'oggetto, scelto con lo stesso peso;
+        // null se non ce n'è
+        private ItemInstance Become(ItemInstance item, Rarity rarity, SplitMix64Source random)
+        {
+            _named.Candidates(item.Definition, item.ItemLevel, rarity, _candidates);
+            if (_candidates.Count == 0)
+            {
+                return null;
+            }
+
+            var named = _candidates[Math.Min(_candidates.Count - 1, (int)(random.NextDouble() * _candidates.Count))];
+            return ItemGenerator.GenerateNamed(named, item.ItemLevel, random.NextUInt64());
         }
 
         /// <summary>
@@ -206,8 +280,39 @@ namespace DarkDescent.Items
                     generated = _generator.Generate(item, ItemLevel(depth), seed, floor);
                 }
 
+                generated = Promote(generated, bonus.NamedFactor);
                 guaranteed |= generated.Rarity >= bonus.Guaranteed;
                 into.Add(generated);
+            }
+
+            GuaranteeNamed(bonus, first, depth, cellX, cellZ, into);
+        }
+
+        // Il tesoro del re (D7 della M16): se nessun oggetto è già un unico o un pezzo di set, un tiro suo
+        // ne fa uno, il primo dei tiri in più che ne ha uno della sua base; unico o set a caso, e se manca
+        // l'uno l'altro. Anche al Crepuscolo, dove le probabilità per oggetto sono zero
+        private void GuaranteeNamed(LootBonus bonus, ItemInstance first, int depth, int cellX, int cellZ, List<ItemInstance> into)
+        {
+            if (_named == null || bonus.NamedGuarantee <= 0f || (first != null && first.IsNamed) || into.Exists(item => item.IsNamed))
+            {
+                return;
+            }
+
+            var random = new SplitMix64Source(SeedMixer.ForNamedGuarantee(RunSeed, depth, cellX, cellZ));
+            if (random.NextDouble() >= bonus.NamedGuarantee)
+            {
+                return;
+            }
+
+            var preferred = random.NextDouble() < 0.5 ? Rarity.Unique : Rarity.Set;
+            for (int i = 0; i < into.Count; i++)
+            {
+                var named = Become(into[i], preferred, random) ?? Become(into[i], preferred == Rarity.Unique ? Rarity.Set : Rarity.Unique, random);
+                if (named != null)
+                {
+                    into[i] = named;
+                    return;
+                }
             }
         }
 

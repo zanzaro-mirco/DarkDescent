@@ -49,7 +49,10 @@ namespace DarkDescent.Combat
             // Gli eventi si inoltrano da qui e non iscrivendosi a quelli del model:
             // nessun += da bilanciare, e l'ordine (vita, colpo, morte) è deciso in un punto solo.
             bool wasDead = Model.IsDead;
-            float applied = Model.ApplyDamage(info.Amount);
+
+            // il danno ridotto degli oggetti (D5 della M16), mai sotto 1; i nemici non ne hanno
+            float amount = _stats != null ? CombatFormulas.ReduceDamage(info.Amount, _stats.Sheet.Get(StatType.DamageReduction)) : info.Amount;
+            float applied = Model.ApplyDamage(amount);
             if (applied <= 0f)
             {
                 return;

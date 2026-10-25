@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f9ddc50b0602f4aa640698aab1ecf6, type: 3}
+  m_Name: WardensBoots
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.UniqueDefinition
+  _id: a3a161ed9a414cb9ba9f3c9f201cfc26
+  _nameKey: set.wardens_boots
+  _base: {fileID: 11400000, guid: 748429ba378cf7c45b284b47eeb042da, type: 2}
+  _minLevel: 10
+  _properties:
+  - _effect: 3
+    _low: 4
+    _high: 18
+  - _effect: 8
+    _low: 15
+    _high: 60
+  _set: {fileID: 11400000, guid: 1139256015f44527a7b0c54b29cefd47, type: 2}

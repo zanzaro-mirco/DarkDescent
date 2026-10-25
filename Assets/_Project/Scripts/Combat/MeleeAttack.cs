@@ -38,6 +38,7 @@ namespace DarkDescent.Combat
 
         private NavMeshAgent _agent;
         private CharacterStats _stats;
+        private Health _health;
         private IRandomSource _random;
 
         // il bersaglio scelto e quello del colpo in corso sono distinti: cambiare bersaglio
@@ -120,13 +121,17 @@ namespace DarkDescent.Combat
         /// <summary>L'arma del colpo in corso, o quella dell'ultimo colpo: i suoi tempi danno la velocità dell'animazione.</summary>
         public WeaponDefinition SwingWeapon => _swingWeapon != null ? _swingWeapon : _weapon;
 
-        /// <summary>Quanto dura la carica del colpo, con la velocità dei campioni Rapidi (M12).</summary>
-        public float SwingHitDelay => SwingWeapon.HitDelay / _speedMultiplier;
+        /// <summary>Quanto dura la carica del colpo, con la velocità dei campioni Rapidi (M12) e degli oggetti (M16).</summary>
+        public float SwingHitDelay => SwingWeapon.HitDelay / SpeedMultiplier;
 
         /// <summary>Il danno in più del grado e della difficoltà insieme: i due si moltiplicano qui e solo qui (M14).</summary>
         public float DamageMultiplier => _damageMultiplier * _difficultyMultiplier;
 
-        public float SpeedMultiplier => _speedMultiplier;
+        /// <summary>
+        /// Quanto sono più veloci carica e intervallo tra i colpi: il Rapido (M12) per la velocità
+        /// d'attacco degli oggetti (D5 della M16). Anche l'animazione segue questo, con <see cref="SwingHitDelay"/>.
+        /// </summary>
+        public float SpeedMultiplier => _speedMultiplier * CombatFormulas.AttackSpeedMultiplier(CharacterStats.ValueOf(_stats, StatType.AttackSpeed));
 
         /// <summary>Lo scudo del bersaglio non ferma i suoi colpi: l'Inamovibile (M12).</summary>
         public bool IsUnblockable => _unblockable;
@@ -159,6 +164,7 @@ namespace DarkDescent.Combat
             _agent = GetComponent<NavMeshAgent>();
             // senza statistiche (un bersaglio di prova) si tira con Forza e Destrezza a zero
             TryGetComponent(out _stats);
+            TryGetComponent(out _health);
             if (_weapon != null)
             {
                 SetWeapon(_weapon);
@@ -348,8 +354,9 @@ namespace DarkDescent.Combat
 
             _attackRequested = false;
             _hitPending = true;
-            _hitTimer = _swingWeapon.HitDelay / _speedMultiplier;
-            _cooldown = _swingWeapon.AttackInterval / _speedMultiplier;
+            float speed = SpeedMultiplier;
+            _hitTimer = _swingWeapon.HitDelay / speed;
+            _cooldown = _swingWeapon.AttackInterval / speed;
 
             _swingTarget = _target;
             _swingTransform = _targetTransform;
@@ -414,13 +421,31 @@ namespace DarkDescent.Combat
                     }
 
                     var info = new DamageInfo(amount, _swingWeapon.DamageType, gameObject, critical);
-                    _swingTarget.TakeDamage(info);
+                    StealLife(info);
                     HitLanded?.Invoke(info);
                 }
             }
 
             ForgetSwingTarget();
             SwingEnded?.Invoke();
+        }
+
+        // Il colpo, e il rubavita degli oggetti (D5 della M16) sul danno davvero inflitto: solo a chi ha
+        // una vita, quindi mai a un barile, e niente su chi era già morto
+        private void StealLife(in DamageInfo info)
+        {
+            float lifeSteal = CharacterStats.ValueOf(_stats, StatType.LifeSteal);
+            Health targetHealth = lifeSteal > 0f && _health != null && _swingTransform != null ? _swingTransform.GetComponent<Health>() : null;
+            float before = targetHealth != null ? targetHealth.Current : 0f;
+            _swingTarget.TakeDamage(info);
+            if (targetHealth != null)
+            {
+                float healed = CombatFormulas.LifeStolen(before - targetHealth.Current, lifeSteal);
+                if (healed > 0f)
+                {
+                    _health.Heal(healed);
+                }
+            }
         }
 
         // Il bersaglio è ancora davanti, dentro l'arco dell'arma: chi gli è passato di lato o dietro

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f9ddc50b0602f4aa640698aab1ecf6, type: 3}
+  m_Name: BearsMaw
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.UniqueDefinition
+  _id: a593665f5bcc4d45a460ba2cdf688100
+  _nameKey: unique.bears_maw
+  _base: {fileID: 11400000, guid: 7c373b928ec6d4e46a4ee523085b8ec0, type: 2}
+  _minLevel: 10
+  _properties:
+  - _effect: 5
+    _low: 8
+    _high: 35
+  - _effect: 8
+    _low: 20
+    _high: 90
+  - _effect: 16
+    _low: 5
+    _high: 20
+  - _effect: 3
+    _low: 4
+    _high: 16
+  _set: {fileID: 0}

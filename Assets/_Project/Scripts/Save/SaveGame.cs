@@ -37,6 +37,9 @@ namespace DarkDescent.Save
 
         [SerializeField] private AffixDatabase _affixes;
 
+        [Tooltip("Gli unici e i pezzi di set, per ritrovarli nel salvataggio (M16).")]
+        [SerializeField] private NamedItemDatabase _named;
+
         private LevelManager _levelManager;
         private PlayerInventory _inventory;
         private PlayerProgress _progress;
@@ -186,7 +189,7 @@ namespace DarkDescent.Save
             sheet.SetBase(StatType.Magic, data.Magic);
             sheet.SetBase(StatType.Vitality, data.Vitality);
             _progress.Progress.Restore(data.Level, data.Experience, data.UnspentPoints);
-            bool complete = data.Inventory.Restore(_inventory.Inventory, _items, _affixes);
+            bool complete = data.Inventory.Restore(_inventory.Inventory, _items, _affixes, _named);
             _inventory.Inventory.RestoreGold(data.Gold);
             _runStats.Restore(data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated);
             if (_portals != null)

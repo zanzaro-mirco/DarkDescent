@@ -202,6 +202,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c63c14ea888d3214f8cf7645a52e8d62, type: 3}
   - {fileID: 8300000, guid: 3abf9086fa9d55b408c2443b07677e62, type: 3}
   _goldColor: {r: 0.88, g: 0.75, b: 0.38, a: 1}
+  _uniqueClip: {fileID: 8300000, guid: 0c6ecd31d0d343278b8bc0c1905a1567, type: 3}
+  _setClip: {fileID: 8300000, guid: 4f2a13d321d14af5a54ab7058ee65cbe, type: 3}
 --- !u!114 &4650100682426865527
 MonoBehaviour:
   m_ObjectHideFlags: 0

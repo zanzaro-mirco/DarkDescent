@@ -26,6 +26,9 @@ namespace DarkDescent.Levels
 
         [SerializeField] private AffixDatabase _affixes;
 
+        [Tooltip("Gli unici e i pezzi di set, per ritrovarli nel ricordo (M16).")]
+        [SerializeField] private NamedItemDatabase _named;
+
         private readonly List<GroundItem> _found = new List<GroundItem>();
 
         // il livello rimesso com'era: solo lui si può ricordare. Uno appena caricato e non ancora
@@ -97,7 +100,7 @@ namespace DarkDescent.Levels
                 {
                     GroundItem.RestoreGold(_groundItemPrefab, _gold, item.Gold, item.Position);
                 }
-                else if (item.Item != null && item.Item.Resolve(_items, _affixes))
+                else if (item.Item != null && item.Item.Resolve(_items, _affixes, _named))
                 {
                     GroundItem.Restore(_groundItemPrefab, item.Item, item.Position);
                 }

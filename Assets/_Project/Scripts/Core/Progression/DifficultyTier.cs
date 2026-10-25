@@ -47,6 +47,12 @@ namespace DarkDescent.Progression
 
         [SerializeField, Min(0)] private int _rareWeight = 7;
 
+        [Tooltip("La probabilità che un oggetto caduto diventi un unico (D7 della M16): 0 al Crepuscolo.")]
+        [SerializeField, Range(0f, 0.2f)] private float _uniqueChance;
+
+        [Tooltip("La probabilità che un oggetto caduto diventi un pezzo di set (D7 della M16).")]
+        [SerializeField, Range(0f, 0.2f)] private float _setChance;
+
         [Header("Morte (D9)")]
         [Tooltip("La parte dell'oro addosso che si perde morendo.")]
         [SerializeField, Range(0f, 1f)] private float _deathGold;
@@ -75,6 +81,10 @@ namespace DarkDescent.Progression
         public float Experience => _experience;
 
         public float Gold => _gold;
+
+        public float UniqueChance => _uniqueChance;
+
+        public float SetChance => _setChance;
 
         public float DeathGold => _deathGold;
 

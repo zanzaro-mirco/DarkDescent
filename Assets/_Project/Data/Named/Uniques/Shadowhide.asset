@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f9ddc50b0602f4aa640698aab1ecf6, type: 3}
+  m_Name: Shadowhide
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.UniqueDefinition
+  _id: 42852a5cf6c64029adbaec34097b72fd
+  _nameKey: unique.shadowhide
+  _base: {fileID: 11400000, guid: ae5120f3cc2505947b167363da0c8d41, type: 2}
+  _minLevel: 10
+  _properties:
+  - _effect: 6
+    _low: 8
+    _high: 35
+  - _effect: 9
+    _low: 4
+    _high: 12
+  - _effect: 12
+    _low: 8
+    _high: 15
+  - _effect: 1
+    _low: 50
+    _high: 120
+  _set: {fileID: 0}

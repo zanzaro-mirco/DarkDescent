@@ -405,3 +405,26 @@ difficulty.abyss3,Abyss III,Abisso III
 difficulty.abyss4,Abyss IV,Abisso IV
 difficulty.abyss5,Abyss V,Abisso V
 difficulty.abyss6,Abyss VI,Abisso VI
+# unici e set (M16)
+unique.kings_cleaver,The King's Cleaver,La Mannaia del Re
+unique.morvaks_fang,Morvak's Fang,Zanna di Morvak
+unique.dusk_blade,Dusk Blade,Lama del Crepuscolo
+unique.crypt_reaper,Crypt Reaper,Falce della Cripta
+unique.grumms_shell,Grumm's Shell,Il Guscio di Grumm
+unique.crypt_seal,The Crypt Seal,Il Sigillo della Cripta
+unique.first_knights_helm,Helm of the First Knight,L'Elmo del Primo Cavaliere
+unique.bears_maw,The Bear's Maw,Le Fauci dell'Orso
+unique.bone_shroud,The Bone Shroud,Il Sudario d'Ossa
+unique.shadowhide,Shadowhide,La Pelle dell'Ombra
+unique.eclipse_band,Eclipse Band,L'Anello dell'Eclissi
+unique.last_candle,The Last Candle,L'Ultima Candela
+set.wardens_helm,Warden's Helm,Elmo del Custode
+set.wardens_breastplate,Warden's Breastplate,Corazza del Custode
+set.wardens_gauntlets,Warden's Gauntlets,Guanti del Custode
+set.wardens_boots,Warden's Boots,Stivali del Custode
+set.warden,The Warden's Armor,L'armatura del Custode
+set.hunters_hood,Hunter's Hood,Cappuccio del Cacciatore
+set.hunters_jerkin,Hunter's Jerkin,Giubba del Cacciatore
+set.hunters_gloves,Hunter's Gloves,Guanti del Cacciatore
+set.hunters_boots,Hunter's Boots,Stivali del Cacciatore
+set.hunter,The Hunter's Hide,Le spoglie del Cacciatore

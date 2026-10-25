@@ -15,6 +15,12 @@ namespace DarkDescent.Combat
         public const float MaxCritChance = 50f;
         public const float CritMultiplier = 2f;
 
+        /// <summary>La velocità d'attacco in più non va oltre il 50% (D5 della M16, passo 16.1).</summary>
+        public const float MaxAttackSpeed = 50f;
+
+        /// <summary>Il rubavita non va oltre il 10% (D5 della M16, passo 16.1).</summary>
+        public const float MaxLifeSteal = 10f;
+
         private const float BaseHitChance = 75f;
         private const float BaseCritChance = 5f;
         private const float BaseLife = 50f;
@@ -126,6 +132,33 @@ namespace DarkDescent.Combat
         public static float WithBonus(float value, float percent)
         {
             return value * (1f + percent / 100f);
+        }
+
+        /// <summary>
+        /// Quanto si accorciano carica e intervallo tra i colpi con la velocità d'attacco in più (D5 della
+        /// M16): +20% li divide per 1,2. Fermo tra 0 e <see cref="MaxAttackSpeed"/>.
+        /// </summary>
+        public static float AttackSpeedMultiplier(float attackSpeed)
+        {
+            return 1f + Math.Min(Math.Max(attackSpeed, 0f), MaxAttackSpeed) / 100f;
+        }
+
+        /// <summary>
+        /// La vita che torna da un colpo (D5 della M16): una parte del danno davvero inflitto, con il
+        /// rubavita fermo tra 0 e <see cref="MaxLifeSteal"/>.
+        /// </summary>
+        public static float LifeStolen(float damageDealt, float lifeSteal)
+        {
+            return Math.Max(0f, damageDealt) * Math.Min(Math.Max(lifeSteal, 0f), MaxLifeSteal) / 100f;
+        }
+
+        /// <summary>
+        /// Il danno di un colpo preso con il danno ridotto (D5 della M16): i punti tolti, mai sotto 1. Un
+        /// colpo senza danno resta senza danno.
+        /// </summary>
+        public static float ReduceDamage(float amount, float reduction)
+        {
+            return amount <= 0f || reduction <= 0f ? amount : Math.Max(1f, amount - reduction);
         }
 
         /// <summary>Vita massima: 50 + 2 × Vitalità. Con la Vitalità 25 del cavaliere, 100.</summary>

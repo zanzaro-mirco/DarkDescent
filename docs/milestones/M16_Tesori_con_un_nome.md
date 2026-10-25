@@ -179,6 +179,41 @@ tutte togliendo l'oggetto, bonus a 2, 3 e 4 pezzi, livello del pezzo più basso,
 JSON, unico sconosciuto, oggetto di prima della M16, candidati del database, nome. 452 EditMode
 verdi; PlayMode di equipaggiamento, inventario, loot e salvataggi verdi (31).
 
+## Passo 16.3 — In gioco
+
+**Com'è andata (25 ott 2026).** Gli asset sono anticipati qui dal 16.4, perché il loot in gioco abbia
+da cosa scegliere: uno script Python (`named.py` nello scratchpad, come i gradi della M14) scrive i 12
+unici in `Data/Named/Uniques`, i due set e i loro pezzi in `Data/Named/Sets`, il
+`NamedItemDatabase` e le 22 righe dei nomi nelle due lingue, dalla tabella approvata. Il menu
+*Aggiorna il database* rifà anche quello degli unici (`ItemTools.UpdateNamedDatabase`).
+
+Combattimento: `CombatFormulas` ha `AttackSpeedMultiplier` (fermo al +50%), `LifeStolen` (fermo al
+10%) e `ReduceDamage` (mai sotto 1). In `MeleeAttack` la velocità degli oggetti si moltiplica con
+quella del Rapido in `SpeedMultiplier`, che usano già carica, intervallo, animazione e settore; il
+rubavita cura sul danno davvero tolto alla vita del bersaglio, quindi mai su un barile. `Health`
+toglie il danno ridotto a ogni colpo preso. I bonus dei set nascono con l'inventario del cavaliere
+(`PlayerInventory`) e si chiudono con lui.
+
+Loot: `LootRoller.Promote` fa il tiro a parte dal seme dell'oggetto (`SeedMixer.ForNamed`), dopo la
+rarità minima, nei tiri di nemici, barili e casse e nei tiri in più con il moltiplicatore del
+`LootBonus` (`NamedFactor`: 3 per campioni, unici e forzieri, 10 per il tesoro del re). Il tesoro del
+re ha il tiro suo del 25% (`NamedGuarantee`, `SeedMixer.ForNamedGuarantee`), che vale a ogni
+difficoltà se nessun oggetto lo è già. Le probabilità stanno nella `DifficultyTier`
+(`UniqueChance`, `SetChance`), con i numeri della D7. `-namedchance <x>` le moltiplica, anche in una
+partita ripresa. Il salvataggio e i ricordi dei livelli ritrovano unici e pezzi
+(`SaveGame`, `LevelRecorder`); il formato 7 resta per il 16.5.
+
+A terra la luce di unici e set è più forte (×1,6) e, quando toccano terra, suonano
+`unique_drop.wav` e `set_drop.wav`, da `Tools/Audio/sounds/named_drop.py`, sopra il suono di sempre.
+
+Test nuovi: `NamedLootTests` (9: formule, loot di sempre invariato al Crepuscolo e all'Ombra, tiro
+dalla base e ripetibile, tesoro del re al Crepuscolo circa uno su quattro, campioni ×3, probabilità
+per difficoltà, database uguale alla cartella con i nomi nelle due lingue, set coerenti, valori della
+tabella) e `NamedItemPlayModeTests` (5: un unico che cade all'Ombra con `-namedchance`, rubavita,
+velocità d'attacco, danno ridotto, bonus di vita del Custode). Una base che ha solo il pezzo di set
+(gli stivali di cuoio) resta com'è quando il tiro cade sull'unico, come vuole la D7. 461 EditMode
+verdi; 66 PlayMode delle classi toccate verdi, critico compreso.
+
 ## Trappole note
 
 - **I valori delle rarità.** `Rarity` si salva come numero e fa da indice in più posti (pesi della

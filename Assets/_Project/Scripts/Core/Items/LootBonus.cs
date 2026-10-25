@@ -34,13 +34,21 @@ namespace DarkDescent.Items
         [Tooltip("La probabilità che cada ogni tiro in più: 1 sempre, 0,5 il campione (D13 della M13).")]
         [SerializeField, Range(0f, 1f)] private float _extraChance = 1f;
 
+        [Tooltip("Per quanto si moltiplica la probabilità di unici e set dei tiri in più: 3 campioni, unici e forzieri, 10 il tesoro del re (D7 della M16).")]
+        [SerializeField, Min(1f)] private float _namedFactor = 1f;
+
+        [Tooltip("La probabilità di un tiro a parte che fa unico o pezzo di set un oggetto dei tiri in più, se nessuno lo è già: il tesoro del re (D7 della M16).")]
+        [SerializeField, Range(0f, 1f)] private float _namedGuarantee;
+
         public LootBonus()
         {
         }
 
         public LootBonus(int extraRolls, float magicFactor, float rareFactor, Rarity guaranteed, float goldFactor, bool replacesRoll = false,
-            float extraChance = 1f)
+            float extraChance = 1f, float namedFactor = 1f, float namedGuarantee = 0f)
         {
+            _namedFactor = namedFactor;
+            _namedGuarantee = namedGuarantee;
             _replacesRoll = replacesRoll;
             _extraChance = extraChance;
             _extraRolls = extraRolls;
@@ -63,5 +71,9 @@ namespace DarkDescent.Items
         public bool ReplacesRoll => _replacesRoll;
 
         public float ExtraChance => _extraChance;
+
+        public float NamedFactor => _namedFactor;
+
+        public float NamedGuarantee => _namedGuarantee;
     }
 }

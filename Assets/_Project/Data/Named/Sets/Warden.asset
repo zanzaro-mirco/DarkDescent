@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0aa3c3d3daf81b542bcc735f964efe56, type: 3}
+  m_Name: Warden
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.SetDefinition
+  _id: b2b4f56c420d482bb1e22281be40b295
+  _nameKey: set.warden
+  _pieces:
+  - {fileID: 11400000, guid: ffe857840f544813930657b645208270, type: 2}
+  - {fileID: 11400000, guid: e9dd868a5c4942689dbb3f7783c1f925, type: 2}
+  - {fileID: 11400000, guid: eb2daf5253e44f16ab1ed5797bba977f, type: 2}
+  - {fileID: 11400000, guid: 51432fdca14d421b8b57aeef32d54603, type: 2}
+  _bonuses:
+  - _pieces: 2
+    _properties:
+    - _effect: 8
+      _low: 25
+      _high: 120
+  - _pieces: 3
+    _properties:
+    - _effect: 3
+      _low: 10
+      _high: 40
+  - _pieces: 4
+    _properties:
+    - _effect: 14
+      _low: 4
+      _high: 20
+    - _effect: 15
+      _low: 5
+      _high: 20

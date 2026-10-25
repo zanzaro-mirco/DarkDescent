@@ -21,6 +21,8 @@ namespace DarkDescent.Editor
         public const string DatabasePath = "Assets/_Project/Data/ItemDatabase.asset";
         public const string AffixesFolder = "Assets/_Project/Data/Affixes";
         public const string AffixDatabasePath = "Assets/_Project/Data/AffixDatabase.asset";
+        public const string NamedFolder = "Assets/_Project/Data/Named";
+        public const string NamedDatabasePath = "Assets/_Project/Data/NamedItemDatabase.asset";
         public const string IconsFolder = "Assets/_Project/Art/Icons";
 
         /// <summary>Pixel per cella dell'inventario: il doppio di come si vede a 1920×1080, per restare nitide.</summary>
@@ -55,6 +57,35 @@ namespace DarkDescent.Editor
             AssetDatabase.SaveAssets();
             Debug.Log($"[ItemTools] database: {items.Count} oggetti");
             UpdateAffixDatabase();
+            UpdateNamedDatabase();
+        }
+
+        /// <summary>Il database degli unici e dei pezzi di set (M16): le definizioni in Data/Named, in ordine di nome.</summary>
+        public static void UpdateNamedDatabase()
+        {
+            var database = AssetDatabase.LoadAssetAtPath<NamedItemDatabase>(NamedDatabasePath);
+            if (database == null)
+            {
+                database = ScriptableObject.CreateInstance<NamedItemDatabase>();
+                AssetDatabase.CreateAsset(database, NamedDatabasePath);
+            }
+
+            var named = AssetDatabase.FindAssets("t:UniqueDefinition", new[] { NamedFolder })
+                .Select(guid => AssetDatabase.LoadAssetAtPath<UniqueDefinition>(AssetDatabase.GUIDToAssetPath(guid)))
+                .Where(item => item != null)
+                .OrderBy(item => item.name)
+                .ToList();
+            var serialized = new SerializedObject(database);
+            var list = serialized.FindProperty("_items");
+            list.arraySize = named.Count;
+            for (int i = 0; i < named.Count; i++)
+            {
+                list.GetArrayElementAtIndex(i).objectReferenceValue = named[i];
+            }
+
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[ItemTools] database: {named.Count} unici e pezzi di set");
         }
 
         /// <summary>Il database degli affissi: le definizioni in Data/Affixes, in ordine di nome.</summary>

@@ -221,6 +221,7 @@ MonoBehaviour:
     _guaranteed: 1
     _goldFactor: 3
     _replacesRoll: 1
+    _namedFactor: 3
   _sealedUntilBossDies: 0
   _audio: {fileID: 1793994670716697161}
   _openClips:

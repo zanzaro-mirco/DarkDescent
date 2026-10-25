@@ -93,6 +93,23 @@ namespace DarkDescent.Core
         }
 
         // "BARREL": il loot di un barile da rompere (D5 della M13), lontano da quello di nemici e casse
+        private const ulong NamedDomain = 0x4E414D4544UL;
+
+        /// <summary>
+        /// Il tiro che fa di un oggetto caduto un unico o un pezzo di set (D7 della M16): dal seme
+        /// dell'oggetto stesso, così non tocca nessun altro tiro di nemici, casse e barili.
+        /// </summary>
+        public static ulong ForNamed(ulong itemSeed)
+        {
+            return Mix(itemSeed ^ NamedDomain);
+        }
+
+        /// <summary>Il tiro del tesoro del re che garantisce a volte un unico o un pezzo di set (D7 della M16).</summary>
+        public static ulong ForNamedGuarantee(ulong runSeed, int depth, int cellX, int cellZ)
+        {
+            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ NamedDomain);
+        }
+
         private const ulong BarrelDomain = 0x42415252454CUL;
 
         /// <summary>Il seme dell'oggetto di un barile, dalla sua cella: il loot di nemici e casse non cambia.</summary>

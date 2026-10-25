@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f9ddc50b0602f4aa640698aab1ecf6, type: 3}
+  m_Name: GrummsShell
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Items.UniqueDefinition
+  _id: c74e7a3bcbb64176932a75a9dd3ae0a0
+  _nameKey: unique.grumms_shell
+  _base: {fileID: 11400000, guid: d631c2d532f69a142a518ccd4f266c23, type: 2}
+  _minLevel: 10
+  _properties:
+  - _effect: 1
+    _low: 70
+    _high: 160
+  - _effect: 2
+    _low: 12
+    _high: 28
+  - _effect: 14
+    _low: 2
+    _high: 12
+  - _effect: 7
+    _low: 8
+    _high: 35
+  _set: {fileID: 0}

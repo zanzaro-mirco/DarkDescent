@@ -221,6 +221,8 @@ MonoBehaviour:
     _rareFactor: 3
     _guaranteed: 2
     _goldFactor: 2.5
+    _namedFactor: 10
+    _namedGuarantee: 0.25
   _sealedUntilBossDies: 1
   _audio: {fileID: 1793994670716697161}
   _openClips:
