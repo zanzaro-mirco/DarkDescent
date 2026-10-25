@@ -18,15 +18,15 @@ MonoBehaviour:
   _minLevel: 10
   _properties:
   - _effect: 3
-    _low: 6
-    _high: 24
-  - _effect: 1
-    _low: 60
-    _high: 150
-  - _effect: 2
     _low: 14
-    _high: 30
+    _high: 58
+  - _effect: 1
+    _low: 130
+    _high: 310
+  - _effect: 2
+    _low: 22
+    _high: 40
   - _effect: 8
-    _low: 15
-    _high: 80
+    _low: 35
+    _high: 175
   _set: {fileID: 0}

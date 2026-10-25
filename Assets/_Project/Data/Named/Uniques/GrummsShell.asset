@@ -19,14 +19,14 @@ MonoBehaviour:
   _properties:
   - _effect: 1
     _low: 70
-    _high: 160
+    _high: 230
   - _effect: 2
     _low: 12
-    _high: 28
+    _high: 35
   - _effect: 14
     _low: 2
-    _high: 12
+    _high: 18
   - _effect: 7
     _low: 8
-    _high: 35
+    _high: 52
   _set: {fileID: 0}

@@ -21,10 +21,14 @@ namespace DarkDescent.Tests
         private const int CryptPart = 1;
         private const int CavePart = 2;
 
-        // 3 e 4 sono in PlayMode: i livelli costruiti e la partita da sola
+        // 3, 4 e 8 sono in PlayMode: i livelli costruiti, la partita da sola e quella lunga
         private const int LootPart = 5;
         private const int DifficultyMapPart = 6;
         private const int GearPart = 7;
+
+        // unici e set (D11 della M16): le partite per contarli e gli equipaggiamenti del confronto con i rari
+        private const int NamedPart = 10;
+        private const int NamedGearPart = 11;
 
         /// <summary>Partite per profondità della misura del loot (D5 e D13 della M15, parte d); i test di ogni push ne fanno 40.</summary>
         private const int LootGames = 2000;
@@ -33,6 +37,11 @@ namespace DarkDescent.Tests
         private const int DifficultyGames = 400;
 
         private const int GearSets = 1024;
+
+        /// <summary>Partite per profondità della misura di unici e set, ed equipaggiamenti del confronto; a ogni push 20 e 8.</summary>
+        private const int NamedGames = 400;
+
+        private const int NamedGearSets = 64;
 
         /// <summary>Livelli per parte (D5 e D13 della M15); se la notte si allunga si riducono qui (D10).</summary>
         private const int Levels = 20000;
@@ -131,6 +140,36 @@ namespace DarkDescent.Tests
             if (errors.Count > 0)
             {
                 Assert.Fail($"misura delle difficoltà (per rifare la notte: {NightlyRun.SeedOption} {night}):\n" + string.Join("\n", errors));
+            }
+        }
+
+        [Test, Timeout(TenMinutes), Description("La misura di unici e set su 400 partite nuove per profondità e 64 equipaggiamenti nuovi, con le fasce dei suoi test di ogni push")]
+        public void NamedCensus_OnNewSeeds()
+        {
+            ulong night = NightlyRun.Seed();
+            var table = AssetDatabase.LoadAssetAtPath<DifficultyTable>(DifficultyCensus.DifficultiesPath);
+            var items = AssetDatabase.LoadAssetAtPath<Items.NamedItemDatabase>(LootCensus.NamedItemsPath);
+            var tallies = LootCensus.NamedPerDifficulty(table, NightSeeds(night, NamedPart, NamedGames));
+            var census = new DifficultyCensus(NightSeeds(night, NamedPart, 1), NightSeeds(night, NamedGearPart, NamedGearSets));
+            var rows = new List<DifficultyCensus.NamedPower>();
+            foreach (var named in items.Items.Where(u => u.Set == null))
+            {
+                rows.AddRange(new[] { 20, 35, 55 }.Where(l => l >= named.MinLevel).Select(l => census.CompareNamed(named, l, table)));
+            }
+
+            foreach (var set in items.Items.Where(u => u.Set != null).Select(u => u.Set).Distinct())
+            {
+                rows.AddRange(new[] { 20, 35, 55 }.Select(l => census.CompareSet(set, l, table)));
+            }
+
+            string describe = CensusChecks.DescribeNamed(tallies, table);
+            Debug.Log($"[DarkDescent] ronda notturna, misura di unici e set: {describe}");
+            var errors = new[] { CensusChecks.NamedDrops(tallies), CensusChecks.NamedPower(rows) }.Where(e => e != null).ToList();
+            double lowest = rows.Min(r => r.Ratio);
+            NightlyReport.Append(NightlyReport.Part("Misura di unici e set", describe + $"; contro i rari il rapporto più basso è {lowest:F2} (almeno {CensusChecks.NamedOverRare:0.0})", errors));
+            if (errors.Count > 0)
+            {
+                Assert.Fail($"misura di unici e set (per rifare la notte: {NightlyRun.SeedOption} {night}):\n" + string.Join("\n", errors));
             }
         }
 

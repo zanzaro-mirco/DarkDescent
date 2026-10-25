@@ -23,10 +23,10 @@ MonoBehaviour:
   - _effect: 10
     _low: 8
     _high: 35
-  - _effect: 11
-    _low: 20
-    _high: 90
-  - _effect: 8
+  - _effect: 7
     _low: 15
-    _high: 70
+    _high: 85
+  - _effect: 8
+    _low: 40
+    _high: 230
   _set: {fileID: 0}

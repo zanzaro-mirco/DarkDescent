@@ -188,10 +188,10 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0f, settings.For(EnemyRank.Champion).Loot.NamedGuarantee);
         }
 
-        [Test, Description("Le probabilità di unici e set per difficoltà sono quelle della D7: zero al Crepuscolo, 1% all'Ombra, fino al 3% all'Abisso VI")]
+        [Test, Description("Le probabilità di unici e set per difficoltà: zero al Crepuscolo, 1% all'Ombra, poi +0,4% a gradino dagli Abissi fino al 4% all'Abisso VI (D7, tarata al 16.6)")]
         public void Difficulties_HaveTheNamedChances()
         {
-            float[] expected = { 0f, 0.01f, 0.015f, 0.02f, 0.022f, 0.024f, 0.026f, 0.028f, 0.03f };
+            float[] expected = { 0f, 0.01f, 0.015f, 0.02f, 0.024f, 0.028f, 0.032f, 0.036f, 0.04f };
             Assert.AreEqual(expected.Length, Difficulties.Count);
             for (int i = 0; i < expected.Length; i++)
             {
@@ -257,7 +257,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("Gli unici sono quelli della tabella approvata del 16.1: la Mannaia del Re e l'Ultima Candela, proprietà per proprietà")]
+        [Test, Description("Gli unici sono quelli della tabella del 16.1 tarata al 16.6: la Mannaia del Re com'era, l'Ultima Candela con la Vitalità al posto del mana, proprietà per proprietà")]
         public void Uniques_MatchTheApprovedTable()
         {
             var cleaver = Load<UniqueDefinition>($"{NamedFolder}/Uniques/KingsCleaver.asset");
@@ -269,12 +269,12 @@ namespace DarkDescent.Tests
             var candle = Load<UniqueDefinition>($"{NamedFolder}/Uniques/LastCandle.asset");
             Assert.AreEqual("Amulet", candle.Base.name);
             CollectionAssert.AreEqual(
-                new[] { (AffixEffect.ExperienceBonus, 5, 15), (AffixEffect.Magic, 8, 35), (AffixEffect.Mana, 20, 90), (AffixEffect.Life, 15, 70) },
+                new[] { (AffixEffect.ExperienceBonus, 5, 15), (AffixEffect.Magic, 8, 35), (AffixEffect.Vitality, 15, 85), (AffixEffect.Life, 40, 230) },
                 candle.Properties.Select(p => (p.Effect, p.Low, p.High)));
 
             var warden = Load<SetDefinition>($"{NamedFolder}/Sets/Warden.asset");
             var full = warden.Bonuses.Single(b => b.Pieces == 4);
-            CollectionAssert.AreEqual(new[] { (AffixEffect.DamageReduction, 4, 20), (AffixEffect.AllAttributes, 5, 20) },
+            CollectionAssert.AreEqual(new[] { (AffixEffect.DamageReduction, 4, 26), (AffixEffect.AllAttributes, 5, 27) },
                 full.Properties.Select(p => (p.Effect, p.Low, p.High)));
         }
     }

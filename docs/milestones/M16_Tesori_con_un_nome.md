@@ -81,7 +81,7 @@ v2.32) e la D16 della M14 (unici e set dall'Ombra in su); qui sono messe in nume
 
 ## Passo 16.1 — La tabella degli unici e dei set
 
-**Approvata da Mirco il 25 ottobre 2026** ("approvata, procedi con il 16.2"). Ogni valore è scritto come *al livello 10 → al livello 55*: l'oggetto prende quello
+**Approvata da Mirco il 25 ottobre 2026** ("approvata, procedi con il 16.2"); **ritoccata dalla misura del passo 16.6**, che ha alzato i valori di otto unici e dei due set (tabella nel 16.6). Ogni valore è scritto come *al livello 10 → al livello 55*: l'oggetto prende quello
 del suo livello in linea retta, con il tiro del ±10% (D6). Il livello minimo è **10 per tutti**, il
 livello della zona della profondità 8 al Crepuscolo, così il tesoro del re al Crepuscolo (D7) può
 lasciare qualunque unico o pezzo. Per confronto, un raro al livello 10 tira i gradi I–II (Forza fino
@@ -251,6 +251,63 @@ borsa e uno a terra con gli stessi valori, il bonus del Custode riacceso al live
 `SaveLoadTests`, il salvataggio del gioco che rimette unici e pezzi con il bonus del set una volta
 sola. 466 EditMode verdi; 19 PlayMode di salvataggio, ricordi, difficoltà e unici verdi.
 
+## Passo 16.6 — Misura e taratura
+
+**Com'è andata (25 ott 2026).** Due misure, con gli asset veri, in EditMode a ogni push e nella ronda
+notturna con semi nuovi.
+
+**Quanti ne cadono.** Il `LootCensus` conta anche unici e pezzi di set, come valore atteso: per ogni
+tiro dei livelli generati la probabilità del tiro a parte, la parte delle basi della tabella che ha un
+unico o un pezzo al livello degli oggetti di quella difficoltà, i moltiplicatori di campioni, unici e
+forzieri e il tiro del tesoro del re. Un test lo confronta con 20000 tiri veri del `LootRoller`. Con
+le probabilità della D7 l'Abisso VI dava **2,8** a discesa, sotto la fascia 3–5: gli Abissi ora
+salgono di **+0,4%** a gradino invece di +0,2%, fino al **4%** e 4%. A discesa, sui 20 semi dei test:
+
+| Crepuscolo | Ombra | Tenebra | Abisso I | II | III | IV | V | VI |
+|---|---|---|---|---|---|---|---|---|
+| 0,24 (solo il re) | 1,10 | 1,53 | 1,98 | 2,33 | 2,67 | 3,00 | 3,35 | 3,70 |
+
+**Quanto rendono.** `DifficultyCensus.CompareNamed` mette un cavaliere del livello dell'oggetto, con
+un raro per slot, contro il bruto della prima difficoltà che fa trovare quel livello, e cambia lo slot
+dell'unico tre volte: la base nuda, un raro della stessa base, l'unico. La forza è quella di
+`PowerCensus.Power`: colpi retti diviso il tempo per uccidere, con la velocità d'attacco, il danno
+ridotto, il danno in più e il rubavita (la vita che torna uccidendo il bruto). Il guadagno dell'unico
+sopra la base nuda deve essere almeno **1,3 volte** quello del raro, ai livelli 20, 35 e 55; un set
+intero, con i bonus, contro quattro rari. La media è su 64 equipaggiamenti: con 8 il Sigillo sembrava
+a 1,5 e con 64 era a 1,26.
+
+La prima misura ha trovato un errore della misura stessa: anelli e amuleti "normali" nascono almeno
+magici, e il confronto partiva da un amuleto con i suoi affissi (l'Ultima Candela risultava sotto zero).
+Ora la base è l'oggetto nudo. Poi otto unici e i due set erano sotto, soprattutto ai livelli 35 e 55,
+dove i rari salgono con i gradi degli affissi: la Zanna di Morvak a 0,83, l'Ultima Candela a 0,40,
+il Cacciatore a 0,77. Dopo la taratura il rapporto più basso è **1,42** (Zanna di Morvak al 35).
+
+| Oggetto | Prima (liv. 10 → 55) | Dopo |
+|---|---|---|
+| Zanna di Morvak | velocità 15 → 25 · critico 6 → 18 · Destrezza 8 → 35 · a colpire 12 → 40 | velocità 25 → 40 · critico 14 → 28 · Destrezza 25 → 70 · a colpire 25 → 70 |
+| Lama del Crepuscolo | danno 55 → 170 · a colpire 15 → 45 · tutti gli attributi 3 → 12 · mana | danno 100 → 280 · a colpire 25 → 75 · tutti gli attributi 7 → 20 · mana com'era |
+| Falce della Cripta | danno 60 → 180 · rubavita · vita 15 → 70 · esperienza | danno 75 → 210 · rubavita com'era · vita 20 → 85 · esperienza com'era |
+| Il Guscio di Grumm | Armatura 70 → 160% · blocco 12 → 28 · danno ridotto 2 → 12 · Vitalità 8 → 35 | 70 → 230% · 12 → 35 · 2 → 18 · 8 → 52 |
+| Il Sigillo della Cripta | Armatura 6 → 24 · 60 → 150% · blocco 14 → 30 · vita 15 → 80 | 14 → 58 · 130 → 310% · 22 → 40 · 35 → 175 |
+| L'Elmo del Primo Cavaliere | 60 → 140% · Vitalità 8 → 35 · danno ridotto 2 → 10 · a colpire 10 → 30 | 70 → 260% · 10 → 60 · 2 → 18 · 10 → 55 |
+| La Pelle dell'Ombra | Destrezza 8 → 35 · critico 4 → 12 · velocità 8 → 15 · 50 → 120% | 12 → 45 · 5 → 15 · 10 → 18 · 60 → 150% |
+| L'Anello dell'Eclissi | tutti gli attributi 4 → 15 · a colpire 10 → 35 · rubavita 2 → 5 | 11 → 22 · 25 → 55 · 3 → 5 |
+| L'Ultima Candela | esperienza · Magia · **mana 20 → 90** · vita 15 → 70 | esperienza e Magia com'erano · **Vitalità 15 → 85** · vita 40 → 230 |
+| Custode, pezzi | elmo 50 → 120% e vita 15 → 60 · corazza 60 → 140%, Vitalità 8 → 30, danno ridotto 1 → 6 · guanti Forza 6 → 25, a colpire 10 → 30 · stivali Armatura 4 → 18, vita 15 → 60 | elmo 50 → 160%, 15 → 80 · corazza 60 → 190%, 8 → 40, 1 → 8 · guanti 6 → 35, 10 → 40 · stivali 4 → 25, 15 → 80 |
+| Custode, bonus | 2: vita 25 → 120 · 3: Armatura 10 → 40 · 4: danno ridotto 4 → 20, tutti gli attributi 5 → 20 | 2: 25 → 160 · 3: 10 → 55 · 4: 4 → 26, 5 → 27 |
+| Cacciatore, pezzi | cappuccio Destrezza 6 → 25, critico 3 → 8 · giubba Destrezza 8 → 30, vita 15 → 60 · guanti velocità 5 → 10, a colpire 10 → 30 · stivali Destrezza 6 → 25, Armatura 3 → 12 | 15 → 50, 6 → 14 · 18 → 55, 50 → 160 · 10 → 16, 25 → 60 · 15 → 50, 10 → 35 |
+| Cacciatore, bonus | 2: a colpire 15 → 40 · 3: critico 4 → 10 · 4: velocità 10 → 20, rubavita 3 → 6 | 2: a colpire 40 → 85 **e vita 20 → 90** · 3: 8 → 16 · 4: 15 → 25, 4 → 6 |
+
+Il mana dell'Ultima Candela è diventato Vitalità: la misura conta solo il combattimento corpo a
+corpo, e magia ed esperienza non le bastavano per stare sopra un amuleto raro. Al Cacciatore serviva
+difesa: a quei livelli la Destrezza in più quasi non cambia i colpi a segno, e il bonus da due pezzi
+ha preso anche la vita. La Mannaia del Re, le Fauci dell'Orso e il Sudario d'Ossa erano già sopra e
+non cambiano.
+
+Test: `NamedCensusTests` (5: fasce a discesa, crescita con la difficoltà, conto atteso contro i tiri
+veri, unici contro rari, set contro rari) e, nella ronda, `NamedCensus_OnNewSeeds` con 400 partite
+e 64 equipaggiamenti nuovi a notte. I numeri della tabella nei test del 16.3 seguono la taratura.
+
 ## Trappole note
 
 - **I valori delle rarità.** `Rarity` si salva come numero e fa da indice in più posti (pesi della
@@ -295,7 +352,7 @@ sola. 466 EditMode verdi; 19 PlayMode di salvataggio, ricordi, difficoltà e uni
 - [x] In gioco: combattimento, loot, luce e suono
 - [x] Tooltip, inventario e stringhe
 - [x] Formato 7 del salvataggio
-- [ ] Misura e taratura
+- [x] Misura e taratura
 - [ ] Build di prova
 - [ ] ADR, lezioni nel piano, README
 - [ ] `bundleVersion` 1.4.0 e tag `v1.4.0` dopo i test verdi in CI

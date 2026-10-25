@@ -7,7 +7,8 @@ using DarkDescent.Progression;
 namespace DarkDescent.Tests
 {
     /// <summary>
-    /// Le fasce delle misure del loot (D13 della M13) e delle difficoltà (D10 della M14), comuni ai
+    /// Le fasce delle misure del loot (D13 della M13), delle difficoltà (D10 della M14) e di unici e
+    /// set (D11 della M16), comuni ai
     /// test di ogni push e alla ronda notturna (passo 15.5): null se la misura ci sta, altrimenti il
     /// primo errore, con il numero misurato accanto alla fascia.
     /// </summary>
@@ -138,6 +139,57 @@ namespace DarkDescent.Tests
                 Span("colpi del bruto retti", r => r.BruteHitsTaken, "≥ 3"), Span("colpi del re retti", r => r.KingHitsTaken, "≥ 2"),
                 Span("a segno sul bruto", r => r.HeroLandsOnBrute, "≥ 0,65"), Span("del bruto a segno", r => r.BruteLandsOnHero, "0,05–0,45"));
         }
+
+        /// <summary>Quanto un unico deve rendere più di un raro della stessa base (D11 della M16).</summary>
+        public const double NamedOverRare = 1.3;
+
+        /// <summary>
+        /// Unici e pezzi di set a discesa (D11 della M16): all'Ombra 1–2, all'ultimo Abisso 3–5; al
+        /// Crepuscolo solo dal tesoro del re.
+        /// </summary>
+        public static string NamedDrops(IReadOnlyList<LootCensus.Tally> tallies)
+        {
+            var twilight = tallies[0];
+            if (twilight.NamedBySource.Keys.Any(source => source != "tesoro del re"))
+            {
+                return "al Crepuscolo unici e set cadono anche fuori dal tesoro del re: " + string.Join(", ", twilight.NamedBySource.Keys);
+            }
+
+            return Outside("unici e set a discesa al Crepuscolo", PerDescent(twilight), 0.05, 0.5)
+                ?? Outside("unici e set a discesa all'Ombra", PerDescent(tallies[1]), 1.0, 2.0)
+                ?? Outside("unici e set a discesa all'ultimo Abisso", PerDescent(tallies[tallies.Count - 1]), 3.0, 5.0);
+        }
+
+        /// <summary>Unici e set a discesa per ogni difficoltà, per il log e il rapporto.</summary>
+        public static string DescribeNamed(IReadOnlyList<LootCensus.Tally> tallies, DifficultyTable table)
+        {
+            return string.Join("; ", tallies.Select((t, i) =>
+                $"{table.Tier(i).NameKey} {t.Unique / LootCensus.Descents(t):F2} unici + {t.Set / LootCensus.Descents(t):F2} set"))
+                + " (Ombra 1–2, ultimo Abisso 3–5)";
+        }
+
+        /// <summary>Ogni unico, e ogni set intero, rende almeno il 30% più dei rari della stessa base.</summary>
+        public static string NamedPower(IEnumerable<DifficultyCensus.NamedPower> rows)
+        {
+            foreach (var row in rows)
+            {
+                if (row.Ratio < NamedOverRare)
+                {
+                    return $"{row.Name} al livello {row.Level}: rende {row.NamedGain:P1} sopra il normale, il raro {row.RareGain:P1} "
+                        + $"(rapporto {row.Ratio:F2}, almeno {NamedOverRare:0.0})";
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>Il confronto di ogni unico e set con i rari, per il log.</summary>
+        public static string DescribePower(IEnumerable<DifficultyCensus.NamedPower> rows)
+        {
+            return string.Join("\n", rows.Select(r => $"{r.Name} liv. {r.Level} ({r.TierName}): unico +{r.NamedGain:P0}, raro +{r.RareGain:P0}, rapporto {r.Ratio:F2}"));
+        }
+
+        private static double PerDescent(LootCensus.Tally tally) => (tally.Unique + tally.Set) / LootCensus.Descents(tally);
 
         private static string Outside(string what, double value, double least, double most)
         {

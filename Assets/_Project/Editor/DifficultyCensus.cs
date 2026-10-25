@@ -22,7 +22,8 @@ namespace DarkDescent.Editor
     /// del mercante al livello degli oggetti di lì, della rarità che la difficoltà fa trovare
     /// (<see cref="GearFor"/>). Con <see cref="PowerCensus"/> conta i colpi per uccidere scheletro,
     /// bruto e re, quelli che regge e le probabilità di colpire. Campioni, unici e modificatori del re
-    /// non entrano nei colpi, solo nell'esperienza.
+    /// non entrano nei colpi, solo nell'esperienza. Dalla M16 confronta anche gli unici e i set con i
+    /// rari della stessa base (<see cref="CompareNamed"/>, D11).
     /// </summary>
     public sealed class DifficultyCensus
     {
@@ -139,6 +140,27 @@ namespace DarkDescent.Editor
             public double Experience { get; set; }
         }
 
+        /// <summary>
+        /// Quanto rende un unico, o un set intero, rispetto ai rari della stessa base (D11 della M16):
+        /// la forza del cavaliere (<see cref="PowerCensus.Power"/>) contro il bruto, con l'oggetto
+        /// normale, raro o con il nome nello stesso slot; il guadagno è quanto sale sopra il normale.
+        /// </summary>
+        public sealed class NamedPower
+        {
+            public string Name { get; set; }
+
+            public int Level { get; set; }
+
+            public string TierName { get; set; }
+
+            public double RareGain { get; set; }
+
+            public double NamedGain { get; set; }
+
+            /// <summary>Il guadagno dell'unico diviso quello del raro: almeno 1,3 per la D11.</summary>
+            public double Ratio => RareGain > 0.0 ? NamedGain / RareGain : NamedGain > 0.0 ? double.PositiveInfinity : 0.0;
+        }
+
         /// <summary>La rarità dell'equipaggiamento che si porta alla difficoltà numero <paramref name="tier"/>.</summary>
         public static Rarity GearFor(int tier)
         {
@@ -185,12 +207,7 @@ namespace DarkDescent.Editor
             double n = _gearSeeds.Count;
             foreach (ulong gearSeed in _gearSeeds)
             {
-                var sheet = new StatSheet();
-                sheet.SetBase(StatType.Strength, _player.Strength);
-                sheet.SetBase(StatType.Dexterity, _player.Dexterity);
-                sheet.SetBase(StatType.Magic, _player.Magic);
-                sheet.SetBase(StatType.Vitality, _player.Vitality);
-                HeroSetup.RaiseTo(new CharacterProgress(_settings, sheet), heroLevel);
+                var sheet = HeroSheet(heroLevel);
                 var equipment = new Equipment(sheet);
                 HeroSetup.Equip(equipment, _stock, _generator, row.ItemLevel, gearSeed, row.Gear);
                 var hero = PowerCensus.Hero(sheet, equipment);
@@ -211,6 +228,90 @@ namespace DarkDescent.Editor
             }
 
             return row;
+        }
+
+        /// <summary>
+        /// Un unico al livello <paramref name="level"/> contro i rari della sua base: un cavaliere dello
+        /// stesso livello con un raro per slot, contro il bruto della prima difficoltà che fa trovare
+        /// oggetti di quel livello. Media sui semi degli equipaggiamenti.
+        /// </summary>
+        public NamedPower CompareNamed(UniqueDefinition named, int level, DifficultyTable table)
+        {
+            return Compare(named.name, new[] { named }, level, table);
+        }
+
+        /// <summary>Un set intero, con i suoi bonus, contro quattro rari delle stesse basi.</summary>
+        public NamedPower CompareSet(SetDefinition set, int level, DifficultyTable table)
+        {
+            return Compare(set.name, set.Pieces.Where(p => p != null).ToList(), level, table);
+        }
+
+        private NamedPower Compare(string name, IReadOnlyList<UniqueDefinition> pieces, int level, DifficultyTable table)
+        {
+            var tier = table.Tier(table.Count - 1);
+            for (int t = 0; t < table.Count; t++)
+            {
+                if (_settings.ZoneLevel(8, table.Tier(t).ZoneLevelBonus) >= level)
+                {
+                    tier = table.Tier(t);
+                    break;
+                }
+            }
+
+            var brute = _brute.Foe(tier);
+            var result = new NamedPower { Name = name, Level = level, TierName = tier.NameKey };
+            double n = _gearSeeds.Count;
+            foreach (ulong gearSeed in _gearSeeds)
+            {
+                var sheet = HeroSheet(Math.Min(level, _settings.MaxLevel));
+                var equipment = new Equipment(sheet);
+                using var bonuses = new SetBonuses(equipment, sheet);
+                HeroSetup.Equip(equipment, _stock, _generator, level, gearSeed, Rarity.Rare);
+
+                // la Forza che chiedono le basi, la stessa nelle tre prove: il confronto è tra gli oggetti
+                float strength = pieces.Max(p => (float)p.Base.RequiredStrength);
+                if (sheet.Get(StatType.Strength) < strength)
+                {
+                    sheet.SetBase(StatType.Strength, sheet.GetBase(StatType.Strength) + strength - sheet.Get(StatType.Strength));
+                }
+
+                // un anello va nel primo slot degli anelli, dove c'era il raro del cavaliere
+                var slots = pieces.Select(p => p.Base.Slot == EquipSlot.Ring ? EquipSlot.Ring : equipment.TargetSlot(p.Base)).ToList();
+                double Power(Func<UniqueDefinition, ulong, ItemInstance> make)
+                {
+                    for (int k = 0; k < pieces.Count; k++)
+                    {
+                        equipment.Unequip(slots[k]);
+                        if (!equipment.TryEquip(make(pieces[k], gearSeed * 31UL + (ulong)k), slots[k], out _))
+                        {
+                            throw new InvalidOperationException($"{name}: {pieces[k].Base.name} non entra nello slot {slots[k]}");
+                        }
+                    }
+
+                    return PowerCensus.Power(PowerCensus.Hero(sheet, equipment), brute);
+                }
+
+                // il normale nudo: anelli e amuleti, che nascono almeno magici, avrebbero già i loro affissi
+                double normal = Power((p, s) => new ItemInstance(p.Base, Rarity.Normal, level, s, Array.Empty<ItemAffix>()));
+                double rare = Power((p, s) => _generator.Generate(p.Base, level, s, Rarity.Rare));
+                double withName = Power((p, s) => ItemGenerator.GenerateNamed(p, level, s));
+                result.RareGain += (rare / normal - 1.0) / n;
+                result.NamedGain += (withName / normal - 1.0) / n;
+            }
+
+            return result;
+        }
+
+        // il cavaliere al livello dato, con gli attributi del prefab e i punti spesi
+        private StatSheet HeroSheet(int heroLevel)
+        {
+            var sheet = new StatSheet();
+            sheet.SetBase(StatType.Strength, _player.Strength);
+            sheet.SetBase(StatType.Dexterity, _player.Dexterity);
+            sheet.SetBase(StatType.Magic, _player.Magic);
+            sheet.SetBase(StatType.Vitality, _player.Vitality);
+            HeroSetup.RaiseTo(new CharacterProgress(_settings, sheet), heroLevel);
+            return sheet;
         }
 
         /// <summary>L'esperienza attesa di un livello a quella profondità, per un cavaliere di quel livello.</summary>

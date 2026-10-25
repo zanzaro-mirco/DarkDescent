@@ -26,8 +26,8 @@ MonoBehaviour:
     _normalWeight: 65
     _magicWeight: 28
     _rareWeight: 7
-    _uniqueChance: 0
-    _setChance: 0
+    _uniqueChance: 0.0
+    _setChance: 0.0
     _deathGold: 0
     _deathExperience: 0
   - _nameKey: difficulty.shadow
@@ -94,8 +94,8 @@ MonoBehaviour:
     _normalWeight: 39
     _magicWeight: 42
     _rareWeight: 19
-    _uniqueChance: 0.022
-    _setChance: 0.022
+    _uniqueChance: 0.024
+    _setChance: 0.024
     _deathGold: 0.22
     _deathExperience: 0.17
   - _nameKey: difficulty.abyss3
@@ -111,8 +111,8 @@ MonoBehaviour:
     _normalWeight: 38
     _magicWeight: 42
     _rareWeight: 20
-    _uniqueChance: 0.024
-    _setChance: 0.024
+    _uniqueChance: 0.028
+    _setChance: 0.028
     _deathGold: 0.24
     _deathExperience: 0.19
   - _nameKey: difficulty.abyss4
@@ -128,8 +128,8 @@ MonoBehaviour:
     _normalWeight: 37
     _magicWeight: 42
     _rareWeight: 21
-    _uniqueChance: 0.026
-    _setChance: 0.026
+    _uniqueChance: 0.032
+    _setChance: 0.032
     _deathGold: 0.26
     _deathExperience: 0.21
   - _nameKey: difficulty.abyss5
@@ -145,8 +145,8 @@ MonoBehaviour:
     _normalWeight: 36
     _magicWeight: 42
     _rareWeight: 22
-    _uniqueChance: 0.028
-    _setChance: 0.028
+    _uniqueChance: 0.036
+    _setChance: 0.036
     _deathGold: 0.28
     _deathExperience: 0.23
   - _nameKey: difficulty.abyss6
@@ -162,7 +162,7 @@ MonoBehaviour:
     _normalWeight: 35
     _magicWeight: 42
     _rareWeight: 23
-    _uniqueChance: 0.03
-    _setChance: 0.03
+    _uniqueChance: 0.04
+    _setChance: 0.04
     _deathGold: 0.3
     _deathExperience: 0.25

@@ -19,8 +19,8 @@ MonoBehaviour:
   _properties:
   - _effect: 1
     _low: 50
-    _high: 120
+    _high: 160
   - _effect: 8
     _low: 15
-    _high: 60
+    _high: 80
   _set: {fileID: 11400000, guid: 1139256015f44527a7b0c54b29cefd47, type: 2}

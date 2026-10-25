@@ -23,18 +23,21 @@ MonoBehaviour:
   - _pieces: 2
     _properties:
     - _effect: 4
-      _low: 15
-      _high: 40
+      _low: 40
+      _high: 85
+    - _effect: 8
+      _low: 20
+      _high: 90
   - _pieces: 3
     _properties:
     - _effect: 9
-      _low: 4
-      _high: 10
+      _low: 8
+      _high: 16
   - _pieces: 4
     _properties:
     - _effect: 12
-      _low: 10
-      _high: 20
+      _low: 15
+      _high: 25
     - _effect: 13
-      _low: 3
+      _low: 4
       _high: 6

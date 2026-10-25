@@ -24,17 +24,17 @@ MonoBehaviour:
     _properties:
     - _effect: 8
       _low: 25
-      _high: 120
+      _high: 160
   - _pieces: 3
     _properties:
     - _effect: 3
       _low: 10
-      _high: 40
+      _high: 55
   - _pieces: 4
     _properties:
     - _effect: 14
       _low: 4
-      _high: 20
+      _high: 26
     - _effect: 15
       _low: 5
-      _high: 20
+      _high: 27

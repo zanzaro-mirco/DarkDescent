@@ -15,7 +15,8 @@ namespace DarkDescent.Progression
     {
         /// <summary>
         /// Il cavaliere con la sua scheda e quello che porta: l'arma (o i pugni, 1–2), lo scudo con il
-        /// blocco e la Destrezza, la vita di Vitalità, livelli e affissi.
+        /// blocco e la Destrezza, la vita di Vitalità, livelli e affissi; dalla M16 il danno in più, la
+        /// velocità d'attacco, il danno ridotto e il rubavita.
         /// </summary>
         public static CensusFighter Hero(StatSheet sheet, Equipment equipment)
         {
@@ -38,7 +39,8 @@ namespace DarkDescent.Progression
                 CombatFormulas.MaxLife(sheet.Get(StatType.Vitality)) + sheet.Get(StatType.Life),
                 min, max, sheet.Get(StatType.Strength), sheet.Get(StatType.Level), dexterity,
                 sheet.Get(StatType.Armor), sheet.Get(StatType.ToHit), sheet.Get(StatType.CritChance),
-                true, block, 1f);
+                true, block, CombatFormulas.WithBonus(1f, sheet.Get(StatType.DamageBonus)),
+                sheet.Get(StatType.AttackSpeed), sheet.Get(StatType.DamageReduction), sheet.Get(StatType.LifeSteal));
         }
 
         /// <summary>
@@ -94,11 +96,36 @@ namespace DarkDescent.Progression
             return perSwing > 0.0 ? defender.Life / perSwing : double.PositiveInfinity;
         }
 
-        /// <summary>Quanti colpi arrivati regge chi difende: il "colpi presi prima di morire" della D10.</summary>
+        /// <summary>
+        /// Quanti colpi arrivati regge chi difende: il "colpi presi prima di morire" della D10. Il danno
+        /// ridotto toglie i suoi punti al colpo medio, mai sotto 1.
+        /// </summary>
         public static double HitsToDie(in CensusFighter attacker, in CensusFighter defender)
         {
             double hit = AverageHit(attacker);
+            hit = defender.DamageReduction > 0f ? CombatFormulas.ReduceDamage((float)hit, defender.DamageReduction) : hit;
             return hit > 0.0 ? defender.Life / hit : double.PositiveInfinity;
+        }
+
+        /// <summary>
+        /// I colpi per uccidere contati nel tempo di un colpo normale: con la velocità d'attacco in più
+        /// ogni colpo dura meno (D5 della M16).
+        /// </summary>
+        public static double TimeToKill(in CensusFighter attacker, in CensusFighter defender)
+        {
+            return SwingsToKill(attacker, defender) / CombatFormulas.AttackSpeedMultiplier(attacker.AttackSpeed);
+        }
+
+        /// <summary>
+        /// La forza di un combattente contro un nemico, in un numero solo (D11 della M16): quanti colpi
+        /// regge diviso il tempo per ucciderlo. Il doppio dei colpi retti o la metà del tempo la raddoppiano.
+        /// Il rubavita allunga la vita di quello che torna uccidendo il nemico.
+        /// </summary>
+        public static double Power(in CensusFighter hero, in CensusFighter foe)
+        {
+            double time = TimeToKill(hero, foe);
+            double hits = HitsToDie(foe, hero) * (1.0 + CombatFormulas.LifeStolen(foe.Life, hero.LifeSteal) / Math.Max(1f, hero.Life));
+            return time > 0.0 && !double.IsInfinity(time) ? hits / time : 0.0;
         }
     }
 }

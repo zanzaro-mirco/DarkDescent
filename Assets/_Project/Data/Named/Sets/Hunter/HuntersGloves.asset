@@ -18,9 +18,9 @@ MonoBehaviour:
   _minLevel: 10
   _properties:
   - _effect: 12
-    _low: 5
-    _high: 10
-  - _effect: 4
     _low: 10
-    _high: 30
+    _high: 16
+  - _effect: 4
+    _low: 25
+    _high: 60
   _set: {fileID: 11400000, guid: 5c5adca7069d4263ab5a1fa0cbd598d0, type: 2}

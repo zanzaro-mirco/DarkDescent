@@ -19,11 +19,11 @@ MonoBehaviour:
   _properties:
   - _effect: 1
     _low: 60
-    _high: 140
+    _high: 190
   - _effect: 7
     _low: 8
-    _high: 30
+    _high: 40
   - _effect: 14
     _low: 1
-    _high: 6
+    _high: 8
   _set: {fileID: 11400000, guid: 1139256015f44527a7b0c54b29cefd47, type: 2}
