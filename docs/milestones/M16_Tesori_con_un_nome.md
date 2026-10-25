@@ -111,7 +111,8 @@ nome, nel tooltip, c'è la base.
 
 ### L'armatura del Custode (verde) — *The Warden's Armor*
 
-Difesa: vita, Armatura, danno ridotto.
+Difesa: vita, Armatura, danno ridotto. Il blocco della D4 non c'è: è un numero dello scudo, non del
+personaggio, e un bonus di set non ha uno scudo su cui metterlo; al suo posto il danno ridotto.
 
 | Base | Pezzo | Proprietà (liv. 10 → 55) |
 |---|---|---|
