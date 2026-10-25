@@ -151,6 +151,12 @@ affix.effect.life,+{0} life,+{0} vita
 affix.effect.crit_chance,+{0}% critical chance,+{0}% critico
 affix.effect.magic,+{0} Magic,+{0} Magia
 affix.effect.mana,+{0} mana,+{0} mana
+affix.effect.attack_speed,+{0}% attack speed,+{0}% velocità d'attacco
+affix.effect.life_steal,{0}% life steal,{0}% rubavita
+affix.effect.damage_reduction,-{0} damage taken,-{0} danno subito
+affix.effect.all_attributes,+{0} to all attributes,+{0} a tutti gli attributi
+affix.effect.damage_bonus,+{0}% damage to attacks and spells,+{0}% danno di colpi e incantesimi
+affix.effect.experience_bonus,+{0}% experience,+{0}% esperienza
 
 # Oggetti. Lo schema del nome (D4 della M5): in inglese il prefisso va prima, in italiano dopo
 item.name.pattern,{prefix} {base} {suffix},{base} {prefix} {suffix}

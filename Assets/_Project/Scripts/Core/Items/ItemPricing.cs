@@ -3,7 +3,8 @@ using System;
 namespace DarkDescent.Items
 {
     /// <summary>
-    /// Il prezzo di un oggetto (D4 della M10): valore base del tipo × rarità × (1 + livello / 10),
+    /// Il prezzo di un oggetto (D4 della M10): valore base del tipo × rarità (unico ×10 e set ×8, D12
+    /// della M16) × (1 + livello / 10),
     /// almeno 1. Il mercante vende a questo prezzo e compra al 25%. Calcolato, così non serve un
     /// prezzo per ogni combinazione di affissi.
     /// </summary>
@@ -18,6 +19,8 @@ namespace DarkDescent.Items
             {
                 case Rarity.Magic: return 3;
                 case Rarity.Rare: return 6;
+                case Rarity.Unique: return 10;
+                case Rarity.Set: return 8;
                 default: return 1;
             }
         }

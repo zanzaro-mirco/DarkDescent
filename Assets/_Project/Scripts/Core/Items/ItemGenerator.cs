@@ -16,6 +16,9 @@ namespace DarkDescent.Items
         /// <summary>Quanti gradi di un gruppo può tirare un oggetto: i più alti che il suo livello ammette.</summary>
         public const int OpenGrades = 2;
 
+        /// <summary>Di quanto il tiro sposta i valori di un unico o di un pezzo di set, in più o in meno (D6 della M16).</summary>
+        public const double NamedSpread = 0.1;
+
         private readonly RarityTable _rarities;
 
         // i gradi di ogni gruppo in ordine crescente, nell'ordine in cui i gruppi compaiono nel pool
@@ -95,11 +98,39 @@ namespace DarkDescent.Items
             return Build(item, itemLevel, seed, rarity, new SplitMix64Source(seed));
         }
 
+        /// <summary>
+        /// Un unico o un pezzo di set (D6 della M16): ogni proprietà al valore del livello, spostato da
+        /// un tiro di al più ±<see cref="NamedSpread"/>. Stesso seme e livello, stessi valori.
+        /// </summary>
+        public static ItemInstance GenerateNamed(UniqueDefinition named, int itemLevel, ulong seed)
+        {
+            if (named == null)
+            {
+                throw new ArgumentNullException(nameof(named));
+            }
+
+            var random = new SplitMix64Source(seed);
+            var values = new int[named.Properties.Count];
+            for (int i = 0; i < values.Length; i++)
+            {
+                double factor = 1.0 - NamedSpread + 2.0 * NamedSpread * random.NextDouble();
+                values[i] = named.Properties[i].ValueAt(itemLevel, named.MinLevel, factor);
+            }
+
+            return new ItemInstance(named, itemLevel, seed, values);
+        }
+
         private ItemInstance Build(ItemDefinition item, int itemLevel, ulong seed, Rarity rarity, IRandomSource random)
         {
             if (item == null)
             {
                 throw new ArgumentNullException(nameof(item));
+            }
+
+            // unici e set nascono solo da una definizione (GenerateNamed): chiesti qui, sono rari
+            if (rarity > Rarity.Rare)
+            {
+                rarity = Rarity.Rare;
             }
 
             // un anello normale non avrebbe niente: la rarità tirata sale fino a quella minima della base

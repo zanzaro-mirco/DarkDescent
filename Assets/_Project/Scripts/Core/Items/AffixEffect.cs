@@ -36,5 +36,23 @@ namespace DarkDescent.Items
 
         /// <summary>+mana massimo (M9); su gioielli ed elmi.</summary>
         Mana,
+
+        /// <summary>Del personaggio: + percentuale di velocità d'attacco (unici e set, D5 della M16).</summary>
+        AttackSpeed,
+
+        /// <summary>Del personaggio: percentuale del danno inflitto che torna in vita (unici e set, D5 della M16).</summary>
+        LifeSteal,
+
+        /// <summary>Del personaggio: punti tolti a ogni colpo preso, mai sotto 1 (unici e set, D5 della M16).</summary>
+        DamageReduction,
+
+        /// <summary>Del personaggio: + Forza, Destrezza, Magia e Vitalità insieme (unici e set, D5 della M16).</summary>
+        AllAttributes,
+
+        /// <summary>Del personaggio: + percentuale del danno di colpi e incantesimi, come il santuario della Furia (M16).</summary>
+        DamageBonus,
+
+        /// <summary>Del personaggio: + percentuale dell'esperienza, come il santuario della Sapienza (M16).</summary>
+        ExperienceBonus,
     }
 }

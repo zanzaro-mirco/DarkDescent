@@ -141,5 +141,11 @@ namespace DarkDescent.Localization
         public const string EffectMana = "affix.effect.mana";
         public const string EffectVitality = "affix.effect.vitality";
         public const string EffectLife = "affix.effect.life";
+        public const string EffectAttackSpeed = "affix.effect.attack_speed";
+        public const string EffectLifeSteal = "affix.effect.life_steal";
+        public const string EffectDamageReduction = "affix.effect.damage_reduction";
+        public const string EffectAllAttributes = "affix.effect.all_attributes";
+        public const string EffectDamageBonus = "affix.effect.damage_bonus";
+        public const string EffectExperienceBonus = "affix.effect.experience_bonus";
     }
 }

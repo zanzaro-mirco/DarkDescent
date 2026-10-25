@@ -8,7 +8,8 @@ namespace DarkDescent.Items
     /// (<c>item.name.pattern</c>, in inglese "{prefix} {base} {suffix}", in italiano
     /// "{base} {prefix} {suffix}") con il primo prefisso accordato al genere della base e il primo
     /// suffisso. Il genere è n, m o f, e dalla M8 mp per le basi al plurale maschile (guanti,
-    /// stivali). Il nome non si salva mai: si compone quando serve.
+    /// stivali). Unici e pezzi di set hanno il loro nome (M16). Il nome non si salva mai: si compone
+    /// quando serve.
     /// </summary>
     public static class ItemNamer
     {
@@ -21,6 +22,12 @@ namespace DarkDescent.Items
 
         public static string Name(ItemInstance item, Localizer localizer)
         {
+            // un unico o un pezzo di set ha un nome intero, senza affissi (D8 della M16)
+            if (item.Named != null)
+            {
+                return localizer.Get(item.Named.NameKey);
+            }
+
             string baseName = localizer.Get(item.Definition.NameKey);
             AffixDefinition prefix = First(item, AffixKind.Prefix);
             AffixDefinition suffix = First(item, AffixKind.Suffix);

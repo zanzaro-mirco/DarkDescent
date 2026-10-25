@@ -76,7 +76,7 @@ namespace DarkDescent.Items
         /// dagli ID. Un oggetto che i database non conoscono più si perde; un'arma che non si può più
         /// equipaggiare va nella griglia. False se qualcosa non è tornato al suo posto.
         /// </summary>
-        public bool Restore(Inventory inventory, ItemDatabase items, AffixDatabase affixes)
+        public bool Restore(Inventory inventory, ItemDatabase items, AffixDatabase affixes, NamedItemDatabase named = null)
         {
             inventory.Clear();
             bool complete = true;
@@ -85,7 +85,7 @@ namespace DarkDescent.Items
             for (int i = 0; i < _equipped.Count; i++)
             {
                 var item = _equipped[i];
-                if (!item.Resolve(items, affixes))
+                if (!item.Resolve(items, affixes, named))
                 {
                     complete = false;
                     continue;
@@ -100,18 +100,18 @@ namespace DarkDescent.Items
             for (int i = 0; i < _gridItems.Count; i++)
             {
                 var item = _gridItems[i];
-                complete &= item.Resolve(items, affixes) && (inventory.Grid.TryPlace(item, _gridPositions[i]) || inventory.Grid.TryAutoPlace(item));
+                complete &= item.Resolve(items, affixes, named) && (inventory.Grid.TryPlace(item, _gridPositions[i]) || inventory.Grid.TryAutoPlace(item));
             }
 
             for (int i = 0; i < _beltItems.Count; i++)
             {
                 var item = _beltItems[i];
-                complete &= item.Resolve(items, affixes) && (inventory.Belt.TryPlaceOrSwap(_beltSlots[i], item, out _) || inventory.TryPickUp(item));
+                complete &= item.Resolve(items, affixes, named) && (inventory.Belt.TryPlaceOrSwap(_beltSlots[i], item, out _) || inventory.TryPickUp(item));
             }
 
             foreach (var item in _loose)
             {
-                complete &= item.Resolve(items, affixes) && inventory.TryPickUp(item);
+                complete &= item.Resolve(items, affixes, named) && inventory.TryPickUp(item);
             }
 
             return complete;

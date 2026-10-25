@@ -199,6 +199,12 @@ namespace DarkDescent.UI
                 case AffixEffect.CritChance: return TextKeys.EffectCritChance;
                 case AffixEffect.Magic: return TextKeys.EffectMagic;
                 case AffixEffect.Mana: return TextKeys.EffectMana;
+                case AffixEffect.AttackSpeed: return TextKeys.EffectAttackSpeed;
+                case AffixEffect.LifeSteal: return TextKeys.EffectLifeSteal;
+                case AffixEffect.DamageReduction: return TextKeys.EffectDamageReduction;
+                case AffixEffect.AllAttributes: return TextKeys.EffectAllAttributes;
+                case AffixEffect.DamageBonus: return TextKeys.EffectDamageBonus;
+                case AffixEffect.ExperienceBonus: return TextKeys.EffectExperienceBonus;
                 default: return TextKeys.EffectLife;
             }
         }

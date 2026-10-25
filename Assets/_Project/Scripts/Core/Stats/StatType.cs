@@ -35,5 +35,14 @@ namespace DarkDescent.Stats
 
         /// <summary>Punti percentuali in più all'esperienza dei nemici uccisi (il santuario della Sapienza, M13).</summary>
         ExperienceBonus,
+
+        /// <summary>Punti percentuali in più alla velocità d'attacco (unici e set, D5 della M16).</summary>
+        AttackSpeed,
+
+        /// <summary>Percentuale del danno inflitto dai colpi che torna in vita (unici e set, D5 della M16).</summary>
+        LifeSteal,
+
+        /// <summary>Punti tolti al danno di ogni colpo preso (unici e set, D5 della M16).</summary>
+        DamageReduction,
     }
 }

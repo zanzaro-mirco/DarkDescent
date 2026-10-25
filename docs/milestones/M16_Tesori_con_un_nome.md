@@ -81,7 +81,7 @@ v2.32) e la D16 della M14 (unici e set dall'Ombra in su); qui sono messe in nume
 
 ## Passo 16.1 — La tabella degli unici e dei set
 
-**Da approvare.** Ogni valore è scritto come *al livello 10 → al livello 55*: l'oggetto prende quello
+**Approvata da Mirco il 25 ottobre 2026** ("approvata, procedi con il 16.2"). Ogni valore è scritto come *al livello 10 → al livello 55*: l'oggetto prende quello
 del suo livello in linea retta, con il tiro del ±10% (D6). Il livello minimo è **10 per tutti**, il
 livello della zona della profondità 8 al Crepuscolo, così il tesoro del re al Crepuscolo (D7) può
 lasciare qualunque unico o pezzo. Per confronto, un raro al livello 10 tira i gradi I–II (Forza fino
@@ -152,6 +152,33 @@ pezzo, e cambiarlo con uno più alto li fa salire.
 dell'unico riuscito su queste basi lascia l'oggetto com'è (D7). La corazza ha però il pezzo del
 Custode, e quindi il tiro del set.
 
+## Passo 16.2 — Core
+
+**Com'è andata (25 ott 2026).** `Rarity` ha in fondo **Unique** e **Set**; `RarityColors` dà testo,
+cella e luce delle due rarità e `LightBoost` (×1,6 per la luce a terra); `ItemPricing` ×10 e ×8. Il
+generatore non fa mai unici né set dalla tabella: chiesti da fuori, escono rari. `AffixEffect` ha sei
+effetti nuovi in fondo (velocità d'attacco, rubavita, danno ridotto, tutti gli attributi, +% danno,
++% esperienza) e `StatType` tre statistiche nuove (`AttackSpeed`, `LifeSteal`, `DamageReduction`);
+`ItemStats.AddCharacterModifiers` mette i modificatori di un effetto, quattro per tutti gli attributi,
+e lo usano l'`Equipment` e i set. Le righe del tooltip dei sei effetti sono già nelle due lingue.
+
+Le definizioni: `NamedProperty` (effetto, valore basso e alto, `ValueAt` in linea retta dal livello
+minimo al 55), `UniqueDefinition` (id, nome, base, livello minimo, proprietà, set; la rarità viene dal
+set), `SetDefinition` (pezzi e `SetBonus` per numero di pezzi) e `NamedItemDatabase` (per id, e i
+candidati di una base a un livello). `ItemGenerator.GenerateNamed` tira i valori con il ±10% dal seme.
+`ItemInstance` salva l'id e i valori; `Resolve` prende il database degli unici come terzo argomento:
+senza resta da risolvere, con un id che non conosce più torna un raro della base con un avviso
+(D13). `SetBonuses` ascolta l'`Equipment`, conta i pezzi diversi (lo stesso pezzo nei due anelli
+conta una volta) e mette i bonus con il set come sorgente, al livello del pezzo più basso;
+`Dispose` toglie tutto. `ItemNamer` dà il nome intero degli unici. In gioco non c'è ancora niente:
+il database, i bonus dei set e i salvataggi si collegano nei passi 16.3–16.5.
+
+Test nuovi in `NamedItemTests` (15), con definizioni create nel test sulle basi vere: colori, prezzi,
+valori per livello, ±10% e stesso seme, niente unici dalla tabella, proprietà sul cavaliere e via
+tutte togliendo l'oggetto, bonus a 2, 3 e 4 pezzi, livello del pezzo più basso, anelli, `Dispose`,
+JSON, unico sconosciuto, oggetto di prima della M16, candidati del database, nome. 452 EditMode
+verdi; PlayMode di equipaggiamento, inventario, loot e salvataggi verdi (31).
+
 ## Trappole note
 
 - **I valori delle rarità.** `Rarity` si salva come numero e fa da indice in più posti (pesi della
@@ -191,8 +218,8 @@ Custode, e quindi il tiro del set.
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D16 confermate
-- [ ] Tabella degli unici e dei set approvata
-- [ ] Core: rarità, definizioni, proprietà nuove, bonus dei set
+- [x] Tabella degli unici e dei set approvata
+- [x] Core: rarità, definizioni, proprietà nuove, bonus dei set
 - [ ] In gioco: combattimento, loot, luce e suono
 - [ ] Tooltip, inventario e stringhe
 - [ ] Formato 7 del salvataggio

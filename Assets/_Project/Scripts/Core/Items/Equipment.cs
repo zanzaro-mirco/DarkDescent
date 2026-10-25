@@ -132,9 +132,19 @@ namespace DarkDescent.Items
 
             foreach (var affix in item.Affixes)
             {
-                if (affix.Definition != null && ItemStats.TryGetCharacterStat(affix.Definition.Effect, out StatType stat))
+                if (affix.Definition != null)
                 {
-                    _stats.AddModifier(new StatModifier(stat, ModifierKind.Flat, affix.Value, item));
+                    ItemStats.AddCharacterModifiers(_stats, affix.Definition.Effect, affix.Value, item);
+                }
+            }
+
+            // le proprietà di un unico o di un pezzo di set (M16), come gli affissi
+            if (item.Named != null)
+            {
+                var properties = item.Named.Properties;
+                for (int i = 0; i < properties.Count; i++)
+                {
+                    ItemStats.AddCharacterModifiers(_stats, properties[i].Effect, item.NamedValues[i], item);
                 }
             }
         }
