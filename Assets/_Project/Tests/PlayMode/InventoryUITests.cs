@@ -1,6 +1,7 @@
 using System.Collections;
 using DarkDescent.Combat;
 using DarkDescent.Items;
+using DarkDescent.Stats;
 using DarkDescent.UI;
 using NUnit.Framework;
 using UnityEngine;
@@ -324,6 +325,31 @@ namespace DarkDescent.Tests
             _panel.SetOpen(false);
             Assert.IsFalse(tooltip.IsShowing);
             Assert.IsFalse(compare.IsShowing);
+        }
+
+        [UnityTest, Description("Un pezzo del Custode nella borsa con i guanti del set addosso: il tooltip elenca il set, i guanti in bianco e l'elmo in grigio, e resta dentro lo schermo (D8 della M16)")]
+        public IEnumerator Tooltip_SetPieceShowsWornPieces()
+        {
+            yield return LoadUI();
+#if UNITY_EDITOR
+            static UniqueDefinition Piece(string name) => UnityEditor.AssetDatabase.LoadAssetAtPath<UniqueDefinition>($"Assets/_Project/Data/Named/Sets/Warden/{name}.asset");
+            Player.GetComponent<CharacterStats>().Sheet.SetBase(StatType.Strength, 60f);
+            Assert.IsTrue(_inventory.Equipment.TryEquip(ItemGenerator.GenerateNamed(Piece("WardensGauntlets"), 20, 1UL), out _));
+            _inventory.TryPickUp(ItemGenerator.GenerateNamed(Piece("WardensHelm"), 20, 2UL));
+#endif
+            _panel.SetOpen(true);
+            yield return null;
+            var tooltip = _panel.Tooltip;
+
+            yield return HoverScreen(CellOnScreen(new Vector2Int(0, 0)));
+
+            Assert.IsTrue(tooltip.IsShowing);
+            StringAssert.Contains("The Warden's Armor", tooltip.Text);
+            StringAssert.Contains($"<color={ItemDescription.WornPieceColor}>Warden's Gauntlets</color>", tooltip.Text);
+            StringAssert.Contains($"<color={ItemDescription.InactiveColor}>Warden's Helm</color>", tooltip.Text);
+            StringAssert.Contains("(2 pieces)", tooltip.Text);
+            AssertInsideScreen(tooltip.Box);
+            _panel.SetOpen(false);
         }
 
         [UnityTest, Description("Con due anelli addosso, un anello della griglia si confronta con tutti e due, in fila a sinistra (l'inventario sta sul bordo destro), senza sovrapporsi e dentro lo schermo; con un anello solo il confronto non c'è, perché andrebbe nello slot libero (M9, D1)")]

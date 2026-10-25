@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using DarkDescent.Items;
 using DarkDescent.Localization;
+using DarkDescent.Stats;
 using DarkDescent.UI;
 using NUnit.Framework;
 using UnityEditor;
@@ -19,6 +20,23 @@ namespace DarkDescent.Tests
         private static AffixDefinition Affix(string name) => AssetDatabase.LoadAssetAtPath<AffixDefinition>($"Assets/_Project/Data/Affixes/{name}.asset");
 
         private static ItemInstance Normal(string name) => new ItemInstance(Load(name));
+
+        private static UniqueDefinition Named(string path) => AssetDatabase.LoadAssetAtPath<UniqueDefinition>($"Assets/_Project/Data/Named/{path}.asset");
+
+        // la riga di un effetto come la scrive il tooltip, nel suo colore e con l'aggiunta dopo il valore
+        private string Line(string color, AffixEffect effect, int value, string after = null)
+        {
+            string text = string.Format(System.Globalization.CultureInfo.InvariantCulture, _localizer.Get(ItemDescription.EffectKey(effect)), value);
+            return $"\n<color={color}>{text}{(after == null ? string.Empty : " " + after)}</color>";
+        }
+
+        private static Equipment Knight()
+        {
+            var stats = new StatSheet();
+            stats.SetBase(StatType.Strength, 60f);
+            stats.SetBase(StatType.Dexterity, 40f);
+            return new Equipment(stats);
+        }
 
         private static ItemInstance With(string name, Rarity rarity, params (string affix, int value)[] affixes)
         {
@@ -121,6 +139,69 @@ namespace DarkDescent.Tests
 
             Assert.AreEqual(Enum.GetValues(typeof(AffixEffect)).Length,
                 Enum.GetValues(typeof(AffixEffect)).Cast<AffixEffect>().Select(ItemDescription.EffectKey).Distinct().Count(), "una chiave per effetto");
+        }
+
+        [Test, Description("Un unico: il suo nome nel colore dell'oro scuro, sotto la base in piccolo, poi le proprietà in blu senza grado e senza set")]
+        public void Unique_ShowsNameBaseAndProperties()
+        {
+            var fang = ItemGenerator.GenerateNamed(Named("Uniques/MorvaksFang"), 30, 3UL);
+            string text = Write(fang);
+
+            string gold = RarityColors.TextHex(Rarity.Unique);
+            StringAssert.StartsWith($"<b><color={gold}>Morvak's Fang</color></b>\n<size=85%><color={gold}>Dagger</color></size>\n", text);
+            StringAssert.Contains("Attack speed: Fast", text);
+            for (int i = 0; i < fang.Named.Properties.Count; i++)
+            {
+                StringAssert.Contains(Line(ItemDescription.AffixColor, fang.Named.Properties[i].Effect, fang.NamedValues[i]), text);
+            }
+
+            StringAssert.DoesNotContain(RarityColors.TextHex(Rarity.Set), text);
+            StringAssert.DoesNotContain(ItemDescription.GradeSize, text);
+        }
+
+        [Test, Description("Un pezzo del Custode nella borsa con due pezzi addosso: il set, i pezzi indossati in bianco e gli altri in grigio, il bonus da 2 acceso in verde al livello del pezzo più basso, gli altri spenti")]
+        public void SetPiece_ShowsWornPiecesAndLitBonuses()
+        {
+            var equipment = Knight();
+            Assert.IsTrue(equipment.TryEquip(ItemGenerator.GenerateNamed(Named("Sets/Warden/WardensGauntlets"), 20, 1UL), out _));
+            Assert.IsTrue(equipment.TryEquip(ItemGenerator.GenerateNamed(Named("Sets/Warden/WardensBoots"), 10, 2UL), out _));
+            var helm = ItemGenerator.GenerateNamed(Named("Sets/Warden/WardensHelm"), 40, 3UL);
+            var set = helm.Named.Set;
+
+            ItemDescription.Write(_builder, helm, true, _localizer, equipment: equipment);
+            string text = _builder.ToString();
+
+            string green = RarityColors.TextHex(Rarity.Set);
+            StringAssert.StartsWith($"<b><color={green}>Warden's Helm</color></b>", text);
+            string grey = ItemDescription.InactiveColor;
+            string white = ItemDescription.WornPieceColor;
+            StringAssert.Contains($"\n\n<color={green}>The Warden's Armor</color>" +
+                $"\n<color={grey}>Warden's Helm</color>\n<color={grey}>Warden's Breastplate</color>" +
+                $"\n<color={white}>Warden's Gauntlets</color>\n<color={white}>Warden's Boots</color>", text);
+
+            // i valori del set al livello 10, quello degli stivali
+            StringAssert.Contains(Line(green, AffixEffect.Life, set.Bonuses[0].Properties[0].ValueAt(10, set.MinLevel), "(2 pieces)"), text);
+            StringAssert.Contains(Line(grey, AffixEffect.Armor, set.Bonuses[1].Properties[0].ValueAt(10, set.MinLevel), "(3 pieces)"), text);
+            StringAssert.Contains(Line(grey, AffixEffect.DamageReduction, set.Bonuses[2].Properties[0].ValueAt(10, set.MinLevel), "(full set)"), text);
+            StringAssert.Contains(Line(grey, AffixEffect.AllAttributes, set.Bonuses[2].Properties[1].ValueAt(10, set.MinLevel), "(full set)"), text);
+        }
+
+        [Test, Description("Senza niente addosso tutti i pezzi e i bonus sono grigi, con i valori al livello dell'oggetto; in italiano \"(2 pezzi)\" e \"(set completo)\"")]
+        public void SetPiece_NothingWorn_AllGreyAndItalian()
+        {
+            _localizer.SetLanguage("it");
+            var hood = ItemGenerator.GenerateNamed(Named("Sets/Hunter/HuntersHood"), 55, 4UL);
+            var set = hood.Named.Set;
+
+            ItemDescription.Write(_builder, hood, true, _localizer, equipment: Knight());
+            string text = _builder.ToString();
+
+            string grey = ItemDescription.InactiveColor;
+            StringAssert.Contains($"<size=85%><color={RarityColors.TextHex(Rarity.Set)}>Copricapo d'orso</color></size>", text);
+            StringAssert.Contains($"\n<color={grey}>Cappuccio del Cacciatore</color>", text);
+            StringAssert.DoesNotContain(ItemDescription.WornPieceColor, text);
+            StringAssert.Contains(Line(grey, AffixEffect.ToHit, set.Bonuses[0].Properties[0].ValueAt(55, set.MinLevel), "(2 pezzi)"), text);
+            StringAssert.Contains(Line(grey, AffixEffect.LifeSteal, set.Bonuses[2].Properties[1].ValueAt(55, set.MinLevel), "(set completo)"), text);
         }
     }
 }

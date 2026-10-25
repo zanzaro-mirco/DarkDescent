@@ -8,8 +8,9 @@ namespace DarkDescent.UI
     /// <summary>
     /// Il testo del tooltip di un oggetto, in rich text di TextMesh Pro, nella lingua attiva: nome
     /// composto nel colore della rarità, danno o Armatura e blocco già con gli affissi, requisiti,
-    /// velocità d'attacco, poi una riga per affisso in blu, come in Diablo; per le pozioni la cura e come berle. Logica
-    /// pura, così il formato si prova senza scena.
+    /// velocità d'attacco, poi una riga per affisso in blu, come in Diablo; per le pozioni la cura e come berle.
+    /// Un unico o un pezzo di set ha il suo nome con sotto la base, le proprietà in blu e, per un pezzo,
+    /// il set con i pezzi e i bonus (D8 della M16). Logica pura, così il formato si prova senza scena.
     /// </summary>
     public static class ItemDescription
     {
@@ -39,6 +40,12 @@ namespace DarkDescent.UI
 
         // l'oro, come la scritta dell'inventario
         private const string GoldColor = "#E0BF61";
+
+        /// <summary>Un pezzo del set indossato: il colore del testo normale (D8 della M16).</summary>
+        public const string WornPieceColor = "#E8E2D4";
+
+        /// <summary>Un pezzo del set non indossato, o un bonus spento: grigio (D8 della M16).</summary>
+        public const string InactiveColor = "#8C8577";
 
         /// <summary>
         /// La velocità d'attacco a parole, come in Diablo (seconda prova della build M7): il pugnale è
@@ -74,9 +81,10 @@ namespace DarkDescent.UI
         /// <paramref name="header"/>, se c'è, va sopra il nome in piccolo e in un grigio chiaro ("Equipped");
         /// <paramref name="twoLineName"/> divide il nome a metà, per i nomi lunghi;
         /// <paramref name="equipHint"/> aggiunge in fondo come indossarlo, per gli oggetti nella borsa;
-        /// <paramref name="trade"/>, se c'è, va in fondo a tutto: le righe del mercante (<see cref="TradeText"/>).
+        /// <paramref name="trade"/>, se c'è, va in fondo a tutto: le righe del mercante (<see cref="TradeText"/>);
+        /// <paramref name="equipment"/>, se c'è, dice quali pezzi di un set sono indossati e quali bonus accesi.
         /// </summary>
-        public static void Write(StringBuilder builder, ItemInstance item, bool meetsRequirements, Localizer localizer, string header = null, bool twoLineName = false, bool equipHint = false, string trade = null)
+        public static void Write(StringBuilder builder, ItemInstance item, bool meetsRequirements, Localizer localizer, string header = null, bool twoLineName = false, bool equipHint = false, string trade = null, Equipment equipment = null)
         {
             builder.Clear();
             if (!string.IsNullOrEmpty(header))
@@ -86,6 +94,13 @@ namespace DarkDescent.UI
 
             builder.Append("<b><color=").Append(RarityColors.TextHex(item.Rarity)).Append('>')
                 .Append(twoLineName ? SplitAtMiddle(ItemNamer.Name(item, localizer)) : ItemNamer.Name(item, localizer)).Append("</color></b>");
+
+            // sotto il nome di un unico o di un pezzo, la base in piccolo: "Ascia" (D8 della M16)
+            if (item.Named != null)
+            {
+                builder.Append("\n<size=85%><color=").Append(RarityColors.TextHex(item.Rarity)).Append('>')
+                    .Append(localizer.Get(item.Definition.NameKey)).Append("</color></size>");
+            }
 
             switch (item.Definition)
             {
@@ -132,6 +147,8 @@ namespace DarkDescent.UI
                     .Append(RomanGrade(affix.Definition.Grade)).Append("</color></size>");
             }
 
+            AppendNamed(builder, item, localizer, equipment);
+
             if (equipHint && item.Definition.Slot != EquipSlot.None)
             {
                 builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipEquip)).Append("</color></size>");
@@ -154,6 +171,74 @@ namespace DarkDescent.UI
                 .AppendFormat(CultureInfo.InvariantCulture, localizer.Get(priceKey), price).Append("</color>");
             builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(hintKey)).Append("</color></size>");
             return builder.ToString();
+        }
+
+        // le proprietà di un unico o di un pezzo in blu, senza grado; per un pezzo, il set sotto
+        private static void AppendNamed(StringBuilder builder, ItemInstance item, Localizer localizer, Equipment equipment)
+        {
+            var named = item.Named;
+            if (named == null)
+            {
+                return;
+            }
+
+            var values = item.NamedValues;
+            for (int i = 0; i < named.Properties.Count && i < values.Count; i++)
+            {
+                AppendEffect(builder, AffixColor, named.Properties[i].Effect, values[i], null, localizer);
+            }
+
+            var set = named.Set;
+            if (set == null)
+            {
+                return;
+            }
+
+            // il nome del set, i pezzi indossati in bianco e gli altri in grigio
+            builder.Append("\n\n<color=").Append(RarityColors.TextHex(Rarity.Set)).Append('>').Append(localizer.Get(set.NameKey)).Append("</color>");
+            foreach (var piece in set.Pieces)
+            {
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                builder.Append("\n<color=").Append(SetBonuses.IsWorn(equipment, piece) ? WornPieceColor : InactiveColor).Append('>')
+                    .Append(localizer.Get(piece.NameKey)).Append("</color>");
+            }
+
+            // i bonus accesi in verde, gli altri in grigio; i valori al livello del pezzo indossato più
+            // basso, come li dà SetBonuses, o a quello dell'oggetto se non se ne indossa nessuno
+            int worn = SetBonuses.CountWorn(equipment, set, out int level);
+            if (worn == 0)
+            {
+                level = item.ItemLevel;
+            }
+
+            foreach (var bonus in set.Bonuses)
+            {
+                string color = bonus.Pieces <= worn ? RarityColors.TextHex(Rarity.Set) : InactiveColor;
+                string count = bonus.Pieces >= set.Pieces.Count
+                    ? localizer.Get(TextKeys.TooltipSetFull)
+                    : string.Format(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipSetPieces), bonus.Pieces);
+                foreach (var property in bonus.Properties)
+                {
+                    AppendEffect(builder, color, property.Effect, property.ValueAt(level, set.MinLevel), count, localizer);
+                }
+            }
+        }
+
+        // una riga di effetto nel suo colore, con un'aggiunta dopo il valore: "(2 pezzi)"
+        private static void AppendEffect(StringBuilder builder, string color, AffixEffect effect, int value, string after, Localizer localizer)
+        {
+            builder.Append("\n<color=").Append(color).Append('>')
+                .AppendFormat(CultureInfo.InvariantCulture, localizer.Get(EffectKey(effect)), value);
+            if (!string.IsNullOrEmpty(after))
+            {
+                builder.Append(' ').Append(after);
+            }
+
+            builder.Append("</color>");
         }
 
         // la Forza richiesta, in rosso se non basta; niente riga per chi non ne chiede

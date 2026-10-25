@@ -430,7 +430,7 @@ namespace DarkDescent.UI
             // con il banco aperto, dalla borsa si vende: il prezzo al posto di come indossarlo
             bool selling = _trade != null && _hoveredCell.HasValue;
             _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, target,
-                equipHint: _hoveredCell.HasValue && !selling, trade: selling ? _trade.SellText(item) : null);
+                equipHint: _hoveredCell.HasValue && !selling, trade: selling ? _trade.SellText(item) : null, equipment: _inventory.Equipment);
             if (_hoveredCell.HasValue)
             {
                 ShowComparison(item);
@@ -460,9 +460,9 @@ namespace DarkDescent.UI
             var secondRing = equipment.Get(EquipSlot.Ring2);
             if (item.Definition.Slot == EquipSlot.Ring && firstRing != null && secondRing != null)
             {
-                _compareTooltip.ShowBeside(firstRing, equipment.MeetsRequirements(firstRing.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquippedRing1));
+                _compareTooltip.ShowBeside(firstRing, equipment.MeetsRequirements(firstRing.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquippedRing1), equipment: equipment);
                 bool onRight = _compareTooltip.Box.anchoredPosition.x > _tooltip.Box.anchoredPosition.x;
-                _secondCompareTooltip.ShowBeside(secondRing, equipment.MeetsRequirements(secondRing.Definition), _localizer, _compareTooltip, _localizer.Get(TextKeys.TooltipEquippedRing2), onRight);
+                _secondCompareTooltip.ShowBeside(secondRing, equipment.MeetsRequirements(secondRing.Definition), _localizer, _compareTooltip, _localizer.Get(TextKeys.TooltipEquippedRing2), onRight, equipment);
                 return;
             }
 
@@ -470,7 +470,7 @@ namespace DarkDescent.UI
             var equipped = equipment.Get(equipment.TargetSlot(item.Definition));
             if (equipped != null)
             {
-                _compareTooltip.ShowBeside(equipped, equipment.MeetsRequirements(equipped.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquipped));
+                _compareTooltip.ShowBeside(equipped, equipment.MeetsRequirements(equipped.Definition), _localizer, _tooltip, _localizer.Get(TextKeys.TooltipEquipped), equipment: equipment);
             }
             else
             {

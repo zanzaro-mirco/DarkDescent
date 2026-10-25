@@ -212,7 +212,25 @@ per difficoltà, database uguale alla cartella con i nomi nelle due lingue, set 
 tabella) e `NamedItemPlayModeTests` (5: un unico che cade all'Ombra con `-namedchance`, rubavita,
 velocità d'attacco, danno ridotto, bonus di vita del Custode). Una base che ha solo il pezzo di set
 (gli stivali di cuoio) resta com'è quando il tiro cade sull'unico, come vuole la D7. 461 EditMode
-verdi; 66 PlayMode delle classi toccate verdi, critico compreso.
+verdi; 66 PlayMode delle classi toccate verdi, critico compreso. La riga nuova di `CREDITS.md` non
+era passata nella copia del gioco (`Data/Credits.txt`): il test dei riconoscimenti è caduto in CI e la
+copia è rifatta nel 16.4.
+
+## Passo 16.4 — Tooltip e inventario
+
+**Com'è andata (25 ott 2026).** `ItemDescription` scrive sotto il nome di un unico o di un pezzo la
+base in piccolo, nel colore della rarità, poi le proprietà in blu come gli affissi ma senza grado.
+Per un pezzo, dopo una riga vuota: il nome del set in verde, i pezzi (indossati nel bianco del testo,
+gli altri in grigio) e i bonus con "(2 pezzi)", "(3 pezzi)" o "(set completo)", accesi in verde o
+spenti in grigio. I valori dei bonus sono quelli che darebbe `SetBonuses`: al livello del pezzo
+indossato più basso, o a quello dell'oggetto se non se ne indossa nessuno. L'equipaggiamento arriva
+al tooltip da `InventoryPanel` e `ShopPanel`, anche nel confronto. Le celle colorate per rarità
+c'erano già dal 16.2 (`RarityColors.Cell`). Due stringhe nuove nelle due lingue.
+
+Test nuovi: tre in `ItemDescriptionTests` (unico con base e proprietà; pezzo con due pezzi addosso,
+bonus da 2 acceso al livello più basso; niente addosso, tutto grigio, in italiano) e uno in
+`InventoryUITests` (il tooltip di un pezzo nella borsa con i guanti del set addosso, dentro lo
+schermo). 464 EditMode verdi; 26 PlayMode delle classi del tooltip verdi.
 
 ## Trappole note
 
@@ -255,8 +273,8 @@ verdi; 66 PlayMode delle classi toccate verdi, critico compreso.
 - [x] Decisioni D1–D16 confermate
 - [x] Tabella degli unici e dei set approvata
 - [x] Core: rarità, definizioni, proprietà nuove, bonus dei set
-- [ ] In gioco: combattimento, loot, luce e suono
-- [ ] Tooltip, inventario e stringhe
+- [x] In gioco: combattimento, loot, luce e suono
+- [x] Tooltip, inventario e stringhe
 - [ ] Formato 7 del salvataggio
 - [ ] Misura e taratura
 - [ ] Build di prova

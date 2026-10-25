@@ -43,9 +43,10 @@ namespace DarkDescent.UI
 
         /// <summary>Descrive l'oggetto accanto a <paramref name="target"/>, il rettangolo che lo mostra.</summary>
         /// <param name="trade">Le righe del mercante in fondo, con il negozio aperto (D5 della M10).</param>
-        public void Show(ItemInstance item, bool meetsRequirements, Localizer localizer, RectTransform target, bool equipHint = false, string trade = null)
+        /// <param name="equipment">L'equipaggiamento del cavaliere, per i pezzi e i bonus di un set (D8 della M16).</param>
+        public void Show(ItemInstance item, bool meetsRequirements, Localizer localizer, RectTransform target, bool equipHint = false, string trade = null, Equipment equipment = null)
         {
-            Fill(item, meetsRequirements, localizer, null, equipHint, trade);
+            Fill(item, meetsRequirements, localizer, null, equipHint, trade, equipment);
             GetLocalRect(target, out Vector2 min, out Vector2 max);
             PlaceAround(min, max);
         }
@@ -54,9 +55,9 @@ namespace DarkDescent.UI
         /// Descrive l'oggetto accanto a un altro tooltip, con un titolo: a sinistra, o a destra se
         /// a sinistra non c'è spazio; con <paramref name="onRight"/> il contrario, per il secondo anello.
         /// </summary>
-        public void ShowBeside(ItemInstance item, bool meetsRequirements, Localizer localizer, ItemTooltip anchor, string header, bool onRight = false)
+        public void ShowBeside(ItemInstance item, bool meetsRequirements, Localizer localizer, ItemTooltip anchor, string header, bool onRight = false, Equipment equipment = null)
         {
-            Fill(item, meetsRequirements, localizer, header, false, null);
+            Fill(item, meetsRequirements, localizer, header, false, null, equipment);
             GetLocalRect(anchor.Box, out Vector2 min, out Vector2 max);
             PlaceBeside(min, max, onRight);
         }
@@ -87,11 +88,11 @@ namespace DarkDescent.UI
             Hide();
         }
 
-        private void Fill(ItemInstance item, bool meetsRequirements, Localizer localizer, string header, bool equipHint, string trade)
+        private void Fill(ItemInstance item, bool meetsRequirements, Localizer localizer, string header, bool equipHint, string trade, Equipment equipment)
         {
             // un nome più largo del massimo va su due righe: misurato con il font del tooltip, in grassetto come sarà
             bool twoLines = _text.GetPreferredValues("<b>" + ItemNamer.Name(item, localizer) + "</b>").x > _maxNameWidth;
-            ItemDescription.Write(_builder, item, meetsRequirements, localizer, header, twoLines, equipHint, trade);
+            ItemDescription.Write(_builder, item, meetsRequirements, localizer, header, twoLines, equipHint, trade, equipment);
             _text.SetText(_builder);
             Resize();
         }

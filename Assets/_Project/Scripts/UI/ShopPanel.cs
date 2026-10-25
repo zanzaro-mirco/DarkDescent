@@ -253,7 +253,7 @@ namespace DarkDescent.UI
 
             int price = ItemPricing.Price(item);
             string trade = ItemDescription.TradeText(_localizer, TextKeys.ShopPrice, price, price <= _inventory.Inventory.Gold, TextKeys.ShopBuyHint);
-            _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, _slots[_hovered].Rect, trade: trade);
+            _tooltip.Show(item, _inventory.Equipment.MeetsRequirements(item.Definition), _localizer, _slots[_hovered].Rect, trade: trade, equipment: _inventory.Equipment);
 
             // accanto, quello che si toglierebbe indossandolo, come dalla borsa
             _inventoryPanel.ShowComparison(item);
