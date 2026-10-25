@@ -15,7 +15,8 @@ namespace DarkDescent.Save
     /// riporta il portale e i contatori della partita (D11 della M10); dal formato 5 il punto in cui
     /// riporta il portale e i ricordi dei livelli visitati (10.9 della M10): nemici uccisi, casse aperte
     /// e oggetti a terra, che un livello rigenerato dal seme rimette com'erano; dal formato 6 la
-    /// difficoltà, la più alta completata e il numero del mondo (D14 della M14). Il campo
+    /// difficoltà, la più alta completata e il numero del mondo (D14 della M14); dal formato 7 gli
+    /// unici e i pezzi di set, con il loro id e i valori delle proprietà (D13 della M16). Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
     /// </summary>
@@ -23,7 +24,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 6;
+        public const int CurrentVersion = 7;
 
         /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
         public const float FullMana = -1f;

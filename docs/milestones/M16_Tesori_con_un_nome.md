@@ -232,6 +232,25 @@ bonus da 2 acceso al livello più basso; niente addosso, tutto grigio, in italia
 `InventoryUITests` (il tooltip di un pezzo nella borsa con i guanti del set addosso, dentro lo
 schermo). 464 EditMode verdi; 26 PlayMode delle classi del tooltip verdi.
 
+## Passo 16.5 — Salvataggio
+
+**Com'è andata (25 ott 2026).** Prima la fixture, committata da sola: `save_v6.json` è un
+salvataggio scritto da un test EditMode temporaneo, alla Tenebra nel quarto mondo, nelle caverne
+alla profondità 7, con rari e magici addosso e nella borsa, pozioni, incantesimi, un livello ricordato
+con uno scudo raro e una pila d'oro a terra. Il codice del formato 6 era già quello del 16.2, che
+scrive anche `_namedId` e `_namedValues` (vuoti) per ogni oggetto: dalla fine della M15 sono gli unici
+due campi salvati cambiati, e la fixture li ha tolti, così è il file che scriveva la v1.3.1.
+
+Il formato 7 non ha campi nuovi in `SaveData`: sono i due dell'oggetto, già letti dal 16.2. La
+migrazione 6 → 7 cambia solo il numero, perché un oggetto senza id resta quello che era; un unico che
+il database non conosce più torna un raro della sua base, con un avviso (test del 16.2).
+
+Test: la fixture del formato 6 caricata con il codice di oggi (difficoltà, mondo, rari, livello
+ricordato, nessun oggetto con un nome), il formato 7 che va e torna (un unico addosso, un pezzo nella
+borsa e uno a terra con gli stessi valori, il bonus del Custode riacceso al livello giusto) e, in
+`SaveLoadTests`, il salvataggio del gioco che rimette unici e pezzi con il bonus del set una volta
+sola. 466 EditMode verdi; 19 PlayMode di salvataggio, ricordi, difficoltà e unici verdi.
+
 ## Trappole note
 
 - **I valori delle rarità.** `Rarity` si salva come numero e fa da indice in più posti (pesi della
@@ -275,7 +294,7 @@ schermo). 464 EditMode verdi; 26 PlayMode delle classi del tooltip verdi.
 - [x] Core: rarità, definizioni, proprietà nuove, bonus dei set
 - [x] In gioco: combattimento, loot, luce e suono
 - [x] Tooltip, inventario e stringhe
-- [ ] Formato 7 del salvataggio
+- [x] Formato 7 del salvataggio
 - [ ] Misura e taratura
 - [ ] Build di prova
 - [ ] ADR, lezioni nel piano, README

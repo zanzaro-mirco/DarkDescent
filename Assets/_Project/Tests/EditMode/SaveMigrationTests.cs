@@ -11,8 +11,8 @@ using UnityEngine;
 namespace DarkDescent.Tests
 {
     /// <summary>
-    /// I formati dal 2 al 6 e la migrazione (D9 della M8, D11 della M9, D11 e 10.9 della M10, D14 della
-    /// M14): i salvataggi veri dei formati dall'1 al 5, congelati in <c>Fixtures/save_v1.json</c>…<c>save_v5.json</c>
+    /// I formati dal 2 al 7 e la migrazione (D9 della M8, D11 della M9, D11 e 10.9 della M10, D14 della
+    /// M14, D13 della M16): i salvataggi veri dei formati dall'1 al 6, congelati in <c>Fixtures/save_v1.json</c>…<c>save_v6.json</c>
     /// quando erano quelli correnti, si caricano con il codice di oggi; la mappa scoperta di ogni profondità resta
     /// tornandoci e passa dal salvataggio.
     /// </summary>
@@ -58,7 +58,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(6, data.Version, "portato al formato corrente");
+            Assert.AreEqual(7, data.Version, "portato al formato corrente");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.IsNotNull(data.Explored);
             Assert.AreEqual(0, data.Explored.Count, "un salvataggio vecchio non ha mappe");
@@ -102,7 +102,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(6, data.Version, "passa anche dal 3 al 4, dal 4 al 5 e dal 5 al 6");
+            Assert.AreEqual(7, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6 e dal 6 al 7");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.KnownSpells.Count, "nessun incantesimo imparato: il Dardo è noto dall'inizio");
             Assert.AreEqual(0, data.SelectedSpell);
@@ -221,6 +221,104 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2, data.Kills);
             Assert.AreEqual(1, data.Levels.Count);
             Assert.AreEqual(2, data.Levels[0].Killed.Count);
+        }
+
+        private static NamedItemDatabase NamedItems => AssetDatabase.LoadAssetAtPath<NamedItemDatabase>("Assets/_Project/Data/NamedItemDatabase.asset");
+
+        private static UniqueDefinition Named(string path) => AssetDatabase.LoadAssetAtPath<UniqueDefinition>($"Assets/_Project/Data/Named/{path}.asset");
+
+        [Test, Description("Il salvataggio vero del formato 6, alla Tenebra nel quarto mondo, si carica con il codice di oggi: nessun oggetto ha un nome, e rari, magici, livelli ricordati e difficoltà sono com'erano")]
+        public void FormatSix_LoadsWithTodaysCode()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v6.json");
+            StringAssert.Contains("\"_version\": 6", fixture.text, "il file congelato è davvero del formato 6");
+            StringAssert.DoesNotContain("_named", fixture.text);
+            File.WriteAllText(_path, fixture.text);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
+            Assert.AreEqual((2, 1, 4), (data.Difficulty, data.HighestDifficulty, data.World));
+            Assert.AreEqual(("Level_Caves", "FromAbove", 7), (data.Scene, data.Entrance, data.Depth));
+            Assert.AreEqual((24, 4321), (data.Level, data.Gold));
+
+            var sheet = new StatSheet();
+            sheet.SetBase(StatType.Strength, data.Strength);
+            sheet.SetBase(StatType.Dexterity, data.Dexterity);
+            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(sheet));
+            var items = AssetDatabase.LoadAssetAtPath<ItemDatabase>("Assets/_Project/Data/ItemDatabase.asset");
+            var affixes = AssetDatabase.LoadAssetAtPath<AffixDatabase>("Assets/_Project/Data/AffixDatabase.asset");
+            Assert.IsTrue(data.Inventory.Restore(inventory, items, affixes, NamedItems));
+            var axe = inventory.Equipment.Get(EquipSlot.Weapon);
+            Assert.AreEqual(("Axe", Rarity.Rare, 28), (axe.Definition.name, axe.Rarity, axe.ItemLevel));
+            Assert.IsFalse(axe.IsNamed);
+            Assert.Greater(axe.Affixes.Count, 0);
+            Assert.AreEqual(Rarity.Magic, inventory.Equipment.Get(EquipSlot.Boots).Rarity);
+            Assert.AreEqual(2, inventory.Belt.Count);
+
+            var level = data.Levels[0];
+            Assert.AreEqual(2, level.Items.Count);
+            Assert.IsTrue(level.Items[0].Item.Resolve(items, affixes, NamedItems));
+            Assert.AreEqual(("SpikedShield", Rarity.Rare), (level.Items[0].Item.Definition.name, level.Items[0].Item.Rarity));
+            Assert.AreEqual(88, level.Items[1].Gold);
+        }
+
+        [Test, Description("Il formato 7 va e torna: un unico addosso, un pezzo di set nella borsa e uno a terra tornano con il loro nome e gli stessi valori, e i bonus del set si riaccendono")]
+        public void FormatSeven_RoundTripsNamedItems()
+        {
+            var sheet = new StatSheet();
+            sheet.SetBase(StatType.Strength, 60f);
+            sheet.SetBase(StatType.Dexterity, 40f);
+            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(sheet));
+            var fang = ItemGenerator.GenerateNamed(Named("Uniques/MorvaksFang"), 30, 11UL);
+            var boots = ItemGenerator.GenerateNamed(Named("Sets/Warden/WardensBoots"), 22, 12UL);
+            var gauntlets = ItemGenerator.GenerateNamed(Named("Sets/Warden/WardensGauntlets"), 25, 13UL);
+            var helm = ItemGenerator.GenerateNamed(Named("Sets/Warden/WardensHelm"), 40, 14UL);
+            Assert.IsTrue(inventory.Equipment.TryEquip(fang, out _));
+            Assert.IsTrue(inventory.Equipment.TryEquip(boots, out _));
+            Assert.IsTrue(inventory.Equipment.TryEquip(gauntlets, out _));
+            Assert.IsTrue(inventory.TryPickUp(helm));
+            var record = new LevelRecord("Level_Crypt", 3, 10, 2);
+            var hood = ItemGenerator.GenerateNamed(Named("Sets/Hunter/HuntersHood"), 18, 15UL);
+            record.AddItem(new GroundItemRecord(hood, new Vector3(2f, 0f, 3f)));
+
+            var data = SaveData.Create(9UL, "Level_Crypt", "Start", 3)
+                .WithInventory(InventorySnapshot.Capture(inventory))
+                .WithLevels(new List<LevelRecord> { record });
+            SaveFile.Write(_path, data);
+            string json = File.ReadAllText(_path);
+            StringAssert.Contains("\"_version\": 7", json);
+            StringAssert.Contains(fang.NamedId, json);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
+            var restoredSheet = new StatSheet();
+            restoredSheet.SetBase(StatType.Strength, 60f);
+            restoredSheet.SetBase(StatType.Dexterity, 40f);
+            var restored = new Inventory(new InventoryGrid(10, 4), new Equipment(restoredSheet));
+            using var bonuses = new SetBonuses(restored.Equipment, restoredSheet);
+            var items = AssetDatabase.LoadAssetAtPath<ItemDatabase>("Assets/_Project/Data/ItemDatabase.asset");
+            var affixes = AssetDatabase.LoadAssetAtPath<AffixDatabase>("Assets/_Project/Data/AffixDatabase.asset");
+            Assert.IsTrue(read.Inventory.Restore(restored, items, affixes, NamedItems));
+
+            var weapon = restored.Equipment.Get(EquipSlot.Weapon);
+            Assert.AreSame(fang.Named, weapon.Named);
+            Assert.AreEqual((Rarity.Unique, 30), (weapon.Rarity, weapon.ItemLevel));
+            CollectionAssert.AreEqual(fang.NamedValues, weapon.NamedValues);
+            CollectionAssert.AreEqual(boots.NamedValues, restored.Equipment.Get(EquipSlot.Boots).NamedValues);
+            var bagged = restored.Grid.ItemAt(Vector2Int.zero);
+            Assert.AreSame(helm.Named, bagged.Named);
+            CollectionAssert.AreEqual(helm.NamedValues, bagged.NamedValues);
+
+            // il bonus da due pezzi del Custode, al livello degli stivali
+            var set = boots.Named.Set;
+            Assert.IsTrue(SetBonuses.IsWorn(restored.Equipment, gauntlets.Named));
+            float life = boots.NamedValues[1] + set.Bonuses[0].Properties[0].ValueAt(22, set.MinLevel);
+            Assert.AreEqual(life, restoredSheet.Get(StatType.Life), 0.001f);
+
+            var ground = read.Levels[0].Items[0].Item;
+            Assert.IsTrue(ground.Resolve(items, affixes, NamedItems));
+            Assert.AreSame(hood.Named, ground.Named);
+            Assert.AreEqual(Rarity.Set, ground.Rarity);
+            CollectionAssert.AreEqual(hood.NamedValues, ground.NamedValues);
         }
 
         [Test, Description("Il formato 6 va e torna: difficoltà, la più alta completata e il mondo passano dal file")]

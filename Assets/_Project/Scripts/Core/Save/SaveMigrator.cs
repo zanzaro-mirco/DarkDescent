@@ -43,6 +43,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(6);
             }
 
+            // formato 6 → 7 (D13 della M16): ogni oggetto può avere l'id di un unico e i suoi valori; un
+            // oggetto vecchio non li ha, e resta quello che era
+            if (data.Version == 6)
+            {
+                data.UpgradeTo(7);
+            }
+
             return data;
         }
     }

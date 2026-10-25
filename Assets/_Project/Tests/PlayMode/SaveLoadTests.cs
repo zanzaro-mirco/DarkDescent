@@ -128,6 +128,38 @@ namespace DarkDescent.Tests
             Assert.IsNotNull(inventory.Equipment.Get(EquipSlot.Ring2), "il secondo anello nel secondo slot");
         }
 
+        [UnityTest, Description("Unici e pezzi di set passano dal salvataggio del gioco (D13 della M16): ricaricati tornano con nome e valori, e il bonus del Custode alza di nuovo la vita massima, una volta sola")]
+        public IEnumerator SaveThenLoad_KeepsNamedItemsAndSetBonuses()
+        {
+            yield return LoadGeneratedCore();
+            var save = Object.FindFirstObjectByType<SaveGame>();
+            var inventory = Player.GetComponent<PlayerInventory>();
+            var health = Player.GetComponent<Health>();
+            Player.GetComponent<CharacterStats>().Sheet.SetBase(StatType.Strength, 60f);
+            UniqueDefinition Piece(string path) => AssetDatabase.LoadAssetAtPath<UniqueDefinition>($"Assets/_Project/Data/Named/{path}.asset");
+            var boots = ItemGenerator.GenerateNamed(Piece("Sets/Warden/WardensBoots"), 20, 21UL);
+            var gauntlets = ItemGenerator.GenerateNamed(Piece("Sets/Warden/WardensGauntlets"), 20, 22UL);
+            var cleaver = ItemGenerator.GenerateNamed(Piece("Uniques/KingsCleaver"), 35, 23UL);
+            Assert.IsTrue(inventory.Equipment.TryEquip(boots, out _));
+            Assert.IsTrue(inventory.Equipment.TryEquip(gauntlets, out _));
+            Assert.IsTrue(inventory.TryPickUp(cleaver));
+            float max = health.Max;
+            string before = save.Capture().ToJson();
+
+            inventory.Inventory.Clear();
+            Assert.Less(health.Max, max, "senza i pezzi la vita massima scende");
+
+            var data = SaveData.FromJson(before);
+            Assert.IsTrue(save.Apply(data), "ogni oggetto torna al suo posto, anche quelli con un nome");
+            Assert.AreEqual(max, health.Max, 0.001f, "il bonus del set si riaccende, una volta sola");
+            Assert.AreEqual(before, save.Capture().ToJson());
+            var restored = inventory.Equipment.Get(EquipSlot.Boots);
+            Assert.AreSame(boots.Named, restored.Named);
+            CollectionAssert.AreEqual(boots.NamedValues, restored.NamedValues);
+            Assert.IsTrue(System.Linq.Enumerable.Any(inventory.Inventory.Grid.Placements.Keys, item => item.Named == cleaver.Named), "la Mannaia nella borsa");
+            yield return null;
+        }
+
         [UnityTest, Description("All'avvio, con un salvataggio, si riparte da lì: profondità e ingresso, crescita, attributi, vita, inventario e seme")]
         public IEnumerator Startup_ResumesFromTheSave()
         {
