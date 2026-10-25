@@ -24,7 +24,7 @@ batchmode a Unity chiuso. A Mirco restano le decisioni qui sotto, la tabella deg
 | Cosa | Stato |
 |---|---|
 | Rarità | `Rarity` ha tre valori, **Normal, Magic, Rare**, salvati come numero: se ne aggiungono in fondo senza toccare i salvataggi. Una quarta leggendaria era stata chiesta e tolta alla M5 (ADR-027). Colori in `RarityColors` (testo, cella dell'inventario, luce a terra): bianco, blu `#7F9CFF`, giallo `#FFD84A` |
-| Basi | **19 da indossare**: 4 armi (spada corta, pugnale, ascia, lama dello scheletro), 4 scudi, 2 elmi (elmo del cavaliere, copricapo d'orso), 3 armature (cuoio, corazza, corazza nera), 2 guanti, 2 stivali, anello, amuleto. Più pozioni e pergamene |
+| Basi | **19 da indossare**: 4 armi (spada corta, pugnale, ascia, lama dello scheletro), 4 scudi, 2 elmi (elmo da cavaliere, copricapo d'orso), 3 armature (cuoio, corazza, corazza nera), 2 guanti, 2 stivali, anello, amuleto. Più pozioni e pergamene |
 | Affissi | 12 gruppi da 6 gradi (M14), 72 asset. Gli effetti (`AffixEffect`) sono 12: tre dell'oggetto (% danno, % Armatura, blocco) e nove del personaggio (Armatura, a colpire, Forza, Destrezza, Vitalità, vita, critico, Magia, mana) |
 | Istanza | `ItemInstance` salva id della base, rarità, livello, seme e la lista degli affissi (id e valore). Il nome non si salva: lo compone `ItemNamer` |
 | Statistiche | `StatSheet` con modificatori per sorgente; `Equipment` mette quelli dell'oggetto con l'oggetto come sorgente e li toglie tutti insieme. `StatType` ha già `DamageBonus` ed `ExperienceBonus` (i santuari della M13), che nessun oggetto usa |
