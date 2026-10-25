@@ -377,4 +377,4 @@ Rifatti in locale con `-nightly-seed 20261025`, tre errori del gioco e uno della
 - [x] Issue sui fallimenti provata una volta (#2, aperta, commentata e chiusa)
 - [x] Prima notte pianificata verde (24 ott 2026)
 - [x] ADR, lezioni nel piano, README
-- [ ] `bundleVersion` 1.3.1 e tag `v1.3.1` dopo i Tests verdi (le correzioni trovate dalla ronda)
+- [x] `bundleVersion` 1.3.1 e tag `v1.3.1` dopo i Tests verdi (le correzioni trovate dalla ronda)
