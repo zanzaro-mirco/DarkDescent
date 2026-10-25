@@ -91,30 +91,45 @@ namespace DarkDescent.Items
         /// <summary>Come l'altro, ma l'oggetto arriva in volo da <paramref name="from"/>: il centro del modello parte da lì.</summary>
         public static GroundItem Spawn(GroundItem prefab, ItemInstance item, Vector3 near, Vector3? from)
         {
-            Vector3 position = NavMesh.SamplePosition(near, out NavMeshHit hit, 2f, NavMesh.AllAreas) ? hit.position : near;
-
-            // ruotato secondo il punto: due oggetti vicini non sembrano copiati e incollati, e niente Random
-            float yaw = Mathf.Repeat(position.x * 37f + position.z * 53f, 360f);
-
-            // Instantiate senza padre mette l'oggetto nella scena attiva, il livello: se ne va con lui
-            var ground = Instantiate(prefab, position, Quaternion.Euler(0f, yaw, 0f));
-            ground.Show(item);
-            if (from.HasValue)
-            {
-                ground.StartCoroutine(ground.Fly(from.Value));
-            }
-
-            return ground;
+            return Create(prefab, item, 0, OnNavMesh(near), from);
         }
 
         /// <summary>Una pila d'oro a terra, come un oggetto: si raccoglie con un click e va nel portafoglio (D4 della M10).</summary>
         public static GroundItem SpawnGold(GroundItem prefab, GoldDefinition gold, int amount, Vector3 near, Vector3? from = null)
         {
-            Vector3 position = NavMesh.SamplePosition(near, out NavMeshHit hit, 2f, NavMesh.AllAreas) ? hit.position : near;
+            return Create(prefab, new ItemInstance(gold), Mathf.Max(1, amount), OnNavMesh(near), from);
+        }
+
+        /// <summary>
+        /// Un oggetto del ricordo del livello, dove stava: sul NavMesh c'era già quando è caduto. Cercato di
+        /// nuovo, lo spostava di 70 cm fuori dal ritaglio di un barile rotto, che al ripristino c'è ancora
+        /// (ronda notturna del 25 ott 2026, partita 10540285109030988084).
+        /// </summary>
+        public static GroundItem Restore(GroundItem prefab, ItemInstance item, Vector3 position)
+        {
+            return Create(prefab, item, 0, position, null);
+        }
+
+        /// <summary>La pila d'oro del ricordo del livello, dove stava, come <see cref="Restore"/>.</summary>
+        public static GroundItem RestoreGold(GroundItem prefab, GoldDefinition gold, int amount, Vector3 position)
+        {
+            return Create(prefab, new ItemInstance(gold), Mathf.Max(1, amount), position, null);
+        }
+
+        private static Vector3 OnNavMesh(Vector3 near)
+        {
+            return NavMesh.SamplePosition(near, out NavMeshHit hit, 2f, NavMesh.AllAreas) ? hit.position : near;
+        }
+
+        private static GroundItem Create(GroundItem prefab, ItemInstance item, int gold, Vector3 position, Vector3? from)
+        {
+            // ruotato secondo il punto: due oggetti vicini non sembrano copiati e incollati, e niente Random
             float yaw = Mathf.Repeat(position.x * 37f + position.z * 53f, 360f);
+
+            // Instantiate senza padre mette l'oggetto nella scena attiva, il livello: se ne va con lui
             var ground = Instantiate(prefab, position, Quaternion.Euler(0f, yaw, 0f));
-            ground._gold = Mathf.Max(1, amount);
-            ground.Show(new ItemInstance(gold));
+            ground._gold = gold;
+            ground.Show(item);
             if (from.HasValue)
             {
                 ground.StartCoroutine(ground.Fly(from.Value));

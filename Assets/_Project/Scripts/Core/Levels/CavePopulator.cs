@@ -522,7 +522,7 @@ namespace DarkDescent.Levels
             return northSouth || eastWest;
         }
 
-        // Dall'ingresso si arriva a piedi su ogni cella che non sia roccia, scala o ostacolo.
+        // Dall'ingresso si arriva a piedi su ogni cella che non sia roccia, scala o ostacolo, e davanti a ogni cassa.
         private static bool IsConnected(DungeonLayout layout)
         {
             var seen = new bool[layout.Width, layout.Height];
@@ -550,6 +550,17 @@ namespace DarkDescent.Levels
                     if (Walkable(layout, x, y) && !seen[x, y])
                     {
                         return false;
+                    }
+
+                    // una cassa si apre dal davanti, dove il builder la gira: anche lì si arriva. Un ostacolo
+                    // messo dopo poteva chiuderla (ronda notturna del 25 ott 2026, seme 5152695010986172569)
+                    if (DungeonPopulator.IsChest(layout[x, y]))
+                    {
+                        var front = new Vector2Int(x, y) + SpecialEnemyPlanner.FrontOf(layout, new Vector2Int(x, y), out _);
+                        if (!seen[front.x, front.y])
+                        {
+                            return false;
+                        }
                     }
                 }
             }

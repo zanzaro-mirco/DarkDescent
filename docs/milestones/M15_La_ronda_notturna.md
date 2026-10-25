@@ -310,6 +310,25 @@ README la ronda nella sezione della CI e la v1.3.1 nello stato; `bundleVersion` 
 `v1.3.1` porta le correzioni trovate dalla ronda: il re all'8, le diagonali attorno alla sua sala,
 l'Abisso I, NavMesh e mesh distrutti.
 
+**La notte del 25 ott 2026**, prima del tag: la ronda pianificata è caduta con 6 errori e ha aperto da
+sola [l'issue #3](https://github.com/zanzaro-mirco/DarkDescent/issues/3), il passo 15.7 al lavoro.
+Rifatti in locale con `-nightly-seed 20261025`, tre errori del gioco e uno della ronda:
+
+- **Il tesoro del re chiudeva un cunicolo.** Nella sala senza porta va al centro della parete sud,
+  e lì l'anello aperto può lasciare l'unica entrata di un cunicolo. Ora sta dove dietro c'è la roccia:
+  prima la parete di fronte alla porta, poi le altre (`PlaceKingsTreasure`).
+- **Una cassa chiusa dalla scenografia.** Roccia a nord e a ovest, una candela a est e, messo dopo,
+  un oggetto di scena sul davanti: il controllo del cammino non lo vedeva, la cassa stessa è un
+  ostacolo. Ora `IsConnected`, nella cripta e nelle caverne, vuole raggiungibile anche il davanti di
+  ogni cassa, e i controlli delle mappe lo provano (`ObstaclesLeavePath`). Un unico su 600 nei test
+  resta senza forziere in più: la soglia scende al 97,5%.
+- **La ripresa spostava gli oggetti a terra.** Rimessi con `SamplePosition` mentre il ritaglio dei
+  barili rotti è ancora nel NavMesh, quelli caduti dove stava un barile finivano 70 cm più in là.
+  Ora il ricordo li rimette dove stavano (`GroundItem.Restore`): sul NavMesh c'erano già.
+- **Il barile che "non si raggiungeva" si raggiungeva.** Dove un ostacolo ha ritagliato il NavMesh,
+  `SamplePosition` con 25 cm non lo trova nemmeno sotto il sondaggio; con 60 cm sì, nel punto esatto.
+  Il controllo dei barili della ronda cerca a 60 cm.
+
 ---
 
 ## Trappole note

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DarkDescent.Core;
@@ -406,7 +407,9 @@ namespace DarkDescent.Tests
                 }
             }
 
-            Assert.Greater(uniqueWithChest / (double)uniques, 0.98, "l'unico ha il suo forziere");
+            // 12 unici su 600 senza posto, in stanze strette, da quando una cassa tiene libero il davanti
+            // (ronda notturna del 25 ott 2026): prima erano 11
+            Assert.Greater(uniqueWithChest / (double)uniques, 0.975, "l'unico ha il suo forziere");
             Assert.That(withChest / (double)champions, Is.InRange(0.18, 0.42), "un campione su quattro");
         }
 
@@ -460,8 +463,10 @@ namespace DarkDescent.Tests
                     Assert.AreEqual(layout.BossCell - toGate * CaveGenerator.BossRoomHalf, cell);
                 }
 
-                Assert.IsFalse(layout.IsFloor(cell.x - SpecialEnemyPlanner.TowardGate(layout).x, cell.y - SpecialEnemyPlanner.TowardGate(layout).y),
-                    "dietro c'è la roccia: il builder lo gira verso la sala");
+                // dietro, fuori dalla sala, la roccia: il builder lo gira verso la sala e non chiude passaggi
+                var offset = cell - layout.BossCell;
+                var back = Math.Abs(offset.x) == CaveGenerator.BossRoomHalf ? new Vector2Int(Math.Sign(offset.x), 0) : new Vector2Int(0, Math.Sign(offset.y));
+                Assert.IsFalse(layout.IsFloor(cell.x + back.x, cell.y + back.y), $"seme {seed}: dietro c'è la roccia");
             }
 
             for (ulong seed = 1; seed <= 20; seed++)

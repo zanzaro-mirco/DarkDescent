@@ -845,6 +845,17 @@ namespace DarkDescent.Levels
                     {
                         return false;
                     }
+
+                    // una cassa si apre dal davanti, dove il builder la gira: anche lì si arriva. Un ostacolo
+                    // messo dopo poteva chiuderla (ronda notturna del 25 ott 2026, seme 5152695010986172569)
+                    if (IsChest(layout[x, y]))
+                    {
+                        var front = new Vector2Int(x, y) + SpecialEnemyPlanner.FrontOf(layout, new Vector2Int(x, y), out _);
+                        if (!seen[front.x, front.y])
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
 

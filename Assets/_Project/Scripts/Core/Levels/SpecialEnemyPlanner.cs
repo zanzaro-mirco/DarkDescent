@@ -150,9 +150,25 @@ namespace DarkDescent.Levels
                 return false;
             }
 
+            // senza porta l'anello resta aperto dove la caverna toccava la sala: il tesoro sta dove dietro
+            // c'è la roccia, o chiude il passaggio (ronda notturna del 25 ott 2026, seme 6764078822790321387).
+            // Prima il centro della parete di fronte alla porta, poi accanto, poi le altre pareti
             var toGate = TowardGate(layout);
-            var cell = layout.BossCell - toGate * CaveGenerator.BossRoomHalf;
-            return layout.TryPlace(TreasureSymbol, cell.x, cell.y);
+            foreach (var back in new[] { -toGate, new Vector2Int(toGate.y, toGate.x), new Vector2Int(-toGate.y, -toGate.x), toGate })
+            {
+                var side = new Vector2Int(back.y, back.x);
+                foreach (int along in new[] { 0, 1, -1 })
+                {
+                    var cell = layout.BossCell + back * CaveGenerator.BossRoomHalf + side * along;
+                    var behind = cell + back;
+                    if (!layout.IsFloor(behind.x, behind.y) && layout.TryPlace(TreasureSymbol, cell.x, cell.y))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>Il passo, lungo un asse, dal centro della sala del re verso la sua porta; senza porta verso nord (y che cala).</summary>

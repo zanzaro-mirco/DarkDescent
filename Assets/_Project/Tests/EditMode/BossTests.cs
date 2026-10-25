@@ -45,6 +45,13 @@ namespace DarkDescent.Tests
             MapChecks.Pass($"seme {seed}", CaveChecks.BossRoom(DungeonLevel.CreateMap(Caves, seed, 8, out _)));
         }
 
+        [Test, Description("Nella sala senza porta il tesoro del re non chiude il passaggio verso la caverna dietro la parete sud (ronda notturna del 25 ott 2026)")]
+        public void KingsTreasure_LeavesThePassageOpen([Values(6764078822790321387UL)] ulong seed)
+        {
+            DungeonLevel.CreateMap(Caves, seed, 8, out var built);
+            MapChecks.Pass($"seme {seed}", MapChecks.Reachable(built, stairs: false) ?? MapChecks.ObstaclesLeavePath(built, stairs: false));
+        }
+
         [Test, Description("L'anello della sala del re non lascia pavimenti uniti solo in diagonale attorno ai suoi angoli, nemmeno quando la sala resta senza porta (ronde notturne del 23 ott 2026)")]
         public void BossRing_LeavesNoDiagonals([Values(10720979491319261754UL, 9929082385448978859UL, 16557588204245213777UL, 8230148923540967550UL, 7000665500740811585UL, 9793415644043241166UL)] ulong seed)
         {

@@ -46,6 +46,14 @@ namespace DarkDescent.Tests
         /// <summary>Due pezzi più vicini di così stanno nello stesso punto.</summary>
         private const float SamePlace = 0.3f;
 
+        /// <summary>
+        /// Quanto lontano dal sondaggio attorno a un barile si cerca il NavMesh. Dove un ostacolo l'ha
+        /// ritagliato, con 25 cm SamplePosition non trova il NavMesh nemmeno sotto il sondaggio, con
+        /// 60 cm sì, nel punto esatto (ronda notturna del 25 ott 2026, partita 7520343961558074204).
+        /// Il punto trovato conta solo entro la portata.
+        /// </summary>
+        private const float ProbeSearch = 0.6f;
+
         private const int OneHour = 3600000;
 
         // quanti pezzi la ronda ha provato davvero, per il riassunto: un controllo che non trova niente
@@ -290,7 +298,7 @@ namespace DarkDescent.Tests
                 {
                     float angle = i * 22.5f * Mathf.Deg2Rad;
                     Vector3 probe = center + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * radius;
-                    if (!NavMesh.SamplePosition(probe, out var hit, 0.25f, NavMesh.AllAreas))
+                    if (!NavMesh.SamplePosition(probe, out var hit, ProbeSearch, NavMesh.AllAreas))
                     {
                         continue;
                     }

@@ -95,11 +95,11 @@ namespace DarkDescent.Levels
             {
                 if (item.Gold > 0)
                 {
-                    GroundItem.SpawnGold(_groundItemPrefab, _gold, item.Gold, item.Position);
+                    GroundItem.RestoreGold(_groundItemPrefab, _gold, item.Gold, item.Position);
                 }
                 else if (item.Item != null && item.Item.Resolve(_items, _affixes))
                 {
-                    GroundItem.Spawn(_groundItemPrefab, item.Item, item.Position);
+                    GroundItem.Restore(_groundItemPrefab, item.Item, item.Position);
                 }
             }
         }

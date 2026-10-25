@@ -138,10 +138,14 @@ namespace DarkDescent.Tests
             return Unreached(layout, c => c != DungeonGenerator.StairsSymbol, stairs, "irraggiungibile");
         }
 
-        /// <summary>Lo stesso girando attorno a casse, arredi e scenografia: nessun ostacolo chiude un passaggio.</summary>
+        /// <summary>
+        /// Lo stesso girando attorno a casse, arredi e scenografia: nessun ostacolo chiude un passaggio, né
+        /// il davanti di una cassa, da dove si apre.
+        /// </summary>
         public static string ObstaclesLeavePath(DungeonLayout layout, bool stairs)
         {
-            return Unreached(layout, c => c != DungeonGenerator.StairsSymbol && !DungeonPopulator.IsObstacle(c), stairs, "chiusa da un ostacolo");
+            Func<char, bool> passable = c => c != DungeonGenerator.StairsSymbol && !DungeonPopulator.IsObstacle(c);
+            return Unreached(layout, passable, stairs, "chiusa da un ostacolo") ?? ChestFronts(layout, Walk(layout, passable));
         }
 
         /// <summary>
@@ -201,6 +205,21 @@ namespace DarkDescent.Tests
                     {
                         return $"pavimento sul bordo in ({x}, {y})";
                     }
+                }
+            }
+
+            return null;
+        }
+
+        // davanti a ogni cassa, dove il builder la gira, si arriva (ronda notturna del 25 ott 2026)
+        private static string ChestFronts(DungeonLayout layout, Dictionary<Vector2Int, int> distances)
+        {
+            foreach (var cell in Find(layout, DungeonPopulator.IsChest))
+            {
+                var front = cell + SpecialEnemyPlanner.FrontOf(layout, cell, out _);
+                if (!distances.ContainsKey(front))
+                {
+                    return $"davanti alla cassa in ({cell.x}, {cell.y}) non si arriva\n{Text(layout)}";
                 }
             }
 

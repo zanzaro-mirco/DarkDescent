@@ -69,6 +69,13 @@ namespace DarkDescent.Tests
             }
         }
 
+        [Test, Description("Davanti a ogni cassa si arriva anche quando la scenografia viene messa dopo di lei (ronda notturna del 25 ott 2026)")]
+        public void Chests_KeepTheirFrontOpen([Values(5152695010986172569UL)] ulong seed)
+        {
+            DungeonLevel.CreateMap(Caves, seed, 7, out var built);
+            MapChecks.Pass($"seme {seed}", MapChecks.ObstaclesLeavePath(built, stairs: true));
+        }
+
         [Test, Description("In media su 200 semi i numeri di D10: al 5 circa cinque scheletri, uno sciame e un bruto; all'8, con il boss, circa quattro scheletri, due sciami e due bruti")]
         public void Averages_MatchD10()
         {
