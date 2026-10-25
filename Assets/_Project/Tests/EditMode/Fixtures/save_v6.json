@@ -1,0 +1,226 @@
+{
+    "_version": 6,
+    "_runSeed": "6060606060606060606",
+    "_scene": "Level_Caves",
+    "_entrance": "FromAbove",
+    "_depth": 7,
+    "_level": 24,
+    "_experience": 61000,
+    "_unspentPoints": 2,
+    "_strength": 55.0,
+    "_dexterity": 40.0,
+    "_magic": 15.0,
+    "_vitality": 45.0,
+    "_life": 212.0,
+    "_inventory": {
+        "_gridItems": [
+            {
+                "_definitionId": "ba987679cc014e7bba516885a4f3bee1",
+                "_rarity": 2,
+                "_itemLevel": 29,
+                "_seed": 6363636,
+                "_affixes": [
+                    {
+                        "_affixId": "29fddb0cdb9948df99dfd62da2c4a2cd",
+                        "_value": 44
+                    },
+                    {
+                        "_affixId": "e5638fc995d14414898c578f7dde8c07",
+                        "_value": 13
+                    },
+                    {
+                        "_affixId": "2c90c62d645e492fa5277c697cc81037",
+                        "_value": 98
+                    }
+                ]
+            }
+        ],
+        "_gridPositions": [
+            {
+                "x": 0,
+                "y": 0
+            }
+        ],
+        "_equipped": [
+            {
+                "_definitionId": "e0b0ddd77ab14bd6b7d38926708bae5b",
+                "_rarity": 2,
+                "_itemLevel": 28,
+                "_seed": 6060606,
+                "_affixes": [
+                    {
+                        "_affixId": "00143cbf1a1a402f9f45b00c68b7518b",
+                        "_value": 29
+                    },
+                    {
+                        "_affixId": "c948768c6abc4554a470e28bdb181ee2",
+                        "_value": 17
+                    },
+                    {
+                        "_affixId": "b1e766e5ca5b42c498c12add4724cbb6",
+                        "_value": 116
+                    },
+                    {
+                        "_affixId": "9d5e9a1f03c54ccfba3d51b2b2a114d4",
+                        "_value": 22
+                    }
+                ]
+            },
+            {
+                "_definitionId": "087b60a574164918a667eaf47188a8d1",
+                "_rarity": 1,
+                "_itemLevel": 25,
+                "_seed": 6262626,
+                "_affixes": [
+                    {
+                        "_affixId": "2c90c62d645e492fa5277c697cc81037",
+                        "_value": 102
+                    }
+                ]
+            },
+            {
+                "_definitionId": "27935a4cd6b14d35b9e2724a4346d937",
+                "_rarity": 2,
+                "_itemLevel": 27,
+                "_seed": 6161616,
+                "_affixes": [
+                    {
+                        "_affixId": "847e2c23bc8c4f4da9795d65d0ab7438",
+                        "_value": 17
+                    },
+                    {
+                        "_affixId": "98e9994351be4d7f99abda63e0beb566",
+                        "_value": 43
+                    },
+                    {
+                        "_affixId": "39ca6d69be8a4769851b4c74fb38a654",
+                        "_value": 12
+                    },
+                    {
+                        "_affixId": "fa45afdd31874ad387bac1625230cc54",
+                        "_value": 10
+                    }
+                ]
+            }
+        ],
+        "_equippedSlots": [
+            1,
+            6,
+            8
+        ],
+        "_beltItems": [
+            {
+                "_definitionId": "5884889cecd34d84a4e3669a6f910bf9",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            },
+            {
+                "_definitionId": "7361b8032d754e0395fdf90ff1b0bf58",
+                "_rarity": 0,
+                "_itemLevel": 1,
+                "_seed": 0,
+                "_affixes": []
+            }
+        ],
+        "_beltSlots": [
+            0,
+            1
+        ],
+        "_loose": []
+    },
+    "_explored": [],
+    "_knownSpells": [
+        "e2c15e94a83f46968664ca55fba8d084",
+        "312dae5ae99c40a9b3812ae2e3b19cd6"
+    ],
+    "_selectedSpell": 1,
+    "_mana": 31.5,
+    "_gold": 4321,
+    "_inTown": false,
+    "_portalDepth": 0,
+    "_playTime": 9876.5,
+    "_kills": 1450,
+    "_deaths": 7,
+    "_goldCollected": 15000,
+    "_bossDefeated": true,
+    "_hasPortalSpot": false,
+    "_portalSpot": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "_levels": [
+        {
+            "_scene": "Level_Caves",
+            "_depth": 7,
+            "_enemyCount": 18,
+            "_chestCount": 4,
+            "_killed": [
+                3
+            ],
+            "_opened": [
+                1
+            ],
+            "_breakableCount": 6,
+            "_broken": [
+                2
+            ],
+            "_featureCount": 2,
+            "_spent": [],
+            "_items": [
+                {
+                    "_item": {
+                        "_definitionId": "3fa41aee67784a71bc0a19690debd63d",
+                        "_rarity": 2,
+                        "_itemLevel": 30,
+                        "_seed": 6464646,
+                        "_affixes": [
+                            {
+                                "_affixId": "b55f9865513142029f81f2a274f6da1f",
+                                "_value": 19
+                            },
+                            {
+                                "_affixId": "9e4343e6604f40cd9f317adb5efe0f74",
+                                "_value": 79
+                            },
+                            {
+                                "_affixId": "64315dad847847e5ab493ce487edea4f",
+                                "_value": 16
+                            },
+                            {
+                                "_affixId": "e5638fc995d14414898c578f7dde8c07",
+                                "_value": 12
+                            }
+                        ]
+                    },
+                    "_gold": 0,
+                    "_position": {
+                        "x": 14.0,
+                        "y": 0.0,
+                        "z": 21.5
+                    }
+                },
+                {
+                    "_item": {
+                        "_definitionId": "",
+                        "_rarity": 0,
+                        "_itemLevel": 0,
+                        "_seed": 0,
+                        "_affixes": []
+                    },
+                    "_gold": 88,
+                    "_position": {
+                        "x": 15.0,
+                        "y": 0.0,
+                        "z": 21.5
+                    }
+                }
+            ]
+        }
+    ],
+    "_difficulty": 2,
+    "_highestDifficulty": 1,
+    "_world": 4
+}
