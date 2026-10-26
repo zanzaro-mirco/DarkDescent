@@ -315,6 +315,18 @@ Windows verdi. Si prova all'Ombra con `-difficulty 1 -herolevel 12 -namedchance 
 *Nuova partita* dal menu: `-herolevel 12` è il livello della zona, senza il cavaliere sarebbe al
 livello 1. Le prove sono in `docs/Da_provare.md`; le correzioni vanno in questo passo.
 
+**La notte del 26 ott 2026** la ronda è caduta con un errore su 1600 livelli e ha aperto
+[l'issue #4](https://github.com/zanzaro-mirco/DarkDescent/issues/4); il resto è verde, compresa la
+misura nuova di unici e set (3,75 a discesa all'ultimo Abisso). Rifatto in locale (partita
+14927476354491945016, profondità 6):
+
+- **Il portale oltre la cassa.** Una cassa con il retro contro il muretto, guardata dal davanti: il
+  portale va 2,5 m avanti, e `NavMesh.Raycast` attraversava il buco ritagliato dalla cassa senza
+  fermarsi e dava libero un punto fuori dal NavMesh, dietro la cassa. Ora un punto libero vale solo se
+  sotto c'è il NavMesh e il cavaliere ci arriva; se no si prova la direzione dopo (`FindSpot`). Test:
+  `PortalTests.Spell_FacingAChestAgainstTheWall_OpensAReachablePortal`, con quel livello, rosso senza
+  la correzione.
+
 ## Trappole note
 
 - **I valori delle rarità.** `Rarity` si salva come numero e fa da indice in più posti (pesi della

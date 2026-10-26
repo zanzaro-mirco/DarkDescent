@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using DarkDescent.Core;
+using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Magic;
@@ -165,6 +166,38 @@ namespace DarkDescent.Tests
             Assert.Less(Vector3.Distance(portal.transform.position, center), 1.2f, "dentro la strettoia");
             PlayerObject.GetComponent<PlayerController>().Use(portal.Interactable);
             yield return WaitUntilIn(level => level.IsTown, "il portale non porta in città");
+        }
+
+        [UnityTest, Description("Davanti a una cassa con il retro contro il muretto, guardandola, il portale si apre dove il cavaliere arriva e non oltre la cassa, fuori dal NavMesh (ronda del 26 ott 2026)")]
+        public IEnumerator Spell_FacingAChestAgainstTheWall_OpensAReachablePortal()
+        {
+            yield return StartNewGame();
+            Manager.RunSeed = 14927476354491945016UL;
+            Manager.LoadLevel("Level_Caves", DungeonLevel.EntranceAt(6), 6);
+            yield return WaitUntilIn(level => level.Depth == 6, "la caverna non arriva");
+            foreach (var enemy in Manager.CurrentLevel.Enemies.Where(e => e != null))
+            {
+                enemy.gameObject.SetActive(false);
+            }
+
+            var chest = Manager.CurrentLevel.Chests.Single(c => Vector3.Distance(c.transform.position, new Vector3(20f, 0f, -60f)) < 0.1f);
+            var agent = PlayerObject.GetComponent<NavMeshAgent>();
+            Assert.IsTrue(agent.Warp(chest.GetComponent<Interactable>().ApproachPoint));
+            PlayerObject.transform.rotation = Quaternion.LookRotation(Vector3.left);
+            yield return null;
+
+            // il caso della ronda: il raggio passa la cassa e arriva fuori dal NavMesh
+            Vector3 start = PlayerObject.transform.position;
+            Vector3 beyond = start + Vector3.left * 2.5f;
+            Assert.IsFalse(NavMesh.Raycast(start, beyond, out _, NavMesh.AllAreas), "il raggio attraversa la cassa");
+            Assert.IsFalse(NavMesh.SamplePosition(beyond, out _, 0.3f, NavMesh.AllAreas), "oltre la cassa non c'è NavMesh");
+
+            Assert.AreEqual(PortalResult.Opened, Magic.TryCastPortal());
+            var portal = Portals.OpenPortal;
+            Assert.IsTrue(NavMesh.SamplePosition(portal.transform.position, out var hit, 0.3f, NavMesh.AllAreas), "il portale sta sul NavMesh");
+            var path = new NavMeshPath();
+            Assert.IsTrue(NavMesh.CalculatePath(start, hit.position, NavMesh.AllAreas, path));
+            Assert.AreEqual(NavMeshPathStatus.PathComplete, path.status, "il cavaliere ci arriva");
         }
 
         [UnityTest, Description("Nessuna pergamena all'inizio; in città la magia del portale non parte e l'HUD lo dice. Nel dungeon T apre un portale davanti al cavaliere, sul NavMesh e nella scena del livello, e spende il mana; un secondo lancio lo sposta; senza mana non parte e il posto è scuro")]

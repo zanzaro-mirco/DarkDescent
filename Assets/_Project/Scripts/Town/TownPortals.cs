@@ -52,6 +52,9 @@ namespace DarkDescent.Town
         // davanti, poi a destra, a sinistra e dietro, finché uno non ha spazio
         private static readonly Vector3[] Directions = { Vector3.forward, Vector3.right, Vector3.left, Vector3.back };
 
+        // quanto lontano dal punto libero si cerca il NavMesh sotto di lui
+        private const float OnMeshSearch = 0.3f;
+
         private Transform _player;
         private Health _playerHealth;
         private Portal _open;
@@ -169,10 +172,17 @@ namespace DarkDescent.Town
                 Vector3 step = facing * direction;
                 Vector3 target = origin + step * _distance;
 
-                // fino al muro, se c'è, ma non addosso al cavaliere
+                // fino al muro, se c'è, ma non addosso al cavaliere. Senza ostacoli il punto vale solo se
+                // ci si arriva: davanti a una cassa contro il muro il raggio a volte attraversa il buco
+                // della cassa e dà libero un punto fuori dal NavMesh (ronda del 26 ott 2026)
                 if (!NavMesh.Raycast(origin, target, out var hit, NavMesh.AllAreas))
                 {
-                    return target;
+                    if (Reachable(origin, target))
+                    {
+                        return target;
+                    }
+
+                    continue;
                 }
 
                 if (hit.distance >= _minDistance)
@@ -190,6 +200,14 @@ namespace DarkDescent.Town
             // stretto da ogni parte, in un angolo tra muri e barili: il punto libero più lontano, sul
             // NavMesh, dove il cavaliere arriva (prima andava davanti a lui anche dentro un ostacolo)
             return roomiest;
+        }
+
+        private static bool Reachable(Vector3 origin, Vector3 target)
+        {
+            var path = new NavMeshPath();
+            return NavMesh.SamplePosition(target, out var onMesh, OnMeshSearch, NavMesh.AllAreas)
+                && NavMesh.CalculatePath(origin, onMesh.position, NavMesh.AllAreas, path)
+                && path.status == NavMeshPathStatus.PathComplete;
         }
 
         private static Vector3 Flat(Vector3 direction)
