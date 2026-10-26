@@ -157,6 +157,14 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, Root.Difficulty.HighestCompleted);
             Assert.IsTrue(Victory.IsOpen, "la prima volta, la schermata");
             StringAssert.Contains("Unlocked: Darkness", Victory.StatsText);
+
+            // Continua (M17): si resta in città, con il tempo che scorre e i comandi
+            Victory.ContinueButton.onClick.Invoke();
+            yield return null;
+            Assert.IsFalse(Victory.IsOpen);
+            Assert.AreEqual(1f, Time.timeScale);
+            Assert.IsTrue(Manager.CurrentLevel.IsTown);
+            Assert.IsTrue(GameObject.Find("Player").GetComponent<PlayerInputReader>().enabled, "si gioca ancora");
         }
 
         [UnityTest, Description("Il re battuto di nuovo a una difficoltà già completata: una scritta, il portale, e in città niente schermata")]

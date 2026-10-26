@@ -12,8 +12,9 @@ namespace DarkDescent.UI
     /// <summary>
     /// Il menu iniziale (D2 della M10): Continua riprende l'ultima partita giocata e manca senza
     /// salvataggi; Nuova partita sceglie uno dei tre posti, chiedendo conferma sopra uno occupato;
-    /// Carica mostra i tre posti, che si possono anche cancellare; poi Opzioni ed Esci. Sceglie e
-    /// basta: la partita la fa partire il CompositionRoot, ascoltando <see cref="Chosen"/>.
+    /// Carica mostra i tre posti, che si possono anche cancellare; poi Riconoscimenti (dalla M17),
+    /// Opzioni ed Esci. Sceglie e basta: la partita la fa partire il CompositionRoot, ascoltando
+    /// <see cref="Chosen"/>.
     /// </summary>
     [DisallowMultipleComponent]
     public class MainMenu : MonoBehaviour
@@ -31,6 +32,8 @@ namespace DarkDescent.UI
 
         [SerializeField] private Button _load;
 
+        [SerializeField] private Button _credits;
+
         [SerializeField] private Button _options;
 
         [SerializeField] private Button _quit;
@@ -44,6 +47,8 @@ namespace DarkDescent.UI
         [SerializeField] private ConfirmDialog _confirm;
 
         [SerializeField] private OptionsPanel _optionsPanel;
+
+        [SerializeField] private CreditsPanel _creditsPanel;
 
         [Tooltip("La versione del gioco in piccolo, in basso a destra (D7 della M11): serve per le segnalazioni.")]
         [SerializeField] private TMP_Text _version;
@@ -66,6 +71,10 @@ namespace DarkDescent.UI
 
         public Button LoadButton => _load;
 
+        public Button CreditsButton => _credits;
+
+        public Button OptionsButton => _options;
+
         public ConfirmDialog Confirm => _confirm;
 
         public TMP_Text VersionText => _version;
@@ -87,6 +96,8 @@ namespace DarkDescent.UI
             _confirm.Close();
             _optionsPanel.Closed -= ShowMain;
             _optionsPanel.Close();
+            _creditsPanel.Closed -= ShowMain;
+            _creditsPanel.Close();
             _root.SetActive(false);
         }
 
@@ -101,6 +112,7 @@ namespace DarkDescent.UI
             _continue.onClick.AddListener(HandleContinue);
             _newGame.onClick.AddListener(HandleNewGame);
             _load.onClick.AddListener(HandleLoad);
+            _credits.onClick.AddListener(HandleCredits);
             _options.onClick.AddListener(HandleOptions);
             _quit.onClick.AddListener(HandleQuit);
             _slotsBack.onClick.AddListener(ShowMain);
@@ -116,10 +128,12 @@ namespace DarkDescent.UI
             _continue.onClick.RemoveListener(HandleContinue);
             _newGame.onClick.RemoveListener(HandleNewGame);
             _load.onClick.RemoveListener(HandleLoad);
+            _credits.onClick.RemoveListener(HandleCredits);
             _options.onClick.RemoveListener(HandleOptions);
             _quit.onClick.RemoveListener(HandleQuit);
             _slotsBack.onClick.RemoveListener(ShowMain);
             _optionsPanel.Closed -= ShowMain;
+            _creditsPanel.Closed -= ShowMain;
             foreach (var view in _slots)
             {
                 view.Clicked -= HandleSlotClicked;
@@ -130,6 +144,7 @@ namespace DarkDescent.UI
         private void ShowMain()
         {
             _optionsPanel.Closed -= ShowMain;
+            _creditsPanel.Closed -= ShowMain;
             _slotsPanel.SetActive(false);
             _mainPanel.SetActive(true);
             _continue.gameObject.SetActive(_saves.LastPlayed() > 0);
@@ -159,6 +174,13 @@ namespace DarkDescent.UI
             _mainPanel.SetActive(false);
             _optionsPanel.Closed += ShowMain;
             _optionsPanel.Open();
+        }
+
+        private void HandleCredits()
+        {
+            _mainPanel.SetActive(false);
+            _creditsPanel.Closed += ShowMain;
+            _creditsPanel.Open(_localizer);
         }
 
         private void HandleQuit()

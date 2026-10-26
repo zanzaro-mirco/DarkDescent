@@ -191,6 +191,37 @@ immagini generate, ricopiata in `Data/Credits.txt`.
 Test: `UiSkinTests` (3: import, scena rivestita, contrasto almeno 4,5:1 di ogni testo sullo sfondo
 medio), e in `test_imagelib.py` le nove parti e la placca (15).
 
+## Passo 17.4 — I menu
+
+**Com'è andata (27 ott 2026).** I riconoscimenti escono dalla vittoria e diventano un pannello a sé,
+`CreditsPanel` (`MenuUI/Credits`), con lo stesso testo da `CREDITS.md` che sale dal basso; li apre il
+pulsante **Riconoscimenti** del menu iniziale, al posto dei pulsanti, e Indietro riporta il menu.
+La vittoria ha due pulsanti: **Continua** chiude la schermata e si gioca ancora in città
+(`VictoryScreen.Continued`), **Menu principale** salva e torna al menu come prima (`Finished`).
+
+La disposizione nuova, nello stile scelto da Mirco:
+
+- **menu iniziale**: titolo e pulsanti in una colonna a sinistra, a 140 pixel dal bordo, con una linea
+  sotto il titolo e il testo dei pulsanti allineato a sinistra; i pulsanti stanno in un layout
+  verticale, così Continua, nascosto senza salvataggi, non lascia il buco; lo spazio a destra è per lo sfondo
+  del 17.6. Il titolo sta con i pulsanti, così si nasconde con loro sotto le opzioni e i
+  riconoscimenti;
+- **opzioni** per gruppi, ognuno con un titolo piccolo in oro spento e una linea: Lingua, Audio
+  (i tre volumi), Grafica (il filtro retrò), Interfaccia (nomi e numeri sempre visibili);
+- **pausa** e **vittoria** più ariose, con una linea sotto il titolo.
+
+La morte non cambia disposizione: ha già la placca nuova sul pulsante. I pulsanti rivestiti sono ora
+33. La scena è stata ridisposta da uno script dell'editor lanciato una volta in batchmode e poi tolto;
+la pelle si riapplica con `UiSkinTools`. Stringhe nuove nelle due lingue: `menu.credits`,
+`victory.continue`, `victory.menu` e i quattro titoli dei gruppi delle opzioni; `victory.credits` è
+tolta.
+
+Test: `MenuTests.Credits_OpenFromTheMenu` (si aprono, ci sono gli autori e Z-Image-Turbo, salgono,
+Indietro riporta il menu), `VictoryPlayModeTests.Victory_FromBossToTheMenu` (Menu principale torna al
+menu e Continua del menu riporta in città) e, in `AltarPlayModeTests.FirstVictory_OpensTheNext`,
+Continua che lascia in città con il tempo e i comandi. `PhotoTour` fotografa i riconoscimenti dal
+menu.
+
 ## Trappole note
 
 - **Lo stile KayKit è a tinte.** Un'immagine con dettagli fotografici accanto ai modelli stona: nei
@@ -238,7 +269,7 @@ medio), e in `test_imagelib.py` le nove parti e la placca (15).
 - [x] Giro di foto e lista corta approvata
 - [x] Strumenti per le immagini, licenze e ADR (`CREDITS.md` con la prima immagine nel gioco)
 - [x] Pannelli
-- [ ] Menu: principale, opzioni, pausa, vittoria e morte
+- [x] Menu: principale, opzioni, pausa, vittoria e morte
 - [ ] Macchie a terra
 - [ ] Sfondi di menu, morte e vittoria
 - [ ] Misura, foto di dopo e build di prova

@@ -57,7 +57,7 @@ namespace DarkDescent.Tests
         }
 
         [UnityTest, Description("Morto il re si apre il portale della vittoria; attraversato si arriva in città, il gioco si ferma sulle statistiche e il salvataggio è in città; i riconoscimenti salgono e dal pulsante si torna al menu, da cui Continua riporta in città")]
-        public IEnumerator Victory_FromBossToCredits()
+        public IEnumerator Victory_FromBossToTheMenu()
         {
             ForgetPreferences();
             Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
@@ -92,20 +92,9 @@ namespace DarkDescent.Tests
             Assert.IsTrue(data.InTown, "il salvataggio è in città");
             Assert.IsTrue(data.BossDefeated);
 
-            Victory.CreditsButton.onClick.Invoke();
-            Assert.IsTrue(Victory.IsShowingCredits);
-            StringAssert.Contains("Kay Lousberg", Victory.CreditsText);
-            StringAssert.Contains("RandomMind", Victory.CreditsText);
-            StringAssert.Contains("Thank you for playing", Victory.CreditsText);
-            float start = ((RectTransform)Victory.transform.Find("Credits/Viewport/Text")).anchoredPosition.y;
-            for (int i = 0; i < 10; i++)
-            {
-                yield return null;
-            }
-
-            Assert.Greater(((RectTransform)Victory.transform.Find("Credits/Viewport/Text")).anchoredPosition.y, start, "salgono con il gioco fermo");
-
-            Victory.BackButton.onClick.Invoke();
+            // dalla M17 i riconoscimenti stanno nel menu: qui Continua o Menu principale
+            Assert.IsTrue(Victory.ContinueButton.gameObject.activeInHierarchy);
+            Victory.MenuButton.onClick.Invoke();
             yield return null;
             yield return null;
             Assert.AreEqual(1f, Time.timeScale);

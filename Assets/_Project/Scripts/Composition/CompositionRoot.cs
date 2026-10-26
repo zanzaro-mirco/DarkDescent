@@ -635,6 +635,7 @@ namespace DarkDescent.Core
             _characterPanel.OpenChanged += HandleCharacterOpenChanged;
             _portals.VictoryReached += HandleVictoryReached;
             _victoryScreen.Finished += HandleVictoryFinished;
+            _victoryScreen.Continued += HandleVictoryContinued;
         }
 
         private void OnDisable()
@@ -657,6 +658,7 @@ namespace DarkDescent.Core
             _cameraRotation.FacingChanged -= HandleFacingChanged;
             _portals.VictoryReached -= HandleVictoryReached;
             _victoryScreen.Finished -= HandleVictoryFinished;
+            _victoryScreen.Continued -= HandleVictoryContinued;
             _characterPanel.OpenChanged -= HandleCharacterOpenChanged;
             ReleaseMerchant();
         }
@@ -1048,11 +1050,17 @@ namespace DarkDescent.Core
             _victoryScreen.Show(_runStats, _progress.Progress.Level, next < _difficulties.Count ? _difficulties.Tier(next).NameKey : null);
         }
 
-        // finiti i riconoscimenti, si salva in città e si torna al menu: con Continua si riprende lì
+        // Menu principale dalla vittoria: si salva in città e si torna al menu, con Continua si riprende lì
         private void HandleVictoryFinished()
         {
             _reader.enabled = true;
             HandleQuitToMenu();
+        }
+
+        // Continua dalla vittoria: si resta in città a giocare (M17)
+        private void HandleVictoryContinued()
+        {
+            _reader.enabled = true;
         }
 
         private void HandleBossSummoned(EnemyAI enemy)

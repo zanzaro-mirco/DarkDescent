@@ -23,6 +23,7 @@ level.town,Camp,Accampamento
 menu.continue,Continue,Continua
 menu.new,New game,Nuova partita
 menu.load,Load,Carica
+menu.credits,Credits,Riconoscimenti
 menu.options,Options,Opzioni
 menu.quit,Quit,Esci
 menu.back,Back,Indietro
@@ -39,6 +40,10 @@ pause.title,Paused,Pausa
 pause.resume,Resume,Riprendi
 pause.quit,Save and quit to menu,Salva ed esci al menu
 options.title,Options,Opzioni
+options.group_language,Language,Lingua
+options.group_audio,Audio,Audio
+options.group_graphics,Graphics,Grafica
+options.group_interface,Interface,Interfaccia
 options.language,Language: {0},Lingua: {0}
 language.name,English,Italiano
 options.master,Master volume,Volume generale
@@ -379,7 +384,8 @@ victory.level,Level: {0},Livello: {0}
 victory.kills,Enemies killed: {0},Nemici uccisi: {0}
 victory.deaths,Deaths: {0},Morti: {0}
 victory.gold,Gold collected: {0},Oro raccolto: {0}
-victory.credits,Credits,Riconoscimenti
+victory.continue,Continue,Continua
+victory.menu,Main menu,Menu principale
 credits.title,Credits,Riconoscimenti
 credits.author,A game by Mirco Zanzaro,Un gioco di Mirco Zanzaro
 credits.assets,With the work of,Con il lavoro di

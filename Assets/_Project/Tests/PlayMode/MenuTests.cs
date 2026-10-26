@@ -82,6 +82,30 @@ namespace DarkDescent.Tests
             StringAssert.StartsWith("1.", Application.version, "la v1.0");
         }
 
+        [UnityTest, Description("Riconoscimenti dal menu iniziale (M17): si aprono al posto dei pulsanti, salgono con i nomi degli autori, e Indietro riporta il menu")]
+        public IEnumerator Credits_OpenFromTheMenu()
+        {
+            yield return LoadWithMenu();
+            var credits = UnityEngine.Object.FindFirstObjectByType<CreditsPanel>();
+            Assert.IsFalse(credits.IsOpen);
+            Menu.CreditsButton.onClick.Invoke();
+            Assert.IsTrue(credits.IsOpen);
+            Assert.IsFalse(Menu.NewGameButton.gameObject.activeInHierarchy, "i pulsanti del menu lasciano il posto");
+            StringAssert.Contains("Kay Lousberg", credits.Text);
+            StringAssert.Contains("Z-Image-Turbo", credits.Text);
+            StringAssert.Contains("Thank you for playing", credits.Text);
+            float start = credits.Scroll;
+            for (int i = 0; i < 10; i++)
+            {
+                yield return null;
+            }
+
+            Assert.Greater(credits.Scroll, start, "salgono");
+            credits.BackButton.onClick.Invoke();
+            Assert.IsFalse(credits.IsOpen);
+            Assert.IsTrue(Menu.NewGameButton.gameObject.activeInHierarchy, "di nuovo il menu");
+        }
+
         [UnityTest, Description("Nelle build il menu c'è sempre: -difficulty 2 -herolevel 20 valgono per una partita nuova scelta dal menu, che le salva; riprendendola non contano più (passo 14.7)")]
         public IEnumerator NewGame_TakesTheTestOptions()
         {

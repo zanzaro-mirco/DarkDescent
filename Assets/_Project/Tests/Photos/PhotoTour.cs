@@ -97,13 +97,21 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             yield return Snap("01_menu", world: false);
-            var options = Find<OptionsPanel>();
-            options.Open();
+            var menu = Find<MainMenu>();
+            menu.OptionsButton.onClick.Invoke();
+            yield return Frames(2);
             yield return Snap("02_options", world: false);
-            options.Close();
+            Find<OptionsPanel>().Close();
+            yield return Frames(2);
+
+            // i riconoscimenti partono da sotto il bordo: si aspetta che arrivino a metà schermo
+            menu.CreditsButton.onClick.Invoke();
+            yield return new WaitForSecondsRealtime(14f);
+            yield return Snap("16_credits", world: false);
+            Find<CreditsPanel>().BackButton.onClick.Invoke();
+            yield return Frames(2);
 
             // l'accampamento, con un cavaliere del livello 20 e un raro per slot
-            var menu = Find<MainMenu>();
             menu.NewGameButton.onClick.Invoke();
             menu.SlotView(1).Button.onClick.Invoke();
             yield return WaitForLevel();
@@ -204,9 +212,6 @@ namespace DarkDescent.Tests
             victory.Show(new RunStats(), HeroLevel);
             yield return Frames(5);
             yield return Snap("15_victory");
-            victory.ShowCredits();
-            yield return Frames(5);
-            yield return Snap("16_credits");
 
             // la morte, in una partita sua
             ForgetPreferences();

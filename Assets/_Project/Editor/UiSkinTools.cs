@@ -113,7 +113,7 @@ namespace DarkDescent.Editor
                 return UiRole.Window;
             }
 
-            return path == "MenuUI/VictoryUI/Credits" ? UiRole.Window : UiRole.None;
+            return path == "MenuUI/Credits/Window" ? UiRole.Window : UiRole.None;
         }
 
         /// <summary>Il percorso nella scena, dalla radice: "HUD/InventoryUI/Window".</summary>
