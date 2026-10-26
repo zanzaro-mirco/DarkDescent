@@ -124,6 +124,20 @@ class FinishTests(unittest.TestCase):
         out = imagelib.finish(image, [("trim", 2), ("resize", 48)])
         self.assertEqual(out.size, (48, 48))
 
+    def test_nine_slice_keeps_the_corners_and_drops_the_middle(self):
+        image = Image.new("RGBA", (200, 200), (0, 0, 0, 0))
+        image.putpixel((3, 3), (255, 0, 0, 255))        # nell'angolo
+        image.putpixel((100, 2), (0, 255, 0, 255))      # la decorazione a metà lato
+        out = imagelib.nine_slice(image, 40, 16)
+        self.assertEqual(out.size, (96, 96))
+        self.assertEqual(out.getpixel((3, 3)), (255, 0, 0, 255))
+        self.assertNotIn((0, 255, 0, 255), list(out.getdata()))
+
+    def test_button_plate_has_the_border_lines(self):
+        plate = imagelib.button_plate(Image.new("RGB", (64, 64), (40, 40, 44)), 32, 4)
+        self.assertEqual(plate.size, (32, 32))
+        self.assertEqual(plate.getpixel((1, 16))[:3], (150, 122, 70))
+
     def test_unknown_step_fails(self):
         with self.assertRaises(ValueError):
             imagelib.finish(Image.new("RGB", (4, 4)), [("blur", 2)])

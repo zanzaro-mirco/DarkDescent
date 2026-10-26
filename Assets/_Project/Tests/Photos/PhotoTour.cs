@@ -36,7 +36,7 @@ namespace DarkDescent.Tests
     {
         public const string Category = "Photos";
 
-        /// <summary>La cartella delle foto sulla riga di comando di Unity; senza, <c>Temp/Photos</c> del progetto.</summary>
+        /// <summary>La cartella delle foto sulla riga di comando di Unity; senza, <c>Recordings/Photos</c> del progetto (fuori da git; <c>Temp</c> no, Unity lo svuota uscendo).</summary>
         public const string FolderOption = "-photos-out";
 
         private const int Width = 1920;
@@ -71,7 +71,7 @@ namespace DarkDescent.Tests
             Environment.SetEnvironmentVariable(CompositionRoot.SaveFolderVariable, _saves);
             _folder = CommandLine.TryGetValue(Environment.GetCommandLineArgs(), FolderOption, out string folder)
                 ? folder
-                : Path.Combine(Application.dataPath, "..", "Temp", "Photos");
+                : Path.Combine(Application.dataPath, "..", "Recordings", "Photos");
             Directory.CreateDirectory(_folder);
             PlayModeWindow.SetCustomRenderingResolution(Width, Height, "Photos");
         }
@@ -107,7 +107,10 @@ namespace DarkDescent.Tests
             menu.NewGameButton.onClick.Invoke();
             menu.SlotView(1).Button.onClick.Invoke();
             yield return WaitForLevel();
+            // il seme del mondo e quello del loot: lo stesso equipaggiamento a ogni giro (il banco del
+            // mercante viene dalla partita nuova e può cambiare)
             Manager.RunSeed = PhotoSeed;
+            Root.UseLootSeed(PhotoSeed);
             Root.PrepareHero(HeroLevel);
             yield return Settle();
             yield return Snap("03_camp");

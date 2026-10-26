@@ -158,6 +158,39 @@ spostamento 0,1159): sta nel repo ufficiale di Z-Image, sotto Apache 2.0, ed è 
 FLUX.1-schnell, anch'esso Apache 2.0. ADR-114. La riga in `CREDITS.md`, con la copia in
 `Data/Credits.txt`, arriva con la prima immagine che entra nel gioco.
 
+## Passo 17.3 — I pannelli
+
+**Com'è andata (26 ott 2026).** Le immagini sono quelle della prova del 17.2: lo sfondo `panel_back`
+(seme 1703) e la cornice `panel_frame` (seme 1712), rigenerati identici dalla ricetta in
+`Art/Generated/UI`. La cornice intera aveva una decorazione dorata a metà di ogni lato, che nelle
+nove parti si sarebbe allungata in una striscia: `nine_slice` tiene i quattro angoli (76 pixel) e un
+tratto di lato pulito, e toglie il centro. La placca dei pulsanti (`button_plate`) la ricava
+`uiparts.py` dallo sfondo, con un filo scuro e uno d'oro spento: è grigia, e il colore lo mette il
+pulsante.
+
+`GeneratedUiImporter` scrive le impostazioni di import (sprite senza mipmap, compressi, al più 512,
+ripetizione per lo sfondo, bordi delle nove parti). `UiSkin` (`Data/UI/UiSkin.asset`) tiene immagini e
+colori; `UiSkinTools.ApplyToCore`, dal menu o in batchmode, riveste la scena Core riconoscendo il
+ruolo dalla scena: **9 finestre** (inventario, scheda, mercante, conferma, difficoltà, opzioni, pausa,
+vittoria, riconoscimenti) e **4 tooltip** prendono lo sfondo ripetuto e un figlio `SkinFrame` con la
+cornice, primo figlio e fuori dai layout; **31 pulsanti** la placca e i colori, scuri a riposo e
+caldi al passaggio del mouse. Restano com'erano i veli, le celle, gli slot, le etichette a terra e il
+pulsante dei punti, come vuole la lista.
+
+Le foto hanno deciso due ritocchi: la cornice a 2,5 spariva sul fondo scuro, ora è a 1,6 nelle
+finestre (lati di circa 19 pixel a 1080p, angoli di 47) e a 2,6 nei tooltip; le finestre sono più
+scure (0,54). Il test del contrasto ha trovato il rosso di «oro insufficiente» del mercante a 4,3 su
+4,5: il rosso su un fondo quasi nero non sale scurendo il fondo, quindi è schiarito, nella scena e in
+`ShopPanel.UnaffordableColor` (anche i prezzi).
+
+`PhotoTour` scriveva per difetto in `Temp`, che Unity svuota uscendo: ora in `Recordings/Photos`,
+fuori da git. E fissa anche il seme del loot, così l'equipaggiamento del cavaliere è lo stesso a ogni
+giro (il banco del mercante viene dalla partita nuova e può cambiare). `CREDITS.md` ha la riga delle
+immagini generate, ricopiata in `Data/Credits.txt`.
+
+Test: `UiSkinTests` (3: import, scena rivestita, contrasto almeno 4,5:1 di ogni testo sullo sfondo
+medio), e in `test_imagelib.py` le nove parti e la placca (15).
+
 ## Trappole note
 
 - **Lo stile KayKit è a tinte.** Un'immagine con dettagli fotografici accanto ai modelli stona: nei
@@ -204,7 +237,7 @@ FLUX.1-schnell, anch'esso Apache 2.0. ADR-114. La riga in `CREDITS.md`, con la c
 - [x] Decisioni D1–D16 confermate
 - [x] Giro di foto e lista corta approvata
 - [x] Strumenti per le immagini, licenze e ADR (`CREDITS.md` con la prima immagine nel gioco)
-- [ ] Pannelli
+- [x] Pannelli
 - [ ] Menu: principale, opzioni, pausa, vittoria e morte
 - [ ] Macchie a terra
 - [ ] Sfondi di menu, morte e vittoria

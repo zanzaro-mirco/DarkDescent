@@ -158,6 +158,35 @@ def darken(image, amount):
     return out
 
 
+def nine_slice(image, corner, middle=16):
+    """Una cornice per le nove parti: tiene i quattro angoli (corner pixel) e un tratto di lato largo
+    middle, togliendo il centro dei lati. Le decorazioni a metà lato, che allungate diventerebbero
+    strisce, se ne vanno; il bordo dello sprite è corner su ogni lato."""
+    w, h = image.size
+    keep = corner + middle // 2
+    if 2 * keep >= min(w, h):
+        raise ValueError(f"l'angolo di {corner} pixel non sta in un'immagine di {w}x{h}")
+    out = Image.new(image.mode, (2 * keep, 2 * keep))
+    for sx, dx in ((0, 0), (w - keep, keep)):
+        for sy, dy in ((0, 0), (h - keep, keep)):
+            out.paste(image.crop((sx, sy, sx + keep, sy + keep)), (dx, dy))
+    return out
+
+
+def button_plate(back, size, border):
+    """La placca dei pulsanti, dallo sfondo dei pannelli: un ritaglio un po' più chiaro, con un filo
+    scuro fuori e un filo d'oro spento dentro. È grigia: il colore lo mette il pulsante, più chiaro al
+    passaggio del mouse."""
+    rgb = back.convert("RGB")
+    crop = rgb.crop((0, 0, min(rgb.width, size * 2), min(rgb.height, size * 2))).resize((size, size))
+    plate = Image.blend(crop, Image.new("RGB", (size, size), (110, 104, 96)), 0.35).convert("RGBA")
+    draw = ImageDraw.Draw(plate)
+    draw.rectangle((0, 0, size - 1, size - 1), outline=(18, 16, 14, 255), width=1)
+    draw.rectangle((1, 1, size - 2, size - 2), outline=(150, 122, 70, 255), width=1)
+    draw.rectangle((2, 2, size - 3, size - 3), outline=(40, 34, 28, 255), width=max(1, border - 2))
+    return plate
+
+
 def finish(image, steps):
     """Applica i passi di una ricetta, in ordine: ("key", colore, low, high), ("trim", margine),
     ("resize", dimensione), ("darken", quanto), ("flatten",)."""
@@ -173,6 +202,8 @@ def finish(image, steps):
             image = darken(image, *args)
         elif kind == "flatten":
             image = flatten(image, *args)
+        elif kind == "nineslice":
+            image = nine_slice(image, *args)
         else:
             raise ValueError(f"passo di finitura sconosciuto: {kind}")
     return image

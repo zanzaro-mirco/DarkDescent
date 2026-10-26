@@ -20,7 +20,7 @@ namespace DarkDescent.UI
         public static readonly Color GoldColor = new Color(0.88f, 0.75f, 0.38f);
 
         /// <summary>Il prezzo che l'oro non basta a pagare.</summary>
-        public static readonly Color UnaffordableColor = new Color(0.82f, 0.28f, 0.28f);
+        public static readonly Color UnaffordableColor = new Color(0.9f, 0.36f, 0.33f);
 
         [Tooltip("La finestra da aprire e chiudere; il componente sta sul padre, sempre attivo.")]
         [SerializeField] private GameObject _window;
