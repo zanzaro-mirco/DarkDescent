@@ -127,6 +127,37 @@ cripta e caverne **manca la risalita**, una scala che funziona e riporta alla pr
 dimensione minima. Tutte e due cambiano il generatore, quindi i livelli di tutti i semi, i test con
 i semi fissi e le soglie della ronda: decise da Mirco il 26 ott come milestone a sé, dopo la M17.
 
+## Passo 17.2 — Le immagini in `Tools/ComfyUI`
+
+**Com'è andata (26 ott 2026).** Due workflow in formato API, `z_image_turbo` (da testo) e
+`z_image_seam` (la croce ridisegnata con una maschera sul latente), le ricette in `images/` e
+`make.py` che le genera come i suoni, con `--takes` e `--page`. La finitura sta in `imagelib.py`,
+con 13 test (`test_imagelib.py`). Le prime due ricette, `panel_back` e `panel_frame` (`images/ui.py`),
+hanno fatto da prova, e la prova ha cambiato tre cose:
+
+- **"Seamless tileable" nel prompt fa danni.** Il modello disegna lui una griglia di lastre, con una
+  linea proprio al centro: spostata di mezzo lato finisce sul bordo. Si chiede una superficie unica
+  che riempie l'immagine, e alla ripetizione pensa la finitura.
+- **La croce ridisegnata dal modello fa pieghe** sulle superfici lisce, anche a denoise 0,45. Per i
+  materiali uniformi la ripetizione si fa senza il modello: l'originale lungo la croce e la copia
+  spostata altrove, sfumando (`blend_seams`). Il ridisegno resta per i disegni grossi
+  (`tile: "redraw"`). Prima, la luce più chiara al centro che il modello aggiunge si spiana
+  (`flatten`), o ripetuta fa una scacchiera.
+- **La trasparenza va presa sulla tinta, non sulla distanza.** Il magenta chiesto esce bordeaux o
+  viola, e un ferro scuro su un fondo scuro diventava semitrasparente. Ora il colore del fondo si
+  legge dai bordi, un pixel si misura lungo la tinta del fondo (un grigio resta pieno anche se
+  scurissimo) e dai bordi si toglie solo quella tinta.
+
+La misura delle cuciture guarda i bordi e la linea di mezzo, dove un'immagine spostata nasconde la
+sua; la soglia è 1,8 (le buone stanno tra 1,0 e 1,3, quelle con le cuciture visibili oltre 2,5). Con
+le correzioni lo sfondo dei pannelli si ripete a 1,15–1,4 su quattro semi, e la cornice in ferro
+nero esce intera, con le quattro decorazioni agli angoli, pronta per le nove parti del 17.3.
+
+**Licenze (D11).** Il VAE `ae.safetensors` è quello di FLUX.1 (16 canali latenti, scala 0,3611,
+spostamento 0,1159): sta nel repo ufficiale di Z-Image, sotto Apache 2.0, ed è lo stesso di
+FLUX.1-schnell, anch'esso Apache 2.0. ADR-114. La riga in `CREDITS.md`, con la copia in
+`Data/Credits.txt`, arriva con la prima immagine che entra nel gioco.
+
 ## Trappole note
 
 - **Lo stile KayKit è a tinte.** Un'immagine con dettagli fotografici accanto ai modelli stona: nei
@@ -172,7 +203,7 @@ i semi fissi e le soglie della ronda: decise da Mirco il 26 ott come milestone a
 
 - [x] Decisioni D1–D16 confermate
 - [x] Giro di foto e lista corta approvata
-- [ ] Strumenti per le immagini, licenze, ADR e `CREDITS.md`
+- [x] Strumenti per le immagini, licenze e ADR (`CREDITS.md` con la prima immagine nel gioco)
 - [ ] Pannelli
 - [ ] Menu: principale, opzioni, pausa, vittoria e morte
 - [ ] Macchie a terra

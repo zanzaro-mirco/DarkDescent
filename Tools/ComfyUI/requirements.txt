@@ -1,2 +1,3 @@
 -r ../Audio/requirements.txt
 soundfile==0.14.0
+Pillow==12.3.0
