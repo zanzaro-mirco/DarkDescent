@@ -1,0 +1,29 @@
+{
+    "name": "DarkDescent.Tests.Photos",
+    "rootNamespace": "DarkDescent.Tests",
+    "references": [
+        "DarkDescent",
+        "DarkDescent.Core",
+        "DarkDescent.Tests.PlayMode",
+        "Unity.InputSystem",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "Unity.AI.Navigation",
+        "Unity.InputSystem.TestFramework",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giro di foto M17</title>
+<style>
+:root { --bg:#14110e; --panel:#221c16; --line:#4a3d2c; --text:#e8e2d4; --dim:#9c927f; --gold:#d9b25c; }
+body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, sans-serif; }
+header { padding:20px 24px 8px; } h1 { margin:0 0 6px; font-size:22px; color:var(--gold); }
+p.note { margin:0; color:var(--dim); max-width:900px; }
+section { padding:12px 24px; }
+h2 { font-size:17px; color:var(--gold); margin:18px 0 10px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); gap:16px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+.card.marked { border-color:#c0473a; box-shadow:0 0 0 1px #c0473a; }
+.card img { display:block; width:100%; cursor:zoom-in; }
+.card .bar { display:flex; gap:10px; align-items:center; padding:8px 10px; flex-wrap:wrap; }
+.card .bar b { flex:1; font-weight:600; }
+.card textarea, .cand textarea { width:100%; box-sizing:border-box; background:#16120e; color:var(--text); border:1px solid var(--line); border-radius:4px; min-height:38px; padding:6px; font:inherit; }
+.card .notes { padding:0 10px 10px; }
+button, label.toggle { background:#2e261d; color:var(--text); border:1px solid var(--line); border-radius:4px; padding:5px 10px; cursor:pointer; font:inherit; }
+.cand { display:grid; grid-template-columns:auto 1fr; gap:6px 10px; align-items:start; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:10px 12px; margin-bottom:8px; }
+.cand .tag { color:var(--dim); font-size:13px; }
+#out { width:100%; min-height:160px; box-sizing:border-box; background:#16120e; color:var(--text); border:1px solid var(--line); border-radius:4px; padding:8px; font:13px/1.4 ui-monospace, monospace; }
+#zoom { position:fixed; inset:0; background:rgba(0,0,0,.92); display:none; align-items:center; justify-content:center; z-index:9; cursor:zoom-out; }
+#zoom img { max-width:98vw; max-height:96vh; }
+@media (max-width:520px) { .grid { grid-template-columns:1fr; } header, section { padding-left:16px; padding-right:16px; } }
+</style></head><body>
+<header><h1>M17 — il giro di foto</h1>
+<p class="note">Le schermate del gioco di oggi (v1.4.0), 1920×1080. Segna con «Brutta» le schermate che stonano e scrivi cosa non va; sotto, spunta i candidati che vuoi nella lista (al più 8, in ordine di importanza). «Copia la lista» mette tutto negli appunti, da incollare in chat. Le scelte restano in questo browser.</p></header>
+<section><h2>I candidati di Claude</h2><div id="cands"></div></section>
+<section><h2>Le schermate</h2><div class="grid" id="grid"></div></section>
+<section><h2>La lista</h2><button id="copy">Copia la lista</button> <span id="copied" class="tag"></span><p></p><textarea id="out" readonly></textarea></section>
+<div id="zoom"><img alt=""></div>
+<script>
+const SHOTS = [{"id": "01_menu", "title": "Menu principale", "retro": false}, {"id": "02_options", "title": "Opzioni", "retro": false}, {"id": "03_camp", "title": "Accampamento", "retro": true}, {"id": "04_merchant", "title": "Mercante e inventario", "retro": true}, {"id": "05_altar", "title": "Altare delle difficoltà", "retro": true}, {"id": "06_inventory", "title": "Inventario con il tooltip di un pezzo di set", "retro": true}, {"id": "07_character", "title": "Scheda del cavaliere", "retro": true}, {"id": "08_crypt", "title": "Cripta, l'ingresso", "retro": true}, {"id": "09_crypt_room", "title": "Cripta, una stanza con i nemici", "retro": true}, {"id": "10_loot", "title": "Loot a terra con i nomi", "retro": true}, {"id": "11_automap", "title": "Mappa sovrapposta", "retro": true}, {"id": "12_caves", "title": "Caverne, l'ingresso", "retro": true}, {"id": "13_caves_room", "title": "Caverne, una stanza con i nemici", "retro": true}, {"id": "14_pause", "title": "Pausa", "retro": true}, {"id": "15_victory", "title": "Vittoria", "retro": true}, {"id": "16_credits", "title": "Riconoscimenti", "retro": true}, {"id": "17_death", "title": "Morte", "retro": true}];
+const CANDS = [{"id": "pannelli", "text": "Pannelli e pulsanti: rettangoli a tinta unita con un filo dorato (tutti i pannelli, D4)", "sure": true}, {"id": "menu", "text": "Menu principale e opzioni su nero pieno (D6)", "sure": true}, {"id": "macchie", "text": "Pavimenti di cripta e caverne: lo stesso motivo ripetuto, nessuna macchia (D5)", "sure": true}, {"id": "vittoria_morte", "text": "Vittoria e morte: pannello piatto e pulsante piatto sopra il livello scurito (D6)", "sure": false}, {"id": "barra", "text": "La barra in basso: cintura, incantesimi ed esperienza senza una cornice, celle grigie", "sure": false}, {"id": "celle", "text": "Celle dell'inventario e del mercante, slot dell'equipaggiamento: quadrati scuri, anelli e amuleto senza cella", "sure": false}, {"id": "icone", "text": "Icone di anelli e amuleto: l'anello è un cerchio sottile, si legge poco (D7)", "sure": false}, {"id": "minimappa", "text": "La cornice della minimappa e del titolo del livello", "sure": false}];
+const KEY = 'm17-giro-di-foto';
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { state = {}; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} render(); }
+const grid = document.getElementById('grid'), cands = document.getElementById('cands');
+for (const s of SHOTS) {
+  const st = state[s.id] = state[s.id] || { bad:false, note:'', retro:false };
+  const card = document.createElement('div'); card.className = 'card';
+  const img = document.createElement('img'); img.loading = 'lazy'; img.alt = s.title;
+  const src = () => 'prima/' + s.id + (st.retro && s.retro ? '_retro' : '') + '.jpg';
+  img.src = src();
+  img.onclick = () => { const z = document.getElementById('zoom'); z.querySelector('img').src = img.src; z.style.display = 'flex'; };
+  const bar = document.createElement('div'); bar.className = 'bar';
+  bar.innerHTML = '<b></b>'; bar.querySelector('b').textContent = s.id.slice(0,2) + ' · ' + s.title;
+  if (s.retro) { const r = document.createElement('button'); r.textContent = st.retro ? 'Filtro: acceso' : 'Filtro: spento';
+    r.onclick = () => { st.retro = !st.retro; r.textContent = st.retro ? 'Filtro: acceso' : 'Filtro: spento'; img.src = src(); save(); }; bar.appendChild(r); }
+  const b = document.createElement('label'); b.className = 'toggle'; b.innerHTML = '<input type="checkbox"> Brutta';
+  const cb = b.querySelector('input'); cb.checked = st.bad; cb.onchange = () => { st.bad = cb.checked; card.classList.toggle('marked', st.bad); save(); };
+  card.classList.toggle('marked', st.bad); bar.appendChild(b);
+  const notes = document.createElement('div'); notes.className = 'notes';
+  const ta = document.createElement('textarea'); ta.placeholder = 'Cosa non va?'; ta.value = st.note; ta.oninput = () => { st.note = ta.value; save(); };
+  notes.appendChild(ta); card.append(img, bar, notes); grid.appendChild(card);
+}
+for (const c of CANDS) {
+  const key = 'cand:' + c.id; const st = state[key] = state[key] || { on: c.sure, note:'' };
+  const row = document.createElement('div'); row.className = 'cand';
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = st.on; cb.onchange = () => { st.on = cb.checked; save(); };
+  const txt = document.createElement('div'); txt.innerHTML = '<div></div><div class="tag"></div>';
+  txt.children[0].textContent = c.text; txt.children[1].textContent = c.sure ? 'certa (decisioni D4–D6)' : 'proposta';
+  const ta = document.createElement('textarea'); ta.placeholder = 'Note'; ta.value = st.note; ta.oninput = () => { st.note = ta.value; save(); };
+  txt.appendChild(ta); row.append(cb, txt); cands.appendChild(row);
+}
+function render() {
+  const lines = ['Lista del giro di foto M17', '', 'Candidati scelti:'];
+  for (const c of CANDS) { const st = state['cand:' + c.id]; if (st.on) lines.push('- ' + c.text + (st.note ? ' — ' + st.note : '')); }
+  lines.push('', 'Schermate segnate:');
+  let any = false;
+  for (const s of SHOTS) { const st = state[s.id]; if (st.bad || st.note) { any = true; lines.push('- ' + s.id + ' ' + s.title + (st.bad ? ' [brutta]' : '') + (st.note ? ': ' + st.note : '')); } }
+  if (!any) lines.push('- nessuna');
+  document.getElementById('out').value = lines.join('\n');
+}
+document.getElementById('copy').onclick = async () => {
+  const text = document.getElementById('out').value;
+  try { await navigator.clipboard.writeText(text); document.getElementById('copied').textContent = 'copiata'; }
+  catch (e) { const o = document.getElementById('out'); o.select(); document.execCommand('copy'); document.getElementById('copied').textContent = 'copiata'; }
+};
+document.getElementById('zoom').onclick = () => { document.getElementById('zoom').style.display = 'none'; };
+render();
+</script></body></html>

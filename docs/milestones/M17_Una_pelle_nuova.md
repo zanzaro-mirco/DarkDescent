@@ -73,6 +73,32 @@ Confermate da Mirco il 26 ottobre 2026, tutte come proposte ("confermate tutte, 
 
 ---
 
+## Passo 17.1 — Il giro di foto
+
+**Com'è andata (26 ott 2026).** `PhotoTour` sta in un assembly suo, `DarkDescent.Tests.Photos`, con la
+categoria `Photos`: i workflow eseguono solo gli assembly che elencano (`-assemblyNames` EditMode e
+PlayMode), quindi né i push né la ronda lo vedono, senza toccare i workflow. Si lancia con
+
+```
+Unity.exe -batchmode -projectPath . -runTests -testPlatform PlayMode -assemblyNames DarkDescent.Tests.Photos -photos-out <cartella>
+```
+
+e scrive 17 schermate in JPEG 1920×1080 (qualità 88): menu, opzioni, accampamento, mercante,
+altare, inventario con il tooltip di un pezzo del Custode, scheda, cripta (ingresso, stanza con
+quattro scheletri fermi, loot a terra con i nomi, mappa sovrapposta), caverne (ingresso e stanza),
+pausa, vittoria, riconoscimenti e morte. Quelle con il mondo dietro anche con il filtro retrò pieno
+(`_retro`), 32 file e 7,5 MB in `docs/media/m17/prima`. Il seme del mondo è fisso (20261026), il
+cavaliere è di livello 20 con un raro per slot (`PrepareHero`), i nemici sono fermi. La risoluzione
+la impone `PlayModeWindow.SetCustomRenderingResolution`; la foto è `ScreenCapture`, che prende anche
+l'interfaccia in sovrimpressione.
+
+La pagina per scegliere è `docs/media/m17/giro_di_foto.html`: le foto in griglia con il filtro da
+accendere, «Brutta» e una nota per ognuna, i miei candidati da spuntare e «Copia la lista». I
+candidati, dalle foto: i pannelli e i pulsanti a tinta unita, il menu e le opzioni su nero, i
+pavimenti senza macchie (le tre certe); vittoria e morte, la barra in basso senza cornice, celle e
+slot spogli (anelli e amuleto senza cella), l'icona dell'anello (un cerchio sottile), la cornice
+della minimappa.
+
 ## Trappole note
 
 - **Lo stile KayKit è a tinte.** Un'immagine con dettagli fotografici accanto ai modelli stona: nei
@@ -98,7 +124,9 @@ Confermate da Mirco il 26 ottobre 2026, tutte come proposte ("confermate tutte, 
 - **ComfyUI e Pillow.** ComfyUI va avviato a mano sulla porta 8199, e Pillow c'è solo nel suo ambiente
   Python: gli script delle immagini girano con quello, o Pillow va nei requirements.
 - **Le foto in batchmode.** Unity in batchmode senza `-nographics` disegna: le foto si fanno lì, con la
-  stessa risoluzione e le stesse impostazioni di qualità della build.
+  stessa risoluzione e le stesse impostazioni di qualità della build. Lo schermo parte a 640×480 e
+  `WaitForEndOfFrame` in batchmode fa cadere il test: la risoluzione si imposta con
+  `PlayModeWindow.SetCustomRenderingResolution` e la foto si prende dopo qualche frame.
 
 ## Test
 
