@@ -786,3 +786,31 @@ Formato:
 - **Decisione:** il passo `Issue` di `nightly.yml` parte quando un passo qualsiasi fallisce, i test o prima. `.github/scripts/ronda-issue.sh` scrive il titolo con la data e il numero di errori, e nel corpo il link al run, il seme, il commit, come rifarla in locale e solo le parti rosse del rapporto. Se un'issue `ronda` è aperta la commenta; si chiude a mano quando l'errore è corretto. L'avvio a mano con `issue_test` prova il passo senza Unity, con un rapporto finto.
 - **Alternative scartate:** un'issue nuova per ogni notte rossa, che per lo stesso errore diventa rumore; la sola mail di GitHub sul run fallito, che non resta come lavoro da fare; provarla con una notte rossa voluta, che ne chiede due e un commit da togliere.
 - **Conseguenze:** il workflow ha il permesso `issues: write`. La prova veloce resta, per riprovare il passo quando cambia.
+
+## ADR-110 — Unici e set con un tiro a parte, dopo l'oggetto di sempre
+- **Data:** 2026-10-25 (M16, D7)
+- **Contesto:** unici e pezzi di set dovevano cadere dall'Ombra in su, più spesso da campioni, forzieri e re, senza cambiare il loot dei semi che i test e la ronda già conoscono.
+- **Decisione:** `LootRoller.Promote` tira dopo la rarità minima, con un dominio suo del seme (`SeedMixer.ForNamed`), che non consuma tiri del nemico, della cassa o del barile: se riesce, l'oggetto diventa un unico o un pezzo della sua base, se ce n'è uno al suo livello, altrimenti resta com'è. Le probabilità stanno nella `DifficultyTier`; il `LootBonus` le moltiplica (`NamedFactor`) e il tesoro del re ha un tiro suo (`NamedGuarantee`), così anche al Crepuscolo ne può lasciare uno. Il mercante non li vende.
+- **Alternative scartate:** unici e set come due righe in più della `RarityTable`, che sposta ogni tiro dopo e cambia tutto il loot provato; una tabella di loot a parte per gli unici, che può far cadere una base che il nemico non lascia.
+- **Conseguenze:** al Crepuscolo e all'Ombra il loot di sempre è identico, e un test lo tiene. Una base senza unico né pezzo al suo livello non ne dà mai: la parte delle basi che li ha entra nella misura (ADR-113).
+
+## ADR-111 — Una definizione sola per unici e pezzi, con i valori ai due livelli e i valori salvati
+- **Data:** 2026-10-25 (M16, D6, D10, D13)
+- **Contesto:** con nove difficoltà un unico a valori fissi diventa inutile due gradini dopo, e ritarare una tabella non deve cambiare gli oggetti già trovati.
+- **Decisione:** `UniqueDefinition` descrive un unico e un pezzo di set, che ha in più il suo `SetDefinition`; ogni proprietà ha un valore al livello minimo e uno al 55, e l'oggetto prende quello del suo livello in linea retta, con un tiro di ±10%. `ItemInstance` salva l'id e i valori usciti (formato 7). Un id che il database non conosce più torna un raro della sua base senza affissi, con un avviso.
+- **Alternative scartate:** due classi per unici e pezzi; salvare solo il seme e ricalcolare i valori, che con la taratura del passo 16.6 avrebbe cambiato gli oggetti nelle borse.
+- **Conseguenze:** la taratura del 16.6 ha cambiato le tabelle senza migrazioni. Gli asset nascono da uno script che legge la tabella approvata, come i gradi della M14.
+
+## ADR-112 — I bonus dei set con il set come sorgente, ricalcolati a ogni cambio
+- **Data:** 2026-10-25 (M16, D9)
+- **Contesto:** i bonus si accendono con due, tre e quattro pezzi indossati, e devono spegnersi togliendone uno, anche caricando una partita.
+- **Decisione:** `SetBonuses`, in Core accanto all'`Equipment`, ascolta il suo `Changed`, conta i pezzi diversi di ogni set e rimette i modificatori dei bonus accesi con il set come sorgente, togliendo prima tutti quelli di prima, al livello del pezzo indossato più basso. Lo stesso pezzo nei due anelli conta una volta.
+- **Alternative scartate:** controlli a ogni frame; bonus come modificatori degli oggetti, che restano accesi togliendo un altro pezzo.
+- **Conseguenze:** nove slot, un ricalcolo che costa poco. Il tooltip scrive i bonus con la stessa regola, così quello che si legge è quello che si ha.
+
+## ADR-113 — Unici e set misurati: quanti cadono e quanto rendono più di un raro
+- **Data:** 2026-10-25 (passo 16.6, D11)
+- **Contesto:** le probabilità della D7 e i valori della tabella del 16.1 erano scritti a occhio; un unico deve rendere almeno il 30% più di un raro della stessa base.
+- **Decisione:** il `LootCensus` conta unici e pezzi come valore atteso per difficoltà, con la parte delle basi di ogni tabella che ne ha uno e i tiri di campioni, forzieri e re; un test lo confronta con i tiri veri. `DifficultyCensus.CompareNamed` e `CompareSet` mettono un cavaliere del livello dell'oggetto, con un raro per slot, contro il bruto della difficoltà di quel livello, e ne misurano la forza (`PowerCensus.Power`: colpi retti, tempo per uccidere, con velocità, danno ridotto, danno in più e rubavita) con la base nuda, un raro e l'unico, su 64 equipaggiamenti, ai livelli 20, 35 e 55. Le fasce: all'Ombra 1–2 a discesa, all'ultimo Abisso 3–5, ogni unico e set intero almeno 1,3 volte il raro. Un test a ogni push e la ronda su semi nuovi.
+- **Alternative scartate:** simulare i combattimenti; tarare provando in build, dove un set intero vorrebbe ore.
+- **Conseguenze:** la prima misura ha alzato gli Abissi a +0,4% a gradino fino al 4% e i valori di otto unici e dei due set. Il confronto conta solo il corpo a corpo: magia ed esperienza non danno forza, e un oggetto fatto di quelle va tenuto sopra con altro.

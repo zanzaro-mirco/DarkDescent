@@ -9,6 +9,18 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.4 — M16 "Tesori con un nome"**, chiusa il 26 ottobre 2026 (tag `v1.4.0`). Rispetto alla v1.3:
+
+- sopra il raro, **unici** con il nome in oro e **pezzi di set** con il nome in verde: dodici unici e
+  due set da quattro pezzi, con un nome loro nelle due lingue;
+- indossando **due, tre o quattro pezzi** dello stesso set si accendono bonus in più, e il tooltip
+  elenca i pezzi indossati e i bonus accesi;
+- **quattro proprietà nuove**: velocità d'attacco, rubavita, danno ridotto e tutti gli attributi;
+- i valori **crescono con il livello** dell'oggetto: un unico ritrovato all'Abisso è buono all'Abisso;
+- cadono **dall'Ombra in su**, più spesso da campioni, forzieri e re; al Crepuscolo solo, a volte,
+  dal tesoro del re;
+- quanti ne cadono e quanto rendono più di un raro è **misurato**, a ogni push e ogni notte.
+
 **v1.3 — M14 "La luce si spegne"**, chiusa il 23 ottobre 2026 (tag `v1.3.0`). Rispetto alla v1.2:
 
 - **nove difficoltà**: Crepuscolo, Ombra, Tenebra e Abisso I–VI, scelte da un **altare**

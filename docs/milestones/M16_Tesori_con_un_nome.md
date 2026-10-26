@@ -327,6 +327,13 @@ misura nuova di unici e set (3,75 a discesa all'ultimo Abisso). Rifatto in local
   `PortalTests.Spell_FacingAChestAgainstTheWall_OpensAReachablePortal`, con quel livello, rosso senza
   la correzione.
 
+## Passo 16.8 — Chiusura
+
+**Com'è andata (26 ott 2026).** ADR-110 (il tiro a parte), ADR-111 (una definizione, valori ai due
+livelli e salvati), ADR-112 (i bonus dei set) e ADR-113 (la misura); le lezioni nel piano (v2.64);
+nel README la v1.4 nello stato; `bundleVersion` 1.4.0. La build del 16.7 non è stata provata: le
+prove restano in `docs/Da_provare.md`. Il tag `v1.4.0` va dopo i Tests verdi in CI.
+
 ## Trappole note
 
 - **I valori delle rarità.** `Rarity` si salva come numero e fa da indice in più posti (pesi della
@@ -372,6 +379,6 @@ misura nuova di unici e set (3,75 a discesa all'ultimo Abisso). Rifatto in local
 - [x] Tooltip, inventario e stringhe
 - [x] Formato 7 del salvataggio
 - [x] Misura e taratura
-- [ ] Build di prova
-- [ ] ADR, lezioni nel piano, README
+- [x] Build di prova fatta dalla CI (run 40239824483); la prova resta in `docs/Da_provare.md`
+- [x] ADR, lezioni nel piano, README
 - [ ] `bundleVersion` 1.4.0 e tag `v1.4.0` dopo i test verdi in CI
