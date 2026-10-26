@@ -381,4 +381,4 @@ prove restano in `docs/Da_provare.md`. Il tag `v1.4.0` va dopo i Tests verdi in 
 - [x] Misura e taratura
 - [x] Build di prova fatta dalla CI (run 40239824483); la prova resta in `docs/Da_provare.md`
 - [x] ADR, lezioni nel piano, README
-- [ ] `bundleVersion` 1.4.0 e tag `v1.4.0` dopo i test verdi in CI
+- [x] `bundleVersion` 1.4.0 e tag `v1.4.0` dopo i test verdi in CI (run 40398519168): build Windows verde (run 40400373714)
