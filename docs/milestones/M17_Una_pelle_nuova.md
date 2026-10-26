@@ -36,7 +36,8 @@ entri e la prova in build.
 
 ## Decisioni
 
-Da confermare con Mirco.
+Confermate da Mirco il 26 ottobre 2026, tutte come proposte ("confermate tutte, procedi con il
+17.1").
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -113,7 +114,7 @@ Da confermare con Mirco.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D16 confermate
+- [x] Decisioni D1–D16 confermate
 - [ ] Giro di foto e lista corta approvata
 - [ ] Strumenti per le immagini, licenze, ADR e `CREDITS.md`
 - [ ] Pannelli
