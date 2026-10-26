@@ -9,7 +9,7 @@ vittoria prendono uno **sfondo**. Le immagini nascono da **Z-Image-Turbo** in Co
 sua ricetta nel repo, e niente entra nel gioco senza il sì di Mirco sulla foto di prima e quella di
 dopo. Esce con il tag `v1.5.0`.
 
-**Tempo stimato:** 7–10 h (D14).
+**Tempo stimato:** 7–10 h (D14); con i menu della lista del 17.1, **9–12 h**.
 **Prerequisito:** M16 chiusa (tag `v1.4.0`, 26 ott 2026).
 
 **Come si lavora:** come alle M13–M16. Il codice, gli script, le immagini e i passaggi nell'editor li
@@ -66,10 +66,11 @@ Confermate da Mirco il 26 ottobre 2026, tutte come proposte ("confermate tutte, 
 |---|---|---|
 | 17.1 | Il giro di foto: `PhotoTour` nella categoria `Photos`, le foto di prima, la pagina per Mirco, la lista corta approvata (D2, D3) | 1 |
 | 17.2 | Le immagini in `Tools/ComfyUI`: workflow di Z-Image, ricette, `make.py` per le immagini, la ripetizione con la misura delle cuciture, la trasparenza, la pagina di confronto; licenza del VAE, ADR e `CREDITS.md` (D8, D9, D10, D11) | 1,5–2 |
-| 17.3 | I pannelli: cornice in nove parti e sfondo, `UiSkin`, il contrasto, le foto di dopo (D4, D13) | 1,5–2 |
-| 17.4 | Le macchie a terra: atlante, tiro a parte nel popolatore di cripta e caverne, test e ronda (D5, D13, D16) | 1,5–2 |
-| 17.5 | Gli sfondi di menu, morte e vittoria e le voci restanti della lista (D6, D7) | 1–1,5 |
-| 17.6 | Misura (dimensione della build, memoria, tempi dei livelli), foto di dopo, build da provare e chiusura: ADR, lezioni, piano, README con le foto, `bundleVersion` 1.5.0, tag `v1.5.0` dopo i test verdi in CI (D12) | 1–1,5 |
+| 17.3 | I pannelli nello stile scuro e pulito: cornice in nove parti, sfondo, pulsanti che si illuminano al passaggio, `UiSkin`, il contrasto (D4, D13) | 1,5–2 |
+| 17.4 | I menu: principale con il pulsante *Riconoscimenti*, opzioni riordinate per gruppi, pausa, vittoria senza riconoscimenti con *Continua* e *Menu principale*, morte; stringhe nelle due lingue e test (lista del 17.1) | 1,5–2 |
+| 17.5 | Le macchie a terra: atlante, tiro a parte nel popolatore di cripta e caverne, test e ronda (D5, D13, D16) | 1,5–2 |
+| 17.6 | Gli sfondi di menu, morte e vittoria (D6) | 1 |
+| 17.7 | Misura (dimensione della build, memoria, tempi dei livelli), foto di dopo, build da provare e chiusura: ADR, lezioni, piano, README con le foto, `bundleVersion` 1.5.0, tag `v1.5.0` dopo i test verdi in CI (D12) | 1–1,5 |
 
 ---
 
@@ -98,6 +99,33 @@ candidati, dalle foto: i pannelli e i pulsanti a tinta unita, il menu e le opzio
 pavimenti senza macchie (le tre certe); vittoria e morte, la barra in basso senza cornice, celle e
 slot spogli (anelli e amuleto senza cella), l'icona dell'anello (un cerchio sottile), la cornice
 della minimappa.
+
+### La lista corta
+
+**Approvata da Mirco il 26 ottobre 2026**, dalla pagina e con quattro risposte in chat. Dentro la M17,
+in ordine:
+
+1. **Pannelli e pulsanti** (D4), nello stile **scuro e pulito** scelto da Mirco, come i Diablo recenti:
+   sfondi quasi neri, cornici sottili in metallo scuro, molto spazio, testo grande, pochi elementi,
+   pulsanti che si illuminano al passaggio. Prende il posto della «pietra scura o cuoio» della D4.
+2. **Menu principale** (D6), "troppo old stile": lo sfondo, una disposizione nuova e un pulsante
+   **Riconoscimenti**, che oggi si vedono solo dopo la vittoria.
+3. **Opzioni**: riordinate per gruppi (lingua, audio, grafica, interfaccia) e nello stile nuovo.
+4. **Pausa**: nello stile nuovo.
+5. **Vittoria**: nello stile nuovo, **senza i riconoscimenti**; due pulsanti, *Continua* (si resta
+   nella partita, all'accampamento) e *Menu principale* (salva e torna al menu).
+6. **Pavimenti di cripta e caverne** (D5): le macchie a terra.
+
+La morte non è segnata, ma prende lo stesso stile e lo sfondo della D6 per non restare l'unica
+schermata vecchia. Gli altri candidati (barra in basso, celle e slot, icona dell'anello, cornice
+della minimappa) restano fuori: i pannelli nuovi li toccano in parte, e si riguardano nelle foto di
+dopo.
+
+**Fuori dalla M17, nella M18.** Mirco ha segnato anche due cose che non sono grafica: all'ingresso di
+cripta e caverne **manca la risalita**, una scala che funziona e riporta alla profondità di sopra
+(dalla 1 all'accampamento), come in Diablo 1; e **alcune stanze sono troppo piccole**, va alzata la
+dimensione minima. Tutte e due cambiano il generatore, quindi i livelli di tutti i semi, i test con
+i semi fissi e le soglie della ronda: decise da Mirco il 26 ott come milestone a sé, dopo la M17.
 
 ## Trappole note
 
@@ -143,11 +171,12 @@ della minimappa.
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D16 confermate
-- [ ] Giro di foto e lista corta approvata
+- [x] Giro di foto e lista corta approvata
 - [ ] Strumenti per le immagini, licenze, ADR e `CREDITS.md`
 - [ ] Pannelli
+- [ ] Menu: principale, opzioni, pausa, vittoria e morte
 - [ ] Macchie a terra
-- [ ] Sfondi e voci restanti della lista
+- [ ] Sfondi di menu, morte e vittoria
 - [ ] Misura, foto di dopo e build di prova
 - [ ] ADR, lezioni nel piano, README
 - [ ] `bundleVersion` 1.5.0 e tag `v1.5.0` dopo i test verdi in CI
