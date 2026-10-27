@@ -15,7 +15,8 @@ namespace DarkDescent.Levels
     /// (<c>@chiave valore…</c>), quelle con <c>//</c> commenti. La prima riga della griglia è il nord.
     /// I simboli elencati nella direttiva <c>@solid</c> sono <b>pezzi</b> (M18): case, alberi,
     /// colline, che non si attraversano e fanno da muro da soli; <c>%</c> è una cella coperta dal
-    /// pezzo accanto. Contro pezzi e celle coperte non va un muro.
+    /// pezzo accanto, <c>:</c> terreno aperto fuori dal livello. Contro pezzi, celle coperte e terreno
+    /// aperto non va un muro: solo contro la roccia.
     /// </remarks>
     public sealed class LevelMap
     {
@@ -27,6 +28,9 @@ namespace DarkDescent.Levels
 
         /// <summary>Una cella coperta dal pezzo accanto (M18): non è pavimento, non ha muri, non è un marcatore.</summary>
         public const char Covered = '%';
+
+        /// <summary>Terreno aperto oltre il bordo (M18): non è pavimento, non ha muri, non è di nessun pezzo.</summary>
+        public const char Open = ':';
 
         /// <summary>La direttiva con i simboli dei pezzi: <c>@solid HCY</c>.</summary>
         public const string SolidDirective = "solid";
@@ -148,7 +152,7 @@ namespace DarkDescent.Levels
                 {
                     char c = source[x, y];
                     map._cells[x, y] = c == Empty ? Rock : c;
-                    if (c != Rock && c != Empty && c != Floor && c != Covered)
+                    if (c != Rock && c != Empty && c != Floor && c != Covered && c != Open)
                     {
                         map._markers.Add(new MapMarker(c, x, y));
                     }
@@ -199,7 +203,7 @@ namespace DarkDescent.Levels
         /// <summary>Fuori dalla griglia è tutto roccia: i bordi della mappa non vanno chiusi a mano.</summary>
         public bool IsFloor(int x, int y)
         {
-            return InBounds(x, y) && _cells[x, y] != Rock && _cells[x, y] != Covered && !_solid.Contains(_cells[x, y]);
+            return InBounds(x, y) && _cells[x, y] != Rock && _cells[x, y] != Covered && _cells[x, y] != Open && !_solid.Contains(_cells[x, y]);
         }
 
         public char GetSymbol(int x, int y)
@@ -238,7 +242,7 @@ namespace DarkDescent.Levels
 
         /// <summary>
         /// Ogni lato di pavimento che confina con la roccia: lì va un muro. Contro un pezzo o una cella
-        /// coperta no, il pezzo fa da muro da solo. Ordine stabile, riga per riga, per avere scene
+        /// coperta no, il pezzo fa da muro da solo, né contro il terreno aperto. Ordine stabile, riga per riga, per avere scene
         /// uguali a ogni ricostruzione.
         /// </summary>
         public IEnumerable<(int X, int Y, MapDirection Side)> BoundaryEdges()

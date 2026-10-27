@@ -19,7 +19,7 @@ namespace DarkDescent.Items
         [Tooltip("Osso della mano sinistra (handslot.l): lo scudo.")]
         [SerializeField] private Transform _offHand;
 
-        [Tooltip("Renderer del corpo: i modelli in mano ne prendono i rendering layer, così la luce di riempimento illumina anche loro (ADR-016).")]
+        [Tooltip("Renderer del corpo: i modelli in mano ne prendono i rendering layer, così la luce di riempimento illumina anche loro (ADR-016), e il layer, per la sagoma dietro le case (M18).")]
         [SerializeField] private Renderer _layerSource;
 
         [Tooltip("Il lampo del colpo subito deve includere anche i modelli in mano.")]
@@ -90,9 +90,11 @@ namespace DarkDescent.Items
             instance.transform.SetLocalPositionAndRotation(definition.HeldPosition, Quaternion.Euler(definition.HeldRotation));
             if (_layerSource != null)
             {
+                // e il layer del corpo: dietro una casa si vede la sagoma anche dell'arma (M18)
                 foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
                 {
                     renderer.renderingLayerMask = _layerSource.renderingLayerMask;
+                    renderer.gameObject.layer = _layerSource.gameObject.layer;
                 }
             }
 

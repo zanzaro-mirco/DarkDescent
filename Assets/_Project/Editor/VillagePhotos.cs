@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using DarkDescent.Core;
 using DarkDescent.Levels;
 using UnityEditor;
@@ -25,6 +26,10 @@ namespace DarkDescent.Editor
         // la camera di gioco: ortografica, 30° sull'orizzonte, da sud-ovest (Core.unity)
         private const float GamePitch = 30f;
         private const float GameYaw = 45f;
+        private const float GameZoom = 9f;
+
+        // la casa della foto della sagoma: la prima 'I', sul lato sud con la porta a nord
+        private const char SilhouetteHouse = 'I';
 
         /// <summary>Prefab e tileset rifatti, poi tutte le foto: il giro intero dopo un ritocco a tabella o mappa.</summary>
         [MenuItem("DarkDescent/Borgo/Prefab e foto")]
@@ -59,6 +64,15 @@ namespace DarkDescent.Editor
             // lo stesso, girato di 180°: i lati che la camera di partenza vede da dietro
             var back = Quaternion.Euler(GamePitch, GameYaw + 180f, 0f);
             Snap("layout_game_back", 1920, 1080, center - back * Vector3.forward * 300f, back, Mathf.Max(width, depth) * 0.42f);
+
+            // il cavaliere davanti alla porta di una casa del lato sud, con la camera di gioco: la casa
+            // lo copre e si vede la sagoma
+            var house = map.Markers.First(m => m.Symbol == SilhouetteHouse);
+            var hero = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(HeroSilhouette.PlayerPath));
+            var spot = LevelMap.CellCenter(house.X, house.Y) + new Vector3(2.2f, 0f, 2.2f);
+            hero.transform.SetPositionAndRotation(spot, Quaternion.Euler(0f, 200f, 0f));
+            var game = Quaternion.Euler(GamePitch, GameYaw, 0f);
+            Snap("silhouette", 1920, 1080, spot + Vector3.up * 1.2f - game * Vector3.forward * 60f, game, GameZoom);
         }
 
         /// <summary>I pezzi in fila, visti dal loro +Z: il lato della porta, che nella mappa guarda la strada.</summary>

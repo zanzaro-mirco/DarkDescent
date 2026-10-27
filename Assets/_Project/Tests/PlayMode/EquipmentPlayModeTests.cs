@@ -73,6 +73,7 @@ namespace DarkDescent.Tests
             foreach (var renderer in _visuals.MainHandModel.GetComponentsInChildren<Renderer>())
             {
                 Assert.AreNotEqual(0u, renderer.renderingLayerMask & playerLayer, "la luce di riempimento deve illuminare anche l'arma");
+                Assert.AreEqual(LayerMask.NameToLayer("Hero"), renderer.gameObject.layer, "dietro una casa si vede la sagoma anche dell'arma (M18)");
             }
         }
 

@@ -31,6 +31,16 @@ namespace DarkDescent.Tests
             Assert.AreEqual(3, LevelMap.Parse(".%").BoundaryEdges().Count());
         }
 
+        [Test, Description("Il terreno aperto ':' non è pavimento, non è un marcatore e non vuole muri")]
+        public void Open_IsNeitherFloorNorWall()
+        {
+            var map = LevelMap.Parse(".:");
+            Assert.IsFalse(map.IsFloor(1, 0));
+            Assert.IsFalse(map.IsRock(1, 0));
+            Assert.AreEqual(0, map.Markers.Count);
+            CollectionAssert.DoesNotContain(map.BoundaryEdges().ToArray(), (0, 0, MapDirection.East));
+        }
+
         [Test, Description("Il pezzo prende le celle coperte attaccate a lui e sta nel loro centro")]
         public void Footprint_CollectsCoveredCells()
         {

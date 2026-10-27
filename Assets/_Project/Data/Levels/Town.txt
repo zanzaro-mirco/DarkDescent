@@ -1,34 +1,40 @@
 // Il borgo all'ingresso della cripta (M18): la città, fatta a mano, senza nemici. Nord in alto.
-// Si comincia da '<'; la grotta '>' scende alla profondità 1 della cripta. M il mercante, A l'altare,
-// P l'arrivo dei portali (il portale compare due metri a nord), f il fuoco.
+// Si comincia da '<'; a nord, oltre il varco nel muretto, la gola tra i massi porta alla grotta '>',
+// che scende alla profondità 1 della cripta. M il mercante, A l'altare, P l'arrivo dei portali (il
+// portale compare due metri a nord), f il fuoco. '#' è il muretto, ':' terreno aperto senza muretto.
 // Pezzi (@solid), con le celle coperte '%': il simbolo sta sul lato della porta.
 //   H I J case, G la casa della guaritrice, V la taverna, D le case sfondate, B la forgia,
 //   C la cappella, W il pozzo, Q la cripta del cimitero, O la grotta nel monte;
-//   oltre il bordo Y Z pini, X alberi secchi, R sassi, h la collina, m le montagne.
+//   fuori Y Z pini, F il bosco, X alberi secchi, R sassi, S massi, U cespugli, N e h colline, m montagne.
 // Oggetti: , strada, g q tombe, n recinto, a l'arco del cimitero, l lanterna, d albero secco,
-//   e panca, x casse, b barili, r rastrelliera, u legna, k carriola.
+//   e panca, x casse, b barili, r rastrelliera, u legna, k carriola, v erba, o cespuglio.
 @depth 0
 @entrance Start
 @exit Level_Crypt Start 1
-@solid HIJGVDBCWQOYZXRhm
-#####Y#%%%#####%%%#####Z#
-#Z#####%m%#%%%#%m%#Z#####
-####Z##%%%#%%%#%%%###Z###
-##Z########%O%####Y#####Y
-####.%......>......%.####
-#R##.H..g.q.,.%%q..H.#Z##
-####.....dg.,.Q%.....####
-##X#....q..l,lg.g....####
-####%J.nnnnnannnnl...##Z#
-##R#...%B...,.....C%.####
-####...%%r.e,e.x.A%%.####
-#X##..u.....f.Mb.....#Z##
-####%G,,,,,,,,,,,,.V%####
-#R##...k..P.<..W.x.%%###Z
-####%D...b..,........####
-##X#%%..I.J.,.D%.H...#%%%
-####....%.%.,.%%.%...#%h%
-######################%%%
-X####R#########X##R######
-########X###R########X##Z
-#########################
+@solid HIJGVDBCWQOYZXRhmFSUN
+F:FU::::%m%:%%%:%m%::::URF:
+UF::%%%:%%%:%m%:%%%:%%%:U:F
+FUF:%m%:::::::::::::%m%::F:
+:FU:%%%:%%%:%%%:%%%:%%%::RF
+F:FU::::%m%:%%%:%m%::::UZF:
+ZF::UZ::%%%:%O%:%%%:ZR::UZF
+FZFZ:ZZZ:::S.>.S:::Z:Z:Z:FZ
+:FZXYYYYYYYS.,.SYYYYYYYYZ:F
+FRFU#######S.,.S#######Z:F:
+UFXR#o%...v..,..v...%o#YZ:F
+FUFU#.H.vg.q.,.%%q..H.#Z:F:
+:FUX#v....dg.,.Q%.v...#YZ:F
+FNXU#o..vq..l,lg.g...v#Z:F:
+UF:R#%J.nnnnnannnnl...#YZ:F
+FUFU#...%B.vo,...v.C%.#ZZF:
+ZFXX#v.v%%r..,e.x.A%%v#YZZF
+FZFU#..u....Pf.Mb..v..#Z:FZ
+UFZR#%G,,,,,,,e,,,,.V%#YZRF
+FNXU#..ok....<..Wvx.%%#Z:F:
+RFUX#%D...b.v,v..v...o#YZ:F
+F:FU#%%..I.J.,.D%.H...#Z:FR
+UFXR#..vo%.%.,o%%.%..v#Y:::
+FUFU###################:%%%
+:FUXURUUZRU::UU:URZURRU:%h%
+F:FUX:FXFZXUFXFUX:FXF:X:%%%
+ZFRFUF:FUFNFUF:FUF:NZF:F:::
