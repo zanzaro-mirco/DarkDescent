@@ -50,7 +50,8 @@ A Mirco restano:
 
 ## Decisioni
 
-D2, D5, D7, D18 e D19 le ha scelte Mirco il 27 ottobre 2026, in chat. Le altre sono da confermare.
+D2, D5, D7, D18 e D19 le ha scelte Mirco il 27 ottobre 2026, in chat; le altre le ha confermate lo
+stesso giorno come proposte ("pusha e procedi con il 18.1"), con il nome "Il borgo" della D11.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -90,10 +91,58 @@ D2, D5, D7, D18 e D19 le ha scelte Mirco il 27 ottobre 2026, in chat. Le altre s
 
 ---
 
+## Passo 18.1 — I modelli
+
+**Com'è andata (27 ott 2026).** I tre pacchetti della D8 li ho scaricati con il sì di Mirco, dalle
+pagine di itch.io, nella versione gratuita: *Medieval Hexagon Pack 1.0* (33 MB), *Halloween Bits 1.0*
+(5,3 MB) e *Forest Nature Pack 1.0* (6,1 MB), tutti CC0 come dice il `License.txt` di ognuno. Nel
+progetto è entrata solo una scelta, in tre cartelle di `Art/Models/KayKit/`:
+
+- `Village/` (87 modelli): case A e B, fucina, chiesa, taverna, pozzo e mercato nei quattro colori, la
+  casa distrutta, l'impalcatura, recinti e mura, pini, colline, montagne, sassi, oggetti di scena e la
+  tenda. Le basi di pietra con i gradini restano: fanno da soglia.
+- `Graveyard/` (57): tutto Halloween Bits tranne le zucche. Il tempietto con le candele è l'altare
+  dell'ultima candela; le tombe distrutte sono quelle da cui escono gli scheletri dei filmati.
+- `Nature/` (73): i sassi, i cespugli e l'erba di Forest Nature. Gli alberi tondi no.
+
+Più `Mage`, `Ranger` e `Rogue` di *Adventurers* per gli abitanti, e `Rig_Medium_Simulation`,
+`Rig_Medium_Special` e `Rig_Medium_Tools` dalle animazioni complete, per gli abitanti e per i filmati
+della M19.
+
+**La scala.** Misurati in Blender accanto al cavaliere (alto 2,54 m), Halloween Bits e Forest Nature
+sono già nella scala del gioco: il recinto è lungo 4 m come il muro della cripta. Medieval Hexagon è
+fatto per una mappa a esagoni, in miniatura: la casa A è alta 0,93. **Scalato ×6** la porta è alta
+quanto il cavaliere, la casa 5,6 m e la chiesa 9,9.
+
+**Le scelte di Mirco** sulle foto (`docs/media/m18/01_pezzi.jpg`): tetti **misti** nei quattro
+colori, **pini e alberi secchi** (gli alberi tondi di Forest Nature restano fuori), scala **×6**, e la
+strada della grotta.
+
+**La grotta e il cunicolo.** La prima prova, un arco di massi fatti con le scatole di `meshlib`,
+sembrava un mucchio di macerie. Meglio i sassi di Forest Nature attorno a un buio: `Tools/Blender/models/cave.py`
+fa solo la **galleria**, `CaveHole` (3,6 × 3,8 m, con le radici che pendono dalla volta) e `TunnelHole`
+(2,8 × 3 m), con la volta ad arco, nera dentro, che entra di qualche metro; i massi che coprono il bordo
+li metterà il prefab, al 18.4. Le prove sono in `docs/media/m18/02_grotta.jpg` e `03_cunicolo.jpg`.
+Mirco ha chiesto se si possa generare con ComfyUI e convertire in Blender, come la statua della M13: si
+può, con il rischio di uno stile diverso dai KayKit a tinte piatte. Al 18.4 si mettono le due grotte una
+accanto all'altra nel borgo, e sceglie lui.
+
+**Import.** `KayKitImporter` dà le impostazioni a tutto senza passare dall'Inspector: i pezzi come i
+KayKit della cripta (niente materiali né animazioni), i personaggi con il loro scheletro, le animazioni
+con lo scheletro del cavaliere e il loop solo per quelle che durano (seduti, il saluto, l'esultanza, il
+martello, il lavoro; non alzarsi, risvegliarsi o morire). `VillageTools.Setup` fa i materiali
+`M_Village`, `M_Graveyard`, `M_Nature`, `M_KayKitMage` e `M_KayKitRanger`, copiati da quelli che ci
+sono, e scrive cosa c'è. `KayKitImportTests` (5 test) lo controlla; EditMode intera 491/491.
+
+**Una cosa da sapere.** Il browser integrato scarica con un nome temporaneo e lo rinomina solo alla
+fine: un file `.tmp` in `Downloads` è un download a metà, non un errore.
+
+---
+
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)
-- [ ] I download approvati: i pacchetti del borgo
+- [x] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)
+- [x] I download approvati: i pacchetti del borgo
 - [ ] La disposizione e il borgo finito approvati da Mirco in foto
 - [ ] Test EditMode e PlayMode verdi in locale e in CI
 - [ ] La build misurata dentro il limite della D16, i tempi dei livelli misurati (D19)
