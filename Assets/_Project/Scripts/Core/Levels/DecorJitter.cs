@@ -24,6 +24,18 @@ namespace DarkDescent.Levels
             return new Vector2(Unit(Hash(x, y, 0x85EBu)), Unit(Hash(x, y, 0xC2B2u))) * MaxOffset;
         }
 
+        /// <summary>Un numero tra 0 (compreso) e 1 (escluso) per la cella, diverso per ogni <paramref name="salt"/>: l'erba e i sassi sparsi (M18).</summary>
+        public static float Chance(int x, int y, uint salt)
+        {
+            return (Hash(x, y, salt) & 0xFFFFu) / 65536f;
+        }
+
+        /// <summary>Quale tra <paramref name="count"/> varianti va sulla cella.</summary>
+        public static int Pick(int x, int y, int count)
+        {
+            return (int)(Hash(x, y, 0x5A17u) % (uint)count);
+        }
+
         private static float Unit(uint hash)
         {
             return (hash & 0xFFFFu) / 32767.5f - 1f;

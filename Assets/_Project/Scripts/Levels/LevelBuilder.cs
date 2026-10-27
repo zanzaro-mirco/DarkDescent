@@ -29,6 +29,13 @@ namespace DarkDescent.Levels
         private const char ItemSymbol = 'i';
         private const string StairsOccluder = "Occluder";
 
+        /// <summary>Il gruppo dell'erba e dei sassi sparsi, figlio della radice del livello.</summary>
+        public const string ScatterGroup = "Scatter";
+
+        // l'erba sparsa usa un hash suo, e si allarga più dei mucchietti: fino a 1,5 m dal centro
+        private const uint ScatterSalt = 0x6A11u;
+        private const float ScatterSpread = 2.5f;
+
         private const float WallHalfThickness = 0.5f;
         private const float TorchHeight = 2.2f;
 
@@ -107,6 +114,7 @@ namespace DarkDescent.Levels
             BuildWalls(map, wallSides);
             BuildMarkers(map, level.transform, props, torchSides, enemies);
             BuildDecals(map, level.transform);
+            BuildScatter(map, level.transform);
 
             var navMesh = new GameObject("NavMesh");
             navMesh.transform.SetParent(level.transform, false);
@@ -179,6 +187,39 @@ namespace DarkDescent.Levels
                     {
                         Place(Pick(_tileset.Floor, _tileset.FloorVariant, x, y, 0), parent, LevelMap.CellCenter(x, y), Quaternion.identity);
                     }
+                }
+            }
+        }
+
+        // Erba e sassi sparsi (M18): sul pavimento libero, senza marcatori, e fuori dal livello, dove
+        // non c'è un pezzo. Scelti, girati e spostati dall'hash della cella, come i mucchietti: lo stesso
+        // borgo ha sempre gli stessi ciuffi. Sul layer di base, fuori dal NavMesh e senza collider.
+        private void BuildScatter(LevelMap map, Transform level)
+        {
+            var scatter = _tileset.Scatter;
+            if (scatter == null || scatter.Length == 0)
+            {
+                return;
+            }
+
+            var group = new GameObject(ScatterGroup).transform;
+            group.SetParent(level, false);
+            for (int y = 0; y < map.Height; y++)
+            {
+                for (int x = 0; x < map.Width; x++)
+                {
+                    float chance = map.GetSymbol(x, y) == LevelMap.Floor ? _tileset.ScatterChance
+                        : !map.IsFloor(x, y) && !map.IsCovered(x, y) && !map.IsPiece(x, y) ? _tileset.OutsideScatterChance
+                        : 0f;
+                    if (DecorJitter.Chance(x, y, ScatterSalt) >= chance)
+                    {
+                        continue;
+                    }
+
+                    Vector2 offset = DecorJitter.Offset(x, y) * ScatterSpread;
+                    Vector3 position = LevelMap.CellCenter(x, y) + new Vector3(offset.x, 0f, offset.y);
+                    var rotation = Quaternion.Euler(0f, DecorJitter.Angle(x, y), 0f);
+                    Place(scatter[DecorJitter.Pick(x, y, scatter.Length)], group, position, rotation);
                 }
             }
         }

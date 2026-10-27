@@ -16,6 +16,15 @@ MonoBehaviour:
   _wall: {fileID: 5008821427572215858, guid: 50a0ae87e256e5745bf22afe31c37e84, type: 3}
   _lowWall: {fileID: 5157610200975876795, guid: 28af3e8eac23393439184c6838409bae, type: 3}
   _backdrop: {fileID: 6539440211835743925, guid: 9bfa400d604745a418f633a14b0ad2a6, type: 3}
+  _scatter:
+  - {fileID: 3240938377484781025, guid: a0c01d90fe616c448acb7112887d10fc, type: 3}
+  - {fileID: 1534295231565891542, guid: 712c6a4f3163d6f42955de1504691159, type: 3}
+  - {fileID: 6107651744256719552, guid: 010c10f0a985bbd43a0a6e3a9e6699e1, type: 3}
+  - {fileID: 3240938377484781025, guid: a0c01d90fe616c448acb7112887d10fc, type: 3}
+  - {fileID: 7733237258689308071, guid: b8102ab1d1b5bcf48a1b305fd60a53cf, type: 3}
+  - {fileID: 7848348200826931290, guid: 9b0cb857678019740b06bc9a07840d21, type: 3}
+  _scatterChance: 0.6
+  _outsideScatterChance: 0.85
   _floorVariant: {fileID: 0}
   _wallVariant: {fileID: 5434816415875132407, guid: e65054f25ce418847b6261eb8c3ecbe1, type: 3}
   _variantChance: 0.4

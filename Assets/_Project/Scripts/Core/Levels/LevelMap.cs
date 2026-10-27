@@ -217,6 +217,12 @@ namespace DarkDescent.Levels
             return _solid.Contains(symbol);
         }
 
+        /// <summary>Sulla cella c'è un pezzo, un simbolo di <c>@solid</c>.</summary>
+        public bool IsPiece(int x, int y)
+        {
+            return InBounds(x, y) && _solid.Contains(_cells[x, y]);
+        }
+
         /// <summary>La cella è coperta (<c>%</c>) dal pezzo accanto.</summary>
         public bool IsCovered(int x, int y)
         {

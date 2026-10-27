@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 4208587705464518319}
   - component: {fileID: 2314171639715576255}
   - component: {fileID: 7144041067258697018}
+  - component: {fileID: 2673785324230696614}
   m_Layer: 6
   m_Name: Tile
   m_TagString: Untagged
@@ -144,3 +145,16 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2673785324230696614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5802315996913617680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16c3327026a31a42b1bd671450d8545, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Rendering.WorldUv
+  _metersPerRepeat: 32

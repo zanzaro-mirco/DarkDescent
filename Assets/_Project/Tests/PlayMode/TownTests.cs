@@ -84,6 +84,13 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2, shadowLights.Length);
             Assert.AreEqual(1, shadowLights.Count(l => l.type == LightType.Directional), "il sole");
 
+            // il terreno del borgo: erba e sassi sparsi, e la texture del prato stesa nel mondo
+            Assert.Greater(level.transform.Find(LevelBuilder.ScatterGroup).childCount, 100);
+            var ground = level.GetComponentInChildren<DarkDescent.Rendering.WorldUv>();
+            var mesh = ground.GetComponent<MeshFilter>().sharedMesh;
+            Vector3 corner = ground.transform.TransformPoint(mesh.vertices[0]);
+            Assert.AreEqual(new Vector2(corner.x, corner.z) / ground.MetersPerRepeat, mesh.uv[0], "le coordinate vengono dal mondo");
+
             // la sua musica e il crepitio del fuoco, senza versi nel buio
             var ambience = UnityEngine.Object.FindFirstObjectByType<DarkDescent.Audio.AmbiencePlayer>();
             Assert.AreEqual("town_loop_the_bards_tale", ambience.Music.clip.name);

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using DarkDescent.Levels;
+using DarkDescent.Rendering;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,8 +31,10 @@ namespace DarkDescent.Editor
         private const int GroundLayer = 6;
         private const int ObstacleLayer = 7;
 
-        private static readonly Color GrassColor = new Color(0.34f, 0.42f, 0.24f);
-        private static readonly Color DirtColor = new Color(0.42f, 0.33f, 0.24f);
+        // le texture del terreno, da Tools/Textures/ground.py: senza cuciture, stese in coordinate del mondo
+        private const string TextureFolder = "Assets/_Project/Art/Textures/Village/";
+        private const float GrassRepeat = 32f;
+        private const float RoadRepeat = 12f;
 
         /// <summary>Un modello del pezzo: dove sta il centro della sua base, quanto è grande, come è girato.</summary>
         private readonly struct Part
@@ -125,8 +128,13 @@ namespace DarkDescent.Editor
 
             // l'erba e i cespugli bassi sul pavimento: si attraversano, fuori dal NavMesh
             Scenery("GrassTufts",
-                Wild("Grass_1_A", 2.5f, -1.2f, -0.9f), Wild("Grass_2_B", 2.5f, 0.8f, -1.3f, 70f), Wild("Grass_1_D", 2.5f, 1.3f, 0.9f, 140f),
-                Wild("Grass_2_C", 2.5f, -0.6f, 1.2f, 210f), Wild("Grass_1_B", 2f, 0.2f, 0.1f, 300f)),
+                Wild("Grass_1_A", 1.9f, -1.2f, -0.9f), Wild("Grass_2_B", 1.9f, 0.8f, -1.3f, 70f), Wild("Grass_1_D", 1.9f, 1.3f, 0.9f, 140f),
+                Wild("Grass_2_C", 1.9f, -0.6f, 1.2f, 210f), Wild("Grass_1_B", 1.6f, 0.2f, 0.1f, 300f)),
+            Scenery("ScatterGrass", Wild("Grass_1_A", 1.7f, -0.6f, -0.3f), Wild("Grass_2_B", 1.6f, 0.5f, 0.4f, 80f), Wild("Grass_1_C", 1.4f, 0.1f, -0.9f, 200f)),
+            Scenery("ScatterGrassBush", Wild("Grass_2_A", 1.7f, -0.4f, 0.2f), Wild("Bush_1_E", 1.6f, 0.6f, -0.3f, 30f)),
+            Scenery("ScatterGrassTall", Wild("Grass_1_D", 1.9f, 0f, 0f), Wild("Grass_2_C", 1.5f, 0.7f, 0.6f, 120f)),
+            Scenery("ScatterPebbles", Wild("Rock_1_D", 0.7f, -0.4f, 0f), Wild("Rock_1_G", 0.6f, 0.4f, 0.3f, 60f), Wild("Rock_1_J", 0.5f, 0.1f, -0.5f, 140f)),
+            Scenery("ScatterStone", Wild("Rock_2_B", 1.1f, 0f, 0f), Wild("Grass_1_B", 1.5f, 0.7f, 0.3f, 90f)),
             Scenery("Shrub", Wild("Bush_3_B", 2.4f, -0.4f, -0.3f), Wild("Grass_2_D", 2.5f, 0.9f, 0.7f), Wild("Grass_1_C", 2.2f, -1.1f, 1f, 90f)),
 
             // il paesaggio oltre il bordo: niente NavMesh, niente collider
@@ -151,11 +159,11 @@ namespace DarkDescent.Editor
         public static void Build()
         {
             Directory.CreateDirectory(PrefabFolder);
-            var grass = FlatMaterial("M_VillageGrass", GrassColor);
-            var dirt = FlatMaterial("M_VillageDirt", DirtColor);
+            var grass = GroundMaterial("M_VillageGrass", "ground_grass.png");
+            var dirt = GroundMaterial("M_VillageDirt", "ground_road.png");
 
-            SaveTile("VillageGrass", grass, new Vector3(LevelMap.CellSize, 0.2f, LevelMap.CellSize), GroundLayer, true);
-            SaveTile("VillageRoad", dirt, new Vector3(LevelMap.CellSize, 0.2f, LevelMap.CellSize), GroundLayer, true);
+            SaveTile("VillageGrass", grass, GrassRepeat);
+            SaveTile("VillageRoad", dirt, RoadRepeat);
             SaveBackdrop(grass);
             foreach (var piece in Pieces)
             {
@@ -173,8 +181,8 @@ namespace DarkDescent.Editor
             return AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + name + ".prefab");
         }
 
-        // Un materiale a tinta unita, copiato da quello della cripta perché prenda la luce come il resto
-        private static Material FlatMaterial(string name, Color color)
+        // Un materiale del terreno, copiato da quello della cripta perché prenda la luce come il resto
+        private static Material GroundMaterial(string name, string texture)
         {
             string path = VillageTools.MaterialFolder + name + ".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -189,29 +197,31 @@ namespace DarkDescent.Editor
                 material.CopyPropertiesFromMaterial(source);
             }
 
-            material.SetTexture("_BaseMap", null);
-            material.SetTexture("_MainTex", null);
-            material.SetColor("_BaseColor", color);
-            material.SetColor("_Color", color);
+            var map = AssetDatabase.LoadAssetAtPath<Texture2D>(TextureFolder + texture);
+            if (map == null)
+            {
+                throw new FileNotFoundException($"manca {TextureFolder + texture}: si fa con Tools/Textures/ground.py");
+            }
+
+            material.SetTexture("_BaseMap", map);
+            material.SetTexture("_MainTex", map);
+            material.SetColor("_BaseColor", Color.white);
+            material.SetColor("_Color", Color.white);
             EditorUtility.SetDirty(material);
             return material;
         }
 
-        // Una piastrella da 4 m con la cima a 0, come il pavimento della cripta
-        private static void SaveTile(string name, Material material, Vector3 size, int layer, bool collider)
+        // Una piastrella da 4 m con la cima a 0, come il pavimento della cripta, con la texture stesa nel mondo
+        private static void SaveTile(string name, Material material, float repeat)
         {
             var tile = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            tile.name = name;
-            tile.layer = layer;
-            tile.transform.localScale = size;
-            tile.transform.localPosition = new Vector3(0f, -size.y * 0.5f, 0f);
+            tile.layer = GroundLayer;
+            tile.transform.localScale = new Vector3(LevelMap.CellSize, 0.2f, LevelMap.CellSize);
+            tile.transform.localPosition = new Vector3(0f, -0.1f, 0f);
             tile.GetComponent<MeshRenderer>().sharedMaterial = material;
-            if (!collider)
-            {
-                Object.DestroyImmediate(tile.GetComponent<Collider>());
-            }
+            WorldTexture(tile, repeat);
 
-            var root = new GameObject(name) { layer = layer };
+            var root = new GameObject(name) { layer = GroundLayer };
             tile.transform.SetParent(root.transform, false);
             tile.name = "Tile";
             Save(root, name);
@@ -231,6 +241,7 @@ namespace DarkDescent.Editor
             var renderer = ground.GetComponent<MeshRenderer>();
             renderer.sharedMaterial = grass;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            WorldTexture(ground, GrassRepeat);
 
             var sun = new GameObject("Sun");
             sun.transform.SetParent(root.transform, false);
@@ -242,6 +253,13 @@ namespace DarkDescent.Editor
             light.shadows = LightShadows.Soft;
             light.shadowStrength = 0.75f;
             Save(root, root.name);
+        }
+
+        private static void WorldTexture(GameObject go, float repeat)
+        {
+            var so = new SerializedObject(go.AddComponent<WorldUv>());
+            so.FindProperty("_metersPerRepeat").floatValue = repeat;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void SavePiece(Piece piece)
@@ -383,6 +401,18 @@ namespace DarkDescent.Editor
                 ('A', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "DifficultyAltar.prefab"), false, false),
                 ('P', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "PortalSpot.prefab"), false, false),
             };
+
+            // l'erba conta il doppio dei sassi: quattro varianti d'erba e due di sassi
+            string[] scatter = { "ScatterGrass", "ScatterGrassBush", "ScatterGrassTall", "ScatterGrass", "ScatterPebbles", "ScatterStone" };
+            var scatterList = so.FindProperty("_scatter");
+            scatterList.arraySize = scatter.Length;
+            for (int i = 0; i < scatter.Length; i++)
+            {
+                scatterList.GetArrayElementAtIndex(i).objectReferenceValue = Load(scatter[i]);
+            }
+
+            so.FindProperty("_scatterChance").floatValue = 0.6f;
+            so.FindProperty("_outsideScatterChance").floatValue = 0.85f;
 
             var list = so.FindProperty("_markers");
             list.arraySize = markers.Count;

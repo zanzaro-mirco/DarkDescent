@@ -23,6 +23,15 @@ namespace DarkDescent.Levels
         [Tooltip("Il terreno sotto tutta la mappa e oltre il bordo, fuori dal NavMesh (il borgo, M18). Vuoto: il nero di sotto terra.")]
         [SerializeField] private GameObject _backdrop;
 
+        [Tooltip("Erba e sassi sparsi sul terreno (il borgo, M18): uno per cella, scelto dall'hash della cella. Vuoto: niente.")]
+        [SerializeField] private GameObject[] _scatter;
+
+        [Tooltip("Su quante celle di pavimento libero va qualcosa di sparso.")]
+        [SerializeField, Range(0f, 1f)] private float _scatterChance = 0.5f;
+
+        [Tooltip("Su quante celle fuori dal livello (roccia e terreno aperto) va qualcosa di sparso.")]
+        [SerializeField, Range(0f, 1f)] private float _outsideScatterChance = 0.7f;
+
         [Tooltip("Variante del pavimento, su alcune celle (le caverne: terra con i sassi). Vuoto: nessuna.")]
         [SerializeField] private GameObject _floorVariant;
 
@@ -74,6 +83,12 @@ namespace DarkDescent.Levels
         public GameObject Floor => _floor;
 
         public GameObject Backdrop => _backdrop;
+
+        public GameObject[] Scatter => _scatter;
+
+        public float ScatterChance => _scatterChance;
+
+        public float OutsideScatterChance => _outsideScatterChance;
 
         public Material DecalMaterial => _decalMaterial;
 

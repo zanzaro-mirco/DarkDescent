@@ -142,43 +142,88 @@ fine: un file `.tmp` in `Downloads` è un download a metà, non un errore.
 ## Passo 18.2 — Il tileset e la mappa
 
 **Com'è andata (27 ott 2026).** Il borgo è ancora `Town.txt`, costruito da `MapLevel` con lo stesso
-`LevelBuilder`, ma con due cose nuove nel formato della mappa:
+`LevelBuilder`, con tre cose nuove nel formato della mappa:
 
 - i simboli elencati in **`@solid`** sono **pezzi**: case, forgia, cappella, pozzo, cripta, la grotta
-  nel monte, e oltre il bordo pini, alberi secchi, sassi, colline e montagne. Non si cammina sulla
-  loro cella e non vogliono muri attorno: fanno da muro da soli;
+  nel monte, e fuori pini, bosco, alberi secchi, sassi, massi, cespugli, colline e montagne. Non si
+  cammina sulla loro cella e non vogliono muri attorno: fanno da muro da soli;
 - **`%`** è una cella coperta dal pezzo accanto. Il pezzo sta al centro delle sue celle e **guarda dal
   lato in cui sta il suo simbolo**: una casa scritta `H` sopra `%` apre la porta a nord. La regola è in
-  `MapPiece`, logica pura in `Core`.
+  `MapPiece`, logica pura in `Core`;
+- **`:`** è terreno aperto fuori dal borgo: non si cammina e non vuole il muretto. Serve dove i pezzi
+  arrivano fino al pavimento, come i massi della gola.
 
 Contro la roccia `#` il builder mette ancora i "muri", che nel borgo sono **muretti di pietra e
-staccionate** (alti sui lati lontani, il solo muretto su quelli vicini alla camera). Sotto tutta la
-mappa e oltre il bordo c'è un prato fuori dal NavMesh, con il sole: il prefab `VillageBackdrop`, che il
-giorno che passa (18.3) muoverà. Il vecchio `TownTileset` lascia il posto a `VillageTileset`.
+staccionate** (alti sui lati lontani, il solo muretto su quelli vicini alla camera). Il vecchio
+`TownTileset` lascia il posto a `VillageTileset`.
 
-I prefab (35) li fa `VillagePrefabs.Build` da una tabella: modelli KayKit scalati, girati e posati a
+I prefab (46) li fa `VillagePrefabs.Build` da una tabella: modelli KayKit scalati, girati e posati a
 terra, ostacoli sul layer Obstacle con il loro collider, paesaggio fuori dal NavMesh. `VillagePhotos`
 costruisce la mappa in una scena vuota e la fotografa dall'alto e con l'angolo della camera di gioco
 (ortografica, 30°, da sud-ovest).
 
 **La disposizione** (`docs/media/m18/04_disposizione.jpg`, `05_disposizione_camera.jpg`,
-`06_disposizione_camera_girata.jpg`): 17 × 13 celle in cui si cammina, 25 × 21 con il paesaggio. A nord
-la grotta nel monte tra due montagne, davanti il cimitero con la cripta e il recinto con l'arco sulla
-strada; al centro la piazza con il fuoco all'incrocio, il mercante, la forgia, il pozzo, il portale e
-l'ingresso; a est la cappella con l'altare davanti alla porta e la taverna; attorno sette case, due
-sfondate, e la casa della guaritrice. Dal portale alla grotta 11 celle girando dall'arco: 44 m, meno di
-9 s a piedi.
+`06_disposizione_camera_girata.jpg`). Alla prima foto Mirco ha tenuto le case così com'erano, ma non
+voleva la grotta dentro il borgo e senza montagne attorno, e chiedeva un ambiente più vero, con più
+alberi e contorno. Il borgo è rimasto quello, 17 × 13 celle in cui si cammina:
+- al centro la piazza con il fuoco all'incrocio, il mercante, la forgia, il pozzo, il portale e
+  l'ingresso;
+- a nord il cimitero con la cripta e il recinto con l'arco sulla strada;
+- a est la cappella con l'altare davanti alla porta e la taverna;
+- attorno sette case, due sfondate, e la casa della guaritrice.
 
-**I test.** `MapPieceTests` (6): simboli solidi e celle coperte non sono pavimento, niente muri contro
-i pezzi, celle e centro di un pezzo, il verso della porta, il paesaggio senza porta. `TownMapTests`
-aggiunge tre controlli: ogni pezzo è un rettangolo con le sue celle, ogni edificio ha una strada davanti,
-dal portale a mercante, altare e grotta meno di 10 s. Il primo ha trovato subito due pini attaccati alla
-grotta che si prendevano le sue celle. `TownTests` ora conta due luci che fanno ombra: il sole e quella
-del cavaliere. EditMode intera 500/500, PlayMode di città, portali, altare, builder, automappa, memoria
-dei livelli e menu verdi.
+**La grotta** ora è fuori: dal varco nel muretto parte una **gola** di tre celle tra i massi, chiusa da
+montagne, con la bocca della grotta in fondo. Attorno al muretto c'è un **bosco** fitto: sui lati
+lontani dalla camera pini subito oltre il muretto, su quelli vicini prima cespugli, sassi e alberi
+secchi, il bosco più in là. In tutto 27 × 26 celle. Dal portale alla grotta 11 celle girando
+dall'arco: 44 m, meno di 9 s a piedi.
 
-**Ancora grezzo, per il 18.3 e dopo:** il prato è a tinta unita, la grotta ha ancora la scala della
-cripta (18.4), le case non hanno luci alle finestre.
+**Il terreno.** Mirco l'ha trovato finto, una tinta unita, e ha chiesto erba e sassi.
+- **Due texture** fatte da `Tools/Textures/ground.py`:
+  - il prato, con macchie chiare e scure, erba secca e zone consumate;
+  - la terra battuta delle strade, con i sassolini.
+
+  Il rumore viene da rumore bianco filtrato con la FFT: è periodico per costruzione, quindi la texture
+  si ripete senza cuciture.
+- **`WorldUv`** stende la texture in coordinate del mondo, così le piastrelle da 4 m e il prato oltre
+  il bordo fanno un terreno solo, che si ripete ogni 32 m.
+- **Erba e sassi sparsi.** Il builder ne mette su ogni cella libera, con la scelta, il giro e lo
+  spostamento presi dall'hash della cella (`DecorJitter.Chance` e `Pick`), come i mucchietti della
+  M13: lo stesso borgo ha sempre gli stessi ciuffi. Sono fuori dal NavMesh e senza collider, quindi
+  si attraversano.
+
+**La sagoma del cavaliere** (`07_sagoma.jpg`). Con la camera a 30° una casa o un albero sul lato vicino
+copre il cavaliere, e Mirco ha scelto la sagoma, come in Diablo III. Il cavaliere sta sul layer `Hero`,
+che i renderer URP non disegnano con gli altri opachi, e due passi `RenderObjects` lo disegnano dopo:
+- prima la sagoma ocra dove qualcosa lo copre (profondità "più lontano", senza scriverla);
+- poi lui, come sempre.
+
+Così la sagoma non compare mai sul cavaliere stesso. Vale anche nella cripta, dietro le colonne.
+L'arma e lo scudo prendono il layer dal corpo, in `EquipmentVisuals`. Tutto lo prepara
+`HeroSilhouette.Setup`.
+
+**I test.**
+- **`MapPieceTests` (7):** simboli solidi, celle coperte e terreno aperto non sono pavimento e non
+  vogliono muri; le celle e il centro di un pezzo; il verso della porta; il paesaggio senza porta.
+- **`TownMapTests`, tre controlli in più:**
+  - ogni pezzo è un rettangolo con le sue celle. Ha trovato subito due pini attaccati alla grotta che
+    si prendevano le sue celle;
+  - ogni edificio ha una strada davanti;
+  - dal portale a mercante, altare e grotta si arriva in meno di 10 s.
+- **`HeroSilhouetteTests` (2):** il layer, i renderer e il modello del cavaliere.
+- **`VillageGroundTests` (3):** l'hash dello sparso, le coordinate del mondo, lo sparso fuori dal
+  NavMesh.
+- **Test PlayMode aggiornati:** `TownTests` conta due luci che fanno ombra (il sole e quella del
+  cavaliere) e controlla erba e terreno; `EquipmentPlayModeTests` controlla che l'arma abbia il layer
+  del cavaliere.
+- **In locale:** EditMode intera 506/506. Verdi anche i PlayMode di città, portali, altare, builder,
+  automappa, memoria dei livelli, menu, equipaggiamento e macchie.
+
+**Ancora grezzo, per i passi dopo:**
+- la luce è un sole fisso (il giorno che passa è il 18.3);
+- la grotta ha ancora la scala della cripta (18.4);
+- le case non hanno luci alle finestre;
+- le strade finiscono a spigolo vivo sul prato.
 
 ---
 

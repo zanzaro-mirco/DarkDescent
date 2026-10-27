@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using DarkDescent.Core;
 using DarkDescent.Levels;
+using DarkDescent.Rendering;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -48,6 +49,12 @@ namespace DarkDescent.Editor
             var map = LevelMap.Parse(AssetDatabase.LoadAssetAtPath<TextAsset>(MapPath).text);
             new LevelBuilder(tileset).Build(map, activateEnemies: false);
 
+            // nell'editor Awake non parte: le coordinate del terreno si stendono a mano
+            foreach (var ground in Object.FindObjectsByType<WorldUv>(FindObjectsSortMode.None))
+            {
+                ground.Apply();
+            }
+
             var min = LevelMap.CellCenter(0, map.Height - 1) - new Vector3(2f, 0f, 2f);
             var max = LevelMap.CellCenter(map.Width - 1, 0) + new Vector3(2f, 0f, 2f);
             var center = (min + max) * 0.5f;
@@ -82,6 +89,7 @@ namespace DarkDescent.Editor
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var backdrop = (GameObject)PrefabUtility.InstantiatePrefab(VillagePrefabs.Load("VillageBackdrop"));
             backdrop.transform.position = Vector3.zero;
+            backdrop.GetComponentInChildren<WorldUv>().Apply();
             string[] names = { "HouseA_Red", "HouseB_Yellow", "HealerHouse", "Tavern", "Ruin", "Forge", "Chapel", "Well", "Crypt", "CaveMouth" };
             float x = 0f;
             foreach (string name in names)
