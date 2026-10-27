@@ -93,9 +93,10 @@ namespace DarkDescent.Tests
                 {
                     Vector3 direction = Quaternion.Euler(0f, i * 22.5f, 0f) * Vector3.forward;
                     // il bordo del NavMesh deve essere un muro: un arredo basso lo ritaglia, ma il
-                    // dardo gli passa sopra e si ferma più avanti (passo 15.1)
+                    // dardo gli passa sopra e si ferma più avanti (passo 15.1); e il raggio non deve
+                    // correre radente a un bordo (M18, 18.1)
                     if (NavMesh.Raycast(start.position, start.position + direction * 8f, out var hit, NavMesh.AllAreas) && hit.distance > 2f
-                        && WallAhead(start.position, direction, hit.distance))
+                        && Steady(start.position, direction, hit.distance) && WallAhead(start.position, direction, hit.distance))
                     {
                         origin = start.position;
                         wall = hit.position;
@@ -119,6 +120,26 @@ namespace DarkDescent.Tests
             Vector3 flat = projectile.transform.position - wall;
             flat.y = 0f;
             Assert.Less(flat.magnitude, 0.6f, "esploso sul muro, non oltre");
+        }
+
+        // Un raggio radente al bordo del NavMesh, come quelli che partono da un vertice, tocca il bordo
+        // prima o dopo per un'inezia, e il dardo esplodeva metri prima del muro trovato (seme 37 della
+        // cripta). Due raggi paralleli a 30 cm, sul NavMesh anche loro, devono trovare il muro alla
+        // stessa distanza.
+        private static bool Steady(Vector3 from, Vector3 direction, float distance)
+        {
+            Vector3 side = Vector3.Cross(Vector3.up, direction) * 0.3f;
+            foreach (var offset in new[] { side, -side })
+            {
+                if (!NavMesh.SamplePosition(from + offset, out var near, 0.05f, NavMesh.AllAreas)
+                    || !NavMesh.Raycast(near.position, near.position + direction * 8f, out var hit, NavMesh.AllAreas)
+                    || Mathf.Abs(hit.distance - distance) > 0.3f)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         // il primo collider a mezzo metro d'altezza è un muro del livello, non un arredo basso che
