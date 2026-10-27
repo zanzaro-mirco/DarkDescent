@@ -62,7 +62,17 @@ namespace DarkDescent.Levels
         [Tooltip("Gli altri marcatori: nemici e oggetti di scena, al centro della cella.")]
         [SerializeField] private MarkerPrefab[] _markers;
 
+        [Tooltip("Il materiale delle macchie a terra, con l'atlante (D5 della M17); senza, il livello non ne ha.")]
+        [SerializeField] private Material _decalMaterial;
+
+        [Tooltip("Quanto stanno sopra la cima delle piastrelle le macchie, in metri: abbastanza da non sfarfallare.")]
+        [SerializeField, Range(0.005f, 0.1f)] private float _decalLift = 0.02f;
+
         public GameObject Floor => _floor;
+
+        public Material DecalMaterial => _decalMaterial;
+
+        public float DecalLift => _decalLift;
 
         public GameObject FloorVariant => _floorVariant;
 

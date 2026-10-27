@@ -222,6 +222,42 @@ menu e Continua del menu riporta in città) e, in `AltarPlayModeTests.FirstVicto
 Continua che lascia in città con il tempo e i comandi. `PhotoTour` fotografa i riconoscimenti dal
 menu.
 
+## Passo 17.5 — Le macchie a terra
+
+**Com'è andata (27 ott 2026).** Otto macchie generate con Z-Image-Turbo (`Tools/ComfyUI/images/decals.py`):
+crepe, polvere, ossa sparse, sangue secco, muschio, pozza, sassi e fuliggine, viste dall'alto su un
+fondo uniforme, ritagliate con la stessa finitura dei pannelli e sfumate verso il bordo (`fade`, nuovo
+in `imagelib.py` con `fit`, `opacity` e `atlas`). `decalatlas.py` le mette in un atlante da 1024×512,
+quattro colonne per due righe, in `Art/Generated/Decals/`; `GeneratedDecalImporter` lo importa con i
+mipmap, compresso. Le prove sono servite: il sangue su magenta spariva con il fondo (va su verde), "crepe
+nella pietra" disegna le lastre intere e "polvere" un blocco di pietra; il teschio intero era grande
+come il cavaliere.
+
+Nel gioco:
+
+- `DecalPlanner` (logica pura) sceglie le macchie in `DungeonLevel.CreateMap`, dopo il tesoro del re e
+  con un seme suo (`SeedMixer.ForDecals`): da 1 a 3 per stanza della cripta e qualcuna nei corridoi
+  (una ogni 8 celle al più), da 1 a 3 per zona di 7×7 celle nelle caverne. Ogni stanza o zona tira
+  un tema (cripta: deposito, battaglia, umido, bruciato; caverne: umido, tana, frana) e il tema
+  sceglie le caselle. Solo su celle di pavimento libere, non accanto a scala, ingresso, cancello e
+  punti d'interesse, una per cella e con la parte visibile dentro la cella. Rispetto alla D5 il
+  minimo è 1 e non 0: con 0 le stanze senza macchie erano troppe;
+- le macchie viaggiano nella direttiva `@decals` (`DecalSpot`, sette interi): la griglia, i nemici, le
+  casse e gli arredi restano quelli di prima, e il salvataggio non le ricorda;
+- `LevelBuilder` le mette in una mesh sola (`DecalLayer`), con un materiale solo (`M_Decals`, Lit
+  trasparente, coda 2990 sotto i cerchi dei nemici speciali e gli avvisi), sul layer di base: niente
+  collider, e il NavMesh, che si cuoce dai layer Ground e Obstacle, non le vede. Stanno 2 cm sopra
+  la cima della piastrella di base, letta dalla mesh: quella della cripta è a 5 cm, quella delle
+  caverne a 11;
+- `DecalTools.Setup` (`-executeMethod`) crea il materiale e lo mette nei tileset di cripta e caverne;
+  la città non ne ha.
+
+Test: `DecalTests` (stesso seme stesse macchie, il livello non cambia, mai sopra un marcatore né
+accanto ai pezzi da guardare, temi, al più tre per stanza, la parola della direttiva, il quadrato,
+il seme a parte, import e materiale), `DecalPlayModeTests` (cripta e caverne con le macchie della
+mappa in una mesh sola, sopra il pavimento, senza collider e fuori dai layer del NavMesh); la ronda
+conta le macchie nel riassunto dei livelli costruiti e segnala una mesh che non ha quelle della mappa.
+
 ## Trappole note
 
 - **Lo stile KayKit è a tinte.** Un'immagine con dettagli fotografici accanto ai modelli stona: nei
@@ -270,7 +306,7 @@ menu.
 - [x] Strumenti per le immagini, licenze e ADR (`CREDITS.md` con la prima immagine nel gioco)
 - [x] Pannelli
 - [x] Menu: principale, opzioni, pausa, vittoria e morte
-- [ ] Macchie a terra
+- [x] Macchie a terra
 - [ ] Sfondi di menu, morte e vittoria
 - [ ] Misura, foto di dopo e build di prova
 - [ ] ADR, lezioni nel piano, README

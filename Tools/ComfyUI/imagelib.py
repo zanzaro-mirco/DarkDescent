@@ -158,6 +158,51 @@ def darken(image, amount):
     return out
 
 
+def fade(image, start=0.6):
+    """Sfuma la trasparenza verso i bordi, per le macchie a terra: dentro un cerchio di raggio start
+    (in frazioni di mezzo lato) resta com'è, poi scende fino a zero sul bordo. Niente contorni netti
+    sul pavimento, e niente righe dove la macchia tocca il bordo del suo riquadro nell'atlante."""
+    rgba = image.convert("RGBA")
+    w, h = rgba.size
+    alpha = rgba.getchannel("A")
+    src = alpha.load()
+    cx, cy = (w - 1) / 2, (h - 1) / 2
+    for y in range(h):
+        for x in range(w):
+            r = (((x - cx) / (w / 2)) ** 2 + ((y - cy) / (h / 2)) ** 2) ** 0.5
+            if r > start:
+                k = max(0.0, 1.0 - (r - start) / (1.0 - start)) if start < 1 else 0.0
+                src[x, y] = round(src[x, y] * k * k * (3 - 2 * k))
+    rgba.putalpha(alpha)
+    return rgba
+
+
+def opacity(image, amount):
+    """Moltiplica la trasparenza: le macchie leggere (polvere) si vedono appena sul pavimento."""
+    rgba = image.convert("RGBA")
+    rgba.putalpha(rgba.getchannel("A").point(lambda a: round(a * amount)))
+    return rgba
+
+
+def fit(image, size):
+    """Un quadrato di size pixel con l'immagine al centro, rimpicciolita sul lato più lungo: le
+    caselle dell'atlante delle macchie sono tutte uguali."""
+    rgba = resize(image.convert("RGBA"), size)
+    out = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    out.paste(rgba, ((size - rgba.width) // 2, (size - rgba.height) // 2))
+    return out
+
+
+def atlas(images, columns, cell):
+    """Le immagini in una griglia di columns colonne, caselle di cell pixel, riga per riga: la casella
+    i sta alla colonna i % columns e alla riga i // columns, dall'alto."""
+    rows = (len(images) + columns - 1) // columns
+    out = Image.new("RGBA", (columns * cell, rows * cell), (0, 0, 0, 0))
+    for i, image in enumerate(images):
+        out.paste(fit(image, cell), ((i % columns) * cell, (i // columns) * cell))
+    return out
+
+
 def nine_slice(image, corner, middle=16):
     """Una cornice per le nove parti: tiene i quattro angoli (corner pixel) e un tratto di lato largo
     middle, togliendo il centro dei lati. Le decorazioni a metà lato, che allungate diventerebbero
@@ -189,7 +234,8 @@ def button_plate(back, size, border):
 
 def finish(image, steps):
     """Applica i passi di una ricetta, in ordine: ("key", colore, low, high), ("trim", margine),
-    ("resize", dimensione), ("darken", quanto), ("flatten",)."""
+    ("resize", dimensione), ("darken", quanto), ("flatten",), ("nineslice", angolo, tratto),
+    ("fade", inizio), ("fit", lato), ("opacity", quanto)."""
     for step in steps:
         kind, args = step[0], step[1:]
         if kind == "key":
@@ -204,6 +250,12 @@ def finish(image, steps):
             image = flatten(image, *args)
         elif kind == "nineslice":
             image = nine_slice(image, *args)
+        elif kind == "fade":
+            image = fade(image, *args)
+        elif kind == "fit":
+            image = fit(image, *args)
+        elif kind == "opacity":
+            image = opacity(image, *args)
         else:
             raise ValueError(f"passo di finitura sconosciuto: {kind}")
     return image

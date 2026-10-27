@@ -112,3 +112,5 @@ MonoBehaviour:
   - _symbol: 94
     _prefab: {fileID: 7531695245056883934, guid: e1ca44f07241a6049802d929704c100e, type: 3}
     _replacesFloor: 0
+  _decalMaterial: {fileID: 2100000, guid: 26f009dae2df8594f8e52af404ca3a9b, type: 2}
+  _decalLift: 0.02

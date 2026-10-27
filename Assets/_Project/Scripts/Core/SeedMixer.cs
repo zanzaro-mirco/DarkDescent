@@ -58,6 +58,15 @@ namespace DarkDescent.Core
             return Mix(levelSeed ^ DecorDomain);
         }
 
+        // "DECALS": le macchie a terra di un livello (D5 della M17), dopo tutto il resto e con il loro flusso
+        private const ulong DecalDomain = 0x444543414C53UL;
+
+        /// <summary>Il seme delle macchie a terra, dal seme del livello: mappa, nemici, casse e arredi non cambiano.</summary>
+        public static ulong ForDecals(ulong levelSeed)
+        {
+            return Mix(levelSeed ^ DecalDomain);
+        }
+
         // "SHOP": l'assortimento del mercante, a una profondità e a un ritorno in città (D5 della M10)
         private const ulong ShopDomain = 0x53484F50UL;
 

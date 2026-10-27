@@ -105,6 +105,7 @@ namespace DarkDescent.Levels
             BuildFloors(map, floors);
             BuildWalls(map, wallSides);
             BuildMarkers(map, level.transform, props, torchSides, enemies);
+            BuildDecals(map, level.transform);
 
             var navMesh = new GameObject("NavMesh");
             navMesh.transform.SetParent(level.transform, false);
@@ -166,6 +167,44 @@ namespace DarkDescent.Levels
                     }
                 }
             }
+        }
+
+        // Le macchie a terra (D5 della M17) in una mesh sola con un materiale solo: una chiamata di disegno.
+        // Sul layer di base, fuori da Ground e Obstacle: il NavMesh non le vede, e non hanno collider.
+        private void BuildDecals(LevelMap map, Transform level)
+        {
+            var spots = DecalSpot.FromMap(map);
+            if (spots.Count == 0 || _tileset.DecalMaterial == null)
+            {
+                return;
+            }
+
+            var go = new GameObject(DecalLayer.ObjectName);
+            go.transform.SetParent(level, false);
+            go.AddComponent<DecalLayer>().Build(spots, _tileset.DecalMaterial, FloorTop(_tileset.Floor) + _tileset.DecalLift);
+        }
+
+        // La cima della piastrella di base, dalla sua mesh: quella della cripta sta a 5 cm, non a 0
+        private static float FloorTop(GameObject floor)
+        {
+            float top = 0f;
+            foreach (var filter in floor.GetComponentsInChildren<MeshFilter>())
+            {
+                if (filter.sharedMesh == null)
+                {
+                    continue;
+                }
+
+                var bounds = filter.sharedMesh.bounds;
+                for (int corner = 0; corner < 8; corner++)
+                {
+                    var local = new Vector3((corner & 1) == 0 ? bounds.min.x : bounds.max.x, (corner & 2) == 0 ? bounds.min.y : bounds.max.y,
+                        (corner & 4) == 0 ? bounds.min.z : bounds.max.z);
+                    top = Mathf.Max(top, floor.transform.InverseTransformPoint(filter.transform.TransformPoint(local)).y);
+                }
+            }
+
+            return top;
         }
 
         // Su ogni lato sia il muro alto sia quello basso: alti i lati lontani dalla camera, bassi

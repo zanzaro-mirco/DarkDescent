@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DarkDescent.Levels
@@ -93,6 +94,8 @@ namespace DarkDescent.Levels
         public int SmoothPasses => _smoothPasses;
 
         // l'unico non sta al livello del re: quello scontro resta del re
+        public override IReadOnlyList<int[]> DecalThemes => DecalPlanner.CaveThemes;
+
         protected override int LastUniqueDepth => _bossDepth == LastDepth ? LastDepth - 1 : LastDepth;
 
         public override ILevelGenerator CreateGenerator()

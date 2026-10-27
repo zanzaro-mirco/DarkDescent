@@ -71,6 +71,14 @@ namespace DarkDescent.Levels
             // il tesoro del re in fondo alla sua sala (D8 della M12): una cella fissa, nessun tiro
             SpecialEnemyPlanner.PlaceKingsTreasure(layout);
 
+            // le macchie a terra (D5 della M17) per ultime, con un seme loro e solo in una direttiva:
+            // la griglia resta quella di prima
+            var decals = DecalPlanner.Plan(layout, settings.DecalThemes, new SplitMix64Source(SeedMixer.ForDecals(levelSeed)));
+            if (decals.Count > 0)
+            {
+                directives[DecalSpot.Directive] = DecalSpot.Tokens(decals);
+            }
+
             // Prima dell'ultima profondità la scala riporta in questa scena, all'ultima porta alla scena
             // dopo (dalla cripta alle caverne, D3 della M7); senza una scena dopo la scala non c'è.
             string target = depth < settings.LastDepth ? settings.SceneName : settings.NextScene;

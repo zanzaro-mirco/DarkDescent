@@ -152,6 +152,10 @@ namespace DarkDescent.Tests
 
             var level = Manager.CurrentLevel;
             Assert.IsNotNull(level.BossGate, "un seme con la porta");
+
+            // anche il loot dal seme del livello: con il seme a caso del CompositionRoot ogni tanto i tre
+            // oggetti non avevano un raro (PlayMode del 27 ott 2026)
+            Object.FindFirstObjectByType<DarkDescent.Core.CompositionRoot>().UseLootSeed(Manager.RunSeed);
             var treasure = level.Chests.Single(c => c.OpensWithBoss);
             Assert.AreEqual("The King's Hoard", treasure.GetComponent<Interactable>().GetLabel(Localizer));
             Assert.IsTrue(treasure.IsSealed);

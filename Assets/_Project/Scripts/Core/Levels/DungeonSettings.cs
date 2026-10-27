@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DarkDescent.Levels
@@ -214,6 +215,9 @@ namespace DarkDescent.Levels
 
         /// <summary>L'ultima profondità dove può stare l'unico: le caverne tolgono quella del re.</summary>
         protected virtual int LastUniqueDepth => _lastDepth;
+
+        /// <summary>I temi delle macchie a terra (D5 della M17): le caselle dell'atlante che una stanza può usare.</summary>
+        public virtual IReadOnlyList<int[]> DecalThemes => DecalPlanner.CryptThemes;
 
         /// <summary>L'algoritmo di questi numeri: la cripta a BSP; le caverne lo cambiano.</summary>
         public virtual ILevelGenerator CreateGenerator()

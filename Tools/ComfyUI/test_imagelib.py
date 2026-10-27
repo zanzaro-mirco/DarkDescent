@@ -138,6 +138,31 @@ class FinishTests(unittest.TestCase):
         self.assertEqual(plate.size, (32, 32))
         self.assertEqual(plate.getpixel((1, 16))[:3], (150, 122, 70))
 
+    def test_fade_clears_the_border_and_keeps_the_middle(self):
+        faded = imagelib.fade(Image.new("RGBA", (64, 64), (90, 80, 70, 255)), 0.5)
+        self.assertEqual(255, faded.getpixel((32, 32))[3])
+        self.assertEqual(0, faded.getpixel((0, 0))[3], "gli angoli spariscono")
+        self.assertLess(faded.getpixel((63, 32))[3], 20, "il bordo quasi")
+        self.assertEqual((90, 80, 70), faded.getpixel((0, 0))[:3], "il colore resta, cambia solo la trasparenza")
+
+    def test_opacity_scales_the_alpha_only(self):
+        faint = imagelib.opacity(Image.new("RGBA", (4, 4), (10, 20, 30, 200)), 0.5)
+        self.assertEqual((10, 20, 30, 100), faint.getpixel((1, 1)))
+
+    def test_fit_centers_on_a_square(self):
+        fitted = imagelib.fit(Image.new("RGBA", (100, 50), (200, 0, 0, 255)), 32)
+        self.assertEqual((32, 32), fitted.size)
+        self.assertEqual(0, fitted.getpixel((16, 2))[3], "sopra e sotto vuoto")
+        self.assertEqual(255, fitted.getpixel((16, 16))[3])
+
+    def test_atlas_places_the_tiles_row_by_row(self):
+        tiles = [Image.new("RGBA", (40, 40), (i * 40, 0, 0, 255)) for i in range(5)]
+        sheet = imagelib.atlas(tiles, 4, 16)
+        self.assertEqual((64, 32), sheet.size)
+        self.assertEqual(120, sheet.getpixel((3 * 16 + 8, 8))[0], "la quarta nella prima riga")
+        self.assertEqual(160, sheet.getpixel((8, 16 + 8))[0], "la quinta all'inizio della seconda")
+        self.assertEqual(0, sheet.getpixel((16 + 8, 16 + 8))[3], "le caselle in più restano vuote")
+
     def test_unknown_step_fails(self):
         with self.assertRaises(ValueError):
             imagelib.finish(Image.new("RGB", (4, 4)), [("blur", 2)])

@@ -196,3 +196,5 @@ MonoBehaviour:
   - _symbol: 94
     _prefab: {fileID: 8474005168588744992, guid: 24a3c4ca41593104090e5f0f5becff1f, type: 3}
     _replacesFloor: 1
+  _decalMaterial: {fileID: 2100000, guid: 26f009dae2df8594f8e52af404ca3a9b, type: 2}
+  _decalLift: 0.02

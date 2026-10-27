@@ -61,6 +61,7 @@ namespace DarkDescent.Tests
         private int _pieces;
         private int _barrels;
         private int _portals;
+        private int _decals;
 
         private static LevelManager Manager => Object.FindFirstObjectByType<LevelManager>();
 
@@ -133,7 +134,7 @@ namespace DarkDescent.Tests
                 }
 
                 string summary = $"{built} livelli, {failed} con errori, in {watch.Elapsed.TotalSeconds:F0} s; provati {_pieces} pezzi raggiunti, "
-                    + $"{_barrels} barili rotti, {_portals} portali. Tempi di generazione, costruzione e NavMesh (errore oltre {SlowestLevel} ms):";
+                    + $"{_barrels} barili rotti, {_portals} portali, {_decals} macchie a terra. Tempi di generazione, costruzione e NavMesh (errore oltre {SlowestLevel} ms):";
                 Debug.Log($"[DarkDescent] ronda notturna, livelli costruiti: {summary}");
                 NightlyReport.Append(NightlyReport.Part("Livelli costruiti", summary, errors, table.ToString()));
                 reported = true;
@@ -214,6 +215,16 @@ namespace DarkDescent.Tests
             }
 
             SamePlaces(level, Error);
+
+            // le macchie a terra (M17): tutte quelle della mappa, in una mesh sola
+            int decals = DecalSpot.FromMap(level.Map).Count;
+            var layer = level.GetComponentInChildren<DecalLayer>();
+            if (decals > 0 && (layer == null || layer.Count != decals))
+            {
+                Error($"le macchie a terra sono {(layer != null ? layer.Count : 0)}, la mappa ne ha {decals}");
+            }
+
+            _decals += decals;
 
             // il portale, dall'ingresso e davanti a ogni cassa e ogni pozzo o santuario, girati verso il
             // pezzo: il posto peggiore, tra muri e barili interi (v1.2.1); i nemici e il re fermi, così non
