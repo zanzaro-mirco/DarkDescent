@@ -300,7 +300,8 @@ sala del re, lo abbatte, mette il cavaliere davanti ai resti e al tesoro, spegne
 un PNG a 1920×1080; `Tools/ComfyUI/renders.py` lo rifinisce con la ricetta di `RENDERS` in
 `images/backgrounds.py`. Mirco vuole al suo posto una **cinematica** di chiusura, come i filmati di
 Diablo: il re che crolla, il cavaliere che apre il tesoro ed esce, l'accampamento all'alba, poi le
-statistiche. È proposta come M18 (piano v2.66), e risalita e stanze più grandi passano alla M19.
+statistiche; e un filmato d'apertura per la nuova partita, "L'ultima candela". Sono proposti insieme
+come M18 (piano v2.66), e risalita e stanze più grandi passano alla M19.
 
 Le foto di dopo sono in `docs/media/m17/dopo` (31: i riconoscimenti si fotografano dal menu, senza
 il filtro), e `docs/media/m17/prima_e_dopo.html` le mette accanto a quelle di prima. La build da

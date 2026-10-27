@@ -17,7 +17,7 @@ Ultimo aggiornamento: 27 ott 2026, build della M17 da provare (passo 17.7, run 4
 - **Le macchie a terra** in cripta e caverne: si notano senza disturbare? Troppe, poche, troppo
   accese (il muschio)? Con il filtro retrò reggono?
 - **La morte e la vittoria** con gli sfondi (la vittoria è la sala del re presa dal gioco, in attesa
-  della cinematica della M18); *Continua* dalla vittoria lascia giocare in città e porta all'altare.
+  del filmato della M18); *Continua* dalla vittoria lascia giocare in città e porta all'altare.
 
 ## Dalla M16 — "Tesori con un nome" (v1.4.0)
 
