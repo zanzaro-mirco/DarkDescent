@@ -64,6 +64,9 @@ namespace DarkDescent.Levels
         /// <summary>La porta della sala del boss; null se non c'è.</summary>
         public BossGate BossGate { get; private set; }
 
+        /// <summary>Il giorno che passa (M18): solo nel borgo, altrimenti null.</summary>
+        public Rendering.DayCycleView Daylight { get; private set; }
+
         public int EntranceCount => _entrances.Count;
 
         public int Depth => _depth;
@@ -133,6 +136,11 @@ namespace DarkDescent.Levels
                 if (BossGate == null)
                 {
                     BossGate = root.GetComponentInChildren<BossGate>(true);
+                }
+
+                if (Daylight == null)
+                {
+                    Daylight = root.GetComponentInChildren<Rendering.DayCycleView>(true);
                 }
             }
         }

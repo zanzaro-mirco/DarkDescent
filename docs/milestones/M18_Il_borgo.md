@@ -227,6 +227,50 @@ L'arma e lo scudo prendono il layer dal corpo, in `EquipmentVisuals`. Tutto lo p
 
 ---
 
+## Passo 18.3 — Il giorno che passa
+
+**Com'è andata (27 ott 2026).**
+- **`DayCycle`** (logica pura in `Core`) dà il momento dal tempo di gioco della partita. Un giro dura
+  20 minuti: giorno 8, tramonto 2, notte 4, alba 2, più un minuto di passaggio tra un momento e
+  l'altro. La partita nuova comincia di giorno.
+- **`DayLighting`** (`Data/Levels/VillageDayLighting.asset`) tiene la luce dei quattro momenti:
+  altezza, direzione, colore e forza del sole (di notte la luna), luce ambiente, colore e distanza della
+  nebbia, esposizione, filtro, saturazione e temperatura. Tiene anche il minimo della luce ambiente
+  di notte. Si ritocca dall'Inspector.
+- **`DayCycleView`** sta sul prato del borgo, con il sole. A ogni frame legge l'ora e muove sole, luce
+  ambiente, nebbia e fondo della camera (dello stesso colore della nebbia). Il colore dell'immagine
+  passa da un volume suo, sopra quello del tileset, che tocca solo esposizione, filtro, saturazione e
+  temperatura. Il passaggio è addolcito.
+- **`NightLight`**: le finestre di case, taverna, forgia e cappella e le lanterne del cimitero si
+  accendono dal tramonto all'alba, a metà durante i passaggi.
+
+Il `CompositionRoot` lega la vista al tempo di gioco quando il borgo si carica. Sotto terra non c'è:
+la cripta resta com'era, senza nebbia, e il fondo della camera torna nero quando il borgo se ne va.
+
+**Le foto** (`docs/media/m18/08_giorno.jpg`, `09_giorno_retro.jpg`, `10_notte_luci.jpg`) le fa il
+giro di foto nel gioco vero, `PhotoTour.VillageDay`. Sono dalla piazza nei quattro momenti, con il
+filtro retrò spento e acceso, più una di notte tra le case. Alla prima taratura alba, tramonto e notte
+erano troppo scuri; sole, luce ambiente e minimo della notte sono saliti.
+
+**I test.**
+- **`DayCycleTests` (5):**
+  - stesso tempo, stesso momento;
+  - i momenti in fila;
+  - la miscela che non salta;
+  - le luci dal tramonto all'alba;
+  - la notte più buia ma sopra il minimo.
+- **`TownTests`:**
+  - il borgo cambia luce con il tempo di gioco: di notte sole più basso, ambiente più buio ma sopra il
+    minimo, luci accese, nebbia del colore del fondo;
+  - nella cripta niente giorno e niente nebbia.
+- **In locale:** EditMode intera 511/511, PlayMode di città, portali, altare, builder, automappa,
+  memoria dei livelli, menu, ambienze e post-processing verdi.
+
+**Da sapere:** la sagoma del cavaliere compare anche dietro oggetti bassi, come l'altare, quando la
+camera li ha davanti.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)

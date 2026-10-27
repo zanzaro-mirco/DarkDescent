@@ -17,6 +17,7 @@ namespace DarkDescent.Editor
     {
         public const string PrefabFolder = "Assets/_Project/Prefabs/Village/";
         public const string TilesetPath = "Assets/_Project/Data/Levels/VillageTileset.asset";
+        public const string DayLightingPath = "Assets/_Project/Data/Levels/VillageDayLighting.asset";
 
         private const string Village = KayKitImporter.ModelFolder + "Village/";
         private const string Graveyard = KayKitImporter.ModelFolder + "Graveyard/";
@@ -26,6 +27,29 @@ namespace DarkDescent.Editor
 
         // le case di Medieval Hexagon: la porta alta quanto il cavaliere (18.1)
         private const float HexScale = 6f;
+
+        // le luci che si accendono dal tramonto all'alba: davanti alla porta delle case, sotto le lanterne
+        private static readonly Color WindowColor = new Color(1f, 0.68f, 0.36f);
+        private static readonly Color LanternColor = new Color(1f, 0.78f, 0.45f);
+
+        private enum Glow
+        {
+            None,
+            Window,
+            Lantern
+        }
+
+        private static readonly Dictionary<string, Glow> Glows = new Dictionary<string, Glow>
+        {
+            ["HouseA_Red"] = Glow.Window,
+            ["HouseA_Blue"] = Glow.Window,
+            ["HouseB_Yellow"] = Glow.Window,
+            ["HealerHouse"] = Glow.Window,
+            ["Tavern"] = Glow.Window,
+            ["Forge"] = Glow.Window,
+            ["Chapel"] = Glow.Window,
+            ["LanternPost"] = Glow.Lantern,
+        };
 
         private const int DefaultLayer = 0;
         private const int GroundLayer = 6;
@@ -164,7 +188,7 @@ namespace DarkDescent.Editor
 
             SaveTile("VillageGrass", grass, GrassRepeat);
             SaveTile("VillageRoad", dirt, RoadRepeat);
-            SaveBackdrop(grass);
+            SaveBackdrop(grass, DayLighting());
             foreach (var piece in Pieces)
             {
                 SavePiece(piece);
@@ -229,7 +253,7 @@ namespace DarkDescent.Editor
 
         // Il prato sotto tutta la mappa e oltre il bordo, appena sotto i pavimenti, con il sole: fuori
         // dal NavMesh e senza collider. Il giorno che passa (18.3) muoverà questo sole.
-        private static void SaveBackdrop(Material grass)
+        private static void SaveBackdrop(Material grass, DayLighting lighting)
         {
             var root = new GameObject("VillageBackdrop");
             var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -252,6 +276,11 @@ namespace DarkDescent.Editor
             light.intensity = 1.1f;
             light.shadows = LightShadows.Soft;
             light.shadowStrength = 0.75f;
+
+            var view = new SerializedObject(root.AddComponent<DayCycleView>());
+            view.FindProperty("_lighting").objectReferenceValue = lighting;
+            view.FindProperty("_sun").objectReferenceValue = light;
+            view.ApplyModifiedPropertiesWithoutUndo();
             Save(root, root.name);
         }
 
@@ -306,7 +335,74 @@ namespace DarkDescent.Editor
                 box.size = all.size;
             }
 
+            if (Glows.TryGetValue(piece.Name, out var glow))
+            {
+                AddGlow(root, glow);
+            }
+
             Save(root, piece.Name);
+        }
+
+        // Una luce calda senza ombre, che la vista del giorno accende al tramonto: davanti alla porta,
+        // all'altezza delle finestre, o sotto il lume della lanterna
+        private static void AddGlow(GameObject root, Glow glow)
+        {
+            var bounds = Bounds(root);
+            var go = new GameObject("NightLight");
+            go.transform.SetParent(root.transform, false);
+            go.transform.localPosition = glow == Glow.Window
+                ? new Vector3(bounds.center.x, 1.8f, bounds.max.z + 0.6f)
+                : new Vector3(bounds.center.x, bounds.max.y - 0.8f, bounds.center.z);
+            var light = go.AddComponent<Light>();
+            light.type = LightType.Point;
+            light.color = glow == Glow.Window ? WindowColor : LanternColor;
+            light.range = glow == Glow.Window ? 7f : 8f;
+            light.intensity = glow == Glow.Window ? 2.2f : 2.6f;
+            light.shadows = LightShadows.None;
+            light.enabled = false;
+            go.AddComponent<NightLight>();
+        }
+
+        // Le luci dei quattro momenti (D5 della M18): un asset da ritoccare dall'Inspector. Si scrive
+        // solo la prima volta; dopo comanda l'asset, non questa tabella.
+        private static DayLighting DayLighting()
+        {
+            var lighting = AssetDatabase.LoadAssetAtPath<DayLighting>(DayLightingPath);
+            if (lighting != null)
+            {
+                return lighting;
+            }
+
+            lighting = ScriptableObject.CreateInstance<DayLighting>();
+            AssetDatabase.CreateAsset(lighting, DayLightingPath);
+            var so = new SerializedObject(lighting);
+            SetLook(so, "_dawn", new DayLook(new Vector2(25f, 95f), new Color(1f, 0.8f, 0.65f), 1f, new Color(0.42f, 0.38f, 0.4f),
+                new Color(0.7f, 0.62f, 0.6f), new Vector2(18f, 70f), 0.15f, new Color(1f, 0.95f, 0.93f), -5f, 12f));
+            SetLook(so, "_day", new DayLook(new Vector2(52f, -35f), new Color(0.95f, 0.93f, 0.88f), 1.2f, new Color(0.48f, 0.47f, 0.45f),
+                new Color(0.66f, 0.69f, 0.72f), new Vector2(35f, 120f), 0.2f, Color.white, -6f, 4f));
+            SetLook(so, "_dusk", new DayLook(new Vector2(22f, 255f), new Color(1f, 0.6f, 0.38f), 1.1f, new Color(0.4f, 0.3f, 0.3f),
+                new Color(0.6f, 0.42f, 0.36f), new Vector2(25f, 95f), 0.1f, new Color(1f, 0.92f, 0.85f), 2f, 20f));
+            SetLook(so, "_night", new DayLook(new Vector2(45f, 200f), new Color(0.6f, 0.7f, 0.95f), 0.45f, new Color(0.16f, 0.18f, 0.26f),
+                new Color(0.08f, 0.1f, 0.16f), new Vector2(20f, 85f), 0f, new Color(0.88f, 0.92f, 1.05f), -15f, -20f));
+            so.FindProperty("_minimumAmbient").colorValue = new Color(0.16f, 0.18f, 0.25f);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(lighting);
+            return lighting;
+        }
+
+        private static void SetLook(SerializedObject so, string name, DayLook look)
+        {
+            var property = so.FindProperty(name);
+            property.FindPropertyRelative("_sunAngles").vector2Value = look.SunAngles;
+            property.FindPropertyRelative("_sunColor").colorValue = look.SunColor;
+            property.FindPropertyRelative("_sunIntensity").floatValue = look.SunIntensity;
+            property.FindPropertyRelative("_ambient").colorValue = look.Ambient;
+            property.FindPropertyRelative("_fog").colorValue = look.Fog;
+            property.FindPropertyRelative("_fogRange").vector2Value = look.FogRange;
+            property.FindPropertyRelative("_exposure").floatValue = look.Exposure;
+            property.FindPropertyRelative("_colorFilter").colorValue = look.ColorFilter;
+            property.FindPropertyRelative("_saturation").floatValue = look.Saturation;
+            property.FindPropertyRelative("_temperature").floatValue = look.Temperature;
         }
 
         private static Material MaterialFor(string model)

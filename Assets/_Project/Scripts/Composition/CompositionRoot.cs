@@ -694,6 +694,13 @@ namespace DarkDescent.Core
             _levelTitle.Show(tileset != null ? tileset.NameKey : null, level.Depth, DifficultyTitleKey());
             _depth = level.Depth;
 
+            // il giorno che passa nel borgo (D5 della M18): l'ora è il tempo di gioco della partita.
+            // Camera.main è una ricerca per tag: una volta qui, a ogni livello, mai per frame
+            if (level.Daylight != null)
+            {
+                level.Daylight.Bind(() => _runStats.PlayTime, Camera.main);
+            }
+
             // prima di tutto il resto: i nemici già uccisi non si collegano
             _levelRecorder.Restore(level);
             BindBoss(level);

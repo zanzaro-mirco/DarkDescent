@@ -280,6 +280,44 @@ namespace DarkDescent.Tests
             return AssetDatabase.LoadAssetAtPath<UniqueDefinition>($"Assets/_Project/Data/Named/{path}.asset");
         }
 
+        [UnityTest, Timeout(300000), Description("Il borgo nei quattro momenti del giorno, con il filtro retrò spento e acceso (D5 della M18)")]
+        public IEnumerator VillageDay()
+        {
+            // dal menu, come la partita nuova: senza menu si comincia nella cripta
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+
+            // davanti al banco del mercante, con il fuoco e la forgia nell'inquadratura
+            Hero.GetComponent<NavMeshAgent>().Warp(Manager.CurrentLevel.Merchant.GetComponent<Interactable>().ApproachPoint);
+            yield return Settle();
+
+            var stats = Root.RunStats;
+            foreach (var moment in new[] { DayMoment.Dawn, DayMoment.Day, DayMoment.Dusk, DayMoment.Night })
+            {
+                stats.Restore(DayCycle.Start(moment) + 20f, stats.Kills, stats.Deaths, stats.GoldCollected, stats.BossDefeated);
+                yield return Frames(5);
+                yield return Snap("village_" + moment.ToString().ToLowerInvariant());
+            }
+
+            // di notte tra le case, accanto alla finestra accesa più vicina alla piazza
+            Vector3 square = Hero.transform.position;
+            var lamp = Object.FindObjectsByType<NightLight>(FindObjectsSortMode.None).OrderBy(l => Vector3.Distance(l.transform.position, square)).First();
+            if (NavMesh.SamplePosition(lamp.transform.position, out var near, 4f, NavMesh.AllAreas))
+            {
+                Hero.GetComponent<NavMeshAgent>().Warp(near.position);
+            }
+
+            yield return new WaitForSecondsRealtime(1.5f);
+            yield return Snap("village_night_lights");
+        }
+
         private static IEnumerator Frames(int count)
         {
             for (int i = 0; i < count; i++)

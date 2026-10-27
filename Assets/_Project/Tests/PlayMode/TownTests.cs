@@ -6,6 +6,7 @@ using DarkDescent.Core;
 using DarkDescent.Interaction;
 using DarkDescent.Levels;
 using DarkDescent.Player;
+using DarkDescent.Rendering;
 using DarkDescent.Save;
 using DarkDescent.UI;
 using NUnit.Framework;
@@ -117,6 +118,34 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, Manager.CurrentLevel.Depth);
             Assert.AreEqual("Start", Manager.CurrentEntrance);
             Assert.AreEqual(5, Manager.CurrentLevel.Enemies.Count, "la stessa cripta di sempre");
+            Assert.IsNull(Manager.CurrentLevel.Daylight, "sotto terra il giorno non passa");
+            Assert.IsFalse(RenderSettings.fog, "la nebbia del borgo resta nel borgo");
+        }
+
+        [UnityTest, Description("Il borgo cambia luce con il tempo di gioco: di notte sole basso, ambiente buio ma sopra il minimo, lanterne e finestre accese (D5 della M18)")]
+        public IEnumerator Village_ChangesLightWithPlayTime()
+        {
+            yield return StartNewGame();
+            var view = Manager.CurrentLevel.Daylight;
+            Assert.IsNotNull(view, "il borgo ha il giorno che passa");
+            Assert.AreEqual(DayMoment.Day, view.Phase.From, "la partita nuova comincia di giorno");
+            var lights = Manager.CurrentLevel.GetComponentsInChildren<NightLight>(true);
+            Assert.That(lights.Length, Is.GreaterThan(5));
+            Assert.IsTrue(lights.All(l => l.Lit == 0f), "di giorno spente");
+            float daySun = view.Sun.intensity;
+            float dayAmbient = RenderSettings.ambientLight.grayscale;
+
+            var stats = UnityEngine.Object.FindFirstObjectByType<CompositionRoot>().RunStats;
+            stats.Restore(DayCycle.Start(DayMoment.Night) + 10f, stats.Kills, stats.Deaths, stats.GoldCollected, stats.BossDefeated);
+            yield return null;
+            yield return null;
+            Assert.AreEqual(DayMoment.Night, view.Phase.From);
+            Assert.Less(view.Sun.intensity, daySun);
+            Assert.Less(RenderSettings.ambientLight.grayscale, dayAmbient);
+            Assert.GreaterOrEqual(RenderSettings.ambientLight.b, view.Lighting.MinimumAmbient.b, "il minimo della notte");
+            Assert.IsTrue(lights.All(l => l.Lit == 1f), "di notte accese");
+            Assert.IsTrue(RenderSettings.fog);
+            Assert.AreEqual(RenderSettings.fogColor, Camera.main.backgroundColor, "il fondo del colore del cielo");
         }
 
         [UnityTest, Description("Salvata in città, la partita dice di essere in città e Continua riporta lì")]
