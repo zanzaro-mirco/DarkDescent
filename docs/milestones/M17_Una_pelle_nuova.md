@@ -121,7 +121,7 @@ schermata vecchia. Gli altri candidati (barra in basso, celle e slot, icona dell
 della minimappa) restano fuori: i pannelli nuovi li toccano in parte, e si riguardano nelle foto di
 dopo.
 
-**Fuori dalla M17, nella M20** (era la M18, prima del borgo e dei filmati). Mirco ha segnato anche due cose che non sono grafica: all'ingresso di
+**Fuori dalla M17, nella M22** (era la M18, prima del borgo, dei filmati, dell'albero e del Mago). Mirco ha segnato anche due cose che non sono grafica: all'ingresso di
 cripta e caverne **manca la risalita**, una scala che funziona e riporta alla profondità di sopra
 (dalla 1 all'accampamento), come in Diablo 1; e **alcune stanze sono troppo piccole**, va alzata la
 dimensione minima. Tutte e due cambiano il generatore, quindi i livelli di tutti i semi, i test con
