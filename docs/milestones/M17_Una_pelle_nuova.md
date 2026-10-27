@@ -360,4 +360,4 @@ piano (v2.66), il README e `bundleVersion` 1.5.0.
 - [x] Sfondi di menu, morte e vittoria
 - [x] Misura, foto di dopo e build di prova
 - [x] ADR, lezioni nel piano, README
-- [ ] `bundleVersion` 1.5.0 e tag `v1.5.0` dopo i test verdi in CI
+- [x] `bundleVersion` 1.5.0 e tag `v1.5.0` dopo i test verdi in CI
