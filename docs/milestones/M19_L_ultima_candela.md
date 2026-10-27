@@ -1,0 +1,131 @@
+# M19 — "L'ultima candela"
+
+**Cosa deve succedere (Definition of Done):** il gioco ha due **filmati**, fatti nel motore con i
+modelli, le luci e le animazioni del gioco e girati nel **borgo della M18**.
+
+L'**apertura**, "L'ultima candela", parte con *Nuova partita*. In 45–60 s racconta:
+- il borgo che si spegne;
+- gli scheletri che escono dalla terra del cimitero;
+- i sopravvissuti nella piazza all'alba;
+- il mercante che accende l'ultima candela e indica la grotta.
+
+Finisce nel borgo, con il cavaliere in mano a chi gioca.
+
+La **vittoria** parte la prima volta che si batte il Re delle ossa a ogni difficoltà:
+- il colpo che rallenta e il re che si sfalda;
+- l'uscita dalla grotta all'alba;
+- i sopravvissuti che esultano;
+- poi la finestra delle statistiche.
+
+Tutti e due si saltano con Esc o con un click, hanno le didascalie nelle due lingue e la loro musica.
+Ogni inquadratura passa dal sì di Mirco, prima in foto e poi in un video. Esce con il tag `v1.7.0`.
+
+**Tempo stimato:** 12–17 h (D15).
+**Prerequisito:** M18 chiusa (tag `v1.6.0`): il borgo, la grotta, gli abitanti e le loro animazioni.
+
+**Come si lavora:** come alle M13–M18. Faccio io:
+- il codice, le scene, i modelli in Blender, gli script e i passaggi nell'editor;
+- le prove in batchmode, a Unity chiuso;
+- l'avvio di ComfyUI sulla porta 8199.
+
+A Mirco restano:
+- le decisioni qui sotto;
+- il sì sui download (D2, D10, D11, D12);
+- il sì sulle foto delle inquadrature e sui video dei due filmati;
+- la prova in build.
+
+---
+
+## Stato verificato il 27 ottobre 2026
+
+Prima della M18: le righe del mondo cambieranno con il borgo, e si riverificano all'inizio della M19.
+
+| Cosa | Stato |
+|---|---|
+| Pacchetti | **Cinemachine 3.1.7** c'è già e muove la camera del gioco: Position Composer, rotazione e zoom. **Timeline** e **Recorder** non ci sono. Il modulo `video` di Unity è attivo, ma nessuna scena usa un `VideoPlayer`. ffmpeg non è installato |
+| Animazioni | Dal pacchetto completo *KayKit Character Animations 1.1* (CC0, lo zip è in `Downloads`) sono importati 3 file su 8 del rig medio: `CombatMelee`, `General`, `MovementBasic`. La M18 aggiunge `Simulation`, con le pose da seduti e il saluto. Restano `Special` (`Skeletons_Awaken_Floor`, `Skeletons_Awaken_Floor_Long`, `Skeletons_Death`, `Skeletons_Taunt`, `Skeletons_Walking`), `Tools` (`Holding_A/B/C`) e `MovementAdvanced` (`Crouching`, `Sneaking`). Sono tutti per il rig medio, lo stesso di cavaliere e scheletri |
+| Personaggi | Importati `Knight`, `Barbarian`, `Rogue_Hooded` e i sette scheletri; la M18 aggiunge `Mage`, `Ranger` e `Rogue` per gli abitanti. Il Re delle ossa usa i modelli degli scheletri, più grande, con l'`overrideController` degli scheletri |
+| Mondo | Dopo la M18 c'è il **borgo all'aperto**, al tramonto: piazza, case, cappella con l'altare, cimitero, la grotta verso la cripta e il cunicolo alla profondità 1. **Il trono non c'è**: la sala del re è una stanza del generatore |
+| Vittoria oggi | Morto il re, `CompositionRoot.HandleBossDefeated` salva, apre il portale della vittoria nella sala e sblocca il tesoro. La prima volta a ogni difficoltà (`_firstVictory`) la finestra si apre arrivando in città dal portale (`HandleVictoryReached`); le volte dopo c'è solo la scritta "Il re è caduto" |
+| Nuova partita | Menu, scelta dello slot, città. Con `-newgame` e `-seed` dalla riga di comando, e nei test, non passa dal menu |
+| Musica | Quattro brani CC0 da OpenGameArt (cripta, caverne, boss, città) e il fondo della città. Nessun brano per i filmati |
+| ComfyUI | Nella cartella condivisa ci sono Z-Image-Turbo, TRELLIS.2 e Stable Audio 3 small SFX: **nessun modello di video né di musica**. La scheda è una RTX 5070 Ti Laptop con 12 GB; sul disco C ci sono 686 GB liberi |
+| Test | 486 EditMode e i PlayMode a ogni push, più quelli della ronda. `PhotoTour` (assembly `DarkDescent.Tests.Photos`) fa le foto fuori dalla CI |
+
+---
+
+## Decisioni
+
+Da confermare con Mirco. Le scene sono quelle approvate il 27 ottobre 2026, portate nel borgo della
+M18.
+
+| # | Decisione | Proposta | Perché |
+|---|---|---|---|
+| D1 | **Versione e nome** | **M19 "L'ultima candela"**, tag **`v1.7.0`**. Dentro: i due filmati, le luci di notte e d'alba del borgo, le animazioni nuove, la musica, il modo di saltarli e le didascalie. Il gioco non cambia regole | Due filmati si vedono da chi gioca: una versione minore. Il nome è quello dell'apertura, che racconta la storia di tutto il gioco |
+| D2 | **Il montaggio** | **Unity Timeline** (pacchetto ufficiale, gratuito, dal registro di Unity) con le camere di **Cinemachine** che ci sono già. Ogni filmato è una scena con il suo `PlayableDirector`. Lo **costruisce uno strumento dell'editor dal codice**, `FilmTools`, come la città dalla sua mappa: si rifà con un comando e si rilegge nel diff. La lista delle inquadrature (inizio, durata, camera, didascalia) è una classe pura in `Core`, `FilmScript`, che si prova in EditMode. Download con il sì di Mirco | Timeline mette in fila camere, animazioni, luci, suoni e didascalie con un tempo solo, che è il lavoro di un filmato. Scritta a mano con le coroutine sarebbe più codice e niente anteprima. Costruirla dal codice serve a me, che lavoro a Unity chiuso |
+| D3 | **Il set** | Il set è **il borgo della M18**, costruito dalla stessa mappa e dallo stesso tileset. La scena del filmato ha però **luci sue**: la **notte**, con le candele alle finestre, e l'**alba**. Il cimitero, la cappella e la grotta sono quelli in cui si gioca | Chi gioca riconosce nel filmato il posto in cui si trova. Un set solo, già fatto, costa una frazione di un set nuovo |
+| D4 | **Dove finiscono** | L'apertura finisce **nel borgo**, dove comincia la partita. La vittoria finisce **fuori dalla grotta**, nel borgo, e con *Continua* si è già lì, al tramonto di sempre | I filmati portano esattamente dove si gioca, senza stacchi tra la storia e il gioco |
+| D5 | **Cosa manca al set** | Le **candele alle finestre** (materiali emissivi che si spengono, con poche luci vere), le **lanterne** in mano ai paesani, la **terra smossa** sulle tombe da cui escono gli scheletri. Niente da scaricare per il mondo: il borgo c'è già | È tutto quello che la storia mostra e il borgo giocabile non ha |
+| D6 | **Le comparse** | I paesani sono gli abitanti della M18, con una lanterna in mano: `Holding_A` sulla parte alta del corpo e la corsa sotto, con una maschera dell'Animator. Il cavaliere è il modello del gioco; nella vittoria porta l'**equipaggiamento di chi gioca**. Il mercante è il suo. Al più 8 comparse in una inquadratura | Le stesse facce del borgo legano il filmato al gioco. Il cavaliere della vittoria deve essere il tuo, non uno qualunque |
+| D7 | **L'apertura** | Cinque scene in circa 50 s. Si vede **a ogni *Nuova partita***, non quando si carica; mai con `-newgame` né nei test. Il dettaglio delle scene è nell'elenco sotto la tabella | È la storia scelta da Mirco, portata nel borgo. Chi comincia una partita nuova la vede, chi la sa la salta |
+| D8 | **La vittoria in due tempi** | **Primo tempo, nella sala** (circa 5 s), appena muore il re. **Secondo tempo**, attraversando il portale della vittoria, dove oggi si apre la finestra. Tutti e due **la prima volta a ogni difficoltà**, come la finestra di oggi. Il dettaglio dei due tempi è nell'elenco sotto la tabella | Il tesoro e il bottino del re restano a chi gioca: un filmato che li apre al posto suo li toglierebbe. Il trono non c'è, e aggiungerlo cambierebbe la sala del re, i suoi semi e la ronda; il posto vuoto del re è il mucchio d'ossa che resta |
+| D9 | **Saltare e guardare** | Esc o un click: il primo mostra in basso «Esc o click per saltare», il secondo salta. Saltata l'apertura si è nel borgo, saltata la vittoria si va alla finestra. Durante un filmato il gioco non legge comandi e non salva. **Bande nere** sopra e sotto (2,35:1), le didascalie in Cinzel con una dissolvenza. Nessuna voce | Due tasti per saltare evitano di perdere un filmato per sbaglio, come in Diablo. Le bande dicono "questo è un filmato" senza parole |
+| D10 | **La musica** | Prima si prova **ACE-Step** in ComfyUI (musica da testo), come Z-Image alla M16: un brano per l'apertura e uno per la vittoria, ognuno con la sua ricetta in `Tools/ComfyUI/music/`, e una pagina di ascolto per Mirco. Se non convince, un **brano CC0** di OpenGameArt come gli altri quattro. I suoni (la candela che si spegne, la terra che si rompe, la folla) con Stable Audio, che c'è già. Licenza e dimensione dei pesi si leggono prima di scaricare, con il sì di Mirco | Una musica fatta per il filmato segue le scene, un brano trovato va tagliato. La prova costa poco e c'è una riserva sicura |
+| D11 | **I modelli di video** | Si provano **Wan 2.2 TI2V 5B** e **LTX-Video** su un render del borgo, in **1 h al massimo**, solo per gli stacchi che il motore fa male: fumo, polvere, la luce che entra dalla grotta. **Mai per i personaggi**, che cambiano forma da un fotogramma all'altro. Una clip entra solo con il sì di Mirco, come `VideoPlayer` dietro la scena; altrimenti tutto resta nel motore, e la prova finisce nelle lezioni. Licenze e pesi si leggono prima di scaricare | Chiesto da Mirco. Un filmato nel motore si vede alla risoluzione dello schermo e pesa poco; una clip generata pesa megabyte e può stonare. Un tempo fisso tiene la prova nelle ore |
+| D12 | **Il video da mostrare** | **Unity Recorder** (pacchetto ufficiale, dal registro di Unity) registra i due filmati in MP4 1920×1080 da un test della categoria `Photos`, come il giro di foto della M17. I video vanno nelle release, e nel README come GIF corte; nel repo non entrano interi. Download con il sì di Mirco | Senza ffmpeg, Recorder è la strada più corta per un MP4. Il video serve a Mirco per il sì e a chi guarda il repo |
+| D13 | **Il sì di Mirco** | Tre giri: prima le **foto delle inquadrature** (un fotogramma per scena, da `PhotoTour`), prima di montare; poi il **video** di ogni filmato; poi la prova in build. A ogni giro si cambia quello che non convince | Una foto si corregge in minuti, un filmato montato in ore. Come alla M17, niente entra senza il sì |
+| D14 | **Si controlla** | EditMode: `FilmScript` (inquadrature in fila senza buchi, durata dentro i limiti, ogni didascalia nelle due lingue) e quando parte la vittoria (la prima volta sì, la seconda no). PlayMode: vedi l'elenco sotto la tabella. La ronda non cambia | I filmati toccano il tempo, la camera e i comandi del gioco: se uno di questi non torna com'era, il gioco è rotto. I test lo dicono prima di Mirco |
+| D15 | **Stima e linee di taglio** | **12–17 h**, meno delle 14–20 della prima stima perché il set c'è già. Se servirà tagliare, in quest'ordine: le clip generate (D11); la scena 2 dell'apertura, con meno comparse; la musica generata (resta un brano CC0); il video per il README. I due filmati interi, il salto e le didascalie non si tagliano | Meglio deciderlo adesso che a metà |
+| D16 | **Fuori da questa milestone** | Filmati per la morte o per ogni difficoltà; voci e labiale; filmati prerenderizzati come quelli di Blizzard; un pulsante del menu per rivederli; la risalita e le stanze più grandi (M20) | Ognuna è un lavoro a sé. Un pulsante per rivederli si aggiunge in poco dopo, se Mirco lo vuole |
+| D17 | **Dimensioni e prestazioni** | Il limite è **+30 MB** sulla build: le animazioni, due brani e, se entrano, le clip. I filmati girano a **60 fps** sul PC di sviluppo in build. Forward+ regge molte luci, ma ognuna costa: le candele del borgo di notte sono soprattutto materiali emissivi. Si misura alla chiusura come alla M17 | Il borgo di notte con le finestre accese è la scena con più luci del gioco |
+
+**D7, le cinque scene dell'apertura:**
+1. Il borgo di notte, le candele alle finestre che si spengono una a una.
+2. Il cimitero: gli scheletri escono dalla terra (`Skeletons_Awaken_Floor`) e i paesani scappano con
+   le lanterne.
+3. L'alba nella piazza, i sopravvissuti seduti attorno al fuoco spento.
+4. Arriva il cavaliere. Il mercante accende l'ultima candela sull'altare della cappella e indica la
+   grotta. La didascalia: il Re delle ossa si è svegliato.
+5. Il titolo sopra la bocca della grotta. Poi la camera scende sul cavaliere nella piazza, e si gioca.
+
+**D8, i due tempi della vittoria:**
+- **Primo tempo.** Il tempo rallenta a un quarto sul colpo finale. Una camera si stringe sul re che si
+  sfalda (`Skeletons_Death`) e la musica tace. Poi si torna a giocare.
+- **Secondo tempo.**
+  1. Il cavaliere guarda il mucchio d'ossa dov'era il re e si avvia.
+  2. Stacco sul cunicolo, con la luce che entra da fuori.
+  3. Il cavaliere esce dalla grotta all'alba e i sopravvissuti si alzano ed esultano (`Cheering`).
+  4. La finestra con le statistiche, *Continua* e *Menu principale*.
+
+**D14, cosa provano i test PlayMode:**
+- *Nuova partita* dal menu avvia l'apertura, che finisce nel borgo con il cavaliere libero;
+- Esc più Esc salta il filmato in meno di un secondo;
+- il re battuto la prima volta fa il primo tempo, il portale il secondo e poi la finestra;
+- la seconda volta non parte nessun filmato;
+- dopo un filmato il tempo torna a 1 e la camera torna al cavaliere.
+
+---
+
+## Passi
+
+| # | Passo | Ore |
+|---|---|---|
+| 19.1 | Gli attrezzi: Timeline e Recorder (con il sì), le animazioni nuove importate, `FilmScript` in `Core`, il lettore dei filmati (salto, bande, didascalie, comandi e tempo fermi), i test (D2, D9, D12, D14) | 2–2,5 |
+| 19.2 | La prova dei modelli in ComfyUI: ACE-Step per la musica, Wan 2.2 e LTX-Video per gli stacchi, con le pagine per Mirco; si decide cosa entra (D10, D11) | 1,5–2 |
+| 19.3 | Il borgo di notte e all'alba: le luci, le candele alle finestre, le lanterne, la terra smossa; le foto per Mirco (D3, D5, D17) | 1,5–2 |
+| 19.4 | L'apertura: le cinque scene, le comparse, le luci che si spengono, le didascalie, il collegamento a *Nuova partita*. Prima le foto per Mirco, poi il video (D4, D6, D7, D13) | 3–4 |
+| 19.5 | La vittoria: il primo tempo nella sala, il secondo dal portale, il cavaliere con l'equipaggiamento di chi gioca, la finestra alla fine. Prima le foto per Mirco, poi il video (D4, D8, D13) | 2,5–3,5 |
+| 19.6 | Musica e suoni dei due filmati, il volume con le opzioni, i crediti (D10) | 1–1,5 |
+| 19.7 | Misura, video e GIF per il README, build da provare e chiusura: ADR, lezioni, piano, `bundleVersion` 1.7.0, tag `v1.7.0` dopo i test verdi in CI (D17) | 1–1,5 |
+
+---
+
+## Checklist di chiusura
+
+- [ ] Decisioni D1–D17 confermate
+- [ ] I download approvati: Timeline, Recorder, i modelli di ComfyUI
+- [ ] L'apertura e la vittoria approvate da Mirco in video
+- [ ] Test EditMode e PlayMode verdi in locale e in CI
+- [ ] La build misurata dentro il limite della D17
+- [ ] ADR, lezioni nel piano, README, `CREDITS.md` e `Data/Credits.txt`
+- [ ] `bundleVersion` 1.7.0 e tag `v1.7.0` dopo i test verdi in CI
