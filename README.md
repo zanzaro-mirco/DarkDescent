@@ -9,6 +9,21 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.5 — M17 "Una pelle nuova"**, chiusa il 27 ottobre 2026 (tag `v1.5.0`). Rispetto alla v1.4:
+
+- **pannelli e pulsanti** nello stile scuro e pulito: uno sfondo di cuoio scuro, una cornice sottile in
+  ferro nero, pulsanti che si scaldano al passaggio del mouse;
+- un **menu iniziale** nuovo, con i pulsanti in colonna e i **riconoscimenti**; le opzioni divise per
+  gruppi; la vittoria con **Continua**, per restare a giocare in città;
+- **macchie a terra** in cripta e caverne: crepe, polvere, ossa, sangue secco, muschio, pozze, sassi e
+  fuliggine, con un seme loro, così i livelli restano quelli di prima;
+- **sfondi** per menu, morte e vittoria: l'ingresso della cripta e una tomba aperta generati, la sala
+  del re appena abbattuto presa dal gioco;
+- le immagini nuove sono **generate in locale con Z-Image-Turbo**, con la ricetta nel repo
+  (`Tools/ComfyUI/images/`). Le foto di prima e di dopo stanno in `docs/media/m17/`.
+
+![Il menu iniziale della v1.5: il titolo DarkDescent in oro e i pulsanti in colonna a sinistra, su un'illustrazione low poly dell'ingresso di una cripta nella roccia di notte, con due torce accese e ossa sparse](docs/media/m17/dopo/01_menu.jpg)
+
 **v1.4 — M16 "Tesori con un nome"**, chiusa il 26 ottobre 2026 (tag `v1.4.0`). Rispetto alla v1.3:
 
 - sopra il raro, **unici** con il nome in oro e **pezzi di set** con il nome in verde: dodici unici e

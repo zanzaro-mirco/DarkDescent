@@ -4,7 +4,20 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 26 ott 2026, build della M16 da provare (passo 16.7).
+Ultimo aggiornamento: 27 ott 2026, build della M17 da provare (passo 17.7, run 40490509049).
+
+## Dalla M17 — "Una pelle nuova" (v1.5.0)
+
+- **Il menu iniziale**: lo sfondo della cripta, i pulsanti in colonna, *Riconoscimenti* che scorrono e
+  tornano al menu. A una risoluzione diversa da 16:9 lo sfondo copre lo schermo senza deformarsi?
+- **Le finestre**: inventario, scheda, mercante, altare e tooltip con la cornice nuova. Il testo si
+  legge bene, anche i colori delle rarità e il rosso del prezzo troppo alto?
+- **I pulsanti**: si scaldano al passaggio del mouse e scuriscono al click.
+- **Le opzioni** per gruppi, in inglese e in italiano.
+- **Le macchie a terra** in cripta e caverne: si notano senza disturbare? Troppe, poche, troppo
+  accese (il muschio)? Con il filtro retrò reggono?
+- **La morte e la vittoria** con gli sfondi (la vittoria è la sala del re presa dal gioco, in attesa
+  della cinematica della M18); *Continua* dalla vittoria lascia giocare in città e porta all'altare.
 
 ## Dalla M16 — "Tesori con un nome" (v1.4.0)
 

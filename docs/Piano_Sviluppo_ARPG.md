@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.65**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.66**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.66 | 27 ott 2026 | **M17 chiusa** (tag `v1.5.0`), con le lezioni · pannelli e pulsanti nello stile scuro e pulito, menu nuovo con i riconoscimenti, opzioni per gruppi, vittoria con Continua, macchie a terra in cripta e caverne, sfondi di menu, morte e vittoria, tutto generato con Z-Image-Turbo · ADR-115…117 |
 | v2.65 | 26 ott 2026 | Scheda della **M17 — "Una pelle nuova"** (`docs/milestones/M17_Una_pelle_nuova.md`, D1–D16 da confermare): il ritocco della grafica con Z-Image-Turbo; un giro di foto e una lista corta scelta con Mirco, pannelli con cornice e sfondo al posto dei rettangoli a tinta unita, macchie a terra con un tiro a parte in cripta e caverne, sfondi di menu, morte e vittoria; l'atlante KayKit resta com'è; ricette nel repo e il sì di Mirco su ogni immagine; tag `v1.5.0`, 7–10 h |
 | v2.64 | 26 ott 2026 | **M16 chiusa** (tag `v1.4.0`), con le lezioni · unici in oro e set in verde sopra il raro, dodici unici e due set, quattro proprietà nuove, valori che crescono con il livello, un tiro a parte dall'Ombra in su, formato 7 del salvataggio · la misura ha alzato le probabilità degli Abissi (fino al 4%) e i valori di otto unici e dei due set · la build non è stata provata, le prove restano in `docs/Da_provare.md` · ADR-110…113 |
 | v2.63 | 25 ott 2026 | **Z-Image-Turbo provato** (immagini da testo in ComfyUI, circa 5 s l'una): la voce dei modelli generati lo dà per pronto, e una voce nuova, il **ritocco della grafica**, lo usa per texture, pannelli e sfondi da rifare, scelti da un giro di foto con Mirco; proposta come M17 · M16: D1–D16 confermate, passi 16.2–16.4 fatti |
@@ -88,11 +89,11 @@
 | **Render pipeline** | URP 17.3.0 |
 | **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) · M13 — "Stanze vive" (21 ott 2026, tag `v1.2.0`) · M14 — "La luce si spegne" (23 ott 2026, tag `v1.3.0`) · M15 — "La ronda notturna" (24 ott 2026, tag `v1.3.1`) · M16 — "Tesori con un nome" (26 ott 2026, tag `v1.4.0`) |
-| **Milestone corrente** | M17 — "Una pelle nuova": il ritocco della grafica con Z-Image-Turbo (scheda `docs/milestones/M17_Una_pelle_nuova.md`, D1–D16 confermate il 26 ott 2026, lista corta approvata: pannelli, menu, opzioni, pausa, vittoria, macchie a terra). Dopo: la risalita e stanze più grandi, proposte come M18 (§ 5) |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) · M13 — "Stanze vive" (21 ott 2026, tag `v1.2.0`) · M14 — "La luce si spegne" (23 ott 2026, tag `v1.3.0`) · M15 — "La ronda notturna" (24 ott 2026, tag `v1.3.1`) · M16 — "Tesori con un nome" (26 ott 2026, tag `v1.4.0`) · M17 — "Una pelle nuova" (27 ott 2026, tag `v1.5.0`) |
+| **Milestone corrente** | Nessuna: la M17 è chiusa (27 ott 2026). La prossima, da confermare con Mirco: la cinematica della vittoria (M18), poi la risalita e stanze più grandi (M19) (§ 5, «Dopo la v1.0») |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale, la ronda notturna dei test `Nightly` con l'issue `ronda` sui fallimenti (ADR-011…013, ADR-019, ADR-106, ADR-109) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `docs/Da_provare.md` (le prove in build non ancora fatte) · `DECISIONS.md` (ADR-001…114) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `docs/Da_provare.md` (le prove in build non ancora fatte) · `DECISIONS.md` (ADR-001…117) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -547,6 +548,23 @@ Chiusa il 26 ottobre 2026 con il tag `v1.4.0`: 466 test EditMode e 252 PlayMode 
 
 ---
 
+### M17 — "Una pelle nuova" ✅
+
+Chiusa il 27 ottobre 2026 con il tag `v1.5.0`: 486 test EditMode e i PlayMode verdi a ogni push, più quelli della ronda. La build della CI (40490509049) pesa 54,91 MB, 1,86 MB più della v1.4.0, dentro il limite di +25 MB della D12; le texture nuove sono circa 4 MB, i tempi dei livelli non cambiano. La build non è ancora stata provata da Mirco: le prove sono in `docs/Da_provare.md`. Le foto di prima e di dopo stanno in `docs/media/m17/` (`prima_e_dopo.html`). Lezioni emerse:
+
+- **Le foto prima di tutto:** il giro di foto ha dato la lista corta a Mirco e poi ha trovato da solo i difetti di ogni passo (il menu dietro le opzioni, il buco di Continua, le macchie troppo piccole, la sfera del mana sopra la morte) prima che li vedesse lui.
+- **Il prompt sceglie lo stile, non solo il soggetto:** con le stesse parole di stile il menu è uscito come un diorama 3D e morte e vittoria come illustrazioni piatte; serve "3D render of a low poly isometric diorama" in testa.
+- **Le parole si prendono alla lettera:** "crepe nella pietra" disegna le lastre, "a forma di fulmine" un fulmine, "ragnatela di crepe" una ragnatela, "polvere" un blocco di pietra. Si prova con tre semi e si guarda il foglio su un colore del pavimento.
+- **Il fondo da ritagliare va lontano dai colori del soggetto:** il sangue rosso su magenta spariva con il fondo; su verde resta.
+- **Si giudica nel gioco, non nel foglio:** le macchie che sembravano giuste nell'atlante nel buio della cripta si vedevano appena, e sono cresciute dopo la prima foto.
+- **Il pavimento non sta a zero:** la piastrella della cripta arriva a 5 cm e quella delle caverne a 11; le macchie a 2 cm stavano sotto. L'altezza ora si legge dalla mesh.
+- **URP riscrive la coda dei materiali:** `renderQueue` torna a 3000 al salvataggio; la coda si sposta con `_QueueOffset`.
+- **Un test che fissa un seme deve fissarli tutti:** il tesoro del re fissava il seme del livello ma non quello del loot, e una volta su sei non aveva un raro.
+- **ComfyUI cade a volte a metà di una serie:** si riavvia e si genera un nome alla volta.
+- **Un'immagine bella può essere di un altro gioco:** l'accampamento all'alba era il più riuscito dei tre, ma luminoso e da cartone accanto al buio di cripta e caverne; Mirco l'ha scartato. La riserva della D6, il render del gioco, è nello stile per forza.
+
+---
+
 ### M1 — "Mi muovo" · 12–20 h
 
 **A schermo:** una stanza grigia con ostacoli; clicchi, il personaggio ci arriva animato aggirando gli ostacoli, la camera isometrica lo segue morbida.
@@ -991,9 +1009,16 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Ricette.** Ogni immagine ha accanto la sua ricetta (prompt, seme, modello, passi), come i suoni della M13, e si rigenera con un comando di `Tools/ComfyUI`. Niente entra negli asset senza il sì di Mirco sulla foto.
   - **Licenze.** Z-Image-Turbo è Apache 2.0 e le immagini generate sono nostre: l'ADR-096 dei suoni generati si estende alle immagini, con una riga in `CREDITS.md`.
   - **Limiti.** Lo stile resta KayKit: i *Personaggi nello stile di Diablo 2* restano una voce a parte, come modelli e animazioni. Le texture nuove vanno compresse o in atlante, senza raddoppiare la memoria delle build.
-  - **Quando.** **È la M17** (scheda `docs/milestones/M17_Una_pelle_nuova.md`, v2.65), 7–10 h. Dalla verifica dello stato: l'atlante KayKit è a tinte senza dettagli, quindi pavimenti e muri non si ritexturizzano ma prendono macchie a terra; i pannelli sono 185 rettangoli a tinta unita.
+  - **Quando.** **Fatto nella M17**, v1.5.0, 27 ott 2026 (scheda `docs/milestones/M17_Una_pelle_nuova.md`, v2.65), 7–10 h. Dalla verifica dello stato: l'atlante KayKit è a tinte senza dettagli, quindi pavimenti e muri non si ritexturizzano ma prendono macchie a terra; i pannelli sono 185 rettangoli a tinta unita.
 
-- **La risalita e stanze più grandi** (chiesti da Mirco il 26 ott 2026, nel giro di foto della M17). Proposta come **M18**, dopo la M17. Cosa comporta:
+- **La cinematica della vittoria** (chiesta da Mirco il 27 ott 2026, guardando lo sfondo della vittoria della M17). Proposta come **M18**, dopo la v1.5.0. Un filmato di chiusura come quelli di Diablo, fatto nel motore con i modelli, le luci e le animazioni del gioco, non un video generato, che non terrebbe uguali cavaliere e re. Cosa comporta:
+  - **La scena**, approvata da Mirco: il colpo finale rallenta e la camera si stringe sul Re delle ossa che crolla e si sfalda; silenzio, il cavaliere guarda il trono vuoto, apre il tesoro e si avvia; stacco sull'ultima scala, con la luce di fuori; l'accampamento vero all'alba, il cavaliere che arriva; poi la finestra della vittoria con le statistiche, *Continua* e *Menu principale*.
+  - **Le animazioni** ci sono già nel pacchetto completo *KayKit Character Animations 1.1* (CC0), scaricato ma importato solo in parte: la morte che sfalda lo scheletro, la sfida del re, il colpo in salto, l'esultanza, il sedersi a terra.
+  - **Da confermare nella scheda:** Unity Timeline per montare la scena (pacchetto ufficiale, da scaricare), la musica di vittoria (un brano CC0 o un modello musicale in ComfyUI), Unity Recorder per un MP4 da mostrare. Si salta con un tasto e si vede la prima volta che si batte il re a ogni difficoltà.
+  - **I modelli di ComfyUI** (chiesto da Mirco il 27 ott 2026): si provano prima di decidere, come Z-Image alla M16, su un render del gioco. Per il video Wan 2.2 (il 5B da testo e immagine sta nei 12 GB della scheda; il primo e l'ultimo fotogramma dati dal gioco tengono fermi personaggi e stanza) e LTX-Video, più veloce: per gli stacchi che il motore fa male (fumo, polvere, la luce che entra dall'uscita), mai per i personaggi in movimento, che cambiano forma da un fotogramma all'altro. Per la musica ACE-Step, che gira in ComfyUI. Licenze e dimensioni dei pesi si leggono prima di scaricare, con il sì di Mirco.
+  - Circa 8–12 h.
+
+- **La risalita e stanze più grandi** (chiesti da Mirco il 26 ott 2026, nel giro di foto della M17). Proposta come **M19**, dopo la cinematica. Cosa comporta:
   - **La risalita.** All'ingresso di ogni livello di cripta e caverne una scala in su che funziona e riporta alla profondità di sopra, all'uscita di quella; dalla profondità 1 all'accampamento. Come in Diablo 1. Tocca il generatore (la scala va nella stanza d'ingresso, raggiungibile, mai in mezzo agli arredi), il `LevelManager` (l'ingresso della profondità di sopra è la sua uscita in giù), i ricordi dei livelli e la ronda, che deve provarla.
   - **Stanze più grandi.** Oggi alcune stanze della cripta sono troppo piccole: si alza la dimensione minima e si guarda quanto spazio resta per arredi, punti d'interesse e combattimenti.
   - **Perché a parte.** Tutte e due cambiano i livelli di ogni seme: i test con i semi fissi, le soglie delle mappe e la ronda vanno ritarati, come alla M15. Circa 5–8 h.

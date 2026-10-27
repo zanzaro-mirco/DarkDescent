@@ -1,11 +1,19 @@
 """Gli sfondi a tutto schermo di menu, morte e vittoria (M17, D6): illustrazioni in stile diorama low poly,
 come i modelli KayKit, scurite dove stanno i testi. Negli asset vanno con
 
-    python Tools/ComfyUI/make.py menu_back death_back victory_back --out Assets/_Project/Art/Generated/Backgrounds
+    python Tools/ComfyUI/make.py menu_back death_back --out Assets/_Project/Art/Generated/Backgrounds
+
+La vittoria invece è un render del gioco (la riserva della D6): l'accampamento all'alba generato
+sembrava di un altro gioco, e Mirco l'ha scartato il 27 ott 2026. Il test PhotoTour.VictoryBackdrop
+fotografa la sala del re appena abbattuto in Recordings/Photos/victory_render.png, e
+
+    python Tools/ComfyUI/renders.py
+
+lo rifinisce con la ricetta di RENDERS e lo mette negli asset.
 """
 
-DESCRIPTION = ("Sfondi di menu, morte e vittoria: l'ingresso della cripta, una tomba aperta, l'alba "
-               "sull'accampamento, nello stile dei modelli del gioco.")
+DESCRIPTION = ("Sfondi di menu e morte: l'ingresso della cripta e una tomba aperta, nello stile dei modelli "
+               "del gioco.")
 COMPARE = "docs/media/m17/prima/01_menu.jpg"
 
 STYLE = ("stylized low poly 3D diorama render like the KayKit asset packs, isometric three quarter view from "
@@ -30,19 +38,20 @@ IMAGES = {
     "death_back": {
         # senza "3D render ... diorama" in testa il modello fa un'illustrazione piatta (prove del 17.6)
         "prompt": ("3D render of a low poly isometric diorama: an open stone grave inside a dark crypt, the "
-                   "cracked lid pushed aside, a dented knight helmet and a broken sword lying on the floor beside it, cobwebs, a cold pale blue light falling from "
-                   "above, dust in the air, gloomy and quiet, " + STYLE),
+                   "cracked lid pushed aside, a dented knight helmet and a broken sword lying on the floor "
+                   "beside it, cobwebs, a cold pale blue light falling from above, dust in the air, gloomy and "
+                   "quiet, " + STYLE),
         "seed": 1762,
         "size": SIZE,
         "finish": [("resize", (1920, 1080)), ("shade", 0.5, 0.5, 0.42, 0.7), ("darken", 0.2)],
     },
+}
+
+# i render del gioco: da dove vengono, dalla radice del repo, e la finitura
+RENDERS = {
     # la finestra con le statistiche al centro
     "victory_back": {
-        "prompt": ("3D render of a low poly isometric diorama: dawn over a small adventurers camp in a forest "
-                   "clearing, canvas tents, a dying campfire with a thin line of smoke, a wooden palisade, the first golden sunlight rising over distant "
-                   "mountains, warm hopeful morning mood, " + STYLE),
-        "seed": 1763,
-        "size": SIZE,
-        "finish": [("resize", (1920, 1080)), ("shade", 0.5, 0.5, 0.36, 0.65), ("darken", 0.1)],
+        "source": "Recordings/Photos/victory_render.png",
+        "finish": [("resize", (1920, 1080)), ("shade", 0.5, 0.5, 0.3, 0.5)],
     },
 }

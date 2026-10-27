@@ -6,7 +6,7 @@ Script fuori da Unity che producono asset del gioco. Ogni asset si rifà dallo s
 |---|---|---|
 | `Blender/` | Modelli 3D nello stile KayKit, esportati in FBX in `Assets/_Project/Art/Models/DarkDescent/` (ADR-094) | `blender --background --factory-startup --python Tools/Blender/make.py -- [nomi] [--photo DIR]` (Blender 5.2 LTS) |
 | `Audio/` | Effetti sonori sintetizzati, in WAV in `Assets/_Project/Audio/SFX/Generated/` (ADR-095) | `python Tools/Audio/make.py [nomi] [--out DIR --page]` (Python 3.13, `pip install -r Tools/Audio/requirements.txt`) |
-| `ComfyUI/` | Suoni (Stable Audio 3 Small SFX), modelli (TRELLIS.2) e immagini (Z-Image-Turbo, M17) generati da ComfyUI attraverso l'API locale (D15 della M13, ADR-114) | `python Tools/ComfyUI/make.py [nomi] [--out DIR --page --takes N]`, `--check` per i modelli scaricati (con l'app aperta; `pip install -r Tools/ComfyUI/requirements.txt`); poi `uiparts.py` (placca dei pulsanti) e `decalatlas.py` (atlante delle macchie a terra, M17) |
+| `ComfyUI/` | Suoni (Stable Audio 3 Small SFX), modelli (TRELLIS.2) e immagini (Z-Image-Turbo, M17) generati da ComfyUI attraverso l'API locale (D15 della M13, ADR-114) | `python Tools/ComfyUI/make.py [nomi] [--out DIR --page --takes N]`, `--check` per i modelli scaricati (con l'app aperta; `pip install -r Tools/ComfyUI/requirements.txt`); poi `uiparts.py` (placca dei pulsanti), `decalatlas.py` (atlante delle macchie a terra, M17) e `renders.py` (gli sfondi presi dal gioco, rifiniti con la stessa finitura) |
 
 Un modello nuovo è un modulo in `Blender/models/` con `MODELS`, `COMPARE` e `PHOTO`; un suono nuovo è
 un modulo in `Audio/sounds/` con `SOUNDS`, `TITLE`, `DESCRIPTION`, `COMPARE` e `MAX_DUR`.

@@ -233,6 +233,48 @@ namespace DarkDescent.Tests
             Assert.GreaterOrEqual(_taken.Count, 17);
         }
 
+        /// <summary>Il file del render della vittoria, nella cartella delle foto.</summary>
+        public const string VictoryRender = "victory_render.png";
+
+        [UnityTest, Timeout(600000), Description("Lo sfondo della vittoria dal gioco (D6, riserva scelta da Mirco il 27 ott 2026): la sala del re appena abbattuto, il cavaliere davanti ai resti, senza interfaccia, in PNG a 1920x1080")]
+        public IEnumerator VictoryBackdrop()
+        {
+            yield return LoadGeneratedCore();
+            for (ulong seed = 1; seed <= 10; seed++)
+            {
+                Manager.RunSeed = seed;
+                yield return Descend("Level_Caves", 8);
+                if (Manager.CurrentLevel.BossGate != null)
+                {
+                    break;
+                }
+            }
+
+            var level = Manager.CurrentLevel;
+            Assert.IsNotNull(level.Boss, "un seme con la sala del re");
+            Vector3 home = level.Boss.GetComponent<EnemyAI>().HomePosition;
+            Vector3 gate = level.BossGate.transform.position;
+
+            // il cavaliere tra la porta e il re, girato verso di lui; poi il re cade
+            Vector3 spot = home + Flat(gate - home) * 3.5f;
+            Assert.IsTrue(NavMesh.SamplePosition(spot, out var hit, 2f, NavMesh.AllAreas), "un posto davanti al re");
+            Hero.GetComponent<NavMeshAgent>().Warp(hit.position);
+            Hero.transform.rotation = Quaternion.LookRotation(Flat(home - hit.position));
+            level.Boss.Health.TakeDamage(new DamageInfo(level.Boss.Health.Max * 10f, DamageType.Physical, Hero));
+            yield return new WaitForSecondsRealtime(4f);
+
+            foreach (var canvas in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                canvas.enabled = false;
+            }
+
+            Object.FindFirstObjectByType<RetroFilter>().SetMode(RetroMode.Off);
+            yield return Frames(3);
+            var shot = ScreenCapture.CaptureScreenshotAsTexture();
+            File.WriteAllBytes(Path.Combine(_folder, VictoryRender), shot.EncodeToPNG());
+            Object.Destroy(shot);
+        }
+
         private static UniqueDefinition Named(string path)
         {
             return AssetDatabase.LoadAssetAtPath<UniqueDefinition>($"Assets/_Project/Data/Named/{path}.asset");

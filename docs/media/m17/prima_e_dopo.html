@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prima e dopo M17</title>
+<style>
+:root { --bg:#14110e; --panel:#221c16; --line:#4a3d2c; --text:#e8e2d4; --dim:#9c927f; --gold:#d9b25c; }
+body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui, sans-serif; }
+header { padding:20px 24px 8px; } h1 { margin:0 0 6px; font-size:22px; color:var(--gold); }
+p.note { margin:0; color:var(--dim); max-width:900px; }
+.tools { padding:10px 24px; display:flex; gap:10px; flex-wrap:wrap; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); gap:16px; padding:12px 24px 24px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+.card img { display:block; width:100%; cursor:zoom-in; }
+.card .bar { display:flex; gap:10px; align-items:center; padding:8px 10px; flex-wrap:wrap; }
+.card .bar b { flex:1; font-weight:600; }
+button { background:#2e261d; color:var(--text); border:1px solid var(--line); border-radius:4px; padding:5px 10px; cursor:pointer; font:inherit; }
+button.on { border-color:var(--gold); color:var(--gold); }
+#zoom { position:fixed; inset:0; background:rgba(0,0,0,.92); display:none; align-items:center; justify-content:center; z-index:9; cursor:zoom-out; }
+#zoom img { max-width:98vw; max-height:96vh; }
+@media (max-width:520px) { .grid { grid-template-columns:1fr; padding-left:16px; padding-right:16px; } header, .tools { padding-left:16px; padding-right:16px; } }
+</style></head><body>
+<header><h1>M17 — prima e dopo</h1>
+<p class="note">Le stesse schermate della v1.4.0 (prima) e della v1.5.0 (dopo), 1920×1080, fatte da <code>PhotoTour</code> con lo stesso seme. Ogni foto passa da prima a dopo con il suo pulsante; quelli in alto le girano tutte. Il filtro retrò vale per le schermate di gioco.</p></header>
+<div class="tools"><button id="allBefore">Tutte prima</button><button id="allAfter" class="on">Tutte dopo</button><button id="retro">Filtro: spento</button></div>
+<div class="grid" id="grid"></div>
+<div id="zoom"><img alt=""></div>
+<script>
+const SHOTS = [["01_menu", "Menu principale", false], ["02_options", "Opzioni", false], ["03_camp", "Accampamento", true],
+  ["04_merchant", "Mercante e inventario", true], ["05_altar", "Altare delle difficoltà", true], ["06_inventory", "Inventario con un pezzo di set", true],
+  ["07_character", "Scheda del cavaliere", true], ["08_crypt", "Cripta, l'ingresso", true], ["09_crypt_room", "Cripta, una stanza", true],
+  ["10_loot", "Loot a terra", true], ["11_automap", "Mappa sovrapposta", true], ["12_caves", "Caverne, l'ingresso", true],
+  ["13_caves_room", "Caverne, una stanza", true], ["14_pause", "Pausa", true], ["15_victory", "Vittoria", true],
+  ["16_credits", "Riconoscimenti (dopo: dal menu)", false], ["17_death", "Morte", true]];
+let retro = false;
+const cards = [];
+const grid = document.getElementById('grid');
+for (const [id, title, hasRetro] of SHOTS) {
+  const c = { after: true, img: document.createElement('img'), button: document.createElement('button') };
+  c.src = () => (c.after ? 'dopo/' : 'prima/') + id + (retro && hasRetro ? '_retro' : '') + '.jpg';
+  c.show = () => { c.img.src = c.src(); c.button.textContent = c.after ? 'Dopo' : 'Prima'; c.button.classList.toggle('on', c.after); };
+  c.img.loading = 'lazy'; c.img.alt = title;
+  c.img.onclick = () => { const z = document.getElementById('zoom'); z.querySelector('img').src = c.img.src; z.style.display = 'flex'; };
+  c.button.onclick = () => { c.after = !c.after; c.show(); };
+  const card = document.createElement('div'); card.className = 'card';
+  const bar = document.createElement('div'); bar.className = 'bar';
+  const b = document.createElement('b'); b.textContent = id.slice(0, 2) + ' · ' + title;
+  bar.append(b, c.button); card.append(c.img, bar); grid.appendChild(card);
+  c.show(); cards.push(c);
+}
+function all(after) {
+  for (const c of cards) { c.after = after; c.show(); }
+  document.getElementById('allBefore').classList.toggle('on', !after);
+  document.getElementById('allAfter').classList.toggle('on', after);
+}
+document.getElementById('allBefore').onclick = () => all(false);
+document.getElementById('allAfter').onclick = () => all(true);
+document.getElementById('retro').onclick = (e) => { retro = !retro; e.target.textContent = retro ? 'Filtro: acceso' : 'Filtro: spento'; e.target.classList.toggle('on', retro); for (const c of cards) c.show(); };
+document.getElementById('zoom').onclick = () => { document.getElementById('zoom').style.display = 'none'; };
+</script></body></html>

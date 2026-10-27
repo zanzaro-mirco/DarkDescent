@@ -121,7 +121,7 @@ schermata vecchia. Gli altri candidati (barra in basso, celle e slot, icona dell
 della minimappa) restano fuori: i pannelli nuovi li toccano in parte, e si riguardano nelle foto di
 dopo.
 
-**Fuori dalla M17, nella M18.** Mirco ha segnato anche due cose che non sono grafica: all'ingresso di
+**Fuori dalla M17, nella M19** (era la M18, prima della cinematica). Mirco ha segnato anche due cose che non sono grafica: all'ingresso di
 cripta e caverne **manca la risalita**, una scala che funziona e riporta alla profondità di sopra
 (dalla 1 all'accampamento), come in Diablo 1; e **alcune stanze sono troppo piccole**, va alzata la
 dimensione minima. Tutte e due cambiano il generatore, quindi i livelli di tutti i semi, i test con
@@ -284,6 +284,29 @@ sfera del mana e la barra dell'esperienza, che venivano dopo nella gerarchia, gl
 Test: `UiSkinTests.Screens_HaveTheirBackdrops` (import, primo figlio, 1920×1080, copre senza
 deformare) e `UiSkinTests.DeathScreen_CoversTheHud`.
 
+## Passo 17.7 — Misura e chiusura
+
+**Com'è andata (27 ott 2026).**
+
+| Misura | v1.4.0 | v1.5.0 |
+|---|---|---|
+| Build Windows della CI (artefatto) | 53,05 MB | 54,91 MB (+1,86, limite +25) |
+| Texture nuove nella build | — | circa 4,1 MB: tre sfondi DXT1 1920×1080 da 1,0 MB, l'atlante DXT5 con i mipmap 0,7 MB, i pannelli 0,16 MB |
+| Tempi di un livello (generazione, costruzione, NavMesh, a regime) | 25–30 ms | 25–30 ms |
+
+**La vittoria dal gioco.** Guardando le foto Mirco ha scartato l'accampamento all'alba: bello, ma
+sembrava di un altro gioco. Al suo posto la riserva della D6: `PhotoTour.VictoryBackdrop` scende alla
+sala del re, lo abbatte, mette il cavaliere davanti ai resti e al tesoro, spegne l'interfaccia e salva
+un PNG a 1920×1080; `Tools/ComfyUI/renders.py` lo rifinisce con la ricetta di `RENDERS` in
+`images/backgrounds.py`. Mirco vuole al suo posto una **cinematica** di chiusura, come i filmati di
+Diablo: il re che crolla, il cavaliere che apre il tesoro ed esce, l'accampamento all'alba, poi le
+statistiche. È proposta come M18 (piano v2.66), e risalita e stanze più grandi passano alla M19.
+
+Le foto di dopo sono in `docs/media/m17/dopo` (31: i riconoscimenti si fotografano dal menu, senza
+il filtro), e `docs/media/m17/prima_e_dopo.html` le mette accanto a quelle di prima. La build da
+provare è il run 40490509049; le prove sono in `docs/Da_provare.md`. ADR-115…117, le lezioni nel
+piano (v2.66), il README e `bundleVersion` 1.5.0.
+
 ## Trappole note
 
 - **Lo stile KayKit è a tinte.** Un'immagine con dettagli fotografici accanto ai modelli stona: nei
@@ -334,6 +357,6 @@ deformare) e `UiSkinTests.DeathScreen_CoversTheHud`.
 - [x] Menu: principale, opzioni, pausa, vittoria e morte
 - [x] Macchie a terra
 - [x] Sfondi di menu, morte e vittoria
-- [ ] Misura, foto di dopo e build di prova
-- [ ] ADR, lezioni nel piano, README
+- [x] Misura, foto di dopo e build di prova
+- [x] ADR, lezioni nel piano, README
 - [ ] `bundleVersion` 1.5.0 e tag `v1.5.0` dopo i test verdi in CI
