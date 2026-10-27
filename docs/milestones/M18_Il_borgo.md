@@ -271,6 +271,80 @@ camera li ha davanti.
 
 ---
 
+## Passo 18.4 — La grotta e il cunicolo
+
+**Com'è andata (27–28 ott 2026).** La prima versione, i sassi di Forest Nature attorno alla galleria
+nera e una tavola scura nel cunicolo, a Mirco non sembrava né un ingresso né un'uscita. Sono rifatte
+in Blender (`Tools/Blender/models/cave.py`) sulle immagini di riferimento che ha mandato lui: una grotta
+con il teschio di bestia, i pali legati e i drappi, e la vista da dentro una galleria verso la luce.
+
+- **La grotta del borgo** (`Prefabs/Village/CaveExit.prefab`, il `>` del `VillageTileset`):
+  - un'apertura di roccia sfaccettata con le stalattiti;
+  - davanti, due pali grezzi con la traversa e sopra il **teschio cornuto**;
+  - due **drappi rossi** della cripta ai lati;
+  - tre **bracieri** su treppiedi: due all'imbocco e uno in fondo alla galleria, che dà la
+    profondità. Dentro la galleria scurisce, da pietra scura a nero;
+  - un palo con un teschio e i paletti appuntiti, presi da Halloween Bits.
+
+  È girata di 30° verso la camera. Sotto il cursore si accendono roccia, pali e drappi, con lo stesso
+  materiale della scala (tutti i pezzi sono nell'atlante della cripta), e la luce del bagliore. Si
+  clicca anche sull'arco. Lo stendardo sopra l'uscita il borgo non lo mette: davanti al monte non c'è
+  un muro. Le radici e le due torce della D6 sono diventate pali, teschio, drappi e bracieri.
+- **Lo sbocco del cunicolo** (`Prefabs/Dungeon/TunnelMouth.prefab`, nuovo campo `EntranceMouth` del
+  tileset). La prima versione stava in mezzo alla stanza, in una cella accanto all'ingresso. Mirco l'ha
+  voluto sempre in un muro, con attorno le cose della grotta del borgo:
+  - un fronte di massi al posto di un pezzo di muro, alto quanto il muro (4 m), che copre anche la
+    giunta con i muri accanto;
+  - la galleria entra nella roccia dietro il muro, verso un fondo chiaro con una luce fredda che
+    esce sul pavimento: un'uscita verso il giorno. Un cappuccio nero la chiude sopra e ai lati, così
+    la camera dall'alto non ci vede attraverso;
+  - davanti, i pali con la traversa e il teschio cornuto, i drappi rossi appesi alla traversa e due
+    bracieri sui treppiedi.
+
+  Il prefab ha il +Z verso la stanza e l'origine al centro della cella. Il builder lo gira verso la
+  stanza e su quel bordo non mette né il muro alto né quello basso. Una torcia sulla stessa cella
+  non la mette: il suo muro non c'è più. Lo sbocco è un ostacolo per il NavMesh. Il generatore lo
+  chiede con la direttiva `@arrival tunnel x y muro`, che `DungeonLevel` scrive solo alla profondità 1.
+  Le mappe a mano, come `Level_01`, non la hanno e restano uguali alla scena.
+- **Dove va il cunicolo** (`TunnelSpot`, logica pura in `Core`, sulla disposizione del generatore). Va
+  in un muro della stanza d'ingresso:
+  - prova i muri nord e ovest, che la camera di partenza vede alti, poi est e sud, che vede bassi;
+  - su ogni muro prende la cella più vicina all'ingresso;
+  - la cella deve essere pavimento libero o con la sola torcia, e non d'angolo, dove drappi e
+    bracieri entrerebbero nel muro di lato;
+  - dietro la cella ci deve essere roccia. Accanto può cominciare un corridoio: i massi ci
+    sporgono per meno di un metro, dentro il muro del corridoio.
+
+  Con la camera girata, il muro dello sbocco può diventare uno di quelli bassi: lo sbocco resta
+  alto, come la scala, e il cavaliere dietro si vede dalla sagoma. Non usa tiri del seme: mappe,
+  arredi e loot dei semi fissi non cambiano.
+
+**Il confronto con ComfyUI** promesso al 18.1 Mirco l'ha lasciato fuori: le grotte da Blender vanno
+bene.
+
+**Le foto** (`docs/media/m18/11_grotta_giorno.jpg`, `12_grotta_cursore.jpg`, `13_grotta_notte.jpg`,
+`14_cunicolo.jpg`) le fa `PhotoTour.CaveAndTunnel`. Mirco ha approvato la grotta il 28 ottobre; la foto
+del cunicolo è quella nel muro.
+
+**I test.**
+- **`CaveTunnelTests` (5, EditMode):**
+  - l'uscita del borgo è la grotta, con il bagliore, l'area del click e il materiale dello stesso
+    atlante, fuori dal NavMesh;
+  - il cunicolo solo alla profondità 1 della cripta, con la cella e il muro nella direttiva;
+  - lo sbocco prende il posto del muro: arriva in cima, la galleria entra nella roccia, nella stanza
+    sporge poco e sui muri accanto resta vicino al muro;
+  - `TunnelSpot` su stanze a mano: il muro nord e la cella più vicina, la torcia, il corridoio
+    accanto, gli angoli e le celle occupate;
+  - su 40 semi lo sbocco trova sempre un muro, dietro c'è roccia, e da ogni pavimento si arriva
+    ancora all'ingresso.
+- **`TownTests.Cave_LeadsToTheCryptByTheTunnel`:** la grotta porta alla profondità 1, lo sbocco è al
+  centro della sua cella e guarda la stanza, su quel bordo non c'è muro, e dal cunicolo si arriva
+  alla scala.
+- **In locale:** EditMode intera 516/516. PlayMode di città, builder, uscite, passaggi tra livelli,
+  discesa, portali, automappa e memoria dei livelli: 23/23.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)

@@ -29,6 +29,23 @@ namespace DarkDescent.Levels
         private const char ItemSymbol = 'i';
         private const string StairsOccluder = "Occluder";
 
+        // nel prefab dell'uscita: le parti che sotto il cursore restano come sono (il buio della grotta,
+        // le torce, il terreno) e l'area del click, se ne ha una sua più grande della cella
+        private const string StairsUnlit = "Unlit";
+        private const string ClickAreaName = "ClickArea";
+
+        /// <summary>Il nome dello sbocco del cunicolo, sull'ingresso della profondità 1 (D7 della M18).</summary>
+        public const string EntranceMouthName = "EntranceMouth";
+
+        /// <summary>
+        /// Come si arriva sull'ingresso: <c>@arrival tunnel x y muro</c> mette lo sbocco del cunicolo del
+        /// tileset nel muro di quella cella (D7 della M18). La scrive il livello generato della profondità 1,
+        /// con la cella di <see cref="TunnelSpot"/>; le mappe a mano non ce l'hanno.
+        /// </summary>
+        public const string ArrivalDirective = "arrival";
+
+        public const string TunnelArrival = "tunnel";
+
         /// <summary>Il gruppo dell'erba e dei sassi sparsi, figlio della radice del livello.</summary>
         public const string ScatterGroup = "Scatter";
 
@@ -89,8 +106,7 @@ namespace DarkDescent.Levels
             var level = new GameObject("Level");
             level.SetActive(false);
             var context = level.AddComponent<LevelContext>();
-            var depth = map.GetDirective("depth");
-            context.Configure(depth.Count > 0 ? int.Parse(depth[0]) : 1, map, _tileset);
+            context.Configure(Depth(map), map, _tileset);
 
             var floors = new GameObject("Floors").transform;
             var walls = CreateNotWalkableGroup("Walls");
@@ -111,8 +127,14 @@ namespace DarkDescent.Levels
 
             BuildBackdrop(map, level.transform);
             BuildFloors(map, floors);
-            BuildWalls(map, wallSides);
-            BuildMarkers(map, level.transform, props, torchSides, enemies);
+            bool tunnel = TryGetTunnel(map, out var tunnelCell, out var tunnelWall);
+            BuildWalls(map, wallSides, tunnel ? (tunnelCell.x, tunnelCell.y, tunnelWall) : ((int, int, MapDirection)?)null);
+            BuildMarkers(map, level.transform, props, torchSides, enemies, tunnel ? tunnelCell : (Vector2Int?)null);
+            if (tunnel)
+            {
+                PlaceEntranceMouth(props, tunnelCell, tunnelWall);
+            }
+
             BuildDecals(map, level.transform);
             BuildScatter(map, level.transform);
 
@@ -264,11 +286,17 @@ namespace DarkDescent.Levels
 
         // Su ogni lato sia il muro alto sia quello basso: alti i lati lontani dalla camera, bassi
         // quelli vicini, che non coprono il cavaliere e non fermano i click (ADR-017, ADR-006). Quali
-        // siano lo decide la rotazione della camera (D12 della M8).
-        private void BuildWalls(LevelMap map, SideGroups sides)
+        // siano lo decide la rotazione della camera (D12 della M8). Il lato dello sbocco del cunicolo
+        // resta senza muro: lo sbocco ne prende il posto.
+        private void BuildWalls(LevelMap map, SideGroups sides, (int, int, MapDirection)? skip)
         {
             foreach (var (x, y, side) in map.BoundaryEdges())
             {
+                if (skip == (x, y, side))
+                {
+                    continue;
+                }
+
                 Vector3 position = LevelMap.CellCenter(x, y) + LevelMap.ToWorld(side) * (LevelMap.CellSize * 0.5f);
 
                 // i moduli di muro sono lunghi lungo X: ruotati di 90° per i lati est e ovest
@@ -296,7 +324,8 @@ namespace DarkDescent.Levels
             return (hash % 1000) < _tileset.VariantChance * 1000f ? variant : basePrefab;
         }
 
-        private void BuildMarkers(LevelMap map, Transform level, Transform props, SideGroups torches, Transform enemies)
+        // tunnel: la cella dello sbocco del cunicolo, dove la torcia non va (il suo muro non c'è più)
+        private void BuildMarkers(LevelMap map, Transform level, Transform props, SideGroups torches, Transform enemies, Vector2Int? tunnel)
         {
             int enemyCount = 0;
 
@@ -331,7 +360,11 @@ namespace DarkDescent.Levels
                         PlaceStairsDown(map, level, torches, marker);
                         break;
                     case TorchSymbol:
-                        PlaceTorch(map, torches, marker);
+                        if (tunnel != new Vector2Int(marker.X, marker.Y))
+                        {
+                            PlaceTorch(map, torches, marker);
+                        }
+
                         break;
                     case ItemSymbol:
                         PlaceGroundItem(props, center, itemCount < itemNames.Count ? itemNames[itemCount] : null);
@@ -387,6 +420,31 @@ namespace DarkDescent.Levels
                     }
                 }
             }
+        }
+
+        // Lo sbocco del cunicolo (D7 della M18): sulle mappe con @arrival tunnel, se il tileset ce l'ha
+        private bool TryGetTunnel(LevelMap map, out Vector2Int cell, out MapDirection wall)
+        {
+            var arrival = map.GetDirective(ArrivalDirective);
+            cell = default;
+            wall = MapDirection.North;
+            return _tileset.EntranceMouth != null && arrival.Count > 0 && arrival[0] == TunnelArrival
+                && TunnelSpot.TryRead(arrival, out cell, out wall);
+        }
+
+        // Al centro della cella, con il +Z del prefab verso la stanza: il fronte di massi sta sul bordo
+        // del muro che manca e la galleria entra nella roccia. Nessun tiro del seme: mappe, arredi e
+        // loot restano quelli di prima.
+        private void PlaceEntranceMouth(Transform props, Vector2Int cell, MapDirection wall)
+        {
+            var rotation = Quaternion.LookRotation(-LevelMap.ToWorld(wall));
+            Place(_tileset.EntranceMouth, props, LevelMap.CellCenter(cell.x, cell.y), rotation).name = EntranceMouthName;
+        }
+
+        private static int Depth(LevelMap map)
+        {
+            var depth = map.GetDirective("depth");
+            return depth.Count > 0 ? int.Parse(depth[0]) : 1;
         }
 
         // Un pezzo (M18) sta al centro delle sue celle e guarda dal lato del suo simbolo: la porta
@@ -455,9 +513,9 @@ namespace DarkDescent.Levels
             stairs.name = "StairsDown";
 
             // lo stendardo va sul muro oltre la scala e si vede quando quel muro è alto: sul muro
-            // basso non c'è dove appenderlo, e la scala resta senza
+            // basso non c'è dove appenderlo, e la scala resta senza. La grotta del borgo non ne ha
             Vector3 far = -toEntry;
-            if (!IsFloorToward(map, marker, far))
+            if (_tileset.ExitBanner != null && !IsFloorToward(map, marker, far))
             {
                 Vector3 wallFace = cellCenter + far * (LevelMap.CellSize * 0.5f - WallHalfThickness);
                 Place(_tileset.ExitBanner, decor.High(Opposite(entrySide)), wallFace, Quaternion.LookRotation(toEntry)).name = "ExitBanner";
@@ -475,6 +533,13 @@ namespace DarkDescent.Levels
             int targetDepth = exitInfo.Count > 2 ? int.Parse(exitInfo[2]) : (depth.Count > 0 ? int.Parse(depth[0]) : 1) + 1;
             var exit = CreateExit(level, cellCenter, toEntry, exitInfo[0], exitInfo[1], targetDepth);
             AddHighlight(exit, stairs);
+
+            // la grotta si clicca anche sull'arco, sopra la cella: la sua area passa all'uscita
+            var click = stairs.transform.Find(ClickAreaName);
+            if (click != null)
+            {
+                click.SetParent(exit.transform, true);
+            }
         }
 
         private static bool IsFloorToward(LevelMap map, MapMarker marker, Vector3 dir)
@@ -485,11 +550,14 @@ namespace DarkDescent.Levels
         // Sotto il cursore si accendono la scala e le balaustre, e il bagliore si alza. Lo stendardo
         // resta com'è: acceso d'ambra perderebbe il rosso che lo fa riconoscere da lontano. L'anello
         // nero sotto i pavimenti resta nero: nasconde la parte sepolta del pozzo, che accesa si
-        // vedrebbe attraverso le celle di roccia.
+        // vedrebbe attraverso le celle di roccia. Della grotta si accendono i massi; il buio, le
+        // torce e il terreno no.
         private void AddHighlight(GameObject exit, GameObject stairs)
         {
             var occluder = stairs.transform.Find(StairsOccluder);
-            var renderers = Array.FindAll(stairs.GetComponentsInChildren<Renderer>(), r => occluder == null || !r.transform.IsChildOf(occluder));
+            var unlit = stairs.transform.Find(StairsUnlit);
+            var renderers = Array.FindAll(stairs.GetComponentsInChildren<Renderer>(),
+                r => (occluder == null || !r.transform.IsChildOf(occluder)) && (unlit == null || !r.transform.IsChildOf(unlit)));
             exit.AddComponent<InteractableHighlight>().Configure(renderers, _tileset.HighlightMaterial, stairs.GetComponentInChildren<Light>());
         }
 

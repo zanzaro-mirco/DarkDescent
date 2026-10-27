@@ -318,6 +318,54 @@ namespace DarkDescent.Tests
             yield return Snap("village_night_lights");
         }
 
+        [UnityTest, Timeout(300000), Description("La bocca della grotta nel borgo, di giorno, di notte e sotto il cursore, e lo sbocco del cunicolo alla profondità 1 (D6 e D7 della M18)")]
+        public IEnumerator CaveAndTunnel()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+
+            // davanti alla grotta, nella gola
+            var exit = Manager.CurrentLevel.Exits[0];
+            var agent = Hero.GetComponent<NavMeshAgent>();
+            agent.Warp(exit.transform.position + exit.transform.forward * 5f);
+            yield return Settle();
+            yield return Snap("cave_day");
+
+            var interactable = exit.GetComponent<Interactable>();
+            interactable.SetHighlighted(true);
+            yield return Frames(3);
+            yield return Snap("cave_hover");
+            interactable.SetHighlighted(false);
+
+            var stats = Root.RunStats;
+            stats.Restore(DayCycle.Start(DayMoment.Night) + 20f, stats.Kills, stats.Deaths, stats.GoldCollected, stats.BossDefeated);
+            yield return Frames(5);
+            yield return Snap("cave_night");
+
+            // si entra nella grotta e si arriva davanti al cunicolo
+            agent.SetDestination(exit.transform.position);
+            for (float t = 0f; Manager.IsTransitioning || Manager.CurrentLevel == null || Manager.CurrentLevel.Depth != 1; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 20f, "la grotta non porta alla profondità 1");
+                yield return null;
+            }
+
+            foreach (var enemy in Manager.CurrentLevel.Enemies.Where(e => e != null))
+            {
+                enemy.enabled = false;
+            }
+
+            yield return Settle();
+            yield return Snap("crypt_tunnel");
+        }
+
         private static IEnumerator Frames(int count)
         {
             for (int i = 0; i < count; i++)

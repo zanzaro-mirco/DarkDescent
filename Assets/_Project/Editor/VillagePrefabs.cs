@@ -18,12 +18,15 @@ namespace DarkDescent.Editor
         public const string PrefabFolder = "Assets/_Project/Prefabs/Village/";
         public const string TilesetPath = "Assets/_Project/Data/Levels/VillageTileset.asset";
         public const string DayLightingPath = "Assets/_Project/Data/Levels/VillageDayLighting.asset";
+        public const string CryptTilesetPath = "Assets/_Project/Data/Levels/DungeonTileset.asset";
+        public const string TunnelMouthPath = "Assets/_Project/Prefabs/Dungeon/TunnelMouth.prefab";
 
         private const string Village = KayKitImporter.ModelFolder + "Village/";
         private const string Graveyard = KayKitImporter.ModelFolder + "Graveyard/";
         private const string Nature = KayKitImporter.ModelFolder + "Nature/";
-        private const string Generated = "Assets/_Project/Art/Models/DarkDescent/";
+        private const string GeneratedFolder = "Assets/_Project/Art/Models/DarkDescent/";
         private const string TownPrefabs = "Assets/_Project/Prefabs/Town/";
+        private const string Dungeon = KayKitImporter.ModelFolder + "Dungeon/";
 
         // le case di Medieval Hexagon: la porta alta quanto il cavaliere (18.1)
         private const float HexScale = 6f;
@@ -55,6 +58,48 @@ namespace DarkDescent.Editor
         private const int GroundLayer = 6;
         private const int ObstacleLayer = 7;
 
+        // La bocca della grotta (D6 della M18): imbocco e buio di Tools/Blender/models/cave.py, con
+        // l'apertura nel loro centro e il davanti verso +Z. Sta sul bordo nord della cella dell'uscita,
+        // che ha il +Z verso la cella da cui si arriva, girata verso la camera di partenza
+        private const float CaveFront = -2f;
+        private const float CaveYaw = 30f;
+        private const float CaveHalfWidth = 1.5f;
+        private static readonly Color CaveGlowColor = new Color(1f, 0.55f, 0.2f);
+        private static readonly Color FireColor = new Color(1f, 0.58f, 0.26f);
+
+        // attorno all'imbocco, dalle immagini di Mirco: i drappi rossi fuori dai pali (si accendono con
+        // l'imbocco), i bracieri ai lati e uno in fondo, i pali con il teschio più in là
+        private static readonly Part[] CaveBanners =
+        {
+            new Part(Dungeon + "banner_red.fbx", 0.55f, -CaveHalfWidth - 0.75f, 0.35f, lift: 1f),
+            new Part(Dungeon + "banner_red.fbx", 0.55f, CaveHalfWidth + 0.75f, 0.35f, lift: 1f),
+        };
+
+        private static readonly Part[] CaveSkullPosts =
+        {
+            Grave("post_skull", -CaveHalfWidth - 2.6f, 1.3f), Grave("post_skull", CaveHalfWidth + 2.6f, 1.3f),
+        };
+
+        private static readonly Vector3[] CaveBraziers =
+        {
+            new Vector3(-CaveHalfWidth - 0.9f, 0f, 1f), new Vector3(CaveHalfWidth + 0.9f, 0f, 1f), new Vector3(0.5f, 0f, -3f),
+        };
+
+        // Lo sbocco del cunicolo (D7 della M18) nel muro della cella scelta da TunnelSpot: il builder
+        // mette il prefab al centro della cella con il +Z verso la stanza, e il muro dietro manca. Il
+        // modello ha l'origine sulla linea del muro, a metà cella. Attorno, come la grotta del borgo: i
+        // drappi appesi alla traversa e due bracieri davanti agli stipiti
+        private static readonly Vector3 TunnelWallLine = new Vector3(0f, 0f, -LevelMap.CellSize * 0.5f);
+        private static readonly Color TunnelLightColor = new Color(0.55f, 0.66f, 0.92f);
+
+        private static readonly Part[] TunnelBanners =
+        {
+            new Part(Dungeon + "banner_red.fbx", 0.55f, -1.75f, 1.05f, lift: 0.5f),
+            new Part(Dungeon + "banner_red.fbx", 0.55f, 1.75f, 1.05f, lift: 0.5f),
+        };
+
+        private static readonly Vector3[] TunnelBraziers = { new Vector3(-1.55f, 0f, 1.9f), new Vector3(1.55f, 0f, 1.9f) };
+
         // le texture del terreno, da Tools/Textures/ground.py: senza cuciture, stese in coordinate del mondo
         private const string TextureFolder = "Assets/_Project/Art/Textures/Village/";
         private const float GrassRepeat = 32f;
@@ -63,11 +108,11 @@ namespace DarkDescent.Editor
         /// <summary>Un modello del pezzo: dove sta il centro della sua base, quanto è grande, come è girato.</summary>
         private readonly struct Part
         {
-            public Part(string model, float scale, float x = 0f, float z = 0f, float yaw = 0f)
+            public Part(string model, float scale, float x = 0f, float z = 0f, float yaw = 0f, float lift = 0f)
             {
                 Model = model;
                 Scale = scale;
-                Position = new Vector3(x, 0f, z);
+                Position = new Vector3(x, lift, z);
                 Yaw = yaw;
             }
 
@@ -132,9 +177,8 @@ namespace DarkDescent.Editor
             Obstacle("Chapel", Hex("building_church_yellow")),
             Obstacle("Well", Hex("building_well_blue")),
             Obstacle("Crypt", Grave("crypt")),
-            Obstacle("CaveMouth",
-                Hex("mountain_C_grass", 0f, 0f, -1.5f), new Part(Generated + "CaveHole.fbx", 1f, 0f, 4.2f),
-                Wild("Rock_3_B", 3f, -2.7f, 4.6f), Wild("Rock_3_E", 2.6f, 2.8f, 4.8f, 120f), Wild("Rock_2_A", 2.4f, -3.8f, 3.4f)),
+            // il monte della grotta: la bocca è l'uscita, sulla cella davanti (CaveExit)
+            Obstacle("CaveMouth", Hex("mountain_C_grass", 0f, 0f, -1.5f)),
 
             // il cimitero e la piazza: oggetti sul pavimento, che il NavMesh aggira
             Obstacle("Grave", Grave("grave_A")),
@@ -194,9 +238,11 @@ namespace DarkDescent.Editor
                 SavePiece(piece);
             }
 
+            SaveCaveExit(dirt);
+            SaveTunnelMouth();
             AssetDatabase.SaveAssets();
             BuildTileset();
-            Debug.Log($"[DarkDescent] borgo: {Pieces.Length + 3} prefab in {PrefabFolder}");
+            Debug.Log($"[DarkDescent] borgo: {Pieces.Length + 4} prefab in {PrefabFolder}, più {TunnelMouthPath}");
         }
 
         /// <summary>Il prefab del borgo con questo nome.</summary>
@@ -294,7 +340,28 @@ namespace DarkDescent.Editor
         private static void SavePiece(Piece piece)
         {
             var root = new GameObject(piece.Name) { layer = piece.Layer };
-            foreach (var part in piece.Parts)
+            AddParts(root.transform, piece.Parts);
+            SetLayer(root, piece.Layer);
+
+            if (piece.Layer == ObstacleLayer)
+            {
+                var all = Bounds(root);
+                var box = root.AddComponent<BoxCollider>();
+                box.center = all.center;
+                box.size = all.size;
+            }
+
+            if (Glows.TryGetValue(piece.Name, out var glow))
+            {
+                AddGlow(root, glow);
+            }
+
+            Save(root, piece.Name);
+        }
+
+        private static void AddParts(Transform parent, Part[] parts)
+        {
+            foreach (var part in parts)
             {
                 var model = AssetDatabase.LoadAssetAtPath<GameObject>(part.Model);
                 if (model == null)
@@ -302,7 +369,7 @@ namespace DarkDescent.Editor
                     throw new FileNotFoundException($"manca {part.Model}");
                 }
 
-                var instance = (GameObject)PrefabUtility.InstantiatePrefab(model, root.transform);
+                var instance = (GameObject)PrefabUtility.InstantiatePrefab(model, parent);
                 instance.transform.localScale = Vector3.one * part.Scale;
                 instance.transform.localRotation = Quaternion.Euler(0f, part.Yaw, 0f);
                 var material = MaterialFor(part.Model);
@@ -321,26 +388,180 @@ namespace DarkDescent.Editor
                 var bounds = Bounds(instance);
                 instance.transform.localPosition += part.Position - new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
             }
+        }
 
+        private static void SetLayer(GameObject root, int layer)
+        {
             foreach (var t in root.GetComponentsInChildren<Transform>(true))
             {
-                t.gameObject.layer = piece.Layer;
+                t.gameObject.layer = layer;
             }
+        }
 
-            if (piece.Layer == ObstacleLayer)
+        private static Transform Group(Transform parent, string name, Vector3 position = default, float yaw = 0f)
+        {
+            var group = new GameObject(name).transform;
+            group.SetParent(parent, false);
+            group.localPosition = position;
+            group.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            return group;
+        }
+
+        // Pezzi della tabella in un gruppo già spostato e girato: AddParts misura in coordinate del
+        // mondo, quindi si montano su una radice ferma nell'origine e poi passano al gruppo
+        private static void AddPartsTo(Transform group, Part[] parts)
+        {
+            var temp = new GameObject("Temp");
+            AddParts(temp.transform, parts);
+            while (temp.transform.childCount > 0)
             {
-                var all = Bounds(root);
-                var box = root.AddComponent<BoxCollider>();
-                box.center = all.center;
-                box.size = all.size;
+                temp.transform.GetChild(0).SetParent(group, false);
             }
 
-            if (Glows.TryGetValue(piece.Name, out var glow))
+            Object.DestroyImmediate(temp);
+        }
+
+        // Il braciere su treppiede, con la luce sopra le fiamme che trema come le torce
+        private static void AddBrazier(Transform parent, Vector3 position, float intensity, float range)
+        {
+            var brazier = Generated(parent, "Brazier");
+            brazier.transform.localPosition = position;
+            var light = PointLight(brazier.transform, "Flame", new Vector3(0f, 1.6f, 0f), FireColor, intensity, range);
+            light.gameObject.AddComponent<TorchFlicker>();
+        }
+
+        // Un modello di Tools/Blender con il suo centro: l'apertura degli imbocchi è lì
+        private static GameObject Generated(Transform parent, string name)
+        {
+            string path = GeneratedFolder + name + ".fbx";
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (model == null)
             {
-                AddGlow(root, glow);
+                throw new FileNotFoundException($"manca {path}: si fa con Tools/Blender/make.py");
             }
 
-            Save(root, piece.Name);
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(model, parent);
+            var material = MaterialFor(path);
+            foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
+            {
+                renderer.sharedMaterial = material;
+            }
+
+            return instance;
+        }
+
+        private static Light PointLight(Transform parent, string name, Vector3 position, Color color, float intensity, float range)
+        {
+            var light = new GameObject(name).AddComponent<Light>();
+            light.transform.SetParent(parent, false);
+            light.transform.localPosition = position;
+            light.type = LightType.Point;
+            light.color = color;
+            light.intensity = intensity;
+            light.range = range;
+            light.shadows = LightShadows.None;
+            return light;
+        }
+
+        // L'uscita del borgo verso la profondità 1 (D6 della M18), al posto della scala della cripta: il
+        // builder la mette sulla cella '>' con il +Z verso la cella da cui si arriva. L'imbocco (pali,
+        // teschio cornuto, massi e drappi) sta sul bordo opposto, sotto il monte, e si accende sotto il
+        // cursore con il bagliore dentro; il buio, i bracieri, i pali con il teschio e la terra battuta
+        // della cella stanno in "Unlit". L'area del click copre anche l'imbocco: il builder la passa all'uscita. Niente NavMesh:
+        // si scende dal bordo della cella, come dalla scala.
+        private static void SaveCaveExit(Material dirt)
+        {
+            var root = new GameObject("CaveExit");
+            var opening = new Vector3(0f, 0f, CaveFront);
+
+            // la prima luce del prefab: quella che si alza sotto il cursore
+            PointLight(root.transform, "Glow", opening + new Vector3(0f, 1.2f, -0.6f), CaveGlowColor, 3f, 6f);
+
+            var mouth = Group(root.transform, "Mouth", opening, CaveYaw);
+            Generated(mouth, "CaveEntrance");
+            AddPartsTo(mouth, CaveBanners);
+
+            var unlit = Group(root.transform, "Unlit");
+            var inside = Group(unlit, "Inside", opening, CaveYaw);
+            Generated(inside, "CaveHole");
+            AddPartsTo(inside, CaveSkullPosts);
+            for (int i = 0; i < CaveBraziers.Length; i++)
+            {
+                // l'ultimo è in fondo alla galleria: più debole, dice quanto è profonda
+                bool deep = i == CaveBraziers.Length - 1;
+                AddBrazier(inside, CaveBraziers[i], deep ? 2.5f : 4f, deep ? 4f : 6f);
+            }
+
+            var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            ground.name = "Ground";
+            Object.DestroyImmediate(ground.GetComponent<Collider>());
+            ground.transform.SetParent(unlit, false);
+            ground.transform.localScale = new Vector3(LevelMap.CellSize, 0.2f, LevelMap.CellSize);
+            ground.transform.localPosition = new Vector3(0f, -0.1f, 0f);
+            ground.GetComponent<MeshRenderer>().sharedMaterial = dirt;
+            WorldTexture(ground, RoadRepeat);
+
+            SetLayer(root, DefaultLayer);
+
+            var click = new GameObject("ClickArea") { layer = LayerMask.NameToLayer("Interactable") };
+            click.transform.SetParent(root.transform, false);
+            click.transform.localPosition = opening;
+            click.transform.localRotation = Quaternion.Euler(0f, CaveYaw, 0f);
+            var box = click.AddComponent<BoxCollider>();
+            box.center = new Vector3(0f, 1.9f, 0f);
+            box.size = new Vector3(CaveHalfWidth * 2f + 1.6f, 3.8f, 1.6f);
+            Save(root, root.name);
+        }
+
+        // Lo sbocco del cunicolo alla profondità 1 della cripta (D7 della M18): un ostacolo, che il NavMesh
+        // aggira, con una luce fredda in fondo, come se di là ci fosse il cielo. Il collider stringe
+        // massi, galleria, drappi e bracieri.
+        private static void SaveTunnelMouth()
+        {
+            var root = new GameObject("TunnelMouth");
+            var mouth = Group(root.transform, "Mouth", TunnelWallLine);
+            Generated(mouth, "TunnelEntrance");
+            Generated(mouth, "TunnelHole");
+            AddPartsTo(mouth, TunnelBanners);
+            foreach (var position in TunnelBraziers)
+            {
+                AddBrazier(mouth, position, 4f, 6f);
+            }
+
+            SetLayer(root, ObstacleLayer);
+
+            var local = new Bounds();
+            bool first = true;
+            foreach (var filter in mouth.GetComponentsInChildren<MeshFilter>())
+            {
+                foreach (var vertex in filter.sharedMesh.vertices)
+                {
+                    Vector3 point = mouth.InverseTransformPoint(filter.transform.TransformPoint(vertex));
+                    if (first)
+                    {
+                        local = new Bounds(point, Vector3.zero);
+                        first = false;
+                    }
+                    else
+                    {
+                        local.Encapsulate(point);
+                    }
+                }
+            }
+
+            var box = mouth.gameObject.AddComponent<BoxCollider>();
+            box.center = local.center;
+            box.size = local.size;
+
+            PointLight(mouth, "Daylight", new Vector3(0f, 1.4f, -1f), TunnelLightColor, 3f, 5f);
+            PrefabUtility.SaveAsPrefabAsset(root, TunnelMouthPath);
+            Object.DestroyImmediate(root);
+
+            var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>(CryptTilesetPath);
+            var so = new SerializedObject(tileset);
+            so.FindProperty("_entranceMouth").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(TunnelMouthPath);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(tileset);
         }
 
         // Una luce calda senza ombre, che la vista del giorno accende al tramonto: davanti alla porta,
@@ -453,6 +674,8 @@ namespace DarkDescent.Editor
             so.FindProperty("_floorVariant").objectReferenceValue = null;
             so.FindProperty("_wallTorch").objectReferenceValue = null;
             so.FindProperty("_ambientColor").colorValue = new Color(0.4f, 0.38f, 0.35f);
+            so.FindProperty("_stairsDown").objectReferenceValue = Load("CaveExit");
+            so.FindProperty("_exitBanner").objectReferenceValue = null;
 
             var markers = new List<(char Symbol, GameObject Prefab, bool ReplacesFloor, bool KeepsRotation)>
             {

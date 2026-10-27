@@ -29,8 +29,9 @@ MonoBehaviour:
   _wallVariant: {fileID: 5434816415875132407, guid: e65054f25ce418847b6261eb8c3ecbe1, type: 3}
   _variantChance: 0.4
   _wallTorch: {fileID: 0}
-  _stairsDown: {fileID: 2354004079276962870, guid: 5aa31967817d4a04b94de8242e7c8403, type: 3}
-  _exitBanner: {fileID: 7684724433698735442, guid: 64c4626053a6e8345b294f0729766217, type: 3}
+  _stairsDown: {fileID: 8489708929876369700, guid: db0e4ac15dc71214a8e30ffb541634d9, type: 3}
+  _exitBanner: {fileID: 0}
+  _entranceMouth: {fileID: 0}
   _highlightMaterial: {fileID: 2100000, guid: 4b16f4eed1b106d4aad33a68e8cce2d4, type: 2}
   _ambientColor: {r: 0.4, g: 0.38, b: 0.35, a: 1}
   _postProcessing: {fileID: 11400000, guid: 3a041a345ac56d745be32a79a99b3cad, type: 2}

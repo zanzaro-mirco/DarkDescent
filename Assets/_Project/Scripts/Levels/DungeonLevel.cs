@@ -47,6 +47,13 @@ namespace DarkDescent.Levels
                 ["entrance"] = new[] { EntranceAt(depth) },
             };
 
+            // alla profondità 1 si arriva dal cunicolo che scende dalla grotta del borgo (D7 della M18):
+            // lo sbocco in un muro della stanza d'ingresso, messo dal builder, senza tiri del seme
+            if (depth == 1 && TunnelSpot.TryChoose(layout, out var tunnelCell, out var tunnelWall))
+            {
+                directives[LevelBuilder.ArrivalDirective] = TunnelSpot.ToTokens(LevelBuilder.TunnelArrival, tunnelCell, tunnelWall);
+            }
+
             // i nemici speciali (M12) dopo tutto il resto, con un seme loro: il livello di prima resta com'era
             var modifiers = settings.Champions != null ? settings.Champions.CollectModifierIds() : new List<string>();
             var escorts = new List<Vector2Int>();

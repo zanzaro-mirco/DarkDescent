@@ -47,8 +47,11 @@ namespace DarkDescent.Levels
         [Tooltip("Scala che scende: prende il posto del pavimento della sua cella.")]
         [SerializeField] private GameObject _stairsDown;
 
-        [Tooltip("Stendardo appeso al muro alto oltre la scala: segnala l'uscita da lontano.")]
+        [Tooltip("Stendardo appeso al muro alto oltre la scala: segnala l'uscita da lontano. Vuoto: niente (la grotta del borgo).")]
         [SerializeField] private GameObject _exitBanner;
+
+        [Tooltip("Lo sbocco del cunicolo sull'ingresso della profondità 1 (D7 della M18): un modello a sé, dietro il punto in cui compare il cavaliere. Vuoto: l'ingresso resta un punto.")]
+        [SerializeField] private GameObject _entranceMouth;
 
         [Tooltip("Il materiale dei moduli con l'emissione accesa: l'uscita sotto il cursore.")]
         [SerializeField] private Material _highlightMaterial;
@@ -111,6 +114,8 @@ namespace DarkDescent.Levels
         public GameObject StairsDown => _stairsDown;
 
         public GameObject ExitBanner => _exitBanner;
+
+        public GameObject EntranceMouth => _entranceMouth;
 
         public Material HighlightMaterial => _highlightMaterial;
 

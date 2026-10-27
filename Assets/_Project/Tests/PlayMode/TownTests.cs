@@ -99,8 +99,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0, ambience.Current.StingerCount);
         }
 
-        [UnityTest, Description("La scala della città porta alla profondità 1 della cripta, sul suo ingresso iniziale")]
-        public IEnumerator Stairs_LeadToTheCrypt()
+        [UnityTest, Description("La grotta del borgo porta alla profondità 1 della cripta, sul suo ingresso iniziale, davanti allo sbocco del cunicolo nel muro (D6 e D7 della M18)")]
+        public IEnumerator Cave_LeadsToTheCryptByTheTunnel()
         {
             yield return StartNewGame();
             var player = GameObject.Find("Player");
@@ -120,6 +120,29 @@ namespace DarkDescent.Tests
             Assert.AreEqual(5, Manager.CurrentLevel.Enemies.Count, "la stessa cripta di sempre");
             Assert.IsNull(Manager.CurrentLevel.Daylight, "sotto terra il giorno non passa");
             Assert.IsFalse(RenderSettings.fog, "la nebbia del borgo resta nel borgo");
+
+            // lo sbocco del cunicolo sull'ingresso, e il cavaliere che ne esce e cammina nella stanza
+            var mouth = Manager.CurrentLevel.transform.Find("Props/" + LevelBuilder.EntranceMouthName);
+            Assert.IsNotNull(mouth, "alla profondità 1 si arriva dal cunicolo");
+            var entrance = Manager.CurrentLevel.GetComponentsInChildren<LevelEntrance>().Single(e => e.Id == "Start");
+            Assert.IsTrue(TunnelSpot.TryRead(Manager.CurrentLevel.Map.GetDirective(LevelBuilder.ArrivalDirective), out var cell, out var wall));
+            Vector3 center = LevelMap.CellCenter(cell.x, cell.y);
+            Assert.Less(Vector3.Distance(center, mouth.position), 0.01f, "al centro della sua cella");
+            Assert.Greater(Vector3.Dot(mouth.forward, -LevelMap.ToWorld(wall)), 0.99f, "l'apertura verso la stanza");
+            Assert.Greater(Vector3.Distance(entrance.transform.position, mouth.position), LevelMap.CellSize - 0.01f, "il cavaliere compare fuori dalla sua cella");
+
+            // al posto del muro: su quel bordo né il muro alto né quello basso
+            Vector3 edge = center + LevelMap.ToWorld(wall) * (LevelMap.CellSize * 0.5f);
+            var walls = Manager.CurrentLevel.transform.Find("Walls").GetComponentsInChildren<Transform>(true)
+                .Where(w => w.parent != null && (w.parent.name == "High" || w.parent.name == "Low")).ToArray();
+            Assert.That(walls.Length, Is.GreaterThan(0));
+            Assert.IsFalse(walls.Any(w => Vector3.Distance(w.position, edge) < 0.1f), "lo sbocco prende il posto del muro");
+            Assert.IsTrue(agent.isOnNavMesh);
+            var path = new NavMeshPath();
+            Vector3 stairs = Manager.CurrentLevel.Exits[0].GetComponent<Interactable>().ApproachPoint;
+            Assert.IsTrue(agent.CalculatePath(stairs, path));
+            Assert.AreEqual(NavMeshPathStatus.PathComplete, path.status,
+                $"dal cunicolo si arriva alla scala: da {player.transform.position} verso {stairs}, fermo a {path.corners.LastOrDefault()}");
         }
 
         [UnityTest, Description("Il borgo cambia luce con il tempo di gioco: di notte sole basso, ambiente buio ma sopra il minimo, lanterne e finestre accese (D5 della M18)")]
