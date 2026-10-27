@@ -24,3 +24,6 @@ MonoBehaviour:
   _buttonHighlighted: {r: 1, g: 0.9, b: 0.7, a: 1}
   _buttonPressed: {r: 0.45, g: 0.42, b: 0.38, a: 1}
   _buttonDisabled: {r: 0.35, g: 0.35, b: 0.35, a: 0.6}
+  _menuBackground: {fileID: 21300000, guid: 884605eace2ca654baed3e07198563a2, type: 3}
+  _deathBackground: {fileID: 21300000, guid: ba21a0f287f0139409f206aa8ba9098f, type: 3}
+  _victoryBackground: {fileID: 21300000, guid: bb0743085c9382847bd47043d4620cfc, type: 3}

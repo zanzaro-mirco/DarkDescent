@@ -35,6 +35,11 @@ namespace DarkDescent.Editor
 
         [SerializeField] private Color _buttonDisabled = new Color(0.35f, 0.35f, 0.35f, 0.6f);
 
+        [Header("Sfondi a tutto schermo (D6)")]
+        [SerializeField] private Sprite _menuBackground;
+        [SerializeField] private Sprite _deathBackground;
+        [SerializeField] private Sprite _victoryBackground;
+
         public Sprite PanelBack => _panelBack;
 
         public Sprite PanelFrame => _panelFrame;
@@ -59,12 +64,26 @@ namespace DarkDescent.Editor
 
         public Color ButtonDisabled => _buttonDisabled;
 
+        public Sprite MenuBackground => _menuBackground;
+
+        public Sprite DeathBackground => _deathBackground;
+
+        public Sprite VictoryBackground => _victoryBackground;
+
         /// <summary>Per lo strumento che crea l'asset: le tre immagini importate.</summary>
         public void SetSprites(Sprite panelBack, Sprite panelFrame, Sprite buttonPlate)
         {
             _panelBack = panelBack;
             _panelFrame = panelFrame;
             _buttonPlate = buttonPlate;
+        }
+
+        /// <summary>Per lo strumento che riveste: gli sfondi di menu, morte e vittoria importati.</summary>
+        public void SetBackgrounds(Sprite menu, Sprite death, Sprite victory)
+        {
+            _menuBackground = menu;
+            _deathBackground = death;
+            _victoryBackground = victory;
         }
     }
 }

@@ -13,6 +13,13 @@ namespace DarkDescent.Editor
     {
         public const string Folder = "Assets/_Project/Art/Generated/UI/";
 
+        /// <summary>Gli sfondi a tutto schermo di menu, morte e vittoria (D6): sprite fino a 2048, senza bordi.</summary>
+        public const string BackgroundFolder = "Assets/_Project/Art/Generated/Backgrounds/";
+
+        public const string MenuBackground = "menu_back";
+        public const string DeathBackground = "death_back";
+        public const string VictoryBackground = "victory_back";
+
         public const string PanelBack = "panel_back";
         public const string PanelFrame = "panel_frame";
         public const string ButtonPlate = "button_plate";
@@ -25,7 +32,8 @@ namespace DarkDescent.Editor
 
         private void OnPreprocessTexture()
         {
-            if (!assetPath.StartsWith(Folder) || assetImporter is not TextureImporter importer)
+            bool background = assetPath.StartsWith(BackgroundFolder);
+            if (!(background || assetPath.StartsWith(Folder)) || assetImporter is not TextureImporter importer)
             {
                 return;
             }
@@ -36,7 +44,7 @@ namespace DarkDescent.Editor
             importer.mipmapEnabled = false;
             importer.alphaIsTransparency = true;
             importer.isReadable = false;
-            importer.maxTextureSize = 512;
+            importer.maxTextureSize = background ? 2048 : 512;
             importer.textureCompression = TextureImporterCompression.Compressed;
             importer.spritePixelsPerUnit = 100f;
             importer.wrapMode = name == PanelBack ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;

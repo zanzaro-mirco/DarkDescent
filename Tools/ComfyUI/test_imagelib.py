@@ -145,6 +145,11 @@ class FinishTests(unittest.TestCase):
         self.assertLess(faded.getpixel((63, 32))[3], 20, "il bordo quasi")
         self.assertEqual((90, 80, 70), faded.getpixel((0, 0))[:3], "il colore resta, cambia solo la trasparenza")
 
+    def test_shade_darkens_around_the_point_only(self):
+        shaded = imagelib.shade(Image.new("RGB", (100, 50), (200, 200, 200)), 0.2, 0.5, 0.3, 0.8)
+        self.assertLess(shaded.getpixel((20, 25))[0], 50, "al centro scurisce di 0,8")
+        self.assertEqual(200, shaded.getpixel((99, 25))[0], "lontano non cambia")
+
     def test_opacity_scales_the_alpha_only(self):
         faint = imagelib.opacity(Image.new("RGBA", (4, 4), (10, 20, 30, 200)), 0.5)
         self.assertEqual((10, 20, 30, 100), faint.getpixel((1, 1)))

@@ -177,6 +177,23 @@ def fade(image, start=0.6):
     return rgba
 
 
+def shade(image, cx, cy, radius, amount):
+    """Scurisce attorno a un punto, per gli sfondi sotto i testi: (cx, cy) in frazioni della larghezza e
+    dell'altezza, radius in frazioni della larghezza. Al centro scurisce di amount, poi sfuma fino a
+    niente a radius e oltre. Il menu scurisce la colonna a sinistra, morte e vittoria il centro."""
+    rgb = image.convert("RGB")
+    w, h = rgb.size
+    mask = Image.new("L", (w, h))
+    px = mask.load()
+    r = max(1.0, radius * w)
+    for y in range(h):
+        for x in range(w):
+            d = (((x - cx * w) ** 2 + (y - cy * h) ** 2) ** 0.5) / r
+            k = max(0.0, 1.0 - d)
+            px[x, y] = round(255 * amount * k * k * (3 - 2 * k))
+    return Image.composite(Image.new("RGB", (w, h), (0, 0, 0)), rgb, mask)
+
+
 def opacity(image, amount):
     """Moltiplica la trasparenza: le macchie leggere (polvere) si vedono appena sul pavimento."""
     rgba = image.convert("RGBA")
@@ -235,7 +252,7 @@ def button_plate(back, size, border):
 def finish(image, steps):
     """Applica i passi di una ricetta, in ordine: ("key", colore, low, high), ("trim", margine),
     ("resize", dimensione), ("darken", quanto), ("flatten",), ("nineslice", angolo, tratto),
-    ("fade", inizio), ("fit", lato), ("opacity", quanto)."""
+    ("fade", inizio), ("fit", lato), ("opacity", quanto), ("shade", cx, cy, raggio, quanto)."""
     for step in steps:
         kind, args = step[0], step[1:]
         if kind == "key":
@@ -256,6 +273,8 @@ def finish(image, steps):
             image = fit(image, *args)
         elif kind == "opacity":
             image = opacity(image, *args)
+        elif kind == "shade":
+            image = shade(image, *args)
         else:
             raise ValueError(f"passo di finitura sconosciuto: {kind}")
     return image

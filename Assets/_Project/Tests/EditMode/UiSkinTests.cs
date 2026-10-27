@@ -64,6 +64,45 @@ namespace DarkDescent.Tests
             return (Mathf.Max(la, lb) + 0.05f) / (Mathf.Min(la, lb) + 0.05f);
         }
 
+        [Test, Description("Menu, morte e vittoria hanno lo sfondo (D6): uno sprite di 1920x1080 senza mipmap, primo figlio del fondo o del velo, che copre lo schermo senza deformarsi e non ferma i click")]
+        public void Screens_HaveTheirBackdrops()
+        {
+            foreach (var (path, name) in UiSkinTools.Backdrops)
+            {
+                var importer = (TextureImporter)AssetImporter.GetAtPath($"{GeneratedUiImporter.BackgroundFolder}{name}.png");
+                Assert.IsNotNull(importer, name);
+                Assert.AreEqual(TextureImporterType.Sprite, importer.textureType, name);
+                Assert.IsFalse(importer.mipmapEnabled, name);
+                Assert.AreEqual(2048, importer.maxTextureSize, name);
+
+                var parent = UiSkinTools.FindPath(_scene, path);
+                Assert.IsNotNull(parent, path);
+                var backdrop = parent.GetChild(0);
+                Assert.AreEqual(UiSkinTools.BackdropName, backdrop.name, $"{path}: lo sfondo sotto a tutto");
+                var image = backdrop.GetComponent<Image>();
+                Assert.AreEqual(name, image.sprite.name, path);
+                Assert.AreEqual(new Vector2(1920, 1080), image.sprite.rect.size, path);
+                Assert.IsFalse(image.raycastTarget, path);
+                var fitter = backdrop.GetComponent<AspectRatioFitter>();
+                Assert.AreEqual(AspectRatioFitter.AspectMode.EnvelopeParent, fitter.aspectMode, path);
+                Assert.AreEqual(16f / 9f, fitter.aspectRatio, 0.01f, path);
+            }
+        }
+
+        [Test, Description("La morte, con lo sfondo opaco, copre tutto l'HUD: sopra restano solo la dissolvenza e il nome del livello")]
+        public void DeathScreen_CoversTheHud()
+        {
+            var hud = UiSkinTools.FindPath(_scene, "HUD/DeathScreen").parent;
+            int death = hud.Find("DeathScreen").GetSiblingIndex();
+            Assert.AreEqual(hud.childCount - 3, death, "terzultimo");
+            Assert.Greater(hud.Find("ScreenFader").GetSiblingIndex(), death);
+            Assert.Greater(hud.Find("LevelTitle").GetSiblingIndex(), death);
+            foreach (string piece in new[] { "HealthOrb", "ManaOrb", "ExperienceBar", "Belt", "SpellBar", "EnemyBar" })
+            {
+                Assert.Less(hud.Find(piece).GetSiblingIndex(), death, piece);
+            }
+        }
+
         [Test, Description("Le tre immagini generate entrano come sprite senza mipmap e al più di 512 pixel; lo sfondo si ripete, la cornice e la placca hanno i bordi delle nove parti")]
         public void Images_AreImportedForTheInterface()
         {

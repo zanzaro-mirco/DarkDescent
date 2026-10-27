@@ -31,6 +31,17 @@ namespace DarkDescent.Editor
         public const string CoreScene = "Assets/_Project/Scenes/Core.unity";
         public const string FrameName = "SkinFrame";
 
+        /// <summary>Il figlio con l'illustrazione a tutto schermo, primo figlio del fondo o del velo.</summary>
+        public const string BackdropName = "Backdrop";
+
+        /// <summary>Dove va ogni sfondo (D6): il fondo del menu e i veli di morte e vittoria.</summary>
+        public static readonly (string Path, string Sprite)[] Backdrops =
+        {
+            ("MenuUI/MainMenu/Root", GeneratedUiImporter.MenuBackground),
+            ("HUD/DeathScreen/Panel", GeneratedUiImporter.DeathBackground),
+            ("MenuUI/VictoryUI/Window", GeneratedUiImporter.VictoryBackground),
+        };
+
         // pulsanti che restano come sono: le etichette a terra e il pulsante dei punti hanno uno stile loro
         private static readonly string[] OwnStyle = { "GroundLabels", "PointsButton" };
 
@@ -38,12 +49,14 @@ namespace DarkDescent.Editor
         public static void ApplyToCore()
         {
             var skin = LoadOrCreateSkin();
+            LoadBackgrounds(skin);
             var scene = EditorSceneManager.OpenScene(CoreScene, OpenSceneMode.Single);
             var counts = Apply(scene, skin);
+            int backdrops = ApplyBackdrops(scene, skin);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log($"[DarkDescent] interfaccia rivestita: {counts[UiRole.Window]} finestre, {counts[UiRole.Tooltip]} tooltip, "
-                + $"{counts[UiRole.Button]} pulsanti");
+                + $"{counts[UiRole.Button]} pulsanti, {backdrops} sfondi");
         }
 
         /// <summary>La pelle, creata con le tre immagini importate se non c'è ancora.</summary>
@@ -61,6 +74,81 @@ namespace DarkDescent.Editor
             AssetDatabase.CreateAsset(skin, SkinPath);
             AssetDatabase.SaveAssets();
             return skin;
+        }
+
+        /// <summary>Gli sfondi importati nella pelle; quelli che non ci sono restano vuoti.</summary>
+        public static void LoadBackgrounds(UiSkin skin)
+        {
+            skin.SetBackgrounds(Background(GeneratedUiImporter.MenuBackground), Background(GeneratedUiImporter.DeathBackground),
+                Background(GeneratedUiImporter.VictoryBackground));
+            EditorUtility.SetDirty(skin);
+            AssetDatabase.SaveAssets();
+        }
+
+        private static Sprite Background(string name)
+        {
+            return AssetDatabase.LoadAssetAtPath<Sprite>($"{GeneratedUiImporter.BackgroundFolder}{name}.png");
+        }
+
+        /// <summary>Lo sfondo di ogni schermata, come primo figlio: copre lo schermo senza deformarsi.</summary>
+        public static int ApplyBackdrops(Scene scene, UiSkin skin)
+        {
+            int count = 0;
+            foreach (var (path, name) in Backdrops)
+            {
+                var parent = FindPath(scene, path);
+                var sprite = name == GeneratedUiImporter.MenuBackground ? skin.MenuBackground
+                    : name == GeneratedUiImporter.DeathBackground ? skin.DeathBackground : skin.VictoryBackground;
+                if (parent == null || sprite == null)
+                {
+                    continue;
+                }
+
+                var backdrop = parent.Find(BackdropName);
+                if (backdrop == null)
+                {
+                    var go = new GameObject(BackdropName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(AspectRatioFitter));
+                    go.layer = parent.gameObject.layer;
+                    backdrop = go.transform;
+                    backdrop.SetParent(parent, false);
+                }
+
+                backdrop.SetAsFirstSibling();
+                var rect = (RectTransform)backdrop;
+                rect.anchorMin = new Vector2(0.5f, 0.5f);
+                rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.anchoredPosition = Vector2.zero;
+                rect.localScale = Vector3.one;
+                var image = backdrop.GetComponent<Image>();
+                image.sprite = sprite;
+                image.type = Image.Type.Simple;
+                image.color = Color.white;
+                image.raycastTarget = false;
+                var fitter = backdrop.GetComponent<AspectRatioFitter>();
+                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fitter.aspectRatio = sprite.rect.width / sprite.rect.height;
+                EditorUtility.SetDirty(image);
+                EditorUtility.SetDirty(fitter);
+                count++;
+            }
+
+            return count;
+        }
+
+        /// <summary>Un oggetto della scena dal suo percorso, radice compresa: "HUD/DeathScreen/Panel".</summary>
+        public static Transform FindPath(Scene scene, string path)
+        {
+            int slash = path.IndexOf('/');
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (root.name == path.Substring(0, slash))
+                {
+                    return root.transform.Find(path.Substring(slash + 1));
+                }
+            }
+
+            return null;
         }
 
         private static Sprite Sprite(string name)

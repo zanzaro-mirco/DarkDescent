@@ -258,6 +258,32 @@ il seme a parte, import e materiale), `DecalPlayModeTests` (cripta e caverne con
 mappa in una mesh sola, sopra il pavimento, senza collider e fuori dai layer del NavMesh); la ronda
 conta le macchie nel riassunto dei livelli costruiti e segnala una mesh che non ha quelle della mappa.
 
+## Passo 17.6 — Gli sfondi
+
+**Com'è andata (27 ott 2026).** Tre illustrazioni a tutto schermo da Z-Image-Turbo
+(`Tools/ComfyUI/images/backgrounds.py`), tutte e tre buone, senza il render del gioco di riserva:
+
+- **menu**: l'ingresso della cripta nella roccia, di notte, con due torce e la porta socchiusa; la
+  cripta sta a destra, la sinistra resta scura per la colonna dei pulsanti (`shade` su quel lato);
+- **morte**: una tomba aperta su una base di pietra, con l'elmo e la spada del cavaliere sotto una
+  luce fredda dall'alto;
+- **vittoria**: l'accampamento all'alba, due tende, il fuoco che si spegne e il sole dietro i monti.
+
+Il primo giro di morte e vittoria era un'illustrazione piatta, diversa dal menu: con "3D render of a
+low poly isometric diorama" in testa al prompt escono diorami come i modelli KayKit. Le immagini nascono a
+1920×1088 (multiplo di 16) e la finitura le porta a 1920×1080, le scurisce dove stanno i testi
+(`shade`, nuovo in `imagelib.py`) e un poco in tutto.
+
+Nel gioco: `GeneratedUiImporter` le importa da `Art/Generated/Backgrounds/` come sprite senza
+mipmap, al più 2048. `UiSkin` ha i tre sfondi e `UiSkinTools.ApplyToCore` li mette come primo figlio
+(`Backdrop`) del fondo del menu e dei veli di morte e vittoria, con un `AspectRatioFitter` che copre lo
+schermo senza deformarli a ogni proporzione e senza fermare i click. Lo sfondo della morte è opaco: la
+sfera del mana e la barra dell'esperienza, che venivano dopo nella gerarchia, gli restavano sopra, così
+`DeathScreen` ora sta dopo tutto l'HUD, sotto solo la dissolvenza e il nome del livello.
+
+Test: `UiSkinTests.Screens_HaveTheirBackdrops` (import, primo figlio, 1920×1080, copre senza
+deformare) e `UiSkinTests.DeathScreen_CoversTheHud`.
+
 ## Trappole note
 
 - **Lo stile KayKit è a tinte.** Un'immagine con dettagli fotografici accanto ai modelli stona: nei
@@ -307,7 +333,7 @@ conta le macchie nel riassunto dei livelli costruiti e segnala una mesh che non 
 - [x] Pannelli
 - [x] Menu: principale, opzioni, pausa, vittoria e morte
 - [x] Macchie a terra
-- [ ] Sfondi di menu, morte e vittoria
+- [x] Sfondi di menu, morte e vittoria
 - [ ] Misura, foto di dopo e build di prova
 - [ ] ADR, lezioni nel piano, README
 - [ ] `bundleVersion` 1.5.0 e tag `v1.5.0` dopo i test verdi in CI
