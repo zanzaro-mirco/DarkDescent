@@ -139,6 +139,49 @@ fine: un file `.tmp` in `Downloads` è un download a metà, non un errore.
 
 ---
 
+## Passo 18.2 — Il tileset e la mappa
+
+**Com'è andata (27 ott 2026).** Il borgo è ancora `Town.txt`, costruito da `MapLevel` con lo stesso
+`LevelBuilder`, ma con due cose nuove nel formato della mappa:
+
+- i simboli elencati in **`@solid`** sono **pezzi**: case, forgia, cappella, pozzo, cripta, la grotta
+  nel monte, e oltre il bordo pini, alberi secchi, sassi, colline e montagne. Non si cammina sulla
+  loro cella e non vogliono muri attorno: fanno da muro da soli;
+- **`%`** è una cella coperta dal pezzo accanto. Il pezzo sta al centro delle sue celle e **guarda dal
+  lato in cui sta il suo simbolo**: una casa scritta `H` sopra `%` apre la porta a nord. La regola è in
+  `MapPiece`, logica pura in `Core`.
+
+Contro la roccia `#` il builder mette ancora i "muri", che nel borgo sono **muretti di pietra e
+staccionate** (alti sui lati lontani, il solo muretto su quelli vicini alla camera). Sotto tutta la
+mappa e oltre il bordo c'è un prato fuori dal NavMesh, con il sole: il prefab `VillageBackdrop`, che il
+giorno che passa (18.3) muoverà. Il vecchio `TownTileset` lascia il posto a `VillageTileset`.
+
+I prefab (35) li fa `VillagePrefabs.Build` da una tabella: modelli KayKit scalati, girati e posati a
+terra, ostacoli sul layer Obstacle con il loro collider, paesaggio fuori dal NavMesh. `VillagePhotos`
+costruisce la mappa in una scena vuota e la fotografa dall'alto e con l'angolo della camera di gioco
+(ortografica, 30°, da sud-ovest).
+
+**La disposizione** (`docs/media/m18/04_disposizione.jpg`, `05_disposizione_camera.jpg`,
+`06_disposizione_camera_girata.jpg`): 17 × 13 celle in cui si cammina, 25 × 21 con il paesaggio. A nord
+la grotta nel monte tra due montagne, davanti il cimitero con la cripta e il recinto con l'arco sulla
+strada; al centro la piazza con il fuoco all'incrocio, il mercante, la forgia, il pozzo, il portale e
+l'ingresso; a est la cappella con l'altare davanti alla porta e la taverna; attorno sette case, due
+sfondate, e la casa della guaritrice. Dal portale alla grotta 11 celle girando dall'arco: 44 m, meno di
+9 s a piedi.
+
+**I test.** `MapPieceTests` (6): simboli solidi e celle coperte non sono pavimento, niente muri contro
+i pezzi, celle e centro di un pezzo, il verso della porta, il paesaggio senza porta. `TownMapTests`
+aggiunge tre controlli: ogni pezzo è un rettangolo con le sue celle, ogni edificio ha una strada davanti,
+dal portale a mercante, altare e grotta meno di 10 s. Il primo ha trovato subito due pini attaccati alla
+grotta che si prendevano le sue celle. `TownTests` ora conta due luci che fanno ombra: il sole e quella
+del cavaliere. EditMode intera 500/500, PlayMode di città, portali, altare, builder, automappa, memoria
+dei livelli e menu verdi.
+
+**Ancora grezzo, per il 18.3 e dopo:** il prato è a tinta unita, la grotta ha ancora la scala della
+cripta (18.4), le case non hanno luci alle finestre.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)

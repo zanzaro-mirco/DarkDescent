@@ -155,7 +155,7 @@ namespace DarkDescent.Tests
         public void Tilesets_UseTheBreakableBarrels()
         {
             var dungeon = AssetDatabase.LoadAssetAtPath<LevelTileset>("Assets/_Project/Data/Levels/DungeonTileset.asset");
-            var town = AssetDatabase.LoadAssetAtPath<LevelTileset>("Assets/_Project/Data/Levels/TownTileset.asset");
+            var town = AssetDatabase.LoadAssetAtPath<LevelTileset>("Assets/_Project/Data/Levels/VillageTileset.asset");
             Assert.IsNotNull(dungeon.GetMarkerPrefab('b').GetComponent<Breakable>());
             Assert.IsNull(town.GetMarkerPrefab('b').GetComponent<Breakable>());
 

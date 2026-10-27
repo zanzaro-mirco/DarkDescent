@@ -13,6 +13,9 @@ namespace DarkDescent.Levels
     /// Formato: <c>#</c> e spazio sono roccia, <c>.</c> è pavimento, ogni altro carattere è un
     /// marcatore sopra un pavimento. Le righe che cominciano con <c>@</c> sono direttive
     /// (<c>@chiave valore…</c>), quelle con <c>//</c> commenti. La prima riga della griglia è il nord.
+    /// I simboli elencati nella direttiva <c>@solid</c> sono <b>pezzi</b> (M18): case, alberi,
+    /// colline, che non si attraversano e fanno da muro da soli; <c>%</c> è una cella coperta dal
+    /// pezzo accanto. Contro pezzi e celle coperte non va un muro.
     /// </remarks>
     public sealed class LevelMap
     {
@@ -22,9 +25,16 @@ namespace DarkDescent.Levels
         private const char Empty = ' ';
         public const char Floor = '.';
 
+        /// <summary>Una cella coperta dal pezzo accanto (M18): non è pavimento, non ha muri, non è un marcatore.</summary>
+        public const char Covered = '%';
+
+        /// <summary>La direttiva con i simboli dei pezzi: <c>@solid HCY</c>.</summary>
+        public const string SolidDirective = "solid";
+
         private readonly char[,] _cells;
         private readonly List<MapMarker> _markers = new List<MapMarker>();
         private readonly Dictionary<string, string[]> _directives = new Dictionary<string, string[]>();
+        private readonly HashSet<char> _solid = new HashSet<char>();
 
         private LevelMap(char[,] cells)
         {
@@ -119,24 +129,29 @@ namespace DarkDescent.Levels
             int width = source.GetLength(0);
             int height = source.GetLength(1);
             var map = new LevelMap(new char[width, height]);
+            if (directives != null)
+            {
+                foreach (var pair in directives)
+                {
+                    map._directives[pair.Key] = pair.Value;
+                }
+            }
+
+            foreach (string symbols in map.GetDirective(SolidDirective))
+            {
+                map._solid.UnionWith(symbols);
+            }
+
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     char c = source[x, y];
                     map._cells[x, y] = c == Empty ? Rock : c;
-                    if (c != Rock && c != Empty && c != Floor)
+                    if (c != Rock && c != Empty && c != Floor && c != Covered)
                     {
                         map._markers.Add(new MapMarker(c, x, y));
                     }
-                }
-            }
-
-            if (directives != null)
-            {
-                foreach (var pair in directives)
-                {
-                    map._directives[pair.Key] = pair.Value;
                 }
             }
 
@@ -184,12 +199,35 @@ namespace DarkDescent.Levels
         /// <summary>Fuori dalla griglia è tutto roccia: i bordi della mappa non vanno chiusi a mano.</summary>
         public bool IsFloor(int x, int y)
         {
-            return x >= 0 && y >= 0 && x < Width && y < Height && _cells[x, y] != Rock;
+            return InBounds(x, y) && _cells[x, y] != Rock && _cells[x, y] != Covered && !_solid.Contains(_cells[x, y]);
         }
 
         public char GetSymbol(int x, int y)
         {
             return IsFloor(x, y) ? _cells[x, y] : Rock;
+        }
+
+        /// <summary>Il simbolo è un pezzo, elencato in <c>@solid</c>: non si cammina sulla sua cella.</summary>
+        public bool IsSolid(char symbol)
+        {
+            return _solid.Contains(symbol);
+        }
+
+        /// <summary>La cella è coperta (<c>%</c>) dal pezzo accanto.</summary>
+        public bool IsCovered(int x, int y)
+        {
+            return InBounds(x, y) && _cells[x, y] == Covered;
+        }
+
+        /// <summary>Roccia, anche fuori dalla griglia: lì, accanto a un pavimento, va un muro.</summary>
+        public bool IsRock(int x, int y)
+        {
+            return !InBounds(x, y) || _cells[x, y] == Rock;
+        }
+
+        private bool InBounds(int x, int y)
+        {
+            return x >= 0 && y >= 0 && x < Width && y < Height;
         }
 
         /// <summary>I valori di una direttiva <c>@chiave</c>; vuoto se la mappa non ce l'ha.</summary>
@@ -199,8 +237,9 @@ namespace DarkDescent.Levels
         }
 
         /// <summary>
-        /// Ogni lato di pavimento che confina con la roccia: lì va un muro. Ordine stabile, riga per
-        /// riga, per avere scene uguali a ogni ricostruzione.
+        /// Ogni lato di pavimento che confina con la roccia: lì va un muro. Contro un pezzo o una cella
+        /// coperta no, il pezzo fa da muro da solo. Ordine stabile, riga per riga, per avere scene
+        /// uguali a ogni ricostruzione.
         /// </summary>
         public IEnumerable<(int X, int Y, MapDirection Side)> BoundaryEdges()
         {
@@ -213,10 +252,10 @@ namespace DarkDescent.Levels
                         continue;
                     }
 
-                    if (!IsFloor(x, y - 1)) yield return (x, y, MapDirection.North);
-                    if (!IsFloor(x + 1, y)) yield return (x, y, MapDirection.East);
-                    if (!IsFloor(x, y + 1)) yield return (x, y, MapDirection.South);
-                    if (!IsFloor(x - 1, y)) yield return (x, y, MapDirection.West);
+                    if (IsRock(x, y - 1)) yield return (x, y, MapDirection.North);
+                    if (IsRock(x + 1, y)) yield return (x, y, MapDirection.East);
+                    if (IsRock(x, y + 1)) yield return (x, y, MapDirection.South);
+                    if (IsRock(x - 1, y)) yield return (x, y, MapDirection.West);
                 }
             }
         }

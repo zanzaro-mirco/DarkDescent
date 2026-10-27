@@ -1,18 +1,34 @@
-// L'accampamento all'ingresso della cripta (D3 della M10): la città, fatta a mano, senza nemici.
-// Si comincia da '<'; la scala '>' scende alla profondità 1 della cripta. M è il banco del mercante, A l'altare delle difficoltà (D3 della M14).
-// Simboli dei mobili nel TownTileset: s scaffali, k botti di birra, t tavolo, r giaciglio,
-// u baule, x casse, b barile, l candela, f fuoco. P è l'arrivo dei portali (D6): il portale
-// per tornare nel dungeon compare due metri a nord.
+// Il borgo all'ingresso della cripta (M18): la città, fatta a mano, senza nemici. Nord in alto.
+// Si comincia da '<'; la grotta '>' scende alla profondità 1 della cripta. M il mercante, A l'altare,
+// P l'arrivo dei portali (il portale compare due metri a nord), f il fuoco.
+// Pezzi (@solid), con le celle coperte '%': il simbolo sta sul lato della porta.
+//   H I J case, G la casa della guaritrice, V la taverna, D le case sfondate, B la forgia,
+//   C la cappella, W il pozzo, Q la cripta del cimitero, O la grotta nel monte;
+//   oltre il bordo Y Z pini, X alberi secchi, R sassi, h la collina, m le montagne.
+// Oggetti: , strada, g q tombe, n recinto, a l'arco del cimitero, l lanterna, d albero secco,
+//   e panca, x casse, b barili, r rastrelliera, u legna, k carriola.
 @depth 0
 @entrance Start
 @exit Level_Crypt Start 1
-#############
-####TA>.T####
-####.....####
-#skT.....Tks#
-#T.........T#
-#M..t.f.t..r#
-#..........T#
-#u.P.l<l...r#
-#x.bT...T.bu#
-#############
+@solid HIJGVDBCWQOYZXRhm
+#####Y#%%%#####%%%#####Z#
+#Z#####%m%#%%%#%m%#Z#####
+####Z##%%%#%%%#%%%###Z###
+##Z########%O%####Y#####Y
+####.%......>......%.####
+#R##.H..g.q.,.%%q..H.#Z##
+####.....dg.,.Q%.....####
+##X#....q..l,lg.g....####
+####%J.nnnnnannnnl...##Z#
+##R#...%B...,.....C%.####
+####...%%r.e,e.x.A%%.####
+#X##..u.....f.Mb.....#Z##
+####%G,,,,,,,,,,,,.V%####
+#R##...k..P.<..W.x.%%###Z
+####%D...b..,........####
+##X#%%..I.J.,.D%.H...#%%%
+####....%.%.,.%%.%...#%h%
+######################%%%
+X####R#########X##R######
+########X###R########X##Z
+#########################

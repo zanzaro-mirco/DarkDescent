@@ -76,7 +76,7 @@ namespace DarkDescent.Tests
             Assert.LessOrEqual(Mathf.Abs(arrival.X - start.X) + Mathf.Abs(arrival.Y - start.Y), 3, "accanto all'ingresso");
             Assert.IsTrue(map.IsFloor(arrival.X, arrival.Y - 1), "il portale sta a nord, sul pavimento");
 
-            var prefab = Asset<LevelTileset>("Data/Levels/TownTileset.asset").GetMarkerPrefab('P');
+            var prefab = Asset<LevelTileset>("Data/Levels/VillageTileset.asset").GetMarkerPrefab('P');
             Assert.AreEqual(TownPortals.PortalEntrance, prefab.GetComponent<LevelEntrance>().Id);
         }
     }

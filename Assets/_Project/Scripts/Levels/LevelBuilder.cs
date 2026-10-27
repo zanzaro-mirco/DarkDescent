@@ -102,6 +102,7 @@ namespace DarkDescent.Levels
             var wallSides = new SideGroups(walls, view);
             var torchSides = new SideGroups(torches, view);
 
+            BuildBackdrop(map, level.transform);
             BuildFloors(map, floors);
             BuildWalls(map, wallSides);
             BuildMarkers(map, level.transform, props, torchSides, enemies);
@@ -151,6 +152,19 @@ namespace DarkDescent.Levels
             modifier.area = NavMesh.GetAreaFromName("Not Walkable");
             modifier.applyToChildren = true;
             return go.transform;
+        }
+
+        // Il terreno sotto la mappa e oltre il bordo (D4 della M18), al centro della griglia: fuori dai
+        // layer del NavMesh, così si cammina solo sui pavimenti delle celle
+        private void BuildBackdrop(LevelMap map, Transform level)
+        {
+            if (_tileset.Backdrop == null)
+            {
+                return;
+            }
+
+            Vector3 center = (LevelMap.CellCenter(0, 0) + LevelMap.CellCenter(map.Width - 1, map.Height - 1)) * 0.5f;
+            Place(_tileset.Backdrop, level, center, Quaternion.identity).name = "Backdrop";
         }
 
         private void BuildFloors(LevelMap map, Transform parent)
@@ -291,10 +305,17 @@ namespace DarkDescent.Levels
                             break;
                         }
 
+                        if (map.IsSolid(marker.Symbol))
+                        {
+                            PlacePiece(map, props, prefab, marker);
+                            break;
+                        }
+
                         bool isEnemy = prefab.GetComponentInChildren<EnemyAI>() != null;
-                        var facing = isEnemy ? Vector3.back : AwayFromWall(map, marker);
-                        var rotation = Quaternion.LookRotation(facing);
-                        if (!isEnemy && IsJittered(map, marker))
+                        bool keeps = _tileset.KeepsRotation(marker.Symbol);
+                        var facing = isEnemy || keeps ? Vector3.back : AwayFromWall(map, marker);
+                        var rotation = keeps ? Quaternion.identity : Quaternion.LookRotation(facing);
+                        if (!isEnemy && !keeps && IsJittered(map, marker))
                         {
                             Vector2 offset = DecorJitter.Offset(marker.X, marker.Y);
                             center += new Vector3(offset.x, 0f, offset.y);
@@ -325,6 +346,28 @@ namespace DarkDescent.Levels
                     }
                 }
             }
+        }
+
+        // Un pezzo (M18) sta al centro delle sue celle e guarda dal lato del suo simbolo: la porta
+        // sulla strada. Senza pavimento accanto, nel paesaggio oltre il bordo, prende giro e
+        // scarto dall'hash della cella, come i mucchietti: due colline uguali non sembrano copie.
+        private void PlacePiece(LevelMap map, Transform props, GameObject prefab, MapMarker marker)
+        {
+            var cells = MapPiece.Footprint(map, marker);
+            Vector3 center = MapPiece.Center(cells);
+            Quaternion rotation;
+            if (MapPiece.TryFacing(map, marker, cells, out var side))
+            {
+                rotation = Quaternion.LookRotation(LevelMap.ToWorld(side));
+            }
+            else
+            {
+                Vector2 offset = DecorJitter.Offset(marker.X, marker.Y);
+                center += new Vector3(offset.x, 0f, offset.y);
+                rotation = Quaternion.Euler(0f, DecorJitter.Angle(marker.X, marker.Y), 0f);
+            }
+
+            Place(prefab, props, center, rotation).name = prefab.name;
         }
 
         // Mucchietti e barili in mezzo alla stanza, lontani dai muri, prendono rotazione e scarto da un

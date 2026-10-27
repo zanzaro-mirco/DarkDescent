@@ -20,6 +20,9 @@ namespace DarkDescent.Levels
         [Tooltip("Muro basso, sui lati sud e ovest: quelli tra la camera e il cavaliere (D5).")]
         [SerializeField] private GameObject _lowWall;
 
+        [Tooltip("Il terreno sotto tutta la mappa e oltre il bordo, fuori dal NavMesh (il borgo, M18). Vuoto: il nero di sotto terra.")]
+        [SerializeField] private GameObject _backdrop;
+
         [Tooltip("Variante del pavimento, su alcune celle (le caverne: terra con i sassi). Vuoto: nessuna.")]
         [SerializeField] private GameObject _floorVariant;
 
@@ -70,6 +73,8 @@ namespace DarkDescent.Levels
 
         public GameObject Floor => _floor;
 
+        public GameObject Backdrop => _backdrop;
+
         public Material DecalMaterial => _decalMaterial;
 
         public float DecalLift => _decalLift;
@@ -112,6 +117,20 @@ namespace DarkDescent.Levels
                 if (marker.Symbol == symbol)
                 {
                     return marker.ReplacesFloor;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>Il prefab di questo simbolo ha già il suo verso: il costruttore non lo gira.</summary>
+        public bool KeepsRotation(char symbol)
+        {
+            foreach (var marker in _markers)
+            {
+                if (marker.Symbol == symbol)
+                {
+                    return marker.KeepsRotation;
                 }
             }
 

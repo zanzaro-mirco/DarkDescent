@@ -23,7 +23,7 @@ namespace DarkDescent.Tests
         {
             var crypt = Tileset("DungeonTileset").PostProcessing;
             var caves = Tileset("CaveTileset").PostProcessing;
-            var town = Tileset("TownTileset").PostProcessing;
+            var town = Tileset("VillageTileset").PostProcessing;
             Assert.AreNotSame(crypt, caves, "le caverne hanno un profilo loro");
             Assert.AreNotSame(crypt, town);
 

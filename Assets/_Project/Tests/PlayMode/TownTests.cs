@@ -77,11 +77,12 @@ namespace DarkDescent.Tests
             Assert.AreEqual(("Level_Crypt", "Start", 1), (level.Exits[0].TargetScene, level.Exits[0].TargetEntrance, level.Exits[0].TargetDepth));
             Assert.AreEqual("Descend to level 1", level.Exits[0].GetComponent<Interactable>().GetLabel(Localizer));
 
-            // calda e più chiara della cripta, senza ombre oltre a quella del cavaliere
+            // calda e più chiara della cripta; all'aperto fanno ombra il sole del borgo e la luce del cavaliere (M18)
             Assert.Greater(RenderSettings.ambientLight.r, RenderSettings.ambientLight.b);
             Assert.Greater(RenderSettings.ambientLight.r, 0.1f);
-            int shadowLights = UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Count(l => l.shadows != LightShadows.None);
-            Assert.AreEqual(1, shadowLights);
+            var shadowLights = UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Where(l => l.shadows != LightShadows.None).ToArray();
+            Assert.AreEqual(2, shadowLights.Length);
+            Assert.AreEqual(1, shadowLights.Count(l => l.type == LightType.Directional), "il sole");
 
             // la sua musica e il crepitio del fuoco, senza versi nel buio
             var ambience = UnityEngine.Object.FindFirstObjectByType<DarkDescent.Audio.AmbiencePlayer>();

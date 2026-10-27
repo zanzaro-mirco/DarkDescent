@@ -188,7 +188,7 @@ namespace DarkDescent.Tests
                 Assert.AreEqual(material, AssetDatabase.LoadAssetAtPath<LevelTileset>(path).DecalMaterial, path);
             }
 
-            Assert.IsNull(AssetDatabase.LoadAssetAtPath<LevelTileset>("Assets/_Project/Data/Levels/TownTileset.asset").DecalMaterial, "la città no");
+            Assert.IsNull(AssetDatabase.LoadAssetAtPath<LevelTileset>("Assets/_Project/Data/Levels/VillageTileset.asset").DecalMaterial, "la città no");
         }
     }
 }

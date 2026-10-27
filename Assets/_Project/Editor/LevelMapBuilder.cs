@@ -24,7 +24,7 @@ namespace DarkDescent.Editor
         private const string CryptSettingsPath = "Assets/_Project/Data/Levels/CryptSettings.asset";
         private const string TownScenePath = "Assets/_Project/Scenes/Town.unity";
         private const string TownMapPath = "Assets/_Project/Data/Levels/Town.txt";
-        private const string TownTilesetPath = "Assets/_Project/Data/Levels/TownTileset.asset";
+        private const string VillageTilesetPath = "Assets/_Project/Data/Levels/VillageTileset.asset";
 
         [MenuItem("DarkDescent/Ricostruisci i livelli dalle mappe")]
         public static void BuildAllFromMenu()
@@ -114,12 +114,12 @@ namespace DarkDescent.Editor
 
         /// <summary>
         /// La scena della città (D3 della M10): come quella della cripta, vuota, con un MapLevel che
-        /// costruisce l'accampamento dalla sua mappa quando ci si entra. Va nella build prima della cripta.
+        /// costruisce il borgo dalla sua mappa quando ci si entra. Va nella build prima della cripta.
         /// </summary>
         public static void BuildTown()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>(TownTilesetPath);
+            var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>(VillageTilesetPath);
             LevelBuilder.ApplyRenderSettings(tileset);
             var town = new GameObject("Town").AddComponent<MapLevel>();
             var so = new SerializedObject(town);
