@@ -190,9 +190,9 @@ MonoBehaviour:
     _replacesFloor: 0
     _keepsRotation: 0
   - _symbol: 102
-    _prefab: {fileID: 5021805860323014824, guid: 0b905fd266803154a98ee7881f427f93, type: 3}
+    _prefab: {fileID: 3114015932684132662, guid: 6797b69a5bca2c04cb6197d04f18455e, type: 3}
     _replacesFloor: 0
-    _keepsRotation: 0
+    _keepsRotation: 1
   - _symbol: 77
     _prefab: {fileID: 8337413292561068197, guid: 84b7d3f77c2b04c46b3a33c576f92583, type: 3}
     _replacesFloor: 0

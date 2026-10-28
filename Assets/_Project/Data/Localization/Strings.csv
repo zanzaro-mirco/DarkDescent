@@ -19,7 +19,7 @@ hud.restart,Continue,Continua
 hud.level_title,{0} – Level {1},{0} – Livello {1}
 level.crypt,Crypt,Cripta
 level.caves,Caves,Caverne
-level.town,Camp,Accampamento
+level.town,The village,Il borgo
 menu.continue,Continue,Continua
 menu.new,New game,Nuova partita
 menu.load,Load,Carica
@@ -372,10 +372,10 @@ shop.sell_hint,Right-click to sell,Click destro per vendere
 shop.no_gold,Not enough gold,Non hai abbastanza oro
 shop.no_room,No room in the bag,Non c'è posto nella borsa
 shop.help,Right-click an item in your bag to sell it,Click destro su un oggetto della borsa per venderlo
-portal.to_town,Portal to the Camp,Portale per l'accampamento
+portal.to_town,Portal to the village,Portale per il borgo
 portal.to_depth,Portal to level {0},Portale per il livello {0}
 portal.victory,Leave the depths,Lascia le profondità
-portal.in_town,You are already at the camp,Sei già all'accampamento
+portal.in_town,You are already in the village,Sei già nel borgo
 portal.boss_room,The Bone King will not let you flee,Il Re delle ossa non ti lascia fuggire
 victory.title,Victory,Vittoria
 victory.subtitle,The Bone King has fallen.,Il Re delle ossa è caduto.

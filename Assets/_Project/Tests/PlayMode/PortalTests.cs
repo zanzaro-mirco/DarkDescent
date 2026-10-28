@@ -209,7 +209,7 @@ namespace DarkDescent.Tests
             var slot = UnityEngine.Object.FindFirstObjectByType<PortalSlotView>();
             Assert.IsTrue(slot.HasIcon);
             Assert.AreEqual(PortalResult.InTown, Magic.TryCastPortal(), "in città non serve");
-            Assert.AreEqual("You are already at the camp", UnityEngine.Object.FindFirstObjectByType<HudMessage>().Text);
+            Assert.AreEqual("You are already in the village", UnityEngine.Object.FindFirstObjectByType<HudMessage>().Text);
             Assert.IsNull(Portals.OpenPortal);
 
             Manager.LoadLevel("Level_Crypt", "Start", 1);
@@ -224,7 +224,7 @@ namespace DarkDescent.Tests
             var portal = Portals.OpenPortal;
             Assert.IsNotNull(portal, "T apre il portale");
             Assert.IsTrue(portal.IsOpening, "cresce con il suono dell'apertura");
-            Assert.AreEqual("Portal to the Camp", portal.Interactable.GetLabel(Localizer));
+            Assert.AreEqual("Portal to the village", portal.Interactable.GetLabel(Localizer));
             Assert.AreEqual(Manager.CurrentLevel.gameObject.scene, portal.gameObject.scene, "si scarica con il livello");
             float distance = Vector3.Distance(PlayerObject.transform.position, portal.transform.position);
             Assert.That(distance, Is.InRange(1f, 2.6f), "davanti al cavaliere");

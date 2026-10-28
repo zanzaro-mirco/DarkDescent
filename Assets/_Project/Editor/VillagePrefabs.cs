@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DarkDescent.Levels;
 using DarkDescent.Rendering;
+using DarkDescent.Town;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace DarkDescent.Editor
 {
@@ -99,6 +102,49 @@ namespace DarkDescent.Editor
         };
 
         private static readonly Vector3[] TunnelBraziers = { new Vector3(-1.55f, 0f, 1.9f), new Vector3(1.55f, 0f, 1.9f) };
+
+        // Gli abitanti attorno al fuoco (D9 della M18): i personaggi di Adventurers senza armi, senza
+        // cappello né faretra, con le tinte spente dei sopravvissuti. Il builder mette il fuoco senza
+        // girarlo (_keepsRotation), con il +Z a nord come la mappa. Tre seduti dal lato lontano dalla
+        // camera, verso le fiamme; quello in piedi a sud-est, rivolto a sud verso l'ingresso, saluta chi
+        // arriva. Il lato ovest resta libero: lì arriva il portale.
+        private const string Adventurers = KayKitImporter.ModelFolder;
+        private const string Animations = "Assets/_Project/Art/Animations/KayKit/";
+        private const string VillageFirePath = TownPrefabs + "VillageFire.prefab";
+        private const float VillagerRadius = 0.45f;
+        private const float GreetingReach = 9f;
+
+        private readonly struct Survivor
+        {
+            public Survivor(string model, string hidden, string material, Color tint, float angle, float distance, bool greets)
+            {
+                Model = model;
+                Hidden = hidden;
+                Material = material;
+                Tint = tint;
+                Angle = angle;
+                Distance = distance;
+                Greets = greets;
+            }
+
+            public string Model { get; }
+            public string Hidden { get; }
+            public string Material { get; }
+            public Color Tint { get; }
+
+            // sulla mappa, in gradi da est verso nord, e quanto dal centro del fuoco
+            public float Angle { get; }
+            public float Distance { get; }
+            public bool Greets { get; }
+        }
+
+        private static readonly Survivor[] Survivors =
+        {
+            new Survivor("Mage", "Mage_Hat", "M_KayKitMage", new Color(0.72f, 0.66f, 0.6f), 115f, 2.1f, false),
+            new Survivor("Rogue", null, "M_KayKitRogue", new Color(0.8f, 0.72f, 0.62f), 50f, 2.1f, false),
+            new Survivor("Ranger", "Ranger_Quiver", "M_KayKitRanger", new Color(0.7f, 0.7f, 0.62f), -15f, 2.1f, false),
+            new Survivor("Mage", "Mage_Hat", "M_KayKitMage", new Color(0.62f, 0.58f, 0.66f), -60f, 2.9f, true),
+        };
 
         // le texture del terreno, da Tools/Textures/ground.py: senza cuciture, stese in coordinate del mondo
         private const string TextureFolder = "Assets/_Project/Art/Textures/Village/";
@@ -240,6 +286,7 @@ namespace DarkDescent.Editor
 
             SaveCaveExit(dirt);
             SaveTunnelMouth();
+            SaveVillageFire();
             AssetDatabase.SaveAssets();
             BuildTileset();
             Debug.Log($"[DarkDescent] borgo: {Pieces.Length + 4} prefab in {PrefabFolder}, più {TunnelMouthPath}");
@@ -564,6 +611,98 @@ namespace DarkDescent.Editor
             EditorUtility.SetDirty(tileset);
         }
 
+        // Il fuoco della piazza con gli abitanti attorno (D9 della M18). Ognuno è un ostacolo che il
+        // NavMesh ritaglia quando si carica il borgo; quello che saluta ha il trigger largo, su Ignore
+        // Raycast perché i click ci passino attraverso.
+        private static void SaveVillageFire()
+        {
+            var root = new GameObject("VillageFire");
+            PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "Campfire.prefab"), root.transform);
+            var sit = Clip("Rig_Medium_Simulation", "Sit_Floor_Idle");
+            var idle = Clip("Rig_Medium_General", "Idle_A");
+            var wave = Clip("Rig_Medium_Simulation", "Waving");
+            for (int i = 0; i < Survivors.Length; i++)
+            {
+                var survivor = Survivors[i];
+                float radians = survivor.Angle * Mathf.Deg2Rad;
+                var position = new Vector3(Mathf.Cos(radians), 0f, Mathf.Sin(radians)) * survivor.Distance;
+                var villager = new GameObject($"Villager_{i + 1}");
+                villager.transform.SetParent(root.transform, false);
+                villager.transform.localPosition = position;
+                // seduti verso il fuoco; quello in piedi verso sud, dove si arriva
+                villager.transform.localRotation = Quaternion.LookRotation(survivor.Greets ? Vector3.back : -position);
+
+                var model = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(Adventurers + survivor.Model + ".fbx"), villager.transform);
+                PrefabUtility.UnpackPrefabInstance(model, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+                var hidden = survivor.Hidden != null ? model.transform.Find(survivor.Hidden) : null;
+                if (hidden != null)
+                {
+                    Object.DestroyImmediate(hidden.gameObject);
+                }
+
+                var material = Tinted(survivor.Material, $"M_Villager{i + 1}", survivor.Tint);
+                foreach (var renderer in model.GetComponentsInChildren<Renderer>())
+                {
+                    renderer.sharedMaterial = material;
+                }
+
+                var animator = model.GetComponent<Animator>();
+                animator.applyRootMotion = false;
+                animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+
+                var component = villager.AddComponent<Villager>();
+                var so = new SerializedObject(component);
+                so.FindProperty("_pose").objectReferenceValue = survivor.Greets ? idle : sit;
+                so.FindProperty("_greeting").objectReferenceValue = survivor.Greets ? wave : null;
+                so.ApplyModifiedPropertiesWithoutUndo();
+
+                var obstacle = villager.AddComponent<NavMeshObstacle>();
+                obstacle.shape = NavMeshObstacleShape.Capsule;
+                obstacle.radius = VillagerRadius;
+                obstacle.height = 1.8f;
+                obstacle.center = new Vector3(0f, 0.9f, 0f);
+                obstacle.carving = true;
+                obstacle.carveOnlyStationary = true;
+
+                if (survivor.Greets)
+                {
+                    villager.layer = LayerMask.NameToLayer("Ignore Raycast");
+                    var reach = villager.AddComponent<SphereCollider>();
+                    reach.isTrigger = true;
+                    reach.radius = GreetingReach;
+                    reach.center = new Vector3(0f, 1f, 0f);
+                    villager.AddComponent<Rigidbody>().isKinematic = true;
+                }
+            }
+
+            PrefabUtility.SaveAsPrefabAsset(root, VillageFirePath);
+            Object.DestroyImmediate(root);
+        }
+
+        private static AnimationClip Clip(string file, string name)
+        {
+            var clip = AssetDatabase.LoadAllAssetsAtPath(Animations + file + ".fbx").OfType<AnimationClip>().FirstOrDefault(c => c.name == name);
+            return clip != null ? clip : throw new FileNotFoundException($"manca la clip {name} in {file}.fbx");
+        }
+
+        // Una copia del materiale del personaggio con la tinta spenta: rifatta a ogni Build
+        private static Material Tinted(string source, string name, Color tint)
+        {
+            string path = VillageTools.MaterialFolder + name + ".mat";
+            var material = new Material(AssetDatabase.LoadAssetAtPath<Material>(VillageTools.MaterialFolder + source + ".mat")) { name = name };
+            material.SetColor("_BaseColor", tint);
+            var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (existing == null)
+            {
+                AssetDatabase.CreateAsset(material, path);
+                return material;
+            }
+
+            existing.CopyPropertiesFromMaterial(material);
+            EditorUtility.SetDirty(existing);
+            return existing;
+        }
+
         // Una luce calda senza ombre, che la vista del giorno accende al tramonto: davanti alla porta,
         // all'altezza delle finestre, o sotto il lume della lanterna
         private static void AddGlow(GameObject root, Glow glow)
@@ -715,7 +854,7 @@ namespace DarkDescent.Editor
                 ('r', Load("WeaponRack"), false, false),
                 ('u', Load("Lumber"), false, false),
                 ('k', Load("Wheelbarrow"), false, false),
-                ('f', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "Campfire.prefab"), false, false),
+                ('f', AssetDatabase.LoadAssetAtPath<GameObject>(VillageFirePath), false, true),
                 ('M', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "MerchantStall.prefab"), false, false),
                 ('A', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "DifficultyAltar.prefab"), false, false),
                 ('P', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "PortalSpot.prefab"), false, false),

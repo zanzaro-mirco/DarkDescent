@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Audio.AmbienceProfile
   _music: {fileID: 8300000, guid: 25071edebfb2ef44986548af0f2dd22f, type: 3}
   _musicVolume: 0.7
-  _bed: {fileID: 8300000, guid: 6ff4b260cc55ed141894ab86806b90c1, type: 3}
+  _bed: {fileID: 8300000, guid: c38a7e85cc77d424a903fba1de0b73cd, type: 3}
   _bedVolume: 0.35
-  _stingers: []
+  _stingers:
+  - {fileID: 8300000, guid: 2efdba0a1e2789a42b683bf9da676c51, type: 3}
   _stingerVolume: 0.6
   _stingerInterval: {x: 20, y: 50}
   _stingerDistance: {x: 10, y: 18}
-  _stingerPitch: {x: 0.75, y: 1.05}
+  _stingerPitch: {x: 0.9, y: 1.1}

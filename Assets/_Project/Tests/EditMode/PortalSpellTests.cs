@@ -30,7 +30,7 @@ namespace DarkDescent.Tests
             localizer.SetLanguage("it");
             Assert.AreEqual("Portale", localizer.Get(spell.NameKey));
             Assert.AreEqual("Il Re delle ossa non ti lascia fuggire", localizer.Get(TextKeys.PortalBossRoom));
-            Assert.AreEqual("Sei già all'accampamento", localizer.Get(TextKeys.PortalInTown));
+            Assert.AreEqual("Sei già nel borgo", localizer.Get(TextKeys.PortalInTown));
 
             var magic = Asset<GameObject>("Prefabs/Player.prefab").GetComponent<PlayerMagic>();
             Assert.AreSame(spell, magic.PortalSpell);

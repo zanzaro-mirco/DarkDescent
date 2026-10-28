@@ -345,6 +345,53 @@ del cunicolo è quella nel muro.
 
 ---
 
+## Passo 18.5 — Gli abitanti, il suono, il nome e il salvataggio vecchio
+
+**Com'è andata (28 ott 2026).**
+- **Gli abitanti** (D9). Il fuoco della piazza è un prefab nuovo, `Prefabs/Town/VillageFire.prefab`,
+  messo dal simbolo `f` senza girarlo. Attorno ci sono quattro sopravvissuti, i personaggi di
+  *Adventurers* senza cappello né faretra, con le tinte spente (`M_Villager1`–`4`):
+  - tre seduti per terra (`Sit_Floor_Idle`) dal lato lontano dalla camera, verso le fiamme;
+  - uno in piedi a sud-est, verso l'ingresso, che saluta (`Waving`) quando il cavaliere arriva entro
+    9 m. Il trigger è su Ignore Raycast, così i click ci passano attraverso.
+
+  Il lato ovest resta libero: lì arriva il portale. `Villager` fa girare le pose con un grafo di
+  Playables suo, senza Animator Controller, e ognuno parte da un punto diverso del giro. Il saluto
+  sale e scende senza salti: è `Greeting`, logica pura in `Core`. Ogni abitante è un `NavMeshObstacle`
+  che ritaglia il NavMesh quando il borgo si carica.
+- **Il suono** (D10). Il fondo del borgo, `bed_village.wav`, è il crepitio dell'accampamento più il
+  vento tra i pini, 3 dB sotto, chiuso ad anello sui 15 s del fuoco (`Tools/Audio/village_bed.py`).
+  Ogni 20–50 s passa un corvo lontano (`stinger_village_crow.wav`), con tono e distanza diversi a ogni
+  verso. Vento e corvo vengono da Stable Audio, con le ricette in `Tools/ComfyUI/sounds/village.py`.
+  Delle quattro prove di vento, due avevano uccellini dentro (si vedevano nello spettrogramma). Mirco
+  ha scelto all'ascolto il vento 1851 e il corvo 1855. La musica resta *The Bard's Tale*.
+- **Il nome** (D11). "Il borgo" / "The village" al posto di "Accampamento" / "Camp", con la stessa
+  chiave `level.town`. Cambiano anche il portale ("Portale per il borgo") e "Sei già nel borgo".
+- **Il salvataggio vecchio** (D12). Il formato resta il 7. La fixture `save_v7_camp.json` è un
+  salvataggio dell'accampamento della v1.5.0: scena `Town`, ingresso `Start`, la mappa scoperta
+  dell'accampamento di 13 × 10 celle e un portale aperto alla profondità 5. Si carica nel borgo con
+  livello, oro e portale com'erano. La mappa scoperta dell'accampamento ha un'altra misura e si
+  ignora: il borgo si scopre da capo.
+
+**Le foto** (`docs/media/m18/15_abitanti.jpg`, `16_abitanti_notte.jpg`) le fa `PhotoTour.VillageDay`.
+
+**I test.**
+- **`GreetingTests` (3, EditMode):** il saluto sale, tiene e scende; un arrivo a metà riparte senza
+  salti; arriva sempre a peso pieno.
+- **`TownTests`:**
+  - `Villagers_SitByTheFireAndGreet`: tre seduti e uno che saluta. Il cavaliere va lontano e torna,
+    e l'abitante saluta. Dall'ingresso si arriva ancora al mercante e alla grotta;
+  - `OldCampSave_ContinuesInTheVillage`: il salvataggio dell'accampamento continua nel borgo;
+  - il nome nuovo nel titolo e nel menu, il fondo e il corvo.
+- **In locale:** EditMode intera 519/519. PlayMode di città, portali, ambienze, menu, salvataggi,
+  builder, automappa, passaggi tra livelli, discesa, altare, memoria dei livelli e uscite: 50/50.
+
+**Da sapere.** Il primo test portava il cavaliere sul punto d'arrivo della grotta. Il trigger
+dell'uscita lo faceva scendere nella cripta, e il saluto sembrava rotto. Nei test, per allontanarsi
+si va dove non ci sono uscite.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)

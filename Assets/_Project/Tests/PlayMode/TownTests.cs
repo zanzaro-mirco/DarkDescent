@@ -58,7 +58,7 @@ namespace DarkDescent.Tests
             yield return WaitForLevel();
         }
 
-        [UnityTest, Description("Una partita nuova comincia in città: profondità 0, senza nemici né casse, scena attiva per luci e Instantiate, il cavaliere sul NavMesh, il nome senza numero, l'automappa, luce calda, la sua musica")]
+        [UnityTest, Description("Una partita nuova comincia in città: profondità 0, senza nemici né casse, scena attiva per luci e Instantiate, il cavaliere sul NavMesh, il nome senza numero, l'automappa, luce calda, la sua musica e il suo fondo")]
         public IEnumerator NewGame_StartsInTown()
         {
             yield return StartNewGame();
@@ -71,7 +71,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0, level.Chests.Count);
             Assert.IsTrue(GameObject.Find("Player").GetComponent<NavMeshAgent>().isOnNavMesh);
 
-            Assert.AreEqual("Camp", UnityEngine.Object.FindFirstObjectByType<LevelTitle>().Text, "la città non ha un numero");
+            Assert.AreEqual("The village", UnityEngine.Object.FindFirstObjectByType<LevelTitle>().Text, "il borgo non ha un numero (D11 della M18)");
             Assert.IsNotNull(UnityEngine.Object.FindFirstObjectByType<ExplorationTracker>().Exploration, "costruita dalla mappa: l'automappa c'è");
 
             Assert.AreEqual(1, level.Exits.Count);
@@ -92,11 +92,12 @@ namespace DarkDescent.Tests
             Vector3 corner = ground.transform.TransformPoint(mesh.vertices[0]);
             Assert.AreEqual(new Vector2(corner.x, corner.z) / ground.MetersPerRepeat, mesh.uv[0], "le coordinate vengono dal mondo");
 
-            // la sua musica e il crepitio del fuoco, senza versi nel buio
+            // la sua musica, il fuoco con il vento e, ogni tanto, un corvo lontano (D10 della M18)
             var ambience = UnityEngine.Object.FindFirstObjectByType<DarkDescent.Audio.AmbiencePlayer>();
             Assert.AreEqual("town_loop_the_bards_tale", ambience.Music.clip.name);
-            Assert.AreEqual("bed_town_fire", ambience.Bed.clip.name);
-            Assert.AreEqual(0, ambience.Current.StingerCount);
+            Assert.AreEqual("bed_village", ambience.Bed.clip.name);
+            Assert.AreEqual(1, ambience.Current.StingerCount);
+            Assert.AreEqual("stinger_village_crow", ambience.Current.GetStinger(0).name);
         }
 
         [UnityTest, Description("La grotta del borgo porta alla profondità 1 della cripta, sul suo ingresso iniziale, davanti allo sbocco del cunicolo nel muro (D6 e D7 della M18)")]
@@ -145,6 +146,54 @@ namespace DarkDescent.Tests
                 $"dal cunicolo si arriva alla scala: da {player.transform.position} verso {stairs}, fermo a {path.corners.LastOrDefault()}");
         }
 
+        [UnityTest, Description("Attorno al fuoco del borgo tre abitanti seduti e uno in piedi che saluta chi arriva; sono ostacoli, e dall'ingresso si arriva ancora al mercante e alla grotta (D9 della M18)")]
+        public IEnumerator Villagers_SitByTheFireAndGreet()
+        {
+            yield return StartNewGame();
+            var villagers = Manager.CurrentLevel.GetComponentsInChildren<DarkDescent.Town.Villager>();
+            Assert.AreEqual(4, villagers.Length);
+            var greeter = villagers.Single(v => v.Greets);
+            Assert.IsTrue(villagers.Where(v => !v.Greets).All(v => v.Pose.name == "Sit_Floor_Idle"), "gli altri seduti per terra");
+            Assert.IsTrue(villagers.All(v => v.GetComponent<NavMeshObstacle>().carving), "ostacoli per il NavMesh");
+
+            // il cavaliere va lontano dal fuoco, a ovest, e torna all'ingresso: chi sta in piedi lo saluta
+            var agent = GameObject.Find("Player").GetComponent<NavMeshAgent>();
+            Vector3 start = agent.transform.position;
+            Assert.IsTrue(NavMesh.SamplePosition(start + Vector3.left * 14f, out var away, 3f, NavMesh.AllAreas));
+            Assert.Greater(Vector3.Distance(away.position, greeter.transform.position), 12f);
+            agent.Warp(away.position);
+            for (float t = 0f; greeter.IsGreeting || t < 0.3f; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 6f, "il saluto dell'arrivo non finisce");
+                yield return null;
+            }
+
+            agent.Warp(start);
+            for (float t = 0f; !greeter.IsGreeting; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 2f, $"nessuno saluta chi arriva, a {Vector3.Distance(greeter.transform.position, agent.transform.position):0.0} m");
+                yield return null;
+            }
+
+            // i ritagli degli ostacoli arrivano dopo qualche frame
+            for (float t = 0f; t < 0.5f; t += Time.unscaledDeltaTime)
+            {
+                yield return null;
+            }
+
+            var targets = new[]
+            {
+                UnityEngine.Object.FindFirstObjectByType<DarkDescent.Town.Merchant>().GetComponent<Interactable>().ApproachPoint,
+                Manager.CurrentLevel.Exits[0].GetComponent<Interactable>().ApproachPoint,
+            };
+            foreach (var target in targets)
+            {
+                var path = new NavMeshPath();
+                Assert.IsTrue(agent.CalculatePath(target, path));
+                Assert.AreEqual(NavMeshPathStatus.PathComplete, path.status, $"verso {target}");
+            }
+        }
+
         [UnityTest, Description("Il borgo cambia luce con il tempo di gioco: di notte sole basso, ambiente buio ma sopra il minimo, lanterne e finestre accese (D5 della M18)")]
         public IEnumerator Village_ChangesLightWithPlayTime()
         {
@@ -190,10 +239,44 @@ namespace DarkDescent.Tests
             yield return null;
             yield return null;
             Menu.LoadButton.onClick.Invoke();
-            StringAssert.Contains("Slot 1 – level 1 · Camp", Menu.SlotView(1).Text);
+            StringAssert.Contains("Slot 1 – level 1 · The village", Menu.SlotView(1).Text);
             Menu.ContinueButton.onClick.Invoke();
             yield return WaitForLevel();
             Assert.IsTrue(Manager.CurrentLevel.IsTown);
+        }
+
+        [UnityTest, Description("Un salvataggio fatto nell'accampamento della v1.5.0 (formato 7, accampamento di 13 × 10 celle tutto scoperto, portale aperto alla profondità 5) continua nel borgo: livello, oro e portale com'erano, la mappa scoperta del borgo riparte (D12 della M18)")]
+        public IEnumerator OldCampSave_ContinuesInTheVillage()
+        {
+            var fixture = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v7_camp.json");
+            File.WriteAllText(Path.Combine(_folder, "save_1.json"), fixture.text);
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return null;
+            yield return null;
+            Menu.LoadButton.onClick.Invoke();
+            StringAssert.Contains("Slot 1 – level 24 · The village", Menu.SlotView(1).Text);
+            Menu.ContinueButton.onClick.Invoke();
+            yield return WaitForLevel();
+
+            var level = Manager.CurrentLevel;
+            Assert.AreEqual(TownScene, level.gameObject.scene.name);
+            Assert.IsTrue(level.IsTown);
+            StringAssert.StartsWith("The village", UnityEngine.Object.FindFirstObjectByType<LevelTitle>().Text, "con la difficoltà del salvataggio");
+            var player = GameObject.Find("Player");
+            Assert.IsTrue(player.GetComponent<NavMeshAgent>().isOnNavMesh, "sull'ingresso del borgo");
+            Assert.AreEqual(24, player.GetComponent<DarkDescent.Progression.PlayerProgress>().Progress.Level);
+            Assert.AreEqual(4321, player.GetComponent<DarkDescent.Items.PlayerInventory>().Inventory.Gold);
+
+            var portals = UnityEngine.Object.FindFirstObjectByType<DarkDescent.Town.TownPortals>();
+            Assert.AreEqual(5, portals.PortalDepth, "il portale aperto resta");
+            Assert.AreEqual(new Vector3(36f, 0f, -20f), portals.PortalSpot);
+
+            // l'accampamento scoperto aveva un'altra misura: il borgo si scopre da capo
+            var exploration = UnityEngine.Object.FindFirstObjectByType<ExplorationTracker>().Exploration;
+            Assert.AreEqual((level.Map.Width, level.Map.Height), (exploration.Map.Width, exploration.Map.Height));
+            Assert.Less(exploration.ExploredCount, level.Map.Width * level.Map.Height / 4);
         }
     }
 }
