@@ -23,6 +23,7 @@ namespace DarkDescent.Rendering
         [SerializeField] private Light _sun;
 
         private Func<float> _clock;
+        private float? _held;
         private Camera _camera;
         private Color _cameraBackground;
         private NightLight[] _lights;
@@ -35,6 +36,9 @@ namespace DarkDescent.Rendering
         public DayLighting Lighting => _lighting;
 
         public Light Sun => _sun;
+
+        /// <summary>Fermo a un'ora dei filmati invece che sull'orologio della partita.</summary>
+        public bool IsHeld => _held.HasValue;
 
         /// <summary>
         /// Da dove viene l'ora (il tempo di gioco della partita) e la camera di cui colorare il fondo; il
@@ -50,6 +54,26 @@ namespace DarkDescent.Rendering
                 _cameraBackground = _camera.backgroundColor;
             }
 
+            if (_clock != null)
+            {
+                Show(_clock());
+            }
+        }
+
+        /// <summary>
+        /// Ferma il borgo all'ora di questo tempo di gioco, qualunque cosa dica l'orologio: i filmati lo
+        /// vogliono di notte o all'alba (D3 della M19). Torna all'orologio con <see cref="Release"/>.
+        /// </summary>
+        public void Hold(float playTime)
+        {
+            _held = playTime;
+            Show(playTime);
+        }
+
+        /// <summary>Ridà il borgo all'orologio della partita.</summary>
+        public void Release()
+        {
+            _held = null;
             if (_clock != null)
             {
                 Show(_clock());
@@ -124,7 +148,7 @@ namespace DarkDescent.Rendering
 
         private void Update()
         {
-            if (_clock != null)
+            if (_clock != null && !_held.HasValue)
             {
                 Show(_clock());
             }

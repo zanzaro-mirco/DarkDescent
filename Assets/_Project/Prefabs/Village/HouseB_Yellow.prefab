@@ -110,6 +110,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 673c557a8e1182049b96e9f932f8f427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Rendering.NightLight
+  _glows:
+  - {fileID: 3737155066449101410}
+  _glowColor: {r: 2.5, g: 1.7, b: 0.90000004, a: 2.5}
 --- !u!1 &7463733779651313491
 GameObject:
   m_ObjectHideFlags: 0
@@ -245,5 +248,10 @@ PrefabInstance:
 --- !u!4 &2564279262234278157 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 34c7f850f28d0184a8d06a9dcbfb4e37, type: 3}
+  m_PrefabInstance: {fileID: 2602129620289625830}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &3737155066449101410 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 34c7f850f28d0184a8d06a9dcbfb4e37, type: 3}
   m_PrefabInstance: {fileID: 2602129620289625830}
   m_PrefabAsset: {fileID: 0}

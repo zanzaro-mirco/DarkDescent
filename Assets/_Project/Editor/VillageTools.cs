@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -17,6 +18,17 @@ namespace DarkDescent.Editor
         public const string MaterialFolder = "Assets/_Project/Art/Materials/";
         public const string DungeonMaterial = MaterialFolder + "M_Dungeon.mat";
         public const string RogueMaterial = MaterialFolder + "M_KayKitRogue.mat";
+        public const string GlassFolder = "Assets/_Project/Art/Textures/Village/";
+
+        /// <summary>
+        /// Il riquadro dell'atlante che è vetro (colonna e riga dall'alto, su 8×4): le finestre delle case
+        /// e il lume delle lanterne, che brillano di notte (D5 della M19).
+        /// </summary>
+        public static readonly Dictionary<string, Vector2Int> Glass = new Dictionary<string, Vector2Int>
+        {
+            ["M_Village"] = new Vector2Int(6, 1),
+            ["M_Graveyard"] = new Vector2Int(2, 3),
+        };
 
         /// <summary>Materiale, atlante e materiale di partenza di ogni pacchetto e personaggio nuovo.</summary>
         public static readonly (string Material, string Texture, string Source)[] Materials =
@@ -55,11 +67,50 @@ namespace DarkDescent.Editor
 
                 material.SetTexture("_BaseMap", texture);
                 material.SetTexture("_MainTex", texture);
+                if (Glass.TryGetValue(name, out var cell))
+                {
+                    SetGlass(material, name, cell);
+                }
+
                 EditorUtility.SetDirty(material);
             }
 
             AssetDatabase.SaveAssets();
             Report();
+        }
+
+        // La maschera del vetro: un pixel per riquadro dell'atlante, bianco solo sul vetro, senza filtro
+        // perché non sbavi sui riquadri accanto. L'emissione del materiale resta nera: la accende, modello
+        // per modello, la sua NightLight. URP tiene la parola chiave dell'emissione solo se il materiale
+        // ha l'emissione in tempo reale tra i flag: senza, la spegne ogni volta che rivede il materiale
+        private static void SetGlass(Material material, string name, Vector2Int cell)
+        {
+            string path = GlassFolder + "glass_" + name + ".asset";
+            var mask = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (mask == null)
+            {
+                mask = new Texture2D(8, 4, TextureFormat.RGBA32, false) { name = "glass_" + name };
+                AssetDatabase.CreateAsset(mask, path);
+            }
+
+            mask.filterMode = FilterMode.Point;
+            mask.wrapMode = TextureWrapMode.Clamp;
+            var pixels = new Color32[8 * 4];
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = new Color32(0, 0, 0, 255);
+            }
+
+            // le righe della texture partono dal basso, quelle dell'atlante dall'alto
+            pixels[(3 - cell.y) * 8 + cell.x] = new Color32(255, 255, 255, 255);
+            mask.SetPixels32(pixels);
+            mask.Apply();
+            EditorUtility.SetDirty(mask);
+
+            material.SetTexture("_EmissionMap", mask);
+            material.SetColor("_EmissionColor", Color.black);
+            material.EnableKeyword("_EMISSION");
+            material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
         }
 
         /// <summary>Quanti pezzi per cartella e le animazioni nuove, con quelle in loop.</summary>

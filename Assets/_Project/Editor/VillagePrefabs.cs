@@ -41,6 +41,19 @@ namespace DarkDescent.Editor
         private static readonly Color WindowColor = new Color(1f, 0.68f, 0.36f);
         private static readonly Color LanternColor = new Color(1f, 0.78f, 0.45f);
 
+        // quanto brilla il vetro acceso, in HDR: le finestre e il lume delle lanterne (D5 della M19)
+        private const float WindowGlow = 2.5f;
+        private const float LanternGlow = 2f;
+
+        // la lanterna a mano dei paesani dell'apertura (D6 della M19): quella appesa del cimitero,
+        // rimpicciolita, con il gancio dove sta la mano
+        private const float HandLanternScale = 0.4f;
+
+        // la tomba da cui esce uno scheletro (D5 della M19): la lapide rotta e davanti, dal lato della
+        // scritta (-Z), la terra smossa
+        private const float DugStoneZ = 0.75f;
+        private const float DugEarthZ = -0.3f;
+
         private enum Glow
         {
             None,
@@ -303,9 +316,11 @@ namespace DarkDescent.Editor
             SaveTunnelMouth();
             SaveVillageFire();
             SaveShopkeepers();
+            SaveHandLantern();
+            SaveGraveDug(dirt);
             AssetDatabase.SaveAssets();
             BuildTileset();
-            Debug.Log($"[DarkDescent] borgo: {Pieces.Length + 4} prefab in {PrefabFolder}, più {TunnelMouthPath}");
+            Debug.Log($"[DarkDescent] borgo: {Pieces.Length + 6} prefab in {PrefabFolder}, più {TunnelMouthPath}");
         }
 
         /// <summary>Il prefab del borgo con questo nome.</summary>
@@ -633,7 +648,14 @@ namespace DarkDescent.Editor
         private static void SaveVillageFire()
         {
             var root = new GameObject("VillageFire");
-            PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "Campfire.prefab"), root.transform);
+            var campfire = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "Campfire.prefab"), root.transform);
+
+            // il fuoco che i filmati spengono: la luce e le torce accese, che lasciano i sassi
+            var hearth = new SerializedObject(root.AddComponent<Hearth>());
+            hearth.FindProperty("_light").objectReferenceValue = campfire.GetComponentInChildren<Light>();
+            var flames = campfire.GetComponentsInChildren<Renderer>().Where(r => r.GetComponentsInParent<Transform>().Any(t => t.name.StartsWith("torch_lit"))).ToArray();
+            SetArray(hearth.FindProperty("_flames"), flames);
+            hearth.ApplyModifiedPropertiesWithoutUndo();
             var sit = Clip("Rig_Medium_Simulation", "Sit_Floor_Idle");
             var idle = Clip("Rig_Medium_General", "Idle_A");
             var wave = Clip("Rig_Medium_Simulation", "Waving");
@@ -799,6 +821,73 @@ namespace DarkDescent.Editor
             return instance;
         }
 
+        // La lanterna a mano (D6 della M19): il lume acceso sempre, con la sua luce, e il gancio
+        // nell'origine, dove la prende la mano
+        private static void SaveHandLantern()
+        {
+            var root = new GameObject("HandLantern");
+            var model = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(Graveyard + "lantern_hanging.fbx"), root.transform);
+            model.transform.localScale = Vector3.one * HandLanternScale;
+            var material = Glowing("M_HandLantern", "M_Graveyard", LanternColor * LanternGlow);
+            foreach (var renderer in model.GetComponentsInChildren<Renderer>())
+            {
+                renderer.sharedMaterial = material;
+            }
+
+            var bounds = Bounds(model);
+            model.transform.localPosition -= new Vector3(bounds.center.x, bounds.max.y, bounds.center.z);
+            PointLight(root.transform, "Light", new Vector3(0f, -bounds.size.y * 0.6f, 0f), LanternColor, 1.6f, 5f);
+            Save(root, "HandLantern");
+        }
+
+        // La tomba da cui esce uno scheletro (D5 della M19): la lapide rotta e davanti il cumulo di
+        // terra smossa di Tools/Blender/models/earth.py, con la terra dei sentieri
+        private static void SaveGraveDug(Material dirt)
+        {
+            var root = new GameObject("GraveDug");
+            AddParts(root.transform, new[] { Grave("grave_A_destroyed", 0f, DugStoneZ) });
+            var earth = Generated(root.transform, "DugEarth");
+            foreach (var renderer in earth.GetComponentsInChildren<Renderer>())
+            {
+                renderer.sharedMaterial = dirt;
+            }
+
+            var bounds = Bounds(earth);
+            earth.transform.localPosition += new Vector3(-bounds.center.x, -bounds.min.y, DugEarthZ - bounds.center.z);
+            Save(root, "GraveDug");
+        }
+
+        // Una copia del materiale dell'atlante con il vetro acceso: per le lanterne che brillano sempre
+        private static Material Glowing(string name, string source, Color glow)
+        {
+            string path = VillageTools.MaterialFolder + name + ".mat";
+            var material = new Material(AssetDatabase.LoadAssetAtPath<Material>(VillageTools.MaterialFolder + source + ".mat")) { name = name };
+            material.SetColor("_EmissionColor", glow);
+            material.EnableKeyword("_EMISSION");
+            material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+            var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (existing == null)
+            {
+                AssetDatabase.CreateAsset(material, path);
+                return material;
+            }
+
+            existing.CopyPropertiesFromMaterial(material);
+            existing.EnableKeyword("_EMISSION");
+            existing.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+            EditorUtility.SetDirty(existing);
+            return existing;
+        }
+
+        private static void SetArray(SerializedProperty list, Object[] items)
+        {
+            list.arraySize = items.Length;
+            for (int i = 0; i < items.Length; i++)
+            {
+                list.GetArrayElementAtIndex(i).objectReferenceValue = items[i];
+            }
+        }
+
         private static AnimationClip Clip(string file, string name)
         {
             var clip = AssetDatabase.LoadAllAssetsAtPath(Animations + file + ".fbx").OfType<AnimationClip>().FirstOrDefault(c => c.name == name);
@@ -824,10 +913,11 @@ namespace DarkDescent.Editor
         }
 
         // Una luce calda senza ombre, che la vista del giorno accende al tramonto: davanti alla porta,
-        // all'altezza delle finestre, o sotto il lume della lanterna
+        // all'altezza delle finestre, o sotto il lume della lanterna. Con lei brilla il vetro dei modelli
         private static void AddGlow(GameObject root, Glow glow)
         {
             var bounds = Bounds(root);
+            var glass = root.GetComponentsInChildren<Renderer>();
             var go = new GameObject("NightLight");
             go.transform.SetParent(root.transform, false);
             go.transform.localPosition = glow == Glow.Window
@@ -840,7 +930,10 @@ namespace DarkDescent.Editor
             light.intensity = glow == Glow.Window ? 2.2f : 2.6f;
             light.shadows = LightShadows.None;
             light.enabled = false;
-            go.AddComponent<NightLight>();
+            var night = new SerializedObject(go.AddComponent<NightLight>());
+            SetArray(night.FindProperty("_glows"), glass);
+            night.FindProperty("_glowColor").colorValue = glow == Glow.Window ? WindowColor * WindowGlow : LanternColor * LanternGlow;
+            night.ApplyModifiedPropertiesWithoutUndo();
         }
 
         // Le luci dei quattro momenti (D5 della M18): un asset da ritoccare dall'Inspector. Si scrive

@@ -395,18 +395,101 @@ namespace DarkDescent.Tests
             yield return Snap("crypt_tunnel");
 
             // il cunicolo vuoto e senza interfaccia: la prima immagine dello stacco della vittoria (D8 e D11 della M19)
+            HideHeroAndHud();
+            yield return Frames(3);
+            yield return Snap("crypt_tunnel_empty");
+        }
+
+        [UnityTest, Timeout(300000), Description("Il borgo dei filmati (19.3): la notte, metà delle candele spente, il cimitero con le tombe smosse e la lanterna, l'alba con il fuoco spento")]
+        public IEnumerator FilmSet()
+        {
+            ForgetPreferences();
+            // lo zoom più largo: le case attorno alla piazza nell'inquadratura
+            PlayerPrefs.SetFloat(CameraZoom.Preference, ZoomLevel.Max);
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            HideHeroAndHud();
+            var view = Manager.CurrentLevel.Daylight;
+            var agent = Hero.GetComponent<NavMeshAgent>();
+
+            // la piazza di notte, con il fuoco e le case attorno
+            view.Hold(DayCycle.Start(DayMoment.Night) + 20f);
+            agent.Warp(Manager.CurrentLevel.Merchant.GetComponent<Interactable>().ApproachPoint);
+            yield return Settle();
+            yield return Snap("set_night");
+
+            // le candele che si spengono una a una: una su due già spenta
+            var lights = Object.FindObjectsByType<NightLight>(FindObjectsSortMode.None)
+                .OrderBy(l => Vector3.Distance(l.transform.position, Hero.transform.position)).ToArray();
+            for (int i = 0; i < lights.Length; i += 2)
+            {
+                lights[i].Snuff(0.5f);
+            }
+
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Snap("set_night_snuffed");
+            foreach (var light in lights)
+            {
+                light.Relight(0f);
+            }
+
+            // il cimitero: le tre tombe più vicine alla cripta smosse, e una lanterna posata a terra
+            var crypt = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None).First(t => t.name == "Crypt" || t.name == "Crypt(Clone)").position;
+            var graves = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None).Where(t => t.name == "Grave" || t.name == "Grave(Clone)")
+                .OrderBy(t => Vector3.Distance(t.position, crypt)).Take(3).ToArray();
+            var dug = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/Village/GraveDug.prefab");
+            foreach (var grave in graves)
+            {
+                Object.Instantiate(dug, grave.position, grave.rotation, grave.parent);
+                grave.gameObject.SetActive(false);
+            }
+
+            var lantern = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/Village/HandLantern.prefab"));
+            lantern.transform.position = graves[0].position - graves[0].forward * 1.3f + graves[0].right * 1.1f;
+            float bottom = lantern.GetComponentsInChildren<Renderer>().Min(r => r.bounds.min.y);
+            lantern.transform.position += Vector3.up * (graves[0].position.y - bottom);
+            // la camera segue il cavaliere nascosto: lo si posa sulla tomba, anche fuori dal NavMesh
+            agent.enabled = false;
+            Hero.transform.position = graves[0].position;
+            Debug.Log($"[DarkDescent] foto: cripta {crypt}, tombe smosse {string.Join(", ", graves.Select(g => g.position))}");
+            yield return Settle();
+            yield return Snap("set_graves");
+            view.Hold(DayCycle.Start(DayMoment.Day) + 20f);
+            yield return Frames(5);
+            yield return Snap("set_graves_day");
+
+            // l'alba nella piazza, con il fuoco spento
+            view.Hold(DayCycle.Start(DayMoment.Dawn) + 20f);
+            Object.FindFirstObjectByType<Hearth>().SetBurning(false);
+            agent.enabled = true;
+            agent.Warp(Manager.CurrentLevel.Merchant.GetComponent<Interactable>().ApproachPoint);
+            yield return Settle();
+            yield return Snap("set_dawn");
+        }
+
+        // per le scene senza il cavaliere: il cavaliere, la sua luce e l'interfaccia spariscono
+        private static void HideHeroAndHud()
+        {
             foreach (var part in Hero.GetComponentsInChildren<Renderer>())
             {
                 part.enabled = false;
+            }
+
+            foreach (var light in Hero.GetComponentsInChildren<Light>())
+            {
+                light.enabled = false;
             }
 
             foreach (var canvas in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None).Where(c => c.isRootCanvas && c.renderMode != RenderMode.WorldSpace))
             {
                 canvas.enabled = false;
             }
-
-            yield return Frames(3);
-            yield return Snap("crypt_tunnel_empty");
         }
 
         private static IEnumerator Frames(int count)

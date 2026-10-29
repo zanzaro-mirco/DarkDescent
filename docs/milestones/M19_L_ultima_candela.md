@@ -222,6 +222,65 @@ La luce che entra dal cunicolo, il fumo e la polvere si fanno nel motore, con lu
 
 ---
 
+## Passo 19.3 — Il borgo di notte e all'alba
+
+**Com'è andata (29 ott 2026).** Il borgo della M18 aveva già le luci della notte: una luce davanti a
+ogni casa e sotto ogni lanterna, accese dal tramonto all'alba. Mancavano il vetro che brilla, il modo
+di spegnerle una a una, l'ora ferma, il fuoco spento, le lanterne a mano e la terra smossa.
+- **Il vetro.** Nelle case KayKit il vetro delle finestre è un riquadro dell'atlante, riga 1 e colonna
+  6, e solo il vetro lo usa: lo si è visto in Blender, colorando quel riquadro in tutte e sette le case.
+  Nelle lanterne del cimitero il lume è la riga 3, colonna 2.
+  - `VillageTools` mette ai materiali `M_Village` e `M_Graveyard` una **maschera di 8×4 pixel**, uno
+    per riquadro, bianco solo sul vetro, come mappa dell'emissione. Il filtro è a punti, così la
+    maschera non sbava sui riquadri accanto.
+  - Il materiale resta senza emissione: la accende `NightLight`, modello per modello, con un
+    `MaterialPropertyBlock`.
+  - Niente mesh nuove e nessuna luce in più (D17).
+- **`NightLight`** accende il vetro insieme alla luce, con il suo colore in HDR (finestre ×2,5,
+  lanterne ×2). `Snuff(secondi)` e `Relight(secondi)` spengono e riaccendono la candela con una
+  dissolvenza, e il buio non la riaccende: è quello che serve all'apertura.
+- **`DayCycleView.Hold(tempo)`** ferma il borgo a un'ora, di notte o all'alba, qualunque cosa dica
+  l'orologio della partita; `Release()` lo ridà all'orologio.
+- **`Hearth`**, sul fuoco della piazza: `SetBurning(false)` spegne la luce e toglie le torce accese.
+  Restano i sassi, attorno a cui siedono i sopravvissuti dell'alba.
+- **`HandLantern`**, la lanterna a mano dei paesani: quella appesa del cimitero ×0,4, con il gancio
+  nell'origine dove la prende la mano, la sua luce e il lume sempre acceso (`M_HandLantern`).
+- **`GraveDug`**, la tomba da cui esce uno scheletro: la lapide rotta KayKit e davanti, dal lato della
+  scritta, il cumulo di zolle **`DugEarth`** di `Tools/Blender/models/earth.py`, alto 50 cm. Ha la
+  terra dei sentieri del borgo (`M_VillageDirt`), perché l'atlante KayKit non ha un marrone terra.
+- **Le foto** vengono da `PhotoTour.FilmSet`, senza cavaliere né interfaccia e con lo zoom più largo:
+  - la notte nella piazza;
+  - le candele, una su due spenta;
+  - il cimitero con tre tombe smosse e una lanterna, di notte e di giorno;
+  - l'alba con il fuoco spento.
+
+**Le lezioni.**
+- **URP tiene l'emissione solo con il flag giusto.** La parola chiave `_EMISSION` resta accesa solo se
+  il materiale ha l'emissione in tempo reale (o baked) tra i flag. Con `None`, URP la spegne ogni volta
+  che rivede il materiale, anche durante i test: alla chiusura di Unity il file veniva risalvato senza.
+  Il test la trovava ancora accesa, e il danno si vedeva solo nel file su disco. Ora i materiali del
+  vetro hanno `RealtimeEmissive`, e un test lo controlla.
+- **Il davanti delle lapidi KayKit è −Z.** La prima volta la terra era finita dietro la pietra.
+- **Il cumulo va più alto del vero.** Con la camera dall'alto un cumulo di 30 cm si schiaccia sul
+  prato; con 50 cm si legge.
+- **Il 19.2 aveva rotto la CI.** Ho aggiunto la musica a `CREDITS.md` senza rifare la copia del gioco
+  (`Data/Credits.txt`), e il run Tests del 19.2 è rosso. La copia è rifatta in questo passo.
+
+**I test.**
+- **`NightSetTests` (5), EditMode:**
+  - la candela spenta spegne luce e vetro anche di notte, e si riaccende;
+  - la maschera ha un riquadro solo, quello del vetro, e i materiali tengono l'emissione;
+  - ogni casa e lanterna ha il vetro che brilla;
+  - l'ora ferma resta ferma e torna all'orologio;
+  - il fuoco si spegne e si riaccende;
+  - la lanterna a mano e la tomba smossa sono pronte.
+- **In locale:** EditMode intera 534/534. PlayMode intera senza la ronda 269/272, con un rosso,
+  `PortalTests.Spell_InATightCorner_OpensAReachablePortal` (il portale in un angolo stretto della
+  cripta, in un punto a caso). Rilanciati da soli, i test dei portali sono verdi 5/5: è instabile e
+  non tocca il borgo. Se cade di nuovo si riproduce.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)
