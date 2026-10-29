@@ -66,6 +66,9 @@ namespace DarkDescent.Core
 
         [SerializeField] private CinemachineCamera _playerCamera;
 
+        [Tooltip("Il lettore dei filmati: bande, didascalie, salto (D9 della M19).")]
+        [SerializeField] private Films.FilmPlayer _films;
+
         [Tooltip("Musica, fondo e versi nel buio: cambiano con il livello (passo 7.0 della M7).")]
         [SerializeField] private AmbiencePlayer _ambience;
 
@@ -242,6 +245,8 @@ namespace DarkDescent.Core
         /// <summary>La lingua del gioco: i test la leggono e la cambiano da qui.</summary>
         public Localizer Localizer => _localizer;
 
+        public Films.FilmPlayer Films => _films;
+
         /// <summary>Il seme della partita, da cui viene ogni drop (D5 della M5).</summary>
         public ulong LootSeed => _loot.RunSeed;
 
@@ -367,6 +372,7 @@ namespace DarkDescent.Core
             _footsteps.Bind(_sfxLimiter);
             _levelTitle.Bind(_localizer);
             _victoryScreen.Bind(_localizer);
+            _films.Bind(_reader, _localizer);
             _difficultyPanel.Bind(_difficulties, _difficulty, _localizer);
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);

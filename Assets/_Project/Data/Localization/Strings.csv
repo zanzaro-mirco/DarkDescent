@@ -375,6 +375,7 @@ shop.no_gold,Not enough gold,Non hai abbastanza oro
 shop.no_room,No room in the bag,Non c'è posto nella borsa
 shop.help,Right-click an item in your bag to sell it,Click destro su un oggetto della borsa per venderlo
 shop.not_wanted,Won't buy this item,Non compra questo oggetto
+film.skip,Esc or click to skip,Esc o click per saltare
 portal.to_town,Portal to the village,Portale per il borgo
 portal.to_depth,Portal to level {0},Portale per il livello {0}
 portal.victory,Leave the depths,Lascia le profondità

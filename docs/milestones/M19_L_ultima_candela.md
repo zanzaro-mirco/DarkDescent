@@ -133,10 +133,50 @@ scelta lui il 27). Le scene sono quelle approvate il 27 ottobre 2026, portate ne
 
 ---
 
+## Passo 19.1 — Gli attrezzi
+
+**Com'è andata (29 ott 2026).**
+- **I pacchetti**, con il sì di Mirco, dal registro di Unity:
+  - **Timeline 1.8.13** (23 MB scaricati, nella build solo il runtime);
+  - **Recorder 5.1.7** (8 MB) con **OpenImageIO 1.0.2** (24 MB), che serve a Recorder. Sono solo
+    per l'editor e non entrano nella build.
+
+  Le animazioni dei filmati erano già entrate con la M18: `Simulation`, `Special` e `Tools`.
+- **`FilmScript`** e **`FilmShot`** (logica pura in `Core/Films`):
+  - un filmato è una lista di inquadrature, ognuna con inizio, durata, camera e didascalia;
+  - `Problems()` dice cosa non torna: buchi, inquadrature sovrapposte o vuote, camera mancante,
+    durata fuori dai limiti del filmato;
+  - `ShotAt` e `CaptionAt` danno l'inquadratura e la didascalia di un istante.
+- **`SkipPrompt`** (logica pura): il primo Esc o click mostra l'invito a saltare per 3 s, il secondo
+  mentre si vede salta.
+- **`FilmPlayer`**, il lettore, fa partire la Timeline di un filmato. Mentre gira:
+  - spegne `PlayerInputReader` e le finestre del gioco, e le riaccende alla fine;
+  - mette le **bande nere** a 2,35:1 e la **didascalia** in Cinzel, che appare e sparisce in 0,6 s;
+  - in alto mostra l'invito a saltare;
+  - legge Esc e il click direttamente da tastiera e mouse.
+
+  Le bande e le scritte stanno in un canvas suo, costruito dal codice, sopra tutti gli altri. Alla
+  fine, o al salto, il tempo torna a 1 e parte l'evento `Finished`. Il gioco salva quando si carica
+  un livello, prima che parta il filmato.
+- **`FilmTools.InstallPlayer`** mette il lettore nella scena `Core` con il carattere e lo lega al
+  composition root; si rifà con un comando.
+
+**I test.**
+- **`FilmScriptTests` (4) e `SkipPromptTests` (2), EditMode:** le inquadrature in fila, i buchi e le
+  sovrapposizioni, i limiti della durata, l'istante che trova la sua inquadratura; il doppio tasto e
+  l'invito che sparisce.
+- **`FilmPlayerTests` (2), PlayMode, con una Timeline vuota di 2,5 s:**
+  - il filmato spegne comandi e finestre, mette le bande e la didascalia, e alla fine riaccende
+    tutto con il tempo a 1;
+  - il secondo tasto salta nello stesso frame.
+- **In locale:** EditMode intera 523/523; PlayMode del lettore, del borgo e del menu verdi.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)
-- [ ] I download approvati: Timeline, Recorder, i modelli di ComfyUI
+- [ ] I download approvati: Timeline e Recorder (sì il 29 ott), i modelli di ComfyUI
 - [ ] L'apertura e la vittoria approvate da Mirco in video
 - [ ] Test EditMode e PlayMode verdi in locale e in CI
 - [ ] La build misurata dentro il limite della D17
