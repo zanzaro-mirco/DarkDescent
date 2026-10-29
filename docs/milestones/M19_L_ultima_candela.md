@@ -37,12 +37,23 @@ A Mirco restano:
 
 ---
 
-## Stato verificato il 27 ottobre 2026
+## Stato verificato il 29 ottobre 2026
 
-Prima della M18: le righe del mondo cambieranno con il borgo, e si riverificano all'inizio della M19.
+Riverificato dopo la chiusura della M18 (tag `v1.6.0`).
 
 | Cosa | Stato |
 |---|---|
+| Pacchetti | **Cinemachine 3.1.7** c'è già e muove la camera del gioco: Position Composer, rotazione e zoom. **Timeline** e **Recorder** non ci sono. Il modulo `video` di Unity è attivo, ma nessuna scena usa un `VideoPlayer`. ffmpeg non è installato |
+| Animazioni | Del rig medio di *KayKit Character Animations 1.1* sono importati 6 file su 8: `CombatMelee`, `General`, `MovementBasic` e, dalla M18, `Simulation` (seduti, `Sit_Floor_StandUp`, `Waving`, `Cheering`), `Special` (`Skeletons_Awaken_Floor`, `Skeletons_Death`, `Skeletons_Taunt`, `Skeletons_Walking`) e `Tools` (`Holding_A/B/C`, `Hammering`), con il loop solo dove serve. Manca solo `MovementAdvanced` (`Crouching`, `Sneaking`), che i filmati non usano |
+| Personaggi | `Knight`, `Barbarian` (con l'avatar, dalla M18), `Rogue_Hooded`, `Mage`, `Ranger`, `Rogue` e i sette scheletri. Il Re delle ossa usa i modelli degli scheletri, più grande, con l'`overrideController` degli scheletri |
+| Mondo | Il **borgo** della M18: piazza con il fuoco, case, taverna, cappella con l'altare, cimitero con la cripta, la grotta in fondo alla gola, il bosco attorno. Il giorno che passa viene da `DayCycle` e `DayLighting`, e **finestre e lanterne si accendono già di notte** (`NightLight`, luci vere). Attorno al fuoco quattro abitanti (`Villager`, con un grafo di Playables e senza Animator Controller); il mercante al suo banco (`Rogue_Hooded`), il fabbro alla forgia, la guaritrice sulla soglia. Alla profondità 1 si arriva dallo sbocco del cunicolo, nel muro. **Il trono non c'è**: la sala del re è una stanza del generatore |
+| Vittoria oggi | Morto il re, `CompositionRoot.HandleBossDefeated` salva, apre il portale della vittoria nella sala e sblocca il tesoro. La prima volta a ogni difficoltà (`_firstVictory`) la finestra si apre arrivando nel borgo dal portale (`HandleVictoryReached`); le volte dopo c'è solo la scritta "Il re è caduto" |
+| Nuova partita | Menu, scelta dello slot, borgo. Con `-newgame` e `-seed` dalla riga di comando, e nei test, non passa dal menu |
+| Musica | Quattro brani CC0 da OpenGameArt (cripta, caverne, boss, città) e il fondo del borgo (fuoco e vento da Stable Audio, M18). Nessun brano per i filmati |
+| ComfyUI | Nella cartella condivisa ci sono Z-Image-Turbo, TRELLIS.2 e Stable Audio 3 small SFX: **nessun modello di video né di musica**. La scheda è una RTX 5070 Ti Laptop con 12 GB; sul disco C ci sono 693 GB liberi |
+| Test | 517 EditMode e 260 PlayMode a ogni push, più quelli della ronda. `PhotoTour` (assembly `DarkDescent.Tests.Photos`) fa le foto fuori dalla CI, anche del borgo |
+
+---|---|
 | Pacchetti | **Cinemachine 3.1.7** c'è già e muove la camera del gioco: Position Composer, rotazione e zoom. **Timeline** e **Recorder** non ci sono. Il modulo `video` di Unity è attivo, ma nessuna scena usa un `VideoPlayer`. ffmpeg non è installato |
 | Animazioni | Dal pacchetto completo *KayKit Character Animations 1.1* (CC0, lo zip è in `Downloads`) sono importati 3 file su 8 del rig medio: `CombatMelee`, `General`, `MovementBasic`. La M18 aggiunge `Simulation`, con le pose da seduti e il saluto. Restano `Special` (`Skeletons_Awaken_Floor`, `Skeletons_Awaken_Floor_Long`, `Skeletons_Death`, `Skeletons_Taunt`, `Skeletons_Walking`), `Tools` (`Holding_A/B/C`) e `MovementAdvanced` (`Crouching`, `Sneaking`). Sono tutti per il rig medio, lo stesso di cavaliere e scheletri |
 | Personaggi | Importati `Knight`, `Barbarian`, `Rogue_Hooded` e i sette scheletri; la M18 aggiunge `Mage`, `Ranger` e `Rogue` per gli abitanti. Il Re delle ossa usa i modelli degli scheletri, più grande, con l'`overrideController` degli scheletri |
@@ -57,8 +68,8 @@ Prima della M18: le righe del mondo cambieranno con il borgo, e si riverificano 
 
 ## Decisioni
 
-Da confermare con Mirco. Le scene sono quelle approvate il 27 ottobre 2026, portate nel borgo della
-M18.
+Confermate da Mirco il 29 ottobre 2026, con D5 e D6 aggiornate al borgo della M18 (D18 l'aveva
+scelta lui il 27). Le scene sono quelle approvate il 27 ottobre 2026, portate nel borgo.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -66,8 +77,8 @@ M18.
 | D2 | **Il montaggio** | **Unity Timeline** (pacchetto ufficiale, gratuito, dal registro di Unity) con le camere di **Cinemachine** che ci sono già. Ogni filmato è una scena con il suo `PlayableDirector`. Lo **costruisce uno strumento dell'editor dal codice**, `FilmTools`, come la città dalla sua mappa: si rifà con un comando e si rilegge nel diff. La lista delle inquadrature (inizio, durata, camera, didascalia) è una classe pura in `Core`, `FilmScript`, che si prova in EditMode. Download con il sì di Mirco | Timeline mette in fila camere, animazioni, luci, suoni e didascalie con un tempo solo, che è il lavoro di un filmato. Scritta a mano con le coroutine sarebbe più codice e niente anteprima. Costruirla dal codice serve a me, che lavoro a Unity chiuso |
 | D3 | **Il set** | Il set è **il borgo della M18**, costruito dalla stessa mappa e dallo stesso tileset. Le luci sono quelle del **giorno che passa** della M18, fermate sul momento che serve: la **notte**, con le candele alle finestre, e l'**alba**. Il cimitero, la cappella e la grotta sono quelli in cui si gioca | Chi gioca riconosce nel filmato il posto in cui si trova. Un set solo, già fatto, costa una frazione di un set nuovo |
 | D4 | **Dove finiscono** | L'apertura finisce **nel borgo**, dove comincia la partita. La vittoria finisce **fuori dalla grotta**, nel borgo, e con *Continua* si è già lì, all'ora del tempo di gioco | I filmati portano esattamente dove si gioca, senza stacchi tra la storia e il gioco |
-| D5 | **Cosa manca al set** | Le **candele alle finestre** (materiali emissivi che si spengono, con poche luci vere), le **lanterne** in mano ai paesani, la **terra smossa** sulle tombe da cui escono gli scheletri. Niente da scaricare per il mondo: il borgo c'è già | È tutto quello che la storia mostra e il borgo giocabile non ha |
-| D6 | **Le comparse** | I paesani sono gli abitanti della M18, con una lanterna in mano: `Holding_A` sulla parte alta del corpo e la corsa sotto, con una maschera dell'Animator. Il cavaliere è il modello del gioco; nella vittoria porta l'**equipaggiamento di chi gioca**. Il mercante è il suo. Al più 8 comparse in una inquadratura | Le stesse facce del borgo legano il filmato al gioco. Il cavaliere della vittoria deve essere il tuo, non uno qualunque |
+| D5 | **Cosa manca al set** | Le finestre accese di notte ci sono già (`NightLight`): nel filmato si **spengono una a una**, con la luce e il bagliore del vetro. Mancano le **lanterne** in mano ai paesani e la **terra smossa** sulle tombe da cui escono gli scheletri. Niente da scaricare per il mondo: il borgo c'è già | È tutto quello che la storia mostra e il borgo giocabile non ha |
+| D6 | **Le comparse** | I paesani sono gli abitanti della M18, con una lanterna in mano: `Holding_A` sulla parte alta del corpo e la corsa sotto, con una maschera nel grafo di Playables di `Villager` (un `AnimationLayerMixerPlayable` con un `AvatarMask`). Il cavaliere è il modello del gioco; nella vittoria porta l'**equipaggiamento di chi gioca**. Il mercante è il suo. Al più 8 comparse in una inquadratura | Le stesse facce del borgo legano il filmato al gioco. Il cavaliere della vittoria deve essere il tuo, non uno qualunque |
 | D7 | **L'apertura** | Cinque scene in circa 50 s. Si vede **a ogni *Nuova partita***, non quando si carica; mai con `-newgame` né nei test. Il dettaglio delle scene è nell'elenco sotto la tabella | È la storia scelta da Mirco, portata nel borgo. Chi comincia una partita nuova la vede, chi la sa la salta |
 | D8 | **La vittoria in due tempi** | **Primo tempo, nella sala** (circa 5 s), appena muore il re. **Secondo tempo**, attraversando il portale della vittoria, dove oggi si apre la finestra. Tutti e due **la prima volta a ogni difficoltà**, come la finestra di oggi. Il dettaglio dei due tempi è nell'elenco sotto la tabella | Il tesoro e il bottino del re restano a chi gioca: un filmato che li apre al posto suo li toglierebbe. Il trono non c'è, e aggiungerlo cambierebbe la sala del re, i suoi semi e la ronda; il posto vuoto del re è il mucchio d'ossa che resta |
 | D9 | **Saltare e guardare** | Esc o un click: il primo mostra in basso «Esc o click per saltare», il secondo salta. Saltata l'apertura si è nel borgo, saltata la vittoria si va alla finestra. Durante un filmato il gioco non legge comandi e non salva. **Bande nere** sopra e sotto (2,35:1), le didascalie in Cinzel con una dissolvenza. Nessuna voce | Due tasti per saltare evitano di perdere un filmato per sbaglio, come in Diablo. Le bande dicono "questo è un filmato" senza parole |
@@ -124,7 +135,7 @@ M18.
 
 ## Checklist di chiusura
 
-- [ ] Decisioni D1–D18 confermate (D18 scelta da Mirco)
+- [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)
 - [ ] I download approvati: Timeline, Recorder, i modelli di ComfyUI
 - [ ] L'apertura e la vittoria approvate da Mirco in video
 - [ ] Test EditMode e PlayMode verdi in locale e in CI
