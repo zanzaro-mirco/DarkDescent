@@ -173,10 +173,35 @@ scelta lui il 27). Le scene sono quelle approvate il 27 ottobre 2026, portate ne
 
 ---
 
+## Passo 19.2 — La prova dei modelli
+
+**I download (29 ott 2026).** Con il sì di Mirco, scaricati da lui a mano in
+`ComfyUI-Installs/DarkDescent/ComfyUI/models`; peso e hash SHA-256 uguali a quelli di Hugging Face:
+
+| Modello | File | Peso | Licenza |
+|---|---|---|---|
+| ACE-Step 1.5 turbo | `ace_step_1.5_turbo_aio` (tutto in uno) | 10,0 GB | MIT; Apache 2.0 il pacchetto di ComfyUI |
+| Wan 2.2 TI2V 5B | il modello, `umt5_xxl_fp8_e4m3fn_scaled`, `wan2.2_vae` | 18,2 GB | Apache 2.0 |
+| LTX-Video 2B 0.9.8 distilled fp8 | il modello e `t5xxl_fp8_e4m3fn` | 9,4 GB | LTXV Open Weights (gratuita sotto 10 milioni di fatturato; nessun diritto sugli output) |
+
+**La musica (D10).** ACE-Step 1.5 c'è:
+- il workflow `ace_step_music.json` carica il file tutto in uno; le ricette stanno in
+  `Tools/ComfyUI/music/` (descrizione, tempo, tonalità, durata, seme) e `make.py` fa i brani in OGG
+  stereo a 48 kHz con la loro pagina di ascolto;
+- un brano di 60 s esce in **circa 9 s** sulla 5070 Ti e pesa 0,8 MB;
+- libsndfile va in stack overflow se riceve un OGG lungo in una volta sola: `make.py` lo scrive a pezzi.
+
+Quattro semi per brano. Mirco ha scelto il **1904** per l'apertura (60 s, re minore, l'unico pieno
+fino in fondo) e il **1905** per la vittoria (30 s, re maggiore, che finisce da solo verso i 25 s).
+Sono in `Audio/Music/` come `film_opening.ogg` e `film_victory.ogg`, in 2D, e nei crediti. La riserva
+CC0 non serve.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)
-- [ ] I download approvati: Timeline e Recorder (sì il 29 ott), i modelli di ComfyUI
+- [ ] I download approvati: Timeline e Recorder (sì il 29 ott), i modelli di ComfyUI (sì il 29 ott)
 - [ ] L'apertura e la vittoria approvate da Mirco in video
 - [ ] Test EditMode e PlayMode verdi in locale e in CI
 - [ ] La build misurata dentro il limite della D17

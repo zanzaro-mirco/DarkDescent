@@ -36,8 +36,12 @@ def _colormap(v):
 
 
 def spectrogram_png(path, width=600):
-    sr, d = wavfile.read(path)
-    x = d.astype(np.float64) / 32768
+    if path.endswith(".ogg"):
+        import soundfile
+        x, sr = soundfile.read(path, dtype="float64")
+    else:
+        sr, d = wavfile.read(path)
+        x = d.astype(np.float64) / 32768
     if x.ndim > 1:
         x = x.mean(axis=1)
     f, _, s = signal.spectrogram(x, sr, nperseg=1024, noverlap=896)
@@ -58,8 +62,8 @@ def _player(label, path):
     return f'<div class="p"><span>{html.escape(label)}</span><audio controls preload="auto" src="{src}"></audio></div>'
 
 
-def write_page(out_dir, made):
-    """made: [(modulo, [percorsi dei WAV])]. Restituisce il percorso della pagina."""
+def write_page(out_dir, made, title="Ascolto suoni", note="Generati da Tools/Audio."):
+    """made: [(modulo, [percorsi dei WAV o degli OGG])]. Restituisce il percorso della pagina."""
     cards = []
     for module, files in made:
         body = ""
@@ -73,7 +77,7 @@ def write_page(out_dir, made):
                      f'<p class="d">{html.escape(module.DESCRIPTION)}</p>{body}</section>')
 
     page = f"""<!doctype html><html lang="it"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Ascolto suoni</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title>
 <style>
 :root {{ --bg:#141216; --card:#1f1b22; --ink:#ece6dc; --dim:#a39a8f; --line:#3a3340; --acc:#e0a050; }}
 body {{ margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,sans-serif; }}
@@ -85,8 +89,8 @@ h2 {{ font-size:17px; margin:0; color:var(--acc); }} .d {{ color:var(--dim); mar
 audio {{ width:100%; }} img {{ width:100%; height:90px; object-fit:fill; border-radius:4px; display:block; }}
 .old {{ border-top:1px dashed var(--line); margin-top:12px; padding-top:4px; }} .old span {{ color:var(--dim); }}
 </style></head><body><main>
-<h1>Ascolto suoni</h1>
-<p class="sub">Generati da Tools/Audio. Sotto ogni suono lo spettrogramma (0–8 kHz); in fondo a ogni riquadro il suono più vicino che il gioco ha già.</p>
+<h1>{html.escape(title)}</h1>
+<p class="sub">{html.escape(note)} Sotto ogni suono lo spettrogramma (0–8 kHz); in fondo a ogni riquadro il suono più vicino che il gioco ha già.</p>
 {"".join(cards)}
 </main></body></html>"""
     path = os.path.join(out_dir, PAGE)

@@ -5,6 +5,7 @@
     python Tools/ComfyUI/make.py well_drink_sa --takes 4     quattro semi di fila, per scegliere
     python Tools/ComfyUI/make.py Statue_Gen --out DIR
     python Tools/ComfyUI/make.py panel_back --takes 4 --page immagini, con la pagina di confronto
+    python Tools/ComfyUI/make.py film_opening --takes 3 --page  brani, con la pagina di ascolto
 
 Ogni modulo in sounds/ dichiara SOUNDS (nome del WAV -> ricetta con prompt, seconds e seed), TITLE,
 DESCRIPTION, COMPARE e MAX_DUR, come quelli di Tools/Audio; i WAV passano dalla stessa finitura e dalla
@@ -17,7 +18,10 @@ ripetibili, sfumando l'originale e la copia spostata di mezzo lato (tile True, p
 uniformi) o ridisegnando con il modello la croce delle cuciture (tile "redraw", per i disegni grossi);
 poi la finitura di imagelib.py. Le immagini vogliono Pillow:
 si lanciano con il Python di ComfyUI, che ce l'ha. Vanno in --out (di base Tools/ComfyUI/out/images)
-e negli asset solo dopo il sì sulla pagina.
+e negli asset solo dopo il sì sulla pagina. Ogni modulo in music/ dichiara MUSIC (nome del brano ->
+ricetta con tags, bpm, keyscale, seconds e seed), TITLE, DESCRIPTION e COMPARE: i brani escono da
+ACE-Step 1.5 in OGG stereo a 48 kHz, in --out (di base Tools/ComfyUI/out/music), e negli asset solo
+dopo il sì sulla pagina di ascolto (M19, D10).
 """
 import argparse
 import importlib.util
@@ -37,6 +41,7 @@ SOUND_WORKFLOW = "stable_audio_sfx"
 MODEL_WORKFLOW = "trellis2_image_to_model"
 IMAGE_WORKFLOW = "z_image_turbo"
 SEAM_WORKFLOW = "z_image_seam"
+MUSIC_WORKFLOW = "ace_step_music"
 
 
 def recipes(folder):
@@ -81,6 +86,35 @@ def make_sound(client, name, recipe, seed, max_dur, out_dir):
     path = os.path.join(out_dir, name + ".wav")
     sfxlib.write_wav(path, x)
     print(f"[comfy] {name}.wav {len(x) / sfxlib.SR:.2f} s (seme {seed})")
+    return path
+
+
+def make_music(client, name, recipe, seed, out_dir):
+    import numpy as np
+    import soundfile
+
+    workflow = comfy.with_inputs(comfy.load_workflow(MUSIC_WORKFLOW), {
+        ("prompt", "tags"): recipe["tags"],
+        ("prompt", "bpm"): recipe["bpm"],
+        ("prompt", "keyscale"): recipe["keyscale"],
+        ("prompt", "timesignature"): str(recipe.get("timesignature", 4)),
+        ("prompt", "duration"): float(recipe["seconds"]),
+        ("prompt", "seed"): seed,
+        ("length", "seconds"): float(recipe["seconds"]),
+        ("sampler", "seed"): seed,
+    })
+    item = comfy.output_files(client.run(workflow), "audio")[0]
+    data, rate = soundfile.read(io.BytesIO(client.fetch(item)), dtype="float64", always_2d=True)
+    # due secondi di dissolvenza in coda e il picco a -1 dB, come i suoni
+    fade = min(len(data), 2 * rate)
+    data[-fade:] *= np.linspace(1, 0, fade)[:, None]
+    data *= 10 ** (-1.0 / 20) / np.max(np.abs(data))
+    path = os.path.join(out_dir, name + ".ogg")
+    # a pezzi: libsndfile va in stack overflow se riceve un OGG lungo in una volta sola
+    with soundfile.SoundFile(path, "w", rate, data.shape[1], format="OGG", subtype="VORBIS") as f:
+        for start in range(0, len(data), 8192):
+            f.write(data[start:start + 8192])
+    print(f"[comfy] {name}.ogg {len(data) / rate:.1f} s, {data.shape[1]} canali (seme {seed})")
     return path
 
 
@@ -175,7 +209,7 @@ def make_image(client, name, recipe, seed, out_dir):
 def check(client):
     print(f"[comfy] ComfyUI {client.version()} su {client.base}")
     ok = True
-    for workflow in (SOUND_WORKFLOW, MODEL_WORKFLOW, IMAGE_WORKFLOW, SEAM_WORKFLOW):
+    for workflow in (SOUND_WORKFLOW, MODEL_WORKFLOW, IMAGE_WORKFLOW, SEAM_WORKFLOW, MUSIC_WORKFLOW):
         missing = client.missing_models(comfy.load_workflow(workflow))
         print(f"[comfy] {workflow}: " + ("pronto" if not missing else "mancano " + ", ".join(missing)))
         ok = ok and not missing
@@ -184,9 +218,9 @@ def check(client):
 
 def main():
     parser = argparse.ArgumentParser(prog="make.py", description="Genera suoni, modelli e immagini con ComfyUI.")
-    parser.add_argument("names", nargs="*", help="nomi dei suoni, dei modelli o delle immagini")
+    parser.add_argument("names", nargs="*", help="nomi dei suoni, dei modelli, delle immagini o dei brani")
     parser.add_argument("--out", help="cartella di uscita (suoni: Audio/SFX/Generated, modelli: Tools/ComfyUI/out, "
-                                      "immagini: Tools/ComfyUI/out/images)")
+                                      "immagini: Tools/ComfyUI/out/images, brani: Tools/ComfyUI/out/music)")
     parser.add_argument("--page", action="store_true", help="scrive anche la pagina di ascolto o di confronto")
     parser.add_argument("--takes", type=int, default=1, help="quanti semi provare, a partire da quello della ricetta")
     parser.add_argument("--host", default=comfy.DEFAULT_HOST, help="indirizzo di ComfyUI")
@@ -202,8 +236,9 @@ def main():
         sound_modules = list(recipes("sounds"))
         model_modules = list(recipes("models"))
         image_modules = list(recipes("images"))
+        music_modules = list(recipes("music"))
         known = ({n for m in sound_modules for n in m.SOUNDS} | {n for m in model_modules for n in m.MODELS}
-                 | {n for m in image_modules for n in m.IMAGES})
+                 | {n for m in image_modules for n in m.IMAGES} | {n for m in music_modules for n in m.MUSIC})
         unknown = set(args.names) - known
         if unknown:
             sys.exit("nomi sconosciuti: " + ", ".join(sorted(unknown)))
@@ -222,6 +257,18 @@ def main():
                                             module.MAX_DUR, out_dir))
             if files:
                 made.append((module, files))
+        music = []
+        for module in music_modules:
+            files = []
+            for name, recipe in module.MUSIC.items():
+                if name not in args.names:
+                    continue
+                out_dir = args.out or os.path.join(OUT, "music")
+                os.makedirs(out_dir, exist_ok=True)
+                for seed in seeds(recipe, args.takes):
+                    files.append(make_music(client, take_name(name, seed, args.takes), recipe, seed, out_dir))
+            if files:
+                music.append((module, files))
         for module in model_modules:
             for name, recipe in module.MODELS.items():
                 if name not in args.names:
@@ -245,6 +292,11 @@ def main():
         if args.page and made:
             import preview
             print(f"[comfy] pagina di ascolto: {preview.write_page(os.path.dirname(made[0][1][0]), made)}")
+        if args.page and music:
+            import preview
+            page = preview.write_page(os.path.dirname(music[0][1][0]), music, title="Ascolto musica",
+                                      note="Generati da ACE-Step 1.5 con Tools/ComfyUI/music.")
+            print(f"[comfy] pagina di ascolto: {page}")
         if args.page and images:
             import imagelib
             import imagepage
