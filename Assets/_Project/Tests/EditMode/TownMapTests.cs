@@ -142,7 +142,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("Dal portale al mercante, all'altare e alla grotta meno di 10 s a piedi, girando attorno ai recinti (D2 della M18)")]
+        [Test, Description("Dal portale al mercante, al fabbro, alla guaritrice, all'altare e alla grotta meno di 10 s a piedi, girando attorno ai recinti (D2 e D18 della M18)")]
         public void Paths_FromThePortalAreShort()
         {
             var map = Load();
@@ -164,7 +164,7 @@ namespace DarkDescent.Tests
                 }
             }
 
-            foreach (char target in new[] { 'M', 'A', '>' })
+            foreach (char target in new[] { 'M', 'E', 'L', 'A', '>' })
             {
                 var marker = map.Markers.Single(m => m.Symbol == target);
                 Assert.IsTrue(distance.TryGetValue(new Vector2Int(marker.X, marker.Y), out int cells), $"'{target}' non si raggiunge");

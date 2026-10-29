@@ -95,6 +95,9 @@ namespace DarkDescent.Localization
         public const string ShopNoGold = "shop.no_gold";
         public const string ShopNoRoom = "shop.no_room";
         public const string ShopHelp = "shop.help";
+        public const string ShopNotWanted = "shop.not_wanted";
+        public const string SmithName = "smith.name";
+        public const string HealerName = "healer.name";
 
         // i portali per l'accampamento (D6 della M10) e la magia che li apre (passo 11.7 della M11)
         public const string PortalToTown = "portal.to_town";

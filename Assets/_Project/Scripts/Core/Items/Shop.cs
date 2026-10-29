@@ -5,14 +5,29 @@ using UnityEngine;
 namespace DarkDescent.Items
 {
     /// <summary>
-    /// Il banco del mercante (D5 della M10): le provviste, sempre lì, e gli oggetti di questo ritorno
+    /// Un banco del borgo (D5 della M10): le provviste, sempre lì, e gli oggetti di questo ritorno
     /// in città, che spariscono comprati. Compra al prezzo pieno di <see cref="ItemPricing"/>, vende
-    /// al 25%. Logica pura: oro e borsa sono quelli dell'<see cref="Inventory"/>.
+    /// al 25%. Tratta solo i suoi tipi (D18 della M18): fabbro, guaritrice e mercante sono tre banchi
+    /// uguali con merci diverse. Logica pura: oro e borsa sono quelli dell'<see cref="Inventory"/>.
     /// </summary>
     public sealed class Shop
     {
         private readonly List<ItemInstance> _supplies = new List<ItemInstance>();
         private readonly List<ItemInstance> _stock = new List<ItemInstance>();
+
+        /// <summary>Un banco che tratta tutto.</summary>
+        public Shop()
+            : this(ShopGoods.All)
+        {
+        }
+
+        public Shop(ShopGoods goods)
+        {
+            Goods = goods;
+        }
+
+        /// <summary>Che cosa vende e compra.</summary>
+        public ShopGoods Goods { get; }
 
         /// <summary>Le provviste o gli oggetti in vendita sono cambiati.</summary>
         public event Action Changed;
@@ -25,7 +40,13 @@ namespace DarkDescent.Items
         /// <summary>Quante cose ci sono sul banco: le provviste prima, poi gli oggetti.</summary>
         public int Count => _supplies.Count + _stock.Count;
 
-        /// <summary>Le provviste della tabella e gli oggetti appena tirati, al posto di quelli di prima.</summary>
+        /// <summary>Compra o vende questo oggetto: è del suo mestiere.</summary>
+        public bool Trades(ItemInstance item) => item != null && Goods.Trades(item.Definition);
+
+        /// <summary>
+        /// Le provviste della tabella e gli oggetti appena tirati, al posto di quelli di prima. Delle
+        /// une e degli altri restano solo quelli del suo mestiere.
+        /// </summary>
         public void Restock(IReadOnlyList<ItemDefinition> supplies, IReadOnlyList<ItemInstance> stock)
         {
             _supplies.Clear();
@@ -33,7 +54,7 @@ namespace DarkDescent.Items
             {
                 foreach (var supply in supplies)
                 {
-                    if (supply != null)
+                    if (supply != null && Goods.Trades(supply))
                     {
                         _supplies.Add(new ItemInstance(supply));
                     }
@@ -43,7 +64,13 @@ namespace DarkDescent.Items
             _stock.Clear();
             if (stock != null)
             {
-                _stock.AddRange(stock);
+                foreach (var item in stock)
+                {
+                    if (Trades(item))
+                    {
+                        _stock.Add(item);
+                    }
+                }
             }
 
             Changed?.Invoke();
@@ -96,13 +123,21 @@ namespace DarkDescent.Items
             return TradeResult.Done;
         }
 
-        /// <summary>Vende l'oggetto della borsa in quella cella al 25% del prezzo; Nothing se la cella è vuota.</summary>
+        /// <summary>
+        /// Vende l'oggetto della borsa in quella cella al 25% del prezzo; Nothing se la cella è vuota,
+        /// NotWanted se il banco non tratta quel tipo.
+        /// </summary>
         public TradeResult SellAt(Inventory inventory, Vector2Int cell)
         {
             var item = inventory.Grid.ItemAt(cell);
             if (item == null)
             {
                 return TradeResult.Nothing;
+            }
+
+            if (!Trades(item))
+            {
+                return TradeResult.NotWanted;
             }
 
             inventory.Grid.Remove(item);

@@ -392,6 +392,57 @@ si va dove non ci sono uscite.
 
 ---
 
+## Passo 18.6 — Fabbro e guaritrice
+
+**Com'è andata (29 ott 2026).**
+- **Tre banchi, un codice** (D18). `Shop` ha la sua merce (`ShopGoods`: armi, armature, gioielli,
+  pozioni, pergamene). Sul banco tiene solo le provviste e gli oggetti di quei tipi, e dalla borsa
+  compra solo quelli. Il resto dice "Non compra questo oggetto", nel tooltip e sotto il banco.
+  Mercante, fabbro e guaritrice sono lo stesso componente `Merchant`, ognuno con la sua merce, quanti
+  oggetti tira e la cura. Aprono la stessa `ShopPanel`, con il loro nome in alto.
+
+  | Banco | Vende e compra | A ogni ritorno |
+  |---|---|---|
+  | Fabbro | armi, armature, elmi, guanti, stivali e scudi | 8 oggetti |
+  | Mercante | anelli, amuleti e pergamene | 4 oggetti |
+  | Guaritrice | le pozioni | le due pozioni, sempre |
+- **Ognuno tira i suoi** (scelta di Mirco, 29 ott). La tabella resta una, ma ogni banco tira solo dai
+  suoi tipi, con un seme suo. Dividere gli 8 oggetti di prima avrebbe lasciato il mercante con meno di
+  un oggetto in media, e vuoto 4 volte su 10. A ogni ritorno ci sono così circa 3 gioielli in più in
+  vendita. Come prima, gli oggetti sono del livello della profondità più bassa e non si salvano.
+- **Il fabbro** sta sulla cella a est della forgia, dietro un'incudine su un ceppo. È il `Barbarian`
+  senza l'elmo d'orso, con il martello nella mano destra e `Hammering` in loop. Incudine e martello
+  sono modelli nuovi (`Tools/Blender/models/anvil.py`). Perché il Barbarian abbia la sua posa,
+  `KayKitImporter` gli crea l'avatar; i suoi materiali importati restano, perché li usa l'elmo
+  d'orso.
+- **La guaritrice** sta sulla soglia della casa verde, dove finisce la strada: il `Mage` tinto di
+  verde, in `Idle_B`. Chi la raggiunge ha subito vita e mana pieni, gratis, come da Pepin; poi si apre
+  il suo banco.
+- **Sulla mappa** fabbro e guaritrice sono `E` e `L`, messi senza girarli e rivolti a est, verso
+  chi arriva. Dal portale si arriva a tutti e tre i banchi in meno di 10 s.
+
+**Le foto** (`docs/media/m18/17_fabbro.jpg`, `18_guaritrice.jpg`) le fa `PhotoTour.VillageShops`,
+che fotografa ogni banco da fuori e con la finestra aperta.
+
+**I test.**
+- **`ShopTests` (EditMode, 4 nuovi):** ogni oggetto ha il suo mestiere; ogni banco tira solo i suoi
+  tipi, con un flusso suo, e il banco che tratta tutto resta quello di prima; un banco non compra la
+  merce degli altri e non la tocca; i tre prefab si dividono tabella e provviste senza sovrapporsi.
+- **`TownMapTests`:** fabbro e guaritrice entro 10 s dal portale.
+- **`MerchantTests` (PlayMode):**
+  - il mercante apre con quattro anelli e amuleti;
+  - il fabbro con otto armi e armature;
+  - la guaritrice riempie vita e mana gratis e vende le due pozioni;
+  - il mercante rifiuta un'ascia e il fabbro la compra.
+
+  Le prove di prima (confronto con l'equipaggiamento, comprare la pozione) passano al fabbro e alla
+  guaritrice.
+- **`TownTests`:** i tre banchi nel borgo, raggiungibili dall'ingresso; le pose del fabbro e della
+  guaritrice.
+- **In locale:** EditMode intera 517/517; PlayMode intera, senza la ronda, 260/260.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)

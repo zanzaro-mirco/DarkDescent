@@ -195,10 +195,11 @@ namespace DarkDescent.Core
         private Magic.PlayerMagic _magic;
         private PlayerInventory _inventory;
 
-        // il banco del mercante e il mercante della città, se è il livello corrente (D5 della M10)
-        private readonly Shop _shop = new Shop();
+        // i banchi del borgo, mercante, fabbro e guaritrice, se è il livello corrente (D5 della M10,
+        // D18 della M18): un banco per ognuno, con la sua merce
+        private readonly List<Town.Merchant> _merchants = new List<Town.Merchant>();
+        private readonly Dictionary<Town.Merchant, Shop> _shops = new Dictionary<Town.Merchant, Shop>();
         private readonly List<ItemInstance> _stock = new List<ItemInstance>();
-        private Town.Merchant _merchant;
 
         // l'altare della città, se è il livello corrente (D3 della M14)
         private Town.DifficultyAltar _altar;
@@ -351,7 +352,7 @@ namespace DarkDescent.Core
             _characterPanel.Bind(_player.GetComponent<Stats.CharacterStats>(), inventory, _progress.Progress, _reader, _localizer);
             _experienceBar.Bind(_progress.Progress, _localizer);
             _pointsButton.Bind(_progress.Progress, _characterPanel);
-            _shopPanel.Bind(_shop, inventory, _inventoryPanel, _localizer);
+            _shopPanel.Bind(null, inventory, _inventoryPanel, _localizer);
             _groundLabels.Bind(_reader, _player.GetComponent<PlayerController>(), _localizer);
             _optionsPanel.Bind(_localizer, _groundLabels, _retroFilter, new[] { _healthOrb.Readout, _manaOrb.Readout });
             _beltView.Bind(inventory);
@@ -1148,32 +1149,31 @@ namespace DarkDescent.Core
             ReleaseBoss();
         }
 
-        // Entrando in città il mercante tira l'assortimento: oggetti del livello della profondità più
-        // bassa raggiunta, da un seme che cambia con le uccisioni, quindi a ogni ritorno dopo aver
-        // combattuto; uguale per lo stesso stato, senza salvarlo (D5 della M10)
+        // Entrando in città ogni banco tira il suo assortimento: oggetti del livello della profondità
+        // più bassa raggiunta, da un seme che cambia con le uccisioni, quindi a ogni ritorno dopo aver
+        // combattuto; uguale per lo stesso stato, senza salvarlo (D5 della M10). Ognuno tira solo
+        // dai suoi tipi della stessa tabella (D18 della M18)
         private void BindMerchant(LevelContext level)
         {
-            _merchant = level.Merchant;
-            if (_merchant == null)
+            foreach (var merchant in level.Merchants)
             {
-                return;
+                _merchants.Add(merchant);
+                _shops[merchant] = new Shop(merchant.Goods);
+                merchant.Opened += HandleMerchantOpened;
+                merchant.Left += HandleMerchantLeft;
             }
 
             RestockMerchant();
-            _merchant.Opened += HandleMerchantOpened;
-            _merchant.Left += HandleMerchantLeft;
         }
 
         private void RestockMerchant()
         {
-            if (_merchant == null)
-            {
-                return;
-            }
-
             int depth = Math.Max(1, _exploration.Memory.DeepestDepth);
-            _loot.RollStock(_merchantTable, depth, _runStats.Kills, _stock);
-            _shop.Restock(_merchantTable.Supplies, _stock);
+            foreach (var merchant in _merchants)
+            {
+                _loot.RollStock(_merchantTable, merchant.Goods, merchant.StockSize, depth, _runStats.Kills, _stock);
+                _shops[merchant].Restock(_merchantTable.Supplies, _stock);
+            }
         }
 
         private void ReleaseMerchant()
@@ -1184,29 +1184,35 @@ namespace DarkDescent.Core
                 _shopPanel.Close();
             }
 
-            if (_merchant != null)
+            foreach (var merchant in _merchants)
             {
-                _merchant.Opened -= HandleMerchantOpened;
-                _merchant.Left -= HandleMerchantLeft;
-                _merchant = null;
+                if (merchant != null)
+                {
+                    merchant.Opened -= HandleMerchantOpened;
+                    merchant.Left -= HandleMerchantLeft;
+                }
             }
+
+            _merchants.Clear();
+            _shops.Clear();
         }
 
         // il banco prende la metà sinistra, dove sta il pannello del personaggio: uno chiude l'altro
-        private void HandleMerchantOpened()
+        private void HandleMerchantOpened(Town.Merchant merchant)
         {
             if (_characterPanel.IsOpen)
             {
                 _characterPanel.Toggle();
             }
 
-            _shopPanel.Open();
+            _shopPanel.Open(_shops[merchant], merchant.NameKey);
         }
 
-        // allontanandosi dal banco il negozio si chiude, e con lui l'inventario che aveva aperto
-        private void HandleMerchantLeft()
+        // allontanandosi dal banco il negozio si chiude, e con lui l'inventario che aveva aperto; un
+        // altro banco aperto nel frattempo resta
+        private void HandleMerchantLeft(Town.Merchant merchant)
         {
-            if (!_shopPanel.IsOpen)
+            if (!_shopPanel.IsOpen || _shopPanel.Shop != _shops[merchant])
             {
                 return;
             }

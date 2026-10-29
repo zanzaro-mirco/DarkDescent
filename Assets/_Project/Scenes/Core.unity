@@ -4075,6 +4075,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.UI.ShopPanel
   _window: {fileID: 1501467764}
+  _title: {fileID: 500128625}
   _slots:
   - {fileID: 720348222}
   - {fileID: 635030711}

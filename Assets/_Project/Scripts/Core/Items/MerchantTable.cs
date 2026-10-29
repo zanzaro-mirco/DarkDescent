@@ -5,8 +5,9 @@ using UnityEngine;
 namespace DarkDescent.Items
 {
     /// <summary>
-    /// Cosa vende il mercante (D5 della M10), immutabile: le provviste, sempre in vendita e senza
-    /// fine, e le basi pesate degli oggetti che tira a ogni ritorno in città.
+    /// Cosa vendono i banchi del borgo (D5 della M10), immutabile: le provviste, sempre in vendita e
+    /// senza fine, e le basi pesate degli oggetti che tirano a ogni ritorno in città. Una tabella sola
+    /// per tutti: ogni banco ne prende i suoi tipi (D18 della M18).
     /// </summary>
     [CreateAssetMenu(fileName = "MerchantTable", menuName = "DarkDescent/Items/Merchant Table")]
     public sealed class MerchantTable : ScriptableObject
@@ -29,10 +30,16 @@ namespace DarkDescent.Items
         /// <summary>Una base estratta per peso; null se la tabella non ne ha.</summary>
         public ItemDefinition PickStock(IRandomSource random)
         {
+            return PickStock(random, ShopGoods.All);
+        }
+
+        /// <summary>Una base estratta per peso tra quelle dei tipi <paramref name="goods"/>; null se non ce ne sono.</summary>
+        public ItemDefinition PickStock(IRandomSource random, ShopGoods goods)
+        {
             int total = 0;
             foreach (var entry in _stock)
             {
-                if (entry.Item != null)
+                if (entry.Item != null && entry.Weight > 0 && goods.Trades(entry.Item))
                 {
                     total += entry.Weight;
                 }
@@ -47,7 +54,7 @@ namespace DarkDescent.Items
             ItemDefinition picked = null;
             foreach (var entry in _stock)
             {
-                if (entry.Item == null || entry.Weight <= 0)
+                if (entry.Item == null || entry.Weight <= 0 || !goods.Trades(entry.Item))
                 {
                     continue;
                 }

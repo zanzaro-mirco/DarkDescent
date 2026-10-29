@@ -8,10 +8,11 @@ using UnityEngine.UI;
 namespace DarkDescent.UI
 {
     /// <summary>
-    /// La finestra del mercante (D5 della M10), nella metà sinistra al posto del pannello del
+    /// La finestra di un banco del borgo (D5 della M10), nella metà sinistra al posto del pannello del
     /// personaggio, con l'inventario aperto accanto: click su un posto del banco per comprare, click
-    /// destro su un oggetto della borsa per vendere. La logica sta in <see cref="Shop"/>; la finestra
-    /// si ridisegna sugli eventi, mai in Update.
+    /// destro su un oggetto della borsa per vendere. Mercante, fabbro e guaritrice (D18 della M18) la
+    /// aprono con il loro banco e il loro nome. La logica sta in <see cref="Shop"/>; la finestra si
+    /// ridisegna sugli eventi, mai in Update.
     /// </summary>
     [DisallowMultipleComponent]
     public class ShopPanel : MonoBehaviour
@@ -24,6 +25,9 @@ namespace DarkDescent.UI
 
         [Tooltip("La finestra da aprire e chiudere; il componente sta sul padre, sempre attivo.")]
         [SerializeField] private GameObject _window;
+
+        [Tooltip("Il nome del banco in alto: mercante, fabbro o guaritrice.")]
+        [SerializeField] private LocalizedText _title;
 
         [Tooltip("I posti del banco, in ordine: le provviste prima, poi gli oggetti.")]
         [SerializeField] private ShopSlotView[] _slots;
@@ -64,6 +68,11 @@ namespace DarkDescent.UI
 
         public ShopSlotView Slot(int index) => _slots[index];
 
+        /// <summary>Il banco mostrato, o null.</summary>
+        public Shop Shop => _shop;
+
+        public string TitleKey => _title != null ? _title.Key : null;
+
         /// <summary>La cosa in vendita al posto <paramref name="index"/>, o null.</summary>
         public ItemInstance ItemAt(int index) => _shop?.ItemAt(index);
 
@@ -79,6 +88,38 @@ namespace DarkDescent.UI
             {
                 Subscribe();
             }
+        }
+
+        /// <summary>
+        /// Apre il banco <paramref name="shop"/> con il suo nome in alto; se era aperto quello di un
+        /// altro, lo cambia.
+        /// </summary>
+        public void Open(Shop shop, string nameKey)
+        {
+            if (shop != _shop)
+            {
+                bool subscribed = _subscribed;
+                Unsubscribe();
+                _shop = shop;
+                if (subscribed || isActiveAndEnabled)
+                {
+                    Subscribe();
+                }
+            }
+
+            if (_title != null && !string.IsNullOrEmpty(nameKey))
+            {
+                _title.SetKey(nameKey);
+            }
+
+            if (IsOpen)
+            {
+                _message.text = string.Empty;
+                Refresh();
+                return;
+            }
+
+            Open();
         }
 
         /// <summary>Apre il banco con l'inventario accanto, dove si vende.</summary>
@@ -142,7 +183,13 @@ namespace DarkDescent.UI
         /// <summary>Vende l'oggetto della borsa in quella cella: lo chiama l'inventario, al click destro.</summary>
         public bool SellAt(Vector2Int cell)
         {
-            if (_shop.SellAt(_inventory.Inventory, cell) != TradeResult.Done)
+            var result = _shop.SellAt(_inventory.Inventory, cell);
+            if (result == TradeResult.NotWanted)
+            {
+                _message.text = _localizer.Get(TextKeys.ShopNotWanted);
+            }
+
+            if (result != TradeResult.Done)
             {
                 return false;
             }
@@ -155,6 +202,11 @@ namespace DarkDescent.UI
         /// <summary>Le righe del prezzo di vendita, per il tooltip di un oggetto della borsa.</summary>
         public string SellText(ItemInstance item)
         {
+            if (!_shop.Trades(item))
+            {
+                return $"<color={ItemDescription.UnmetColor}>{_localizer.Get(TextKeys.ShopNotWanted)}</color>";
+            }
+
             return ItemDescription.TradeText(_localizer, TextKeys.ShopSellPrice, ItemPricing.SellPrice(item), true, TextKeys.ShopSellHint);
         }
 

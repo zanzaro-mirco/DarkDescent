@@ -17,6 +17,10 @@ namespace DarkDescent.Editor
         public const string AnimationFolder = "Assets/_Project/Art/Animations/KayKit/";
         public const string KnightPath = ModelFolder + "Knight.fbx";
 
+        // il fabbro del borgo (D18 della M18): con il suo avatar, per le pose; i materiali importati
+        // restano, perché li usa l'elmo d'orso
+        public const string BarbarianPath = ModelFolder + "Barbarian.fbx";
+
         private static readonly string[] PropFolders = { "Village/", "Graveyard/", "Nature/" };
         private static readonly string[] Characters = { "Mage.fbx", "Ranger.fbx", "Rogue.fbx" };
         private static readonly string[] Animations =
@@ -83,6 +87,12 @@ namespace DarkDescent.Editor
                 importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
                 importer.importAnimation = false;
                 Common(importer);
+            }
+            else if (assetPath == BarbarianPath)
+            {
+                importer.animationType = ModelImporterAnimationType.Generic;
+                importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+                importer.importAnimation = false;
             }
             else if (IsAnimation(assetPath))
             {

@@ -197,6 +197,14 @@ MonoBehaviour:
     _prefab: {fileID: 8337413292561068197, guid: 84b7d3f77c2b04c46b3a33c576f92583, type: 3}
     _replacesFloor: 0
     _keepsRotation: 0
+  - _symbol: 69
+    _prefab: {fileID: 4380074755808874060, guid: 04ab9e73c7682464088d784350c4a46a, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 1
+  - _symbol: 76
+    _prefab: {fileID: 7808775196251784617, guid: cfd3ffd51069b47449e232404d212d1f, type: 3}
+    _replacesFloor: 1
+    _keepsRotation: 1
   - _symbol: 65
     _prefab: {fileID: 7954485724220633145, guid: 9f2a72563557a25429bc1c390423d320, type: 3}
     _replacesFloor: 0

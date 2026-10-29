@@ -139,6 +139,95 @@ namespace DarkDescent.Tests
             Assert.AreEqual(TradeResult.Nothing, shop.SellAt(inventory, new Vector2Int(3, 1)));
         }
 
+        [Test, Description("Ogni oggetto ha il suo mestiere: armi e armature al fabbro, anelli, amuleti e pergamene al mercante, pozioni alla guaritrice (D18 della M18)")]
+        public void Goods_FollowTheItemType()
+        {
+            Assert.AreEqual(ShopGoods.Weapons, ItemGoods.Of(Item("Axe")));
+            Assert.AreEqual(ShopGoods.Armor, ItemGoods.Of(Item("RoundShield")));
+            Assert.AreEqual(ShopGoods.Armor, ItemGoods.Of(Item("IronBoots")));
+            Assert.AreEqual(ShopGoods.Jewelry, ItemGoods.Of(Item("Ring")));
+            Assert.AreEqual(ShopGoods.Jewelry, ItemGoods.Of(Item("Amulet")));
+            Assert.AreEqual(ShopGoods.Potions, ItemGoods.Of(Item("ManaPotion")));
+            Assert.AreEqual(ShopGoods.Scrolls, ItemGoods.Of(Item("ScrollFireRing")));
+            Assert.IsTrue((ShopGoods.Weapons | ShopGoods.Armor).Trades(Item("Dagger")));
+            Assert.IsFalse((ShopGoods.Weapons | ShopGoods.Armor).Trades(Item("Ring")));
+            Assert.IsTrue(ShopGoods.All.Trades(Item("HealingPotion")));
+        }
+
+        [Test, Description("Ogni banco tira solo dai suoi tipi della tabella, con un flusso suo: il fabbro otto armi e armature, il mercante quattro gioielli; stessi ingressi, stesso banco")]
+        public void RollStock_EachStallTakesItsGoods()
+        {
+            var smith = new List<ItemInstance>();
+            var again = new List<ItemInstance>();
+            var jewels = new List<ItemInstance>();
+            var everything = new List<ItemInstance>();
+            Roller(7UL).RollStock(Table, ShopGoods.Weapons | ShopGoods.Armor, 8, 3, 0, smith);
+            Roller(7UL).RollStock(Table, ShopGoods.Weapons | ShopGoods.Armor, 8, 3, 0, again);
+            Roller(7UL).RollStock(Table, ShopGoods.Jewelry, 4, 3, 0, jewels);
+            Roller(7UL).RollStock(Table, 3, 0, everything);
+
+            Assert.AreEqual(8, smith.Count);
+            Assert.IsTrue(smith.All(i => i.Definition is WeaponDefinition || i.Definition is ArmorDefinition));
+            CollectionAssert.AreEqual(smith.Select(i => i.Seed).ToArray(), again.Select(i => i.Seed).ToArray());
+            Assert.AreEqual(4, jewels.Count);
+            Assert.IsTrue(jewels.All(i => i.Definition is JewelryDefinition));
+            Assert.IsTrue(jewels.All(i => i.ItemLevel == 3));
+            Assert.AreNotEqual(SeedMixer.ForShop(7UL, 3, 0, (int)ShopGoods.Jewelry), SeedMixer.ForShop(7UL, 3, 0, (int)(ShopGoods.Weapons | ShopGoods.Armor)));
+            Assert.AreEqual(SeedMixer.ForShop(7UL, 3, 0), SeedMixer.ForShop(7UL, 3, 0, 0), "il banco che tratta tutto resta quello di prima");
+            Assert.AreEqual(8, everything.Count);
+        }
+
+        [Test, Description("Un banco tiene sul piano solo la sua merce, e dalla borsa compra solo quella: il resto non lo tocca")]
+        public void Shop_TradesOnlyItsGoods()
+        {
+            var stock = new List<ItemInstance>();
+            Roller(99UL).RollStock(Table, 3, 0, stock);
+            var healer = new Shop(ShopGoods.Potions);
+            healer.Restock(Table.Supplies, stock);
+            Assert.AreEqual(2, healer.Count, "le due pozioni, nessun oggetto");
+            Assert.AreEqual(ShopGoods.Potions, healer.Goods);
+
+            var smith = new Shop(ShopGoods.Weapons | ShopGoods.Armor);
+            smith.Restock(Table.Supplies, stock);
+            Assert.AreEqual(stock.Count(i => i.Definition is WeaponDefinition || i.Definition is ArmorDefinition), smith.Count, "niente pozioni né gioielli");
+
+            var inventory = NewInventory(0);
+            var ring = new ItemInstance(Item("Ring"), Rarity.Magic, 4, 1UL, null);
+            Assert.IsTrue(inventory.Grid.TryPlace(ring, new Vector2Int(0, 0)));
+            Assert.IsFalse(smith.Trades(ring));
+            Assert.AreEqual(TradeResult.NotWanted, smith.SellAt(inventory, new Vector2Int(0, 0)));
+            Assert.AreSame(ring, inventory.Grid.ItemAt(new Vector2Int(0, 0)));
+            Assert.AreEqual(0, inventory.Gold);
+
+            var merchant = new Shop(ShopGoods.Jewelry | ShopGoods.Scrolls);
+            Assert.AreEqual(TradeResult.Done, merchant.SellAt(inventory, new Vector2Int(0, 0)));
+            Assert.AreEqual(ItemPricing.SellPrice(ring), inventory.Gold);
+        }
+
+        [Test, Description("I tre banchi del borgo si dividono la tabella senza sovrapporsi e senza lasciare niente: tutte le basi e le provviste hanno un banco; la guaritrice cura")]
+        public void Village_StallsSplitTheTable()
+        {
+            var stalls = new[] { "MerchantStall", "Blacksmith", "Healer" }
+                .Select(n => AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/_Project/Prefabs/Town/{n}.prefab").GetComponent<Town.Merchant>())
+                .ToArray();
+            Assert.AreEqual(ShopGoods.Jewelry | ShopGoods.Scrolls, stalls[0].Goods);
+            Assert.AreEqual(4, stalls[0].StockSize);
+            Assert.AreEqual(ShopGoods.Weapons | ShopGoods.Armor, stalls[1].Goods);
+            Assert.AreEqual(8, stalls[1].StockSize);
+            Assert.AreEqual(ShopGoods.Potions, stalls[2].Goods);
+            Assert.IsTrue(stalls[2].Heals);
+            Assert.IsFalse(stalls[0].Heals || stalls[1].Heals);
+            Assert.AreEqual(ShopGoods.All, stalls[0].Goods | stalls[1].Goods | stalls[2].Goods);
+            Assert.AreEqual(ShopGoods.None, stalls[0].Goods & stalls[1].Goods);
+            Assert.AreEqual(ShopGoods.None, (stalls[0].Goods | stalls[1].Goods) & stalls[2].Goods);
+            foreach (var item in Table.Stock.Select(e => e.Item).Concat(Table.Supplies))
+            {
+                Assert.AreEqual(1, stalls.Count(s => s.Goods.Trades(item)), item.name);
+            }
+
+            Assert.AreEqual(new[] { TextKeys.MerchantName, TextKeys.SmithName, TextKeys.HealerName }, stalls.Select(s => s.NameKey).ToArray());
+        }
+
         [Test, Description("La profondità più bassa visitata decide il livello degli oggetti; la città non conta")]
         public void DeepestDepth_IgnoresTheTown()
         {

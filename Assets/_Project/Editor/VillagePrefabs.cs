@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DarkDescent.Interaction;
+using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Localization;
 using DarkDescent.Rendering;
 using DarkDescent.Town;
 using UnityEditor;
@@ -137,6 +140,18 @@ namespace DarkDescent.Editor
             public float Distance { get; }
             public bool Greets { get; }
         }
+
+        // Fabbro e guaritrice (D18 della M18): due banchi come quello del mercante, messi dal loro
+        // simbolo senza girarli, con il +Z a nord. Stanno sulla cella a est della loro porta, verso la
+        // strada: il fabbro dietro l'incudine, la guaritrice sulla soglia, dove la strada finisce. Il
+        // mercante, nel suo banco fatto a mano, tiene anelli, amuleti e pergamene.
+        private const string BlacksmithPath = TownPrefabs + "Blacksmith.prefab";
+        private const string HealerPath = TownPrefabs + "Healer.prefab";
+        private const string MerchantStallPath = TownPrefabs + "MerchantStall.prefab";
+        private const int MerchantStock = 4;
+        private const int BlacksmithStock = 8;
+        private static readonly Color BlacksmithTint = new Color(0.85f, 0.78f, 0.72f);
+        private static readonly Color HealerTint = new Color(0.72f, 0.92f, 0.74f);
 
         private static readonly Survivor[] Survivors =
         {
@@ -287,6 +302,7 @@ namespace DarkDescent.Editor
             SaveCaveExit(dirt);
             SaveTunnelMouth();
             SaveVillageFire();
+            SaveShopkeepers();
             AssetDatabase.SaveAssets();
             BuildTileset();
             Debug.Log($"[DarkDescent] borgo: {Pieces.Length + 4} prefab in {PrefabFolder}, più {TunnelMouthPath}");
@@ -679,6 +695,110 @@ namespace DarkDescent.Editor
             Object.DestroyImmediate(root);
         }
 
+        // Il fabbro dietro l'incudine, con il martello nella mano destra, e la guaritrice sulla soglia,
+        // sopra il pezzo di strada che il suo simbolo prende al posto di ','. Il mercante cambia solo
+        // la merce: il suo banco è fatto a mano.
+        private static void SaveShopkeepers()
+        {
+            var smith = Shopkeeper("Blacksmith", TextKeys.SmithName, ShopGoods.Weapons | ShopGoods.Armor, BlacksmithStock, false,
+                new Vector3(2.2f, 0f, 0f), new Vector3(0f, 1f, 0f), new Vector3(2.4f, 2.2f, 1.8f));
+            var barbarian = Person(smith.transform, "Barbarian", "Barbarian_BearHat", "M_KayKitBarbarian", "M_Blacksmith", BlacksmithTint,
+                Clip("Rig_Medium_Tools", "Hammering"), new Vector3(-0.6f, 0f, 0f));
+            var hand = barbarian.GetComponentsInChildren<Transform>().First(b => b.name == "handslot.r");
+            Generated(hand, "SmithHammer").transform.localPosition = new Vector3(0f, -0.08f, 0f);
+            var anvil = Generated(smith.transform, "Anvil");
+            anvil.transform.localPosition = new Vector3(0.45f, 0f, 0f);
+            anvil.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+            var block = anvil.AddComponent<NavMeshObstacle>();
+            block.shape = NavMeshObstacleShape.Box;
+            block.size = new Vector3(0.7f, 0.8f, 0.7f);
+            block.center = new Vector3(0f, 0.4f, 0f);
+            block.carving = true;
+            block.carveOnlyStationary = true;
+            PrefabUtility.SaveAsPrefabAsset(smith, BlacksmithPath);
+            Object.DestroyImmediate(smith);
+
+            var healer = Shopkeeper("Healer", TextKeys.HealerName, ShopGoods.Potions, 0, true,
+                new Vector3(1.4f, 0f, 0f), new Vector3(-0.8f, 1f, 0f), new Vector3(1.4f, 2.2f, 1.4f));
+            PrefabUtility.InstantiatePrefab(Load("VillageRoad"), healer.transform);
+            Person(healer.transform, "Mage", null, "M_KayKitMage", "M_Healer", HealerTint, Clip("Rig_Medium_General", "Idle_B"), new Vector3(-0.8f, 0f, 0f));
+            PrefabUtility.SaveAsPrefabAsset(healer, HealerPath);
+            Object.DestroyImmediate(healer);
+
+            var stall = AssetDatabase.LoadAssetAtPath<GameObject>(MerchantStallPath).GetComponent<Merchant>();
+            var so = new SerializedObject(stall);
+            so.FindProperty("_goods").intValue = (int)(ShopGoods.Jewelry | ShopGoods.Scrolls);
+            so.FindProperty("_stockSize").intValue = MerchantStock;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(stall);
+        }
+
+        // Un banco del borgo vuoto: il negozio, l'etichetta, il punto d'arrivo e il collider dei click
+        private static GameObject Shopkeeper(string name, string labelKey, ShopGoods goods, int stock, bool heals,
+            Vector3 approach, Vector3 clickCenter, Vector3 clickSize)
+        {
+            var root = new GameObject(name);
+            var point = new GameObject("ApproachPoint").transform;
+            point.SetParent(root.transform, false);
+            point.localPosition = approach;
+            root.AddComponent<Interactable>().Configure(point, labelKey, null);
+            var merchant = root.AddComponent<Merchant>();
+            var so = new SerializedObject(merchant);
+            so.FindProperty("_goods").intValue = (int)goods;
+            so.FindProperty("_stockSize").intValue = stock;
+            so.FindProperty("_heals").boolValue = heals;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            var click = new GameObject("ClickArea") { layer = LayerMask.NameToLayer("Interactable") };
+            click.transform.SetParent(root.transform, false);
+            var box = click.AddComponent<BoxCollider>();
+            box.center = clickCenter;
+            box.size = clickSize;
+            return root;
+        }
+
+        // Un personaggio di Adventurers fermo nella sua posa, girato a est verso chi arriva, tinto e
+        // senza il pezzo nascosto; un ostacolo che il NavMesh ritaglia
+        private static GameObject Person(Transform parent, string model, string hidden, string source, string material, Color tint,
+            AnimationClip pose, Vector3 position)
+        {
+            var holder = new GameObject(model);
+            holder.transform.SetParent(parent, false);
+            holder.transform.localPosition = position;
+            holder.transform.localRotation = Quaternion.LookRotation(Vector3.right);
+
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(Adventurers + model + ".fbx"), holder.transform);
+            PrefabUtility.UnpackPrefabInstance(instance, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            var removed = hidden != null ? instance.transform.Find(hidden) : null;
+            if (removed != null)
+            {
+                Object.DestroyImmediate(removed.gameObject);
+            }
+
+            var tinted = Tinted(source, material, tint);
+            foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
+            {
+                renderer.sharedMaterial = tinted;
+            }
+
+            var animator = instance.GetComponent<Animator>();
+            animator.applyRootMotion = false;
+            animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+            var villager = holder.AddComponent<Villager>();
+            var so = new SerializedObject(villager);
+            so.FindProperty("_pose").objectReferenceValue = pose;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            var obstacle = holder.AddComponent<NavMeshObstacle>();
+            obstacle.shape = NavMeshObstacleShape.Capsule;
+            obstacle.radius = VillagerRadius;
+            obstacle.height = 1.8f;
+            obstacle.center = new Vector3(0f, 0.9f, 0f);
+            obstacle.carving = true;
+            obstacle.carveOnlyStationary = true;
+            return instance;
+        }
+
         private static AnimationClip Clip(string file, string name)
         {
             var clip = AssetDatabase.LoadAllAssetsAtPath(Animations + file + ".fbx").OfType<AnimationClip>().FirstOrDefault(c => c.name == name);
@@ -855,7 +975,9 @@ namespace DarkDescent.Editor
                 ('u', Load("Lumber"), false, false),
                 ('k', Load("Wheelbarrow"), false, false),
                 ('f', AssetDatabase.LoadAssetAtPath<GameObject>(VillageFirePath), false, true),
-                ('M', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "MerchantStall.prefab"), false, false),
+                ('M', AssetDatabase.LoadAssetAtPath<GameObject>(MerchantStallPath), false, false),
+                ('E', AssetDatabase.LoadAssetAtPath<GameObject>(BlacksmithPath), false, true),
+                ('L', AssetDatabase.LoadAssetAtPath<GameObject>(HealerPath), true, true),
                 ('A', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "DifficultyAltar.prefab"), false, false),
                 ('P', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "PortalSpot.prefab"), false, false),
             };

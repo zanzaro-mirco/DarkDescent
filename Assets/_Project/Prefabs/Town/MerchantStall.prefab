@@ -148,6 +148,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c51dabb2e10ab24dbae2ec999f549e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Town.Merchant
+  _leaveDistance: 3
+  _goods: 20
+  _stockSize: 4
+  _heals: 0
 --- !u!1001 &16114181438299779
 PrefabInstance:
   m_ObjectHideFlags: 0

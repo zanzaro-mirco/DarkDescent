@@ -20,6 +20,16 @@ namespace DarkDescent.Localization
 
         public string Key => _key;
 
+        /// <summary>Cambia la chiave e riscrive il testo: il nome di un banco sulla stessa finestra.</summary>
+        public void SetKey(string key)
+        {
+            _key = key;
+            if (_subscribed)
+            {
+                Refresh();
+            }
+        }
+
         /// <summary>Come i pannelli: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
         public void Bind(Localizer localizer)
         {

@@ -323,16 +323,26 @@ namespace DarkDescent.Items
         /// </summary>
         public void RollStock(MerchantTable table, int depth, int visit, List<ItemInstance> into)
         {
+            RollStock(table, ShopGoods.All, table != null ? table.StockSize : 0, depth, visit, into);
+        }
+
+        /// <summary>
+        /// Gli oggetti di un banco del borgo (D18 della M18): <paramref name="count"/> basi pesate della
+        /// tabella, solo dei tipi <paramref name="goods"/>, con un flusso suo per ogni tipo di banco.
+        /// </summary>
+        public void RollStock(MerchantTable table, ShopGoods goods, int count, int depth, int visit, List<ItemInstance> into)
+        {
             into.Clear();
             if (table == null)
             {
                 return;
             }
 
-            var random = new SplitMix64Source(SeedMixer.ForShop(RunSeed, depth, visit));
-            for (int i = 0; i < table.StockSize; i++)
+            int stall = goods == ShopGoods.All ? 0 : (int)goods;
+            var random = new SplitMix64Source(SeedMixer.ForShop(RunSeed, depth, visit, stall));
+            for (int i = 0; i < count; i++)
             {
-                var item = table.PickStock(random);
+                var item = table.PickStock(random, goods);
                 if (item == null)
                 {
                     return;

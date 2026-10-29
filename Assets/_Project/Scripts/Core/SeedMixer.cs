@@ -75,6 +75,16 @@ namespace DarkDescent.Core
             return Mix(ForLevel(runSeed, depth) ^ ShopDomain ^ Mix((ulong)(uint)visit));
         }
 
+        /// <summary>
+        /// Il seme di un banco del borgo (D18 della M18): ogni banco ha il suo flusso. Il banco 0 è
+        /// quello di <see cref="ForShop(ulong, int, int)"/>.
+        /// </summary>
+        public static ulong ForShop(ulong runSeed, int depth, int visit, int stall)
+        {
+            ulong seed = ForShop(runSeed, depth, visit);
+            return stall == 0 ? seed : Mix(seed ^ ((ulong)(uint)stall << 32));
+        }
+
         // "SPECIAL": i nemici speciali di un livello (M12), dopo il popolatore e con il loro flusso
         private const ulong SpecialDomain = 0x5350454349414CUL;
 

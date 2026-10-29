@@ -31,6 +31,7 @@ namespace DarkDescent.Levels
         private readonly List<Breakable> _breakables = new List<Breakable>();
         private readonly List<OneUseFeature> _features = new List<OneUseFeature>();
         private readonly List<SpikeTrap> _traps = new List<SpikeTrap>();
+        private readonly List<Merchant> _merchants = new List<Merchant>();
 
         /// <summary>Il player ha raggiunto un'uscita.</summary>
         public event Action<LevelExit> ExitRequested;
@@ -52,8 +53,25 @@ namespace DarkDescent.Levels
         /// <summary>Gli spuntoni (D8 della M13).</summary>
         public IReadOnlyList<SpikeTrap> Traps => _traps;
 
-        /// <summary>Il mercante della città (D5 della M10); null negli altri livelli.</summary>
-        public Merchant Merchant { get; private set; }
+        /// <summary>Il mercante della città, quello di anelli e amuleti (D5 della M10); null negli altri livelli.</summary>
+        public Merchant Merchant => Trading(ShopGoods.Jewelry);
+
+        /// <summary>I banchi del borgo, mercante, fabbro e guaritrice (D18 della M18); vuoto negli altri livelli.</summary>
+        public IReadOnlyList<Merchant> Merchants => _merchants;
+
+        /// <summary>Il banco che tratta <paramref name="goods"/>: il fabbro le armi, la guaritrice le pozioni; null se non c'è.</summary>
+        public Merchant Trading(ShopGoods goods)
+        {
+            foreach (var merchant in _merchants)
+            {
+                if ((merchant.Goods & goods) == goods)
+                {
+                    return merchant;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>L'altare delle difficoltà della città (D3 della M14); null negli altri livelli.</summary>
         public DifficultyAltar Altar { get; private set; }
@@ -102,6 +120,7 @@ namespace DarkDescent.Levels
             var breakables = new List<Breakable>();
             var features = new List<OneUseFeature>();
             var traps = new List<SpikeTrap>();
+            var merchants = new List<Merchant>();
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
                 root.GetComponentsInChildren(true, entrances);
@@ -118,10 +137,8 @@ namespace DarkDescent.Levels
                 _features.AddRange(features);
                 root.GetComponentsInChildren(true, traps);
                 _traps.AddRange(traps);
-                if (Merchant == null)
-                {
-                    Merchant = root.GetComponentInChildren<Merchant>(true);
-                }
+                root.GetComponentsInChildren(true, merchants);
+                _merchants.AddRange(merchants);
 
                 if (Altar == null)
                 {

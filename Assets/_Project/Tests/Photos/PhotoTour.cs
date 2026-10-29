@@ -318,6 +318,35 @@ namespace DarkDescent.Tests
             yield return Snap("village_night_lights");
         }
 
+        [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]
+        public IEnumerator VillageShops()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+
+            var level = Manager.CurrentLevel;
+            var agent = Hero.GetComponent<NavMeshAgent>();
+            foreach (var (goods, name) in new[] { (ShopGoods.Weapons, "smith"), (ShopGoods.Potions, "healer"), (ShopGoods.Jewelry, "merchant") })
+            {
+                var interactable = level.Trading(goods).GetComponent<Interactable>();
+                agent.Warp(interactable.ApproachPoint);
+                yield return Settle();
+                yield return Snap("village_" + name);
+                interactable.Use(Hero);
+                yield return Frames(5);
+                yield return Snap("village_" + name + "_shop", false);
+                Find<ShopPanel>().Close();
+                Find<InventoryPanel>().SetOpen(false);
+            }
+        }
+
         [UnityTest, Timeout(300000), Description("La bocca della grotta nel borgo, di giorno, di notte e sotto il cursore, e lo sbocco del cunicolo alla profondità 1 (D6 e D7 della M18)")]
         public IEnumerator CaveAndTunnel()
         {

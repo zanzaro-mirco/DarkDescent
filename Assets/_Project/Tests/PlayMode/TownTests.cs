@@ -146,12 +146,15 @@ namespace DarkDescent.Tests
                 $"dal cunicolo si arriva alla scala: da {player.transform.position} verso {stairs}, fermo a {path.corners.LastOrDefault()}");
         }
 
-        [UnityTest, Description("Attorno al fuoco del borgo tre abitanti seduti e uno in piedi che saluta chi arriva; sono ostacoli, e dall'ingresso si arriva ancora al mercante e alla grotta (D9 della M18)")]
+        [UnityTest, Description("Attorno al fuoco del borgo tre abitanti seduti e uno in piedi che saluta chi arriva; sono ostacoli, e dall'ingresso si arriva ancora ai tre banchi e alla grotta (D9 e D18 della M18)")]
         public IEnumerator Villagers_SitByTheFireAndGreet()
         {
             yield return StartNewGame();
-            var villagers = Manager.CurrentLevel.GetComponentsInChildren<DarkDescent.Town.Villager>();
+            // fabbro e guaritrice tengono la loro posa allo stesso modo, ma stanno ai loro banchi
+            var everyone = Manager.CurrentLevel.GetComponentsInChildren<DarkDescent.Town.Villager>();
+            var villagers = everyone.Where(v => v.GetComponentInParent<DarkDescent.Town.Merchant>() == null).ToArray();
             Assert.AreEqual(4, villagers.Length);
+            CollectionAssert.AreEquivalent(new[] { "Hammering", "Idle_B" }, everyone.Except(villagers).Select(v => v.Pose.name).ToArray(), "il fabbro batte, la guaritrice aspetta");
             var greeter = villagers.Single(v => v.Greets);
             Assert.IsTrue(villagers.Where(v => !v.Greets).All(v => v.Pose.name == "Sit_Floor_Idle"), "gli altri seduti per terra");
             Assert.IsTrue(villagers.All(v => v.GetComponent<NavMeshObstacle>().carving), "ostacoli per il NavMesh");
@@ -181,11 +184,10 @@ namespace DarkDescent.Tests
                 yield return null;
             }
 
-            var targets = new[]
-            {
-                UnityEngine.Object.FindFirstObjectByType<DarkDescent.Town.Merchant>().GetComponent<Interactable>().ApproachPoint,
-                Manager.CurrentLevel.Exits[0].GetComponent<Interactable>().ApproachPoint,
-            };
+            // i tre banchi (D18) e la grotta
+            Assert.AreEqual(3, Manager.CurrentLevel.Merchants.Count, "mercante, fabbro e guaritrice");
+            var targets = Manager.CurrentLevel.Merchants.Select(m => m.GetComponent<Interactable>().ApproachPoint)
+                .Append(Manager.CurrentLevel.Exits[0].GetComponent<Interactable>().ApproachPoint);
             foreach (var target in targets)
             {
                 var path = new NavMeshPath();

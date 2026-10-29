@@ -26,6 +26,7 @@ namespace DarkDescent.Editor
             ("M_Nature", KayKitImporter.ModelFolder + "Nature/forest_texture.png", DungeonMaterial),
             ("M_KayKitMage", KayKitImporter.ModelFolder + "mage_texture.png", RogueMaterial),
             ("M_KayKitRanger", KayKitImporter.ModelFolder + "ranger_texture.png", RogueMaterial),
+            ("M_KayKitBarbarian", KayKitImporter.ModelFolder + "barbarian_texture.png", RogueMaterial),
         };
 
         [MenuItem("DarkDescent/Borgo/Materiali dei pezzi")]

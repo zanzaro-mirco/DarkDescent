@@ -365,6 +365,8 @@ affix.of_the_archmage,of the Archmage,dell'Arcimago
 affix.of_the_stars,of the Stars,delle Stelle
 affix.of_the_cosmos,of the Cosmos,del Cosmo
 merchant.name,Merchant,Mercante
+smith.name,Blacksmith,Fabbro
+healer.name,Healer,Guaritrice
 shop.price,Price: {0} gold,Prezzo: {0} oro
 shop.sell_price,Sells for {0} gold,Si vende a {0} oro
 shop.buy_hint,Click to buy,Click per comprare
@@ -372,6 +374,7 @@ shop.sell_hint,Right-click to sell,Click destro per vendere
 shop.no_gold,Not enough gold,Non hai abbastanza oro
 shop.no_room,No room in the bag,Non c'è posto nella borsa
 shop.help,Right-click an item in your bag to sell it,Click destro su un oggetto della borsa per venderlo
+shop.not_wanted,Won't buy this item,Non compra questo oggetto
 portal.to_town,Portal to the village,Portale per il borgo
 portal.to_depth,Portal to level {0},Portale per il livello {0}
 portal.victory,Leave the depths,Lascia le profondità
