@@ -376,6 +376,14 @@ shop.no_room,No room in the bag,Non c'è posto nella borsa
 shop.help,Right-click an item in your bag to sell it,Click destro su un oggetto della borsa per venderlo
 shop.not_wanted,Won't buy this item,Non compra questo oggetto
 film.skip,Esc or click to skip,Esc o click per saltare
+film.opening.name,The Last Candle,L'ultima candela
+film.opening.title,The Last Candle,L'ultima candela
+film.opening.vigil,"For a hundred years, the village kept a candle lit for every soul in the crypt.",Per cento anni il borgo ha tenuto una candela accesa per ogni anima della cripta.
+film.opening.out,"One night, the candles went out on their own.",Una notte le candele si spensero da sole.
+film.opening.rise,And the dead rose from the earth.,E i morti uscirono dalla terra.
+film.opening.dawn,"By dawn, few were left.",All'alba ne restavano pochi.
+film.opening.knight,Then a knight came up the road.,Poi dalla strada arrivò un cavaliere.
+film.opening.king,The Bone King has awoken. Only one candle still burns.,Il Re delle ossa si è svegliato. Brucia ancora una candela sola.
 portal.to_town,Portal to the village,Portale per il borgo
 portal.to_depth,Portal to level {0},Portale per il livello {0}
 portal.victory,Leave the depths,Lascia le profondità

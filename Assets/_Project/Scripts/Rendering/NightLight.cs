@@ -60,6 +60,12 @@ namespace DarkDescent.Rendering
             FadeFlame(1f, seconds);
         }
 
+        /// <summary>La candela a questo punto, subito: i filmati la portano con il loro tempo.</summary>
+        public void SetFlame(float amount)
+        {
+            FadeFlame(Mathf.Clamp01(amount), 0f);
+        }
+
         private void FadeFlame(float target, float seconds)
         {
             Init();

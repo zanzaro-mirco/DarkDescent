@@ -281,6 +281,84 @@ di spegnerle una a una, l'ora ferma, il fuoco spento, le lanterne a mano e la te
 
 ---
 
+## Passo 19.4 — L'apertura
+
+**Com'è andata (29 ott 2026).** L'apertura dura 50 s, in otto inquadrature e cinque scene, e parte a
+ogni *Nuova partita* scelta dal menu, appena si arriva nel borgo. Mirco ha approvato prima le foto, poi
+il video.
+
+**Le scene.**
+1. **La notte (0–11 s).** Il borgo intero dall'alto, con la luna. Le candele si spengono una a una,
+   dalla cripta verso la piazza, e a 9,5 s muore il fuoco.
+2. **Il cimitero (11–22 s).** La camera è a sud, sopra l'arco. Tre tombe sono smosse; gli scheletri si
+   alzano uno dopo l'altro (`Skeletons_Awaken_Floor`) e camminano verso la strada. I paesani, di
+   spalle con le lanterne, si girano e scappano verso la camera.
+3. **L'alba (22–30 s).** I sopravvissuti siedono attorno al fuoco spento, con le lanterne a terra, e la
+   camera gira piano attorno a loro.
+4. **Il cavaliere (30–42 s).** Il cavaliere sale dalla strada a sud della piazza. Poi il mercante
+   accende la candela sull'altare e indica la grotta.
+5. **Il titolo (42–50 s).** *L'ultima candela* sopra la bocca della grotta. Poi la camera scende sul
+   cavaliere fino a diventare quella del gioco.
+
+**Come è fatta.**
+- **`FilmLibrary.Opening`** (logica pura in `Core`) elenca le inquadrature, con le didascalie e il
+  titolo nella tabella delle stringhe. `FilmScript.CameraSpan` unisce le inquadrature di fila con la
+  stessa camera in un movimento solo, anche quando la didascalia cambia.
+- **`FilmSet`** è il set di un filmato, nel livello in cui si gioca:
+  - si monta con `Build` e si smonta con `Teardown`;
+  - con `Show(secondo)` mette ogni cosa al suo posto, e quello che si vede dipende solo dal secondo.
+    Il filmato si può quindi fermare, riavvolgere e fotografare in qualsiasi istante;
+  - la camera è una sola, una camera di Cinemachine senza movimenti suoi: nel filmato si entra e tra
+    un'inquadratura e l'altra si passa con uno stacco, e alla fine la camera del gioco la riprende
+    sfumando.
+- **La Timeline** ha una traccia sola, `FilmSetTrack`, con una clip lunga quanto il filmato che a ogni
+  fotogramma dà il secondo al set accanto al regista. La musica andrà su una traccia sua al 19.6.
+- **`OpeningSet`** monta l'apertura dai segni della mappa: la cripta, l'arco, il fuoco, la grotta,
+  l'altare e il mercante. Ferma il borgo all'ora della scena (`DayCycleView.Hold`) e porta le candele
+  con il suo tempo (`NightLight.SetFlame`). Le tombe vengono sostituite da `GraveDug`; la luna è
+  accesa solo nelle scene di notte. Alla fine il borgo torna com'era, di giorno.
+- **`FilmActor`**, le comparse:
+  - è una copia del modello del gioco senza script, collider né suoni. I paesani sono quelli del fuoco,
+    gli scheletri sono quelli dei nemici, il mercante è il suo, il cavaliere è la copia del tuo, con il
+    tuo equipaggiamento;
+  - le animazioni passano da un grafo di Playables valutato a mano;
+  - la lanterna sta nella mano destra, con `Holding_A` dal petto in su (`AvatarMask` costruita sul rig)
+    sopra la corsa, e pende sempre dritta.
+- **`FilmTools.BuildOpening`** costruisce la Timeline, le due candele dell'altare e il prefab del set, e
+  lo lega al composition root.
+- **Il collegamento.** `CompositionRoot` monta il set quando arriva nel borgo dopo una partita nuova
+  dal menu, e lo smonta quando il filmato finisce o si salta. Nell'editor, e quindi nei test, i filmati
+  si vedono solo con `DARKDESCENT_FILMS=1`; con `-newgame` mai.
+- **Il titolo** è nuovo nel lettore: grande in mezzo allo schermo, con un bordo scuro e la stessa
+  dissolvenza delle didascalie.
+
+**Le lezioni.**
+- **Il mercante del banco non è un abitante.** È un modello fermo, senza `Villager`: il set lo trova
+  dal suo `Animator`. La prima foto si è fermata lì.
+- **Senza luna, la notte è nera.** Spente le candele, il cimitero era invisibile. La luna è una luce
+  del set, fredda e debole, che esiste solo per il filmato.
+- **Il cimitero va ripreso da sud.** Da sud-ovest i paesani erano di spalle e le tombe fuori campo. Da
+  sud, sopra l'arco, si vedono le tombe davanti ai paesani, e poi i paesani che scappano verso la
+  camera.
+- **Il video si registra a tempo fisso.** Recorder registra a 30 fotogrammi: un fotogramma vale un
+  trentesimo di secondo del gioco, qualunque cosa costi disegnarlo.
+
+**I test.**
+- **`FilmScriptTests`, EditMode (+2):**
+  - le camere di fila sono un movimento solo;
+  - l'apertura si monta, con ogni didascalia e il titolo in inglese e in italiano.
+- **`OpeningFilmTests` (3), PlayMode:**
+  - la partita nuova dal menu fa partire l'apertura di notte, senza comandi e con il cavaliere nascosto;
+    Esc più Esc la salta;
+  - arrivata in fondo da sola, ridà il borgo com'era e la camera del gioco sul cavaliere;
+  - senza la richiesta dei filmati la partita comincia subito.
+- **`PhotoTour.Opening`** fa le nove foto delle scene, e **`PhotoTour.OpeningVideo`** il video MP4
+  1920×1080 di 52 s (51 MB). Il video non entra nel repo (D12).
+- **In locale:** EditMode intera 536/536. PlayMode intera senza la ronda 274/276, nessun rosso (gli
+  altri 2 sono saltati come sempre).
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)

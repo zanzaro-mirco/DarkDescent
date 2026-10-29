@@ -12,7 +12,7 @@ namespace DarkDescent.Films
 {
     /// <summary>
     /// Il lettore dei filmati (D9 della M19): fa partire la Timeline di un filmato e ci mette sopra le
-    /// bande nere a 2,35:1, la didascalia dell'inquadratura e l'invito a saltare. Mentre il filmato
+    /// bande nere a 2,35:1, la didascalia dell'inquadratura, il titolo e l'invito a saltare. Mentre il filmato
     /// gira il gioco non legge comandi e le finestre del gioco sono spente; Esc o un click mostrano
     /// l'invito, il secondo salta. Alla fine, o al salto, tutto torna com'era e il tempo a 1. Le bande
     /// e le scritte le costruisce lui, in un canvas suo sopra tutti gli altri.
@@ -44,13 +44,12 @@ namespace DarkDescent.Films
         private Canvas _canvas;
         private RectTransform _top;
         private RectTransform _bottom;
-        private TMP_Text _caption;
+        private Fade _caption;
+        private Fade _title;
         private TMP_Text _prompt;
         private PlayableDirector _director;
         private FilmScript _script;
         private SkipPrompt _skip;
-        private string _captionKey;
-        private float _captionAlpha;
         private bool _started;
 
         /// <summary>Il filmato è finito o è stato saltato: il gioco riprende.</summary>
@@ -62,7 +61,10 @@ namespace DarkDescent.Films
         public FilmScript Current => _script;
 
         /// <summary>La didascalia a schermo, anche mentre appare o sparisce; vuota se non ce n'è.</summary>
-        public string CaptionText => _caption != null && _caption.gameObject.activeSelf ? _caption.text : string.Empty;
+        public string CaptionText => _caption != null ? _caption.Text : string.Empty;
+
+        /// <summary>Il titolo in mezzo allo schermo, anche mentre appare o sparisce; vuoto se non ce n'è.</summary>
+        public string TitleText => _title != null ? _title.Text : string.Empty;
 
         public bool IsPromptShowing => _prompt != null && _prompt.gameObject.activeSelf;
 
@@ -90,8 +92,8 @@ namespace DarkDescent.Films
             _script = script;
             _director = director;
             _skip = new SkipPrompt(_promptSeconds);
-            _captionKey = null;
-            _captionAlpha = 0f;
+            _caption.Reset();
+            _title.Reset();
             _started = false;
 
             HideOtherCanvases();
@@ -103,7 +105,6 @@ namespace DarkDescent.Films
             Time.timeScale = 1f;
             _canvas.gameObject.SetActive(true);
             _prompt.gameObject.SetActive(false);
-            _caption.gameObject.SetActive(false);
             Letterbox();
             _director.extrapolationMode = DirectorWrapMode.None;
             _director.time = 0d;
@@ -166,29 +167,9 @@ namespace DarkDescent.Films
             }
 
             _prompt.gameObject.SetActive(_skip.IsShowing(Time.unscaledTime));
-            UpdateCaption(_script.CaptionAt(time));
-        }
-
-        // la didascalia nuova appare quando la vecchia è sparita: in mezzo un attimo di vuoto
-        private void UpdateCaption(string key)
-        {
             float step = Time.unscaledDeltaTime / _captionFade;
-            if (key != _captionKey)
-            {
-                _captionAlpha = Mathf.Max(0f, _captionAlpha - step);
-                if (_captionAlpha <= 0f)
-                {
-                    _captionKey = key;
-                    _caption.text = key != null && _localizer != null ? _localizer.Get(key) : key ?? string.Empty;
-                }
-            }
-            else if (key != null)
-            {
-                _captionAlpha = Mathf.Min(1f, _captionAlpha + step);
-            }
-
-            _caption.alpha = _captionAlpha;
-            _caption.gameObject.SetActive(_captionKey != null || _captionAlpha > 0f);
+            _caption.Show(_script.CaptionAt(time), step, _localizer);
+            _title.Show(_script.TitleAt(time), step, _localizer);
         }
 
         private void Stop()
@@ -272,8 +253,13 @@ namespace DarkDescent.Films
 
             _top = Band(root.transform, "BandTop");
             _bottom = Band(root.transform, "BandBottom");
-            _caption = Label(_bottom, "Caption", 34f, new Color(0.92f, 0.86f, 0.72f));
+            _caption = new Fade(Label(_bottom, "Caption", 34f, new Color(0.92f, 0.86f, 0.72f)));
             _prompt = Label(_top, "SkipPrompt", 24f, new Color(0.7f, 0.66f, 0.58f));
+            var title = Label((RectTransform)root.transform, "Title", 104f, new Color(0.96f, 0.86f, 0.62f));
+            // il titolo sta sopra il mondo, non sulle bande: un bordo scuro lo stacca dai sassi
+            title.outlineWidth = 0.18f;
+            title.outlineColor = new Color32(20, 14, 10, 255);
+            _title = new Fade(title);
             root.SetActive(false);
         }
 
@@ -288,10 +274,10 @@ namespace DarkDescent.Films
             return rect;
         }
 
-        private TMP_Text Label(RectTransform band, string name, float size, Color color)
+        private TMP_Text Label(RectTransform parent, string name, float size, Color color)
         {
             var label = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
-            label.transform.SetParent(band, false);
+            label.transform.SetParent(parent, false);
             var rect = (RectTransform)label.transform;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
@@ -309,6 +295,50 @@ namespace DarkDescent.Films
             text.textWrappingMode = TextWrappingModes.Normal;
             text.raycastTarget = false;
             return text;
+        }
+
+        // una scritta che appare e sparisce: la nuova appare quando la vecchia è sparita, con un
+        // attimo di vuoto in mezzo
+        private sealed class Fade
+        {
+            private readonly TMP_Text _text;
+            private string _key;
+            private float _alpha;
+
+            public Fade(TMP_Text text)
+            {
+                _text = text;
+                Reset();
+            }
+
+            public string Text => _text.gameObject.activeSelf ? _text.text : string.Empty;
+
+            public void Reset()
+            {
+                _key = null;
+                _alpha = 0f;
+                _text.gameObject.SetActive(false);
+            }
+
+            public void Show(string key, float step, Localizer localizer)
+            {
+                if (key != _key)
+                {
+                    _alpha = Mathf.Max(0f, _alpha - step);
+                    if (_alpha <= 0f)
+                    {
+                        _key = key;
+                        _text.text = key != null && localizer != null ? localizer.Get(key) : key ?? string.Empty;
+                    }
+                }
+                else if (key != null)
+                {
+                    _alpha = Mathf.Min(1f, _alpha + step);
+                }
+
+                _text.alpha = _alpha;
+                _text.gameObject.SetActive(_key != null || _alpha > 0f);
+            }
         }
     }
 }

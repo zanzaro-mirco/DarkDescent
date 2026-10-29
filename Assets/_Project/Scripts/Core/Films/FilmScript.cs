@@ -56,6 +56,42 @@ namespace DarkDescent.Films
         /// <summary>La didascalia al secondo <paramref name="time"/>; null se l'inquadratura non ne ha.</summary>
         public string CaptionAt(float time) => ShotAt(time)?.CaptionKey;
 
+        /// <summary>Il titolo al secondo <paramref name="time"/>; null se l'inquadratura non ne ha.</summary>
+        public string TitleAt(float time) => ShotAt(time)?.TitleKey;
+
+        /// <summary>
+        /// Il tratto di una camera attorno al secondo <paramref name="time"/>: le inquadrature di fila con
+        /// la stessa camera sono un movimento solo, che va da <paramref name="start"/> a
+        /// <paramref name="end"/>, anche se la didascalia cambia. Falso prima dell'inizio e dopo la fine.
+        /// </summary>
+        public bool CameraSpan(float time, out string camera, out float start, out float end)
+        {
+            camera = null;
+            start = end = 0f;
+            int index = _shots.FindIndex(shot => shot.Contains(time));
+            if (index < 0)
+            {
+                return false;
+            }
+
+            camera = _shots[index].Camera;
+            int first = index;
+            while (first > 0 && _shots[first - 1].Camera == camera)
+            {
+                first--;
+            }
+
+            int last = index;
+            while (last < _shots.Count - 1 && _shots[last + 1].Camera == camera)
+            {
+                last++;
+            }
+
+            start = _shots[first].Start;
+            end = _shots[last].End;
+            return true;
+        }
+
         /// <summary>
         /// Cosa non torna, una riga per errore; vuota se il filmato si può montare: la prima
         /// inquadratura comincia a 0, ognuna dove finisce la precedente, nessuna è vuota o senza

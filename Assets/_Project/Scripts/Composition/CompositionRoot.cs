@@ -69,6 +69,9 @@ namespace DarkDescent.Core
         [Tooltip("Il lettore dei filmati: bande, didascalie, salto (D9 della M19).")]
         [SerializeField] private Films.FilmPlayer _films;
 
+        [Tooltip("Il set dell'apertura, con la sua Timeline: parte a ogni partita nuova dal menu (D7 della M19).")]
+        [SerializeField] private Films.FilmSet _opening;
+
         [Tooltip("Musica, fondo e versi nel buio: cambiano con il livello (passo 7.0 della M7).")]
         [SerializeField] private AmbiencePlayer _ambience;
 
@@ -183,6 +186,9 @@ namespace DarkDescent.Core
         /// <summary>La cartella dei tre salvataggi invece di quella del gioco: per i test.</summary>
         public const string SaveFolderVariable = "DARKDESCENT_SAVE_DIR";
 
+        /// <summary>"1" fa vedere i filmati anche nell'editor: per i test dei filmati e per le foto.</summary>
+        public const string FilmsVariable = "DARKDESCENT_FILMS";
+
         // i tre posti del menu iniziale; null quando il gioco parte senza menu
         private SaveSlots _saves;
 
@@ -209,6 +215,10 @@ namespace DarkDescent.Core
 
         // il re è caduto per la prima volta a questa difficoltà: arrivati in città, la vittoria (D15 della M14)
         private bool _firstVictory;
+
+        // una partita nuova dal menu: arrivati nel borgo, l'apertura (D7 della M19); il set mentre gira
+        private bool _openingWanted;
+        private Films.FilmSet _set;
 
         // il boss del livello corrente, se c'è e non è ancora stato sconfitto (D8 della M10)
         private BossController _boss;
@@ -516,6 +526,7 @@ namespace DarkDescent.Core
             else
             {
                 StartInTown();
+                _openingWanted = FilmsWanted();
                 Debug.Log($"[DarkDescent] partita nuova nel posto {slot}");
             }
 
@@ -766,6 +777,51 @@ namespace DarkDescent.Core
             _automap.SetSpecials(_specialsOnMap);
             BindMerchant(level);
             BindAltar(level);
+
+            if (_openingWanted && level.IsTown)
+            {
+                _openingWanted = false;
+                PlayFilm(_opening, level);
+            }
+        }
+
+        /// <summary>Il filmato che gira adesso, con il suo set; null se non ce n'è.</summary>
+        public Films.FilmSet CurrentFilm => _set;
+
+        // i filmati si vedono nelle build; nell'editor, e quindi nei test, solo se un test lo chiede
+        private static bool FilmsWanted()
+        {
+            return !Application.isEditor || Environment.GetEnvironmentVariable(FilmsVariable) == "1";
+        }
+
+        // il set si monta nel livello appena arrivato e si smonta quando il filmato finisce o si salta
+        private void PlayFilm(Films.FilmSet prefab, LevelContext level)
+        {
+            if (prefab == null || _set != null)
+            {
+                return;
+            }
+
+            _set = Instantiate(prefab);
+            _set.Build(level, _player.gameObject, _playerCamera);
+            _films.Finished += HandleFilmFinished;
+            if (!_films.Play(_set.Script, _set.Director))
+            {
+                HandleFilmFinished(_set.Script);
+            }
+        }
+
+        private void HandleFilmFinished(Films.FilmScript script)
+        {
+            _films.Finished -= HandleFilmFinished;
+            if (_set == null)
+            {
+                return;
+            }
+
+            _set.Teardown();
+            Destroy(_set.gameObject);
+            _set = null;
         }
 
         // il Crepuscolo non si scrive nel titolo: è il gioco di sempre (D15 della M14)

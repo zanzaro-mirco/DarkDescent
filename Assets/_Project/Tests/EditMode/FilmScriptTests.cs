@@ -1,6 +1,9 @@
 using System.Linq;
 using DarkDescent.Films;
+using DarkDescent.Localization;
 using NUnit.Framework;
+using UnityEditor;
+using UnityEngine;
 
 namespace DarkDescent.Tests
 {
@@ -57,6 +60,42 @@ namespace DarkDescent.Tests
             Assert.IsNull(script.CaptionAt(3f), "la seconda non ha didascalia");
             Assert.IsNull(script.ShotAt(-0.1f));
             Assert.IsNull(script.ShotAt(4f));
+        }
+
+        [Test, Description("Le inquadrature di fila con la stessa camera sono un movimento solo, anche se la didascalia cambia")]
+        public void CameraSpan_JoinsShotsWithTheSameCamera()
+        {
+            var script = Script(0f, 99f, new FilmShot(0f, 2f, "A", "film.uno"), new FilmShot(2f, 3f, "A", "film.due"), new FilmShot(5f, 1f, "B"));
+
+            Assert.IsTrue(script.CameraSpan(3f, out string camera, out float start, out float end));
+            Assert.AreEqual(("A", 0f, 5f), (camera, start, end));
+            Assert.IsTrue(script.CameraSpan(5.5f, out camera, out start, out end));
+            Assert.AreEqual(("B", 5f, 6f), (camera, start, end));
+            Assert.IsFalse(script.CameraSpan(6f, out _, out _, out _), "dopo la fine");
+        }
+
+        [Test, Description("L'apertura si monta: inquadrature in fila tra 40 e 60 s, camere che il set sa muovere, ogni didascalia e il titolo nelle due lingue")]
+        public void Opening_IsReady()
+        {
+            var opening = FilmLibrary.Opening;
+            CollectionAssert.IsEmpty(opening.Problems());
+            var cameras = new[]
+            {
+                FilmLibrary.NightCamera, FilmLibrary.GravesCamera, FilmLibrary.DawnCamera, FilmLibrary.ArrivalCamera,
+                FilmLibrary.AltarCamera, FilmLibrary.TitleCamera, FilmLibrary.DescentCamera,
+            };
+            CollectionAssert.IsSubsetOf(opening.Shots.Select(s => s.Camera).Distinct(), cameras);
+
+            var strings = StringTable.Parse(AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Data/Localization/Strings.csv").text);
+            var keys = opening.Shots.SelectMany(s => new[] { s.CaptionKey, s.TitleKey }).Where(k => k != null).Append(opening.TitleKey).ToArray();
+            Assert.Greater(keys.Length, 5);
+            foreach (string key in keys)
+            {
+                foreach (string language in new[] { "en", "it" })
+                {
+                    Assert.IsTrue(strings.TryGet(key, strings.IndexOf(language), out string text) && !string.IsNullOrWhiteSpace(text), $"{key} in {language}");
+                }
+            }
         }
     }
 }

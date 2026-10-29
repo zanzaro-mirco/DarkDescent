@@ -16,6 +16,9 @@ using DarkDescent.Stats;
 using DarkDescent.UI;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEditor.Recorder;
+using UnityEditor.Recorder.Encoder;
+using UnityEditor.Recorder.Input;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
@@ -81,6 +84,7 @@ namespace DarkDescent.Tests
         {
             Time.timeScale = 1f;
             Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, null);
+            Environment.SetEnvironmentVariable(CompositionRoot.FilmsVariable, null);
             Environment.SetEnvironmentVariable(CompositionRoot.SaveFolderVariable, null);
             PlayerPrefs.DeleteKey(RetroFilter.Preference);
             yield return null;
@@ -472,6 +476,117 @@ namespace DarkDescent.Tests
             yield return Settle();
             yield return Snap("set_dawn");
         }
+
+        [UnityTest, Timeout(300000), Description("L'apertura (19.4): una foto per scena, con le bande e le didascalie, dalla partita nuova del menu")]
+        public IEnumerator Opening()
+        {
+            ForgetPreferences();
+            PlayerPrefs.SetString(CompositionRoot.LanguagePreference, "it");
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            Environment.SetEnvironmentVariable(CompositionRoot.FilmsVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            var films = Root.Films;
+            for (float t = 0f; !films.IsPlaying; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 10f, "l'apertura non parte");
+                yield return null;
+            }
+
+            // il filmato fermo all'istante di ogni foto: il tempo del gioco a 0, la Timeline portata lì
+            var director = Root.CurrentFilm.Director;
+            Time.timeScale = 0f;
+            foreach (var (name, time) in OpeningShots)
+            {
+                director.time = time;
+                director.Evaluate();
+                yield return new WaitForSecondsRealtime(1.6f);
+                yield return Snap(name, world: false);
+            }
+
+            Time.timeScale = 1f;
+            films.Press();
+            films.Press();
+            yield return Frames(3);
+            Assert.IsFalse(films.IsPlaying);
+            Assert.IsNull(Root.CurrentFilm, "il set smontato");
+            ForgetPreferences();
+        }
+
+        [UnityTest, Timeout(300000), Description("Il video dell'apertura (D12): MP4 1920x1080 a 30 fotogrammi, dall'inizio fino alla camera del gioco")]
+        public IEnumerator OpeningVideo()
+        {
+            ForgetPreferences();
+            PlayerPrefs.SetString(CompositionRoot.LanguagePreference, "it");
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            Environment.SetEnvironmentVariable(CompositionRoot.FilmsVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            var films = Root.Films;
+            for (float t = 0f; !films.IsPlaying; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 10f, "l'apertura non parte");
+                yield return null;
+            }
+
+            // a tempo fisso: un fotogramma del video è un trentesimo di secondo del gioco, qualunque
+            // cosa costi disegnarlo
+            var settings = ScriptableObject.CreateInstance<RecorderControllerSettings>();
+            var movie = ScriptableObject.CreateInstance<MovieRecorderSettings>();
+            movie.name = "Opening";
+            movie.Enabled = true;
+            movie.EncoderSettings = new CoreEncoderSettings
+            {
+                Codec = CoreEncoderSettings.OutputCodec.MP4,
+                EncodingQuality = CoreEncoderSettings.VideoEncodingQuality.High,
+            };
+            movie.CaptureAudio = false;
+            movie.ImageInputSettings = new GameViewInputSettings { OutputWidth = Width, OutputHeight = Height };
+            movie.OutputFile = Path.Combine(_folder, "opening");
+            settings.AddRecorderSettings(movie);
+            settings.SetRecordModeToManual();
+            settings.FrameRatePlayback = FrameRatePlayback.Constant;
+            settings.FrameRate = 30f;
+            settings.CapFrameRate = true;
+            var recorder = new RecorderController(settings);
+            recorder.PrepareRecording();
+            Assert.IsTrue(recorder.StartRecording(), "Recorder non parte");
+            Root.CurrentFilm.Director.time = 0d;
+            while (films.IsPlaying)
+            {
+                yield return null;
+            }
+
+            // la sfumatura nella camera del gioco
+            yield return new WaitForSeconds(2.5f);
+            recorder.StopRecording();
+            yield return Frames(5);
+            Object.Destroy(movie);
+            Object.Destroy(settings);
+            Assert.IsTrue(File.Exists(Path.Combine(_folder, "opening.mp4")));
+            ForgetPreferences();
+        }
+
+        private static readonly (string Name, float Time)[] OpeningShots =
+        {
+            ("opening_1_night", 1.5f),
+            ("opening_1_out", 8f),
+            ("opening_2_rise", 15f),
+            ("opening_2_flee", 18.5f),
+            ("opening_3_dawn", 26f),
+            ("opening_4_arrival", 33f),
+            ("opening_4_altar", 40f),
+            ("opening_5_title", 44.5f),
+            ("opening_5_descent", 49.5f),
+        };
 
         // per le scene senza il cavaliere: il cavaliere, la sua luce e l'interfaccia spariscono
         private static void HideHeroAndHud()

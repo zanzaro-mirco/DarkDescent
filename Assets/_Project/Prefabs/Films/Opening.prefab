@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1881791458775899335
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 464476542211742514}
+  - component: {fileID: 4061792596824327344}
+  - component: {fileID: 2473691579526569937}
+  m_Layer: 0
+  m_Name: Opening
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &464476542211742514
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881791458775899335}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!320 &4061792596824327344
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881791458775899335}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 191ef4ea22a5a1d4a9e036b7121d126b, type: 2}
+  m_InitialState: 0
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings: []
+  m_ExposedReferences:
+    m_References: []
+--- !u!114 &2473691579526569937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881791458775899335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef6d7ece82e8c834194e430bb4dd2df9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Films.OpeningSet
+  _skeletons:
+  - {fileID: 544816584095552241, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+  - {fileID: 8346990207950622580, guid: a9636a3b48ea36b408f0be301c2d1757, type: 3}
+  - {fileID: 544816584095552241, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+  _lantern: {fileID: 2682761666076986913, guid: 4ddd9440b23564c4a9af1e0650f0f5dc, type: 3}
+  _graveDug: {fileID: 8362709800215212447, guid: da777d891798d8e44baadbbeb26eafe1, type: 3}
+  _candle: {fileID: 5543971898785984238, guid: 08878205bbbebcb44a9b9ae4436441f3, type: 3}
+  _candleLit: {fileID: 6557783543294966680, guid: 4cb05e42e6d3af64786402ed2e0b61f3, type: 3}
+  _idle: {fileID: -5624545281902316504, guid: c37d4b3e76794444bb5be94b4cef81d9, type: 3}
+  _walk: {fileID: 7060811993321468294, guid: 1cc861e7ab1b2414ca005fbf852e746a, type: 3}
+  _run: {fileID: 3543698089625107784, guid: 1cc861e7ab1b2414ca005fbf852e746a, type: 3}
+  _hold: {fileID: -8256903289916493199, guid: 173f0442b296fc84b83eae2e414e38b2, type: 3}
+  _interact: {fileID: 1701519168366769839, guid: c37d4b3e76794444bb5be94b4cef81d9, type: 3}
+  _wave: {fileID: 3848355206397108983, guid: fee20a2cc9106a34bb85eee4d9a92f5c, type: 3}
+  _awaken: {fileID: -5207089531524238507, guid: f8740c715a65f024898d080d7a2a9841, type: 3}
+  _skeletonWalk: {fileID: -3442526711835081435, guid: f8740c715a65f024898d080d7a2a9841, type: 3}
+  _handSlot: handslot.r

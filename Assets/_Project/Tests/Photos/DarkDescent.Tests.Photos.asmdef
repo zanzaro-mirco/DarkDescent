@@ -10,6 +10,9 @@
         "Unity.TextMeshPro",
         "Unity.AI.Navigation",
         "Unity.InputSystem.TestFramework",
+        "Unity.Recorder",
+        "Unity.Recorder.Base",
+        "Unity.Recorder.Editor",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
