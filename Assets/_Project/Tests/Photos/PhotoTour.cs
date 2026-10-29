@@ -393,6 +393,20 @@ namespace DarkDescent.Tests
 
             yield return Settle();
             yield return Snap("crypt_tunnel");
+
+            // il cunicolo vuoto e senza interfaccia: la prima immagine dello stacco della vittoria (D8 e D11 della M19)
+            foreach (var part in Hero.GetComponentsInChildren<Renderer>())
+            {
+                part.enabled = false;
+            }
+
+            foreach (var canvas in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None).Where(c => c.isRootCanvas && c.renderMode != RenderMode.WorldSpace))
+            {
+                canvas.enabled = false;
+            }
+
+            yield return Frames(3);
+            yield return Snap("crypt_tunnel_empty");
         }
 
         private static IEnumerator Frames(int count)

@@ -196,6 +196,30 @@ fino in fondo) e il **1905** per la vittoria (30 s, re maggiore, che finisce da 
 Sono in `Audio/Music/` come `film_opening.ogg` e `film_victory.ogg`, in 2D, e nei crediti. La riserva
 CC0 non serve.
 
+**I video (D11): non entra niente, tutto resta nel motore.** Circa un'ora di prove, in tre giri:
+- **le foto:** il fuoco del borgo con i paesani, la bocca della grotta di giorno e il cunicolo nella
+  cripta, prima con il cavaliere e poi vuoto, senza interfaccia. Lo scatto `crypt_tunnel_empty` è entrato
+  in `PhotoTour.CaveAndTunnel` e servirà allo stacco della vittoria;
+- **LTX-Video 2B 0.9.8:** una clip di 4–5 s in 18–20 s. Su quindici tentativi, anche con i passi del
+  modello distilled, cambia scena, muove la camera, inventa sottotitoli e fari;
+- **Wan 2.2 TI2V 5B:** 9 minuti a clip, con 9,5 GB di VRAM su 12. Tiene ferma la scena, ma mette gli
+  effetti nel posto sbagliato: il fumo è una nuvola piatta che esce dalla testa del cavaliere, la luce
+  cade dall'alto invece di uscire dal cunicolo, e il cavaliere diventa una sagoma bianca.
+
+**Le lezioni.**
+- Questi modelli sono addestrati per fare cinema: vogliono muovere la camera e cambiare inquadratura.
+  Un effetto piccolo, in un punto preciso di una scena ferma e stilizzata, è il caso in cui riescono
+  peggio. Le ricette ufficiali di LTX mettono perfino "video game, cartoon" nella frase negativa.
+- I modelli che ho scelto erano i più piccoli e i più vecchi della loro famiglia. ComfyUI ha già le
+  ricette di Wan 2.2 I2V 14B e di LTX-2.3 e LTX-2.5 (22B, luglio 2026), ma su questo PC non ci stanno:
+  12 GB di VRAM e 31 GB di RAM, contro i 14,3 GB per ognuna delle due parti di Wan 14B e i 19–21 GB
+  di LTX-2.5 più il codificatore del testo. **Prima di proporre un modello si fanno i conti con la VRAM
+  e la RAM del PC, non solo con il disco.**
+- I file di Wan 5B e di LTX 2B (25,6 GB) sono nel Cestino, su richiesta di Mirco; ACE-Step resta.
+
+La luce che entra dal cunicolo, il fumo e la polvere si fanno nel motore, con luci e particelle, al
+19.4 e al 19.5.
+
 ---
 
 ## Checklist di chiusura
