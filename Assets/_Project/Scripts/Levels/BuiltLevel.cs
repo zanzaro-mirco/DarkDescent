@@ -13,6 +13,9 @@ namespace DarkDescent.Levels
     {
         private NavMeshData _navMesh;
 
+        /// <summary>Quanto è costato il livello, in millisecondi: generazione (o lettura della mappa), costruzione, NavMesh (D4 della M6).</summary>
+        public (long generate, long build, long bake) Timings { get; protected set; }
+
         /// <summary>Costruisce il livello alla profondità chiesta, una volta sola; le chiamate dopo la prima restituiscono quello.</summary>
         public abstract LevelContext Build(ulong runSeed, int depth);
 

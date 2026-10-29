@@ -9,6 +9,24 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.6 — M18 "Il borgo"**, chiusa il 29 ottobre 2026 (tag `v1.6.0`). Rispetto alla v1.5:
+
+- si comincia in un **borgo** all'aperto al posto dell'accampamento sotto terra: la piazza con il
+  fuoco, case, taverna, cappella con l'altare, il cimitero con la cripta, un bosco attorno;
+- il **giorno che passa** con il tempo di gioco: alba, giorno, tramonto e notte, con nebbia,
+  finestre e lanterne che si accendono al buio;
+- si scende da una **grotta** in fondo a una gola tra i monti, e alla profondità 1 si arriva da un
+  **cunicolo** nel muro della prima stanza;
+- **tre banchi**: il **fabbro** alla forgia vende e compra armi, armature e scudi, il **mercante**
+  anelli, amuleti e pergamene, la **guaritrice** le pozioni, e riempie vita e mana gratis a chi
+  la raggiunge;
+- **abitanti** seduti attorno al fuoco, uno che saluta chi arriva; il fuoco, il vento e i corvi;
+- una partita salvata nell'accampamento continua nel borgo;
+- i **tempi di costruzione** di borgo, cripta e caverne misurati in build, con
+  `-benchmark-levels`.
+
+![Il borgo di giorno: la piazza con il fuoco e gli abitanti seduti attorno, il banco del mercante, il pozzo e le case con i tetti colorati](docs/media/m18/15_abitanti.jpg)
+
 **v1.5 — M17 "Una pelle nuova"**, chiusa il 27 ottobre 2026 (tag `v1.5.0`). Rispetto alla v1.4:
 
 - **pannelli e pulsanti** nello stile scuro e pulito: uno sfondo di cuoio scuro, una cornice sottile in
@@ -153,12 +171,13 @@ Milestone precedenti:
 - click sinistro sul pavimento per muoversi; tenendo premuto, il personaggio segue il cursore
 - click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo.
   Il nemico sotto il cursore ha un cerchio rosso a terra, e in alto il suo nome e la sua vita
-- click sinistro sulla scala per scendere al livello successivo
+- click sinistro sulla scala per scendere al livello successivo; nel borgo, sulla grotta
+- click sinistro su fabbro, mercante o guaritrice per aprire il loro banco
 - click sinistro su un oggetto a terra per raccoglierlo, su una cassa per aprirla
 - `1`–`8` bevono la pozione in quel posto della cintura; click destro su una pozione,
   nella cintura o nell'inventario, per berla, o su una pergamena per imparare l'incantesimo
 - `T`, o un click sul posto a sinistra della cintura, lancia la **magia del portale** (10 di
-  mana): apre un portale per l'accampamento. Non serve in città, e nella sala del re non funziona
+  mana): apre un portale per il borgo. Non serve in città, e nella sala del re non funziona
   finché il re è vivo
 - con il mouse sopra la sfera della vita o del mana si legge quanto resta; un'opzione li lascia
   sempre scritti
@@ -178,16 +197,17 @@ Milestone precedenti:
   opzioni o si salva per tornare al menu iniziale
 
 Il gioco parte da un **menu iniziale**: *Continua* riprende l'ultima partita, *Nuova partita*
-comincia nell'**accampamento** all'ingresso della cripta, da cui la scala scende al primo livello
-e dove il **mercante** vende pozioni e oggetti e compra quelli della borsa (click destro); nel dungeon
-la magia del portale apre un portale per l'accampamento, e lì un portale riporta dove lo si era aperto.
+comincia nel **borgo** sopra la cripta, da cui la grotta scende al primo livello. Lì il **fabbro**
+vende armi, armature e scudi, il **mercante** anelli e amuleti, la **guaritrice** le pozioni e cura
+gratis; ognuno compra dalla borsa (click destro) solo la sua merce. Nel dungeon la magia del portale
+apre un portale per il borgo, e lì un portale riporta dove lo si era aperto.
 e *Carica* usano tre posti di salvataggio (`save_1.json`…`save_3.json` nella cartella dei dati
 dell'applicazione), che si possono anche cancellare. Nelle **opzioni** ci sono la lingua
 (inglese, italiano), i volumi generale, della musica e degli effetti, i nomi degli oggetti
 a terra sempre visibili, i numeri di vita e mana sempre visibili e il filtro retrò (spento,
 leggero, pieno); tutto resta per gli avvii successivi. In fondo alle caverne, alla
 profondità 8, aspetta nella sua sala il **Re delle ossa**: entrati, la porta si chiude finché
-uno dei due non cade. Morto il re, il portale della vittoria porta all'accampamento, alle statistiche
+uno dei due non cade. Morto il re, il portale della vittoria porta al borgo, alle statistiche
 della partita e ai riconoscimenti; la partita resta salvata e si può riscendere.
 
 **Opzioni da riga di comando:**
@@ -198,7 +218,9 @@ della partita e ai riconoscimenti; la partita resta salvata e si può riscendere
 - `-newgame` salta il menu e comincia una partita nuova che non si salva (anche `-seed`)
 - `-benchmark risultati.txt`, con `-seed`: il cavaliere gira da solo per città, cripta, caverne e
   scontro con il re misurando i frame; i risultati vanno nel log e nel file, poi il gioco si chiude.
-  `-benchmark-seconds 5` accorcia i tratti, `-benchmark-fps 30` mette un tetto agli fps
+  `-benchmark-seconds 5` accorcia i tratti, `-benchmark-fps 30` mette un tetto agli fps.
+  Con `-benchmark-levels 20` misura invece quanto costa costruire il borgo, la cripta alle
+  profondità 1 e 4 e le caverne all'8, con 20 semi ciascuno: la media e il peggiore
 
 ## CI
 
@@ -229,7 +251,7 @@ Un run alla volta in tutto il repo, perché la licenza ha pochi posti di attivaz
 
 - **Scene.** `Core` resta sempre caricata, con cavaliere, camera, HUD, menu e `LevelManager`; i
   livelli si caricano sopra, uno alla volta (ADR-014).
-  Accampamento, cripta e caverne li monta a runtime un solo `LevelBuilder`, da mappe di testo o
+  Il borgo, la cripta e le caverne li monta a runtime un solo `LevelBuilder`, da mappe di testo o
   dai generatori (BSP per la cripta, random walk per le caverne), con il NavMesh cotto dai
   collider (ADR-033, ADR-035, ADR-074).
 - **Logica pura in `Core`.** Due assembly: `DarkDescent.Core` (`Scripts/Core/`) ha logica e dati
@@ -247,8 +269,8 @@ Un run alla volta in tutto il repo, perché la licenza ha pochi posti di attivaz
 - **Dati.** Oggetti, incantesimi, tabelle del loot e impostazioni dei generatori sono
   ScriptableObject immutabili; un oggetto nel salvataggio è solo il suo ID (ADR-022, ADR-064).
 - **Salvataggio versionato.** JSON scritto per sostituzione in tre posti, con il numero del formato
-  e una migrazione un passo alla volta; oggi è al formato 5, con i ricordi dei livelli lasciati
-  (ADR-061, ADR-062, ADR-079).
+  e una migrazione un passo alla volta; oggi è al formato 7, con i ricordi dei livelli lasciati, le difficoltà e i valori di unici
+  e set (ADR-061, ADR-062, ADR-079, ADR-111).
 
 Le decisioni, con il contesto e le alternative scartate, sono in [DECISIONS.md](DECISIONS.md).
 

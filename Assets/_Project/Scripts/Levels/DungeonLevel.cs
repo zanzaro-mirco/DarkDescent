@@ -24,9 +24,6 @@ namespace DarkDescent.Levels
 
         private LevelContext _context;
 
-        /// <summary>Quanto è costato l'ultimo livello, in millisecondi: generazione, costruzione, NavMesh (D4).</summary>
-        public (long generate, long build, long bake) Timings { get; private set; }
-
         /// <summary>L'ingresso da cui si entra in un livello generato senza scale: quello della profondità 1 o quello in cima.</summary>
         public static string EntranceAt(int depth)
         {

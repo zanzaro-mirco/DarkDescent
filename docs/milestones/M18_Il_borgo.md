@@ -443,12 +443,86 @@ che fotografa ogni banco da fuori e con la finestra aperta.
 
 ---
 
+## Passo 18.7 — Misura e chiusura
+
+**Com'è andata (29 ott 2026).** Misure su una build Windows fatta in locale da questo commit, sul PC
+di sviluppo (Intel Core Ultra 9 275HX, RTX 5070 Ti Laptop, Direct3D 12), a 1920×1080 in finestra,
+qualità PC, senza vSync.
+
+| Misura (D16) | v1.5.0 | v1.6.0 |
+|---|---|---|
+| Build Windows compressa come l'artefatto della CI | 54,55 MB (artefatto del run 40497415082) | 56,73 MB, la build locale compressa allo stesso modo (+2,18, limite +20) |
+| Borgo, a regime (`-benchmark`, 20 s) | — | 531 fps, 1,88 ms a frame, il 99% sotto 2,57 ms (limite 60 fps) |
+| Borgo, costruzione | — | 17,3 ms in media, 19 il peggiore (limite 300) |
+
+Il borgo è il livello più pesante da disegnare: 1311 batch e 437 mila triangoli, contro i 372–619 batch
+e i 125–304 mila triangoli di cripta e caverne. Resta comunque sotto i 2 ms a frame.
+
+**I tempi dei livelli** (D19), con il nuovo `-benchmark-levels 20`: ogni livello costruito con 20 semi,
+dalla scena caricata ai nemici accesi sul NavMesh.
+
+| Livello | Generazione | Costruzione | NavMesh | Totale medio | Il peggiore |
+|---|---|---|---|---|---|
+| Borgo (la mappa letta) | 0,0 | 7,3 | 10,1 | 17,3 ms | 19 ms |
+| Cripta, profondità 1 | 2,8 | 5,2 | 7,7 | 15,7 ms | 30 ms |
+| Cripta, profondità 4 | 2,7 | 5,7 | 9,0 | 17,4 ms | 20 ms |
+| Caverne, profondità 8 | 2,1 | 5,2 | 10,2 | 17,5 ms | 27 ms |
+
+Tutti stanno sotto i 50 ms della D4 della M6 e i 150 ms della ronda: non serve aprire voci per
+accorciarli. Il peggiore di ogni livello è il primo seme, quando il codice gira per la prima volta. Alla
+M6 i livelli costavano 12–44 ms: da allora sono arrivati arredi, trappole, macchie e cunicolo, e la media
+è rimasta sotto i 20. `MapLevel` ora scrive i suoi tempi come `DungeonLevel`, e `Timings` sta in
+`BuiltLevel`.
+
+**La chiusura.**
+- ADR-118…122 in `DECISIONS.md`.
+- Le lezioni nel piano (v2.68).
+- Il README con la v1.6 e il borgo, la grotta e i banchi dove prima c'era l'accampamento. Corretto
+  anche il formato del salvataggio, che era rimasto al 5.
+- Le foto di fabbro e guaritrice rifatte con il martello definitivo.
+- Le prove sulla build in `docs/Da_provare.md`.
+- `bundleVersion` 1.6.0.
+
+## Trappole note
+
+- **Medieval Hexagon è in miniatura.** I pezzi sono fatti per una mappa a esagoni: vanno ×6 perché la
+  porta sia alta quanto il cavaliere. Halloween Bits e Forest Nature sono già nella scala del gioco.
+- **`_keepsRotation` è l'identità.** Un prefab messo senza girarlo ha il +Z a nord come la mappa; non è
+  girato di 180°. Gli abitanti attorno al fuoco sono usciti specchiati la prima volta.
+- **I prefab rigenerati cambiano gli ID.** `VillagePrefabs.Build` riscrive tutti i prefab del borgo, e
+  `Barrels`, `CaveExit`, `TunnelMouth`, `VillageFire` e i materiali degli abitanti cambiano anche
+  quando non cambia niente: prima del commit si riportano com'erano.
+- **Un modello per due cose.** Il Barbarian dà l'elmo d'orso con il suo materiale importato e ora il
+  fabbro con il suo avatar: l'importer non lo tratta come gli altri personaggi, che hanno i materiali
+  spenti.
+- **Nei test, lontano dalle uscite.** Portare il cavaliere sul punto d'arrivo della grotta lo fa
+  scendere nella cripta, e il borgo sparisce a metà del test.
+- **Lo sbocco del cunicolo ha due bracieri.** Tremano come le torce: chi conta le torce del livello
+  li deve escludere.
+- **La PlayMode intera in locale vuole `-testCategory "!Nightly"`.** Senza il filtro l'assembly
+  PlayMode fa partire anche la partita lunga della ronda.
+
+## Test
+
+- EditMode: il giorno che passa (`DayCycleTests`), i pezzi della mappa (`MapPieceTests`), il borgo
+  (`TownMapTests`: simboli, pezzi rettangolari, strade davanti, i cammini dal portale sotto i 10 s),
+  la grotta e il cunicolo su 40 semi (`CaveTunnelTests`), il saluto (`GreetingTests`), i tre banchi
+  (`ShopTests`), lo sparso e la sagoma, l'import dei pacchetti.
+- PlayMode: una partita nuova comincia nel borgo e ha il suo nome; il borgo cambia luce con il tempo
+  di gioco; la grotta porta alla profondità 1 davanti allo sbocco; gli abitanti salutano; il
+  salvataggio dell'accampamento continua nel borgo; fabbro, guaritrice e mercante aprono i loro
+  banchi, la guaritrice cura, ognuno compra solo la sua merce.
+- Giro di foto: `VillageDay`, `CaveAndTunnel`, `VillageShops`.
+- Ronda: non cambia. Lo sbocco del cunicolo non tocca i semi.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)
 - [x] I download approvati: i pacchetti del borgo
-- [ ] La disposizione e il borgo finito approvati da Mirco in foto
+- [x] La disposizione e il borgo finito approvati da Mirco in foto
 - [ ] Test EditMode e PlayMode verdi in locale e in CI
-- [ ] La build misurata dentro il limite della D16, i tempi dei livelli misurati (D19)
-- [ ] ADR, lezioni nel piano, README, `CREDITS.md` e `Data/Credits.txt`
+- [x] La build misurata dentro il limite della D16, i tempi dei livelli misurati (D19)
+- [x] ADR, lezioni nel piano, README, `CREDITS.md` e `Data/Credits.txt`
 - [ ] `bundleVersion` 1.6.0 e tag `v1.6.0` dopo i test verdi in CI

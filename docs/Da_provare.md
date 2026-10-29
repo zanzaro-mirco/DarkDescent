@@ -4,7 +4,24 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 27 ott 2026, build della M17 da provare (passo 17.7, run 40490509049).
+Ultimo aggiornamento: 29 ott 2026, build della M18 da provare (passo 18.7, la build del tag `v1.6.0`).
+
+## Dalla M18 — "Il borgo" (v1.6.0)
+
+- **Il borgo**: si cammina bene tra le case, o qualche pezzo blocca la strada? La sagoma ocra si
+  vede quando una casa o un albero coprono il cavaliere?
+- **Il giorno che passa**: un giro dura 20 minuti. Alba, tramonto e notte sono leggibili? Le
+  finestre e le lanterne si accendono al buio?
+- **La grotta**: si trova, si clicca bene e si accende sotto il cursore? Alla profondità 1 lo
+  sbocco del cunicolo sta nel muro, e si capisce che si è arrivati da lì?
+- **Gli abitanti**: quello in piedi saluta quando si arriva dall'ingresso o dal portale?
+- **Il suono del borgo**: fuoco e vento sotto la musica, il corvo ogni tanto. Il giro di 15 s si
+  sente?
+- **I tre banchi**: il fabbro alla forgia, il mercante, la guaritrice sulla soglia. Ognuno ha la sua
+  merce e il suo nome sulla finestra? Un oggetto offerto al banco sbagliato dice "Non compra questo
+  oggetto"? La guaritrice riempie vita e mana?
+- **Un salvataggio della v1.5** fatto nell'accampamento: continua nel borgo, con oro, oggetti e
+  portale aperto?
 
 ## Dalla M17 — "Una pelle nuova" (v1.5.0)
 
@@ -17,7 +34,7 @@ Ultimo aggiornamento: 27 ott 2026, build della M17 da provare (passo 17.7, run 4
 - **Le macchie a terra** in cripta e caverne: si notano senza disturbare? Troppe, poche, troppo
   accese (il muschio)? Con il filtro retrò reggono?
 - **La morte e la vittoria** con gli sfondi (la vittoria è la sala del re presa dal gioco, in attesa
-  del filmato della M18); *Continua* dalla vittoria lascia giocare in città e porta all'altare.
+  del filmato della M19); *Continua* dalla vittoria lascia giocare in città e porta all'altare.
 
 ## Dalla M16 — "Tesori con un nome" (v1.4.0)
 

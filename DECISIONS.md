@@ -842,3 +842,38 @@ Formato:
 - **Decisione:** `CreditsPanel` diventa un pannello del menu, aperto dal pulsante *Riconoscimenti* al posto dei pulsanti, con lo stesso testo da `CREDITS.md`. `VictoryScreen` ha due esiti: *Continua* (`Continued`) chiude e si resta in città, *Menu principale* (`Finished`) salva e torna al menu come prima. Il menu iniziale ha i pulsanti in una colonna a sinistra con un layout verticale, e le opzioni sono per gruppi.
 - **Alternative scartate:** lasciare i riconoscimenti anche nella vittoria, che allunga la schermata; un pulsante dei riconoscimenti nella pausa, che a metà partita non serve.
 - **Conseguenze:** dopo la vittoria si può tornare all'altare e scegliere la difficoltà dopo senza passare dal menu.
+
+## ADR-118 — Il borgo resta una mappa di testo, con i pezzi più grandi di una cella
+- **Data:** 2026-10-27 (passo 18.2, D2, D3 e D4 della M18)
+- **Contesto:** l'accampamento era una sala di 13 × 10 celle, costruita da `Town.txt` con lo stesso `LevelBuilder` della cripta. Il borgo ha case, cappella e monti grandi più di una cella, il paesaggio oltre il bordo e strade su cui si cammina, e doveva restare facile da ritoccare e da provare.
+- **Decisione:** tre segni nuovi nel formato della mappa. I simboli elencati in `@solid` sono pezzi: non si cammina sulla loro cella, non vogliono muri attorno e coprono le celle `%` accanto. `:` è terreno aperto senza muretto. `MapPiece`, logica pura in `Core`, trova le celle di un pezzo, il suo centro e il lato della porta, quello in cui sta il simbolo. `VillagePrefabs.Build` fa i prefab da una tabella di modelli KayKit scalati e posati, e il tileset che li lega ai simboli. Fabbro e guaritrice sono simboli come il mercante.
+- **Alternative scartate:** una scena fatta a mano nell'editor, che perde l'automappa e non si legge in un diff; il Terrain di Unity, che non si lega alla griglia e al NavMesh dei livelli; un formato a parte per il borgo, con un secondo builder da tenere.
+- **Conseguenze:** spostare una casa è cambiare un carattere. I test leggono la mappa: ogni pezzo è un rettangolo, ogni edificio ha una strada davanti, dal portale a banchi, altare e grotta si arriva in meno di 10 s. Un prefab rigenerato cambia gli ID interni anche quando non cambia niente, e va riportato com'era prima del commit.
+
+## ADR-119 — Il giorno che passa viene dal tempo di gioco, e la luce sta in un asset
+- **Data:** 2026-10-27 (passo 18.3, D5 della M18)
+- **Contesto:** il borgo all'aperto voleva alba, giorno, tramonto e notte. La luce doveva essere la stessa dopo un caricamento, nelle foto e nei test.
+- **Decisione:** `DayCycle`, logica pura, dà il momento e la miscela dal tempo di gioco della partita, già salvato: un giro di 20 minuti, la partita nuova comincia di giorno. `DayLighting` (ScriptableObject) tiene sole, luce ambiente, nebbia e colore dell'immagine dei quattro momenti. `DayCycleView` li applica solo nel borgo, e `NightLight` accende finestre e lanterne dal tramonto all'alba. La cripta resta com'era.
+- **Alternative scartate:** l'ora del computer, che cambia la luce tra due partite uguali e fa fallire le foto; luci cotte per ogni momento, quattro bake e una scena per momento; un giorno anche sotto terra, dove non si vede.
+- **Conseguenze:** stesso tempo, stessa luce: i test fissano il tempo e controllano sole, nebbia e luci accese. Ritoccare un momento è cambiare un valore dell'asset. Il formato del salvataggio non cambia.
+
+## ADR-120 — Lo sbocco del cunicolo in un muro, scelto sulla disposizione e senza tiri del seme
+- **Data:** 2026-10-28 (passo 18.4, D7 della M18)
+- **Contesto:** dalla grotta del borgo si arriva alla profondità 1 della cripta, e lì serviva da dove si è arrivati. La prima versione stava in mezzo alla stanza; Mirco l'ha voluta sempre in un muro. I livelli dei semi fissi non dovevano cambiare.
+- **Decisione:** `TunnelSpot`, logica pura, sceglie la cella sulla disposizione già generata: un muro della stanza d'ingresso, nord e ovest prima, la cella più vicina all'ingresso, non d'angolo e con roccia dietro. La scelta viaggia nella direttiva `@arrival tunnel x y muro`, che `DungeonLevel` scrive solo alla profondità 1. `LevelBuilder` mette lo sbocco al centro della cella, girato verso la stanza, e su quel bordo non mette il muro né la torcia.
+- **Alternative scartate:** una cella accanto all'ingresso in mezzo alla stanza, scartata da Mirco; un tiro del generatore, che consuma il seme e cambia mappe, arredi e loot dei semi già provati; uno sbocco anche alle altre profondità, dove si arriva da una scala.
+- **Conseguenze:** su 40 semi lo sbocco trova sempre un muro, e da ogni pavimento si arriva ancora all'ingresso. Mappe e loot dei semi fissi sono quelli di prima. Lo sbocco aggiunge due bracieri che tremano come le torce, e un test sulle torce ha dovuto imparare a non contarli.
+
+## ADR-121 — Tre banchi con una `Shop` sola e la sua merce, ognuno con il suo assortimento
+- **Data:** 2026-10-29 (passo 18.6, D18 della M18)
+- **Contesto:** nel borgo fabbro, guaritrice e mercante si dividono il negozio, come a Tristram. Gli 8 oggetti del mercante venivano da 19 basi, e solo 2 erano anelli e amuleti: dividerli avrebbe lasciato il mercante vuoto 4 volte su 10.
+- **Decisione:** `ShopGoods` dice cosa tratta un banco (armi, armature, gioielli, pozioni, pergamene) e `ItemGoods` lo legge dal tipo della definizione. `Shop` tiene sul banco e compra dalla borsa solo la sua merce; il resto è `TradeResult.NotWanted`. `Merchant` ha la merce, quanti oggetti tira e la cura. La tabella resta una: ogni banco tira solo dai suoi tipi (`MerchantTable.PickStock` con il filtro), con un flusso suo del seme (`SeedMixer.ForShop` con il banco). Il fabbro tira 8 oggetti, il mercante 4, la guaritrice ha le due pozioni e riempie vita e mana gratis. Una `ShopPanel` sola, con il nome del banco aperto.
+- **Alternative scartate:** dividere gli 8 oggetti di prima tra i banchi; tre tabelle, che ripetono le stesse basi; tre classi di negozio con tre finestre.
+- **Conseguenze:** a ogni ritorno ci sono circa 3 gioielli in più in vendita. Il banco che tratta tutto usa il seme di prima, e i test dell'assortimento non cambiano. Un test controlla che i tre prefab si dividano tutta la tabella senza sovrapporsi.
+
+## ADR-122 — Gli abitanti tengono la posa con un grafo di Playables, senza Animator Controller
+- **Data:** 2026-10-28 (passi 18.5 e 18.6, D9 e D18 della M18)
+- **Contesto:** abitanti seduti, uno che saluta, il fabbro che batte e la guaritrice che aspetta: una posa in loop, al più un gesto sopra. Un Animator Controller per ognuno sarebbe un asset in più da tenere per una o due clip.
+- **Decisione:** `Villager` costruisce un `PlayableGraph` con un mixer: la posa nel primo ingresso e, se c'è, il saluto nel secondo. Il peso lo dà `Greeting`, logica pura, quando il cavaliere entra nel trigger. Ognuno parte da un punto diverso del giro, preso dalla posizione. Le clip vengono dai rig KayKit con lo scheletro del cavaliere.
+- **Alternative scartate:** un Animator Controller per tipo di abitante; l'`Animation` legacy, che vuole clip legacy.
+- **Conseguenze:** un abitante nuovo è un modello e una clip nel prefab. Il grafo si distrugge in `OnDisable`. Il Barbarian del fabbro non aveva l'avatar, perché l'importer non lo contava tra i personaggi: ora glielo crea, e i materiali importati restano per l'elmo d'orso.

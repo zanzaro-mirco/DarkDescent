@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 
 namespace DarkDescent.Levels
 {
@@ -27,8 +29,20 @@ namespace DarkDescent.Levels
 
             // Instantiate e impostazioni di luce vanno nella scena attiva: dev'essere questa (trappola 4 della M6)
             SceneManager.SetActiveScene(gameObject.scene);
-            _context = new LevelBuilder(_tileset).Build(LevelMap.Parse(_map.text), activateEnemies: false);
+            var watch = Stopwatch.StartNew();
+            var map = LevelMap.Parse(_map.text);
+            long parsed = watch.ElapsedMilliseconds;
+
+            _context = new LevelBuilder(_tileset).Build(map, activateEnemies: false);
+            long built = watch.ElapsedMilliseconds;
+
             Bake(_context);
+            long baked = watch.ElapsedMilliseconds;
+
+            // il borgo deve stare sotto i 300 ms (D16 della M18)
+            Timings = (parsed, built - parsed, baked - built);
+            Debug.Log($"[DarkDescent] {gameObject.scene.name} costruito dalla mappa {_map.name}: "
+                + $"lettura {Timings.generate} ms, costruzione {Timings.build} ms, NavMesh {Timings.bake} ms");
             return _context;
         }
     }

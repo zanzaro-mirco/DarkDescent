@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using DarkDescent.Combat;
@@ -18,7 +19,8 @@ namespace DarkDescent.Diagnostics
     /// il cavaliere gira da solo per città, cripta, caverne e scontro con il re, combattendo chi trova e
     /// senza morire; per ogni tratto una riga con frame, main thread, allocazioni e rendering va nel log
     /// e, se dopo l'opzione c'è un percorso, in quel file. Poi il gioco si chiude. Si avvia con
-    /// <c>-seed</c>, che salta il menu e rende i livelli sempre uguali.
+    /// <c>-seed</c>, che salta il menu e rende i livelli sempre uguali. Con <c>-benchmark-levels</c>
+    /// misura invece quanto costa costruire i livelli (D19 della M18).
     /// </summary>
     public sealed class Benchmark : MonoBehaviour
     {
@@ -29,6 +31,15 @@ namespace DarkDescent.Diagnostics
 
         /// <summary>Un tetto agli fps, per una registrazione del Profiler che stia nella sua storia: <c>-benchmark-fps 30</c>.</summary>
         public const string FpsOption = "-benchmark-fps";
+
+        /// <summary>
+        /// Al posto del giro, i tempi dei livelli (D19 della M18): il borgo, la cripta alle profondità 1 e
+        /// 4 e le caverne alla 8, ognuno costruito con tanti semi quanti dice il numero (20 senza):
+        /// generazione, costruzione e NavMesh, in media e il peggiore. <c>-benchmark-levels 20</c>.
+        /// </summary>
+        public const string LevelsOption = "-benchmark-levels";
+
+        private const int DefaultLevelSeeds = 20;
 
         private const float DefaultStageSeconds = 20f;
         private const float SettleSeconds = 1.5f;
@@ -48,6 +59,7 @@ namespace DarkDescent.Diagnostics
         private Health _health;
         private string _path;
         private float _stageSeconds = DefaultStageSeconds;
+        private int _levelSeeds;
 
         private ProfilerRecorder _mainThread;
         private ProfilerRecorder _gcAlloc;
@@ -91,6 +103,13 @@ namespace DarkDescent.Diagnostics
             if (CommandLine.TryGetValue(args, FpsOption, out string fps) && int.TryParse(fps, out int cap) && cap > 0)
             {
                 Application.targetFrameRate = cap;
+            }
+
+            if (CommandLine.HasFlag(args, LevelsOption))
+            {
+                _levelSeeds = CommandLine.TryGetValue(args, LevelsOption, out string seeds) && int.TryParse(seeds, out int count) && count > 0
+                    ? count
+                    : DefaultLevelSeeds;
             }
         }
 
@@ -142,6 +161,16 @@ namespace DarkDescent.Diagnostics
                 }
 
                 yield return null;
+            }
+
+            if (_levelSeeds > 0)
+            {
+                yield return MeasureBuild("borgo", "Town", "Start", 0);
+                yield return MeasureBuild("cripta, profondità 1", "Level_Crypt", "Start", 1);
+                yield return MeasureBuild("cripta, profondità 4", "Level_Crypt", "FromAbove", 4);
+                yield return MeasureBuild("caverne, profondità 8", "Level_Caves", "FromAbove", 8);
+                Finish(null);
+                yield break;
             }
 
             yield return Measure("città", null, 0, false);
@@ -257,6 +286,72 @@ namespace DarkDescent.Diagnostics
             }
 
             string line = _stats.Describe(label);
+            _report.AppendLine(line);
+            Debug.Log("[DarkDescent] benchmark " + line);
+        }
+
+        // Lo stesso livello costruito con semi diversi: si entra, si leggono i tempi del BuiltLevel della
+        // scena e si passa al seme dopo. Il cavaliere resta a vita piena: tra un ingresso e l'altro
+        // non deve morire
+        private IEnumerator MeasureBuild(string label, string scene, string entrance, int depth)
+        {
+            var totals = new List<long>();
+            long generate = 0, build = 0, bake = 0, worst = -1;
+            ulong worstSeed = 0;
+            for (int i = 0; i < _levelSeeds; i++)
+            {
+                ulong seed = 1000UL + (ulong)i;
+                var previous = _levels.CurrentLevel;
+                _levels.RunSeed = seed;
+                _levels.LoadLevel(scene, entrance, depth);
+                for (float t = 0f; _levels.IsTransitioning || _levels.CurrentLevel == null || _levels.CurrentLevel == previous; t += Time.unscaledDeltaTime)
+                {
+                    if (t > LoadTimeout)
+                    {
+                        _report.AppendLine($"{label}: il livello del seme {seed} non arriva");
+                        yield break;
+                    }
+
+                    yield return null;
+                }
+
+                if (!_health.IsDead)
+                {
+                    _health.SetCurrent(_health.Max);
+                }
+
+                BuiltLevel built = null;
+                foreach (var root in _levels.CurrentLevel.gameObject.scene.GetRootGameObjects())
+                {
+                    if (root.TryGetComponent(out built))
+                    {
+                        break;
+                    }
+                }
+
+                if (built == null)
+                {
+                    _report.AppendLine($"{label}: la scena {scene} non si costruisce");
+                    yield break;
+                }
+
+                var (g, b, n) = built.Timings;
+                generate += g;
+                build += b;
+                bake += n;
+                long total = g + b + n;
+                totals.Add(total);
+                if (total > worst)
+                {
+                    worst = total;
+                    worstSeed = seed;
+                }
+            }
+
+            float count = totals.Count;
+            string line = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{0}: {1} semi, in media generazione {2:0.0} + costruzione {3:0.0} + NavMesh {4:0.0} = {5:0.0} ms, il peggiore {6} ms (seme {7})",
+                label, totals.Count, generate / count, build / count, bake / count, (generate + build + bake) / count, worst, worstSeed);
             _report.AppendLine(line);
             Debug.Log("[DarkDescent] benchmark " + line);
         }
