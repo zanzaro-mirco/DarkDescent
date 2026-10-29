@@ -451,7 +451,7 @@ qualità PC, senza vSync.
 
 | Misura (D16) | v1.5.0 | v1.6.0 |
 |---|---|---|
-| Build Windows compressa come l'artefatto della CI | 54,55 MB (artefatto del run 40497415082) | 56,73 MB, la build locale compressa allo stesso modo (+2,18, limite +20) |
+| Build Windows, artefatto della CI | 54,55 MB (run 40497415082) | 57,68 MB (run 40887505924, +3,13, limite +20); la build locale compressa allo stesso modo pesava 56,73 |
 | Borgo, a regime (`-benchmark`, 20 s) | — | 531 fps, 1,88 ms a frame, il 99% sotto 2,57 ms (limite 60 fps) |
 | Borgo, costruzione | — | 17,3 ms in media, 19 il peggiore (limite 300) |
 
@@ -522,7 +522,7 @@ M6 i livelli costavano 12–44 ms: da allora sono arrivati arredi, trappole, mac
 - [x] Decisioni D1–D19 confermate (D2, D5, D7, D18 e D19 scelte da Mirco)
 - [x] I download approvati: i pacchetti del borgo
 - [x] La disposizione e il borgo finito approvati da Mirco in foto
-- [ ] Test EditMode e PlayMode verdi in locale e in CI
+- [x] Test EditMode e PlayMode verdi in locale e in CI (Tests 40885125771)
 - [x] La build misurata dentro il limite della D16, i tempi dei livelli misurati (D19)
 - [x] ADR, lezioni nel piano, README, `CREDITS.md` e `Data/Credits.txt`
-- [ ] `bundleVersion` 1.6.0 e tag `v1.6.0` dopo i test verdi in CI
+- [x] `bundleVersion` 1.6.0 e tag `v1.6.0` dopo i test verdi in CI (build 40887505924, artefatto `DarkDescent-Windows-v1.6.0`)

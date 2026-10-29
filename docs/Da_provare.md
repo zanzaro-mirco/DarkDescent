@@ -4,7 +4,7 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 29 ott 2026, build della M18 da provare (passo 18.7, la build del tag `v1.6.0`).
+Ultimo aggiornamento: 29 ott 2026, build della M18 da provare (passo 18.7, run 40887505924, artefatto `DarkDescent-Windows-v1.6.0`).
 
 ## Dalla M18 — "Il borgo" (v1.6.0)
 

@@ -552,7 +552,7 @@ Chiusa il 26 ottobre 2026 con il tag `v1.4.0`: 466 test EditMode e 252 PlayMode 
 
 ### M18 — "Il borgo" ✅
 
-Chiusa il 29 ottobre 2026 con il tag `v1.6.0`: 517 test EditMode e 260 PlayMode verdi a ogni push, più quelli della ronda. Una build locale compressa come l'artefatto pesa 56,73 MB, 2,18 MB più della v1.5.0, dentro il limite di +20 MB della D16. Nel borgo, sul PC di sviluppo, 531 fps. I tempi dei livelli, misurati in build con 20 semi (D19), stanno tra 15,7 e 17,5 ms in media, il peggiore 30 ms, sotto i 50 della D4 della M6; il borgo si costruisce in 17 ms. La build non è ancora stata provata da Mirco: le prove sono in `docs/Da_provare.md`. Lezioni emerse:
+Chiusa il 29 ottobre 2026 con il tag `v1.6.0`: 517 test EditMode e 260 PlayMode verdi a ogni push, più quelli della ronda. La build della CI (40887505924) pesa 57,68 MB, 3,13 MB più della v1.5.0, dentro il limite di +20 MB della D16. Nel borgo, sul PC di sviluppo, 531 fps. I tempi dei livelli, misurati in build con 20 semi (D19), stanno tra 15,7 e 17,5 ms in media, il peggiore 30 ms, sotto i 50 della D4 della M6; il borgo si costruisce in 17 ms. La build non è ancora stata provata da Mirco: le prove sono in `docs/Da_provare.md`. Lezioni emerse:
 
 - **La foto prima del commit:** gli abitanti specchiati, il cunicolo in mezzo alla stanza, la grotta che sembrava un mucchio di macerie, il terreno a tinta unita sono saltati fuori dalle foto, non dai test. Il giro di foto nel gioco vero è diventato il modo di chiedere il sì a Mirco.
 - **Le immagini di riferimento valgono più delle parole:** la grotta e il cunicolo sono venuti bene solo quando Mirco ha mandato le immagini di quello che voleva.
