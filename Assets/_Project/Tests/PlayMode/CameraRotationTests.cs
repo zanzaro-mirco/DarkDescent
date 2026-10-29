@@ -26,7 +26,9 @@ namespace DarkDescent.Tests
             var walls = level.GetComponent<WallView>();
             Assert.IsNotNull(walls, "il livello generato ha muri per tutti e quattro i lati");
             Assert.AreEqual(0, walls.Facing, "si parte guardando a nord-est");
-            int torches = level.Map.Markers.Count(m => m.Symbol == DungeonPopulator.TorchSymbol);
+            // la torcia sulla cella dello sbocco del cunicolo non c'è: il suo muro manca (M18)
+            bool tunnel = TunnelSpot.TryRead(level.Map.GetDirective(LevelBuilder.ArrivalDirective), out var tunnelCell, out _);
+            int torches = level.Map.Markers.Count(m => m.Symbol == DungeonPopulator.TorchSymbol && !(tunnel && new Vector2Int(m.X, m.Y) == tunnelCell));
             Assert.Greater(torches, 0);
 
             var keyboard = InputSystem.AddDevice<Keyboard>();
@@ -95,7 +97,9 @@ namespace DarkDescent.Tests
             var far = Enumerable.Range(0, 4).Select(s => (MapDirection)s).Where(s => ViewRotation.IsFar(s, rotation.Facing)).Select(s => s.ToString()).ToList();
             CollectionAssert.AreEquivalent(far, high, $"lato {rotation.Facing}: muri alti fuori posto");
 
-            int lit = Object.FindObjectsByType<TorchFlicker>(FindObjectsSortMode.None).Count(t => t.transform.IsChildOf(level.transform));
+            // i bracieri dello sbocco tremano come le torce, ma non sono torce della mappa
+            int lit = Object.FindObjectsByType<TorchFlicker>(FindObjectsSortMode.None)
+                .Count(t => t.transform.IsChildOf(level.transform) && t.GetComponentsInParent<Transform>().All(p => p.name != LevelBuilder.EntranceMouthName));
             Assert.AreEqual(torches, lit, $"lato {rotation.Facing}: una torcia per ogni torcia della mappa");
 
             float mapYaw = automap.Corner.MapImage.rectTransform.parent.localEulerAngles.z;
