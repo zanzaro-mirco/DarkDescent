@@ -308,6 +308,17 @@ Test: `NamedCensusTests` (5: fasce a discesa, crescita con la difficoltà, conto
 veri, unici contro rari, set contro rari) e, nella ronda, `NamedCensus_OnNewSeeds` con 400 partite
 e 64 equipaggiamenti nuovi a notte. I numeri della tabella nei test del 16.3 seguono la taratura.
 
+**Ritocco del 29 ott 2026 (issue #5).** La ronda del 29 ottobre (seme `20261029`) ha trovato due
+unici sotto 1,3 al livello 35: la Zanna di Morvak a 1,29 e la Pelle dell'Ombra a 1,26. Con 64
+equipaggiamenti a notte la misura dello stesso unico cambia di qualche decimo da un seme all'altro, e
+quelle due righe stavano troppo vicine alla soglia.
+- **Zanna di Morvak:** velocità 28 → 44, critico 16 → 30, Destrezza 30 → 75, a colpire 30 → 75.
+- **Pelle dell'Ombra:** Destrezza 16 → 52, critico 6 → 16, velocità 12 → 20, Armatura 75 → 170%.
+
+Con le notti del 27, 28 e 29 ottobre, il rapporto più basso è tra 1,39 e 1,45. La riga più bassa ora è
+la Falce della Cripta al 35. Nei test di ogni push la Zanna al 35 è a 1,54 e la Pelle a 1,75. La ronda
+scrive nel log anche il confronto riga per riga.
+
 ## Passo 16.7 — Build da provare
 
 Build dalla CI su `c832894` (run 40239824483, artefatto `DarkDescent-Windows-main`), con test e build

@@ -164,6 +164,7 @@ namespace DarkDescent.Tests
 
             string describe = CensusChecks.DescribeNamed(tallies, table);
             Debug.Log($"[DarkDescent] ronda notturna, misura di unici e set: {describe}");
+            Debug.Log("[DarkDescent] ronda notturna, unici e set contro rari\n" + CensusChecks.DescribePower(rows));
             var errors = new[] { CensusChecks.NamedDrops(tallies), CensusChecks.NamedPower(rows) }.Where(e => e != null).ToList();
             double lowest = rows.Min(r => r.Ratio);
             NightlyReport.Append(NightlyReport.Part("Misura di unici e set", describe + $"; contro i rari il rapporto più basso è {lowest:F2} (almeno {CensusChecks.NamedOverRare:0.0})", errors));
