@@ -16,8 +16,9 @@ namespace DarkDescent.Editor
     /// carattere delle didascalie, e costruiscono dal codice il set di ogni filmato: la Timeline dalle
     /// inquadrature di <see cref="FilmLibrary"/>, il prefab con il regista e il set, legato al composition
     /// root. Si rifanno con un comando, anche in batchmode:
-    /// <c>-executeMethod DarkDescent.Editor.FilmTools.InstallPlayer</c> e
-    /// <c>-executeMethod DarkDescent.Editor.FilmTools.BuildOpening</c>.
+    /// <c>-executeMethod DarkDescent.Editor.FilmTools.InstallPlayer</c>,
+    /// <c>-executeMethod DarkDescent.Editor.FilmTools.BuildOpening</c> e
+    /// <c>-executeMethod DarkDescent.Editor.FilmTools.BuildVictory</c>.
     /// </summary>
     public static class FilmTools
     {
@@ -113,6 +114,78 @@ namespace DarkDescent.Editor
             EditorSceneManager.SaveScene(scene);
             AssetDatabase.SaveAssets();
             Debug.Log($"[DarkDescent] filmati: {script.Id}, {script.Shots.Count} inquadrature in {script.Duration:0.#} s");
+        }
+
+        /// <summary>
+        /// La vittoria (D8), in tre set: il re che cade nella sala, il cavaliere che entra nel portale, il
+        /// ritorno nel borgo all'alba. Per ognuno la Timeline e il prefab, legati al composition root.
+        /// </summary>
+        [MenuItem("DarkDescent/Filmati/Costruisci la vittoria")]
+        public static void BuildVictory()
+        {
+            foreach (var script in new[] { FilmLibrary.VictoryFall, FilmLibrary.VictoryLeave, FilmLibrary.VictoryReturn })
+            {
+                var problems = script.Problems();
+                if (problems.Count > 0)
+                {
+                    Debug.LogError($"[DarkDescent] filmati: {script.Id} non si monta\n" + string.Join("\n", problems));
+                    return;
+                }
+            }
+
+            Folder("Assets/_Project", "Films");
+            Folder("Assets/_Project/Prefabs", "Films");
+            SaveSet<VictoryFallSet>(FilmLibrary.VictoryFall, so =>
+            {
+                so.FindProperty("_death").objectReferenceValue = Clip("Special", "Skeletons_Death");
+                so.FindProperty("_deathPose").objectReferenceValue = Clip("Special", "Skeletons_Death_Pose");
+            });
+            SaveSet<VictoryLeaveSet>(FilmLibrary.VictoryLeave, so =>
+            {
+                so.FindProperty("_idle").objectReferenceValue = Clip("General", "Idle_A");
+                so.FindProperty("_walk").objectReferenceValue = Clip("MovementBasic", "Walking_A");
+            });
+            SaveSet<VictoryReturnSet>(FilmLibrary.VictoryReturn, so =>
+            {
+                so.FindProperty("_idle").objectReferenceValue = Clip("General", "Idle_A");
+                so.FindProperty("_walk").objectReferenceValue = Clip("MovementBasic", "Walking_A");
+                so.FindProperty("_standUp").objectReferenceValue = Clip("Simulation", "Sit_Floor_StandUp");
+                so.FindProperty("_cheer").objectReferenceValue = Clip("Simulation", "Cheering");
+            });
+
+            var scene = EditorSceneManager.OpenScene(CoreScene, OpenSceneMode.Single);
+            var link = new SerializedObject(Object.FindFirstObjectByType<CompositionRoot>());
+            // i prefab si rileggono dopo aver aperto la scena, che scarica quello che non usa
+            link.FindProperty("_victoryFall").objectReferenceValue = LoadSet<VictoryFallSet>(FilmLibrary.VictoryFall);
+            link.FindProperty("_victoryLeave").objectReferenceValue = LoadSet<VictoryLeaveSet>(FilmLibrary.VictoryLeave);
+            link.FindProperty("_victoryReturn").objectReferenceValue = LoadSet<VictoryReturnSet>(FilmLibrary.VictoryReturn);
+            link.ApplyModifiedPropertiesWithoutUndo();
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[DarkDescent] filmati: la vittoria in tre set");
+        }
+
+        private static T LoadSet<T>(FilmScript script) where T : FilmSet
+        {
+            return AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + script.Id + ".prefab").GetComponent<T>();
+        }
+
+        // il prefab di un set: il regista con la sua Timeline e il set, con le animazioni che gli dà configure
+        private static void SaveSet<T>(FilmScript script, System.Action<SerializedObject> configure) where T : FilmSet
+        {
+            var root = new GameObject(script.Id);
+            var director = root.AddComponent<PlayableDirector>();
+            director.playableAsset = SaveTimeline(script);
+            director.playOnAwake = false;
+            director.extrapolationMode = DirectorWrapMode.None;
+            director.timeUpdateMode = DirectorUpdateMode.GameTime;
+            var set = root.AddComponent<T>();
+            var so = new SerializedObject(set);
+            configure(so);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(root, PrefabFolder + script.Id + ".prefab");
+            Object.DestroyImmediate(root);
         }
 
         // la Timeline del filmato, rifatta da capo: la traccia del set con una clip lunga quanto lui

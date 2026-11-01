@@ -58,9 +58,6 @@ namespace DarkDescent.Films
         [SerializeField] private Color _moonColor = new Color(0.55f, 0.65f, 1f);
         [SerializeField, Min(0f)] private float _moonIntensity = 0.6f;
 
-        private readonly List<GameObject> _props = new List<GameObject>();
-        private readonly List<Renderer> _heroRenderers = new List<Renderer>();
-        private readonly List<Light> _heroLights = new List<Light>();
         private DayCycleView _daylight;
         private DayMoment? _held;
         private NightLight[] _candles = new NightLight[0];
@@ -209,31 +206,6 @@ namespace DarkDescent.Films
                 if (grave != null)
                 {
                     grave.gameObject.SetActive(true);
-                }
-            }
-
-            foreach (var prop in _props)
-            {
-                if (prop != null)
-                {
-                    Destroy(prop);
-                }
-            }
-
-            _props.Clear();
-            foreach (var part in _heroRenderers)
-            {
-                if (part != null)
-                {
-                    part.enabled = true;
-                }
-            }
-
-            foreach (var light in _heroLights)
-            {
-                if (light != null)
-                {
-                    light.enabled = true;
                 }
             }
 
@@ -574,33 +546,6 @@ namespace DarkDescent.Films
             _flame.SetActive(false);
         }
 
-        private void HideHero(GameObject hero)
-        {
-            foreach (var part in hero.GetComponentsInChildren<Renderer>())
-            {
-                if (part.enabled)
-                {
-                    part.enabled = false;
-                    _heroRenderers.Add(part);
-                }
-            }
-
-            foreach (var light in hero.GetComponentsInChildren<Light>())
-            {
-                if (light.enabled)
-                {
-                    light.enabled = false;
-                    _heroLights.Add(light);
-                }
-            }
-        }
-
-        private GameObject Prop(GameObject prop)
-        {
-            _props.Add(prop);
-            return prop;
-        }
-
         // la lanterna pende dritta dalla mano, qualunque cosa faccia il braccio
         private static void Hang(Transform lantern, Transform holder)
         {
@@ -629,19 +574,6 @@ namespace DarkDescent.Films
             }
 
             return path[path.Length - 1];
-        }
-
-        private static Vector3 Marker(LevelMap map, char symbol)
-        {
-            foreach (var marker in map.Markers)
-            {
-                if (marker.Symbol == symbol)
-                {
-                    return LevelMap.CellCenter(marker.X, marker.Y);
-                }
-            }
-
-            return Vector3.zero;
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DarkDescent.Characters;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
@@ -37,6 +38,12 @@ namespace DarkDescent.Films
         /// </summary>
         public static FilmActor Clone(GameObject source, Transform parent, string name, params AnimationClip[] clips)
         {
+            // un lampo del colpo in corso finisce prima della copia: senza il suo script resterebbe bianca
+            foreach (var flash in source.GetComponentsInChildren<HitFlash>(true))
+            {
+                flash.RefreshRenderers();
+            }
+
             var original = source.GetComponentInChildren<Animator>(true);
             var root = new GameObject(name);
             root.SetActive(false);

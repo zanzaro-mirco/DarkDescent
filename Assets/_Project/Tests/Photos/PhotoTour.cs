@@ -6,6 +6,7 @@ using System.Linq;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
+using DarkDescent.Films;
 using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Levels;
@@ -13,6 +14,7 @@ using DarkDescent.Player;
 using DarkDescent.Progression;
 using DarkDescent.Rendering;
 using DarkDescent.Stats;
+using DarkDescent.Town;
 using DarkDescent.UI;
 using NUnit.Framework;
 using UnityEditor;
@@ -537,28 +539,7 @@ namespace DarkDescent.Tests
                 yield return null;
             }
 
-            // a tempo fisso: un fotogramma del video è un trentesimo di secondo del gioco, qualunque
-            // cosa costi disegnarlo
-            var settings = ScriptableObject.CreateInstance<RecorderControllerSettings>();
-            var movie = ScriptableObject.CreateInstance<MovieRecorderSettings>();
-            movie.name = "Opening";
-            movie.Enabled = true;
-            movie.EncoderSettings = new CoreEncoderSettings
-            {
-                Codec = CoreEncoderSettings.OutputCodec.MP4,
-                EncodingQuality = CoreEncoderSettings.VideoEncodingQuality.High,
-            };
-            movie.CaptureAudio = false;
-            movie.ImageInputSettings = new GameViewInputSettings { OutputWidth = Width, OutputHeight = Height };
-            movie.OutputFile = Path.Combine(_folder, "opening");
-            settings.AddRecorderSettings(movie);
-            settings.SetRecordModeToManual();
-            settings.FrameRatePlayback = FrameRatePlayback.Constant;
-            settings.FrameRate = 30f;
-            settings.CapFrameRate = true;
-            var recorder = new RecorderController(settings);
-            recorder.PrepareRecording();
-            Assert.IsTrue(recorder.StartRecording(), "Recorder non parte");
+            var recorder = StartMovie("opening");
             Root.CurrentFilm.Director.time = 0d;
             while (films.IsPlaying)
             {
@@ -567,13 +548,222 @@ namespace DarkDescent.Tests
 
             // la sfumatura nella camera del gioco
             yield return new WaitForSeconds(2.5f);
-            recorder.StopRecording();
-            yield return Frames(5);
-            Object.Destroy(movie);
-            Object.Destroy(settings);
-            Assert.IsTrue(File.Exists(Path.Combine(_folder, "opening.mp4")));
+            yield return StopMovie(recorder, "opening");
             ForgetPreferences();
         }
+
+        [UnityTest, Timeout(600000), Description("Il video della vittoria (D12): MP4 1920x1080 a 30 fotogrammi, dal colpo al re fino alla finestra, con il gioco tra un pezzo e l'altro")]
+        public IEnumerator VictoryVideo()
+        {
+            yield return ToTheKing();
+            var recorder = StartMovie("victory");
+            yield return new WaitForSeconds(0.5f);
+            var level = Manager.CurrentLevel;
+            level.Boss.Health.TakeDamage(new DamageInfo(level.Boss.Health.Max * 10f, DamageType.Physical, Hero));
+            yield return WaitForFilmEnd(FilmLibrary.VictoryFallId);
+
+            // un secondo di gioco, poi il cavaliere va nel portale
+            yield return new WaitForSeconds(1f);
+            EnterVictoryPortal();
+            yield return WaitForFilmEnd(FilmLibrary.VictoryLeaveId);
+            yield return WaitForFilmEnd(FilmLibrary.VictoryReturnId);
+            var victory = Find<VictoryScreen>();
+            for (float t = 0f; !victory.IsOpen; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 10f, "la finestra della vittoria non si apre");
+                yield return null;
+            }
+
+            yield return new WaitForSecondsRealtime(2.5f);
+            yield return StopMovie(recorder, "victory");
+            ForgetPreferences();
+        }
+
+        // aspetta che il filmato parta e arrivi in fondo da solo
+        private static IEnumerator WaitForFilmEnd(string id)
+        {
+            var films = Root.Films;
+            for (float t = 0f; !films.IsPlaying || films.Current.Id != id; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 30f, $"il filmato {id} non parte");
+                yield return null;
+            }
+
+            while (films.IsPlaying && films.Current.Id == id)
+            {
+                yield return null;
+            }
+        }
+
+        // A tempo fisso: un fotogramma del video è un trentesimo di secondo del gioco, qualunque cosa
+        // costi disegnarlo. Il rallentatore del re resta rallentato anche nel video.
+        private RecorderController StartMovie(string name)
+        {
+            var settings = ScriptableObject.CreateInstance<RecorderControllerSettings>();
+            var movie = ScriptableObject.CreateInstance<MovieRecorderSettings>();
+            movie.name = name;
+            movie.Enabled = true;
+            movie.EncoderSettings = new CoreEncoderSettings
+            {
+                Codec = CoreEncoderSettings.OutputCodec.MP4,
+                EncodingQuality = CoreEncoderSettings.VideoEncodingQuality.High,
+            };
+            movie.CaptureAudio = false;
+            movie.ImageInputSettings = new GameViewInputSettings { OutputWidth = Width, OutputHeight = Height };
+            movie.OutputFile = Path.Combine(_folder, name);
+            settings.AddRecorderSettings(movie);
+            settings.SetRecordModeToManual();
+            settings.FrameRatePlayback = FrameRatePlayback.Constant;
+            settings.FrameRate = 30f;
+            settings.CapFrameRate = true;
+            var recorder = new RecorderController(settings);
+            recorder.PrepareRecording();
+            Assert.IsTrue(recorder.StartRecording(), "Recorder non parte");
+            return recorder;
+        }
+
+        private IEnumerator StopMovie(RecorderController recorder, string name)
+        {
+            recorder.StopRecording();
+            yield return Frames(5);
+            Assert.IsTrue(File.Exists(Path.Combine(_folder, name + ".mp4")));
+        }
+
+        [UnityTest, Timeout(600000), Description("La vittoria (19.5): il re che cade, il cavaliere davanti alle sue ossa, il ritorno nel borgo all'alba e la finestra, con le bande e le didascalie")]
+        public IEnumerator Victory()
+        {
+            yield return ToTheKing();
+            var level = Manager.CurrentLevel;
+            level.Boss.Health.TakeDamage(new DamageInfo(level.Boss.Health.Max * 10f, DamageType.Physical, Hero));
+            yield return Frames(2);
+            yield return SnapFilm(VictoryFallShots, "il re che cade");
+
+            EnterVictoryPortal();
+            yield return SnapFilm(VictoryLeaveShots, "il cavaliere davanti alle ossa");
+
+            for (float t = 0f; !Root.Films.IsPlaying || Root.Films.Current.Id != FilmLibrary.VictoryReturnId; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 20f, "il ritorno nel borgo non parte");
+                yield return null;
+            }
+
+            yield return SnapFilm(VictoryReturnShots, "il ritorno nel borgo");
+            var victory = Find<VictoryScreen>();
+            for (float t = 0f; !victory.IsOpen; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 10f, "la finestra della vittoria non si apre");
+                yield return null;
+            }
+
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Snap("victory_4_window", world: false);
+            ForgetPreferences();
+        }
+
+        // Una partita nuova dal menu, in italiano, con i filmati: l'apertura parte e si salta. Poi la
+        // sala del re di un seme che ce l'ha, con il cavaliere davanti al re
+        private IEnumerator ToTheKing()
+        {
+            ForgetPreferences();
+            PlayerPrefs.SetString(CompositionRoot.LanguagePreference, "it");
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            Environment.SetEnvironmentVariable(CompositionRoot.FilmsVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            yield return Frames(3);
+            Root.Films.Press();
+            Root.Films.Press();
+            yield return Frames(3);
+            for (ulong seed = 1; seed <= 10; seed++)
+            {
+                Manager.RunSeed = seed;
+                yield return Descend("Level_Caves", 8);
+                if (Manager.CurrentLevel.BossGate != null)
+                {
+                    break;
+                }
+            }
+
+            var level = Manager.CurrentLevel;
+            Assert.IsNotNull(level.Boss, "un seme con la sala del re");
+            _kingHome = level.Boss.GetComponent<EnemyAI>().HomePosition;
+            Vector3 gate = level.BossGate.transform.position;
+            Vector3 spot = _kingHome + Flat(gate - _kingHome) * 3.5f;
+            Assert.IsTrue(NavMesh.SamplePosition(spot, out var hit, 2f, NavMesh.AllAreas), "un posto davanti al re");
+            Hero.GetComponent<NavMeshAgent>().Warp(hit.position);
+            Hero.transform.rotation = Quaternion.LookRotation(Flat(_kingHome - hit.position));
+            yield return Frames(3);
+        }
+
+        // il cavaliere entra nel portale della vittoria, da un metro e mezzo dalla parte del re
+        private void EnterVictoryPortal()
+        {
+            var portal = Find<TownPortals>().VictoryPortal;
+            Assert.IsNotNull(portal, "il portale della vittoria");
+            Assert.IsTrue(NavMesh.SamplePosition(portal.transform.position + Flat(_kingHome - portal.transform.position) * 1.5f, out var hit, 2f, NavMesh.AllAreas));
+            Hero.GetComponent<NavMeshAgent>().Warp(hit.position);
+            Hero.GetComponent<PlayerController>().Use(portal.Interactable);
+        }
+
+        // aspetta il filmato, lo ferma a ogni istante per la foto, poi lo porta in fondo
+        private IEnumerator SnapFilm((string Name, float Time)[] shots, string what)
+        {
+            var films = Root.Films;
+            for (float t = 0f; !films.IsPlaying || Root.CurrentFilm == null; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 15f, $"non parte: {what}");
+                yield return null;
+            }
+
+            var set = Root.CurrentFilm;
+            var director = set.Director;
+            Time.timeScale = 0f;
+            foreach (var (name, time) in shots)
+            {
+                director.time = time;
+                director.Evaluate();
+                yield return new WaitForSecondsRealtime(1.6f);
+                yield return Snap(name, world: false);
+            }
+
+            Time.timeScale = 1f;
+            director.time = set.Script.Duration - 0.05f;
+            // il set smontato è distrutto, e per Unity uguale a null: si confrontano i riferimenti
+            for (float t = 0f; ReferenceEquals(Root.CurrentFilm, set); t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 10f, $"non finisce: {what}");
+                yield return null;
+            }
+        }
+
+        // dove stava il re, per mettere il cavaliere davanti a lui e poi davanti al portale
+        private Vector3 _kingHome;
+
+        private static readonly (string Name, float Time)[] VictoryFallShots =
+        {
+            ("victory_1_blow", 0.15f),
+            ("victory_1_fall", 1.6f),
+            ("victory_1_bones", 4.6f),
+        };
+
+        private static readonly (string Name, float Time)[] VictoryLeaveShots =
+        {
+            ("victory_2_look", 1.4f),
+            ("victory_2_walk", 3.5f),
+        };
+
+        private static readonly (string Name, float Time)[] VictoryReturnShots =
+        {
+            ("victory_3_tunnel", 3f),
+            ("victory_3_road", 7f),
+            ("victory_3_cheer", 11f),
+            ("victory_3_candles", 13.5f),
+            ("victory_3_home", 16.7f),
+        };
 
         private static readonly (string Name, float Time)[] OpeningShots =
         {

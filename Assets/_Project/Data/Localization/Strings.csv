@@ -384,6 +384,10 @@ film.opening.rise,And the dead rose from the earth.,E i morti uscirono dalla ter
 film.opening.dawn,"By dawn, few were left.",All'alba ne restavano pochi.
 film.opening.knight,Then a knight came up the road.,Poi dalla strada arrivò un cavaliere.
 film.opening.king,The Bone King has awoken. Only one candle still burns.,Il Re delle ossa si è svegliato. Brucia ancora una candela sola.
+film.victory.name,Victory,La vittoria
+film.victory.fallen,The Bone King would never rise again.,Il Re delle ossa non si sarebbe più rialzato.
+film.victory.dawn,"At dawn, the knight climbed back out of the crypt.",All'alba il cavaliere risalì dalla cripta.
+film.victory.candles,And the village lit every candle again.,E il borgo riaccese tutte le sue candele.
 portal.to_town,Portal to the village,Portale per il borgo
 portal.to_depth,Portal to level {0},Portale per il livello {0}
 portal.victory,Leave the depths,Lascia le profondità

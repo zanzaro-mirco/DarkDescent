@@ -97,5 +97,31 @@ namespace DarkDescent.Tests
                 }
             }
         }
+
+        [Test, Description("La vittoria si monta in tre pezzi, il re che cade, il portale e il ritorno, con le camere che i set sanno muovere e ogni didascalia in inglese e in italiano")]
+        public void Victory_IsReady()
+        {
+            var strings = StringTable.Parse(AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Data/Localization/Strings.csv").text);
+            var parts = new[]
+            {
+                (FilmLibrary.VictoryFall, new[] { FilmLibrary.FallCamera }),
+                (FilmLibrary.VictoryLeave, new[] { FilmLibrary.BonesCamera }),
+                (FilmLibrary.VictoryReturn, new[] { FilmLibrary.TunnelCamera, FilmLibrary.SquareCamera, FilmLibrary.HomeCamera }),
+            };
+            foreach (var (script, cameras) in parts)
+            {
+                CollectionAssert.IsEmpty(script.Problems(), script.Id);
+                CollectionAssert.IsSubsetOf(script.Shots.Select(s => s.Camera).Distinct(), cameras, script.Id);
+                foreach (string key in script.Shots.Select(s => s.CaptionKey).Where(k => k != null).Append(script.TitleKey))
+                {
+                    foreach (string language in new[] { "en", "it" })
+                    {
+                        Assert.IsTrue(strings.TryGet(key, strings.IndexOf(language), out string text) && !string.IsNullOrWhiteSpace(text), $"{key} in {language}");
+                    }
+                }
+            }
+
+            Assert.AreEqual(3, parts.SelectMany(p => p.Item1.Shots).Count(s => s.CaptionKey != null), "una didascalia nella sala e due nel borgo");
+        }
     }
 }

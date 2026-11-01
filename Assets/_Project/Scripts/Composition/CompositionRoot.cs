@@ -72,6 +72,11 @@ namespace DarkDescent.Core
         [Tooltip("Il set dell'apertura, con la sua Timeline: parte a ogni partita nuova dal menu (D7 della M19).")]
         [SerializeField] private Films.FilmSet _opening;
 
+        [Tooltip("I tre set della vittoria (D8 della M19): il re che cade, il cavaliere che entra nel portale, il ritorno nel borgo.")]
+        [SerializeField] private Films.FilmSet _victoryFall;
+        [SerializeField] private Films.FilmSet _victoryLeave;
+        [SerializeField] private Films.FilmSet _victoryReturn;
+
         [Tooltip("Musica, fondo e versi nel buio: cambiano con il livello (passo 7.0 della M7).")]
         [SerializeField] private AmbiencePlayer _ambience;
 
@@ -219,6 +224,9 @@ namespace DarkDescent.Core
         // una partita nuova dal menu: arrivati nel borgo, l'apertura (D7 della M19); il set mentre gira
         private bool _openingWanted;
         private Films.FilmSet _set;
+
+        // quello che viene dopo il filmato che gira: il viaggio del portale, la finestra della vittoria
+        private Action _afterFilm;
 
         // il boss del livello corrente, se c'è e non è ancora stato sconfitto (D8 della M10)
         private BossController _boss;
@@ -652,6 +660,7 @@ namespace DarkDescent.Core
             _cameraRotation.FacingChanged += HandleFacingChanged;
             _characterPanel.OpenChanged += HandleCharacterOpenChanged;
             _portals.VictoryReached += HandleVictoryReached;
+            _portals.VictoryEntered += HandleVictoryEntered;
             _victoryScreen.Finished += HandleVictoryFinished;
             _victoryScreen.Continued += HandleVictoryContinued;
         }
@@ -675,6 +684,7 @@ namespace DarkDescent.Core
             _levelManager.LevelUnloading -= ReleaseLevel;
             _cameraRotation.FacingChanged -= HandleFacingChanged;
             _portals.VictoryReached -= HandleVictoryReached;
+            _portals.VictoryEntered -= HandleVictoryEntered;
             _victoryScreen.Finished -= HandleVictoryFinished;
             _victoryScreen.Continued -= HandleVictoryContinued;
             _characterPanel.OpenChanged -= HandleCharacterOpenChanged;
@@ -794,14 +804,17 @@ namespace DarkDescent.Core
             return !Application.isEditor || Environment.GetEnvironmentVariable(FilmsVariable) == "1";
         }
 
-        // il set si monta nel livello appena arrivato e si smonta quando il filmato finisce o si salta
-        private void PlayFilm(Films.FilmSet prefab, LevelContext level)
+        // Il set si monta nel livello appena arrivato e si smonta quando il filmato finisce o si salta;
+        // poi <paramref name="then"/>, che c'è anche se il filmato non può partire
+        private void PlayFilm(Films.FilmSet prefab, LevelContext level, Action then = null)
         {
-            if (prefab == null || _set != null)
+            if (prefab == null || _set != null || level == null)
             {
+                then?.Invoke();
                 return;
             }
 
+            _afterFilm = then;
             _set = Instantiate(prefab);
             _set.Build(level, _player.gameObject, _playerCamera);
             _films.Finished += HandleFilmFinished;
@@ -814,14 +827,16 @@ namespace DarkDescent.Core
         private void HandleFilmFinished(Films.FilmScript script)
         {
             _films.Finished -= HandleFilmFinished;
-            if (_set == null)
+            if (_set != null)
             {
-                return;
+                _set.Teardown();
+                Destroy(_set.gameObject);
+                _set = null;
             }
 
-            _set.Teardown();
-            Destroy(_set.gameObject);
-            _set = null;
+            var then = _afterFilm;
+            _afterFilm = null;
+            then?.Invoke();
         }
 
         // il Crepuscolo non si scrive nel titolo: è il gioco di sempre (D15 della M14)
@@ -1005,6 +1020,7 @@ namespace DarkDescent.Core
             {
                 // al suo posto, il portale della vittoria resta aperto (D9)
                 _portals.OpenVictoryPortal(VictorySpot(_boss, level), animate: false);
+                _portals.HoldVictory = _firstVictory && FilmsWanted();
                 _boss.gameObject.SetActive(false);
                 Destroy(_boss.gameObject);
                 _boss = null;
@@ -1088,6 +1104,20 @@ namespace DarkDescent.Core
                     chest.Unseal();
                 }
             }
+
+            // la prima volta, il primo tempo della vittoria; il portale aspetta il secondo (D8 della M19)
+            bool films = _firstVictory && FilmsWanted();
+            _portals.HoldVictory = films;
+            if (films)
+            {
+                PlayFilm(_victoryFall, level);
+            }
+        }
+
+        // nel portale della vittoria, la prima volta: il cavaliere guarda le ossa del re, poi il viaggio
+        private void HandleVictoryEntered()
+        {
+            PlayFilm(_victoryLeave, _levelManager.CurrentLevel, _portals.TravelToVictory);
         }
 
         // Una cella dal centro della sala verso la porta: il bottino cade attorno a dove è morto il re, e
@@ -1115,6 +1145,17 @@ namespace DarkDescent.Core
             }
 
             _firstVictory = false;
+            if (FilmsWanted())
+            {
+                PlayFilm(_victoryReturn, _levelManager.CurrentLevel, ShowVictory);
+                return;
+            }
+
+            ShowVictory();
+        }
+
+        private void ShowVictory()
+        {
             _reader.enabled = false;
             int next = _difficulty.Current + 1;
             _victoryScreen.Show(_runStats, _progress.Progress.Level, next < _difficulties.Count ? _difficulties.Tier(next).NameKey : null);

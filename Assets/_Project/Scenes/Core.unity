@@ -7710,6 +7710,9 @@ MonoBehaviour:
   _playerCamera: {fileID: 1669943979}
   _films: {fileID: 908118612}
   _opening: {fileID: 2473691579526569937, guid: fdcbea7d8bbbbdb428a3164f6d712e6a, type: 3}
+  _victoryFall: {fileID: 1243351145850519192, guid: 7e7edd3df650ca54f9c870f181f6f8dd, type: 3}
+  _victoryLeave: {fileID: 6280255153764928045, guid: d1547297bdaa2374ca72d63f46eceb9b, type: 3}
+  _victoryReturn: {fileID: 736346900836359673, guid: f5ec730e0db18a240a33bc833d9400de, type: 3}
   _ambience: {fileID: 397583100}
   _bossAmbience: {fileID: 11400000, guid: 70c6db4e2dd804348b68f61e7cff90d4, type: 2}
   _sfxLimiter: {fileID: 681326279}

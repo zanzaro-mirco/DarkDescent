@@ -359,6 +359,78 @@ il video.
 
 ---
 
+## Passo 19.5 — La vittoria
+
+**Com'è andata (1 nov 2026).** La vittoria parte la prima volta che si batte il Re delle ossa a ogni
+difficoltà, come la finestra di prima. Passa per due livelli, la sala del re e il borgo, e per questo
+è in **tre pezzi**, ognuno con il suo set e la sua Timeline. Mirco ha approvato prima le foto, poi il
+video.
+
+**I tre pezzi.**
+1. **Il re che cade (5 s), nella sala, appena muore.** Il tempo rallenta a un quarto per mezzo
+   secondo del filmato (due secondi veri) e poi riparte. La camera si stringe sul re che si sfalda
+   (`Skeletons_Death`). Poi si torna a giocare: il re resta a terra, come il mucchio d'ossa
+   (`Skeletons_Death_Pose`), e il tesoro si apre come prima.
+2. **Il portale (5,5 s), nella sala.** Entrando nel portale della vittoria, il cavaliere si ferma,
+   guarda il re a terra, si gira ed entra. Didascalia: *Il Re delle ossa non si sarebbe più rialzato.*
+   Poi il viaggio.
+3. **Il ritorno (17 s), nel borgo.**
+   - All'alba il cavaliere esce dal buio della grotta. Didascalia: *All'alba il cavaliere risalì
+     dalla cripta.*
+   - Scende verso la piazza; la luce sale, il sole sta uscendo.
+   - I sopravvissuti attorno al fuoco si alzano (`Sit_Floor_StandUp`), si girano verso di lui ed
+     esultano (`Cheering`), e le candele del borgo si riaccendono una a una, dal fuoco verso fuori.
+     Didascalia: *E il borgo riaccese tutte le sue candele.*
+   - La camera scende sul cavaliere e diventa quella del gioco. Poi la finestra delle statistiche.
+
+**Come è fatta.**
+- **`FilmLibrary`** ha i tre copioni: `VictoryFall`, `VictoryLeave`, `VictoryReturn`.
+- **`FilmSet`** ora tiene quello che i set hanno in comune: gli oggetti di scena che si distruggono
+  allo smontaggio, il cavaliere vero nascosto e poi rimesso, i segni della mappa. L'apertura li usa
+  come i tre set nuovi.
+- **`VictoryFallSet`** copia il re, nasconde quello vero e porta il tempo del gioco dal rallentatore a
+  1. Allo smontaggio la copia passa al livello, a terra, con il nome `KingRemains`, e se ne va con lui.
+- **`VictoryLeaveSet`** mette la copia del cavaliere tra le ossa e il portale: lo guarda andare.
+- **`VictoryReturnSet`** ferma il borgo all'alba e poi al sorgere del sole, copia i sopravvissuti del
+  fuoco con la loro posa da seduti, e ferma il cavaliere nel varco più largo del loro cerchio, dalla
+  parte della grotta. Alla fine il cavaliere vero è lì, accanto al fuoco: con *Continua* si gioca da
+  dove il filmato si è fermato (D4).
+- **`TownPortals`** ha `HoldVictory`: il portale della vittoria, invece di partire, dice
+  `VictoryEntered` e aspetta `TravelToVictory`.
+- **`CompositionRoot`**: `PlayFilm` prende anche quello che viene dopo il filmato, anche se il filmato
+  si salta o non può partire. Dopo il re che cade, si gioca; dopo il portale, il viaggio; dopo il
+  ritorno, la finestra. Senza filmati, nei test e con `-newgame`, tutto va come prima.
+- **`FilmTools.BuildVictory`** costruisce le tre Timeline e i tre prefab e li lega al composition root.
+- **Il cunicolo del piano (D8) è la bocca della grotta vista da fuori.** La camera del gioco è
+  ortografica e guarda dall'alto: dentro un cunicolo non vede niente.
+- **La musica che tace nella sala** arriva al 19.6, con la musica dei filmati.
+
+**Le lezioni.**
+- **Una copia presa durante il lampo del colpo resta bianca.** `HitFlash` scambia i materiali con uno
+  bianco per un attimo; la copia del re, fatta nel frame del colpo, li aveva copiati, e senza lo script
+  non tornavano più. `FilmActor.Clone` ora chiude il lampo prima di copiare.
+- **Un set smontato è distrutto, e per Unity uguale a null.** Il test che aspettava "il set non è più
+  quello di prima" con `==` non finiva mai: si confrontano i riferimenti.
+- **I prefab si rileggono dopo aver aperto una scena.** Presi prima di `OpenScene`, i riferimenti
+  erano spariti e il composition root restava senza i tre set.
+- **Il cavaliere va fermato fuori dal cerchio.** Fermato sulla linea tra la grotta e il fuoco, finiva
+  addosso a un sopravvissuto, e la sua sagoma si vedeva attraverso.
+
+**I test.**
+- **`FilmScriptTests.Victory_IsReady`, EditMode:** i tre copioni si montano, con le camere giuste e
+  ogni didascalia nelle due lingue.
+- **`VictoryFilmTests` (3), PlayMode:**
+  - la prima vittoria fa i tre pezzi: il re che cade al rallentatore e resta a terra, il portale che
+    aspetta, il ritorno che arriva in fondo da solo; poi la finestra, con il cavaliere vero accanto al
+    fuoco, il borgo com'era e l'ora dell'orologio;
+  - saltati, i tre pezzi portano comunque al gioco, al viaggio e alla finestra;
+  - il re battuto a una difficoltà già vinta non fa partire nessun filmato.
+- **`PhotoTour.Victory`** fa le undici foto e **`PhotoTour.VictoryVideo`** il video MP4, dal colpo
+  alla finestra, con il gioco tra un pezzo e l'altro. Il video non entra nel repo (D12).
+- **In locale:** EditMode intera 537/537. PlayMode intera senza la ronda 280/282, nessun rosso (gli altri 2 sono saltati come sempre). Il video dura 34 s (29 MB).
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)

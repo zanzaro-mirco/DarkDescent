@@ -77,6 +77,16 @@ namespace DarkDescent.Town
         public event System.Action VictoryReached;
 
         /// <summary>
+        /// Il portale della vittoria aspetta prima del viaggio: chi lo ha chiesto riceve
+        /// <see cref="VictoryEntered"/> e poi chiama <see cref="TravelToVictory"/>. Serve al secondo tempo
+        /// della vittoria, che comincia nella sala (D8 della M19).
+        /// </summary>
+        public bool HoldVictory { get; set; }
+
+        /// <summary>Il cavaliere è entrato nel portale della vittoria, che aspetta: <see cref="HoldVictory"/>.</summary>
+        public event System.Action VictoryEntered;
+
+        /// <summary>
         /// Il portale della vittoria, che non chiude il portale della pergamena: si apre morto il boss,
         /// e di nuovo ogni volta che si torna nella sua sala.
         /// </summary>
@@ -267,6 +277,18 @@ namespace DarkDescent.Town
             _open.Open(TextKeys.PortalToDepth, PortalDepth.ToString(), _viewer, animate: false);
         }
 
+        /// <summary>Il viaggio del portale della vittoria, verso la città.</summary>
+        public void TravelToVictory()
+        {
+            if (_levelManager.IsTransitioning)
+            {
+                return;
+            }
+
+            _victoryPending = true;
+            _levelManager.LoadLevel(_townScene, PortalEntrance, 0);
+        }
+
         // il portale sparisce con la sua scena: basta staccarsi
         private void HandleLevelUnloading(LevelContext level)
         {
@@ -282,6 +304,7 @@ namespace DarkDescent.Town
 
             _open = null;
             _victory = null;
+            HoldVictory = false;
         }
 
         private void HandleEntered(Portal portal)
@@ -299,8 +322,14 @@ namespace DarkDescent.Town
 
             if (portal == _victory)
             {
-                _victoryPending = true;
-                _levelManager.LoadLevel(_townScene, PortalEntrance, 0);
+                if (HoldVictory)
+                {
+                    HoldVictory = false;
+                    VictoryEntered?.Invoke();
+                    return;
+                }
+
+                TravelToVictory();
                 return;
             }
 
