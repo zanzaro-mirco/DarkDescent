@@ -530,25 +530,26 @@ una strada di sampietrini senza interruzioni, niente oggetti in mezzo e qualche 
 - **Il saluto** dell'abitante in piedi arriva fino a 18 m invece di 9: il fuoco ora è a 16 m dalla
   partenza e a 14 dall'arrivo dei portali, e la PlayMode l'ha trovato.
 
-**La misura (D17).** Una build Windows fatta in locale, sul PC di sviluppo (Intel Core Ultra 9 275HX,
+**La misura (D17).** Una build Windows fatta in locale da `44b907c`, con la strada nuova, sul PC di sviluppo (Intel Core Ultra 9 275HX,
 RTX 5070 Ti Laptop, Direct3D 12), a 1920×1080 in finestra, qualità PC, senza vSync.
 
 | Misura | v1.6.0 | v1.7.0 |
 |---|---|---|
-| Build Windows compressa come l'artefatto, in locale | 56,73 MB | 57,85 MB (+1,12, limite +30) |
+| Build Windows compressa come l'artefatto, in locale | 56,73 MB | 58,22 MB (+1,49, limite +30) |
 
 Con il nuovo `-benchmark-films` la build rivede dal menu i due filmati, come il pulsante *Filmati*, e
 misura ogni pezzo dal primo all'ultimo frame:
 
 | Filmato | Secondi misurati | Media | 99% dei frame sotto | Il frame più lungo |
 |---|---|---|---|---|
-| L'apertura | 50 s | 1,81 ms (551 fps) | 6,33 ms | 111 ms, al secondo 0,1 |
-| Il re che cade | 7 s | 1,87 ms (535 fps) | 6,81 ms | 27 ms, al secondo 0 |
-| Il portale | 5,5 s | 1,63 ms (614 fps) | 6,78 ms | 26 ms |
-| Il ritorno | 17 s | 2,16 ms (464 fps) | 7,77 ms | 35 ms, al secondo 9,3 |
+| L'apertura | 50 s | 1,62 ms (616 fps) | 5,08 ms | 113 ms, al secondo 0,1 |
+| Il re che cade | 7 s | 1,74 ms (575 fps) | 4,82 ms | 27 ms, al secondo 0 |
+| Il portale | 5,5 s | 1,45 ms (687 fps) | 5,06 ms | 8 ms, al secondo 0 |
+| Il ritorno | 17 s | 1,78 ms (562 fps) | 4,89 ms | 29 ms, al secondo 0 |
 
-Tutti stanno molto sotto i 16,7 ms dei 60 fps. Il frame più lungo dell'apertura è il primo, appena
-costruito il borgo. Il ritorno, con 709 batch e 279 mila triangoli, è il pezzo più pesante.
+Tutti stanno molto sotto i 16,7 ms dei 60 fps. Il frame più lungo di ogni pezzo è il primo, quando il
+set si monta: nell'apertura 113 ms, appena costruito il borgo. Il ritorno, con 690 batch e 270 mila
+triangoli, e l'apertura, con 867 batch, sono i pezzi più pesanti.
 
 **La chiusura.**
 - Le due GIF del README, `docs/media/m19_opening.gif` e `m19_victory.gif`, fatte dai video rifatti
@@ -583,6 +584,6 @@ costruito il borgo. Il ritorno, con 709 batch e 279 mila triangoli, è il pezzo 
 - [x] I download approvati: Timeline e Recorder (sì il 29 ott), i modelli di ComfyUI (sì il 29 ott)
 - [x] L'apertura e la vittoria approvate da Mirco in video (il borgo rivisto il 1 nov)
 - [ ] Test EditMode e PlayMode verdi in locale e in CI
-- [x] La build misurata dentro il limite della D17 (+1,12 MB, filmati a 464–614 fps)
+- [x] La build misurata dentro il limite della D17 (+1,49 MB, filmati a 562–687 fps)
 - [x] ADR, lezioni nel piano, README, `CREDITS.md` e `Data/Credits.txt`
 - [ ] `bundleVersion` 1.7.0 e tag `v1.7.0` dopo i test verdi in CI

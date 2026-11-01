@@ -8,7 +8,7 @@ la luce blu del portale e il titolo all'alba non fanno bande.
 Le scene sono in secondi del video, per esempio 6.5-10.0. GIF_COLORS cambia i colori di ogni scena
 (128 senza). Va lanciato con il Python di ComfyUI, che ha Pillow e PyAV:
 
-    python gif.py Recordings/Photos/opening.mp4 docs/media/m19_opening.gif 560 10 6.5-10.0 14.0-17.5 42.5-45.5
+    GIF_COLORS=96 python gif.py Recordings/Photos/opening.mp4 docs/media/m19_opening.gif 560 10 6.5-10.0 14.0-17.5 42.5-45.5
     python gif.py Recordings/Photos/victory.mp4 docs/media/m19_victory.gif 560 10 1.0-4.5 10.0-14.0 24.0-28.0
 """
 import os
