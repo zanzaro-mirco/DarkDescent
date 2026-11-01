@@ -46,6 +46,7 @@ namespace DarkDescent.Tests
             PlayerPrefs.DeleteKey(UI.OptionsPanel.LabelsPreference);
             PlayerPrefs.DeleteKey(UI.OptionsPanel.OrbNumbersPreference);
             PlayerPrefs.DeleteKey(Rendering.RetroFilter.Preference);
+            PlayerPrefs.DeleteKey(UI.FilmsPanel.VictorySeenPreference);
         }
 
         protected IEnumerator LoadSandbox(bool allSkeletons = false)

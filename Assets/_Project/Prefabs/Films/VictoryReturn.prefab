@@ -62,7 +62,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 550a905a567afe54db3c21979c903b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Films.VictoryReturnSet
+  _music: {fileID: 8300000, guid: 08e8788ed3554b5793882c6acce6954f, type: 3}
+  _musicFrom: 7
+  _musicRunsOut: 1
+  _soundGroup: {fileID: -8380571030766219416, guid: 384598ecd767db34bb10f9ed9ea00557, type: 2}
   _idle: {fileID: -5624545281902316504, guid: c37d4b3e76794444bb5be94b4cef81d9, type: 3}
   _walk: {fileID: 7060811993321468294, guid: 1cc861e7ab1b2414ca005fbf852e746a, type: 3}
   _standUp: {fileID: 2401692041250751285, guid: fee20a2cc9106a34bb85eee4d9a92f5c, type: 3}
   _cheer: {fileID: -3554408864086334942, guid: fee20a2cc9106a34bb85eee4d9a92f5c, type: 3}
+  _cheerSound: {fileID: 8300000, guid: 5814ceb036f5ec14a9d85e337c34c0f3, type: 3}

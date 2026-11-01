@@ -62,5 +62,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40b5d3db8eceef242956c98a8d91593c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Films.VictoryFallSet
+  _music: {fileID: 0}
+  _musicFrom: 0
+  _musicRunsOut: 0
+  _soundGroup: {fileID: -8380571030766219416, guid: 384598ecd767db34bb10f9ed9ea00557, type: 2}
   _death: {fileID: -742123907766471018, guid: f8740c715a65f024898d080d7a2a9841, type: 3}
   _deathPose: {fileID: -1503138281452508818, guid: f8740c715a65f024898d080d7a2a9841, type: 3}

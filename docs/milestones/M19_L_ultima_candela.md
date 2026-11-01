@@ -431,6 +431,85 @@ video.
 
 ---
 
+## Passo 19.6 — Musica, suoni e il pulsante Filmati
+
+**Com'è andata (1 nov 2026).** I due filmati hanno la loro musica e i loro suoni, il volume della
+musica delle opzioni vale anche per loro, e dal menu iniziale si rivedono. Mirco ha scelto i suoni
+sulla pagina di ascolto: per ognuno il primo dei quattro semi.
+
+**La musica.**
+- **L'apertura** ha `film_opening.ogg` dall'inizio; alla fine sfuma in 2,5 s e torna quella del borgo.
+- **Il re cade nel silenzio**: nessun brano, e la musica della sala tace (D8).
+- **La vittoria** ha `film_victory.ogg` dal portale: va avanti nel viaggio e nel borgo, e finisce da
+  sola sotto la finestra delle statistiche, verso i 25 s. Se il portale si salta, il ritorno lo
+  riprende dal secondo 7, con un'entrata.
+- **Saltando** il brano sfuma in 0,6 s.
+- **La musica del livello tace** durante un filmato e finché suona il suo brano (`AmbiencePlayer.Hushed`);
+  il fondo, il vento e il fuoco, resta.
+- **Il volume** è quello della musica delle opzioni: il lettore suona nel gruppo `Music` del mixer, i
+  suoni dei set in `SFX`.
+
+**Perché non sta sulla Timeline.** La musica della vittoria attraversa il viaggio tra due livelli, e
+ogni pezzo ha la sua Timeline, che si smonta con il set. La suona il lettore, che sta in `Core` e
+sopravvive al viaggio; il set dice solo il brano, da che secondo parte e se finisce da solo
+(`FilmMusic`). Il tempo del filmato e quello del brano partono insieme e vanno insieme, perché durante
+i filmati il tempo del gioco è 1.
+
+**I suoni**, generati con Stable Audio 3 Small SFX come quelli della M13 (ricette in
+`Tools/ComfyUI/sounds/films.py`):
+- `candle_snuff_sa`: ogni candela del borgo che si spegne, piano, ognuna un po' diversa;
+- `earth_break_sa`: la terra che si rompe sopra ogni scheletro che esce;
+- `crowd_cheer_sa`: il borgo che esulta quando il primo sopravvissuto alza le braccia.
+
+Il set li fa partire con `FilmSet.Cue` nel fotogramma che passa il loro secondo, andando avanti a
+passi da filmato: un salto del tempo, come nelle foto, non li fa suonare. Sono in due dimensioni,
+perché la camera dei filmati è lontana dal cavaliere che ascolta.
+
+**Il pulsante Filmati (D18).**
+- Sta nel menu iniziale, sotto *Riconoscimenti*, e apre l'elenco: *L'ultima candela* sempre, *La
+  vittoria* solo dopo averla vista in una partita.
+- Che sia stata vista lo ricorda una preferenza, `films.victory_seen`, non il salvataggio.
+- Un filmato rivisto è una partita che non si salva, con il cavaliere di base:
+  - l'apertura parte nel borgo come in una partita nuova;
+  - la vittoria parte nella sala del re di un seme fisso, `VictoryReplaySeed`, con il cavaliere tra
+    la porta e il re, e il re cade appena finisce la dissolvenza; dopo il primo pezzo il portale
+    parte da solo.
+- Finito o saltato il filmato, la scena si ricarica e si torna al menu. La finestra delle statistiche
+  non c'è.
+- Il pulsante e l'elenco li mette `FilmTools.InstallMenu`: l'elenco è una copia del pannello dei posti.
+
+**I riconoscimenti** hanno la riga dei tre suoni nuovi; la musica c'era dal 19.2.
+
+**Le lezioni.**
+- **Un brano in streaming parte quando vuole lui.** I due brani erano importati in streaming, senza
+  precaricarli. Saltando l'apertura appena partita, il brano non suonava ancora e la richiesta di
+  sfumare andava persa; partiva dopo, a pieno volume, e teneva zitta la musica del borgo per un
+  minuto. Ora sono compressi in memoria e precaricati con la scena (circa 1 MB l'uno): partono nel
+  fotogramma del filmato e vanno a tempo con le scene. Se un brano chiesto non suona ancora, la
+  sfumatura gli toglie la clip.
+- **Un test che salta subito è più veloce di una partita.** Dal salto dell'apertura al colpo sul re il
+  test impiega mezzo secondo, meno della sfumatura: il re cade mentre il brano dell'apertura finisce di
+  sfumare, e lo si controlla poco dopo.
+- **Dentro il composition root `Films` è il lettore**, non lo spazio dei nomi: per la libreria serve il
+  nome intero.
+
+**I test.**
+- **`FilmSoundTests` (2):** l'apertura ha il suo brano nel gruppo della musica e il borgo tace;
+  candele e terra suonano quando il filmato ci passa, un salto no; alla fine il brano sfuma e la
+  musica del borgo torna. Saltata, il brano sfuma in meno di un secondo.
+- **`VictoryFilmTests.VictoryMusic_RunsFromThePortalIntoTheVillage`:** il re cade nel silenzio; il brano
+  parte al portale, continua nel viaggio senza ripartire, il borgo esulta, e il brano finisce da solo
+  sotto la finestra mentre la musica del borgo aspetta. La prima vittoria ora ricorda di essere stata
+  vista.
+- **`PhotoTour.FilmsMenu`** fotografa il menu con *Filmati* e l'elenco; **`OpeningVideo`** e
+  **`VictoryVideo`** ora registrano anche l'audio.
+- **`FilmMenuTests` (3):** l'elenco con la vittoria solo dopo averla vista; l'apertura rivista che
+  torna al menu senza salvare; la vittoria rivista nei tre pezzi, nella sala del seme fisso con la
+  porta, poi il menu, senza finestra e senza salvare.
+- **In locale:** EditMode 537/537; PlayMode `!Nightly` completa 287/289, 0 rossi (2 saltati); foto e video rifatti, con l'audio (apertura 52,5 s, vittoria 34,3 s).
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)

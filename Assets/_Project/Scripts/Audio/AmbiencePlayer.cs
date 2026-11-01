@@ -9,7 +9,8 @@ namespace DarkDescent.Audio
     /// <summary>
     /// Il suono del livello (passo 7.0 della M7): musica e fondo in loop, e i versi nel buio. Sta in
     /// Core e sopravvive ai cambi di livello. Il composition root gli passa il profilo del livello
-    /// appena entrato: se è lo stesso di prima la musica continua, altrimenti sfuma nell'altra.
+    /// appena entrato: se è lo stesso di prima la musica continua, altrimenti sfuma nell'altra. Durante
+    /// un filmato la musica tace (<see cref="Hushed"/>, D10 della M19) e il fondo resta.
     /// </summary>
     [DisallowMultipleComponent]
     public class AmbiencePlayer : MonoBehaviour
@@ -26,6 +27,9 @@ namespace DarkDescent.Audio
         [Tooltip("Secondi della dissolvenza tra due profili, e dell'entrata del primo.")]
         [SerializeField, Min(0.01f)] private float _fadeTime = 2.5f;
 
+        [Tooltip("Secondi in cui la musica tace quando parte un filmato; torna nel tempo della dissolvenza.")]
+        [SerializeField, Min(0.01f)] private float _hushTime = 1f;
+
         [Tooltip("Quanti versi possono suonare insieme.")]
         [SerializeField, Min(1)] private int _stingerVoices = 2;
 
@@ -40,6 +44,9 @@ namespace DarkDescent.Audio
         // due coppie musica + fondo: una suona, l'altra entra alla prossima dissolvenza
         private readonly AudioSource[] _music = new AudioSource[2];
         private readonly AudioSource[] _beds = new AudioSource[2];
+        // il volume di ogni musica senza il silenzio dei filmati
+        private readonly float[] _musicLevels = new float[2];
+        private float _hush = 1f;
         private AudioSource[] _stingers;
         private int _active;
         private int _nextVoice;
@@ -58,6 +65,9 @@ namespace DarkDescent.Audio
         public AudioSource Music => _music[_active];
 
         public AudioSource Bed => _beds[_active];
+
+        /// <summary>Acceso, la musica sfuma fino a tacere; spento, torna. Il fondo non cambia.</summary>
+        public bool Hushed { get; set; }
 
         private void Awake()
         {
@@ -114,6 +124,7 @@ namespace DarkDescent.Audio
             int previous = _active;
             _active = 1 - _active;
             StartLoop(_music[_active], profile != null ? profile.Music : null);
+            SetMusic(_active, 0f);
             StartLoop(_beds[_active], profile != null ? profile.Bed : null);
             _fade = StartCoroutine(Crossfade(previous, profile));
             ScheduleStinger();
@@ -121,6 +132,17 @@ namespace DarkDescent.Audio
 
         private void Update()
         {
+            // in tempo vero, come la dissolvenza: la finestra della vittoria ferma il gioco
+            float hush = Mathf.MoveTowards(_hush, Hushed ? 0f : 1f, Time.unscaledDeltaTime / (Hushed ? _hushTime : _fadeTime));
+            if (hush != _hush)
+            {
+                _hush = hush;
+                for (int i = 0; i < _music.Length; i++)
+                {
+                    SetMusic(i, _musicLevels[i]);
+                }
+            }
+
             if (Time.time < _nextStinger)
             {
                 return;
@@ -154,26 +176,33 @@ namespace DarkDescent.Audio
         private IEnumerator Crossfade(int previous, AmbienceProfile profile)
         {
             AudioSource oldMusic = _music[previous], oldBed = _beds[previous];
-            AudioSource newMusic = _music[_active], newBed = _beds[_active];
-            float oldMusicVolume = oldMusic.volume, oldBedVolume = oldBed.volume;
+            AudioSource newBed = _beds[_active];
+            float oldMusicVolume = _musicLevels[previous], oldBedVolume = oldBed.volume;
             float musicVolume = profile != null ? profile.MusicVolume : 0f;
             float bedVolume = profile != null ? profile.BedVolume : 0f;
 
             for (float time = 0f; time < _fadeTime; time += Time.unscaledDeltaTime)
             {
                 float t = time / _fadeTime;
-                oldMusic.volume = oldMusicVolume * (1f - t);
+                SetMusic(previous, oldMusicVolume * (1f - t));
                 oldBed.volume = oldBedVolume * (1f - t);
-                newMusic.volume = musicVolume * t;
+                SetMusic(_active, musicVolume * t);
                 newBed.volume = bedVolume * t;
                 yield return null;
             }
 
             oldMusic.Stop();
             oldBed.Stop();
-            newMusic.volume = musicVolume;
+            SetMusic(previous, 0f);
+            SetMusic(_active, musicVolume);
             newBed.volume = bedVolume;
             _fade = null;
+        }
+
+        private void SetMusic(int index, float level)
+        {
+            _musicLevels[index] = level;
+            _music[index].volume = level * _hush;
         }
 
         private AudioSource CreateLoop(string name)

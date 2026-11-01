@@ -4,6 +4,7 @@ using DarkDescent.Localization;
 using DarkDescent.Player;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
 using UnityEngine.UI;
@@ -15,7 +16,9 @@ namespace DarkDescent.Films
     /// bande nere a 2,35:1, la didascalia dell'inquadratura, il titolo e l'invito a saltare. Mentre il filmato
     /// gira il gioco non legge comandi e le finestre del gioco sono spente; Esc o un click mostrano
     /// l'invito, il secondo salta. Alla fine, o al salto, tutto torna com'era e il tempo a 1. Le bande
-    /// e le scritte le costruisce lui, in un canvas suo sopra tutti gli altri.
+    /// e le scritte le costruisce lui, in un canvas suo sopra tutti gli altri. Suona anche la musica del
+    /// filmato (D10), nel gruppo della musica delle opzioni: alla fine sfuma, o finisce da sola se il
+    /// filmato lo chiede; saltando sfuma in fretta.
     /// </summary>
     [DisallowMultipleComponent]
     public class FilmPlayer : MonoBehaviour
@@ -38,6 +41,21 @@ namespace DarkDescent.Films
         [Tooltip("L'ordine del canvas dei filmati: sopra l'HUD, i menu e la dissolvenza.")]
         [SerializeField] private int _sortingOrder = 900;
 
+        [Header("Musica")]
+        [Tooltip("Il gruppo della musica del mixer: il volume delle opzioni vale anche per i filmati.")]
+        [SerializeField] private AudioMixerGroup _musicGroup;
+
+        [SerializeField, Range(0f, 1f)] private float _musicVolume = 0.8f;
+
+        [Tooltip("Secondi in cui entra un brano preso a metà, dopo un filmato saltato.")]
+        [SerializeField, Min(0.05f)] private float _musicFadeIn = 1f;
+
+        [Tooltip("Secondi in cui il brano sfuma alla fine del filmato, se non finisce da solo.")]
+        [SerializeField, Min(0.05f)] private float _musicFadeOut = 2.5f;
+
+        [Tooltip("Secondi in cui il brano sfuma quando il filmato si salta.")]
+        [SerializeField, Min(0.05f)] private float _skipFadeOut = 0.6f;
+
         private readonly List<Canvas> _hidden = new List<Canvas>();
         private PlayerInputReader _input;
         private Localizer _localizer;
@@ -51,6 +69,10 @@ namespace DarkDescent.Films
         private FilmScript _script;
         private SkipPrompt _skip;
         private bool _started;
+        private AudioSource _music;
+        private bool _runsOut;
+        private float _musicTarget;
+        private float _musicRate;
 
         /// <summary>Il filmato è finito o è stato saltato: il gioco riprende.</summary>
         public event Action<FilmScript> Finished;
@@ -71,6 +93,12 @@ namespace DarkDescent.Films
         /// <summary>L'altezza di una banda nera, in frazione dello schermo.</summary>
         public float BandHeight => _top != null ? _top.anchorMax.y - _top.anchorMin.y : 0f;
 
+        /// <summary>La musica di un filmato suona ancora, anche finito il filmato, mentre sfuma o va in fondo.</summary>
+        public bool IsMusicPlaying => _music != null && _music.isPlaying;
+
+        /// <summary>La sorgente della musica dei filmati: per i test.</summary>
+        public AudioSource Music => _music;
+
         public void Bind(PlayerInputReader input, Localizer localizer)
         {
             _input = input;
@@ -81,7 +109,8 @@ namespace DarkDescent.Films
         /// Fa partire il filmato <paramref name="script"/> sulla Timeline di <paramref name="director"/>.
         /// Falso, e non succede niente, se un altro filmato sta già girando.
         /// </summary>
-        public bool Play(FilmScript script, PlayableDirector director)
+        /// <param name="music">La musica del filmato; senza, il filmato va in silenzio e quella che suona sfuma.</param>
+        public bool Play(FilmScript script, PlayableDirector director, FilmMusic music = default)
         {
             if (IsPlaying || script == null || director == null)
             {
@@ -109,6 +138,7 @@ namespace DarkDescent.Films
             _director.extrapolationMode = DirectorWrapMode.None;
             _director.time = 0d;
             _director.Play();
+            StartMusic(music);
             return true;
         }
 
@@ -123,7 +153,7 @@ namespace DarkDescent.Films
             _skip.Press(Time.unscaledTime);
             if (_skip.Skipped)
             {
-                Stop();
+                Stop(skipped: true);
                 return;
             }
 
@@ -133,6 +163,7 @@ namespace DarkDescent.Films
 
         private void Update()
         {
+            UpdateMusic();
             if (!IsPlaying)
             {
                 return;
@@ -152,7 +183,7 @@ namespace DarkDescent.Films
 
             if (_director == null)
             {
-                Stop();
+                Stop(skipped: false);
                 return;
             }
 
@@ -162,7 +193,7 @@ namespace DarkDescent.Films
             _started |= playing;
             if ((_started && !playing) || time >= _script.Duration)
             {
-                Stop();
+                Stop(skipped: false);
                 return;
             }
 
@@ -172,12 +203,21 @@ namespace DarkDescent.Films
             _title.Show(_script.TitleAt(time), step, _localizer);
         }
 
-        private void Stop()
+        private void Stop(bool skipped)
         {
             var finished = _script;
             if (_director != null)
             {
                 _director.Stop();
+            }
+
+            if (skipped)
+            {
+                FadeMusic(_skipFadeOut);
+            }
+            else if (!_runsOut)
+            {
+                FadeMusic(_musicFadeOut);
             }
 
             _script = null;
@@ -205,8 +245,86 @@ namespace DarkDescent.Films
         {
             if (IsPlaying)
             {
-                Stop();
+                Stop(skipped: true);
             }
+        }
+
+        // lo stesso brano che suona già continua; un altro parte dal suo secondo, con un'entrata se è a metà;
+        // senza brano, quello che suona sfuma
+        private void StartMusic(FilmMusic music)
+        {
+            if (music.Clip == null)
+            {
+                FadeMusic(_skipFadeOut);
+                return;
+            }
+
+            EnsureMusic();
+            _runsOut = music.RunsOut;
+            _musicTarget = _musicVolume;
+            if (_music.isPlaying && _music.clip == music.Clip)
+            {
+                _musicRate = _musicVolume / _musicFadeIn;
+                return;
+            }
+
+            _music.Stop();
+            _music.clip = music.Clip;
+            _music.time = Mathf.Clamp(music.From, 0f, Mathf.Max(0f, music.Clip.length - 0.1f));
+            _music.volume = music.From > 0f ? 0f : _musicVolume;
+            _musicRate = _musicVolume / _musicFadeIn;
+            _music.Play();
+        }
+
+        private void FadeMusic(float seconds)
+        {
+            if (_music == null)
+            {
+                return;
+            }
+
+            _musicTarget = 0f;
+            _musicRate = _musicVolume / seconds;
+
+            // un brano chiesto che non suona ancora partirebbe dopo, a filmato finito: senza la clip non
+            // parte più
+            if (!_music.isPlaying)
+            {
+                _music.Stop();
+                _music.clip = null;
+            }
+        }
+
+        // in tempo vero: la finestra della vittoria ferma il gioco, non la musica
+        private void UpdateMusic()
+        {
+            if (!IsMusicPlaying)
+            {
+                return;
+            }
+
+            _music.volume = Mathf.MoveTowards(_music.volume, _musicTarget, _musicRate * Time.unscaledDeltaTime);
+            if (_musicTarget <= 0f && _music.volume <= 0f)
+            {
+                _music.Stop();
+            }
+        }
+
+        private void EnsureMusic()
+        {
+            if (_music != null)
+            {
+                return;
+            }
+
+            var go = new GameObject("FilmMusic");
+            go.transform.SetParent(transform, false);
+            _music = go.AddComponent<AudioSource>();
+            _music.playOnAwake = false;
+            _music.loop = false;
+            _music.spatialBlend = 0f;
+            _music.priority = 0;
+            _music.outputAudioMixerGroup = _musicGroup;
         }
 
         // le finestre del gioco si spengono per il filmato: si riaccendono solo quelle spente qui

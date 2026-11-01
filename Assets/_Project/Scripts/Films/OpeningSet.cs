@@ -53,6 +53,10 @@ namespace DarkDescent.Films
         [Tooltip("L'osso della mano che tiene la lanterna.")]
         [SerializeField] private string _handSlot = "handslot.r";
 
+        [Header("Suoni")]
+        [SerializeField] private AudioClip _snuffSound;
+        [SerializeField] private AudioClip _earthSound;
+
         [Header("Luce")]
         [Tooltip("La luna delle scene di notte: senza, spente le candele, non si vedrebbe niente.")]
         [SerializeField] private Color _moonColor = new Color(0.55f, 0.65f, 1f);
@@ -226,7 +230,10 @@ namespace DarkDescent.Films
             float spacing = 6f / Mathf.Max(1, _candles.Length);
             for (int i = 0; i < _candles.Length; i++)
             {
-                _candles[i].SetFlame(1f - Mathf.Clamp01((t - 2.5f - i * spacing) / SnuffSeconds));
+                float snuff = 2.5f + i * spacing;
+                _candles[i].SetFlame(1f - Mathf.Clamp01((t - snuff) / SnuffSeconds));
+                // piano, e ogni candela un po' diversa
+                Cue(_snuffSound, snuff, t, 0.35f, 0.85f + 0.3f * Mathf.Repeat(i * 0.618f, 1f));
             }
 
             Burn(t < 9.5f);
@@ -246,6 +253,7 @@ namespace DarkDescent.Films
                 var grave = _graves[i];
                 Vector3 rest = grave.position - grave.forward * 0.5f;
                 float wake = 1.5f + i * 1.3f;
+                Cue(_earthSound, wake, t, 0.85f, 0.92f + 0.08f * i);
                 float awake = Mathf.Max(0f, t - wake);
                 float walking = awake - _awaken.length;
                 if (walking <= 0f)

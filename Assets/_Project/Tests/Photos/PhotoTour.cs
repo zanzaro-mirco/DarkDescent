@@ -519,6 +519,22 @@ namespace DarkDescent.Tests
             ForgetPreferences();
         }
 
+        [UnityTest, Timeout(120000), Description("Il pulsante Filmati del menu iniziale e il suo elenco, con la vittoria già vista (D18 della M19)")]
+        public IEnumerator FilmsMenu()
+        {
+            ForgetPreferences();
+            PlayerPrefs.SetString(CompositionRoot.LanguagePreference, "it");
+            FilmsPanel.MarkVictorySeen();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            yield return Snap("films_1_menu", world: false);
+            Find<MainMenu>().FilmsButton.onClick.Invoke();
+            yield return Frames(3);
+            yield return Snap("films_2_list", world: false);
+            ForgetPreferences();
+        }
+
         [UnityTest, Timeout(300000), Description("Il video dell'apertura (D12): MP4 1920x1080 a 30 fotogrammi, dall'inizio fino alla camera del gioco")]
         public IEnumerator OpeningVideo()
         {
@@ -608,7 +624,8 @@ namespace DarkDescent.Tests
                 Codec = CoreEncoderSettings.OutputCodec.MP4,
                 EncodingQuality = CoreEncoderSettings.VideoEncodingQuality.High,
             };
-            movie.CaptureAudio = false;
+            // con la musica e i suoni dei filmati (19.6)
+            movie.CaptureAudio = true;
             movie.ImageInputSettings = new GameViewInputSettings { OutputWidth = Width, OutputHeight = Height };
             movie.OutputFile = Path.Combine(_folder, name);
             settings.AddRecorderSettings(movie);

@@ -40,6 +40,10 @@ namespace DarkDescent.Films
         [SerializeField] private AnimationClip _standUp;
         [SerializeField] private AnimationClip _cheer;
 
+        [Header("Suoni")]
+        [Tooltip("Il borgo che esulta, quando il primo sopravvissuto alza le braccia.")]
+        [SerializeField] private AudioClip _cheerSound;
+
         private DayCycleView _daylight;
         private float _held = -1f;
         private Hearth _hearth;
@@ -196,6 +200,7 @@ namespace DarkDescent.Films
         {
             Relight(t);
             Survivors(t);
+            Cue(_cheerSound, StandAt + (_standUp != null ? _standUp.length : 0f), t, 0.9f);
             Vector3 from = _stop + (_cave - _stop).normalized * RoadLength;
             float walked = t * WalkSpeed;
             float stopped = Mathf.Max(0f, (walked - RoadLength) / WalkSpeed);

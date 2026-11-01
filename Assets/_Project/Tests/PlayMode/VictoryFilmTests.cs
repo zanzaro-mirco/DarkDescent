@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DarkDescent.Audio;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Films;
@@ -31,6 +33,8 @@ namespace DarkDescent.Tests
         private static GameObject Hero => GameObject.Find("Player");
 
         private static VictoryScreen Victory => Object.FindFirstObjectByType<VictoryScreen>();
+
+        private static AmbiencePlayer Ambience => Object.FindFirstObjectByType<AmbiencePlayer>();
 
         [SetUp]
         public void UseTemporarySaves()
@@ -146,6 +150,7 @@ namespace DarkDescent.Tests
             yield return WaitUntilIn(level => level.IsTown, "il portale non porta nel borgo");
 
             yield return WaitForFilm(FilmLibrary.VictoryReturnId);
+            Assert.IsTrue(FilmsPanel.VictorySeen, "vista una volta, la vittoria si rivede dal menu");
             Assert.IsFalse(Victory.IsOpen, "la finestra aspetta il filmato");
             Assert.IsTrue(Manager.CurrentLevel.Daylight.IsHeld, "il borgo fermo all'alba");
             Root.CurrentFilm.Director.time = FilmLibrary.VictoryReturn.Duration - 0.3f;
@@ -169,6 +174,63 @@ namespace DarkDescent.Tests
             yield return null;
             Assert.AreEqual(1f, Time.timeScale);
             Assert.IsTrue(Hero.GetComponent<PlayerInputReader>().enabled, "si gioca nel borgo");
+        }
+
+        [UnityTest, Timeout(120000), Description("Il re cade nel silenzio; la musica della vittoria parte al portale, va avanti nel viaggio e nel borgo, dove il borgo esulta, e finisce da sola sotto la finestra")]
+        public IEnumerator VictoryMusic_RunsFromThePortalIntoTheVillage()
+        {
+            // l'apertura si salta appena parte e il re cade mezzo secondo dopo, mentre il suo brano sfuma
+            // ancora: il primo tempo non ha un brano suo, e quello che suona finisce di sfumare
+            yield return ToTheKing();
+            KillTheKing();
+            yield return WaitForFilm(FilmLibrary.VictoryFallId);
+            Assert.IsTrue(Ambience.Hushed, "la musica della sala tace");
+            yield return new WaitForSecondsRealtime(0.7f);
+            var heard = Root.Films.Music;
+            Assert.IsTrue(Root.Films.IsPlaying, "il re cade ancora");
+            Assert.IsFalse(Root.Films.IsMusicPlaying, heard == null ? "il re cade nel silenzio"
+                : $"il re cade nel silenzio: suona {heard.clip?.name} al volume {heard.volume:0.00}, al secondo {heard.time:0.0}");
+            Root.CurrentFilm.Director.time = FilmLibrary.VictoryFall.Duration - 0.2f;
+            for (float t = 0f; Root.Films.IsPlaying; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 5f, "il primo tempo non finisce");
+                yield return null;
+            }
+
+            EnterThePortal();
+            yield return WaitForFilm(FilmLibrary.VictoryLeaveId);
+            yield return null;
+            var music = Root.Films.Music;
+            Assert.IsTrue(Root.Films.IsMusicPlaying, "la musica parte al portale");
+            Assert.AreEqual("film_victory", music.clip.name);
+            Root.CurrentFilm.Director.time = FilmLibrary.VictoryLeave.Duration - 0.2f;
+            yield return WaitUntilIn(level => level.IsTown, "il portale non porta nel borgo");
+            Assert.IsTrue(Root.Films.IsMusicPlaying, "la musica va avanti nel viaggio");
+            float travelled = music.time;
+
+            yield return WaitForFilm(FilmLibrary.VictoryReturnId);
+            Assert.IsTrue(music.isPlaying);
+            Assert.That(music.time, Is.GreaterThanOrEqualTo(travelled).And.LessThan(7f), "continua, non riparte");
+
+            var cued = new List<string>();
+            Root.CurrentFilm.Cued += clip => cued.Add(clip.name);
+            Root.CurrentFilm.Director.time = 9d;
+            for (float t = 0f; Root.Films.IsPlaying && Root.CurrentFilm.Director.time < 12.5d; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 6f, "il ritorno non va avanti");
+                yield return null;
+            }
+
+            Assert.Contains("crowd_cheer_sa", cued, "il borgo esulta quando si alzano le braccia");
+            Root.CurrentFilm.Director.time = FilmLibrary.VictoryReturn.Duration - 0.3f;
+            for (float t = 0f; !Victory.IsOpen; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 5f, "la finestra non si apre");
+                yield return null;
+            }
+
+            Assert.IsTrue(Root.Films.IsMusicPlaying, "finisce da sola, sotto la finestra");
+            Assert.IsTrue(Ambience.Hushed, "e la musica del borgo aspetta");
         }
 
         [UnityTest, Timeout(120000), Description("Saltati, i tre pezzi lasciano il gioco com'era: dopo il primo si gioca, dopo il secondo si parte, dopo il terzo la finestra")]

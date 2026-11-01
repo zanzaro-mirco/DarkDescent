@@ -14,26 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.TimelineAsset
   m_Version: 0
   m_Tracks:
-  - {fileID: 9147020211780532172}
+  - {fileID: 1626879380136905081}
   m_FixedDuration: 50
   m_EditorSettings:
     m_Framerate: 60
     m_ScenePreview: 1
   m_DurationMode: 1
   m_MarkerTrack: {fileID: 0}
---- !u!114 &5407669673910802564
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 072779f122fa9b84e93c1d2efa5e3e19, type: 3}
-  m_Name: FilmSetClip
-  m_EditorClassIdentifier: DarkDescent::DarkDescent.Films.FilmSetClip
---- !u!114 &9147020211780532172
+--- !u!114 &1626879380136905081
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -57,10 +45,10 @@ MonoBehaviour:
   - m_Version: 1
     m_Start: 0
     m_ClipIn: 0
-    m_Asset: {fileID: 5407669673910802564}
+    m_Asset: {fileID: 9005663192798176692}
     m_Duration: 50
     m_TimeScale: 1
-    m_ParentTrack: {fileID: 9147020211780532172}
+    m_ParentTrack: {fileID: 1626879380136905081}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: 0
@@ -125,3 +113,15 @@ MonoBehaviour:
     m_DisplayName: Opening
   m_Markers:
     m_Objects: []
+--- !u!114 &9005663192798176692
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 072779f122fa9b84e93c1d2efa5e3e19, type: 3}
+  m_Name: FilmSetClip
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Films.FilmSetClip

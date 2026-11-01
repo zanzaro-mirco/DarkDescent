@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using DarkDescent.Audio;
@@ -15,6 +16,7 @@ using DarkDescent.Stats;
 using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
@@ -194,6 +196,19 @@ namespace DarkDescent.Core
         /// <summary>"1" fa vedere i filmati anche nell'editor: per i test dei filmati e per le foto.</summary>
         public const string FilmsVariable = "DARKDESCENT_FILMS";
 
+        /// <summary>
+        /// Il seme della vittoria rivista dal menu (D18 della M19): la sala del re delle caverne di questo
+        /// seme ha la porta, e il cavaliere sta tra la porta e il re.
+        /// </summary>
+        public const ulong VictoryReplaySeed = 1UL;
+
+        // dove si batte il re delle ossa, per rivedere la vittoria
+        private const string KingScene = "Level_Caves";
+        private const string KingEntrance = "FromAbove";
+        private const int KingDepth = 8;
+        // a questa distanza dal re, verso la porta della sala
+        private const float KingFacing = 3.5f;
+
         // i tre posti del menu iniziale; null quando il gioco parte senza menu
         private SaveSlots _saves;
 
@@ -227,6 +242,11 @@ namespace DarkDescent.Core
 
         // quello che viene dopo il filmato che gira: il viaggio del portale, la finestra della vittoria
         private Action _afterFilm;
+
+        // un filmato rivisto dal menu (D18 della M19): la partita non si salva e finito il filmato si
+        // torna al menu; per la vittoria, arrivati nella sala, il re cade da solo
+        private bool _replaying;
+        private bool _replayKing;
 
         // il boss del livello corrente, se c'è e non è ancora stato sconfitto (D8 della M10)
         private BossController _boss;
@@ -558,6 +578,76 @@ namespace DarkDescent.Core
             _levelManager.Begin();
         }
 
+        /// <summary>
+        /// Un filmato rivisto dal menu (D18 della M19), in una partita che non si salva, con il cavaliere
+        /// di base. L'apertura nel borgo, come in una partita nuova; la vittoria nella sala del re di un
+        /// seme fisso, con il re che cade appena si arriva. Finito o saltato il filmato, si torna al menu.
+        /// </summary>
+        private void HandleFilmChosen(string id)
+        {
+            _replaying = true;
+            _runStats.Restore(0f, 0, 0, 0, false);
+            _difficulty.Restore(0, -1, 0);
+            ulong seed = (ulong)DateTime.UtcNow.Ticks;
+            if (id == DarkDescent.Films.FilmLibrary.VictoryFallId)
+            {
+                seed = VictoryReplaySeed;
+                _replayKing = true;
+                _levelManager.SetStartLevel(KingScene, KingEntrance, KingDepth);
+                _portals.Restore(0);
+            }
+            else
+            {
+                StartInTown();
+                _openingWanted = true;
+            }
+
+            _loot.RunSeed = seed;
+            _levelManager.RunSeed = seed;
+            Debug.Log($"[DarkDescent] filmato rivisto dal menu: {id}");
+            _mainMenu.Hide();
+            _reader.enabled = true;
+            _levelManager.Begin();
+        }
+
+        // il filmato rivisto è finito: si ricarica la scena, che riparte dal menu, senza salvare
+        private void BackToMenu()
+        {
+            SceneManager.LoadScene(gameObject.scene.name);
+        }
+
+        // il cavaliere davanti al re, verso la porta, e appena finita la dissolvenza il re cade
+        private IEnumerator ReplayKing(LevelContext level)
+        {
+            var boss = level.Boss;
+            Vector3 home = boss.GetComponent<EnemyAI>().HomePosition;
+            Vector3 toward = Vector3.forward;
+            if (level.BossGate != null)
+            {
+                toward = level.BossGate.transform.position - home;
+                toward.y = 0f;
+                toward.Normalize();
+            }
+
+            if (NavMesh.SamplePosition(home + toward * KingFacing, out var hit, 2f, NavMesh.AllAreas)
+                && _player.TryGetComponent(out NavMeshAgent agent) && agent.isOnNavMesh)
+            {
+                agent.Warp(hit.position);
+            }
+
+            _player.transform.rotation = Quaternion.LookRotation(-toward);
+            while (_levelManager.IsTransitioning)
+            {
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(0.4f);
+            if (boss != null && !boss.Health.IsDead)
+            {
+                boss.Health.TakeDamage(new DamageInfo(boss.Health.Max * 10f, DamageType.Physical, _player.gameObject));
+            }
+        }
+
         // Esc: prima chiude le finestre aperte, poi apre e chiude la pausa (D10 della M10)
         private void HandlePausePressed()
         {
@@ -615,6 +705,12 @@ namespace DarkDescent.Core
 
         private void Update()
         {
+            // durante un filmato, e finché la sua musica suona, la musica del livello tace (D10 della M19)
+            if (_films != null)
+            {
+                _ambience.Hushed = _films.IsPlaying || _films.IsMusicPlaying;
+            }
+
             // il tempo di gioco: non quello passato nel menu o tra un livello e l'altro
             if (_levelManager.CurrentLevel != null)
             {
@@ -644,6 +740,7 @@ namespace DarkDescent.Core
         {
             _player.Died += HandlePlayerDied;
             _mainMenu.Chosen += HandleMenuChosen;
+            _mainMenu.FilmChosen += HandleFilmChosen;
             _reader.PausePressed += HandlePausePressed;
             _pauseMenu.PausedChanged += HandlePausedChanged;
             _pauseMenu.QuitRequested += HandleQuitToMenu;
@@ -669,6 +766,7 @@ namespace DarkDescent.Core
         {
             _player.Died -= HandlePlayerDied;
             _mainMenu.Chosen -= HandleMenuChosen;
+            _mainMenu.FilmChosen -= HandleFilmChosen;
             _reader.PausePressed -= HandlePausePressed;
             _pauseMenu.PausedChanged -= HandlePausedChanged;
             _pauseMenu.QuitRequested -= HandleQuitToMenu;
@@ -791,17 +889,24 @@ namespace DarkDescent.Core
             if (_openingWanted && level.IsTown)
             {
                 _openingWanted = false;
-                PlayFilm(_opening, level);
+                PlayFilm(_opening, level, _replaying ? (Action)BackToMenu : null);
+            }
+
+            if (_replayKing && level.Boss != null)
+            {
+                _replayKing = false;
+                StartCoroutine(ReplayKing(level));
             }
         }
 
         /// <summary>Il filmato che gira adesso, con il suo set; null se non ce n'è.</summary>
         public Films.FilmSet CurrentFilm => _set;
 
-        // i filmati si vedono nelle build; nell'editor, e quindi nei test, solo se un test lo chiede
-        private static bool FilmsWanted()
+        // i filmati si vedono nelle build; nell'editor, e quindi nei test, solo se un test lo chiede, o
+        // se si rivedono dal menu
+        private bool FilmsWanted()
         {
-            return !Application.isEditor || Environment.GetEnvironmentVariable(FilmsVariable) == "1";
+            return _replaying || !Application.isEditor || Environment.GetEnvironmentVariable(FilmsVariable) == "1";
         }
 
         // Il set si monta nel livello appena arrivato e si smonta quando il filmato finisce o si salta;
@@ -818,7 +923,7 @@ namespace DarkDescent.Core
             _set = Instantiate(prefab);
             _set.Build(level, _player.gameObject, _playerCamera);
             _films.Finished += HandleFilmFinished;
-            if (!_films.Play(_set.Script, _set.Director))
+            if (!_films.Play(_set.Script, _set.Director, _set.Music))
             {
                 HandleFilmFinished(_set.Script);
             }
@@ -1110,7 +1215,8 @@ namespace DarkDescent.Core
             _portals.HoldVictory = films;
             if (films)
             {
-                PlayFilm(_victoryFall, level);
+                // rivista dal menu, il cavaliere non va al portale: il secondo pezzo segue subito
+                PlayFilm(_victoryFall, level, _replaying ? (Action)HandleVictoryEntered : null);
             }
         }
 
@@ -1147,7 +1253,13 @@ namespace DarkDescent.Core
             _firstVictory = false;
             if (FilmsWanted())
             {
-                PlayFilm(_victoryReturn, _levelManager.CurrentLevel, ShowVictory);
+                // vista in una partita, la vittoria si può rivedere dal menu (D18 della M19)
+                if (!_replaying)
+                {
+                    FilmsPanel.MarkVictorySeen();
+                }
+
+                PlayFilm(_victoryReturn, _levelManager.CurrentLevel, _replaying ? (Action)BackToMenu : ShowVictory);
                 return;
             }
 

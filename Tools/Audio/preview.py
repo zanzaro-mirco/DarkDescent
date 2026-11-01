@@ -71,8 +71,10 @@ def write_page(out_dir, made, title="Ascolto suoni", note="Generati da Tools/Aud
             name = os.path.splitext(os.path.basename(path))[0]
             body += _player(name, path)
             body += f'<img alt="spettrogramma" src="{_data_uri("image/png", spectrogram_png(path))}">'
-        label, rel = module.COMPARE
-        body += f'<div class="old">{_player("Oggi: " + label, os.path.join(SFX, rel))}</div>'
+        # un suono nuovo non ha un "oggi" da confrontare
+        if module.COMPARE is not None:
+            label, rel = module.COMPARE
+            body += f'<div class="old">{_player("Oggi: " + label, os.path.join(SFX, rel))}</div>'
         cards.append(f"<section><h2>{html.escape(module.TITLE)}</h2>"
                      f'<p class="d">{html.escape(module.DESCRIPTION)}</p>{body}</section>')
 

@@ -74,6 +74,7 @@ namespace DarkDescent.Localization
         // il menu iniziale, i posti di salvataggio, la pausa e le opzioni (D2 e D10 della M10)
         public const string MenuNewTitle = "menu.new_title";
         public const string MenuLoadTitle = "menu.load_title";
+        public const string MenuFilms = "menu.films";
         public const string SlotEmpty = "slot.empty";
         public const string SlotSummary = "slot.summary";
         public const string ConfirmOverwrite = "confirm.overwrite";

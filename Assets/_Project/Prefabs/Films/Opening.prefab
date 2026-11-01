@@ -62,6 +62,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef6d7ece82e8c834194e430bb4dd2df9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Films.OpeningSet
+  _music: {fileID: 8300000, guid: 4e722fc19f2d4a38b974a689e8fd645f, type: 3}
+  _musicFrom: 0
+  _musicRunsOut: 0
+  _soundGroup: {fileID: -8380571030766219416, guid: 384598ecd767db34bb10f9ed9ea00557, type: 2}
   _skeletons:
   - {fileID: 544816584095552241, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
   - {fileID: 8346990207950622580, guid: a9636a3b48ea36b408f0be301c2d1757, type: 3}
@@ -79,3 +83,7 @@ MonoBehaviour:
   _awaken: {fileID: -5207089531524238507, guid: f8740c715a65f024898d080d7a2a9841, type: 3}
   _skeletonWalk: {fileID: -3442526711835081435, guid: f8740c715a65f024898d080d7a2a9841, type: 3}
   _handSlot: handslot.r
+  _snuffSound: {fileID: 8300000, guid: af44db09bac63ac4a81e796f4fb32618, type: 3}
+  _earthSound: {fileID: 8300000, guid: d1631679c81aedc41aa0a90ac7799f3d, type: 3}
+  _moonColor: {r: 0.55, g: 0.65, b: 1, a: 1}
+  _moonIntensity: 0.6

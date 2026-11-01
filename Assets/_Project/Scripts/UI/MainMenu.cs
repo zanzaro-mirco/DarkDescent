@@ -12,9 +12,9 @@ namespace DarkDescent.UI
     /// <summary>
     /// Il menu iniziale (D2 della M10): Continua riprende l'ultima partita giocata e manca senza
     /// salvataggi; Nuova partita sceglie uno dei tre posti, chiedendo conferma sopra uno occupato;
-    /// Carica mostra i tre posti, che si possono anche cancellare; poi Riconoscimenti (dalla M17),
-    /// Opzioni ed Esci. Sceglie e basta: la partita la fa partire il CompositionRoot, ascoltando
-    /// <see cref="Chosen"/>.
+    /// Carica mostra i tre posti, che si possono anche cancellare; poi Riconoscimenti (dalla M17), Filmati
+    /// (dalla M19), Opzioni ed Esci. Sceglie e basta: la partita la fa partire il CompositionRoot,
+    /// ascoltando <see cref="Chosen"/>, e il filmato da rivedere ascoltando <see cref="FilmChosen"/>.
     /// </summary>
     [DisallowMultipleComponent]
     public class MainMenu : MonoBehaviour
@@ -34,6 +34,8 @@ namespace DarkDescent.UI
 
         [SerializeField] private Button _credits;
 
+        [SerializeField] private Button _films;
+
         [SerializeField] private Button _options;
 
         [SerializeField] private Button _quit;
@@ -50,6 +52,8 @@ namespace DarkDescent.UI
 
         [SerializeField] private CreditsPanel _creditsPanel;
 
+        [SerializeField] private FilmsPanel _filmsPanel;
+
         [Tooltip("La versione del gioco in piccolo, in basso a destra (D7 della M11): serve per le segnalazioni.")]
         [SerializeField] private TMP_Text _version;
 
@@ -60,6 +64,9 @@ namespace DarkDescent.UI
 
         /// <summary>Una partita scelta: il posto e se è nuova (true) o da riprendere.</summary>
         public event Action<int, bool> Chosen;
+
+        /// <summary>Un filmato da rivedere, con il suo id: il menu si chiude e il filmato parte.</summary>
+        public event Action<string> FilmChosen;
 
         public bool IsShown => _root.activeSelf;
 
@@ -72,6 +79,10 @@ namespace DarkDescent.UI
         public Button LoadButton => _load;
 
         public Button CreditsButton => _credits;
+
+        public Button FilmsButton => _films;
+
+        public FilmsPanel Films => _filmsPanel;
 
         public Button OptionsButton => _options;
 
@@ -98,6 +109,8 @@ namespace DarkDescent.UI
             _optionsPanel.Close();
             _creditsPanel.Closed -= ShowMain;
             _creditsPanel.Close();
+            _filmsPanel.Closed -= ShowMain;
+            _filmsPanel.Close();
             _root.SetActive(false);
         }
 
@@ -113,6 +126,8 @@ namespace DarkDescent.UI
             _newGame.onClick.AddListener(HandleNewGame);
             _load.onClick.AddListener(HandleLoad);
             _credits.onClick.AddListener(HandleCredits);
+            _films.onClick.AddListener(HandleFilms);
+            _filmsPanel.Chosen += HandleFilmChosen;
             _options.onClick.AddListener(HandleOptions);
             _quit.onClick.AddListener(HandleQuit);
             _slotsBack.onClick.AddListener(ShowMain);
@@ -129,11 +144,14 @@ namespace DarkDescent.UI
             _newGame.onClick.RemoveListener(HandleNewGame);
             _load.onClick.RemoveListener(HandleLoad);
             _credits.onClick.RemoveListener(HandleCredits);
+            _films.onClick.RemoveListener(HandleFilms);
+            _filmsPanel.Chosen -= HandleFilmChosen;
             _options.onClick.RemoveListener(HandleOptions);
             _quit.onClick.RemoveListener(HandleQuit);
             _slotsBack.onClick.RemoveListener(ShowMain);
             _optionsPanel.Closed -= ShowMain;
             _creditsPanel.Closed -= ShowMain;
+            _filmsPanel.Closed -= ShowMain;
             foreach (var view in _slots)
             {
                 view.Clicked -= HandleSlotClicked;
@@ -145,6 +163,7 @@ namespace DarkDescent.UI
         {
             _optionsPanel.Closed -= ShowMain;
             _creditsPanel.Closed -= ShowMain;
+            _filmsPanel.Closed -= ShowMain;
             _slotsPanel.SetActive(false);
             _mainPanel.SetActive(true);
             _continue.gameObject.SetActive(_saves.LastPlayed() > 0);
@@ -181,6 +200,18 @@ namespace DarkDescent.UI
             _mainPanel.SetActive(false);
             _creditsPanel.Closed += ShowMain;
             _creditsPanel.Open(_localizer);
+        }
+
+        private void HandleFilms()
+        {
+            _mainPanel.SetActive(false);
+            _filmsPanel.Closed += ShowMain;
+            _filmsPanel.Open(_localizer);
+        }
+
+        private void HandleFilmChosen(string id)
+        {
+            FilmChosen?.Invoke(id);
         }
 
         private void HandleQuit()
