@@ -1,4 +1,5 @@
-"""Le texture del terreno del borgo (M18, 18.2): prato e terra battuta, senza cuciture.
+"""Le texture del terreno del borgo (M18, 18.2): prato, terra battuta e, dalla M19, i sampietrini
+della strada; senza cuciture.
 
 Il rumore viene da rumore bianco filtrato con la FFT, quindi è periodico per costruzione: la texture
 si ripete senza bordi. Tinte piatte e macchie larghe, come i modelli KayKit, niente foto.
@@ -72,12 +73,58 @@ def road(rng):
     return np.clip(color, 0, 255)
 
 
+# I sampietrini: cubetti messi in diagonale, a 45 gradi, con la fuga di terra tra l'uno e l'altro.
+# COBBLES cubetti per lato lungo la diagonale della texture: la griglia ruotata si ripete con lei
+COBBLES = 16
+
+
+def cobbles(rng):
+    size = SIZE
+    grout = np.array([74, 64, 52], float)
+    tints = np.array([[118, 114, 108], [132, 126, 116], [104, 100, 96], [140, 132, 120], [112, 106, 98]], float)
+
+    v, u = np.mgrid[0:size, 0:size].astype(float) + 0.5
+    pitch = size / COBBLES
+    a = (u + v) / pitch
+    b = (u - v) / pitch
+    ia, ib = np.floor(a).astype(int), np.floor(b).astype(int)
+    # ogni cubetto ha il suo colore, la sua misura e un piccolo spostamento. Spostando la texture di un
+    # lato, ia e ib cambiano di COBBLES insieme: somma e differenza, prese modulo 2 * COBBLES, non cambiano
+    key = ((ia + ib) % (2 * COBBLES)) * (2 * COBBLES) + ((ia - ib) % (2 * COBBLES))
+    count = (2 * COBBLES) ** 2
+    tint = tints[rng.integers(0, len(tints), count)] + rng.normal(0, 7, (count, 1))
+    half = rng.uniform(0.43, 0.475, count)
+    shift = rng.uniform(-0.04, 0.04, (count, 2))
+    radius = 0.12
+
+    pa = a - ia - 0.5 - shift[key, 0]
+    pb = b - ib - 0.5 - shift[key, 1]
+    h = half[key][..., None]
+    q = np.abs(np.stack([pa, pb], -1)) - (h - radius)
+    outside = np.linalg.norm(np.maximum(q, 0), axis=-1) + np.minimum(np.maximum(q[..., 0], q[..., 1]), 0) - radius
+    # i bordi non dritti: pietre tagliate a mano
+    outside = outside + (noise(rng, 70) - 0.5) * 0.06
+
+    stone = smooth(0.0, -0.03, outside)
+    # il bordo smussato: la luce viene dall'alto a sinistra
+    bevel = smooth(-0.14, 0.0, outside)
+    lit = np.clip(-(pa + pb), -1, 1)
+    color = tint[key] * (1 + 0.12 * (noise(rng, 140)[..., None] - 0.5))
+    color = color + (bevel * lit * 26)[..., None] - (bevel * 14)[..., None]
+    dirt = grout + ((noise(rng, 220) - 0.5) * 18)[..., None]
+    color = mix(dirt, color, stone)
+    # la polvere e l'usura del borgo: macchie larghe più calde e più scure
+    color = mix(color, np.array([96, 84, 68], float), smooth(0.6, 0.85, noise(rng, 5)) * 0.35)
+    return np.clip(color, 0, 255)
+
+
 def main():
     out = Path(sys.argv[1])
     out.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(20261027)
     Image.fromarray(grass(rng).astype(np.uint8)).save(out / 'ground_grass.png')
     Image.fromarray(road(rng).astype(np.uint8)).save(out / 'ground_road.png')
+    Image.fromarray(cobbles(rng).astype(np.uint8)).save(out / 'ground_cobbles.png')
     print('ok', out)
 
 

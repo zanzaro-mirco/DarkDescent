@@ -36,6 +36,8 @@ namespace DarkDescent.Editor
 
         // le case di Medieval Hexagon: la porta alta quanto il cavaliere (18.1)
         private const float HexScale = 6f;
+        // le carriole stanno a destra della strada: il cassone, largo 1,4 m, lascia libera l'altra metà
+        private const float CartSide = 1.3f;
 
         // le luci che si accendono dal tramonto all'alba: davanti alla porta delle case, sotto le lanterne
         private static readonly Color WindowColor = new Color(1f, 0.68f, 0.36f);
@@ -123,12 +125,13 @@ namespace DarkDescent.Editor
         // cappello né faretra, con le tinte spente dei sopravvissuti. Il builder mette il fuoco senza
         // girarlo (_keepsRotation), con il +Z a nord come la mappa. Tre seduti dal lato lontano dalla
         // camera, verso le fiamme; quello in piedi a sud-est, rivolto a sud verso l'ingresso, saluta chi
-        // arriva. Il lato ovest resta libero: lì arriva il portale.
+        // arriva, fino a GreetingReach: dalla M19 il fuoco sta sul prato accanto alla strada, a 16 m dalla
+        // partenza e a 14 dall'arrivo dei portali. Il lato ovest resta libero, verso la strada.
         private const string Adventurers = KayKitImporter.ModelFolder;
         private const string Animations = "Assets/_Project/Art/Animations/KayKit/";
         private const string VillageFirePath = TownPrefabs + "VillageFire.prefab";
         private const float VillagerRadius = 0.45f;
-        private const float GreetingReach = 9f;
+        private const float GreetingReach = 18f;
 
         private readonly struct Survivor
         {
@@ -178,6 +181,8 @@ namespace DarkDescent.Editor
         private const string TextureFolder = "Assets/_Project/Art/Textures/Village/";
         private const float GrassRepeat = 32f;
         private const float RoadRepeat = 12f;
+        // i sampietrini: 16 cubetti lungo la diagonale della texture, circa 35 cm l'uno
+        private const float CobbleRepeat = 8f;
 
         /// <summary>Un modello del pezzo: dove sta il centro della sua base, quanto è grande, come è girato.</summary>
         private readonly struct Part
@@ -225,6 +230,10 @@ namespace DarkDescent.Editor
 
         private static Part Hex(string model, float yaw = 0f, float x = 0f, float z = 0f) => new Part(Village + model + ".fbx", HexScale, x, z, yaw);
 
+        // un modello del villaggio KayKit sollevato da terra, per il carico di una carriola
+        private static Part Cargo(string model, float scale, float x, float z, float yaw = 0f, float lift = 0f) =>
+            new Part(Village + model + ".fbx", HexScale * scale, x, z, yaw, lift);
+
         private static Part Grave(string model, float x = 0f, float z = 0f, float yaw = 0f, float scale = 1f) => new Part(Graveyard + model + ".fbx", scale, x, z, yaw);
 
         private static Part Wild(string model, float scale, float x = 0f, float z = 0f, float yaw = 0f) => new Part(Nature + model + "_Color1.fbx", scale, x, z, yaw);
@@ -267,6 +276,12 @@ namespace DarkDescent.Editor
             Obstacle("WeaponRack", Hex("weaponrack")),
             Obstacle("Lumber", Hex("resource_lumber")),
             Obstacle("Wheelbarrow", Hex("wheelbarrow")),
+            // le carriole cariche sulla strada (M19): sul bordo destro della cella, lungo la strada, così
+            // a sinistra resta il passaggio
+            Obstacle("CartSacks", Cargo("wheelbarrow", 1f, CartSide, 0f), Cargo("sack", 1f, CartSide, -0.5f, 8f, 0.62f),
+                Cargo("sack", 1f, CartSide + 0.05f, 0.35f, -12f, 0.66f), Cargo("sack", 0.9f, CartSide, -0.05f, 95f, 0.98f)),
+            Obstacle("CartLumber", Cargo("wheelbarrow", 1f, CartSide, 0f, 180f),
+                Cargo("resource_lumber", 0.5f, CartSide, -0.1f, 90f, 0.62f)),
 
             // l'erba e i cespugli bassi sul pavimento: si attraversano, fuori dal NavMesh
             Scenery("GrassTufts",
@@ -305,7 +320,7 @@ namespace DarkDescent.Editor
             var dirt = GroundMaterial("M_VillageDirt", "ground_road.png");
 
             SaveTile("VillageGrass", grass, GrassRepeat);
-            SaveTile("VillageRoad", dirt, RoadRepeat);
+            SaveTile("VillageRoad", GroundMaterial("M_VillageCobbles", "ground_cobbles.png"), CobbleRepeat);
             SaveBackdrop(grass, DayLighting());
             foreach (var piece in Pieces)
             {
@@ -321,6 +336,44 @@ namespace DarkDescent.Editor
             AssetDatabase.SaveAssets();
             BuildTileset();
             Debug.Log($"[DarkDescent] borgo: {Pieces.Length + 6} prefab in {PrefabFolder}, più {TunnelMouthPath}");
+        }
+
+        /// <summary>
+        /// Solo la strada di sampietrini (M19), senza rifare gli altri prefab: il materiale nuovo sul pezzo
+        /// di strada che c'è già, così la guaritrice, che lo contiene, resta legata. La terra resta per le
+        /// tombe scavate e la bocca della grotta.
+        /// </summary>
+        public static void PaveRoads()
+        {
+            var cobbles = GroundMaterial("M_VillageCobbles", "ground_cobbles.png");
+            string path = PrefabFolder + "VillageRoad.prefab";
+            var road = PrefabUtility.LoadPrefabContents(path);
+            var tile = road.transform.Find("Tile");
+            tile.GetComponent<MeshRenderer>().sharedMaterial = cobbles;
+            var so = new SerializedObject(tile.GetComponent<WorldUv>());
+            so.FindProperty("_metersPerRepeat").floatValue = CobbleRepeat;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(road, path);
+            PrefabUtility.UnloadPrefabContents(road);
+
+            var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>(TilesetPath);
+            var set = new SerializedObject(tileset);
+            set.FindProperty("_road").intValue = ',';
+            set.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(tileset);
+            AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>Solo le carriole cariche della strada (M19) e il tileset, senza rifare gli altri prefab.</summary>
+        public static void SaveCarts()
+        {
+            foreach (var piece in Pieces.Where(p => p.Name == "CartSacks" || p.Name == "CartLumber"))
+            {
+                SavePiece(piece);
+            }
+
+            AssetDatabase.SaveAssets();
+            BuildTileset();
         }
 
         /// <summary>Il prefab del borgo con questo nome.</summary>
@@ -1023,6 +1076,7 @@ namespace DarkDescent.Editor
             so.FindProperty("_wallVariant").objectReferenceValue = Load("VillageEdgeFence");
             so.FindProperty("_lowWall").objectReferenceValue = Load("VillageEdgeLow");
             so.FindProperty("_variantChance").floatValue = 0.4f;
+            so.FindProperty("_road").intValue = ',';
             so.FindProperty("_floorVariant").objectReferenceValue = null;
             so.FindProperty("_wallTorch").objectReferenceValue = null;
             so.FindProperty("_ambientColor").colorValue = new Color(0.4f, 0.38f, 0.35f);
@@ -1067,6 +1121,8 @@ namespace DarkDescent.Editor
                 ('r', Load("WeaponRack"), false, false),
                 ('u', Load("Lumber"), false, false),
                 ('k', Load("Wheelbarrow"), false, false),
+                ('c', Load("CartSacks"), false, true),
+                ('t', Load("CartLumber"), false, true),
                 ('f', AssetDatabase.LoadAssetAtPath<GameObject>(VillageFirePath), false, true),
                 ('M', AssetDatabase.LoadAssetAtPath<GameObject>(MerchantStallPath), false, false),
                 ('E', AssetDatabase.LoadAssetAtPath<GameObject>(BlacksmithPath), false, true),

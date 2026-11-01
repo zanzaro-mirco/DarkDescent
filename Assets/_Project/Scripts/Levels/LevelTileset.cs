@@ -77,6 +77,9 @@ namespace DarkDescent.Levels
         [Tooltip("Gli altri marcatori: nemici e oggetti di scena, al centro della cella.")]
         [SerializeField] private MarkerPrefab[] _markers;
 
+        [Tooltip("Il simbolo della strada: sotto un oggetto che sta in mezzo alla strada va il suo prefab, non il pavimento. Vuoto, nessuna strada.")]
+        [SerializeField] private char _road;
+
         [Tooltip("Il materiale delle macchie a terra, con l'atlante (D5 della M17); senza, il livello non ne ha.")]
         [SerializeField] private Material _decalMaterial;
 
@@ -84,6 +87,9 @@ namespace DarkDescent.Levels
         [SerializeField, Range(0.005f, 0.1f)] private float _decalLift = 0.02f;
 
         public GameObject Floor => _floor;
+
+        /// <summary>Il simbolo della strada, o <c>'\0'</c> se il tileset non ne ha.</summary>
+        public char Road => _road;
 
         public GameObject Backdrop => _backdrop;
 

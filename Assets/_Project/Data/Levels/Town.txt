@@ -8,7 +8,8 @@
 //   C la cappella, W il pozzo, Q la cripta del cimitero, O la grotta nel monte;
 //   fuori Y Z pini, F il bosco, X alberi secchi, R sassi, S massi, U cespugli, N e h colline, m montagne.
 // Oggetti: , strada, g q tombe, n recinto, a l'arco del cimitero, l lanterna, d albero secco,
-//   e panca, x casse, b barili, r rastrelliera, u legna, k carriola, v erba, o cespuglio.
+//   e panca, x casse, b barili, r rastrelliera, u legna, k carriola, v erba, o cespuglio,
+//   c t carriole cariche di sacchi e di legna, sul bordo della strada.
 @depth 0
 @entrance Start
 @exit Level_Crypt Start 1
@@ -22,18 +23,18 @@ ZF::UZ::%%%:%O%:%%%:ZR::UZF
 FZFZ:ZZZ:::S.>.S:::Z:Z:Z:FZ
 :FZXYYYYYYYS.,.SYYYYYYYYZ:F
 FRFU#######S.,.S#######Z:F:
-UFXR#o%...v..,..v...%o#YZ:F
+UFXR#o%...v..t..v...%o#YZ:F
 FUFU#.H.vg.q.,.%%q..H.#Z:F:
 :FUX#v....dg.,.Q%.v...#YZ:F
 FNXU#o..vq..l,lg.g...v#Z:F:
 UF:R#%J.nnnnnannnnl...#YZ:F
-FUFU#...%BEvo,...v.C%.#ZZF:
+FUFU#...%BEvo,.f.v.C%.#ZZF:
 ZFXX#v.v%%r..,e.x.A%%v#YZZF
-FZFU#..u....Pf.Mb..v..#Z:FZ
-UFZR#%GL,,,,,,e,,,,.V%#YZRF
+FZFU#..u....P,.Mb..v..#Z:FZ
+UFZR#%GL,,,,,,,,,,,.V%#YZRF
 FNXU#..ok....<..Wvx.%%#Z:F:
 RFUX#%D...b.v,v..v...o#YZ:F
-F:FU#%%..I.J.,.D%.H...#Z:FR
+F:FU#%%..I.J.c.D%.H...#Z:FR
 UFXR#..vo%.%.,o%%.%..v#Y:::
 FUFU###################:%%%
 :FUXURUUZRU::UU:URZURRU:%h%

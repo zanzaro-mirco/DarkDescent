@@ -207,7 +207,11 @@ namespace DarkDescent.Levels
                     // cripta hanno la loro piastrella con i buchi
                     if (map.IsFloor(x, y) && map.GetSymbol(x, y) != StairsDownSymbol && !_tileset.ReplacesFloor(map.GetSymbol(x, y)))
                     {
-                        Place(Pick(_tileset.Floor, _tileset.FloorVariant, x, y, 0), parent, LevelMap.CellCenter(x, y), Quaternion.identity);
+                        // l'arco, il fuoco o una panca in mezzo alla strada non la interrompono
+                        var floor = _tileset.Road != '\0' && map.CarriesRoad(x, y, _tileset.Road)
+                            ? _tileset.GetMarkerPrefab(_tileset.Road)
+                            : Pick(_tileset.Floor, _tileset.FloorVariant, x, y, 0);
+                        Place(floor, parent, LevelMap.CellCenter(x, y), Quaternion.identity);
                     }
                 }
             }

@@ -23,11 +23,12 @@ namespace DarkDescent.Films
     {
         private const float WalkSpeed = 2.2f;
         private const float BlendSeconds = 0.35f;
-        // la copia si ferma a questa distanza dal fuoco, dalla parte della grotta, fuori dal cerchio di chi siede
+        // la copia si ferma a questa distanza dal fuoco, dalla parte da cui arriva, fuori dal cerchio di chi siede
         private const float StopFromFire = 4.3f;
         // la grotta all'alba piena, la piazza quando il sole esce: la luce sale con il ritorno
         private const float CaveHour = 40f;
         private const float SquareHour = 135f;
+        // senza l'arco del cimitero nella mappa: la strada dritta dalla parte della grotta
         private const float RoadLength = 13f;
         private const float StandAt = 3f;
         private const float RelightAt = 3.5f;
@@ -59,6 +60,9 @@ namespace DarkDescent.Films
         private Vector3 _cave;
         private Vector3 _fire;
         private Vector3 _stop;
+        private Vector3[] _route = new Vector3[0];
+        private Vector3 _approach;
+        private float _routeLength;
         private float _gameplayYaw;
         private float _gameplayPitch;
         private float _gameplaySize;
@@ -103,7 +107,14 @@ namespace DarkDescent.Films
                 _survivors[i].gameObject.SetActive(false);
             }
 
+            _approach = Approach(level.Map);
             _stop = Stop();
+            _route = Route(level.Map);
+            _routeLength = 0f;
+            for (int i = 1; i < _route.Length; i++)
+            {
+                _routeLength += Vector3.Distance(_route[i - 1], _route[i]);
+            }
         }
 
         protected override void Pose(float time)
@@ -201,10 +212,10 @@ namespace DarkDescent.Films
             Relight(t);
             Survivors(t);
             Cue(_cheerSound, StandAt + (_standUp != null ? _standUp.length : 0f), t, 0.9f);
-            Vector3 from = _stop + (_cave - _stop).normalized * RoadLength;
             float walked = t * WalkSpeed;
-            float stopped = Mathf.Max(0f, (walked - RoadLength) / WalkSpeed);
-            _knight.Place(Vector3.MoveTowards(from, _stop, walked), _stop - from);
+            float stopped = Mathf.Max(0f, (walked - _routeLength) / WalkSpeed);
+            Vector3 heading = Along(walked, out Vector3 at);
+            _knight.Place(at, heading);
             _knight.Pose(_walk, t, _idle, stopped, stopped / BlendSeconds);
             Frame(Vector3.Lerp(_knight.transform.position, _fire, 0.55f) + Vector3.up, -25f, 30f, Mathf.Lerp(7.5f, 6f, Ease(k)));
         }
@@ -222,16 +233,66 @@ namespace DarkDescent.Films
             Frame(Vector3.Lerp(last, _stop, e), Mathf.LerpAngle(-25f, _gameplayYaw, e), Mathf.Lerp(30f, _gameplayPitch, e), Mathf.Lerp(6f, _gameplaySize, e));
         }
 
-        // dove si ferma il cavaliere: dalla parte della grotta, nel varco più largo tra chi siede attorno al fuoco
+        // La strada del cavaliere verso la piazza: dal cimitero passa sotto l'arco, segue la strada per una
+        // cella e va al suo posto accanto al fuoco. Dritto per la piazza attraverserebbe la cancellata e il
+        // cespuglio accanto all'arco
+        private Vector3[] Route(LevelMap map)
+        {
+            if (!map.Markers.Any(m => m.Symbol == 'a'))
+            {
+                return new[] { _stop + (_cave - _stop).normalized * RoadLength, _stop };
+            }
+
+            Vector3 arch = Marker(map, 'a');
+            arch.y = _stop.y;
+            return new[] { arch + Vector3.forward * LevelMap.CellSize, arch, _approach, _stop };
+        }
+
+        // da dove arriva il cavaliere: la strada appena sotto l'arco, o la grotta se l'arco non c'è
+        private Vector3 Approach(LevelMap map)
+        {
+            if (!map.Markers.Any(m => m.Symbol == 'a'))
+            {
+                return _cave;
+            }
+
+            Vector3 below = Marker(map, 'a') + Vector3.back * LevelMap.CellSize;
+            below.y = _fire.y;
+            return below;
+        }
+
+        // il punto della strada dopo <paramref name="walked"/> metri, e la direzione del tratto
+        private Vector3 Along(float walked, out Vector3 at)
+        {
+            at = _route.Length > 0 ? _route[0] : _stop;
+            Vector3 heading = _fire - _stop;
+            for (int i = 1; i < _route.Length; i++)
+            {
+                Vector3 step = _route[i] - _route[i - 1];
+                heading = step;
+                if (walked <= step.magnitude)
+                {
+                    at = _route[i - 1] + step.normalized * walked;
+                    return heading;
+                }
+
+                walked -= step.magnitude;
+                at = _route[i];
+            }
+
+            return heading;
+        }
+
+        // dove si ferma il cavaliere: dalla parte da cui arriva, nel varco più largo tra chi siede attorno al fuoco
         private Vector3 Stop()
         {
-            Vector3 toCave = _cave - _fire;
-            toCave.y = 0f;
-            Vector3 best = _fire + toCave.normalized * StopFromFire;
+            Vector3 toward = _approach - _fire;
+            toward.y = 0f;
+            Vector3 best = _fire + toward.normalized * StopFromFire;
             float widest = -1f;
             for (float angle = -60f; angle <= 60f; angle += 10f)
             {
-                Vector3 spot = _fire + Quaternion.Euler(0f, angle, 0f) * toCave.normalized * StopFromFire;
+                Vector3 spot = _fire + Quaternion.Euler(0f, angle, 0f) * toward.normalized * StopFromFire;
                 float nearest = _seats.Length > 0 ? _seats.Min(seat => Vector3.Distance(seat, spot)) : float.MaxValue;
                 if (nearest > widest + 0.3f)
                 {

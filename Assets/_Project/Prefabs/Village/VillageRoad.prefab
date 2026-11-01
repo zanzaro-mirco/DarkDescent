@@ -121,7 +121,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: db5ad99858630ed4da8e6754c942626c, type: 2}
+  - {fileID: 2100000, guid: 2fd90ae3bb7ac57408a6832419132579, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -157,4 +157,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c16c3327026a31a42b1bd671450d8545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Rendering.WorldUv
-  _metersPerRepeat: 12
+  _metersPerRepeat: 8

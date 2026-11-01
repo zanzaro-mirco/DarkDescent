@@ -103,6 +103,48 @@ namespace DarkDescent.Tests
             Assert.AreEqual(floors, seen.Count);
         }
 
+        [Test, Description("La strada di sampietrini è tutta collegata e senza oggetti in mezzo: sopra ci stanno solo l'arco del cimitero, la partenza e le due carriole cariche, sul bordo; il fuoco sta sul prato (M19)")]
+        public void Road_IsClearAndUnbroken()
+        {
+            var map = Load();
+            var tileset = AssetDatabase.LoadAssetAtPath<LevelTileset>(TilesetPath);
+            Assert.AreEqual(',', tileset.Road, "il tileset sa qual è la strada");
+
+            var onRoad = map.Markers.Where(m => m.Symbol != ',' && map.CarriesRoad(m.X, m.Y, ',')).Select(m => m.Symbol).Distinct();
+            CollectionAssert.AreEquivalent(new[] { '<', 'a', 'c', 't' }, onRoad.ToArray(), "sulla strada");
+            var fire = map.Markers.Single(m => m.Symbol == 'f');
+            Assert.IsFalse(map.CarriesRoad(fire.X, fire.Y, ','), "il fuoco sta sul prato");
+
+            // da una cella di strada si arriva a tutte le altre senza uscire dalla strada
+            var road = new HashSet<Vector2Int>();
+            for (int y = 0; y < map.Height; y++)
+            {
+                for (int x = 0; x < map.Width; x++)
+                {
+                    if (map.GetSymbol(x, y) == ',' || map.CarriesRoad(x, y, ','))
+                    {
+                        road.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+
+            var reached = new HashSet<Vector2Int> { road.First() };
+            var open = new Queue<Vector2Int>(reached);
+            while (open.Count > 0)
+            {
+                var cell = open.Dequeue();
+                foreach (var next in new[] { cell + Vector2Int.up, cell + Vector2Int.down, cell + Vector2Int.left, cell + Vector2Int.right })
+                {
+                    if (road.Contains(next) && reached.Add(next))
+                    {
+                        open.Enqueue(next);
+                    }
+                }
+            }
+
+            Assert.AreEqual(road.Count, reached.Count, "la strada è a pezzi");
+        }
+
         [Test, Description("Ogni cella coperta è di un pezzo solo, e le celle di ogni pezzo fanno un rettangolo (M18)")]
         public void Pieces_AreRectanglesThatDoNotMerge()
         {

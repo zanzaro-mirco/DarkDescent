@@ -211,6 +211,21 @@ namespace DarkDescent.Levels
             return IsFloor(x, y) ? _cells[x, y] : Rock;
         }
 
+        /// <summary>
+        /// La strada <paramref name="road"/> passa sotto quello che sta su questa cella: un arco, il fuoco, una
+        /// panca. Vero se la cella è pavimento con un altro simbolo e ha la strada su due lati opposti.
+        /// </summary>
+        public bool CarriesRoad(int x, int y, char road)
+        {
+            if (!IsFloor(x, y) || _cells[x, y] == road)
+            {
+                return false;
+            }
+
+            return (GetSymbol(x, y - 1) == road && GetSymbol(x, y + 1) == road)
+                || (GetSymbol(x - 1, y) == road && GetSymbol(x + 1, y) == road);
+        }
+
         /// <summary>Il simbolo è un pezzo, elencato in <c>@solid</c>: non si cammina sulla sua cella.</summary>
         public bool IsSolid(char symbol)
         {
