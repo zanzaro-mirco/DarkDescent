@@ -536,6 +536,7 @@ RTX 5070 Ti Laptop, Direct3D 12), a 1920×1080 in finestra, qualità PC, senza v
 | Misura | v1.6.0 | v1.7.0 |
 |---|---|---|
 | Build Windows compressa come l'artefatto, in locale | 56,73 MB | 58,22 MB (+1,49, limite +30) |
+| Build Windows, artefatto della CI | 57,68 MB (run 40887505924) | 59,17 MB (run 41359766400, +1,49) |
 
 Con il nuovo `-benchmark-films` la build rivede dal menu i due filmati, come il pulsante *Filmati*, e
 misura ogni pezzo dal primo all'ultimo frame:
@@ -553,8 +554,8 @@ triangoli, e l'apertura, con 867 batch, sono i pezzi più pesanti.
 
 **La chiusura.**
 - Le due GIF del README, `docs/media/m19_opening.gif` e `m19_victory.gif`, fatte dai video rifatti
-  con la strada nuova da `Tools/Video/gif.py`, con una tavolozza per scena. I video interi vanno nella
-  release (D12).
+  con la strada nuova da `Tools/Video/gif.py`, con una tavolozza per scena. I video interi sono nella
+  [release v1.7.0](https://github.com/zanzaro-mirco/DarkDescent/releases/tag/v1.7.0) (D12).
 - ADR-123…127 in `DECISIONS.md`.
 - Le lezioni nel piano (v2.69).
 - Il README con la v1.7.
@@ -583,7 +584,7 @@ triangoli, e l'apertura, con 867 batch, sono i pezzi più pesanti.
 - [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)
 - [x] I download approvati: Timeline e Recorder (sì il 29 ott), i modelli di ComfyUI (sì il 29 ott)
 - [x] L'apertura e la vittoria approvate da Mirco in video (il borgo rivisto il 1 nov)
-- [ ] Test EditMode e PlayMode verdi in locale e in CI
+- [x] Test EditMode e PlayMode verdi in locale e in CI (Tests 41358623821)
 - [x] La build misurata dentro il limite della D17 (+1,49 MB, filmati a 562–687 fps)
 - [x] ADR, lezioni nel piano, README, `CREDITS.md` e `Data/Credits.txt`
-- [ ] `bundleVersion` 1.7.0 e tag `v1.7.0` dopo i test verdi in CI
+- [x] `bundleVersion` 1.7.0 e tag `v1.7.0` dopo i test verdi in CI (build 41359766400 verde)
