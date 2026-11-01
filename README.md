@@ -9,6 +9,26 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.7 — M19 "L'ultima candela"**, chiusa il 1 novembre 2026 (tag `v1.7.0`). Rispetto alla v1.6:
+
+- l'**apertura**, *L'ultima candela*, a ogni *Nuova partita*: il borgo di notte con le candele che
+  si spengono, gli scheletri che escono dal cimitero, i sopravvissuti all'alba, il cavaliere che
+  arriva e il mercante che indica la grotta, poi il titolo e si gioca;
+- la **vittoria**, la prima volta che cade il Re delle ossa a ogni difficoltà: il re che cade al
+  rallentatore, il cavaliere che entra nel portale, il ritorno nel borgo all'alba con i
+  sopravvissuti che esultano e le candele che si riaccendono, poi le statistiche;
+- i filmati sono **girati nel motore**, con i modelli e le luci del gioco e il tuo cavaliere, hanno
+  le didascalie nelle due lingue, la loro **musica** generata con ACE-Step e i loro suoni; si
+  saltano con Esc o un click (due volte);
+- il pulsante **Filmati** nel menu li fa rivedere: l'apertura sempre, la vittoria dopo averla vista;
+- la **strada del borgo** di sampietrini, senza interruzioni, con due carriole cariche; il fuoco
+  sul prato accanto;
+- i filmati **misurati in build** con `-benchmark-films`.
+
+![L'apertura: il borgo di notte con le candele che si spengono, gli scheletri che escono dalle tombe del cimitero, il titolo L'ultima candela sopra la grotta all'alba](docs/media/m19_opening.gif)
+
+![La vittoria: il Re delle ossa che cade nella sua sala, il cavaliere che entra nel portale azzurro, i sopravvissuti che esultano attorno al fuoco del borgo all'alba](docs/media/m19_victory.gif)
+
 **v1.6 — M18 "Il borgo"**, chiusa il 29 ottobre 2026 (tag `v1.6.0`). Rispetto alla v1.5:
 
 - si comincia in un **borgo** all'aperto al posto dell'accampamento sotto terra: la piazza con il
@@ -220,7 +240,9 @@ della partita e ai riconoscimenti; la partita resta salvata e si può riscendere
   scontro con il re misurando i frame; i risultati vanno nel log e nel file, poi il gioco si chiude.
   `-benchmark-seconds 5` accorcia i tratti, `-benchmark-fps 30` mette un tetto agli fps.
   Con `-benchmark-levels 20` misura invece quanto costa costruire il borgo, la cripta alle
-  profondità 1 e 4 e le caverne all'8, con 20 semi ciascuno: la media e il peggiore
+  profondità 1 e 4 e le caverne all'8, con 20 semi ciascuno: la media e il peggiore.
+  Con `-benchmark-films`, senza `-seed`, rivede dal menu l'apertura e la vittoria e misura i
+  frame di ogni pezzo
 
 ## CI
 

@@ -4,29 +4,38 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 29 ott 2026, build di metà M19 da provare (dopo il passo 19.4, run 40938803151 su
-`20a34ae`, artefatto `DarkDescent-Windows-main`). Le prove della M18 restano valide.
+Ultimo aggiornamento: 1 nov 2026, build della v1.7.0 da provare (l'artefatto della build del tag).
+Le prove della M18 restano valide.
 
-## Dalla M19 — "L'ultima candela" (in corso, dopo il 19.4)
+## Dalla M19 — "L'ultima candela" (v1.7.0)
 
-- **L'apertura**: *Nuova partita* dal menu, scegli un posto. Parte il filmato di circa 50 s, senza
-  musica (arriva al 19.6). Le cinque scene si capiscono? Il ritmo va bene, o qualche scena è troppo
-  lunga o troppo corta?
-- **La notte**: le candele si spengono una a una e si vede? Il cimitero, con la luna, si legge o è
-  troppo buio sul tuo schermo?
-- **Le comparse**: i paesani che scappano con le lanterne, gli scheletri che escono dalla terra, il
-  mercante che accende la candela e indica la grotta. Qualcosa scatta, scivola o compenetra?
+- **L'apertura**: *Nuova partita* dal menu, scegli un posto. Parte il filmato di circa 50 s, con la
+  sua musica. Le cinque scene si capiscono? Il ritmo va bene, o qualche scena è troppo lunga o
+  troppo corta?
+- **La notte**: le candele si spengono una a una, ognuna con il suo soffio? Il cimitero, con la luna,
+  si legge o è troppo buio sul tuo schermo? La terra si rompe sopra ogni scheletro che esce?
+- **Le comparse**: i paesani che scappano con le lanterne, gli scheletri, il mercante che accende la
+  candela e indica la grotta. Qualcosa scatta, scivola o compenetra?
 - **Le didascalie e il titolo**: si leggono, in italiano e in inglese (cambia lingua dalle opzioni e
   rifai una partita nuova)? Le bande nere sopra e sotto stanno bene?
-- **Il salto**: Esc o un click mostrano in alto «Esc o click per saltare», il secondo salta. Si torna
-  nel borgo di giorno, con il cavaliere libero e l'interfaccia?
-- **La fine**: la camera scende sul cavaliere e diventa quella del gioco senza uno strappo? Il borgo è
-  a posto (tombe richiuse, fuoco acceso, abitanti attorno al fuoco)?
+- **Il salto**: Esc o un click mostrano in alto «Esc o click per saltare», il secondo salta, e la
+  musica sfuma in fretta. Si torna nel borgo di giorno, con il cavaliere libero e la musica del borgo?
+- **La fine**: la camera scende sul cavaliere e diventa quella del gioco senza uno strappo?
 - **Quando non deve partire**: *Continua* su un posto già usato non mostra il filmato.
-- **Il fluido**: il filmato gira liscio (D17 chiede 60 fps), anche nella scena di notte con tutte le
-  finestre accese?
-- **Il borgo di notte, giocando**: dopo una ventina di minuti di gioco, le finestre e i lumi delle
-  lanterne brillano dal vetro?
+- **La vittoria**: batti il Re delle ossa (da una partita avanzata). Il re cade al rallentatore e resta
+  a terra, poi si gioca e il tesoro si apre. Entrando nel portale il cavaliere guarda le ossa ed
+  entra; nel borgo all'alba esce dalla grotta, scende la strada, passa sotto l'arco del cimitero e si
+  ferma accanto al fuoco, mentre i sopravvissuti esultano e le candele si riaccendono. La musica parte
+  al portale e continua nel viaggio? Poi la finestra, e con *Continua* si gioca da lì.
+- **I filmati nel menu**: *Filmati*, sotto *Riconoscimenti*. *L'ultima candela* c'è sempre, *La
+  vittoria* solo dopo averla vista. Rivisti, tornano al menu senza toccare i posti salvati?
+- **Il volume**: la musica delle opzioni abbassa anche quella dei filmati.
+- **La strada del borgo**: i sampietrini si leggono, da vicino e da lontano, di giorno e di notte?
+  Nessuna interruzione dalla gola alla piazza? Le carriole cariche sul bordo non danno fastidio
+  camminando?
+- **Il saluto**: l'abitante in piedi accanto al fuoco saluta quando arrivi dall'ingresso o dal portale?
+- **Il fluido**: i filmati girano lisci (D17 chiede 60 fps), anche nella notte con tutte le finestre
+  accese?
 
 ## Dalla M18 — "Il borgo" (v1.6.0)
 

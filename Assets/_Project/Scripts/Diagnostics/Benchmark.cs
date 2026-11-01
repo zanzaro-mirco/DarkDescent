@@ -6,8 +6,10 @@ using System.Text;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
+using DarkDescent.Films;
 using DarkDescent.Levels;
 using DarkDescent.Player;
+using DarkDescent.UI;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.AI;
@@ -20,7 +22,8 @@ namespace DarkDescent.Diagnostics
     /// senza morire; per ogni tratto una riga con frame, main thread, allocazioni e rendering va nel log
     /// e, se dopo l'opzione c'è un percorso, in quel file. Poi il gioco si chiude. Si avvia con
     /// <c>-seed</c>, che salta il menu e rende i livelli sempre uguali. Con <c>-benchmark-levels</c>
-    /// misura invece quanto costa costruire i livelli (D19 della M18).
+    /// misura invece quanto costa costruire i livelli (D19 della M18), con <c>-benchmark-films</c> i
+    /// filmati (D17 della M19).
     /// </summary>
     public sealed class Benchmark : MonoBehaviour
     {
@@ -39,17 +42,25 @@ namespace DarkDescent.Diagnostics
         /// </summary>
         public const string LevelsOption = "-benchmark-levels";
 
+        /// <summary>
+        /// Al posto del giro, i filmati (D17 della M19): l'apertura e i tre pezzi della vittoria, rivisti
+        /// dal menu come con il pulsante Filmati, ognuno misurato dal primo all'ultimo frame. Parte dal
+        /// menu, quindi senza <c>-seed</c>: <c>-benchmark-films</c>.
+        /// </summary>
+        public const string FilmsOption = "-benchmark-films";
+
         private const int DefaultLevelSeeds = 20;
 
         private const float DefaultStageSeconds = 20f;
         private const float SettleSeconds = 1.5f;
         private const float LoadTimeout = 30f;
+        private const float FilmTimeout = 120f;
         private const float TargetRange = 30f;
         private const float WalkInterval = 4f;
         private const float WalkDistance = 15f;
 
-        // 20 s fino a 1500 fps
-        private readonly FrameStats _stats = new FrameStats(30000);
+        // 60 s fino a 1500 fps: l'apertura intera
+        private readonly FrameStats _stats = new FrameStats(90000);
         private readonly StringBuilder _report = new StringBuilder();
         private readonly System.Random _random = new System.Random(7);
 
@@ -60,6 +71,7 @@ namespace DarkDescent.Diagnostics
         private string _path;
         private float _stageSeconds = DefaultStageSeconds;
         private int _levelSeeds;
+        private bool _films;
 
         private ProfilerRecorder _mainThread;
         private ProfilerRecorder _gcAlloc;
@@ -111,6 +123,13 @@ namespace DarkDescent.Diagnostics
                     ? count
                     : DefaultLevelSeeds;
             }
+
+            // un filmato rivisto finisce ricaricando la scena: la misura deve restare
+            _films = CommandLine.HasFlag(args, FilmsOption);
+            if (_films)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
         }
 
         private void OnEnable()
@@ -148,6 +167,14 @@ namespace DarkDescent.Diagnostics
             if (_levels == null || _health == null || _attack == null)
             {
                 Finish("manca la scena Core");
+                yield break;
+            }
+
+            if (_films)
+            {
+                yield return MeasureFilms(false, FilmLibrary.OpeningId);
+                yield return MeasureFilms(true, FilmLibrary.VictoryFallId, FilmLibrary.VictoryLeaveId, FilmLibrary.VictoryReturnId);
+                Finish(null);
                 yield break;
             }
 
@@ -354,6 +381,70 @@ namespace DarkDescent.Diagnostics
                 label, totals.Count, generate / count, build / count, bake / count, (generate + build + bake) / count, worst, worstSeed);
             _report.AppendLine(line);
             Debug.Log("[DarkDescent] benchmark " + line);
+        }
+
+        // Dal menu, il filmato come con il pulsante Filmati; poi ogni pezzo, nell'ordine, dal primo frame in
+        // cui gira all'ultimo. Il pulsante della vittoria risponde anche se è nascosto: la misura non
+        // segna la vittoria come vista
+        private IEnumerator MeasureFilms(bool victory, params string[] pieces)
+        {
+            MainMenu menu = null;
+            for (float t = 0f; menu == null || !menu.IsShown; t += Time.unscaledDeltaTime)
+            {
+                if (t > LoadTimeout)
+                {
+                    _report.AppendLine($"{pieces[0]}: il menu non arriva");
+                    yield break;
+                }
+
+                yield return null;
+                menu = FindFirstObjectByType<MainMenu>();
+            }
+
+            menu.FilmsButton.onClick.Invoke();
+            (victory ? menu.Films.VictoryButton : menu.Films.OpeningButton).onClick.Invoke();
+            foreach (string piece in pieces)
+            {
+                FilmPlayer player = null;
+                for (float t = 0f; player == null || player.Current == null || player.Current.Id != piece; t += Time.unscaledDeltaTime)
+                {
+                    if (t > FilmTimeout)
+                    {
+                        _report.AppendLine($"{piece}: il filmato non parte");
+                        yield break;
+                    }
+
+                    yield return null;
+                    player = FindFirstObjectByType<FilmPlayer>();
+                }
+
+                // il frame più lungo e il secondo del filmato in cui cade
+                _stats.Reset();
+                float elapsed = 0f, longest = 0f, longestAt = 0f;
+                while (player != null && player.Current != null && player.Current.Id == piece)
+                {
+                    float frame = Time.unscaledDeltaTime;
+                    elapsed += frame;
+                    if (frame > longest)
+                    {
+                        longest = frame;
+                        longestAt = elapsed;
+                    }
+
+                    _stats.Add(frame * 1000f,
+                        _mainThread.Valid ? _mainThread.LastValue / 1e6f : -1f,
+                        _gcAlloc.Valid ? _gcAlloc.LastValue : -1,
+                        _batches.Valid ? _batches.LastValue : -1,
+                        _setPass.Valid ? _setPass.LastValue : -1,
+                        _triangles.Valid ? _triangles.LastValue : -1);
+                    yield return null;
+                }
+
+                string line = _stats.Describe("filmato " + piece)
+                    + string.Format(System.Globalization.CultureInfo.InvariantCulture, "; il frame più lungo al secondo {0:0.0}", longestAt);
+                _report.AppendLine(line);
+                Debug.Log("[DarkDescent] benchmark " + line);
+            }
         }
 
         private static void LowerTo(Health health, float fraction)

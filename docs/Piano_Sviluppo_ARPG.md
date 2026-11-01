@@ -1,6 +1,6 @@
 # Piano di Sviluppo — DarkDescent
 
-**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.68**
+**ARPG isometrico dark fantasy ispirato a Diablo 1 · versione 2.69**
 
 **Profilo:** sviluppatore esperto, Unity da zero · 6–10 h/settimana
 **Obiettivo doppio:** (1) un gioco giocabile e finito, (2) un progetto che regga come materiale da portfolio — repo curato, ADR, build giocabile (§ 8).
@@ -23,6 +23,7 @@
 | v2.15 | 5 ott 2026 | M6 chiusa (tag `m6`), con le lezioni · D4 chiusa con i numeri della build: NavMesh a runtime (ADR-035) · asmdef divisa a strati (§ 4.5, ADR-032) · ADR-032…038 |
 | v2.14 | 5 ott 2026 | Dopo la prova della cripta generata, su richiesta di Mirco: **pozioni e cintura**, **automappa** (anticipata dalla M7, sovrapposta o nell'angolo), **ripartenza dall'ingresso del livello** dopo la morte fino alla M8, **tooltip delle statistiche** · M6 da 10–13 a 16–19 h |
 | v2.13 | 5 ott 2026 | M5 chiusa (tag `m5`), con le lezioni · punto di controllo della M5 superato (rapporto 0,04, nessun taglio) · danno intero (§ 2, ADR-031) · ADR-025…031 |
+| v2.69 | 1 nov 2026 | **M19 chiusa** (tag `v1.7.0`), con le lezioni · i due filmati girati nel borgo: l'apertura a ogni *Nuova partita* e la vittoria in tre pezzi, con musica, suoni, didascalie e il salto; il pulsante *Filmati* per rivederli · la strada del borgo di sampietrini e senza interruzioni, il fuoco fuori dalla strada, due carriole cariche · i filmati misurati in build (464–614 fps) · ADR-123…127 |
 | v2.68 | 29 ott 2026 | **M18 chiusa** (tag `v1.6.0`), con le lezioni · il borgo all'aperto al posto dell'accampamento, con il giorno che passa, la grotta e il cunicolo nel muro della profondità 1, gli abitanti, fabbro e guaritrice con tre banchi e la cura gratis · i tempi di tutti i livelli misurati in build (15–18 ms in media, il peggiore 30) · ADR-118…122 |
 | v2.67 | 27 ott 2026 | Schede della **M18 — "Il borgo"** (`docs/milestones/M18_Il_borgo.md`) e della **M19 — "L'ultima candela"** (`docs/milestones/M19_L_ultima_candela.md`), D1–D17 da confermare in tutte e due. Il borgo, chiesto da Mirco: si comincia in un borgo all'aperto al tramonto (piazza, case, cappella con l'altare, cimitero) invece che nella sala sotto terra, e si scende da una grotta invece che da una scala, con un cunicolo alla profondità 1 che non tocca i semi; con fabbro e guaritrice, il giorno che passa e la misura dei tempi dei livelli; tag `v1.6.0`, 15–21 h. I filmati si girano nel borgo, con luci di notte e d'alba: l'apertura a ogni *Nuova partita*, la vittoria in due tempi, un pulsante per rivederli; Timeline e Cinemachine costruiti dal codice, ACE-Step per la musica, un'ora di prova dei modelli di video; tag `v1.7.0`, 13–18 h. Poi, decisione di Mirco: l'albero delle abilità del Guerriero (M20), il Mago con la creazione del personaggio (M21), la risalita e le stanze più grandi (M22). Un **calendario** nel § 5 dà una milestone a ogni voce aperta (M23 comandi e aiuto, M24 nemici più vivi, M25 stanze con segreti, M26 l'equipaggiamento addosso, M27 il Ranger, M28 il Ladro) o la mette tra quelle *da valutare* (itch.io, personaggi stile Diablo 2, modelli da immagine, lingue nuove); tre voci superate segnate come fatte |
 | v2.66 | 27 ott 2026 | **M17 chiusa** (tag `v1.5.0`), con le lezioni · pannelli e pulsanti nello stile scuro e pulito, menu nuovo con i riconoscimenti, opzioni per gruppi, vittoria con Continua, macchie a terra in cripta e caverne, sfondi di menu, morte e vittoria, tutto generato con Z-Image-Turbo · ADR-115…117 |
@@ -80,7 +81,7 @@
 
 ---
 
-## Stato del progetto — aggiornato al 29 ottobre 2026
+## Stato del progetto — aggiornato al 1 novembre 2026
 
 | | |
 |---|---|
@@ -89,13 +90,13 @@
 | **Cartella locale** | `game_projects/DarkDescent` |
 | **Engine** | Unity 6.3 LTS — **6000.3.24f1**, bloccata per tutto il progetto (ADR-001) |
 | **Render pipeline** | URP 17.3.0 |
-| **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro |
+| **Package** | Input System 1.20.0 · AI Navigation 2.0.14 · Cinemachine 3.1.7 · Timeline 1.8.13 · Test Framework 1.6.0 · uGUI 2.0 con TextMeshPro · Recorder 5.1.7 (solo nell'editor, per i video) |
 | **Assembly** | `DarkDescent.Core` in `Assets/_Project/Scripts/Core/` (logica e dati) e `DarkDescent` in `Assets/_Project/Scripts/` (componenti) (ADR-003, ADR-032) · test in `DarkDescent.Tests.EditMode` e `DarkDescent.Tests.PlayMode` |
-| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) · M13 — "Stanze vive" (21 ott 2026, tag `v1.2.0`) · M14 — "La luce si spegne" (23 ott 2026, tag `v1.3.0`) · M15 — "La ronda notturna" (24 ott 2026, tag `v1.3.1`) · M16 — "Tesori con un nome" (26 ott 2026, tag `v1.4.0`) · M17 — "Una pelle nuova" (27 ott 2026, tag `v1.5.0`) · M18 — "Il borgo" (29 ott 2026, tag `v1.6.0`) |
-| **Milestone corrente** | M19 — "L'ultima candela": scheda in `docs/milestones/M19_L_ultima_candela.md`, decisioni D1–D17 da confermare. Dopo, l'albero delle abilità del Guerriero (M20), il Mago con la creazione del personaggio (M21), la risalita e stanze più grandi (M22), poi M23–M28 come nel calendario del § 5, «Dopo la v1.0» |
+| **Milestone chiuse** | M0 — Fondamenta (23 set 2026) · M1 — "Mi muovo" (1 ott 2026, tag `m1`) · M2 — "Colpisco e muoio" (3 ott 2026, tag `m2`) · M2.5 — Pipeline automatica (3 ott 2026, tag `m2.5`) · M3 — "Un dungeon fatto a mano" (3 ott 2026, tag `m3`) · M4 — "Raccolgo roba" (4 ott 2026, tag `m4`) · M5 — "Loot casuale" (5 ott 2026, tag `m5`) · M6 — "Dungeon infinito" (5 ott 2026, tag `m6`) · M7 — "Le profondità" (8 ott 2026, tag `m7`) · M8 — "Progressione e persistenza" (11 ott 2026, tag `m8`) · M9 — "Magia" (11 ott 2026, tag `m9`) · M10 — "Città e loop completo" (12 ott 2026, tag `m10`) · M11 — "Look, feel e release" (17 ott 2026, tag `v1.0.0`) · M12 — "Nemici speciali" (19 ott 2026, tag `v1.1.0`) · M13 — "Stanze vive" (21 ott 2026, tag `v1.2.0`) · M14 — "La luce si spegne" (23 ott 2026, tag `v1.3.0`) · M15 — "La ronda notturna" (24 ott 2026, tag `v1.3.1`) · M16 — "Tesori con un nome" (26 ott 2026, tag `v1.4.0`) · M17 — "Una pelle nuova" (27 ott 2026, tag `v1.5.0`) · M18 — "Il borgo" (29 ott 2026, tag `v1.6.0`) · M19 — "L'ultima candela" (1 nov 2026, tag `v1.7.0`) |
+| **Milestone corrente** | M20 — l'albero delle abilità del Guerriero, nello stile di WoW: scheda da scrivere. Dopo, il Mago con la creazione del personaggio (M21), la risalita e stanze più grandi (M22), poi M23–M28 come nel calendario del § 5, «Dopo la v1.0» |
 | **CI** | GitHub Actions + GameCI, account Unity Personal dedicato: test EditMode e PlayMode a ogni push e PR, build Windows sui tag `m*`/`v*`, build Web ad avvio manuale, la ronda notturna dei test `Nightly` con l'issue `ronda` sui fallimenti (ADR-011…013, ADR-019, ADR-106, ADR-109) |
 | **ADR-004** | **Decisa il 1 ott 2026: opzione (a), solo asset CC0** (§ 1.4), scritta in `DECISIONS.md` con gli ADR-005…010 della M1 e della M2. Personaggi e animazioni da KayKit (Adventurers, Skeletons, Character Animations, rig `Rig_Medium`), suoni da Kenney, versi dei nemici da *80 CC0 creature SFX* di rubberduck, musica e rumori d'ambiente da OpenGameArt (dalla M7). Eccezioni: il font LiberationSans di TextMesh Pro (3 ott 2026) e, dalla M8, il font Cinzel dell'interfaccia (ADR-054), tutti e due SIL OFL 1.1 con il testo della licenza nel repo; la sprite EmojiOne (CC BY 4.0) è tolta. Dalla M10, con l'ADR-070, quattro suoni gratuiti di puadlung che non si possono ridistribuire da soli |
-| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `docs/Da_provare.md` (le prove in build non ancora fatte) · `DECISIONS.md` (ADR-001…122) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
+| **Documenti vivi** | questo piano (`docs/Piano_Sviluppo_ARPG.md`) · `docs/Da_provare.md` (le prove in build non ancora fatte) · `DECISIONS.md` (ADR-001…127) · `CONVENTIONS.md` · `ICEBOX.md` · `CREDITS.md` · `CLAUDE.md` |
 
 Questa tabella si aggiorna a ogni chiusura di milestone (§ 6). Il dettaglio del passo corrente sta nella scheda della milestone, non qui: il piano dice *cosa* e *perché*, le schede dicono *come*.
 
@@ -550,6 +551,21 @@ Chiusa il 26 ottobre 2026 con il tag `v1.4.0`: 466 test EditMode e 252 PlayMode 
 
 ---
 
+### M19 — "L'ultima candela" ✅
+
+Chiusa il 1 novembre 2026 con il tag `v1.7.0`: 538 test EditMode e 274 PlayMode verdi in locale, più quelli della ronda. Una build locale compressa come l'artefatto pesa 57,85 MB, 1,12 MB più della v1.6.0, dentro il limite di +30 MB della D17. In build, con il nuovo `-benchmark-films`, l'apertura e i tre pezzi della vittoria girano tra 464 e 614 fps in media, con il 99% dei frame sotto 7,8 ms; il frame più lungo, 111 ms, è il primo dell'apertura, appena costruito il borgo. La build non è ancora stata provata da Mirco: le prove sono in `docs/Da_provare.md`. Lezioni emerse:
+
+- **Il video di Mirco vede quello che i test non vedono:** il cavaliere che passa nella cancellata, la strada che si interrompe sotto l'arco, il fuoco in mezzo alla strada. Tre giri (foto, video, build) prima del sì costano meno di un filmato da rifare.
+- **I modelli di video non fanno effetti piccoli su una scena ferma:** sono addestrati per il cinema e muovono la camera. Un'ora di prova è bastata per dirlo. Prima di proporre un modello si fanno i conti con la VRAM e la RAM del PC, non solo con il disco.
+- **Un set che dipende solo dal secondo:** un filmato si ferma, si fotografa e si prova a ogni istante. Le foto per Mirco, i video e i test vengono dalla stessa funzione.
+- **La musica che attraversa i livelli non sta sulla Timeline:** la suona chi sopravvive al caricamento. E un brano in streaming parte quando vuole: i brani dei filmati sono precaricati.
+- **La CI non ha la scheda audio:** l'orologio delle sorgenti corre circa 20 volte il tempo vero, e due test verdi in locale sono caduti in CI. Nei test si controlla il volume, non il secondo del brano.
+- **URP tiene l'emissione solo con il flag giusto:** senza `RealtimeEmissive` la spegne a ogni salvataggio del materiale, e il danno si vede solo nel file su disco.
+- **Una copia presa nel frame del colpo resta bianca:** il lampo del colpo scambia i materiali; la copia del re li ha presi così. Prima di copiare si chiude il lampo.
+- **Un oggetto sulla strada la interrompe:** la regola si mette nel builder una volta, non nei prefab uno per uno.
+
+---
+
 ### M18 — "Il borgo" ✅
 
 Chiusa il 29 ottobre 2026 con il tag `v1.6.0`: 517 test EditMode e 260 PlayMode verdi a ogni push, più quelli della ronda. La build della CI (40887505924) pesa 57,68 MB, 3,13 MB più della v1.5.0, dentro il limite di +20 MB della D16. Nel borgo, sul PC di sviluppo, 531 fps. I tempi dei livelli, misurati in build con 20 semi (D19), stanno tra 15,7 e 17,5 ms in media, il peggiore 30 ms, sotto i 50 della D4 della M6; il borgo si costruisce in 17 ms. La build non è ancora stata provata da Mirco: le prove sono in `docs/Da_provare.md`. Lezioni emerse:
@@ -899,7 +915,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
 | Milestone | Cosa | Voci di questa sezione |
 |---|---|---|
 | **M18 — "Il borgo"** (`v1.6.0`, 15–21 h) ✅ chiusa il 29 ott 2026 | Il borgo all'aperto con il giorno che passa, la grotta e il cunicolo, fabbro e guaritrice, la misura dei tempi dei livelli. Scheda `docs/milestones/M18_Il_borgo.md` | *Il borgo al posto dell'accampamento* · *I tempi di costruzione dei livelli in build* |
-| **M19 — "L'ultima candela"** (`v1.7.0`, 13–18 h) | I due filmati girati nel borgo, e il pulsante per rivederli. Scheda `docs/milestones/M19_L_ultima_candela.md` | *I filmati: l'apertura e la vittoria* |
+| **M19 — "L'ultima candela"** (`v1.7.0`, 13–18 h) ✅ chiusa il 1 nov 2026 | I due filmati girati nel borgo, e il pulsante per rivederli. Scheda `docs/milestones/M19_L_ultima_candela.md` | *I filmati: l'apertura e la vittoria* |
 | **M20** | L'albero delle abilità del Guerriero, nello stile di WoW; via le pergamene | *Albero delle abilità nello stile di World of Warcraft* |
 | **M21** | Il **Mago**, il suo albero e le sue armi, e la creazione del personaggio | *Nuove classi e le loro armi* · *Creazione del personaggio* |
 | **M22** | La risalita e le stanze più grandi | *La risalita e stanze più grandi* · *Tornare al livello di sopra* |
@@ -1061,7 +1077,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
   - **Il giorno che passa** (scelto da Mirco il 27 ott 2026, al posto del tramonto fisso). Alba, giorno coperto, tramonto e notte, legati al tempo di gioco della partita: un giro ogni 20 minuti, senza un formato nuovo del salvataggio. Di notte la luce ha un minimo, perché il borgo resti leggibile.
   - **Quando.** Scheda della **M18 — "Il borgo"** (`docs/milestones/M18_Il_borgo.md`, v2.67), tag `v1.6.0`, 15–21 h con fabbro, guaritrice, il giorno che passa e la misura dei livelli.
 
-- **I filmati: l'apertura e la vittoria** (chiesti da Mirco il 27 ott 2026, la vittoria guardando il suo sfondo della M17, l'apertura subito dopo). Proposta come **M19**, dopo il borgo. Due filmati come quelli di Diablo, fatti nel motore con i modelli, le luci e le animazioni del gioco, non video generati, che non terrebbero uguali cavaliere e re. Tutti e due si saltano con Esc o con un click. Cosa comporta:
+- **I filmati: l'apertura e la vittoria** (chiesti da Mirco il 27 ott 2026, la vittoria guardando il suo sfondo della M17, l'apertura subito dopo). **Fatti nella M19** (v1.7.0, 1 nov 2026, scheda `docs/milestones/M19_L_ultima_candela.md`, v2.69), girati nel borgo della M18 e con la vittoria in tre pezzi. Due filmati come quelli di Diablo, fatti nel motore con i modelli, le luci e le animazioni del gioco, non video generati, che non terrebbero uguali cavaliere e re. Tutti e due si saltano con Esc o con un click. Cosa comporta:
   - **L'apertura, "L'ultima candela"** (scelta da Mirco fra tre storie), circa 45–60 s, solo con *Nuova partita*: un borgo sulla collina di notte, le candele alle finestre che si spengono una a una; dalla terra del cimitero si alzano gli scheletri (l'animazione del risveglio da terra di KayKit) e la gente scappa con le lanterne; all'alba poche tende davanti all'ingresso della cripta, l'accampamento dei sopravvissuti, e il mercante che accende un'ultima candela sull'altare; arriva il cavaliere, il mercante indica la cripta e una scritta dice che il Re delle ossa si è svegliato; il cavaliere scende i gradini, la luce della torcia si stringe, il titolo. Spiega l'accampamento e il mercante, e lega il tema della luce alle difficoltà. Le comparse in fuga dai modelli di KayKit Adventurers; il borgo da costruire con i pezzi che ci sono, o con modelli CC0 da scegliere nella scheda.
   - **La vittoria**, approvata da Mirco: il colpo finale rallenta e la camera si stringe sul Re delle ossa che crolla e si sfalda; silenzio, il cavaliere guarda il trono vuoto, apre il tesoro e si avvia; stacco sull'ultima scala, con la luce di fuori; l'accampamento vero all'alba, il cavaliere che arriva; poi la finestra della vittoria con le statistiche, *Continua* e *Menu principale*.
   - **Le animazioni** ci sono già nel pacchetto completo *KayKit Character Animations 1.1* (CC0), scaricato ma importato solo in parte: la morte che sfalda lo scheletro, il risveglio da terra, la sfida del re, il colpo in salto, l'esultanza, il saluto, il sedersi a terra.

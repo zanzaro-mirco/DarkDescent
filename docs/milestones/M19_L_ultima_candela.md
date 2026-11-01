@@ -510,12 +510,79 @@ perché la camera dei filmati è lontana dal cavaliere che ascolta.
 
 ---
 
+## Passo 19.7 — La strada, la misura e la chiusura
+
+**La strada del borgo (1 nov 2026).** Guardando il video della vittoria, Mirco ha visto il cavaliere
+passare nella cancellata del cimitero e la strada che si interrompeva sotto l'arco. Poi ha chiesto
+una strada di sampietrini senza interruzioni, niente oggetti in mezzo e qualche trasporto (ADR-127):
+- **I sampietrini**: cubetti grigi in diagonale con le fughe di terra, una texture nuova di
+  `Tools/Textures/ground.py` che si ripete senza cuciture (`ground_cobbles.png`, `M_VillageCobbles`).
+  La terra resta per le tombe scavate e la bocca della grotta.
+- **Senza interruzioni**: `LevelMap.CarriesRoad` dice quando un oggetto ha la strada su due lati
+  opposti, e `LevelBuilder` gli mette sotto la strada invece del prato. Il tileset dice qual è il
+  simbolo della strada (`LevelTileset.Road`).
+- **Niente oggetti in mezzo**: il fuoco, con i sopravvissuti, è sul prato a est della strada, sotto il
+  recinto del cimitero; la panca della piazza è fuori. Sulla strada stanno solo l'arco, la partenza e
+  due **carriole cariche** sul bordo destro, una con i sacchi (`c`) e una con la legna (`t`), scelte
+  da Mirco al posto di un carro da scaricare.
+- **Il cavaliere della vittoria** esce dal cimitero sotto l'arco, scende la strada e si ferma accanto
+  al fuoco dal lato della strada.
+- **Il saluto** dell'abitante in piedi arriva fino a 18 m invece di 9: il fuoco ora è a 16 m dalla
+  partenza e a 14 dall'arrivo dei portali, e la PlayMode l'ha trovato.
+
+**La misura (D17).** Una build Windows fatta in locale, sul PC di sviluppo (Intel Core Ultra 9 275HX,
+RTX 5070 Ti Laptop, Direct3D 12), a 1920×1080 in finestra, qualità PC, senza vSync.
+
+| Misura | v1.6.0 | v1.7.0 |
+|---|---|---|
+| Build Windows compressa come l'artefatto, in locale | 56,73 MB | 57,85 MB (+1,12, limite +30) |
+
+Con il nuovo `-benchmark-films` la build rivede dal menu i due filmati, come il pulsante *Filmati*, e
+misura ogni pezzo dal primo all'ultimo frame:
+
+| Filmato | Secondi misurati | Media | 99% dei frame sotto | Il frame più lungo |
+|---|---|---|---|---|
+| L'apertura | 50 s | 1,81 ms (551 fps) | 6,33 ms | 111 ms, al secondo 0,1 |
+| Il re che cade | 7 s | 1,87 ms (535 fps) | 6,81 ms | 27 ms, al secondo 0 |
+| Il portale | 5,5 s | 1,63 ms (614 fps) | 6,78 ms | 26 ms |
+| Il ritorno | 17 s | 2,16 ms (464 fps) | 7,77 ms | 35 ms, al secondo 9,3 |
+
+Tutti stanno molto sotto i 16,7 ms dei 60 fps. Il frame più lungo dell'apertura è il primo, appena
+costruito il borgo. Il ritorno, con 709 batch e 279 mila triangoli, è il pezzo più pesante.
+
+**La chiusura.**
+- Le due GIF del README, `docs/media/m19_opening.gif` e `m19_victory.gif`, fatte dai video rifatti
+  con la strada nuova da `Tools/Video/gif.py`, con una tavolozza per scena. I video interi vanno nella
+  release (D12).
+- ADR-123…127 in `DECISIONS.md`.
+- Le lezioni nel piano (v2.69).
+- Il README con la v1.7.
+- Le prove sulla build in `docs/Da_provare.md`.
+- `bundleVersion` 1.7.0.
+
+**Le lezioni.**
+- **La CI non ha la scheda audio.** Il run Tests del 19.6 è caduto su due test della musica verdi in
+  locale: senza scheda l'orologio delle sorgenti corre circa 20 volte il tempo vero, e un brano di
+  60 s finiva in tre. I test rallentano il brano e controllano il volume, non il secondo.
+- **Un'interruzione si corregge nella regola, non nel pezzo.** La prima correzione metteva la strada
+  dentro l'arco, come nella casa della guaritrice; le interruzioni erano quattro, e la regola nel
+  builder le chiude tutte.
+- **Spostare il fuoco sposta il saluto.** Il raggio del saluto era misurato sulla vecchia piazza.
+
+**I test.**
+- **`TownMapTests.Road_IsClearAndUnbroken`, EditMode:** la strada è tutta collegata; sopra ci stanno
+  solo l'arco, la partenza e le carriole; il fuoco è sul prato.
+- **`FilmSoundTests` e `VictoryFilmTests`:** il brano rallentato con `pitch` e i controlli sul volume.
+- **In locale:** EditMode intera 538/538. PlayMode intera senza la ronda 274/274, nessun rosso.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Decisioni D1–D18 confermate (D18 scelta da Mirco)
-- [ ] I download approvati: Timeline e Recorder (sì il 29 ott), i modelli di ComfyUI (sì il 29 ott)
-- [ ] L'apertura e la vittoria approvate da Mirco in video
+- [x] I download approvati: Timeline e Recorder (sì il 29 ott), i modelli di ComfyUI (sì il 29 ott)
+- [x] L'apertura e la vittoria approvate da Mirco in video (il borgo rivisto il 1 nov)
 - [ ] Test EditMode e PlayMode verdi in locale e in CI
-- [ ] La build misurata dentro il limite della D17
-- [ ] ADR, lezioni nel piano, README, `CREDITS.md` e `Data/Credits.txt`
+- [x] La build misurata dentro il limite della D17 (+1,12 MB, filmati a 464–614 fps)
+- [x] ADR, lezioni nel piano, README, `CREDITS.md` e `Data/Credits.txt`
 - [ ] `bundleVersion` 1.7.0 e tag `v1.7.0` dopo i test verdi in CI
