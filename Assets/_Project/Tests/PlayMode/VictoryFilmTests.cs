@@ -203,6 +203,12 @@ namespace DarkDescent.Tests
             var music = Root.Films.Music;
             Assert.IsTrue(Root.Films.IsMusicPlaying, "la musica parte al portale");
             Assert.AreEqual("film_victory", music.clip.name);
+
+            // in CI non c'è la scheda audio e l'orologio del brano corre molto più del tempo vero: rallentato,
+            // non finisce dentro il test; che continui lo dice il volume, perché un brano che riparte da metà
+            // entra da zero
+            music.pitch = 0.02f;
+            float full = music.volume;
             Root.CurrentFilm.Director.time = FilmLibrary.VictoryLeave.Duration - 0.2f;
             yield return WaitUntilIn(level => level.IsTown, "il portale non porta nel borgo");
             Assert.IsTrue(Root.Films.IsMusicPlaying, "la musica va avanti nel viaggio");
@@ -210,7 +216,8 @@ namespace DarkDescent.Tests
 
             yield return WaitForFilm(FilmLibrary.VictoryReturnId);
             Assert.IsTrue(music.isPlaying);
-            Assert.That(music.time, Is.GreaterThanOrEqualTo(travelled).And.LessThan(7f), "continua, non riparte");
+            Assert.GreaterOrEqual(music.time, travelled, "continua, non torna indietro");
+            Assert.AreEqual(full, music.volume, 1e-3f, "continua, non riparte con un'entrata");
 
             var cued = new List<string>();
             Root.CurrentFilm.Cued += clip => cued.Add(clip.name);
@@ -230,6 +237,7 @@ namespace DarkDescent.Tests
             }
 
             Assert.IsTrue(Root.Films.IsMusicPlaying, "finisce da sola, sotto la finestra");
+            Assert.AreEqual(full, music.volume, 1e-3f, "senza sfumare");
             Assert.IsTrue(Ambience.Hushed, "e la musica del borgo aspetta");
         }
 

@@ -19,6 +19,10 @@ namespace DarkDescent.Tests
     {
         private string _folder;
 
+        // in CI non c'è la scheda audio e l'orologio dei brani corre molto più del tempo vero: il brano
+        // rallentato non finisce mai dentro il test, e quello che si controlla è il volume, non il secondo
+        private const float SlowClock = 0.02f;
+
         private static CompositionRoot Root => Object.FindFirstObjectByType<CompositionRoot>();
 
         private static AmbiencePlayer Ambience => Object.FindFirstObjectByType<AmbiencePlayer>();
@@ -86,6 +90,8 @@ namespace DarkDescent.Tests
             Assert.IsTrue(films.IsMusicPlaying, "con la sua musica");
             Assert.AreEqual("film_opening", films.Music.clip.name);
             Assert.AreEqual("Music", films.Music.outputAudioMixerGroup.name, "il volume della musica delle opzioni");
+            films.Music.pitch = SlowClock;
+            float full = films.Music.volume;
             Assert.IsTrue(Ambience.Hushed);
             yield return new WaitForSecondsRealtime(1.5f);
             Assert.AreEqual(0f, Ambience.Music.volume, 1e-3f, "la musica del borgo tace");
@@ -105,7 +111,9 @@ namespace DarkDescent.Tests
 
             Root.CurrentFilm.Director.time = FilmLibrary.Opening.Duration - 0.2f;
             yield return WaitUntil(() => !films.IsPlaying, 5f, "l'apertura non finisce");
+            yield return null;
             Assert.IsTrue(films.IsMusicPlaying, "il brano sfuma, non si tronca");
+            Assert.That(films.Music.volume, Is.GreaterThan(0f).And.LessThan(full), "il brano sfuma");
             yield return WaitUntil(() => !films.IsMusicPlaying, 5f, "il brano non sfuma");
             yield return null;
             Assert.IsFalse(Ambience.Hushed);
@@ -118,6 +126,7 @@ namespace DarkDescent.Tests
         {
             yield return NewGame();
             var films = Root.Films;
+            films.Music.pitch = SlowClock;
             yield return new WaitForSecondsRealtime(0.5f);
             films.Press();
             films.Press();
