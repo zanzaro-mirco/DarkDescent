@@ -41,7 +41,10 @@ namespace DarkDescent.Tests
         /// <summary>Partite per profondità della misura di unici e set, ed equipaggiamenti del confronto; a ogni push 20 e 8.</summary>
         private const int NamedGames = 400;
 
-        private const int NamedGearSets = 64;
+        // con 64 il rapporto unico/raro ballava fino a ±0,3 da una notte all'altra, e in tre notti su
+        // trenta un unico scendeva sotto 1,3 per caso (ronde del 31 ott e del 1 nov 2026); con 512 balla
+        // di ±0,04 e il più basso resta sopra 1,4, per 2 s in più
+        private const int NamedGearSets = 512;
 
         /// <summary>Livelli per parte (D5 e D13 della M15); se la notte si allunga si riducono qui (D10).</summary>
         private const int Levels = 20000;
@@ -143,7 +146,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Timeout(TenMinutes), Description("La misura di unici e set su 400 partite nuove per profondità e 64 equipaggiamenti nuovi, con le fasce dei suoi test di ogni push")]
+        [Test, Timeout(TenMinutes), Description("La misura di unici e set su 400 partite nuove per profondità e 512 equipaggiamenti nuovi, con le fasce dei suoi test di ogni push")]
         public void NamedCensus_OnNewSeeds()
         {
             ulong night = NightlyRun.Seed();

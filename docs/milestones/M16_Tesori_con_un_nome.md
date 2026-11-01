@@ -319,6 +319,13 @@ Con le notti del 27, 28 e 29 ottobre, il rapporto più basso è tra 1,39 e 1,45.
 la Falce della Cripta al 35. Nei test di ogni push la Zanna al 35 è a 1,54 e la Pelle a 1,75. La ronda
 scrive nel log anche il confronto riga per riga.
 
+**La misura più ferma, 1 nov 2026 (issue #6).** Le ronde del 31 ottobre e del 1 novembre hanno trovato
+altri due unici sotto 1,3 al livello 35: l'Anello dell'Eclissi a 1,24 e il Sigillo della Cripta a
+1,26. Le stesse righe, in altre notti, stavano oltre 1,5. Il problema era quindi la misura, non i due
+unici. Su trenta notti di prova, con 64 equipaggiamenti lo stesso rapporto cambia fino a ±0,3, e in tre
+notti un unico scende sotto 1,3. Con 512 cambia di ±0,04 e il più basso resta a 1,40, per circa 2 s in più a
+notte. La ronda ora confronta su 512 equipaggiamenti; i valori degli unici non cambiano.
+
 ## Passo 16.7 — Build da provare
 
 Build dalla CI su `c832894` (run 40239824483, artefatto `DarkDescent-Windows-main`), con test e build

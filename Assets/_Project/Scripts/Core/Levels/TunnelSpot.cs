@@ -10,10 +10,12 @@ namespace DarkDescent.Levels
     /// 28 ott 2026: mai in mezzo alla stanza). Prima il muro nord, poi l'ovest, che la camera di partenza
     /// (da sud-ovest) vede alti; est e sud, che vede bassi, solo se quelli non vanno. Su ogni muro la cella più
     /// vicina all'ingresso. Una cella va bene se è pavimento libero o ha solo una torcia (il builder
-    /// non la mette: lo sbocco ha i suoi bracieri), se non è d'angolo, dove i drappi e i bracieri
-    /// entrerebbero nel muro di lato, e se dietro c'è roccia, dove entra la galleria. Accanto può
-    /// cominciare un corridoio: il fronte di massi ci sporge per meno di un metro, dentro il suo muro.
-    /// Dipende solo dalla disposizione, senza tiri del seme. Logica pura.
+    /// non la mette: lo sbocco ha i suoi bracieri), se le due celle di lato sono della stanza, e se
+    /// dietro c'è roccia, dove entra la galleria. Di lato non va un angolo, dove i drappi e i bracieri
+    /// entrerebbero nel muro, né l'inizio di un corridoio che parte lungo lo stesso muro: il fronte di
+    /// massi ne stringe l'imbocco e il NavMesh non passa più (ronde del 31 ott e del 1 nov 2026). Un
+    /// corridoio che parte dal muro dello sbocco, accanto, va bene: il fronte ci sporge per meno di un
+    /// metro, dentro il suo muro. Dipende solo dalla disposizione, senza tiri del seme. Logica pura.
     /// </summary>
     public static class TunnelSpot
     {
@@ -33,7 +35,7 @@ namespace DarkDescent.Levels
                 {
                     var offset = candidate - layout.Entrance;
                     int distance = Mathf.Abs(offset.x * along.x + offset.y * along.y);
-                    if (distance < best && Fits(layout, candidate, back, along))
+                    if (distance < best && Fits(layout, room, candidate, back, along))
                     {
                         best = distance;
                         cell = candidate;
@@ -91,10 +93,11 @@ namespace DarkDescent.Levels
             }
         }
 
-        private static bool Fits(DungeonLayout layout, Vector2Int cell, Vector2Int back, Vector2Int along)
+        private static bool Fits(DungeonLayout layout, RectInt room, Vector2Int cell, Vector2Int back, Vector2Int along)
         {
             char symbol = layout[cell.x, cell.y];
             if ((symbol != LevelMap.Floor && symbol != DungeonPopulator.TorchSymbol)
+                || !room.Contains(cell + along) || !room.Contains(cell - along)
                 || !layout.IsFloor(cell.x + along.x, cell.y + along.y) || !layout.IsFloor(cell.x - along.x, cell.y - along.y))
             {
                 return false;

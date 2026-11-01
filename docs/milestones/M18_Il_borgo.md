@@ -343,6 +343,16 @@ del cunicolo è quella nel muro.
 - **In locale:** EditMode intera 516/516. PlayMode di città, builder, uscite, passaggi tra livelli,
   discesa, portali, automappa e memoria dei livelli: 23/23.
 
+**Correzione dell'1 nov 2026 (issue #6).** Le ronde del 31 ottobre e del 1 novembre hanno trovato
+barili irraggiungibili alla profondità 1 (cinque in una partita, uno in un'altra). Non erano i barili:
+lo sbocco stava sull'imbocco di un corridoio che partiva di lato, lungo lo stesso muro. Così il fronte
+di massi stringeva il passaggio, il NavMesh non passava più, e la parte del livello oltre il corridoio
+restava chiusa fuori. Il test sui 40 semi non poteva accorgersene: toglie solo la cella dello sbocco,
+non il pezzo di corridoio accanto. Ora `TunnelSpot` vuole entrambe le celle di lato dentro la stanza
+d'ingresso. Il corridoio che parte dal muro dello sbocco, accanto, resta permesso. Nei test, un caso
+di `TunnelSpot` con il corridoio di lato, e i due semi delle ronde nel test sui semi fissi. Con le due
+partite ricostruite in PlayMode i barili si rompono tutti.
+
 ---
 
 ## Passo 18.5 — Gli abitanti, il suono, il nome e il salvataggio vecchio

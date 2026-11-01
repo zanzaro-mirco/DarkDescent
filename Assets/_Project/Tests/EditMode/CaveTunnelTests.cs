@@ -128,7 +128,7 @@ namespace DarkDescent.Tests
             return new DungeonLayout(cells, new List<RectInt> { room }, 0, 0, entrance, entrance);
         }
 
-        [Test, Description("TunnelSpot sceglie il muro nord e la cella più vicina all'ingresso, anche con la torcia o accanto a un corridoio; salta gli angoli, le celle occupate e quelle davanti a un corridoio, e se il nord è tutto preso passa all'ovest")]
+        [Test, Description("TunnelSpot sceglie il muro nord e la cella più vicina all'ingresso, anche con la torcia o accanto a un corridoio che parte dal suo muro; salta gli angoli, le celle occupate, quelle davanti a un corridoio e quelle dove un corridoio parte di lato, e se il nord è tutto preso passa all'ovest")]
         public void TunnelSpot_TakesAFreeStretchOfWall()
         {
             var room = new RectInt(1, 1, 5, 3);
@@ -145,24 +145,35 @@ namespace DarkDescent.Tests
             Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "###.###", "#.....#", "#..<..#", "#.....#", "#######"), out cell, out wall));
             Assert.AreEqual((new Vector2Int(2, 1), MapDirection.North), (cell, wall), "accanto alla bocca del corridoio, non davanti");
 
+            // il corridoio parte verso est dalla fila del muro nord: la cella più vicina all'ingresso è
+            // quella del suo imbocco, e il fronte di massi lo stringerebbe (ronde del 31 ott e del 1 nov 2026)
+            var corner = new Vector2Int(5, 2);
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, corner, "#######", "#......", "#....<#", "#.....#", "#######"), out cell, out wall));
+            Assert.AreEqual((new Vector2Int(4, 1), MapDirection.North), (cell, wall), "non all'imbocco del corridoio di lato");
+
             Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#BBBBB#", "#..<..#", "#.....#", "#######"), out cell, out wall));
             Assert.AreEqual((new Vector2Int(1, 2), MapDirection.West), (cell, wall), "il nord è tutto preso, e gli angoli non vanno");
 
             Assert.IsFalse(TunnelSpot.TryChoose(Layout(new RectInt(1, 1, 1, 1), new Vector2Int(1, 1), "###", "#<#", "###"), out _, out _), "una cella sola non ha muri liberi");
         }
 
-        [Test, Description("Con i semi fissi lo sbocco trova sempre un muro, dietro c'è roccia, e tolta la sua cella da ogni pavimento si arriva ancora all'ingresso: il cunicolo non chiude nessun passaggio")]
+        [Test, Description("Con i semi fissi e con quelli delle ronde del 31 ott e del 1 nov 2026 lo sbocco trova sempre un muro, dietro c'è roccia, le celle di lato sono della stanza d'ingresso, e tolta la sua cella da ogni pavimento si arriva ancora all'ingresso: il cunicolo non chiude nessun passaggio")]
         public void Tunnel_NeverClosesAPassage()
         {
             var settings = Load<DungeonSettings>(CryptSettingsPath);
-            for (ulong seed = 1; seed <= 40; seed++)
+            var seeds = Enumerable.Range(1, 40).Select(i => (ulong)i * 7919UL).Concat(new[] { 4188803450199181896UL, 9483114763172317484UL });
+            foreach (ulong seed in seeds)
             {
-                var map = DungeonLevel.CreateMap(settings, seed * 7919UL, 1, out _);
+                var map = DungeonLevel.CreateMap(settings, seed, 1, out var layout);
                 var entrance = map.Markers.Single(m => m.Symbol == '<');
                 Assert.IsTrue(TunnelSpot.TryRead(map.GetDirective(LevelBuilder.ArrivalDirective), out var mouth, out var wall),
                     $"seme {seed}: nessun muro libero{System.Environment.NewLine}{Around(map, entrance)}");
                 Vector3 behind = LevelMap.ToWorld(wall);
                 Assert.IsTrue(map.IsRock(mouth.x + Mathf.RoundToInt(behind.x), mouth.y - Mathf.RoundToInt(behind.z)), $"seme {seed}: dietro non c'è il muro");
+                var along = new Vector2Int(Mathf.Abs(Mathf.RoundToInt(behind.z)), Mathf.Abs(Mathf.RoundToInt(behind.x)));
+                var room = layout.Rooms[layout.StartRoom];
+                Assert.IsTrue(room.Contains(mouth + along) && room.Contains(mouth - along),
+                    $"seme {seed}: lo sbocco in ({mouth.x}, {mouth.y}) ha di lato un angolo o l'imbocco di un corridoio{System.Environment.NewLine}{Around(map, entrance)}");
 
                 var seen = new HashSet<Vector2Int> { new Vector2Int(entrance.X, entrance.Y), mouth };
                 var queue = new Queue<Vector2Int>();
