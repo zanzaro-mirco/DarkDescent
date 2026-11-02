@@ -299,6 +299,15 @@ sotto (SX, DX, Q, E; in inglese LMB, RMB). L'esperienza sta sopra la console. Lo
 `HudTools.BuildConsole` (si rilancia), le impostazioni di import sono in `GeneratedUiImporter`. Il
 menu prende la pelle delle finestre come le altre.
 
+**Vita e mana in provette (3 nov 2026).** La sfera tonda era tagliata dalla console, e Mirco ha chiesto una
+forma rettangolare arrotondata, uguale per vita e mana, nello stile della console. Dopo quattro
+alternative di layout (serbatoi, riquadri, barre, provette) e quattro famiglie di cornici, ha scelto le
+**provette** con la cornice del **teschio con le corna** (ricetta `gauge_skull` di `images/hud.py`, seme
+2102). `Tools/ComfyUI/gauge_parts.py` ne ricava i quattro pezzi (cornice col vetro svuotato, vetro,
+liquido rosso e blu) e `HudTools` li monta: vetro, liquido che sale e cornice sopra, 76×250, attaccate
+ai lati della console. I numeri («357 / 357») stanno **sopra la corona**, e compaiono con il mouse
+sopra tutta la provetta o sempre con l'opzione. Foto `hud_bar_*` e `hud_numbers_*`.
+
 **Test.** `ManaTests` (le caselle, la regola del sinistro, assegnare, `Arrange` anche dal vecchio),
 `SaveMigrationTests` (la barra a otto posti nelle quattro caselle), `MagicHudTests` (il destro, `Q` ed
 `E`, le caselle, il menu, `K` ed `Esc`), e i test della magia, dei salvataggi, del Guerriero e della

@@ -50,3 +50,22 @@ IMAGES = {
         "finish": [("key", "auto"), ("trim", 2), ("resize", 128)],
     },
 }
+
+# le cornici degli indicatori di vita e mana (D18, scelta di Mirco: provette alte come la D, nello stile
+# della console, con qualche addobbo). Alte e strette: 768 x 1280.
+GAUGE = ("A tall narrow vertical frame for a glass gauge, standing upright, rounded top and rounded bottom, "
+         "thick blackened wrought iron with antique gold trim and rivets, seen straight from the front, flat "
+         "lighting, the empty inside of the frame and the outside are the same flat pure magenta background, ")
+
+for _name, _seed, _extra in (
+    ("gauge_skull", 2102, "a small gold skull with two curved horns crowning the top and spiked claw feet at the bottom, "),
+    ("gauge_arch", 2111, "a pointed gothic arch at the top with fine gold filigree and a small gargoyle head at the base, "),
+    ("gauge_claws", 2121, "held by gold dragon claws gripping the top and the bottom, with a small gem at the top, "),
+    ("gauge_pillar", 2131, "carved stone pillar sides with gold bands, a crown of small spikes on top and a stepped base, "),
+):
+    IMAGES[_name] = {
+        "prompt": GAUGE + _extra + STYLE,
+        "seed": _seed,
+        "size": (768, 1280),
+        "finish": [("key", "auto"), ("trim", 2), ("resize", 480)],
+    }

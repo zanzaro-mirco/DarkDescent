@@ -30,10 +30,14 @@ namespace DarkDescent.Editor
         private const float FrameScale = 1.333f;
         private const float BackScale = 1.6f;
 
-        // la sfera sporge sulla console di tanto, ai due lati
-        private const float OrbOverlap = 34f;
-        private const float OrbSize = 176f;
-        private const float OrbBottom = 4f;
+        // la provetta di vita e mana (D18): la cornice di Z-Image è 145 x 480 e il vetro sta nella finestra
+        // misurata a mano (stessi numeri di Tools/ComfyUI/gauge_parts.py), con 2 pixel di liquido sotto la cornice
+        private const float GaugeImageWidth = 145f;
+        private const float GaugeImageHeight = 480f;
+        private static readonly Vector4 GaugeWindow = new Vector4(36f - 2f, 88f - 2f, 99f + 2f, 413f + 2f);
+        private const float GaugeHeight = 250f;
+        private const float GaugeOverlap = 30f;
+        private const float GaugeBottom = 2f;
 
         private static readonly Color Gold = new Color(0.9f, 0.77f, 0.45f, 1f);
         private static readonly Color Well = new Color(0.03f, 0.025f, 0.02f, 0.92f);
@@ -56,6 +60,8 @@ namespace DarkDescent.Editor
 
             var healthOrb = (RectTransform)hud.Find("HealthOrb");
             var manaOrb = (RectTransform)hud.Find("ManaOrb");
+            var gaugeFrame = Art("gauge_frame");
+            var gaugeGlass = Art("gauge_glass");
 
             // la console sotto le sfere e le caselle
             var console = Node(hud, "Console");
@@ -81,12 +87,15 @@ namespace DarkDescent.Editor
             consoleBack.SetAsFirstSibling();
             consoleFrame.SetSiblingIndex(1);
 
-            // le sfere attaccate ai lati della console
-            float edge = ConsoleWidth / 2f - OrbOverlap;
-            Place(healthOrb, new Vector2(0.5f, 0f), new Vector2(1f, 0f), new Vector2(-edge, OrbBottom), new Vector2(OrbSize, OrbSize));
-            Place(manaOrb, new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(edge, OrbBottom), new Vector2(OrbSize, OrbSize));
+            // le provette attaccate ai lati della console, che sporgono in alto
+            float gaugeWidth = Mathf.Round(GaugeImageWidth * GaugeHeight / GaugeImageHeight);
+            float edge = ConsoleWidth / 2f - GaugeOverlap;
+            Place(healthOrb, new Vector2(0.5f, 0f), new Vector2(1f, 0f), new Vector2(-edge, GaugeBottom), new Vector2(gaugeWidth, GaugeHeight));
+            Place(manaOrb, new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(edge, GaugeBottom), new Vector2(gaugeWidth, GaugeHeight));
+            DressGauge(healthOrb, gaugeGlass, Art("gauge_life"), gaugeFrame);
+            DressGauge(manaOrb, gaugeGlass, Art("gauge_mana"), gaugeFrame);
             var points = (RectTransform)hud.Find("PointsButton");
-            Place(points, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-edge - OrbSize / 2f, OrbBottom + OrbSize + 6f), points.sizeDelta);
+            Place(points, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-edge - gaugeWidth / 2f, GaugeBottom + GaugeHeight + 6f), points.sizeDelta);
 
             // da sinistra: il portale, le otto pozioni, poi le quattro caselle
             float left = -ConsoleWidth / 2f + Pad;
@@ -168,6 +177,63 @@ namespace DarkDescent.Editor
         }
 
         private const int SpellBookSlots = 4;
+
+        // ---- la provetta: il vetro scuro, il liquido che sale e la cornice sopra
+
+        private static void DressGauge(RectTransform orb, Sprite glass, Sprite liquid, Sprite frame)
+        {
+            var min = new Vector2(GaugeWindow.x / GaugeImageWidth, 1f - GaugeWindow.w / GaugeImageHeight);
+            var max = new Vector2(GaugeWindow.z / GaugeImageWidth, 1f - GaugeWindow.y / GaugeImageHeight);
+
+            var back = (RectTransform)orb.Find("Back");
+            Window(back, min, max);
+            var backImage = back.GetComponent<Image>();
+            backImage.sprite = glass;
+            backImage.type = Image.Type.Simple;
+            backImage.preserveAspect = false;
+            backImage.color = Color.white;
+
+            var fill = (RectTransform)orb.Find("Fill");
+            Window(fill, min, max);
+            var fillImage = fill.GetComponent<Image>();
+            fillImage.sprite = liquid;
+            fillImage.type = Image.Type.Filled;
+            fillImage.fillMethod = Image.FillMethod.Vertical;
+            fillImage.fillOrigin = (int)Image.OriginVertical.Bottom;
+            fillImage.preserveAspect = false;
+            fillImage.color = Color.white;
+            fillImage.raycastTarget = false;
+
+            var ring = (RectTransform)orb.Find("Ring");
+            Stretch(ring, Vector2.zero, Vector2.zero);
+            var ringImage = ring.GetComponent<Image>();
+            ringImage.sprite = frame;
+            ringImage.type = Image.Type.Simple;
+            ringImage.preserveAspect = false;
+            ringImage.color = Color.white;
+            // la cornice prende il mouse: i numeri compaiono sopra tutta la provetta, non solo sul vetro
+            ringImage.raycastTarget = true;
+
+            // i numeri stanno sopra la corona, fuori dalla console: la provetta è stretta e il testo largo
+            var readout = (RectTransform)orb.Find("Readout");
+            Place(readout, new Vector2(0.5f, 1f), new Vector2(0.5f, 0f), new Vector2(0f, 4f), new Vector2(160f, 30f));
+            var text = readout.GetComponentInChildren<TMP_Text>(true);
+            if (text != null)
+            {
+                text.textWrappingMode = TextWrappingModes.NoWrap;
+                text.overflowMode = TextOverflowModes.Overflow;
+                text.alignment = TextAlignmentOptions.Center;
+            }
+        }
+
+        private static void Window(RectTransform rect, Vector2 min, Vector2 max)
+        {
+            rect.anchorMin = min;
+            rect.anchorMax = max;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
 
         // ---- la casella: cornice, pozzo scuro sotto l'icona, e quel che serve alle abilità
 

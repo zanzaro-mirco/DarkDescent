@@ -352,6 +352,19 @@ namespace DarkDescent.Tests
                 yield return Frames(5);
                 picker.Close();
                 yield return Snap("hud_bar_" + tag);
+                var readouts = Object.FindObjectsByType<OrbReadout>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                foreach (var readout in readouts)
+                {
+                    readout.SetAlwaysVisible(true);
+                }
+
+                yield return Frames(3);
+                yield return Snap("hud_numbers_" + tag, world: false);
+                foreach (var readout in readouts)
+                {
+                    readout.SetAlwaysVisible(false);
+                }
+
                 Find<SpellBarView>().ClickSlot(2);
                 yield return Frames(3);
                 yield return Snap("hud_pick_" + tag, world: false);
