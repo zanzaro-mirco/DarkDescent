@@ -4,7 +4,7 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 3 nov 2026, build della v1.8.0 da provare (l'artefatto della build del tag).
+Ultimo aggiornamento: 2 nov 2026, build della v1.8.0 da provare (l'artefatto della build del tag).
 Le prove della M18 e della M19 restano valide.
 
 ## Dalla M20 — "La via della spada" (v1.8.0)

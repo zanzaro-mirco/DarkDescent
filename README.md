@@ -9,7 +9,7 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
-**v1.8 — M20 "La via della spada"**, chiusa il 3 novembre 2026 (tag `v1.8.0`). Rispetto alla v1.7:
+**v1.8 — M20 "La via della spada"**, chiusa il 2 novembre 2026 (tag `v1.8.0`). Rispetto alla v1.7:
 
 - l'**albero delle abilità** del Guerriero, sul tasto `N`: la classe e, dal livello 10, la
   specializzazione, *Difesa* con lo scudo o *Armi* con le armi a due mani; si guadagna un punto a ogni

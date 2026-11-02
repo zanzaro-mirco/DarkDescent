@@ -928,28 +928,28 @@ Formato:
 - **Conseguenze:** il gioco si fa con la mano sul mouse, come chiedeva Mirco; i tasti `Q` ed `E` non girano più la camera; ogni abilità nuova vuole una regola sulla casella in cui entra.
 
 ## ADR-130 — L'arma a due mani prende anche il posto dello scudo
-- **Data:** 2026-11-03 (passo 20.5)
+- **Data:** 2026-11-02 (passo 20.5)
 - **Contesto:** la specializzazione *Armi* sarebbe stata una *Difesa* senza scudo, se non avesse avuto armi sue.
 - **Decisione:** lo spadone e l'ascia a due mani (modelli di *Adventurers*, clip `Melee_2H_*`) occupano lo slot dell'arma e quello dello scudo. `Equipment.Blocking` dice chi sta in mezzo: lo scudo va in borsa, e senza posto l'arma non si indossa; rimettendo lo scudo l'arma torna in borsa. La condizione `TwoHanded` dei passivi (Presa a due mani) si rilegge a ogni cambio. **La misura delle difficoltà resta quella di una mano e scudo**: `HeroSetup` non prende le armi a due mani.
 - **Alternative scartate:** armi a due mani senza regola dello slot; la specializzazione con le armi a una mano.
 - **Conseguenze:** il bilancio non si sposta con le armi nuove; un'arma a due mani a pieno ritmo si prova a mano.
 
 ## ADR-131 — Le frasi dei talenti le fa il codice, dai numeri
-- **Data:** 2026-11-03 (passo 20.6)
+- **Data:** 2026-11-02 (passo 20.6)
 - **Contesto:** quarantacinque nodi e oltre cinquanta opzioni da descrivere in due lingue, con numeri che nelle ritarature cambiano (ADR-132).
 - **Decisione:** `TalentDescriber` compone il testo di un effetto da una frase per tipo (`talent.stat.<Stat>`, `talent.when.<Condizione>`, `talent.param.<Parametro>`, `talent.trigger.<Scatto>.<Esito>`) e dai numeri dell'effetto per grado. Nella tabella delle stringhe stanno solo le frasi, i nomi dei nodi e le descrizioni delle undici abilità attive.
 - **Alternative scartate:** una descrizione scritta a mano per nodo, che dopo una ritaratura dice il numero sbagliato.
 - **Conseguenze:** un valore ritarato cambia anche il tooltip. `TalentTextTests` controlla ogni nodo nelle due lingue e che le frasi seguano i numeri (nella M20 hanno fatto accorgere subito del cambio di Braccio forte).
 
 ## ADR-132 — La misura delle difficoltà prende il cavaliere con l'albero di riferimento, e si ritarano i numeri dell'albero
-- **Data:** 2026-11-03 (passo 20.8, D14)
+- **Data:** 2026-11-02 (passo 20.8, D14)
 - **Contesto:** le bande della M14 (colpi per uccidere, colpi retti, colpi subiti) tengono le difficoltà. Un albero che rende il cavaliere più forte le avrebbe rotte, e la ronda notturna avrebbe aperto una issue ogni mattina.
 - **Decisione:** `HeroSetup.SpendTalents` spende i punti del livello in un albero di riferimento, sempre allo stesso modo (la specializzazione *Armi*; *Difesa* per il confronto), e `DifficultyCensus` ne mette i passivi sulla scheda del cavaliere, che porta lo scudo: valgono i passivi sempre accesi e quelli con lo scudo. Il danno del critico entra nella misura (`CensusFighter.CritDamage`), che prima lo ignorava. Quando le fasce sono uscite dalla tolleranza del 5% si sono ritarati i numeri di nove nodi dell'albero, non le difficoltà; il lato corto delle fasce dei colpi per uccidere perde il 5%.
 - **Alternative scartate:** ritarare le difficoltà (rifare la M14 e la ronda); lasciare l'albero fuori dalla misura, con un cavaliere che nel gioco è più forte di quello misurato; abbassare il minimo del colpo subito, che una *Difesa* piena rompe a fine gioco (resta una decisione di Mirco).
 - **Conseguenze:** un passivo ritarato si vede subito nelle fasce, e la ronda lo guarda con i semi della notte. L'albero ha meno margine di quanto il disegno prometteva, soprattutto per il blocco e l'armatura: a fine gioco il cavaliere è già vicino al minimo del colpo subito. Il gradino dell'Abisso I all'Abisso II alla profondità 1 è al −4,0% contro il limite del −5%.
 
 ## ADR-133 — Le icone dei talenti: una per tipo di passivo, con il seme scelto e l'import nello strumento
-- **Data:** 2026-11-03 (passo 20.7)
+- **Data:** 2026-11-02 (passo 20.7)
 - **Contesto:** quarantacinque nodi non vogliono quarantacinque icone: i passivi di un tipo (il danno, la vita, il critico…) si somigliano. Mirco ha lasciato la scelta dei semi a Claude, dopo aver visto i fogli di confronto.
 - **Decisione:** 44 icone Z-Image-Turbo da 256 × 256, nello stile di Diablo III: undici abilità attive e trentatré tipi di passivo, con le ricette in `Tools/ComfyUI/images/talents.py` (tre semi provati per icona, quello scelto resta nella ricetta). Le assegna `TalentIconTools.Apply`, che `TalentTools.BuildWarrior` richiama alla fine, così un albero rifatto non le perde; nel nodo del pannello l'icona sta dentro la placca, che la ritaglia con una `Mask`. I nodi a scelta hanno il nome finché non si sceglie un'opzione.
 - **Alternative scartate:** un pacchetto CC0, con uno stile suo e un download; i render dei modelli 3D, che somigliano meno alle icone dipinte; un'icona per ogni nodo.

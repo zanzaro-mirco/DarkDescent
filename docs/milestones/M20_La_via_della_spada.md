@@ -299,7 +299,7 @@ sotto (SX, DX, Q, E; in inglese LMB, RMB). L'esperienza sta sopra la console. Lo
 `HudTools.BuildConsole` (si rilancia), le impostazioni di import sono in `GeneratedUiImporter`. Il
 menu prende la pelle delle finestre come le altre.
 
-**Vita e mana in provette (3 nov 2026).** La sfera tonda era tagliata dalla console, e Mirco ha chiesto una
+**Vita e mana in provette (2 nov 2026).** La sfera tonda era tagliata dalla console, e Mirco ha chiesto una
 forma rettangolare arrotondata, uguale per vita e mana, nello stile della console. Dopo quattro
 alternative di layout (serbatoi, riquadri, barre, provette) e quattro famiglie di cornici, ha scelto le
 **provette** con la cornice del **teschio con le corna** (ricetta `gauge_skull` di `images/hud.py`, seme
@@ -318,7 +318,7 @@ sono tornate verdi. La PlayMode intera non è stata rilanciata dopo le correzion
 
 ## Passo 20.5 — Le armi a due mani (D5)
 
-**Com'è andata (3 nov 2026).** Lo **spadone** (14–22, Forza 40, 1,5 s a colpo, 1×4 celle, 160 oro) e
+**Com'è andata (2 nov 2026).** Lo **spadone** (14–22, Forza 40, 1,5 s a colpo, 1×4 celle, 160 oro) e
 l'**ascia a due mani** (18–28, Forza 50, 1,75 s, 2×4, 210 oro) sono due `WeaponDefinition` con un campo
 nuovo, `TwoHanded`, e i modelli `sword_2handed` e `axe_2handed` dello zip di *Adventurers*, che entrano nei
 crediti. Li fa `TwoHandedTools` (si rilancia): asset, database, icone dai modelli, voci nelle tabelle dei
@@ -347,7 +347,7 @@ e della borsa (`PhotoTour.TwoHanded`).
 
 ## Passo 20.6 — Il pannello e l'altare (D10, D11)
 
-**Com'è andata (3 nov 2026).** Il tasto **N** apre `TalentPanel`: un velo scuro e una finestra a tutto schermo
+**Com'è andata (2 nov 2026).** Il tasto **N** apre `TalentPanel`: un velo scuro e una finestra a tutto schermo
 nella pelle della M17, con a sinistra l'albero della classe e a destra quello della specializzazione, ognuno
 in una griglia 7 × 7. Un nodo è **tondo** se passivo, **quadrato** se abilità attiva, **ottagonale** se a
 scelta; chiuso è grigio, aperto ha l'anello azzurro, preso d'oro, e i gradi stanno sull'angolo (`2/3`). Le
@@ -395,12 +395,12 @@ al 5, la scelta al 12, gli alberi a metà al 30 con il tooltip e la finestrella,
 
 ## Passo 20.7 — Le icone (D12)
 
-**Com'è andata (3 nov 2026).** Quarantaquattro icone Z-Image-Turbo, 256 × 256, nello stile di Diablo III:
+**Com'è andata (2 nov 2026).** Quarantaquattro icone Z-Image-Turbo, 256 × 256, nello stile di Diablo III:
 **undici abilità attive** (una per ognuna) e **trentatré tipi di passivo** (danno, vita, critico, armatura,
 blocco…); i tipi servono a più talenti (il danno vale per *Braccio forte*, *Filo affilato* e *Maestria*, la
 vita per *Tempra* e *Saldo*…). Le ricette sono in `Tools/ComfyUI/images/talents.py` (un'immagine per nome,
 `make.py talents`), con tre semi a testa provati e fogli di confronto per Mirco; Mirco ha lasciato la scelta a
-Claude (3 nov), che ha scartato le prove con la cornice bianca o lo sfondo grigio (Grido 2213, Danno 2301,
+Claude (2 nov), che ha scartato le prove con la cornice bianca o lo sfondo grigio (Grido 2213, Danno 2301,
 Furto di vita 2332) e quella dove la torre del Muro di scudi aveva una scritta (2220). I semi scelti sono nelle
 ricette; i file stanno in `Art/Icons/Talents`.
 
@@ -418,7 +418,7 @@ ricette; i file stanno in `Art/Icons/Talents`.
 
 ## Passo 20.8 — Bilancio e chiusura (D14)
 
-**Com'è andata (3 nov 2026).** La misura delle difficoltà ora prende il cavaliere con l'**albero di
+**Com'è andata (2 nov 2026).** La misura delle difficoltà ora prende il cavaliere con l'**albero di
 riferimento**: `HeroSetup.SpendTalents` sceglie la specializzazione (*Armi*, e *Difesa* come confronto) e
 spende tutti i punti del livello sempre allo stesso modo, dall'alto, riga per riga e da sinistra, prima la
 classe e poi la specializzazione; `DifficultyCensus.Reference` dice quale (di partenza *Armi*, `null` per il
