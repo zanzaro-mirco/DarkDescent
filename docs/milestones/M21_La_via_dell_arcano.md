@@ -34,7 +34,7 @@ Verificato dopo la chiusura della M20 (tag `v1.8.0`, build 41529821395 verde).
 
 ## Decisioni
 
-**Da confermare da Mirco.** Ognuna ha una proposta e le alternative scartate.
+**Confermate da Mirco il 3 novembre 2026:** D3 (il Dardo arcano gratis), D5 (*Fuoco* e *Gelo*) e D10 («l'eroe»). Le altre sono proposte da confermare, insieme al disegno del 21.1.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
@@ -69,6 +69,19 @@ Verificato dopo la chiusura della M20 (tag `v1.8.0`, build 41529821395 verde).
 | 21.6 | **La creazione del personaggio**: la schermata con il modello che gira, il nome, i posti del menu con classe e nome, l'apertura con il modello scelto (D8, D10) | 4–5 |
 | 21.7 | **Le icone**: le ricette Z-Image, i fogli per Mirco, l'import (D13) | 2–3 |
 | 21.8 | **Bilancio e chiusura**: il Mago nella misura e nella ronda, i numeri ritarati, le ADR, le lezioni, il piano, il README, `bundleVersion` 1.9.0, il tag `v1.9.0` dopo i Tests verdi in CI (D11) | 4–5 |
+
+---
+
+## Passo 21.1 — Il disegno
+
+**Com'è andata (3 nov 2026).** Il disegno sta in `M21_albero_Mago.md`, generato con la pagina per Mirco dagli
+stessi dati: l'albero della classe ha 19 nodi e 34 gradi, *Fuoco* 15 nodi e 29 gradi, *Gelo* 15 nodi e 27, con
+quattro stili di gioco (il rogo, il gelo, lo scudo, il passo) e **undici abilità attive**: quattro nella
+classe (Dardo di fuoco, Anello di fuoco, Passo di luce, Scudo di mana), tre nel Fuoco (Palla di fuoco, Muro di
+fiamme, Meteora) e quattro nel Gelo (Dardo di ghiaccio, Nova di gelo, Armatura di ghiaccio, Tempesta di neve).
+Una verifica dei dati controlla che ogni nodo stia una riga sotto quelli a cui è legato, che i posti non si
+sovrappongano e che ogni albero abbia una radice sola, attiva. Al livello 50 i punti coprono l'85% della
+classe e il 75–81% delle specializzazioni. In attesa del sì di Mirco.
 
 ---
 
