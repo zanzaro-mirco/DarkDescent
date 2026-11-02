@@ -23,6 +23,11 @@ namespace DarkDescent.Characters
         private static readonly int CastStateHash = Animator.StringToHash("Cast");
         private static readonly int AttackSpeedHash = Animator.StringToHash("AttackSpeed");
 
+        /// <summary>Lo stato d'attacco con un'arma a due mani (D5 della M20): la clip <c>2H_Attack_Chop</c>.</summary>
+        public const string TwoHandedAttackState = "Attack2H";
+
+        private static readonly int TwoHandedAttackHash = Animator.StringToHash(TwoHandedAttackState);
+
         private const int BaseLayer = 0;
 
         [Tooltip("Vuoto = NavMeshAgent del parent, risolto in Awake.")]
@@ -54,6 +59,9 @@ namespace DarkDescent.Characters
 
         [Tooltip("Il momento del colpo nella clip d'attacco a velocità 1, in secondi. Con un valore la velocità segue l'arma impugnata: la clip si accelera o rallenta finché la lama arriva insieme al danno dell'arma (il cavaliere: il pugnale è più svelto dell'ascia). 0: le due velocità fisse qui sopra.")]
         [SerializeField, Min(0f)] private float _clipHitTime;
+
+        [Tooltip("Il momento del colpo nella clip a due mani, in secondi a velocità 1: come il valore di sopra, per le armi a due mani.")]
+        [SerializeField, Min(0f)] private float _twoHandedClipHitTime;
 
         private Animator _animator;
         private bool _hasAttackSpeed;
@@ -156,7 +164,9 @@ namespace DarkDescent.Characters
                 _animator.SetFloat(AttackSpeedHash, AttackSpeed());
             }
 
-            PlayOneShot(AttackStateHash);
+            // l'arma a due mani ha il suo gesto, se il controller ce l'ha
+            bool twoHanded = _attack != null && _attack.SwingWeapon != null && _attack.SwingWeapon.TwoHanded && _animator.HasState(BaseLayer, TwoHandedAttackHash);
+            PlayOneShot(twoHanded ? TwoHandedAttackHash : AttackStateHash);
         }
 
         /// <summary>Il gesto del lancio di un incantesimo (M9): la clip Throw di KayKit.</summary>
@@ -235,10 +245,11 @@ namespace DarkDescent.Characters
             }
 
             var weapon = _attack.SwingWeapon;
-            if (_clipHitTime > 0f && weapon != null && weapon.HitDelay > 0f)
+            float clipHitTime = weapon != null && weapon.TwoHanded && _twoHandedClipHitTime > 0f ? _twoHandedClipHitTime : _clipHitTime;
+            if (clipHitTime > 0f && weapon != null && weapon.HitDelay > 0f)
             {
                 // con la carica del colpo, che i campioni Rapidi accorciano (M12)
-                return _clipHitTime / _attack.SwingHitDelay;
+                return clipHitTime / _attack.SwingHitDelay;
             }
 
             return _attack.IsQuickSwing ? _quickAttackSpeed : _attackSpeed;

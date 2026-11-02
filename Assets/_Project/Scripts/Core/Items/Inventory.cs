@@ -154,6 +154,29 @@ namespace DarkDescent.Items
             }
 
             ItemInstance placed = Held;
+            var blocker = Equipment.CanEquip(placed) && Equipment.Fits(placed.Definition, slot) ? Equipment.Blocking(placed.Definition, slot) : null;
+            if (blocker != null)
+            {
+                // un'arma a due mani prende il posto dello scudo, e uno scudo quello dell'arma: chi sta in mezzo torna in borsa
+                if (!Grid.CanAutoPlace(blocker))
+                {
+                    return false;
+                }
+
+                EquipSlot blockerSlot = slot == EquipSlot.Weapon ? EquipSlot.Offhand : EquipSlot.Weapon;
+                Equipment.Unequip(blockerSlot);
+                if (!Equipment.TryEquip(placed, slot, out ItemInstance replaced))
+                {
+                    Equipment.TryEquip(blocker, blockerSlot, out _);
+                    return false;
+                }
+
+                Grid.TryAutoPlace(blocker);
+                SetHeld(replaced);
+                Equipped?.Invoke(slot, placed);
+                return true;
+            }
+
             if (!Equipment.TryEquip(placed, slot, out ItemInstance previous))
             {
                 return false;
@@ -180,6 +203,12 @@ namespace DarkDescent.Items
 
             EquipSlot slot = Equipment.TargetSlot(item.Definition);
             ItemInstance current = Equipment.Get(slot);
+            var blocker = Equipment.Blocking(item.Definition, slot);
+            if (blocker != null)
+            {
+                return EquipDisplacing(item, slot, current, blocker, area);
+            }
+
             Grid.Remove(item);
             if (current != null && !Grid.CanPlace(current, area.position) && !Grid.CanAutoPlace(current))
             {
@@ -196,6 +225,50 @@ namespace DarkDescent.Items
             if (previous != null && !Grid.TryPlace(previous, area.position))
             {
                 Grid.TryAutoPlace(previous);
+            }
+
+            Equipped?.Invoke(slot, item);
+            return true;
+        }
+
+        // l'arma a due mani, o lo scudo, che toglie dallo slot chi sta in mezzo (D5 della M20): quello che c'era
+        // nello slot e quello in mezzo tornano in borsa, o non cambia niente
+        private bool EquipDisplacing(ItemInstance item, EquipSlot slot, ItemInstance current, ItemInstance blocker, RectInt area)
+        {
+            EquipSlot blockerSlot = slot == EquipSlot.Weapon ? EquipSlot.Offhand : EquipSlot.Weapon;
+            Grid.Remove(item);
+            bool currentPlaced = current == null || Grid.TryPlace(current, area.position) || Grid.TryAutoPlace(current);
+            bool blockerPlaced = currentPlaced && Grid.TryAutoPlace(blocker);
+            if (!blockerPlaced)
+            {
+                if (currentPlaced && current != null)
+                {
+                    Grid.Remove(current);
+                }
+
+                Grid.TryPlace(item, area.position);
+                return false;
+            }
+
+            // già in borsa: ora escono dall'equipaggiamento e ci entra il nuovo
+            if (current != null)
+            {
+                Equipment.Unequip(slot);
+            }
+
+            Equipment.Unequip(blockerSlot);
+            if (!Equipment.TryEquip(item, slot, out _))
+            {
+                Grid.Remove(blocker);
+                if (current != null)
+                {
+                    Grid.Remove(current);
+                    Equipment.TryEquip(current, slot, out _);
+                }
+
+                Equipment.TryEquip(blocker, blockerSlot, out _);
+                Grid.TryPlace(item, area.position);
+                return false;
             }
 
             Equipped?.Invoke(slot, item);

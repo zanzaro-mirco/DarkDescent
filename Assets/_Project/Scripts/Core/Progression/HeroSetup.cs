@@ -50,6 +50,12 @@ namespace DarkDescent.Progression
                 foreach (var entry in bases)
                 {
                     var item = entry.Item;
+                    // le armi a due mani no: la misura delle difficoltà è quella di una mano e scudo (D5 della M20)
+                    if (item is WeaponDefinition { TwoHanded: true })
+                    {
+                        continue;
+                    }
+
                     if (Equipment.Fits(item, slot) && equipment.MeetsRequirements(item) && (best == null || item.Value > best.Value))
                     {
                         best = item;

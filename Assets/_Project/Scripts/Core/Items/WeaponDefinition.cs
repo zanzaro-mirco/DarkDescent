@@ -40,6 +40,11 @@ namespace DarkDescent.Items
         [Tooltip("Ampiezza del colpo in gradi, davanti a chi colpisce: al momento del danno il bersaglio dev'essere ancora lì dentro. 360: tutto attorno, cioè conta solo la distanza (il bruto, D6 della M7).")]
         [SerializeField, Range(10f, 360f)] private float _arc = 360f;
 
+        [Tooltip("A due mani (M20): occupa anche lo slot dello scudo, e fa valere i passivi e il raggio maggiore del Turbine.")]
+        [SerializeField] private bool _twoHanded;
+
+        public bool TwoHanded => _twoHanded;
+
         public int MinDamage => _minDamage;
         public int MaxDamage => _maxDamage;
         public DamageType DamageType => _damageType;

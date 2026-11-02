@@ -185,7 +185,11 @@ namespace DarkDescent.Combat
             _weapon = weapon != null ? weapon : throw new ArgumentNullException(nameof(weapon));
             _minDamage = CombatFormulas.ApplyPercent(weapon.MinDamage, damagePercent);
             _maxDamage = CombatFormulas.ApplyPercent(weapon.MaxDamage, damagePercent);
+            WeaponChanged?.Invoke();
         }
+
+        /// <summary>L'arma impugnata è cambiata: i passivi che dipendono dalle due mani.</summary>
+        public event Action WeaponChanged;
 
         /// <summary>Da dove vengono i tiri: lo passa il CompositionRoot (D3 della M4).</summary>
         public void SetRandomSource(IRandomSource random)

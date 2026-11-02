@@ -108,6 +108,11 @@ namespace DarkDescent.UI
                     var (min, max) = ItemStats.WeaponDamage(item);
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipDamage), min, max);
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipSpeed), localizer.Get(SpeedKey(weapon.AttackInterval)));
+                    if (weapon.TwoHanded)
+                    {
+                        builder.Append('\n').Append(localizer.Get(TextKeys.TooltipTwoHanded));
+                    }
+
                     AppendRequirement(builder, weapon, meetsRequirements, localizer);
                     break;
 

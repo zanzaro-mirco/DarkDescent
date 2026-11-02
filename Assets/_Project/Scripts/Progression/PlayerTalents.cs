@@ -80,6 +80,7 @@ namespace DarkDescent.Progression
             if (_attack != null)
             {
                 _attack.HitLanded += HandleHit;
+                _attack.WeaponChanged += Refresh;
             }
 
             HandleProgressChanged();
@@ -104,6 +105,7 @@ namespace DarkDescent.Progression
             if (_attack != null)
             {
                 _attack.HitLanded -= HandleHit;
+                _attack.WeaponChanged -= Refresh;
             }
 
             EndBuffs();
@@ -143,8 +145,9 @@ namespace DarkDescent.Progression
                     return _block != null && _block.HasShield;
                 case TalentCondition.LowLife:
                     return _lowLife;
+                case TalentCondition.TwoHanded:
+                    return _attack != null && _attack.Weapon != null && _attack.Weapon.TwoHanded;
                 default:
-                    // le due mani arrivano con le armi a due mani (20.5)
                     return false;
             }
         }

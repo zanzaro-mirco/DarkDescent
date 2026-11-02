@@ -40,6 +40,9 @@ namespace DarkDescent.Magic
         [Tooltip("Metri dal punto sotto il cursore entro cui si cerca il nemico, se il cursore non ne ha uno sopra.")]
         [SerializeField, Min(0f)] private float _pickRadius = 1.5f;
 
+        /// <summary>Il raggio in più del Turbine con un'arma a due mani: da 3 a 3,5 m.</summary>
+        public const float TwoHandedWhirlBonus = 0.5f;
+
         [Tooltip("Metri oltre la portata dell'arma per un colpo d'abilità: il passo avanti del gesto.")]
         [SerializeField, Min(0f)] private float _reachBonus = 0.8f;
 
@@ -489,7 +492,9 @@ namespace DarkDescent.Magic
             StopAndCommit(_strikeDelay);
             PlayState(SpinState);
             Play(_whirlClip);
-            float radius = _magic.AbilityValue(spell, AbilityParam.Radius);
+
+            // mezzo metro in più con un'arma a due mani (D5 della M20)
+            float radius = _magic.AbilityValue(spell, AbilityParam.Radius) + (_attack.Weapon.TwoHanded ? TwoHandedWhirlBonus : 0f);
             HitAround(transform.position, radius, _magic.AbilityValue(spell, AbilityParam.Damage), 0f, null);
             ShowArea(_spinEffect, transform.position, radius);
         }

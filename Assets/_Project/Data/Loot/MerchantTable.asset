@@ -54,4 +54,8 @@ MonoBehaviour:
     _weight: 1
   - _item: {fileID: 11400000, guid: 8f014bf2069c70947987bab32d0a778d, type: 2}
     _weight: 1
+  - _item: {fileID: 11400000, guid: 8cd43b0fdc7c7744ab437b98f0155cdf, type: 2}
+    _weight: 1
+  - _item: {fileID: 11400000, guid: b5a33ce6645b68b4e8442ffadcd15591, type: 2}
+    _weight: 1
   _stockSize: 8

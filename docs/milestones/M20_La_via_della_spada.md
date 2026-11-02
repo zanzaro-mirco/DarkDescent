@@ -316,6 +316,35 @@ PlayMode !Nightly 302/307 al primo giro (più i 2 saltati di sempre): i tre fall
 aggiornare (il Grido e il Baluardo sui tasti giusti, un click ora sotto la console), e le loro classi
 sono tornate verdi. La PlayMode intera non è stata rilanciata dopo le correzioni.
 
+## Passo 20.5 — Le armi a due mani (D5)
+
+**Com'è andata (3 nov 2026).** Lo **spadone** (14–22, Forza 40, 1,5 s a colpo, 1×4 celle, 160 oro) e
+l'**ascia a due mani** (18–28, Forza 50, 1,75 s, 2×4, 210 oro) sono due `WeaponDefinition` con un campo
+nuovo, `TwoHanded`, e i modelli `sword_2handed` e `axe_2handed` dello zip di *Adventurers*, che entrano nei
+crediti. Li fa `TwoHandedTools` (si rilancia): asset, database, icone dai modelli, voci nelle tabelle dei
+forzieri, dei bruti, del re e del mercante (il fabbro li vende, gli altri banchi no).
+
+**La regola dello slot.** `Equipment.Blocking` dice chi sta in mezzo: un'arma a due mani non ha posto
+con lo scudo, né uno scudo con lei, e `TryEquip` rifiuta il caso. `Inventory` toglie chi sta in mezzo e lo
+rimette nella borsa, sia dal click destro sull'oggetto sia dal click sullo slot; **senza posto per lo scudo
+non cambia niente**. L'oggetto che c'era nello slot torna dov'era l'arma nuova.
+
+**Cosa cambia con le due mani.** `MeleeAttack.WeaponChanged` fa ricontrollare i passivi: la condizione
+`TwoHanded` ora vale (*Presa a due mani*: +5% danno per grado), e il **Turbine arriva a 3,5 m** invece di 3
+(`WarriorAbilities.TwoHandedWhirlBonus`; *Vortice* sale da lì). L'animazione d'attacco è il gesto
+`2H_Attack_Chop`, uno stato `Attack2H` del controller messo da `TalentTools` e scelto da
+`CharacterAnimatorDriver` quando l'arma lo è, con il suo momento del colpo (0,9 s) per far cadere la lama
+insieme al danno. L'attesa è ancora quella a una mano.
+
+**Fuori dalla misura.** `HeroSetup` non prende le armi a due mani: la misura delle difficoltà resta quella di
+una mano e scudo (il bilancio non si muove). Il tooltip dice «A due mani».
+
+**Test.** `TwoHandedTests` in EditMode (i numeri, la regola dello slot, il click destro e il click sullo
+slot con la borsa che si fa posto o è piena, loot e mercante, la misura), il Turbine a due mani in
+`WarriorAbilityTests` (3,6 m: lo spadone sì, la spada no, con la condizione e il gesto), e il conteggio delle
+basi in `ItemDatabaseTests`. Foto in cripta del cavaliere con lo spadone e l'ascia, a riposo e a metà colpo,
+e della borsa (`PhotoTour.TwoHanded`).
+
 ## Fuori dai passi — I numeri del danno solo sui critici
 
 Richiesta di Mirco del 2 novembre, prima del 20.3: il numero del danno non esce più a ogni colpo, solo
@@ -334,7 +363,7 @@ faccia il numero e che il pool riusi i numeri dei critici.
 - [x] Niente pergamene nel loot né dal mercante; Dardo e Anello fuori dal Guerriero (20.3)
 - [x] Abilità attive con animazioni, stordimento, effetti e suoni (20.4)
 - [x] Le quattro caselle, il menu delle abilità e la grafica alla Diablo 3 (20.4b)
-- [ ] Spadone e ascia a due mani nel loot e dal mercante (20.5)
+- [x] Spadone e ascia a due mani nel loot e dal mercante (20.5)
 - [ ] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6)
 - [ ] Icone approvate (20.7)
 - [ ] Misura delle difficoltà con l'albero di riferimento dentro la tolleranza; ronda verde (20.8)

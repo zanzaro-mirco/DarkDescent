@@ -474,3 +474,8 @@ set.hunters_jerkin,Hunter's Jerkin,Giubba del Cacciatore
 set.hunters_gloves,Hunter's Gloves,Guanti del Cacciatore
 set.hunters_boots,Hunter's Boots,Stivali del Cacciatore
 set.hunter,The Hunter's Hide,Le spoglie del Cacciatore
+tooltip.two_handed,Two-handed,A due mani
+item.greatsword,Greatsword,Spadone
+item.great_axe,Great Axe,Ascia a due mani
+item.greatsword.gender,n,m
+item.great_axe.gender,n,f

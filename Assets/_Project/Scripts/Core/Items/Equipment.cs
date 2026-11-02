@@ -47,6 +47,29 @@ namespace DarkDescent.Items
             return _stats.Get(StatType.Strength) >= definition.RequiredStrength;
         }
 
+        /// <summary>Se l'arma indossata è a due mani.</summary>
+        public bool IsTwoHanded => Get(EquipSlot.Weapon)?.Definition is WeaponDefinition { TwoHanded: true };
+
+        /// <summary>
+        /// L'oggetto che sta in mezzo (D5 della M20): un'arma a due mani non ha posto con lo scudo, né uno
+        /// scudo con lei. È quello da togliere prima di indossare <paramref name="definition"/> in
+        /// <paramref name="slot"/>, o null se non c'è niente in mezzo.
+        /// </summary>
+        public ItemInstance Blocking(ItemDefinition definition, EquipSlot slot)
+        {
+            if (slot == EquipSlot.Weapon && definition is WeaponDefinition { TwoHanded: true })
+            {
+                return Get(EquipSlot.Offhand);
+            }
+
+            if (slot == EquipSlot.Offhand && IsTwoHanded)
+            {
+                return Get(EquipSlot.Weapon);
+            }
+
+            return null;
+        }
+
         public bool CanEquip(ItemInstance item)
         {
             return item?.Definition != null && item.Definition.Slot != EquipSlot.None && MeetsRequirements(item.Definition);
@@ -80,7 +103,7 @@ namespace DarkDescent.Items
         public bool TryEquip(ItemInstance item, EquipSlot slot, out ItemInstance previous)
         {
             previous = null;
-            if (!CanEquip(item) || !Fits(item.Definition, slot))
+            if (!CanEquip(item) || !Fits(item.Definition, slot) || Blocking(item.Definition, slot) != null)
             {
                 return false;
             }

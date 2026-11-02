@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DarkDescent.Characters;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
@@ -372,6 +373,43 @@ namespace DarkDescent.Tests
                 yield return Frames(3);
                 yield return Snap("hud_menu_" + tag, world: false);
             }
+        }
+
+        [UnityTest, Timeout(300000), Description("Le armi a due mani (D5 della M20): lo spadone e l'ascia in mano al cavaliere, a riposo e a metà colpo, e la borsa con le loro icone")]
+        public IEnumerator TwoHanded()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 1);
+            yield return Settle();
+
+            var inventory = Hero.GetComponent<PlayerInventory>();
+            Hero.GetComponent<CharacterStats>().Sheet.SetBase(StatType.Strength, 80f);
+            var driver = Hero.GetComponentInChildren<CharacterAnimatorDriver>();
+            foreach (string name in new[] { "Greatsword", "GreatAxe" })
+            {
+                var item = new ItemInstance(AssetDatabase.LoadAssetAtPath<ItemDefinition>($"Assets/_Project/Data/Items/{name}.asset"));
+                Assert.IsTrue(inventory.Inventory.Grid.TryAutoPlace(item), name);
+                Assert.IsTrue(inventory.Inventory.Grid.TryGetPlacement(item, out RectInt area), name);
+                Assert.IsTrue(inventory.Inventory.EquipFromGrid(area.position), name);
+                yield return Settle();
+                yield return Snap("twohanded_" + name.ToLowerInvariant() + "_idle");
+                driver.PlayAttack();
+                yield return new WaitForSecondsRealtime(0.6f);
+                yield return Snap("twohanded_" + name.ToLowerInvariant() + "_swing");
+                yield return new WaitForSecondsRealtime(1.5f);
+            }
+
+            Find<InventoryPanel>().SetOpen(true);
+            yield return Frames(5);
+            yield return Snap("twohanded_inventory", world: false);
         }
 
         [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]

@@ -25,6 +25,8 @@ Le prove della M18 restano valide.
   caselle si leggono finché non ci sono le icone (20.7)? Con una partita vecchia (a otto posti) le
   abilità tornano in ordine nelle caselle?
 
+- **Le armi a due mani** (passo 20.5): dal fabbro o da un forziere, uno spadone e un'ascia a due mani. Indossandoli lo scudo va nella borsa (e senza posto non succede niente); rimettendo lo scudo l'arma torna in borsa. Il gesto d'attacco si legge, e la lama arriva insieme al danno? Il Turbine con l'arma grande arriva un po' più in là?
+
 ## Dalla M19 — "L'ultima candela" (v1.7.0)
 
 - **L'apertura**: *Nuova partita* dal menu, scegli un posto. Parte il filmato di circa 50 s, con la

@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Linq;
+using DarkDescent.Characters;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
+using DarkDescent.Items;
 using DarkDescent.Magic;
 using DarkDescent.Player;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
+using DarkDescent.Talents;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -177,6 +180,53 @@ namespace DarkDescent.Tests
             Assert.Less(healths[0].Current, healths[0].Max);
             Assert.Less(healths[1].Current, healths[1].Max);
             Assert.AreEqual(healths[2].Max, healths[2].Current, "a 7 m no");
+        }
+
+        [UnityTest, Description("Le due mani (D5): lo spadone in mano fa valere la condizione dei passivi, il Turbine arriva mezzo metro più in là, e l'animazione d'attacco è quella a due mani; con l'arma a una mano tutto torna com'era")]
+        public IEnumerator TwoHanded_WidensTheWhirlwindAndTurnsOnTheCondition()
+        {
+            yield return LoadSandbox(allSkeletons: true);
+            var enemy = Object.FindObjectsByType<EnemyAI>(FindObjectsSortMode.None).Where(e => e.isActiveAndEnabled).Select(Still).First();
+            var inventory = Player.GetComponent<PlayerInventory>();
+            var talents = Player.GetComponent<PlayerTalents>();
+            var health = enemy.GetComponent<Health>();
+            health.MultiplyMax(50f); // vita alta: il Turbine non deve ucciderlo, perché un morto non si cura
+            health.Heal(100000f);
+            Assert.IsFalse(talents.Holds(TalentCondition.TwoHanded));
+
+            // lo scudo va via, lo spadone entra; la Forza non manca
+            Player.GetComponent<CharacterStats>().Sheet.SetBase(StatType.Strength, 60f);
+            inventory.Equipment.Unequip(EquipSlot.Offhand);
+            var sword = new ItemInstance(AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/Greatsword.asset"));
+            Assert.IsTrue(inventory.Equipment.TryEquip(sword, out _));
+            yield return null;
+            Assert.IsTrue(Player.GetComponent<MeleeAttack>().Weapon.TwoHanded);
+            Assert.IsTrue(talents.Holds(TalentCondition.TwoHanded));
+            Assert.IsTrue(Player.GetComponentInChildren<Animator>().HasState(0, Animator.StringToHash(CharacterAnimatorDriver.TwoHandedAttackState)), "il gesto a due mani è nel controller");
+            Assert.IsNull(Player.GetComponent<EquipmentVisuals>().OffHandModel);
+            StringAssert.Contains("sword_2handed", Player.GetComponent<EquipmentVisuals>().MainHandModel.name);
+
+            // il nemico a 3,6 m dal cavaliere (il raggio conta dal bordo del suo collider): fuori dal Turbine a una mano, dentro quello a due mani
+            StandAt(enemy.transform, 3.6f);
+            Assert.That(FlatDistance(Player.position, enemy.transform.position), Is.InRange(3.5f, 3.7f));
+            yield return new WaitForFixedUpdate();
+            Assert.IsTrue(Magic.Learn(Spell("Whirlwind")));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("Whirlwind"), Player.position));
+            yield return null;
+            Assert.Less(health.Current, health.Max, "a 3,6 m con lo spadone sì");
+
+            // con la spada a una mano, lo stesso nemico fuori portata
+            health.Heal(10000f);
+            Magic.Caster.Advance(10f);
+            Magic.Mana.Fill();
+            inventory.Equipment.TryEquip(new ItemInstance(AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/_Project/Data/Items/ShortSword.asset")), out _);
+            yield return null;
+            Assert.IsFalse(talents.Holds(TalentCondition.TwoHanded));
+            StandAt(enemy.transform, 3.6f);
+            yield return new WaitForFixedUpdate();
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("Whirlwind"), Player.position));
+            yield return null;
+            Assert.AreEqual(health.Max, health.Current, "a 3,6 m con la spada no");
         }
 
         private Vector3 Around(float distance, float angle)

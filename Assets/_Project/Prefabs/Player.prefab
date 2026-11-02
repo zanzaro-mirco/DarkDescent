@@ -1631,6 +1631,7 @@ MonoBehaviour:
   _attackSpeed: 1
   _quickAttackSpeed: 1
   _clipHitTime: 0.6
+  _twoHandedClipHitTime: 0.9
 --- !u!114 &8665827698380722836
 MonoBehaviour:
   m_ObjectHideFlags: 0

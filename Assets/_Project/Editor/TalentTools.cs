@@ -59,6 +59,7 @@ namespace DarkDescent.Editor
             (WarriorAbilities.WallState, "Rig_Medium_CombatMelee", "Melee_Blocking"),
             (WarriorAbilities.LeapState, "Rig_Medium_CombatMelee", "1H_Attack_Jump_Chop"),
             (WarriorAbilities.ShoutState, "Rig_Medium_Simulation", "Cheering"),
+            (CharacterAnimatorDriver.TwoHandedAttackState, "Rig_Medium_CombatMelee", "2H_Attack_Chop"),
         };
 
         [MenuItem("DarkDescent/Talenti/Costruisci il Guerriero")]
