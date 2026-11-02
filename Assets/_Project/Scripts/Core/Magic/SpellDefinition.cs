@@ -54,6 +54,28 @@ namespace DarkDescent.Magic
         [Tooltip("Secondi che dura.")]
         [SerializeField, Min(0f)] private float _duration;
 
+        [Header("Abilità del Guerriero (M20)")]
+        [Tooltip("Il danno del colpo, in percentuale di un colpo dell'arma: 160 per il Colpo possente.")]
+        [SerializeField, Min(0f)] private float _weaponPercent;
+
+        [Tooltip("Secondi di stordimento a chi colpisce, prima della regola dello stordimento.")]
+        [SerializeField, Min(0f)] private float _stun;
+
+        [Tooltip("Punti percentuali in più del suo tipo: il danno del Grido, la vita dell'Ultimo baluardo, il colpo dell'Esecuzione sui feriti.")]
+        [SerializeField, Min(0f)] private float _bonusPercent;
+
+        [Tooltip("La vita del nemico, in percentuale, sotto cui vale il colpo forte dell'Esecuzione.")]
+        [SerializeField, Range(0f, 100f)] private float _threshold;
+
+        [Tooltip("La distanza minima del bersaglio, per la Carica; la massima è la gittata.")]
+        [SerializeField, Min(0f)] private float _minRange;
+
+        [Tooltip("La velocità di movimento mentre dura, in parte di quella normale: il Muro di scudi a metà.")]
+        [SerializeField, Range(0f, 1f)] private float _moveFactor = 1f;
+
+        [Tooltip("Secondi tra un colpo e l'altro, per la Tempesta d'acciaio.")]
+        [SerializeField, Min(0f)] private float _tick;
+
         public string Id => _id;
         public string NameKey => _nameKey;
         public Sprite Icon => _icon;
@@ -69,6 +91,16 @@ namespace DarkDescent.Magic
         public float Radius => _radius;
         public int ArmorPercent => _armorPercent;
         public float Duration => _duration;
+        public float WeaponPercent => _weaponPercent;
+        public float Stun => _stun;
+        public float BonusPercent => _bonusPercent;
+        public float Threshold => _threshold;
+        public float MinRange => _minRange;
+        public float MoveFactor => _moveFactor;
+        public float Tick => _tick;
+
+        /// <summary>Un'abilità del Guerriero (M20), non un incantesimo: la fa <c>WarriorAbilities</c>.</summary>
+        public bool IsWarriorAbility => _kind >= SpellKind.Strike;
 
         /// <summary>Il danno di un lancio con questa Magia: non usa la Forza né il livello (D3).</summary>
         public float RollDamage(float magic, IRandomSource random)

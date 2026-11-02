@@ -398,10 +398,12 @@ namespace DarkDescent.Combat
                 }
                 else if (_unblockable || _swingTargetBlock == null || !_swingTargetBlock.TryBlock(new DamageInfo(0f, _swingWeapon.DamageType, gameObject), _random))
                 {
-                    // imparabile: lo scudo che l'avrebbe fermato lo dice, così si capisce perché passa
-                    if (_unblockable && _swingTargetBlock != null)
+                    // imparabile: lo scudo che l'avrebbe fermato lo dice, così si capisce perché passa;
+                    // con la Fortezza dell'albero (M20) ne ferma una parte
+                    float pierced = 0f;
+                    if (_unblockable && _swingTargetBlock != null && _swingTargetBlock.RollPierced(new DamageInfo(0f, _swingWeapon.DamageType, gameObject), _random))
                     {
-                        _swingTargetBlock.RollPierced(new DamageInfo(0f, _swingWeapon.DamageType, gameObject), _random);
+                        pierced = CharacterStats.ValueOf(_swingTargetStats, StatType.PiercedBlock);
                     }
 
                     // il colpo leggero ha i suoi danni; quello dell'arma, i danni con gli affissi
@@ -411,17 +413,17 @@ namespace DarkDescent.Combat
                         CharacterStats.ValueOf(_stats, StatType.Strength), _random,
                         CharacterStats.ValueOf(_stats, StatType.Level)) * DamageMultiplier;
                     amount = CombatFormulas.WithBonus(amount, CharacterStats.ValueOf(_stats, StatType.DamageBonus));
+                    amount *= 1f - Mathf.Clamp(pierced, 0f, 100f) / 100f;
 
                     // il critico per ultimo: i tiri di colpire, bloccare e del danno restano dove sono
-                    bool critical = _canCrit && CombatFormulas.RollCrit(
-                        CombatFormulas.CritChance(CharacterStats.ValueOf(_stats, StatType.Dexterity), CharacterStats.ValueOf(_stats, StatType.CritChance)), _random);
+                    bool critical = RollCritical(_random);
                     if (critical)
                     {
-                        amount *= CombatFormulas.CritMultiplier;
+                        amount *= CombatFormulas.CritMultiplierFor(CharacterStats.ValueOf(_stats, StatType.CritDamage));
                     }
 
                     var info = new DamageInfo(amount, _swingWeapon.DamageType, gameObject, critical);
-                    StealLife(info);
+                    StealLife(_swingTarget, _swingTransform, info);
                     HitLanded?.Invoke(info);
                 }
             }
@@ -430,14 +432,60 @@ namespace DarkDescent.Combat
             SwingEnded?.Invoke();
         }
 
+        /// <summary>
+        /// Un colpo d'abilità del cavaliere (M20): sempre a segno e senza blocco, con il danno
+        /// dell'arma in percentuale, Forza, livello, il bonus del danno, il critico e il rubavita, come
+        /// un colpo normale. I tiri vengono da <paramref name="random"/>, il flusso delle abilità, così
+        /// quelli dei colpi normali restano dove sono. Annuncia <see cref="HitLanded"/>.
+        /// </summary>
+        public DamageInfo Strike(Health target, float percent, IRandomSource random)
+        {
+            if (random == null)
+            {
+                throw new ArgumentNullException(nameof(random));
+            }
+
+            float amount = CombatFormulas.RollDamage(_minDamage, _maxDamage, CharacterStats.ValueOf(_stats, StatType.Strength), random,
+                CharacterStats.ValueOf(_stats, StatType.Level)) * DamageMultiplier * Mathf.Max(0f, percent) / 100f;
+            amount = CombatFormulas.WithBonus(amount, CharacterStats.ValueOf(_stats, StatType.DamageBonus));
+            bool critical = RollCritical(random);
+            if (critical)
+            {
+                amount *= CombatFormulas.CritMultiplierFor(CharacterStats.ValueOf(_stats, StatType.CritDamage));
+            }
+
+            var info = new DamageInfo(amount, _weapon.DamageType, gameObject, critical);
+            StealLife(target, target.transform, info);
+            HitLanded?.Invoke(info);
+            return info;
+        }
+
+        /// <summary>
+        /// Il danno di un colpo medio dell'arma, senza tiri: il tiro a metà, Forza, livello e
+        /// moltiplicatori. La Rappresaglia dell'albero (M20) ne rimanda una parte da un colpo bloccato,
+        /// che non tira il danno.
+        /// </summary>
+        public float AverageDamage()
+        {
+            int roll = (_minDamage + _maxDamage) / 2;
+            float amount = CombatFormulas.Damage(roll, CharacterStats.ValueOf(_stats, StatType.Strength), CharacterStats.ValueOf(_stats, StatType.Level)) * DamageMultiplier;
+            return CombatFormulas.WithBonus(amount, CharacterStats.ValueOf(_stats, StatType.DamageBonus));
+        }
+
+        private bool RollCritical(IRandomSource random)
+        {
+            return _canCrit && CombatFormulas.RollCrit(
+                CombatFormulas.CritChance(CharacterStats.ValueOf(_stats, StatType.Dexterity), CharacterStats.ValueOf(_stats, StatType.CritChance)), random);
+        }
+
         // Il colpo, e il rubavita degli oggetti (D5 della M16) sul danno davvero inflitto: solo a chi ha
         // una vita, quindi mai a un barile, e niente su chi era già morto
-        private void StealLife(in DamageInfo info)
+        private void StealLife(IDamageable target, Transform targetTransform, in DamageInfo info)
         {
             float lifeSteal = CharacterStats.ValueOf(_stats, StatType.LifeSteal);
-            Health targetHealth = lifeSteal > 0f && _health != null && _swingTransform != null ? _swingTransform.GetComponent<Health>() : null;
+            Health targetHealth = lifeSteal > 0f && _health != null && targetTransform != null ? targetTransform.GetComponent<Health>() : null;
             float before = targetHealth != null ? targetHealth.Current : 0f;
-            _swingTarget.TakeDamage(info);
+            target.TakeDamage(info);
             if (targetHealth != null)
             {
                 float healed = CombatFormulas.LifeStolen(before - targetHealth.Current, lifeSteal);

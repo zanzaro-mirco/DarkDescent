@@ -23,7 +23,14 @@ MonoBehaviour:
   _maxDamage: 0
   _magicDivisor: 4
   _speed: 14
-  _range: 14
+  _range: 0
   _radius: 0
   _armorPercent: 0
   _duration: 0
+  _weaponPercent: 100
+  _stun: 1.5
+  _bonusPercent: 0
+  _threshold: 0
+  _minRange: 0
+  _moveFactor: 1
+  _tick: 0

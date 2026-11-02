@@ -7,12 +7,16 @@ namespace DarkDescent.Magic
     /// Decide se un incantesimo parte (D3, D4 della M9): deve essere nella barra, il mana deve
     /// bastare e la ricarica essere finita. Se parte spende il mana e fa ripartire la ricarica. La
     /// ricarica è dell'abilità, non del posto: spostata su un altro posto, se la porta dietro (D9
-    /// della M20). Che cosa succede nel mondo lo decide chi lo usa.
+    /// della M20). Costo e ricarica li dice chi li conosce, con i nodi dell'albero: senza, quelli
+    /// dell'asset. Che cosa succede nel mondo lo decide chi lo usa.
     /// </summary>
     public sealed class SpellCaster
     {
-        private readonly Dictionary<SpellDefinition, float> _cooldowns = new Dictionary<SpellDefinition, float>();
+        // per ogni abilità in ricarica, quanto resta e quanto era lunga quando è partita
+        private readonly Dictionary<SpellDefinition, (float left, float total)> _cooldowns = new Dictionary<SpellDefinition, (float, float)>();
         private readonly List<SpellDefinition> _cooling = new List<SpellDefinition>();
+        private Func<SpellDefinition, float> _manaCost = spell => spell.ManaCost;
+        private Func<SpellDefinition, float> _cooldown = spell => spell.Cooldown;
 
         public SpellCaster(SpellBook book, ManaPool mana)
         {
@@ -24,6 +28,19 @@ namespace DarkDescent.Magic
 
         public ManaPool Mana { get; }
 
+        /// <summary>Costo e ricarica con l'albero (M20); null rimette quelli dell'asset.</summary>
+        public void SetNumbers(Func<SpellDefinition, float> manaCost, Func<SpellDefinition, float> cooldown)
+        {
+            _manaCost = manaCost ?? (spell => spell.ManaCost);
+            _cooldown = cooldown ?? (spell => spell.Cooldown);
+        }
+
+        /// <summary>Il mana che costa adesso.</summary>
+        public float ManaCost(SpellDefinition spell) => spell != null ? _manaCost(spell) : 0f;
+
+        /// <summary>I secondi di ricarica che avrebbe lanciata adesso.</summary>
+        public float Cooldown(SpellDefinition spell) => spell != null ? _cooldown(spell) : 0f;
+
         /// <summary>Secondi di ricarica che restano all'abilità di un posto.</summary>
         public float CooldownRemaining(int slot) => Remaining(Book[slot]);
 
@@ -31,7 +48,7 @@ namespace DarkDescent.Magic
         public float CooldownFraction(int slot)
         {
             var spell = Book[slot];
-            return spell != null && spell.Cooldown > 0f ? Remaining(spell) / spell.Cooldown : 0f;
+            return spell != null && _cooldowns.TryGetValue(spell, out var cooling) && cooling.total > 0f ? cooling.left / cooling.total : 0f;
         }
 
         public CastResult Check(int slot)
@@ -47,7 +64,7 @@ namespace DarkDescent.Magic
                 return CastResult.Cooldown;
             }
 
-            return Mana.Current >= spell.ManaCost ? CastResult.Ready : CastResult.NoMana;
+            return Mana.Current >= ManaCost(spell) ? CastResult.Ready : CastResult.NoMana;
         }
 
         /// <summary>Lancia il posto se può: spende il mana e avvia la ricarica. Restituisce il motivo se non parte.</summary>
@@ -60,15 +77,16 @@ namespace DarkDescent.Magic
             }
 
             var spell = Book[slot];
-            Mana.TrySpend(spell.ManaCost);
-            if (spell.Cooldown > 0f)
+            Mana.TrySpend(ManaCost(spell));
+            float cooldown = Cooldown(spell);
+            if (cooldown > 0f)
             {
                 if (!_cooldowns.ContainsKey(spell))
                 {
                     _cooling.Add(spell);
                 }
 
-                _cooldowns[spell] = spell.Cooldown;
+                _cooldowns[spell] = (cooldown, cooldown);
             }
 
             return CastResult.Ready;
@@ -81,10 +99,11 @@ namespace DarkDescent.Magic
             for (int i = _cooling.Count - 1; i >= 0; i--)
             {
                 var spell = _cooling[i];
-                float left = _cooldowns[spell] - deltaTime;
+                var cooling = _cooldowns[spell];
+                float left = cooling.left - deltaTime;
                 if (left > 0f)
                 {
-                    _cooldowns[spell] = left;
+                    _cooldowns[spell] = (left, cooling.total);
                 }
                 else
                 {
@@ -94,6 +113,6 @@ namespace DarkDescent.Magic
             }
         }
 
-        private float Remaining(SpellDefinition spell) => spell != null && _cooldowns.TryGetValue(spell, out float left) ? left : 0f;
+        private float Remaining(SpellDefinition spell) => spell != null && _cooldowns.TryGetValue(spell, out var cooling) ? cooling.left : 0f;
     }
 }

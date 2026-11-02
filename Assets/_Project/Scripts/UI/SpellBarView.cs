@@ -116,7 +116,7 @@ namespace DarkDescent.UI
             {
                 var spell = book[i];
                 bool known = book.Knows(i);
-                bool affordable = spell != null && _magic.Mana.Current >= spell.ManaCost;
+                bool affordable = spell != null && _magic.Mana.Current >= _magic.Caster.ManaCost(spell);
                 _slots[i].Show(spell, known, i == book.Selected, affordable);
             }
         }

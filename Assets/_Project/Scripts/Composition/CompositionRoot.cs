@@ -219,6 +219,7 @@ namespace DarkDescent.Core
         private PlayerProgress _progress;
         private Rendering.CameraRotation _cameraRotation;
         private Magic.PlayerMagic _magic;
+        private PlayerTalents _talents;
 
         // i banchi del borgo, mercante, fabbro e guaritrice, se è il livello corrente (D5 della M10,
         // D18 della M18): un banco per ognuno, con la sua merce
@@ -420,6 +421,9 @@ namespace DarkDescent.Core
             _portalSlot.Bind(magic);
             // un generatore suo: i danni degli incantesimi non spostano i tiri della mischia (trappola 3 della M9)
             _player.GetComponent<Magic.PlayerSpells>().Bind(_projectiles, new SystemRandomSource(Environment.TickCount ^ 0x5A11));
+            // le abilità del Guerriero (M20) tirano con un flusso loro: i colpi normali restano dove sono
+            _player.GetComponent<Magic.WarriorAbilities>().Bind(new SystemRandomSource(Environment.TickCount ^ 0x4B1D));
+            _talents = _player.GetComponent<PlayerTalents>();
             _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);
         }
 
@@ -1402,6 +1406,7 @@ namespace DarkDescent.Core
             _rewardingEnemies.Remove(enemy);
             _progress.AwardKill(ExperienceOf(enemy), _depth, CurrentDifficulty);
             _runStats.AddKill();
+            _talents.HandleKill();
         }
 
         // i campioni e gli unici valgono più di un nemico normale dello stesso tipo (M12)

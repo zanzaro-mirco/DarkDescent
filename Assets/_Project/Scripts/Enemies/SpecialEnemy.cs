@@ -74,6 +74,9 @@ namespace DarkDescent.Enemies
         /// <summary>Il Furioso è scattato: sotto la soglia della vita fa più danno.</summary>
         public bool IsEnraged => _isEnraged;
 
+        /// <summary>L'Inamovibile (M12): non barcolla, e dalla M20 non si stordisce.</summary>
+        public bool IsUnstoppable => _unstoppable;
+
         /// <summary>L'anello sotto i piedi, o null.</summary>
         public GameObject Ring => _ring;
 

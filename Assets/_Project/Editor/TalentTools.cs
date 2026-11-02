@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using DarkDescent.Magic;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
+using DarkDescent.Characters;
+using DarkDescent.Combat;
 using DarkDescent.Talents;
 using DarkDescent.UI;
 using TMPro;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -25,25 +28,40 @@ namespace DarkDescent.Editor
         public const string TalentsFolder = "Assets/_Project/Data/Talents";
         public const string PlayerPrefab = "Assets/_Project/Prefabs/Player.prefab";
         public const string CoreScene = "Assets/_Project/Scenes/Core.unity";
+        public const string ControllerPath = "Assets/_Project/Art/Animations/Character.controller";
+        public const string EffectsFolder = "Assets/_Project/Prefabs/VFX";
+        private const string AnimationsFolder = "Assets/_Project/Art/Animations/KayKit";
+        private const string SoundsFolder = "Assets/_Project/Audio/SFX";
 
         // i posti della barra: 48 di lato, 6 di spazio (come la cintura)
         private const float SlotSize = 48f;
         private const float SlotSpacing = 6f;
 
-        // le abilità del Guerriero (D8 e disegno): nome dell'asset, chiave, tipo, mana, ricarica,
-        // raggio, durata. Danno, stordimento e il resto arrivano con il loro comportamento (20.4)
-        private static readonly (string asset, string key, SpellKind kind, float mana, float cooldown, float radius, float duration)[] Abilities =
+        // le abilità del Guerriero (D8 e disegno): nome dell'asset, chiave, tipo, mana, ricarica, e i
+        // numeri del loro comportamento (20.4)
+        private static readonly AbilityRow[] Abilities =
         {
-            ("PowerStrike", "spell.power_strike", SpellKind.Strike, 4f, 3f, 0f, 0f),
-            ("Charge", "spell.charge", SpellKind.Charge, 10f, 8f, 0f, 0f),
-            ("BattleShout", "spell.battle_shout", SpellKind.Shout, 12f, 30f, 5f, 12f),
-            ("ShieldBash", "spell.shield_bash", SpellKind.ShieldBash, 8f, 6f, 0f, 0f),
-            ("ShieldWall", "spell.shield_wall", SpellKind.ShieldWall, 15f, 40f, 0f, 5f),
-            ("LastStand", "spell.last_stand", SpellKind.LastStand, 20f, 90f, 0f, 10f),
-            ("Whirlwind", "spell.whirlwind", SpellKind.Whirlwind, 12f, 4f, 3f, 0f),
-            ("Execute", "spell.execute", SpellKind.Execute, 10f, 6f, 0f, 0f),
-            ("Leap", "spell.leap", SpellKind.Leap, 14f, 12f, 3f, 0f),
-            ("Bladestorm", "spell.bladestorm", SpellKind.Bladestorm, 25f, 45f, 3.5f, 3f),
+            new AbilityRow("PowerStrike", "spell.power_strike", SpellKind.Strike, 4f, 3f) { Weapon = 160f },
+            new AbilityRow("Charge", "spell.charge", SpellKind.Charge, 10f, 8f) { Weapon = 100f, Stun = 1f, MinRange = 3f, Range = 10f },
+            new AbilityRow("BattleShout", "spell.battle_shout", SpellKind.Shout, 12f, 30f) { Radius = 5f, Duration = 12f, Bonus = 15f },
+            new AbilityRow("ShieldBash", "spell.shield_bash", SpellKind.ShieldBash, 8f, 6f) { Weapon = 100f, Stun = 1.5f },
+            new AbilityRow("ShieldWall", "spell.shield_wall", SpellKind.ShieldWall, 15f, 40f) { Duration = 5f, MoveFactor = 0.5f },
+            new AbilityRow("LastStand", "spell.last_stand", SpellKind.LastStand, 20f, 90f) { Duration = 10f, Bonus = 30f },
+            new AbilityRow("Whirlwind", "spell.whirlwind", SpellKind.Whirlwind, 12f, 4f) { Weapon = 90f, Radius = 3f },
+            new AbilityRow("Execute", "spell.execute", SpellKind.Execute, 10f, 6f) { Weapon = 100f, Bonus = 250f, Threshold = 25f },
+            new AbilityRow("Leap", "spell.leap", SpellKind.Leap, 14f, 12f) { Weapon = 120f, Stun = 1f, Radius = 3f, Range = 8f },
+            new AbilityRow("Bladestorm", "spell.bladestorm", SpellKind.Bladestorm, 25f, 45f) { Weapon = 60f, Radius = 3.5f, Duration = 3f, MoveFactor = 0.7f, Tick = 0.5f },
+        };
+
+        // i gesti delle abilità: lo stato del controller, il file delle animazioni e la fine del nome della clip
+        private static readonly (string state, string file, string clip)[] AbilityStates =
+        {
+            (WarriorAbilities.StrikeState, "Rig_Medium_CombatMelee", "1H_Attack_Chop"),
+            (WarriorAbilities.SpinState, "Rig_Medium_CombatMelee", "2H_Attack_Spinning"),
+            (WarriorAbilities.BashState, "Rig_Medium_CombatMelee", "Block_Attack"),
+            (WarriorAbilities.WallState, "Rig_Medium_CombatMelee", "Melee_Blocking"),
+            (WarriorAbilities.LeapState, "Rig_Medium_CombatMelee", "1H_Attack_Jump_Chop"),
+            (WarriorAbilities.ShoutState, "Rig_Medium_Simulation", "Cheering"),
         };
 
         [MenuItem("DarkDescent/Talenti/Costruisci il Guerriero")]
@@ -57,7 +75,7 @@ namespace DarkDescent.Editor
             var spells = new Dictionary<string, SpellDefinition>();
             foreach (var ability in Abilities)
             {
-                spells[ability.asset] = SaveAbility(ability);
+                spells[ability.Asset] = SaveAbility(ability);
             }
 
             spells["StoneSkin"] = AssetDatabase.LoadAssetAtPath<SpellDefinition>($"{SpellsFolder}/StoneSkin.asset");
@@ -65,7 +83,9 @@ namespace DarkDescent.Editor
             var defense = SaveTree("WarriorDefense", "warrior.defense", true, DefenseNodes(spells), new[] { new TalentGate(3, 5), new TalentGate(5, 12) });
             var arms = SaveTree("WarriorArms", "warrior.arms", true, ArmsNodes(spells), new[] { new TalentGate(3, 5), new TalentGate(5, 12) });
             AssetDatabase.SaveAssets();
-            InstallOnPlayer(warrior, defense, arms);
+            InstallAbilityStates();
+            var effects = InstallAbilityEffects();
+            InstallOnPlayer(warrior, defense, arms, effects);
             InstallBar();
             Debug.Log($"[TalentTools] Guerriero: {warrior.Nodes.Count} nodi, Difesa {defense.Nodes.Count}, Armi {arms.Nodes.Count}");
         }
@@ -145,6 +165,9 @@ namespace DarkDescent.Editor
             Active("bladestorm", 5, 3, s["Bladestorm"], Links("fighting_style", "frenzy")),
         };
 
+        private static AudioClip Sound(string path) =>
+            AssetDatabase.LoadAssetAtPath<AudioClip>($"{SoundsFolder}/{path}") ?? throw new InvalidOperationException($"manca il suono {path}");
+
         private static string[] Links(params string[] ids) => ids;
 
         private static TalentEffect Stat(StatType stat, float perRank, ModifierKind modifier = ModifierKind.Flat, TalentCondition condition = TalentCondition.None) =>
@@ -161,9 +184,9 @@ namespace DarkDescent.Editor
         private static TalentNode Choice(string id, int row, int column, string[] links, TalentOption first, TalentOption second) =>
             new TalentNode(id, row, column, 1, links, first, second);
 
-        private static SpellDefinition SaveAbility((string asset, string key, SpellKind kind, float mana, float cooldown, float radius, float duration) ability)
+        private static SpellDefinition SaveAbility(AbilityRow ability)
         {
-            string path = $"{SpellsFolder}/{ability.asset}.asset";
+            string path = $"{SpellsFolder}/{ability.Asset}.asset";
             var spell = AssetDatabase.LoadAssetAtPath<SpellDefinition>(path);
             if (spell == null)
             {
@@ -178,15 +201,167 @@ namespace DarkDescent.Editor
                 id.stringValue = Guid.NewGuid().ToString("N");
             }
 
-            so.FindProperty("_nameKey").stringValue = ability.key;
-            so.FindProperty("_kind").intValue = (int)ability.kind;
-            so.FindProperty("_manaCost").floatValue = ability.mana;
-            so.FindProperty("_cooldown").floatValue = ability.cooldown;
-            so.FindProperty("_radius").floatValue = ability.radius;
-            so.FindProperty("_duration").floatValue = ability.duration;
+            so.FindProperty("_nameKey").stringValue = ability.Key;
+            so.FindProperty("_kind").intValue = (int)ability.Kind;
+            so.FindProperty("_manaCost").floatValue = ability.Mana;
+            so.FindProperty("_cooldown").floatValue = ability.Cooldown;
+            so.FindProperty("_radius").floatValue = ability.Radius;
+            so.FindProperty("_duration").floatValue = ability.Duration;
+            so.FindProperty("_range").floatValue = ability.Range;
+            so.FindProperty("_weaponPercent").floatValue = ability.Weapon;
+            so.FindProperty("_stun").floatValue = ability.Stun;
+            so.FindProperty("_bonusPercent").floatValue = ability.Bonus;
+            so.FindProperty("_threshold").floatValue = ability.Threshold;
+            so.FindProperty("_minRange").floatValue = ability.MinRange;
+            so.FindProperty("_moveFactor").floatValue = ability.MoveFactor;
+            so.FindProperty("_tick").floatValue = ability.Tick;
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(spell);
             return spell;
+        }
+
+        /// <summary>
+        /// I gesti delle abilità nel controller del cavaliere (20.4): uno stato per gesto, con la clip di
+        /// KayKit, che torna alla corsa come l'attacco. Gli stati che ci sono già si aggiornano.
+        /// </summary>
+        [MenuItem("DarkDescent/Talenti/Gesti delle abilità")]
+        public static void InstallAbilityStates()
+        {
+            var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
+            var machine = controller.layers[0].stateMachine;
+            AnimatorState locomotion = null;
+            foreach (var child in machine.states)
+            {
+                if (child.state.name == "Locomotion")
+                {
+                    locomotion = child.state;
+                }
+            }
+
+            if (locomotion == null)
+            {
+                throw new InvalidOperationException($"{ControllerPath}: manca lo stato Locomotion");
+            }
+
+            foreach (var (stateName, file, clipName) in AbilityStates)
+            {
+                var clip = FindClip($"{AnimationsFolder}/{file}.fbx", clipName);
+                AnimatorState state = null;
+                foreach (var child in machine.states)
+                {
+                    if (child.state.name == stateName)
+                    {
+                        state = child.state;
+                    }
+                }
+
+                if (state == null)
+                {
+                    state = machine.AddState(stateName);
+                    var back = state.AddTransition(locomotion);
+                    back.hasExitTime = true;
+                    back.exitTime = 0.85f;
+                    back.hasFixedDuration = true;
+                    back.duration = 0.2f;
+                }
+
+                state.motion = clip;
+            }
+
+            EditorUtility.SetDirty(controller);
+            AssetDatabase.SaveAssets();
+        }
+
+        private static AnimationClip FindClip(string path, string ending)
+        {
+            var names = new List<string>();
+            foreach (var asset in AssetDatabase.LoadAllAssetsAtPath(path))
+            {
+                if (asset is AnimationClip clip && !clip.name.StartsWith("__preview__", StringComparison.Ordinal))
+                {
+                    if (clip.name.EndsWith(ending, StringComparison.Ordinal))
+                    {
+                        return clip;
+                    }
+
+                    names.Add(clip.name);
+                }
+            }
+
+            throw new InvalidOperationException($"{path}: nessuna clip che finisce con {ending}; ci sono {string.Join(", ", names)}");
+        }
+
+        /// <summary>
+        /// Gli effetti delle abilità (20.4), copie di quelli che il gioco ha già con un altro colore: il
+        /// cerchio d'acciaio del Turbine e del Salto e l'onda d'oro del Grido dall'Anello di fuoco, le
+        /// stelle dello stordimento dalle scintille dei campioni.
+        /// </summary>
+        private static (AreaEffect spin, AreaEffect shout, GameObject stun) InstallAbilityEffects()
+        {
+            var spin = AreaCopy("Fx_Spin", new Color(0.78f, 0.84f, 0.95f, 1f));
+            var shout = AreaCopy("Fx_Shout", new Color(1f, 0.78f, 0.3f, 1f));
+            string stunPath = $"{EffectsFolder}/Fx_Stun.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(stunPath) == null)
+            {
+                AssetDatabase.CopyAsset($"{EffectsFolder}/Fx_ChampionSparks.prefab", stunPath);
+            }
+
+            var root = PrefabUtility.LoadPrefabContents(stunPath);
+            try
+            {
+                root.transform.localScale = Vector3.one * 0.5f;
+                foreach (var particles in root.GetComponentsInChildren<ParticleSystem>(true))
+                {
+                    var main = particles.main;
+                    main.startColor = new Color(1f, 0.9f, 0.35f, 1f);
+                    main.loop = true;
+                    main.playOnAwake = true;
+                }
+
+                PrefabUtility.SaveAsPrefabAsset(root, stunPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+
+            return (spin, shout, AssetDatabase.LoadAssetAtPath<GameObject>(stunPath));
+        }
+
+        private static AreaEffect AreaCopy(string name, Color color)
+        {
+            string path = $"{EffectsFolder}/{name}.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
+            {
+                AssetDatabase.CopyAsset("Assets/_Project/Prefabs/Magic/FireRing.prefab", path);
+            }
+
+            var root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                foreach (var particles in root.GetComponentsInChildren<ParticleSystem>(true))
+                {
+                    var main = particles.main;
+                    main.startColor = color;
+                }
+
+                foreach (var light in root.GetComponentsInChildren<Light>(true))
+                {
+                    light.color = color;
+                }
+
+                // il suono lo fa l'abilità
+                var area = new SerializedObject(root.GetComponent<AreaEffect>());
+                area.FindProperty("_clip").objectReferenceValue = null;
+                area.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+
+            return AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<AreaEffect>();
         }
 
         private static TalentTree SaveTree(string asset, string id, bool specialization, TalentNode[] nodes, TalentGate[] gates)
@@ -245,7 +420,7 @@ namespace DarkDescent.Editor
             Debug.Log($"[TalentTools] barra: {slots.arraySize} posti in {CoreScene}");
         }
 
-        private static void InstallOnPlayer(TalentTree warrior, TalentTree defense, TalentTree arms)
+        private static void InstallOnPlayer(TalentTree warrior, TalentTree defense, TalentTree arms, (AreaEffect spin, AreaEffect shout, GameObject stun) effects)
         {
             var player = PrefabUtility.LoadPrefabContents(PlayerPrefab);
             try
@@ -263,12 +438,64 @@ namespace DarkDescent.Editor
                 specializations.GetArrayElementAtIndex(0).objectReferenceValue = defense;
                 specializations.GetArrayElementAtIndex(1).objectReferenceValue = arms;
                 so.ApplyModifiedPropertiesWithoutUndo();
+
+                // le abilità: i nemici e l'altoparlante degli incantesimi, il fendente del cavaliere
+                var abilities = player.GetComponent<WarriorAbilities>();
+                if (abilities == null)
+                {
+                    abilities = player.AddComponent<WarriorAbilities>();
+                }
+
+                var spells = new SerializedObject(player.GetComponent<PlayerSpells>());
+                var swings = new SerializedObject(player.GetComponent<CharacterAudio>()).FindProperty("_swingClips");
+                var ability = new SerializedObject(abilities);
+                ability.FindProperty("_targetLayers").intValue = spells.FindProperty("_targetLayers").intValue;
+                ability.FindProperty("_audio").objectReferenceValue = spells.FindProperty("_audio").objectReferenceValue;
+                ability.FindProperty("_swingClip").objectReferenceValue = swings.GetArrayElementAtIndex(0).objectReferenceValue;
+                ability.FindProperty("_shoutClip").objectReferenceValue = Sound("Creatures/grunt_04.ogg");
+                ability.FindProperty("_whirlClip").objectReferenceValue = Sound("Generated/ability_whirl.wav");
+                ability.FindProperty("_stunClip").objectReferenceValue = Sound("Generated/ability_stun.wav");
+                ability.FindProperty("_shieldClip").objectReferenceValue = Sound("Generated/ability_shield.wav");
+                ability.FindProperty("_landClip").objectReferenceValue = Sound("Generated/ability_land.wav");
+                ability.FindProperty("_spinEffect").objectReferenceValue = effects.spin;
+                ability.FindProperty("_shoutEffect").objectReferenceValue = effects.shout;
+                ability.FindProperty("_stunEffect").objectReferenceValue = effects.stun;
+                ability.ApplyModifiedPropertiesWithoutUndo();
                 PrefabUtility.SaveAsPrefabAsset(player, PlayerPrefab);
             }
             finally
             {
                 PrefabUtility.UnloadPrefabContents(player);
             }
+        }
+
+        // una riga della tabella delle abilità: i numeri che non servono restano a zero
+        private sealed class AbilityRow
+        {
+            public AbilityRow(string asset, string key, SpellKind kind, float mana, float cooldown)
+            {
+                Asset = asset;
+                Key = key;
+                Kind = kind;
+                Mana = mana;
+                Cooldown = cooldown;
+            }
+
+            public string Asset { get; }
+            public string Key { get; }
+            public SpellKind Kind { get; }
+            public float Mana { get; }
+            public float Cooldown { get; }
+            public float Radius { get; set; }
+            public float Duration { get; set; }
+            public float Range { get; set; }
+            public float Weapon { get; set; }
+            public float Stun { get; set; }
+            public float Bonus { get; set; }
+            public float Threshold { get; set; }
+            public float MinRange { get; set; }
+            public float MoveFactor { get; set; } = 1f;
+            public float Tick { get; set; }
         }
     }
 }

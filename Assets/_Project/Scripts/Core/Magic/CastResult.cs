@@ -7,5 +7,11 @@ namespace DarkDescent.Magic
         NotKnown,
         NoMana,
         Cooldown,
+
+        /// <summary>Nessun nemico da colpire, o troppo vicino o troppo lontano (le abilità del Guerriero, M20).</summary>
+        NoTarget,
+
+        /// <summary>Serve lo scudo in mano: Colpo di scudo e Muro di scudi (M20).</summary>
+        NoShield,
     }
 }

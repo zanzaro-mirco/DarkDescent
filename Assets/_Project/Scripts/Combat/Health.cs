@@ -50,8 +50,15 @@ namespace DarkDescent.Combat
             // nessun += da bilanciare, e l'ordine (vita, colpo, morte) è deciso in un punto solo.
             bool wasDead = Model.IsDead;
 
-            // il danno ridotto degli oggetti (D5 della M16), mai sotto 1; i nemici non ne hanno
-            float amount = _stats != null ? CombatFormulas.ReduceDamage(info.Amount, _stats.Sheet.Get(StatType.DamageReduction)) : info.Amount;
+            // il danno ridotto degli oggetti (D5 della M16), mai sotto 1, poi quello in percentuale
+            // dell'albero (M20); i nemici non ne hanno
+            float amount = info.Amount;
+            if (_stats != null)
+            {
+                amount = CombatFormulas.ReduceDamage(amount, _stats.Sheet.Get(StatType.DamageReduction));
+                amount = CombatFormulas.ResistDamage(amount, _stats.Sheet.Get(StatType.DamageResist));
+            }
+
             float applied = Model.ApplyDamage(amount);
             if (applied <= 0f)
             {

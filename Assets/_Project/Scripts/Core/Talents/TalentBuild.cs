@@ -286,6 +286,44 @@ namespace DarkDescent.Talents
             return AppliedEffects(TalentEffectKind.Ability).Where(e => e.effect.Ability == ability && e.effect.Param == param).Sum(e => e.effect.Value(e.rank));
         }
 
+        /// <summary>
+        /// Un numero di un'abilità con i nodi applicati: quello dell'asset più i loro bonus, mai sotto
+        /// zero. La ricarica della Carica con Slancio, la durata della Pelle di pietra con Seconda pelle.
+        /// </summary>
+        public float AbilityValue(SpellDefinition ability, AbilityParam param)
+        {
+            return Math.Max(0f, BaseValue(ability, param) + AbilityBonus(ability, param));
+        }
+
+        /// <summary>Il numero di un'abilità come lo dice il suo asset, senza l'albero.</summary>
+        public static float BaseValue(SpellDefinition ability, AbilityParam param)
+        {
+            if (ability == null)
+            {
+                return 0f;
+            }
+
+            switch (param)
+            {
+                case AbilityParam.Cooldown:
+                    return ability.Cooldown;
+                case AbilityParam.ManaCost:
+                    return ability.ManaCost;
+                case AbilityParam.Damage:
+                    return ability.WeaponPercent;
+                case AbilityParam.Duration:
+                    return ability.Duration;
+                case AbilityParam.Radius:
+                    return ability.Radius;
+                case AbilityParam.Stun:
+                    return ability.Stun;
+                case AbilityParam.Threshold:
+                    return ability.Threshold;
+                default:
+                    return 0f;
+            }
+        }
+
         /// <summary>Gli effetti dei nodi applicati che scattano a quel momento, con i loro gradi.</summary>
         public List<(TalentEffect effect, int rank)> Triggers(TalentTrigger trigger)
         {

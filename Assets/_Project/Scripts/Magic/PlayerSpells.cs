@@ -118,6 +118,12 @@ namespace DarkDescent.Magic
 
         private void HandleCast(SpellDefinition spell, Vector3 target)
         {
+            // le abilità del Guerriero le fa WarriorAbilities, con i loro gesti (M20)
+            if (spell.IsWarriorAbility)
+            {
+                return;
+            }
+
             if (_pendingSpell != null)
             {
                 Release();
@@ -243,7 +249,8 @@ namespace DarkDescent.Magic
         {
             EndBuff();
             _buff = spell;
-            _buffRemaining = spell.Duration;
+            // con la Seconda pelle dell'albero dura di più (M20)
+            _buffRemaining = _magic.AbilityValue(spell, Talents.AbilityParam.Duration);
             _stats.Sheet.AddModifier(new StatModifier(StatType.Armor, ModifierKind.Percent, spell.ArmorPercent, spell));
             if (spell.Effect == null)
             {

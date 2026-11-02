@@ -1,3 +1,4 @@
+using DarkDescent.Stats;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -7,7 +8,8 @@ namespace DarkDescent.Player
     /// Il rallentamento del cavaliere (il Gelido dei campioni, D5 della M12): per qualche secondo
     /// l'agent va più piano e il modello prende una tinta fredda. È l'unico che cambia la velocità
     /// dell'agent: un secondo colpo rinnova la durata senza sommarsi, e alla fine torna quella di prima.
-    /// Dalla M13 tiene anche la velocità in più del santuario del Vento.
+    /// Dalla M13 tiene anche la velocità in più del santuario del Vento; dalla M20 il Passo pesante
+    /// dell'albero (la statistica della velocità di movimento) e le abilità che fanno camminare piano.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NavMeshAgent))]
@@ -28,6 +30,8 @@ namespace DarkDescent.Player
         private float _fraction;
         private float _remaining;
         private float _haste;
+        private float _factor = 1f;
+        private CharacterStats _stats;
 
         public bool IsSlowed => _remaining > 0f;
 
@@ -38,6 +42,9 @@ namespace DarkDescent.Player
 
         /// <summary>Quanto della velocità si guadagna ora, dal santuario del Vento (M13): 0,25 vuol dire +25%.</summary>
         public float Haste => _haste;
+
+        /// <summary>La velocità di un'abilità in corso, in parte di quella normale (M20): 0,5 per il Muro di scudi, 1 senza.</summary>
+        public float AbilityFactor => _factor;
 
         /// <summary>I cristalli di ghiaccio, o null.</summary>
         public GameObject Effect => _effect;
@@ -76,15 +83,25 @@ namespace DarkDescent.Player
             ApplySpeed();
         }
 
+        /// <summary>La velocità di un'abilità finché dura (M20): sotto 1 cammina piano, sopra corre (la Carica); 1 la rimette.</summary>
+        public void SetAbilityFactor(float factor)
+        {
+            _factor = Mathf.Clamp(factor, 0f, 4f);
+            ApplySpeed();
+        }
+
+        // il Vento e il Passo pesante si sommano; il rallentamento e l'abilità tolgono una parte del totale
         private void ApplySpeed()
         {
-            _agent.speed = _baseSpeed * (1f - Fraction) * (1f + _haste);
+            float bonus = _stats != null ? _stats.Sheet.Get(StatType.MoveSpeed) / 100f : 0f;
+            _agent.speed = _baseSpeed * (1f - Fraction) * (1f + _haste + bonus) * _factor;
         }
 
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
             _baseSpeed = _agent.speed;
+            TryGetComponent(out _stats);
             _block = new MaterialPropertyBlock();
             if (_effect != null)
             {
@@ -106,8 +123,22 @@ namespace DarkDescent.Player
             }
         }
 
+        private void OnEnable()
+        {
+            if (_stats != null)
+            {
+                _stats.Sheet.Changed += ApplySpeed;
+                ApplySpeed();
+            }
+        }
+
         private void OnDisable()
         {
+            if (_stats != null)
+            {
+                _stats.Sheet.Changed -= ApplySpeed;
+            }
+
             if (IsSlowed)
             {
                 Clear();

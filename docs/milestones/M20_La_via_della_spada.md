@@ -68,14 +68,15 @@ Confermate da Mirco il 2 novembre 2026: prima D2, D3 e D5, che spostano di più 
 | D6 | **I punti dell'albero** | Uno a ogni livello dal 2. Dal **2 al 9** vanno nell'albero della classe. Dal **10**, quando si sceglie la specializzazione, ai livelli pari vanno nella specializzazione e ai dispari nella classe. Al livello 50 fanno **28 nella classe e 21 nella specializzazione**. Gli alberi hanno circa **36 gradi** nella classe e **28** per specializzazione, quindi si riempiono per circa tre quarti. Prima del 10 l'albero della specializzazione si vede, ma è chiuso. Il primo nodo di ogni albero è **gratis**: Colpo possente al livello 1, Colpo di scudo o Turbine quando si sceglie la specializzazione (dal disegno) | Così le scelte restano vere anche al livello massimo (piano). Prima del 10 non si accumulano punti di una specializzazione non ancora scelta |
 | D7 | **Prima il disegno** | Il passo 20.1 è una **pagina** con i due alberi disegnati. Contiene i rami e **tre o quattro stili di gioco**, per esempio *muro* (Difesa), *colpo pesante* e *turbine* (Armi) e *carica* (classe). Per ogni nodo dice effetto, gradi, posto, collegamenti e perché sta lì, più i numeri. Il codice comincia **solo dopo il sì di Mirco** sulla pagina | È la regola del piano: l'albero sensato è la parte importante |
 | D8 | **Le abilità attive** | Le abilità attive costano **mana**, come gli incantesimi di oggi. Le candidate, con le animazioni che ci sono già: *Colpo possente* (`1H/2H_Attack_Chop`), *Carica* (corsa e `Jump_Chop`, con uno stordimento breve), *Grido di battaglia* (`Cheering`, danno in più per un po'), *Turbine* (`2H_Attack_Spinning`), *Colpo di scudo* (`Block_Attack`, stordisce), *Muro di scudi* (`Blocking`, blocco pieno per pochi secondi), *Pelle di pietra*. Il disegno ne aggiunge quattro: *Esecuzione*, *Salto*, *Ultimo baluardo* e *Tempesta d'acciaio*, undici in tutto, sette o otto per personaggio. *Colpo possente* è il primo nodo dell'albero della classe, **preso gratis** al livello 1, così il tasto destro fa qualcosa fin dall'inizio. Lo stordimento è nuovo: il nemico si ferma come nel recupero dal colpo, ma più a lungo. Il re e i campioni ne prendono metà, un nemico appena stordito non si stordisce di nuovo per 3 s, e gli Inarrestabili mai (dal disegno). L'alternativa al mana è una **Furia** che si carica colpendo, come in WoW | Il mana c'è già, con la sfera, le pozioni e gli affissi. La Furia renderebbe inutili pozioni e affissi di mana per il Guerriero, e vorrebbe una sfera e un bilancio nuovi |
-| D9 | **La barra** | Otto posti, **F1–F8** (confermato con il disegno, al posto di sei): il tasto sceglie, il destro lancia, come oggi. Un'abilità attiva presa va nel primo posto libero, e dal pannello si trascina su un altro posto. Il portale resta sul tasto T | È il modo di Diablo 2 e quello di oggi. Con *Armi* le abilità attive possono essere otto, quattro della classe e quattro sue; F4–F8 sono liberi |
+| D9 | **La barra** | **Cambiata il 2 novembre, dopo il 20.4 (D18):** quattro caselle alla Diablo 3. *Prima:* otto posti, **F1–F8** (confermato con il disegno, al posto di sei): il tasto sceglie, il destro lancia, come oggi. Un'abilità attiva presa va nel primo posto libero, e dal pannello si trascina su un altro posto. Il portale resta sul tasto T | È il modo di Diablo 2 e quello di oggi. Con *Armi* le abilità attive possono essere otto, quattro della classe e quattro sue; F4–F8 sono liberi |
 | D10 | **Il pannello** | Tasto **N**, a tutto schermo come l'immagine di WoW, nella pelle della M17. In alto i punti di ogni albero. Il nodo preso ha il bordo d'oro, quello disponibile è a colori, quello chiuso è grigio. Il numero dei gradi sta sull'icona; il nodo a scelta è un ottagono che, cliccato, mostra le due abilità. Il **tooltip** dice cosa fa, il grado e cosa serve per aprirlo. Sotto ci sono **Applica modifiche** e **Annulla**. Le due lingue. Un avviso nell'HUD per i punti da spendere, come quello dei punti attributo | Decisioni di Mirco del 19 ottobre 2026 (piano) |
 | D11 | **Cambiare idea** | Prima di *Applica* si toglie e si rimette gratis. Dopo, si riparte da zero **all'altare della cappella**, con una seconda voce accanto alla difficoltà. Costa **30 oro × livello** (dal disegno): 300 al 10, 600 al 20, 1500 al 50. La specializzazione si cambia solo così | L'altare c'è già, è di tutte le classi e sta nel borgo, come chiede il piano |
 | D12 | **Le icone** | Una per ogni abilità attiva e una per ogni **tipo** di passivo (armatura, blocco, critico…): circa **30–40**. Ci sono tre strade: **Z-Image-Turbo** in ComfyUI (proposta), con le ricette in `Tools/ComfyUI/images/` e la pagina dei semi per Mirco, come alla M17; un **pacchetto CC0** (va trovato, e il download si fa con il sì di Mirco); **render da Blender**, come i modelli della M13 | Z-Image c'è già, è sotto Apache 2.0 e si è vista alla M17. Le icone di WoW sono dipinte, e un render 3D le somiglia meno. Un pacchetto CC0 avrebbe uno stile suo |
 | D13 | **Nel codice** | Un nodo è un dato (`TalentNode`: id, posto nella griglia, collegamenti, gradi, effetto, alternativa) e un albero è un asset (`TalentTree`), uno per la classe e uno per specializzazione. La logica (cosa si può prendere, punti, righe, *Applica*, riassegnazione) sta in `Core`, in `TalentBuild`, con i suoi test EditMode. Un passivo è un modificatore della `StatSheet` con l'albero come sorgente, come gli affissi; le `StatType` nuove vanno in fondo. Le abilità attive allargano gli incantesimi di oggi con i tipi nuovi (colpo, carica, grido, turbine, colpo di scudo, muro) | Lo stesso meccanismo degli affissi e degli incantesimi: niente controlli a ogni frame, niente struttura parallela |
 | D14 | **Bilancio e ronda** | La misura delle difficoltà prende il cavaliere con un **albero di riferimento** (*Armi*, e *Difesa* come confronto), che `HeroSetup` spende come oggi spende gli attributi. Se le bande della M14 escono dalla tolleranza del 5%, si ritarano i **numeri dell'albero**, non le difficoltà. Nella misura entrano solo i passivi; le abilità attive si provano a mano | Un albero che rende il gioco facile rovina le difficoltà della M14. I passivi sono numeri, e la misura li sa contare |
 | D15 | **Si controlla** | **EditMode:** le regole di `TalentBuild` (collegamenti, righe, gradi, nodi a scelta, punti per albero, *Applica*, *Annulla*, riassegnazione); gli alberi del Guerriero (ogni nodo raggiungibile, posti senza sovrapposizioni, ogni testo nelle due lingue, ogni icona c'è); la migrazione 7 → 8; nessuna pergamena nel loot. **PlayMode:** N apre e chiude il pannello; un punto speso e applicato cambia la statistica; un'abilità attiva presa va nella barra e il destro la lancia; l'altare riporta i punti e prende l'oro; *Carica* e *Colpo di scudo* stordiscono; un salvataggio vecchio si apre con i punti | Le regole dell'albero sono logica pura e si provano bene in EditMode; il resto tocca comandi, HUD e salvataggio |
-| D16 | **Stima e linee di taglio** | **22,5–30,5 h** dopo il disegno (erano 20–27), di cui 3–4 per le armi a due mani. Se servirà tagliare, in quest'ordine: Tempesta d'acciaio (diventa un passivo del Turbine); Rappresaglia e Fortezza; Frenesia e Vendicatore; il trascinamento nella barra (le abilità restano nel primo posto libero); un'icona per ogni passivo (resta quella del tipo); i nodi a scelta oltre due; Salto; le armi a due mani (*Armi* con le armi a una mano). Il disegno approvato, il pannello, *Applica* e il salvataggio non si tagliano | Meglio deciderlo adesso che a metà |
+| D16 | **Stima e linee di taglio** | **22,5–30,5 h** dopo il disegno (erano 20–27), di cui 3–4 per le armi a due mani; con le quattro caselle (D18, 6–9 h) **28,5–39,5 h**. Se servirà tagliare, in quest'ordine: Tempesta d'acciaio (diventa un passivo del Turbine); Rappresaglia e Fortezza; Frenesia e Vendicatore; il trascinamento nella barra (le abilità restano nel primo posto libero); un'icona per ogni passivo (resta quella del tipo); i nodi a scelta oltre due; Salto; le armi a due mani (*Armi* con le armi a una mano). Il disegno approvato, il pannello, *Applica* e il salvataggio non si tagliano | Meglio deciderlo adesso che a metà |
+| D18 | **Quattro caselle, come Diablo 3** | Richiesta di Mirco del 2 novembre, dopo il 20.4, con le sue scelte: niente più F1–F8 né abilità scelta. **Quattro caselle**, ognuna un tasto: il **sinistro** (sul pavimento cammina, su un nemico usa l'abilità principale), il **destro** (la secondaria), **Q** ed **E**. La camera, che girava con Q ed E, gira con **Z e X**. Nella casella del sinistro vanno solo abilità **senza ricarica e senza mana**: per ora una sola, **l'Attacco**, il colpo dell'arma di sempre. Un **clic su una casella** apre l'elenco delle abilità disponibili per lei; **K** apre le quattro caselle insieme. Una abilità nuova dell'albero va nella prima casella libera tra destro, Q ed E, le altre restano nell'elenco. La barra delle pozioni e quella delle abilità prendono una **grafica alla Diablo 3**, fatta con Z-Image come le icone (D12). Il salvataggio 8 tiene la barra posto per posto, ora quattro | La barra a otto posti di Diablo 2 con un tasto che sceglie era scomoda; quattro tasti sempre pronti sono il modo di Diablo 3 |
 | D17 | **Fuori da questa milestone** | Il Mago e la creazione del personaggio (M21); le altre classi (M27, M28); bastoni, bacchette e archi; più configurazioni salvate dell'albero; riassegnare gratis; abilità che fanno scappare i nemici (M24); l'equipaggiamento che si vede addosso (M26) | Ognuna è un lavoro a sé, già nel calendario |
 
 ---
@@ -88,6 +89,7 @@ Confermate da Mirco il 2 novembre 2026: prima D2, D3 e D5, che spostano di più 
 | 20.2 | **Il sistema in `Core`**: `TalentNode`, `TalentTree`, `TalentBuild`, i punti da `CharacterProgress`, i passivi sulla `StatSheet`; il salvataggio 8 con la migrazione e il campione; i test (D4, D6, D13, D15) | 3,5–4,5 |
 | 20.3 | **Via le pergamene**: loot e mercante; il Dardo e l'Anello tolti al Guerriero, con i test degli incantesimi su un libro di prova; la barra F1–F8 (D3, D4, D9) | 1,5–2 |
 | 20.4 | **Le abilità attive**: le undici del disegno con le animazioni, la corsa, il salto e il turbine che dura, lo stordimento con la sua regola, le statistiche e le condizioni nuove, gli effetti a tempo, gli effetti e i suoni da script come alla M13 (D8) | 6–8 |
+| 20.4b | **Le quattro caselle** (D18): sinistro, destro, Q ed E al posto di F1–F8; la camera su Z e X; l'Attacco come abilità del sinistro; l'elenco che si apre dalla casella e con K; la grafica alla Diablo 3 della barra delle pozioni e di quella delle abilità; i test e il salvataggio | 6–9 |
 | 20.5 | **Le armi a due mani**: spadone e ascia, la regola dello slot, le clip `Melee_2H_*`, gli affissi, il loot, il mercante e le icone dai modelli (D5) | 3–4 |
 | 20.6 | **Il pannello** N: i due alberi, le linee, gli stati, il tooltip, *Applica* e *Annulla*, l'avviso dei punti, l'altare. Le foto per Mirco (D10, D11) | 3,5–4,5 |
 | 20.7 | **Le icone**: le ricette Z-Image e la pagina dei semi per Mirco; entrano solo con il suo sì (D12) | 2–3 |
@@ -203,6 +205,62 @@ pergamena e quello della pergamena che insegna. EditMode 553/553, PlayMode senza
 due di sempre saltati); dopo il caricamento a magia spenta, le tre classi toccate 13/13 ed EditMode
 di nuovo 553/553.
 
+## Passo 20.4 — Le abilità attive
+
+**Com'è andata (2 nov 2026).** Le undici abilità fanno quello che dice il disegno. Le fa
+`WarriorAbilities` sul cavaliere, che ascolta il lancio come `PlayerSpells` per gli incantesimi
+(che le lascia stare). I numeri stanno negli asset (danno in percentuale dell'arma, stordimento,
+soglia, gittata, velocità mentre dura, battito della Tempesta), scritti da `TalentTools`, e i nodi li
+cambiano con `TalentBuild.AbilityValue`: l'asset più i bonus, mai sotto zero. Costo e ricarica del
+lanciatore (`SpellCaster.SetNumbers`), la barra che si scurisce e la durata della Pelle di pietra
+leggono gli stessi numeri.
+
+**Come si mira.** I colpi (Colpo possente, Esecuzione, Colpo di scudo) vanno al nemico sotto il
+cursore, o al più vicino al punto, o al più vicino a portata: l'arma più un passo, senza inseguire.
+La **Carica** vuole un nemico tra 3 e 10 m con la strada dritta e libera, e ci corre a tre volte la
+velocità. Il **Salto** va sul punto, al più a 8 m, e si ferma a un muro. Turbine, Tempesta, Grido,
+Muro e Ultimo baluardo partono dal cavaliere. **Senza niente da colpire il lancio non parte e non
+spende** (`CastResult.NoTarget`, e `NoShield` per i due dello scudo): il controllo arriva prima del
+mana, con `IAbilityTargeting`.
+
+**Il colpo d'abilità** (`MeleeAttack.Strike`) è sempre a segno e senza blocco, con il danno dell'arma
+in percentuale, Forza, livello, il bonus del danno, il critico e il rubavita, e annuncia il colpo a
+segno come un colpo normale (fermo del tempo, suoni, Disciplina). Tira da un **flusso suo**, così i
+tiri dei colpi normali, dei blocchi e dei critici restano dove sono. Le aree colpiscono ognuno una
+volta, ognuno con il suo tiro.
+
+**Lo stordimento** è in `EnemyAI.Stun`, con la regola in `StunTimer` (logica pura): metà per il re, i
+campioni **e gli unici**, mai per gli Inamovibili, niente di nuovo mentre dura e per 3 s dopo.
+Stordito, il nemico annulla il colpo e il lancio e sta fermo; il re ferma anche anello ed evocazioni.
+Sopra la testa le stelle, con il loro tintinnio.
+
+**I passivi.** Valgono le statistiche nuove: il blocco in più (`ShieldBlock`, tetto 75%), il danno
+preso in meno dopo i punti tolti (tetto 75%), il critico fino a ×2,3, la velocità di movimento (in
+`MovementSlow`, che resta l'unico a cambiarla, insieme alle abilità che fanno camminare piano o
+correre), le pozioni che curano di più, la Fortezza contro i colpi imparabili. Le **condizioni**
+valgono finché reggono: lo scudo in mano e la vita sotto il 30%, ricontrollate solo quando cambiano;
+**le due mani valgono "no" fino al 20.5**, e con loro la Presa a due mani e il Turbine a 3,5 m. Gli
+**effetti che scattano** stanno in `PlayerTalents`: mana al colpo (Disciplina), al blocco
+(Contraccolpo) e all'uccisione (Massacro); la Rappresaglia rimanda una parte di un colpo medio del
+nemico, perché un colpo bloccato non tira il danno; il Vendicatore vale per tutti i colpi del frame
+dopo il blocco, così un Turbine lo usa tutto; la Frenesia si rinnova senza sommarsi. Il Muro di scudi
+blocca tutto senza tirare. L'Ultimo baluardo non cura a parte: la vita sale con il massimo.
+
+**Animazioni, effetti, suoni.** Sei stati nuovi nel controller del cavaliere con le clip di KayKit
+(`1H_Attack_Chop`, `2H_Attack_Spinning`, `Block_Attack`, `Blocking`, `1H_Attack_Jump_Chop`,
+`Cheering`), messi da `TalentTools.InstallAbilityStates`. Gli effetti sono copie ricolorate di quelli
+che il gioco ha: il cerchio d'acciaio del Turbine e del Salto e l'onda d'oro del Grido dall'Anello di
+fuoco, le stelle dalle scintille dei campioni. Quattro suoni nuovi da script in
+`Tools/Audio/sounds/warrior_abilities.py` (la lama che fischia, lo scudo, l'atterraggio, lo
+stordimento); il Grido è una voce, quindi un campione (`grunt_04`).
+
+**Test.** Nuovi `WarriorAbilityNumberTests` in EditMode (i numeri del disegno negli asset, i nodi che
+li cambiano, la regola dello stordimento, critico e danno in meno, il lanciatore che legge l'albero)
+e `WarriorAbilityTests` in PlayMode (il Colpo possente a portata e senza bersaglio, la Carica e il
+Colpo di scudo che stordiscono, la regola per grado, il Turbine, il Grido e il Muro, il Salto,
+l'Ultimo baluardo, Disciplina e le condizioni). Il primo test della barra (`MagicHudTests`) ora prova
+che il destro su un pavimento vuoto non lancia il Colpo possente. EditMode 558/558, PlayMode !Nightly 301/303 (i due saltati di sempre).
+
 ## Fuori dai passi — I numeri del danno solo sui critici
 
 Richiesta di Mirco del 2 novembre, prima del 20.3: il numero del danno non esce più a ogni colpo, solo
@@ -219,7 +277,8 @@ faccia il numero e che il pool riusi i numeri dei critici.
 - [x] Disegno dell'albero approvato da Mirco (20.1)
 - [x] `TalentBuild` in `Core` con i test, salvataggio 8 con la migrazione (20.2)
 - [x] Niente pergamene nel loot né dal mercante; Dardo e Anello fuori dal Guerriero (20.3)
-- [ ] Abilità attive con animazioni, stordimento, effetti e suoni (20.4)
+- [x] Abilità attive con animazioni, stordimento, effetti e suoni (20.4)
+- [ ] Le quattro caselle, il menu delle abilità e la grafica alla Diablo 3 (20.4b)
 - [ ] Spadone e ascia a due mani nel loot e dal mercante (20.5)
 - [ ] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6)
 - [ ] Icone approvate (20.7)

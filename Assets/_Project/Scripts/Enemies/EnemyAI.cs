@@ -30,6 +30,7 @@ namespace DarkDescent.Enemies
         private Health _target;
         private EnemyBrain _brain;
         private RangedAttack _ranged;
+        private readonly StunTimer _stun = new StunTimer();
 
         // dove sta andando il mago: la destinazione si rinnova solo quando il bersaglio si è spostato
         private Vector3 _approachPoint;
@@ -44,6 +45,21 @@ namespace DarkDescent.Enemies
 
         /// <summary>È morto: chi lo ha legato dà l'esperienza al cavaliere (D2 della M8).</summary>
         public event System.Action<EnemyAI> Killed;
+
+        /// <summary>Stordito da un'abilità del cavaliere (M20), con i secondi che prende davvero.</summary>
+        public event System.Action<EnemyAI, float> Stunned;
+
+        /// <summary>Lo stordimento è finito.</summary>
+        public event System.Action<EnemyAI> StunEnded;
+
+        /// <summary>Stordito: fermo, senza colpi né lanci (M20).</summary>
+        public bool IsStunned => _stun.IsStunned;
+
+        /// <summary>I secondi di stordimento che restano, con la regola: quelli presi davvero, appena stordito.</summary>
+        public float StunRemaining => _stun.Remaining;
+
+        /// <summary>I secondi in cui non si stordisce di nuovo, dopo uno stordimento.</summary>
+        public float StunImmunity => _stun.ImmuneFor;
 
         public EnemyState State => _brain.State;
 
@@ -96,6 +112,7 @@ namespace DarkDescent.Enemies
             _brain = new EnemyBrain(this, _archetype.CreateStates());
             _homePosition = transform.position;
             _homeRotation = transform.rotation;
+            _stun.Ended += () => StunEnded?.Invoke(this);
 
             // priorità diverse da un nemico all'altro: nello stesso corridoio uno cede il passo (trappola 5)
             int spread = _archetype.AvoidanceSpread;
@@ -133,6 +150,38 @@ namespace DarkDescent.Enemies
             _target = target;
         }
 
+        /// <summary>
+        /// Lo stordisce per tanti secondi, con la regola dello stordimento (M20): metà per il re, i
+        /// campioni e gli unici, mai per un Inamovibile, e non di nuovo per 3 s dopo l'ultimo. Il colpo
+        /// in corso si annulla, il lancio pure, e si ferma dov'è. False se non l'ha preso.
+        /// </summary>
+        public bool Stun(float seconds)
+        {
+            if (_health.IsDead)
+            {
+                return false;
+            }
+
+            var special = GetComponent<SpecialEnemy>();
+            bool reduced = (special != null && special.Rank != EnemyRank.Normal) || GetComponent<BossController>() != null;
+            bool unstoppable = special != null && special.IsUnstoppable;
+            if (!_stun.TryStun(StunTimer.Scaled(seconds, reduced, unstoppable)))
+            {
+                return false;
+            }
+
+            _attack.Interrupt(_stun.Remaining);
+            if (_ranged != null)
+            {
+                _ranged.Cancel();
+            }
+
+            StopMoving();
+            _brain.Alert();
+            Stunned?.Invoke(this, _stun.Remaining);
+            return true;
+        }
+
         /// <summary>Un compagno l'ha visto: se è fermo, insegue anche lui. Non avvisa a sua volta.</summary>
         public void Alert()
         {
@@ -161,10 +210,22 @@ namespace DarkDescent.Enemies
 
             transform.rotation = _homeRotation;
             _health.Heal(_health.Max);
+            _stun.Clear();
         }
 
         private void Update()
         {
+            // stordito non pensa: l'attacco è già bloccato per lo stesso tempo
+            if (_stun.IsStunned || _stun.ImmuneFor > 0f)
+            {
+                _stun.Advance(Time.deltaTime);
+                if (_stun.IsStunned)
+                {
+                    StopMoving();
+                    return;
+                }
+            }
+
             EnemyState before = _brain.State;
             _brain.Tick(Time.deltaTime);
             if (before == EnemyState.Idle && (_brain.State == EnemyState.Chase || _brain.State == EnemyState.Ranged))
@@ -318,6 +379,7 @@ namespace DarkDescent.Enemies
 
         private void HandleDied()
         {
+            _stun.Clear();
             _brain.Die();
             Killed?.Invoke(this);
 

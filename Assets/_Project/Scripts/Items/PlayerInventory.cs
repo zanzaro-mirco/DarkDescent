@@ -151,9 +151,10 @@ namespace DarkDescent.Items
                 return false;
             }
 
+            // la pozione di cura cura di più con il Recupero dell'albero (M20)
             bool drunk = potion.Kind == PotionKind.Mana
                 ? _magic.Mana.Restore(potion.RestoreAmount(_magic.Mana.Max)) > 0f
-                : _health.Heal(potion.RestoreAmount(_health.Max)) > 0f;
+                : _health.Heal(CombatFormulas.WithBonus(potion.RestoreAmount(_health.Max), CharacterStats.ValueOf(GetComponent<CharacterStats>(), StatType.PotionBonus))) > 0f;
             if (drunk)
             {
                 Play(_drinkClip);

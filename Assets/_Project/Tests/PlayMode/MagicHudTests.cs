@@ -22,7 +22,7 @@ namespace DarkDescent.Tests
             yield return null;
         }
 
-        [UnityTest, Description("All'avvio: sfera del mana piena, otto posti, il Colpo possente (la radice dell'albero) nel primo e scelto, gli altri vuoti; il tasto destro sul pavimento lancia verso il cursore, spende 4 di mana e la sfera scende")]
+        [UnityTest, Description("All'avvio: sfera del mana piena, otto posti, il Colpo possente (la radice dell'albero) nel primo e scelto, gli altri vuoti; il destro sul pavimento senza nemici non lo lancia e non spende; il Grido, scelto, parte verso il cursore, spende 12 di mana e la sfera scende")]
         public IEnumerator RightClick_CastsSelectedSpell()
         {
             yield return LoadSandbox();
@@ -40,17 +40,25 @@ namespace DarkDescent.Tests
 
             SpellDefinition cast = null;
             Vector3 target = Vector3.zero;
+            CastResult failed = CastResult.Ready;
             magic.Cast += (spell, point) => { cast = spell; target = point; };
+            magic.CastFailed += result => failed = result;
             Vector3 floor = Player.position + new Vector3(3f, 0f, 0f);
             PointAt(floor);
             yield return null;
             yield return Click(Mouse.rightButton);
+            Assert.IsNull(cast);
+            Assert.AreEqual(CastResult.NoTarget, failed, "il Colpo possente vuole un nemico a portata");
+            Assert.AreEqual(30f, magic.Mana.Current, 0.5f);
 
-            Assert.AreEqual(Spell("PowerStrike"), cast);
+            Assert.IsTrue(magic.Learn(Spell("BattleShout")));
+            yield return Click(Mouse.rightButton);
+
+            Assert.AreEqual(Spell("BattleShout"), cast);
             Assert.AreEqual(floor.x, target.x, 0.3f, "verso il punto sotto il cursore");
             Assert.AreEqual(floor.z, target.z, 0.3f);
-            Assert.AreEqual(26f, magic.Mana.Current, 0.5f, "4 di mana spesi, più un soffio di rigenerazione");
-            Assert.Less(orb.FillAmount, 0.9f);
+            Assert.AreEqual(18f, magic.Mana.Current, 0.5f, "12 di mana spesi, più un soffio di rigenerazione");
+            Assert.Less(orb.FillAmount, 0.7f);
         }
 
         [UnityTest, Description("F2 non sceglie un posto vuoto; l'Anello, dato dal libro di prova, compare nel secondo posto; spostato in F8, F8 lo sceglie, lanciarlo avvia il velo della ricarica; senza mana il posto si scurisce e il lancio non parte")]

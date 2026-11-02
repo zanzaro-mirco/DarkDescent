@@ -165,6 +165,19 @@ namespace DarkDescent.Characters
             PlayOneShot(CastStateHash);
         }
 
+        /// <summary>
+        /// Il gesto di un'abilità del Guerriero (M20): lo stato del controller con quel nome. Un modello
+        /// senza quello stato (uno scheletro) resta com'è.
+        /// </summary>
+        public void PlayAbility(string state)
+        {
+            int hash = Animator.StringToHash(state);
+            if (_animator.HasState(BaseLayer, hash))
+            {
+                PlayOneShot(hash);
+            }
+        }
+
         public void PlayHit()
         {
             PlayOneShot(HitStateHash);

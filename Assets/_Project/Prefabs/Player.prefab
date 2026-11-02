@@ -793,6 +793,7 @@ GameObject:
   - component: {fileID: 2453725279522403638}
   - component: {fileID: 7216540692975863265}
   - component: {fileID: 7894283482052697381}
+  - component: {fileID: 902799416862227697}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1339,6 +1340,40 @@ MonoBehaviour:
   _specializations:
   - {fileID: 11400000, guid: 08a65373fc6c11c458e8501f4656b4d0, type: 2}
   - {fileID: 11400000, guid: a0ff5cc3c2ff48e41b95cb2e54ed3068, type: 2}
+--- !u!114 &902799416862227697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56990d077939c4646a0e7d30becbc179, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Magic.WarriorAbilities
+  _targetLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  _pickRadius: 1.5
+  _reachBonus: 0.8
+  _strikeDelay: 0.3
+  _chargeSpeed: 3
+  _chargeTimeout: 1.5
+  _leapTime: 0.6
+  _leapHeight: 1.5
+  _searchHeight: 1.1
+  _audio: {fileID: 4117437698390640255}
+  _swingClip: {fileID: 8300000, guid: 1318c0efd9832de468643a0f08534573, type: 3}
+  _whirlClip: {fileID: 8300000, guid: 57fcae2522e45aa488e5bcce54d6fb9d, type: 3}
+  _stunClip: {fileID: 8300000, guid: 651c532b76de6d8468c5575f2d237d64, type: 3}
+  _shoutClip: {fileID: 8300000, guid: 76190f276124ca14ea5389fb6ba46e66, type: 3}
+  _shieldClip: {fileID: 8300000, guid: bebb1701b1d911d41996d399b2409bdb, type: 3}
+  _landClip: {fileID: 8300000, guid: a62ca9eba94eb09418b86a6a4bbb6d16, type: 3}
+  _spinEffect: {fileID: 7084718043052930496, guid: cd278b982c087d4429a4349e8a988cca, type: 3}
+  _shoutEffect: {fileID: 7084718043052930496, guid: 519a953f3e9cf1744a3ea4a2fc852caa, type: 3}
+  _stunEffect: {fileID: 2876589923091085355, guid: 7138c9d65dcaa644596ac7621a6734dc, type: 3}
+  _stunEffectHeight: 2.1
 --- !u!1001 &1532508494701324347
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -12,6 +12,11 @@ Le prove della M18 restano valide.
 - **I numeri del danno**: compaiono solo sui colpi critici, arancio e con il punto esclamativo. I colpi
   normali si capiscono lo stesso dal lampo e dalla barra della vita? *Mancato*, *Bloccato* e
   *Imparabile* ci sono ancora: vanno bene o li vuoi togliere anche loro?
+- **Le abilità del Guerriero** (passo 20.4): il Colpo possente vicino a un nemico, la Carica da
+  lontano, il Turbine in mezzo a un gruppo, il Grido, e con un personaggio avanzato il Salto, il Colpo
+  di scudo, il Muro di scudi, l'Esecuzione e la Tempesta d'acciaio. I gesti si leggono? Gli stordimenti
+  (le stelle sopra la testa) durano il giusto? I suoni nuovi (la lama, lo scudo, l'atterraggio, i
+  tintinnii) e il grido vanno bene?
 
 ## Dalla M19 — "L'ultima candela" (v1.7.0)
 

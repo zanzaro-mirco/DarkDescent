@@ -4,6 +4,7 @@ using DarkDescent.Combat;
 using DarkDescent.Player;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
+using DarkDescent.Talents;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -43,6 +44,7 @@ namespace DarkDescent.Magic
         private SpellBook _book;
         private SpellCaster _caster;
         private IPortalOpener _portalOpener;
+        private IAbilityTargeting _targeting;
         private bool _subscribed;
 
         // le abilità che l'albero ha messo nella barra: le sole che toglie
@@ -69,7 +71,10 @@ namespace DarkDescent.Magic
 
         public SpellBook Book => _book ??= new SpellBook();
 
-        public SpellCaster Caster => _caster ??= new SpellCaster(Book, Mana);
+        public SpellCaster Caster => _caster ??= CreateCaster();
+
+        // l'albero può arrivare prima dell'Awake: chi si collega lo fa dal composition root
+        private PlayerTalents Talents => _talents != null ? _talents : _talents = GetComponent<PlayerTalents>();
 
         private void Awake()
         {
@@ -77,6 +82,25 @@ namespace DarkDescent.Magic
             _health = GetComponent<Health>();
             _progress = GetComponent<PlayerProgress>();
             _talents = GetComponent<PlayerTalents>();
+        }
+
+        /// <summary>Un numero di un'abilità con i nodi dell'albero applicati (M20); senza albero, quello dell'asset.</summary>
+        public float AbilityValue(SpellDefinition ability, AbilityParam param)
+        {
+            return Talents != null ? Talents.Build.AbilityValue(ability, param) : TalentBuild.BaseValue(ability, param);
+        }
+
+        /// <summary>Chi controlla il bersaglio delle abilità del Guerriero: senza, partono sempre.</summary>
+        public void SetTargeting(IAbilityTargeting targeting)
+        {
+            _targeting = targeting;
+        }
+
+        private SpellCaster CreateCaster()
+        {
+            var caster = new SpellCaster(Book, Mana);
+            caster.SetNumbers(spell => AbilityValue(spell, AbilityParam.ManaCost), spell => AbilityValue(spell, AbilityParam.Cooldown));
+            return caster;
         }
 
         /// <summary>Collega tasti e mira. Bind e OnEnable arrivano in ordine qualsiasi: si iscrive chi arriva per secondo.</summary>
@@ -169,8 +193,19 @@ namespace DarkDescent.Magic
                 return CastResult.NotKnown;
             }
 
+            // un'abilità del Guerriero senza niente da colpire non spende il mana (M20)
             int slot = Book.Selected;
-            var result = slot >= 0 ? Caster.TryCast(slot) : CastResult.NotKnown;
+            var result = slot >= 0 ? Caster.Check(slot) : CastResult.NotKnown;
+            if (result == CastResult.Ready && _targeting != null && Book[slot].IsWarriorAbility)
+            {
+                result = _targeting.CanUse(Book[slot], target);
+            }
+
+            if (result == CastResult.Ready)
+            {
+                result = Caster.TryCast(slot);
+            }
+
             if (result == CastResult.Ready)
             {
                 Cast?.Invoke(Book[slot], target);

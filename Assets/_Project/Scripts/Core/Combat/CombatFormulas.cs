@@ -18,6 +18,9 @@ namespace DarkDescent.Combat
         /// <summary>La velocità d'attacco in più non va oltre il 50% (D5 della M16, passo 16.1).</summary>
         public const float MaxAttackSpeed = 50f;
 
+        /// <summary>Il danno preso in meno non va oltre il 75% (l'albero, M20).</summary>
+        public const float MaxDamageResist = 75f;
+
         /// <summary>Il rubavita non va oltre il 10% (D5 della M16, passo 16.1).</summary>
         public const float MaxLifeSteal = 10f;
 
@@ -159,6 +162,21 @@ namespace DarkDescent.Combat
         public static float ReduceDamage(float amount, float reduction)
         {
             return amount <= 0f || reduction <= 0f ? amount : Math.Max(1f, amount - reduction);
+        }
+
+        /// <summary>
+        /// Il danno di un colpo preso con il danno in meno in percentuale (Ultima difesa e Riparo
+        /// dell'albero, M20): dopo i punti tolti, fermo a <see cref="MaxDamageResist"/>.
+        /// </summary>
+        public static float ResistDamage(float amount, float resist)
+        {
+            return resist <= 0f ? amount : amount * (1f - Math.Min(resist, MaxDamageResist) / 100f);
+        }
+
+        /// <summary>Il moltiplicatore del critico: ×2, più i punti del Punto debole (M20): 30 fa ×2,3.</summary>
+        public static float CritMultiplierFor(float critDamage)
+        {
+            return CritMultiplier + Math.Max(0f, critDamage) / 100f;
         }
 
         /// <summary>Vita massima: 50 + 2 × Vitalità. Con la Vitalità 25 del cavaliere, 100.</summary>

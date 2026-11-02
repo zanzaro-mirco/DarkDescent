@@ -173,8 +173,9 @@ namespace DarkDescent.Enemies
                 return;
             }
 
-            // da morto il cavaliere aspetta di tornare in vita: ResetFight
-            if (_player.IsDead)
+            // da morto il cavaliere aspetta di tornare in vita: ResetFight. Stordito (M20), il re si
+            // ferma tutto: anche l'anello e le evocazioni aspettano
+            if (_player.IsDead || _ai.IsStunned)
             {
                 return;
             }

@@ -32,8 +32,11 @@ namespace DarkDescent.Combat
 
         public bool HasShield => _hasShield;
 
-        /// <summary>La probabilità attuale, in punti percentuali; 0 senza scudo.</summary>
-        public float BlockChance => _hasShield ? CombatFormulas.BlockChance(_shieldBlock, _stats.Dexterity) : 0f;
+        /// <summary>La probabilità attuale, in punti percentuali, con lo Scudo pesante dell'albero (M20); 0 senza scudo.</summary>
+        public float BlockChance => _hasShield ? CombatFormulas.BlockChance(_shieldBlock + _stats.Sheet.Get(StatType.BlockChance), _stats.Dexterity) : 0f;
+
+        /// <summary>Il Muro di scudi (M20): finché dura, ogni colpo che si può bloccare è bloccato.</summary>
+        public bool BlocksAll { get; set; }
 
         /// <summary>Lo scudo in mano e il suo blocco; senza scudo, false. Lo chiama l'inventario.</summary>
         public void SetShield(bool hasShield, int shieldBlock)
@@ -46,7 +49,8 @@ namespace DarkDescent.Combat
         /// <summary>Tira il blocco per un colpo andato a segno; true se l'ha fermato.</summary>
         public bool TryBlock(in DamageInfo info, IRandomSource random)
         {
-            if (!_hasShield || _health.IsDead || !CombatFormulas.RollBlock(BlockChance, random))
+            // il Muro di scudi non tira: i tiri dopo restano dove sono solo senza Muro
+            if (!_hasShield || _health.IsDead || (!BlocksAll && !CombatFormulas.RollBlock(BlockChance, random)))
             {
                 return false;
             }
@@ -57,14 +61,17 @@ namespace DarkDescent.Combat
 
         /// <summary>
         /// Per un colpo imparabile: tira il blocco come sempre e, se lo scudo l'avrebbe fermato, lo
-        /// dice. Il colpo passa comunque.
+        /// dice. Il colpo passa comunque; true se l'avrebbe fermato, per la Fortezza dell'albero (M20).
         /// </summary>
-        public void RollPierced(in DamageInfo info, IRandomSource random)
+        public bool RollPierced(in DamageInfo info, IRandomSource random)
         {
             if (_hasShield && !_health.IsDead && CombatFormulas.RollBlock(BlockChance, random))
             {
                 Pierced?.Invoke(info);
+                return true;
             }
+
+            return false;
         }
 
         private void Awake()
