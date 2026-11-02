@@ -43,8 +43,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0.5f, Time.timeScale, "va ripristinata la scala di prima, non 1 e non lo 0 del primo hit stop");
         }
 
-        [UnityTest, Description("Colpo del player a segno: hit stop, lampo bianco e numero di danno, poi tutto torna normale")]
-        public IEnumerator PlayerHit_TriggersStopFlashAndNumber()
+        [UnityTest, Description("Colpo del player a segno: hit stop e lampo bianco, poi tutto torna normale; un colpo normale non fa il numero, solo i critici (M20)")]
+        public IEnumerator PlayerHit_TriggersStopAndFlash()
         {
             yield return LoadSandbox();
             var skeleton = GameObject.Find("Skeleton");
@@ -70,8 +70,8 @@ namespace DarkDescent.Tests
             Assert.IsTrue(flash.IsFlashing);
             Assert.AreNotSame(originalMaterial, renderer.sharedMaterial, "durante il lampo il materiale è quello bianco");
             var texts = numbers.GetComponentsInChildren<TextMeshProUGUI>().Select(t => t.text).ToArray();
-            string expected = Mathf.RoundToInt(MinHitDamage(Player.GetComponent<MeleeAttack>())).ToString();
-            CollectionAssert.Contains(texts, expected, "deve comparire il numero del danno della spada");
+            string normal = Mathf.RoundToInt(MinHitDamage(Player.GetComponent<MeleeAttack>())).ToString();
+            CollectionAssert.DoesNotContain(texts, normal, "il colpo normale non fa il numero");
 
             yield return new WaitForSecondsRealtime(1.2f);
             Assert.AreEqual(1f, Time.timeScale, "finito l'hit stop il tempo riparte");
@@ -79,7 +79,7 @@ namespace DarkDescent.Tests
             Assert.AreSame(originalMaterial, renderer.sharedMaterial, "finito il lampo torna il materiale originale");
         }
 
-        [UnityTest, Description("I numeri tornano al pool a fine vita e il pool li riusa")]
+        [UnityTest, Description("I numeri dei critici tornano al pool a fine vita e il pool li riusa; un colpo normale non ne fa")]
         public IEnumerator DamageNumbers_ReturnToPoolAndAreReused()
         {
             yield return LoadSandbox();
@@ -87,13 +87,16 @@ namespace DarkDescent.Tests
             var numbers = Object.FindFirstObjectByType<DamageNumbers>();
 
             skeletonHealth.TakeDamage(new DamageInfo(3f, DamageType.Physical, null));
+            Assert.AreEqual(0, numbers.ActiveCount, "solo i critici");
+
+            skeletonHealth.TakeDamage(new DamageInfo(3f, DamageType.Physical, null, isCritical: true));
             Assert.AreEqual(1, numbers.ActiveCount);
             int created = numbers.GetComponentsInChildren<DamageNumber>(true).Length;
 
             yield return new WaitForSeconds(1.2f);
             Assert.AreEqual(0, numbers.ActiveCount, "finita la vita il numero torna al pool");
 
-            skeletonHealth.TakeDamage(new DamageInfo(3f, DamageType.Physical, null));
+            skeletonHealth.TakeDamage(new DamageInfo(3f, DamageType.Physical, null, isCritical: true));
             Assert.AreEqual(1, numbers.ActiveCount);
             Assert.AreEqual(created, numbers.GetComponentsInChildren<DamageNumber>(true).Length, "il secondo numero riusa il primo");
         }

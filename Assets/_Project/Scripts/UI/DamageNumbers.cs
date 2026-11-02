@@ -8,7 +8,8 @@ using UnityEngine.Pool;
 namespace DarkDescent.UI
 {
     /// <summary>
-    /// Numeri di danno fluttuanti sopra chi viene colpito. I numeri escono da un pool: nessun
+    /// Numeri di danno fluttuanti sopra chi viene colpito: dalla M20 solo i colpi critici, più le
+    /// scritte (mancato, bloccato, imparabile) e la vita ripresa. I numeri escono da un pool: nessun
     /// Instantiate né Destroy durante il combattimento, solo all'avvio e quando il pool cresce.
     /// </summary>
     [DisallowMultipleComponent]
@@ -33,6 +34,9 @@ namespace DarkDescent.UI
         [SerializeField] private Color _criticalColor = new Color(1f, 0.62f, 0.12f);
 
         [SerializeField, Min(1f)] private float _criticalScale = 1.5f;
+
+        [Tooltip("Solo i critici fanno il numero (richiesta di Mirco nella M20): i colpi normali li dicono già il lampo e la barra della vita.")]
+        [SerializeField] private bool _criticalsOnly = true;
 
         [Tooltip("\"Mancato\" e \"Bloccato\": una parola intera alla misura dei numeri sembra enorme (prova della M9).")]
         [SerializeField, Range(0.3f, 1f)] private float _textScale = 0.65f;
@@ -101,7 +105,7 @@ namespace DarkDescent.UI
             Color color = isPlayer ? _playerDamageColor : _enemyDamageColor;
             Transform owner = health.transform;
             var handlers = new DamageNumberHandlers(
-                (info, applied) => Spawn(owner, applied, info.IsCritical ? _criticalColor : color, info.IsCritical),
+                (info, applied) => OnDamaged(owner, applied, info.IsCritical, color),
                 info => SpawnText(owner, TextKeys.Miss, _missColor),
                 info => SpawnText(owner, TextKeys.Blocked, _blockColor),
                 info => SpawnText(owner, TextKeys.Unblockable, _piercedColor),
@@ -187,6 +191,18 @@ namespace DarkDescent.UI
             {
                 handlers.Block.Blocked -= handlers.Blocked;
                 handlers.Block.Pierced -= handlers.Pierced;
+            }
+        }
+
+        private void OnDamaged(Transform owner, float amount, bool critical, Color color)
+        {
+            if (critical)
+            {
+                Spawn(owner, amount, _criticalColor, true);
+            }
+            else if (!_criticalsOnly)
+            {
+                Spawn(owner, amount, color, false);
             }
         }
 

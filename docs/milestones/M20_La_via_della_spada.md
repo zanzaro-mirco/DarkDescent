@@ -153,6 +153,15 @@ Tempra danno +12% di vita solo dopo *Applica*; un livello 30 con *Armi* salvato 
 uguale). Un test della M16 chiedeva il formato 7 scritto: ora chiede il formato corrente. EditMode
 553/553, PlayMode senza `Nightly` 289/291 (i due di sempre saltati).
 
+## Fuori dai passi — I numeri del danno solo sui critici
+
+Richiesta di Mirco del 2 novembre, prima del 20.3: il numero del danno non esce più a ogni colpo, solo
+sui **colpi critici** (arancio, più grande, con il punto esclamativo, come prima). Restano le scritte
+*Mancato*, *Bloccato* e *Imparabile* e il più verde della vita ripresa da un nemico. In
+`DamageNumbers` è un interruttore, `_criticalsOnly`, acceso; i colpi normali li dicono già il lampo
+bianco, il fermo del tempo e la barra della vita. `GameFeelTests` ora chiede che un colpo normale non
+faccia il numero e che il pool riusi i numeri dei critici.
+
 ---
 
 ## Checklist di chiusura

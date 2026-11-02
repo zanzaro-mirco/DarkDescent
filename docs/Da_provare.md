@@ -7,6 +7,12 @@ automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 Ultimo aggiornamento: 1 nov 2026, build della v1.7.0 da provare (l'artefatto della build del tag).
 Le prove della M18 restano valide.
 
+## Dalla M20 — "La via della spada" (v1.8.0, in corso)
+
+- **I numeri del danno**: compaiono solo sui colpi critici, arancio e con il punto esclamativo. I colpi
+  normali si capiscono lo stesso dal lampo e dalla barra della vita? *Mancato*, *Bloccato* e
+  *Imparabile* ci sono ancora: vanno bene o li vuoi togliere anche loro?
+
 ## Dalla M19 — "L'ultima candela" (v1.7.0)
 
 - **L'apertura**: *Nuova partita* dal menu, scegli un posto. Parte il filmato di circa 50 s, con la
