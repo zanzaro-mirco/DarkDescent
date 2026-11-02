@@ -47,6 +47,8 @@ namespace DarkDescent.Tests
 
             Assert.Less(Index("SkillsUI"), Index("DeathScreen"), "il menu sotto la morte");
             Assert.Less(Index("SkillsUI"), Index("ScreenFader"));
+            Assert.Less(Index("TalentsUI"), Index("DeathScreen"), "il pannello delle abilità sotto la morte");
+            Assert.Less(Index("Console"), Index("TalentsUI"), "e sopra la console");
         }
 
         [Test, Description("La barra ha le quattro caselle in ordine (sinistro, destro, Q, E), ognuna con icona, nome, tasto, cornice accesa, velo e barra; il menu è collegato")]
@@ -118,6 +120,77 @@ namespace DarkDescent.Tests
             }
 
             Assert.AreNotSame(_hud.Find("HealthOrb/Fill").GetComponent<Image>().sprite, _hud.Find("ManaOrb/Fill").GetComponent<Image>().sprite);
+        }
+
+        [Test, Description("Il pannello delle abilità (D10 della M20): finestra spenta con i due alberi, i modelli spenti, le tre placche e i tre anelli, le due schede, Applica e Annulla, il tooltip e la finestrella delle scelte; l'avviso dei punti e la voce dell'altare sono collegati")]
+        public void TalentPanel_IsWired()
+        {
+            var root = _hud.Find("TalentsUI");
+            var panel = root.GetComponent<TalentPanel>();
+            Assert.IsNotNull(panel);
+            var window = (GameObject)Property(panel, "_window").objectReferenceValue;
+            Assert.IsFalse(window.activeSelf, "chiuso all'avvio");
+            foreach (Transform child in root)
+            {
+                Assert.IsFalse(child.gameObject.activeSelf, $"{child.name} spento a riposo: un velo acceso oscurerebbe il gioco");
+            }
+            foreach (string field in new[] { "_title", "_close", "_nodeTemplate", "_lineTemplate", "_gateTemplate", "_chooseButton", "_specNote", "_apply", "_cancel",
+                "_pendingNote", "_hint", "_tooltip", "_tooltipText", "_choicePopup", "_choiceBlocker" })
+            {
+                Assert.IsNotNull(Property(panel, field).objectReferenceValue, field);
+            }
+
+            foreach (string area in new[] { "_classArea", "_specArea" })
+            {
+                foreach (string part in new[] { "Area", "Lines", "Nodes", "Name", "Points" })
+                {
+                    Assert.IsNotNull(Property(panel, area).FindPropertyRelative(part).objectReferenceValue, $"{area}.{part}");
+                }
+            }
+
+            foreach (string array in new[] { "_plates", "_rings", "_specTabs", "_choiceButtons" })
+            {
+                var list = Property(panel, array);
+                Assert.Greater(list.arraySize, 1, array);
+                for (int i = 0; i < list.arraySize; i++)
+                {
+                    Assert.IsNotNull(list.GetArrayElementAtIndex(i).objectReferenceValue, $"{array}[{i}]");
+                }
+            }
+
+            Assert.AreEqual(3, Property(panel, "_plates").arraySize, "tonda, quadrata, ottagonale");
+            foreach (string template in new[] { "_nodeTemplate", "_lineTemplate" })
+            {
+                Assert.IsFalse(((Component)Property(panel, template).objectReferenceValue).gameObject.activeSelf, template);
+            }
+
+            var node = (TalentNodeView)Property(panel, "_nodeTemplate").objectReferenceValue;
+            foreach (string field in new[] { "_plate", "_ring", "_icon", "_label", "_rank" })
+            {
+                Assert.IsNotNull(Property(node, field).objectReferenceValue, field);
+            }
+
+            var notice = _hud.Find("TalentPointsButton").GetComponent<TalentPointsButton>();
+            foreach (string field in new[] { "_body", "_button", "_label" })
+            {
+                Assert.IsNotNull(Property(notice, field).objectReferenceValue, $"avviso: {field}");
+            }
+
+            var composition = _scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<DarkDescent.Core.CompositionRoot>(true)).Single();
+            Assert.AreSame(panel, Property(composition, "_talentPanel").objectReferenceValue);
+            Assert.AreSame(notice, Property(composition, "_talentPointsButton").objectReferenceValue);
+        }
+
+        [Test, Description("La voce dell'altare che ricomincia l'albero è collegata nel pannello delle difficoltà, sotto \"Rifai il mondo\"")]
+        public void Altar_HasTheTalentEntry()
+        {
+            var altar = _scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<DifficultyPanel>(true)).Single();
+            var reset = (Button)Property(altar, "_resetTalents").objectReferenceValue;
+            var newWorld = (Button)Property(altar, "_newWorld").objectReferenceValue;
+            Assert.IsNotNull(reset);
+            Assert.AreSame(newWorld.transform.parent, reset.transform.parent);
+            Assert.Less(((RectTransform)reset.transform).anchoredPosition.y, ((RectTransform)newWorld.transform).anchoredPosition.y, "sotto");
+            Assert.IsNotNull(reset.GetComponentInChildren<TMPro.TMP_Text>(true));
         }
     }
 }

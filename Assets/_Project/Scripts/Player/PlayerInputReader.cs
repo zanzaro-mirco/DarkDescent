@@ -44,6 +44,9 @@ namespace DarkDescent.Player
         /// <summary>K: apre e chiude il menu delle abilità, con le quattro caselle (D18 della M20).</summary>
         public event Action SkillsToggled;
 
+        /// <summary>N: apre e chiude il pannello delle abilità del personaggio (D10 della M20).</summary>
+        public event Action TalentsToggled;
+
         /// <summary>T: la magia del portale per l'accampamento (passo 11.7 della M11).</summary>
         public event Action PortalPressed;
 
@@ -81,6 +84,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.Cast.performed += HandleCastPerformed;
             _controls.Gameplay.UseSkill.performed += HandleUseSkillPerformed;
             _controls.Gameplay.ToggleSkills.performed += HandleToggleSkillsPerformed;
+            _controls.Gameplay.ToggleTalents.performed += HandleToggleTalentsPerformed;
             _controls.Gameplay.ShowLabels.performed += HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled += HandleLabelsCanceled;
             _controls.Gameplay.Pause.performed += HandlePausePerformed;
@@ -104,6 +108,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.Cast.performed -= HandleCastPerformed;
             _controls.Gameplay.UseSkill.performed -= HandleUseSkillPerformed;
             _controls.Gameplay.ToggleSkills.performed -= HandleToggleSkillsPerformed;
+            _controls.Gameplay.ToggleTalents.performed -= HandleToggleTalentsPerformed;
             _controls.Gameplay.ShowLabels.performed -= HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled -= HandleLabelsCanceled;
             _controls.Gameplay.Pause.performed -= HandlePausePerformed;
@@ -228,6 +233,11 @@ namespace DarkDescent.Player
         private void HandleToggleSkillsPerformed(InputAction.CallbackContext context)
         {
             SkillsToggled?.Invoke();
+        }
+
+        private void HandleToggleTalentsPerformed(InputAction.CallbackContext context)
+        {
+            TalentsToggled?.Invoke();
         }
 
         /// <summary>Come premere il tasto di una casella (1 il destro, 2 Q, 3 E): per i test.</summary>

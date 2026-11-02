@@ -491,7 +491,7 @@ namespace DarkDescent.Editor
             }
         }
 
-        private static Transform FindHud(UnityEngine.SceneManagement.Scene scene)
+        internal static Transform FindHud(UnityEngine.SceneManagement.Scene scene)
         {
             foreach (var root in scene.GetRootGameObjects())
             {
@@ -516,7 +516,7 @@ namespace DarkDescent.Editor
         }
 
         // un nodo figlio con quel nome: se c'è lo riusa, e gli aggiunge i componenti che mancano
-        private static RectTransform Node(Transform parent, string name, params Type[] components)
+        internal static RectTransform Node(Transform parent, string name, params Type[] components)
         {
             var found = parent.Find(name) as RectTransform;
             if (found == null)
@@ -538,7 +538,7 @@ namespace DarkDescent.Editor
             return found;
         }
 
-        private static TextMeshProUGUI Text(Transform parent, string name, TMP_FontAsset font, float size, Color color, TextAlignmentOptions alignment, float height)
+        internal static TextMeshProUGUI Text(Transform parent, string name, TMP_FontAsset font, float size, Color color, TextAlignmentOptions alignment, float height)
         {
             var node = Node(parent, name, typeof(TextMeshProUGUI), typeof(LayoutElement));
             var text = node.GetComponent<TextMeshProUGUI>();
@@ -552,7 +552,7 @@ namespace DarkDescent.Editor
             return text;
         }
 
-        private static void Place(RectTransform rect, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 size)
+        internal static void Place(RectTransform rect, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 size)
         {
             rect.anchorMin = anchor;
             rect.anchorMax = anchor;
@@ -561,7 +561,7 @@ namespace DarkDescent.Editor
             rect.sizeDelta = size;
         }
 
-        private static void Stretch(RectTransform rect, Vector2 offsetMin, Vector2 offsetMax)
+        internal static void Stretch(RectTransform rect, Vector2 offsetMin, Vector2 offsetMax)
         {
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;

@@ -13,6 +13,7 @@ using DarkDescent.Player;
 using DarkDescent.Progression;
 using DarkDescent.Save;
 using DarkDescent.Stats;
+using DarkDescent.Talents;
 using DarkDescent.UI;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -101,6 +102,12 @@ namespace DarkDescent.Core
         [SerializeField] private ExperienceBar _experienceBar;
 
         [SerializeField] private PointsButton _pointsButton;
+
+        [Tooltip("Il pannello delle abilità sul tasto N (D10 della M20).")]
+        [SerializeField] private TalentPanel _talentPanel;
+
+        [Tooltip("L'avviso dei punti dell'albero da spendere, accanto alla sfera del mana.")]
+        [SerializeField] private TalentPointsButton _talentPointsButton;
 
         [SerializeField] private GroundLabels _groundLabels;
 
@@ -428,6 +435,9 @@ namespace DarkDescent.Core
             // le abilità del Guerriero (M20) tirano con un flusso loro: i colpi normali restano dove sono
             _player.GetComponent<Magic.WarriorAbilities>().Bind(new SystemRandomSource(Environment.TickCount ^ 0x4B1D));
             _talents = _player.GetComponent<PlayerTalents>();
+            _talentPanel.Bind(_talents, _reader, _localizer);
+            _talentPointsButton.Bind(_talents, _talentPanel, _localizer);
+            _difficultyPanel.BindTalents(_talents.Build);
             _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);
         }
 
@@ -667,6 +677,12 @@ namespace DarkDescent.Core
                 return;
             }
 
+            if (_talentPanel.IsOpen)
+            {
+                _talentPanel.Close();
+                return;
+            }
+
             // il menu delle abilità (D18 della M20) si chiude da solo, come la difficoltà
             if (_spellBar.Menu != null && _spellBar.Menu.IsOpen)
             {
@@ -762,6 +778,8 @@ namespace DarkDescent.Core
             _levelManager.LevelUnloading += ReleaseLevel;
             _cameraRotation.FacingChanged += HandleFacingChanged;
             _characterPanel.OpenChanged += HandleCharacterOpenChanged;
+            _talentPanel.OpenChanged += HandleTalentsOpenChanged;
+            _difficultyPanel.ResetTalentsRequested += HandleResetTalents;
             _portals.VictoryReached += HandleVictoryReached;
             _portals.VictoryEntered += HandleVictoryEntered;
             _victoryScreen.Finished += HandleVictoryFinished;
@@ -792,6 +810,8 @@ namespace DarkDescent.Core
             _victoryScreen.Finished -= HandleVictoryFinished;
             _victoryScreen.Continued -= HandleVictoryContinued;
             _characterPanel.OpenChanged -= HandleCharacterOpenChanged;
+            _talentPanel.OpenChanged -= HandleTalentsOpenChanged;
+            _difficultyPanel.ResetTalentsRequested -= HandleResetTalents;
             ReleaseMerchant();
         }
 
@@ -984,6 +1004,7 @@ namespace DarkDescent.Core
         private void HandleAltarOpened()
         {
             _shopPanel.Close();
+            _talentPanel.Close();
             _inventoryPanel.SetOpen(false);
             if (_characterPanel.IsOpen)
             {
@@ -1407,7 +1428,44 @@ namespace DarkDescent.Core
             if (open)
             {
                 _shopPanel.Close();
+                _talentPanel.Close();
             }
+        }
+
+        // le abilità a tutto schermo: si guardano da sole, il resto si chiude
+        private void HandleTalentsOpenChanged(bool open)
+        {
+            if (!open)
+            {
+                return;
+            }
+
+            _shopPanel.Close();
+            _inventoryPanel.SetOpen(false);
+            if (_characterPanel.IsOpen)
+            {
+                _characterPanel.Toggle();
+            }
+
+            if (_spellBar.Menu != null)
+            {
+                _spellBar.Menu.Close();
+            }
+        }
+
+        // l'altare ricomincia l'albero (D11 della M20): 30 oro per livello, e tutti i punti tornano
+        private void HandleResetTalents()
+        {
+            _difficultyPanel.Close();
+            var build = _talents.Build;
+            if (!_playerInventory.TrySpendGold(TalentPoints.ResetCost(build.Level)))
+            {
+                _hudMessage.Show(TextKeys.AltarTalentsPoor);
+                return;
+            }
+
+            build.Reset();
+            _hudMessage.Show(TextKeys.AltarTalentsDone);
         }
 
         // l'esperienza del nemico ucciso, alla profondità del livello in cui è morto (D2 della M8)

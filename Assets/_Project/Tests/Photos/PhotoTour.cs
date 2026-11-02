@@ -16,6 +16,7 @@ using DarkDescent.Player;
 using DarkDescent.Progression;
 using DarkDescent.Rendering;
 using DarkDescent.Stats;
+using DarkDescent.Talents;
 using DarkDescent.Town;
 using DarkDescent.UI;
 using NUnit.Framework;
@@ -1021,6 +1022,129 @@ namespace DarkDescent.Tests
             }
 
             filter.SetMode(RetroMode.Off);
+        }
+
+        [UnityTest, Timeout(600000), Description("Il pannello delle abilità (D10 e D11 della M20): vuoto al livello 1, l'avviso nell'HUD, la scelta della specializzazione al 12, gli alberi a metà al 30 con il tooltip e la scelta, e l'altare, a 16:9 e a 4:3")]
+        public IEnumerator Talents()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(1);
+            yield return Settle();
+
+            var build = Hero.GetComponent<PlayerTalents>().Build;
+            var progress = Hero.GetComponent<PlayerProgress>().Progress;
+            var panel = Find<TalentPanel>();
+            var resolutions = new[] { (1920u, 1080u, "16x9"), (1440u, 1080u, "4x3") };
+
+            void Take(TalentTree tree, string id, int ranks)
+            {
+                for (int i = 0; i < ranks; i++)
+                {
+                    Assert.IsTrue(build.TryAdd(tree, tree.Find(id)), $"{id} {i + 1}");
+                }
+            }
+
+            // 1. livello 1: tutto vuoto, la radice presa e la specializzazione chiusa
+            panel.Open();
+            foreach (var (width, height, tag) in resolutions)
+            {
+                PlayModeWindow.SetCustomRenderingResolution(width, height, "Photos");
+                yield return Frames(5);
+                yield return Snap("talents_start_" + tag, world: false);
+            }
+
+            // 2. livello 5 con il pannello chiuso: l'avviso accanto alla sfera del mana
+            panel.Close();
+            progress.Restore(5, 0, 0);
+            foreach (var (width, height, tag) in resolutions)
+            {
+                PlayModeWindow.SetCustomRenderingResolution(width, height, "Photos");
+                yield return Frames(5);
+                yield return Snap("talents_notice_" + tag);
+            }
+
+            // 3. livello 12: le due schede e il pulsante per sceglierla
+            progress.Restore(12, 0, 0);
+            panel.Open();
+            panel.SpecTab(1).onClick.Invoke();
+            foreach (var (width, height, tag) in resolutions)
+            {
+                PlayModeWindow.SetCustomRenderingResolution(width, height, "Photos");
+                yield return Frames(5);
+                yield return Snap("talents_choose_" + tag, world: false);
+            }
+
+            // 4. livello 30: la classe applicata, Armi scelta e a metà, il tooltip su un nodo e la scelta aperta
+            panel.Close();
+            progress.Restore(30, 0, 0);
+            var warrior = build.ClassTree;
+            Take(warrior, "strong_arm", 3);
+            Take(warrior, "charge", 1);
+            Take(warrior, "toughness", 3);
+            Take(warrior, "keen_eye", 3);
+            Take(warrior, "steady_hand", 2);
+            Take(warrior, "discipline", 2);
+            Take(warrior, "sturdy_mail", 3);
+            Take(warrior, "stone_skin", 1);
+            Assert.IsTrue(build.TryChoose(build.Specializations[1]));
+            build.Apply();
+            var arms = build.Specialization;
+            Take(arms, "two_handed_grip", 3);
+            Take(arms, "keen_edge", 2);
+            Take(arms, "weak_spot", 3);
+            Take(arms, "circular_motion", 2);
+            panel.Open();
+            foreach (var (width, height, tag) in resolutions)
+            {
+                PlayModeWindow.SetCustomRenderingResolution(width, height, "Photos");
+                yield return Frames(5);
+                yield return Snap("talents_tree_" + tag, world: false);
+                panel.View(arms, "keen_edge").Hover();
+                yield return Frames(3);
+                yield return Snap("talents_tooltip_" + tag, world: false);
+                panel.View(arms, "keen_edge").Unhover();
+                panel.View(warrior, "momentum").Hover();
+                yield return Frames(3);
+                yield return Snap("talents_locked_" + tag, world: false);
+                panel.View(warrior, "momentum").Unhover();
+            }
+
+            // la scelta: un nodo a scelta aperto, con il suo tooltip
+            progress.Restore(50, 0, 0);
+            yield return Frames(3);
+            foreach (var (width, height, tag) in resolutions)
+            {
+                PlayModeWindow.SetCustomRenderingResolution(width, height, "Photos");
+                yield return Frames(5);
+                panel.View(warrior, "battle_instinct").Hover();
+                panel.View(warrior, "battle_instinct").Click();
+                yield return Frames(3);
+                yield return Snap("talents_choice_" + tag, world: false);
+                panel.View(warrior, "battle_instinct").Click();
+                panel.View(warrior, "battle_instinct").Unhover();
+            }
+
+            // 5. l'altare, con la voce nuova
+            build.Apply();
+            panel.Close();
+            Hero.GetComponent<PlayerInventory>().Inventory.AddGold(5000);
+            var altar = Find<DifficultyPanel>();
+            altar.Open();
+            foreach (var (width, height, tag) in resolutions)
+            {
+                PlayModeWindow.SetCustomRenderingResolution(width, height, "Photos");
+                yield return Frames(5);
+                yield return Snap("talents_altar_" + tag, world: false);
+            }
+
+            altar.Close();
         }
     }
 }

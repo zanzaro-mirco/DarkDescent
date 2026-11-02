@@ -251,5 +251,43 @@ namespace DarkDescent.Tests
             build.Restore(4, "", null);
             Assert.AreEqual(0, build.Rank(_class, Node("a")));
         }
+
+        [Test, Description("I punti da spendere contano la classe e la specializzazione scelta, non quella che aspetta; dal livello 10 senza scelta serve la specializzazione; SpentAbove conta le righe sopra")]
+        public void Unspent_NeedsSpecialization_And_SpentAbove()
+        {
+            var build = Build(9);
+            Assert.AreEqual((8, false), (build.UnspentPoints, build.NeedsSpecialization), "al 9 solo la classe, e niente da scegliere");
+
+            build = Build(10);
+            Assert.IsTrue(build.NeedsSpecialization);
+            Assert.AreEqual(8, build.UnspentPoints, "la specializzazione non scelta non conta");
+            Assert.IsTrue(build.TryChoose(_spec));
+            Assert.IsFalse(build.NeedsSpecialization);
+            Assert.AreEqual(9, build.UnspentPoints, "8 della classe e 1 della specializzazione");
+
+            Assert.IsTrue(build.TryAdd(_class, Node("a")));
+            Assert.IsTrue(build.TryAdd(_class, Node("a")));
+            Assert.AreEqual(0, build.SpentAbove(_class, 1));
+            Assert.AreEqual(2, build.SpentAbove(_class, 2), "i due gradi di a stanno nella riga 1");
+            Assert.AreEqual(7, build.UnspentPoints);
+        }
+
+        [Test, Description("L'altare ricomincia da quello che è applicato: la voce si accende solo con una specializzazione o dei nodi applicati, e Reset toglie tutto; costa 30 oro per livello")]
+        public void HasApplied_AndTheAltarCost()
+        {
+            var build = Build(12);
+            Assert.IsFalse(build.HasApplied);
+            Assert.IsTrue(build.TryAdd(_class, Node("a")));
+            Assert.IsFalse(build.HasApplied, "in attesa non conta");
+            build.Apply();
+            Assert.IsTrue(build.HasApplied);
+            build.Reset();
+            Assert.IsFalse(build.HasApplied);
+            Assert.IsTrue(build.TryChoose(_spec));
+            build.Apply();
+            Assert.IsTrue(build.HasApplied, "anche la sola specializzazione");
+
+            Assert.AreEqual((30, 300, 600, 1500), (TalentPoints.ResetCost(1), TalentPoints.ResetCost(10), TalentPoints.ResetCost(20), TalentPoints.ResetCost(50)));
+        }
     }
 }

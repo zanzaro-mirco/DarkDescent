@@ -152,7 +152,7 @@ namespace DarkDescent.Tests
 
             // inventario, scheda, mercante, conferma, difficoltà, opzioni, pausa, vittoria, riconoscimenti
             Assert.GreaterOrEqual(counts.GetValueOrDefault(UiRole.Window), 9);
-            Assert.AreEqual(4, counts.GetValueOrDefault(UiRole.Tooltip));
+            Assert.AreEqual(6, counts.GetValueOrDefault(UiRole.Tooltip), "i quattro di prima e i due del pannello delle abilità");
             Assert.GreaterOrEqual(counts.GetValueOrDefault(UiRole.Button), 25);
         }
 

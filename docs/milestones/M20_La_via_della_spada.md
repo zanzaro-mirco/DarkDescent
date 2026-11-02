@@ -345,6 +345,54 @@ slot con la borsa che si fa posto o è piena, loot e mercante, la misura), il Tu
 basi in `ItemDatabaseTests`. Foto in cripta del cavaliere con lo spadone e l'ascia, a riposo e a metà colpo,
 e della borsa (`PhotoTour.TwoHanded`).
 
+## Passo 20.6 — Il pannello e l'altare (D10, D11)
+
+**Com'è andata (3 nov 2026).** Il tasto **N** apre `TalentPanel`: un velo scuro e una finestra a tutto schermo
+nella pelle della M17, con a sinistra l'albero della classe e a destra quello della specializzazione, ognuno
+in una griglia 7 × 7. Un nodo è **tondo** se passivo, **quadrato** se abilità attiva, **ottagonale** se a
+scelta; chiuso è grigio, aperto ha l'anello azzurro, preso d'oro, e i gradi stanno sull'angolo (`2/3`). Le
+linee tra i nodi diventano dorate sulla strada presa, e le **linee tratteggiate** dei punti hanno a sinistra
+il numero che chiedono. Le placche le disegna `TalentPanelTools` (`Art/UI/talent_*`): dentro, finché non ci
+sono le icone del 20.7, c'è il nome.
+
+- **Click.** Il sinistro prende un grado, il destro lo toglie (solo se preso dopo l'ultimo *Applica*); il nodo
+  chiuso non risponde. Il nodo a scelta apre una finestrella con le due opzioni e cosa fanno; scelta una, il
+  nodo è preso con quella.
+- **Tooltip.** Nome, tipo, gradi, cosa fa e, se ce n'è un altro, cosa fa al grado dopo; per un'abilità attiva
+  la descrizione e «mana · ricarica», per un nodo chiuso cosa serve (*prendi prima un talento collegato*,
+  *spendi N punti nelle righe sopra*, *nessun punto rimasto*). Le frasi non sono scritte a mano: le fa
+  `TalentDescriber` dai numeri degli effetti, così un valore ritarato cambia anche il testo.
+- **Specializzazione.** Finché non c'è, due schede (*Difesa*, *Armi*) fanno guardare i due alberi, chiusi;
+  prima del livello 10 una riga dice «Disponibile dal livello 10», dal 10 il pulsante *Scegli* la prende, in
+  attesa come i nodi. *Applica modifiche* e *Annulla* stanno sotto, accesi solo con qualcosa da applicare, e
+  «Non ancora applicato» sta a destra.
+- **L'avviso.** `TalentPointsButton`, accanto alla sfera del mana (come quello degli attributi sta accanto a
+  quella della vita): «Abilità +N», o «Scegli la specializzazione» dal 10. Sparisce con il pannello aperto.
+- **L'altare.** Una seconda voce sotto *Rifai il mondo*: «Riassegna le abilità · 30 oro × livello» (300 al
+  10, 1500 al 50), accesa solo se c'è qualcosa di applicato; chiede conferma, prende l'oro (con poco, dice
+  «Oro insufficiente» e non cambia niente), riporta tutti i punti e la specializzazione e lo scrive.
+- **Il resto.** `Esc` chiude il pannello prima della pausa; aprirlo chiude inventario, personaggio, negozio e
+  menu delle caselle. I testi sono nella tabella nelle due lingue: i nomi dei nodi, le descrizioni delle undici
+  abilità e le frasi degli effetti.
+
+**Errori trovati strada facendo.** Le copie di un pulsante (la voce dell'altare, l'avviso) si portano dietro il
+`LocalizedText` che riscrive il vecchio testo: lo toglie lo strumento. Il velo stava fuori dalla finestra e
+restava acceso a pannello chiuso, oscurando tutto: ora velo e finestra sono nel contenitore `Dialog` che si
+spegne, e `HudSceneTests` controlla che a riposo niente di `TalentsUI` sia acceso. Le ombre dentro la finestra
+vanno in fondo all'ordine dei figli, non in cima.
+
+**Strumento.** `TalentPanelTools.Build` (menu *DarkDescent / UI / Pannello delle abilità*, si rilancia):
+placche, pannello, avviso, voce dell'altare e collegamenti del `CompositionRoot`; poi rifà la pelle. Gli aiuti
+di `HudTools` (`Node`, `Text`, `Place`, `Stretch`, `FindHud`) sono ora `internal`.
+
+**Test.** EditMode: `TalentTextTests` (ogni nodo, opzione e frase nelle due lingue; le frasi seguono i numeri;
+la traduzione), `TalentBuildTests` (punti da spendere, scelta della specializzazione, linee, azzeramento,
+costo dell'altare), `HudSceneTests` (il pannello, l'avviso e la voce dell'altare sono collegati e spenti a
+riposo) e `InputBindingsTests` (N). PlayMode: `TalentPanelTests` (N e Esc, il disegno dei due alberi, i click
+con *Applica* e *Annulla*, il nodo a scelta, il tooltip nelle due lingue, la specializzazione dalle schede,
+l'avviso, l'altare con l'oro). Foto in `Recordings/Photos/pannello` (`PhotoTour.Talents`): vuoto al 1, l'avviso
+al 5, la scelta al 12, gli alberi a metà al 30 con il tooltip e la finestrella, l'altare, a 16:9 e a 4:3.
+
 ## Fuori dai passi — I numeri del danno solo sui critici
 
 Richiesta di Mirco del 2 novembre, prima del 20.3: il numero del danno non esce più a ogni colpo, solo
@@ -364,7 +412,7 @@ faccia il numero e che il pool riusi i numeri dei critici.
 - [x] Abilità attive con animazioni, stordimento, effetti e suoni (20.4)
 - [x] Le quattro caselle, il menu delle abilità e la grafica alla Diablo 3 (20.4b)
 - [x] Spadone e ascia a due mani nel loot e dal mercante (20.5)
-- [ ] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6)
+- [ ] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6: fatto, foto da approvare)
 - [ ] Icone approvate (20.7)
 - [ ] Misura delle difficoltà con l'albero di riferimento dentro la tolleranza; ronda verde (20.8)
 - [ ] EditMode e PlayMode verdi in locale e in CI

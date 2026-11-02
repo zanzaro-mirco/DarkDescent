@@ -42,7 +42,7 @@ namespace DarkDescent.Tests
             Assert.IsEmpty(clashes, string.Join("; ", clashes));
         }
 
-        [Test, Description("Q ed E usano le abilità, Z e X girano la camera, K apre il menu, T il portale, il destro lancia; F1–F8 e SelectSpell non ci sono più")]
+        [Test, Description("Q ed E usano le abilità, Z e X girano la camera, K apre il menu delle caselle, N il pannello delle abilità, T il portale, il destro lancia; F1–F8 e SelectSpell non ci sono più")]
         public void KeysAreWhereTheyShouldBe()
         {
             string ActionOf(string path) => Bindings().Where(b => b.Path == path).Select(b => b.Action).FirstOrDefault();
@@ -51,6 +51,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual("Rotate", ActionOf("<Keyboard>/z"));
             Assert.AreEqual("Rotate", ActionOf("<Keyboard>/x"));
             Assert.AreEqual("ToggleSkills", ActionOf("<Keyboard>/k"));
+            Assert.AreEqual("ToggleTalents", ActionOf("<Keyboard>/n"));
             Assert.AreEqual("TownPortal", ActionOf("<Keyboard>/t"));
             Assert.AreEqual("Cast", ActionOf("<Mouse>/rightButton"));
             Assert.IsFalse(_gameplay.actions.Any(action => action.name == "SelectSpell"));

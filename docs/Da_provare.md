@@ -27,6 +27,8 @@ Le prove della M18 restano valide.
 
 - **Le armi a due mani** (passo 20.5): dal fabbro o da un forziere, uno spadone e un'ascia a due mani. Indossandoli lo scudo va nella borsa (e senza posto non succede niente); rimettendo lo scudo l'arma torna in borsa. Il gesto d'attacco si legge, e la lama arriva insieme al danno? Il Turbine con l'arma grande arriva un po' più in là?
 
+- **Il pannello delle abilità** (passo 20.6): `N` apre l'albero a tutto schermo: click sinistro prende un grado, destro lo toglie, *Applica modifiche* li rende veri e *Annulla* li butta. Dal livello 10 si sceglie la specializzazione dalle schede. Il tooltip si legge e dice cosa manca per aprire un nodo? Il nodo a scelta mostra le due opzioni? L'avviso «Abilità +N» accanto alla sfera del mana compare e sparisce quando serve? All'altare la voce «Riassegna le abilità» prende 30 oro per livello e riporta tutti i punti? I nomi dentro i nodi sono provvisori finché non ci sono le icone (20.7).
+
 ## Dalla M19 — "L'ultima candela" (v1.7.0)
 
 - **L'apertura**: *Nuova partita* dal menu, scegli un posto. Parte il filmato di circa 50 s, con la

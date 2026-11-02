@@ -233,6 +233,16 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleTalents"",
+                    ""type"": ""Button"",
+                    ""id"": ""b81d3a97-2c64-4e0f-9a35-6d7e4f1c0a28"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -510,6 +520,17 @@ namespace DarkDescent.Input
                     ""action"": ""ToggleSkills"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3f0b6d52-9f2c-4a54-8f0e-5a1d7c2e9b41"",
+                    ""path"": ""<Keyboard>/n"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleTalents"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -532,6 +553,7 @@ namespace DarkDescent.Input
             m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
             m_Gameplay_TownPortal = m_Gameplay.FindAction("TownPortal", throwIfNotFound: true);
             m_Gameplay_ToggleSkills = m_Gameplay.FindAction("ToggleSkills", throwIfNotFound: true);
+            m_Gameplay_ToggleTalents = m_Gameplay.FindAction("ToggleTalents", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -626,6 +648,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_Pause;
         private readonly InputAction m_Gameplay_TownPortal;
         private readonly InputAction m_Gameplay_ToggleSkills;
+        private readonly InputAction m_Gameplay_ToggleTalents;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -694,6 +717,10 @@ namespace DarkDescent.Input
             /// </summary>
             public InputAction @ToggleSkills => m_Wrapper.m_Gameplay_ToggleSkills;
             /// <summary>
+            /// Provides access to the underlying input action "Gameplay/ToggleTalents".
+            /// </summary>
+            public InputAction @ToggleTalents => m_Wrapper.m_Gameplay_ToggleTalents;
+            /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
             public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
@@ -761,6 +788,9 @@ namespace DarkDescent.Input
                 @ToggleSkills.started += instance.OnToggleSkills;
                 @ToggleSkills.performed += instance.OnToggleSkills;
                 @ToggleSkills.canceled += instance.OnToggleSkills;
+                @ToggleTalents.started += instance.OnToggleTalents;
+                @ToggleTalents.performed += instance.OnToggleTalents;
+                @ToggleTalents.canceled += instance.OnToggleTalents;
             }
 
             /// <summary>
@@ -814,6 +844,9 @@ namespace DarkDescent.Input
                 @ToggleSkills.started -= instance.OnToggleSkills;
                 @ToggleSkills.performed -= instance.OnToggleSkills;
                 @ToggleSkills.canceled -= instance.OnToggleSkills;
+                @ToggleTalents.started -= instance.OnToggleTalents;
+                @ToggleTalents.performed -= instance.OnToggleTalents;
+                @ToggleTalents.canceled -= instance.OnToggleTalents;
             }
 
             /// <summary>
@@ -952,6 +985,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnToggleSkills(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleTalents" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleTalents(InputAction.CallbackContext context);
         }
     }
 }

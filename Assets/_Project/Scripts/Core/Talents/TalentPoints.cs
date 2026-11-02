@@ -9,6 +9,9 @@ namespace DarkDescent.Talents
     /// </summary>
     public static class TalentPoints
     {
+        /// <summary>L'oro per livello che costa ricominciare l'albero all'altare (D11).</summary>
+        public const int ResetGoldPerLevel = 30;
+
         /// <summary>Il livello da cui si sceglie la specializzazione.</summary>
         public const int SpecializationLevel = 10;
 
@@ -27,6 +30,12 @@ namespace DarkDescent.Talents
         public static int ForSpecialization(int level)
         {
             return level < SpecializationLevel ? 0 : (level - SpecializationLevel) / 2 + 1;
+        }
+
+        /// <summary>L'oro che chiede l'altare per ricominciare l'albero: 30 per livello (300 al 10, 1500 al 50).</summary>
+        public static int ResetCost(int level)
+        {
+            return ResetGoldPerLevel * Math.Max(1, level);
         }
     }
 }

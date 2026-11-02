@@ -31,6 +31,17 @@ namespace DarkDescent.Localization
 
         public const string AltarConfirmNewWorld = "altar.confirm_new_world";
 
+        /// <summary>La voce dell'altare che ricomincia l'albero delle abilità, con l'oro che costa (D11 della M20).</summary>
+        public const string AltarTalents = "altar.talents";
+
+        public const string AltarTalentsNothing = "altar.talents_nothing";
+
+        public const string AltarConfirmTalents = "altar.confirm_talents";
+
+        public const string AltarTalentsDone = "altar.talents_done";
+
+        public const string AltarTalentsPoor = "altar.talents_poor";
+
         /// <summary>Il nome del livello con la difficoltà, "Cripta – Livello 3 · Ombra" (D15 della M14).</summary>
         public const string LevelWithDifficulty = "level.with_difficulty";
 

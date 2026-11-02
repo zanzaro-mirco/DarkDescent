@@ -479,3 +479,129 @@ item.greatsword,Greatsword,Spadone
 item.great_axe,Great Axe,Ascia a due mani
 item.greatsword.gender,n,m
 item.great_axe.gender,n,f
+
+# Il pannello delle abilità del Guerriero (D10 e D11 della M20): alberi, nodi, frasi degli effetti
+talents.title,Skill tree (N),Albero delle abilità (N)
+talents.points,Points to spend: {0},Punti da spendere: {0}
+talents.points_button,Skills +{0},Abilità +{0}
+talents.spec_button,Choose a specialization,Scegli la specializzazione
+talents.spec_title,Specialization,Specializzazione
+talents.choose_spec,Choose a specialization,Scegli una specializzazione
+talents.spec_locked,Available from level {0},Disponibile dal livello {0}
+talents.spec.warrior.defense,Shield and endurance: block and absorb,Scudo e resistenza: bloccare e assorbire
+talents.spec.warrior.arms,Two-handed weapons: damage and whirlwind,Armi a due mani: danno e turbine
+talents.apply,Apply changes,Applica modifiche
+talents.cancel,Cancel,Annulla
+talents.close,Close,Chiudi
+talents.rank,Rank {0}/{1},Grado {0}/{1}
+talents.next_rank,Next rank:,Grado successivo:
+talents.choice,Choose one of two,Una a scelta tra due
+talents.chosen,Chosen,Scelta
+talents.active,Active ability,Abilità attiva
+talents.passive,Passive,Passivo
+talents.ability_stats,{0} mana · {1} s recharge,{0} di mana · {1} s di ricarica
+talents.requires_points,Spend {0} points in the rows above to unlock,Spendi {0} punti nelle righe sopra per aprirlo
+talents.requires_link,Take a connected talent above first,Prendi prima un talento collegato sopra
+talents.no_points,No points left in this tree,Nessun punto rimasto in questo albero
+talents.max,All ranks taken,Tutti i gradi presi
+talents.hint,Click: take a rank · Right click: remove,Click: prendi un grado · Click destro: togli
+talents.hint_choice,Click an option to take it,Clicca un'opzione per prenderla
+talents.pending,Not applied yet,Non ancora applicato
+talent.tree.warrior,Warrior,Guerriero
+talent.tree.warrior.defense,Defense,Difesa
+talent.tree.warrior.arms,Arms,Armi
+talent.stat.DamageBonus,+{0}% damage,+{0}% di danno
+talent.stat.MaxLifePercent,+{0}% maximum life,+{0}% di vita massima
+talent.stat.CritChance,+{0}% critical chance,+{0}% di probabilità di critico
+talent.stat.ToHit,+{0}% chance to hit,+{0}% di probabilità di colpire
+talent.stat.Armor.percent,+{0}% armor,+{0}% di armatura
+talent.stat.AttackSpeed,+{0}% attack speed,+{0}% di velocità d'attacco
+talent.stat.LifeSteal,{0}% of the damage dealt returns as life,{0}% del danno inflitto torna in vita
+talent.stat.MoveSpeed,+{0}% movement speed,+{0}% di velocità di movimento
+talent.stat.PotionBonus,+{0}% potion healing,+{0}% di cura delle pozioni
+talent.stat.DamageResist,-{0}% damage taken,-{0}% di danno subito
+talent.stat.BlockChance,+{0}% block chance,+{0}% di probabilità di blocco
+talent.stat.DamageReduction,-{0} damage from every hit taken,-{0} al danno di ogni colpo subito
+talent.stat.CritDamage,+{0}% critical damage,+{0}% di danno dei critici
+talent.stat.PiercedBlock,A shield stops {0}% of an unblockable hit,Lo scudo ferma il {0}% di un colpo imparabile
+talent.statname.AttackSpeed,attack speed,velocità d'attacco
+talent.when.Shield,"(with a shield)","(con uno scudo)"
+talent.when.TwoHanded,"(two-handed weapon)","(con un'arma a due mani)"
+talent.when.LowLife,"(below 30% life)","(sotto il 30% di vita)"
+talent.param.Cooldown,{0}: {1} s recharge,{0}: {1} s di ricarica
+talent.param.ManaCost,{0}: {1} mana,{0}: {1} di mana
+talent.param.Damage,{0}: {1}% damage,{0}: {1}% di danno
+talent.param.Duration,{0}: {1} s duration,{0}: {1} s di durata
+talent.param.Radius,{0}: {1} m radius,{0}: {1} m di raggio
+talent.param.Stun,{0}: {1} s stun,{0}: {1} s di stordimento
+talent.param.Heal,{0}: {1}% of life healed,{0}: {1}% di vita curata
+talent.param.Threshold,{0}: works on enemies with {1}% more life,{0}: agisce su nemici con il {1}% di vita in più
+talent.trigger.Hit.Mana,Every hit gives {0} mana,Ogni colpo a segno dà {0} di mana
+talent.trigger.Kill.Mana,Every kill gives {0} mana,Ogni uccisione dà {0} di mana
+talent.trigger.Block.Mana,Every blocked hit gives {0} mana,Ogni colpo bloccato dà {0} di mana
+talent.trigger.Block.Reflect,A blocked hit returns {0}% of its damage to the attacker,Un colpo bloccato rimanda il {0}% del danno a chi l'ha dato
+talent.trigger.Block.NextHit,"After a block, your next hit does +{0}% damage","Dopo un blocco, il colpo successivo fa +{0}% di danno"
+talent.trigger.Kill.Buff,Every kill: +{0}% {2} for {1} s,Ogni uccisione: +{0}% di {2} per {1} s
+talent.strong_arm,Strong Arm,Braccio forte
+talent.toughness,Toughness,Tempra
+talent.keen_eye,Keen Eye,Occhio acuto
+talent.steady_hand,Steady Hand,Mano ferma
+talent.momentum,Momentum,Slancio
+talent.sturdy_mail,Sturdy Mail,Maglia robusta
+talent.discipline,Discipline,Disciplina
+talent.second_skin,Second Skin,Seconda pelle
+talent.battle_instinct,Battle Instinct,Istinto di battaglia
+talent.bloodlust,Bloodlust,Sete di sangue
+talent.battle_rhythm,Battle Rhythm,Ritmo di battaglia
+talent.rousing_shout,Rousing Shout,Grido incitante
+talent.last_defense,Last Defense,Ultima difesa
+talent.heavy_step,Heavy Step,Passo pesante
+talent.recovery,Recovery,Ripresa
+talent.weapon_master,Weapon Master,Maestro d'armi
+talent.warlord,Warlord,Signore della guerra
+talent.furious_charge,Furious Charge,Carica furiosa
+talent.fathers_shout,Father's Shout,Grido del padre
+talent.iron_heart,Iron Heart,Cuore di ferro
+talent.heavy_shield,Heavy Shield,Scudo pesante
+talent.thick_skin,Thick Skin,Pelle dura
+talent.recoil,Recoil,Contraccolpo
+talent.shoulder_charge,Shoulder Charge,Spallata
+talent.bulwark,Bulwark,Baluardo
+talent.guardian_armor,Guardian Armor,Armatura del guardiano
+talent.retaliation,Retaliation,Rappresaglia
+talent.shield_mastery,Shield Mastery,Maestria dello scudo
+talent.thunder_shield,Thunder Shield,Scudo di tuono
+talent.blinding_shield,Blinding Shield,Scudo accecante
+talent.steadfast,Steadfast,Saldezza
+talent.avenger,Avenger,Vendicatore
+talent.shelter,Shelter,Riparo
+talent.fortress,Fortress,Fortezza
+talent.two_handed_grip,Two-Handed Grip,Presa a due mani
+talent.keen_edge,Keen Edge,Lama affilata
+talent.weak_spot,Weak Spot,Punto debole
+talent.circular_motion,Circular Motion,Moto circolare
+talent.vortex,Vortex,Vortice
+talent.executioners_eye,Executioner's Eye,Occhio del boia
+talent.slaughter,Slaughter,Massacro
+talent.blood_on_the_blade,Blood on the Blade,Sangue sulla lama
+talent.fighting_style,Fighting Style,Stile di lotta
+talent.headsman,Headsman,Boia
+talent.endless_whirlwind,Endless Whirlwind,Turbine senza fine
+talent.frenzy,Frenzy,Frenesia
+talent.weapon_mastery,Weapon Mastery,Maestria d'armi
+spell.stone_skin.desc,Raises your armor for a while.,Alza l'armatura per un po'.
+spell.power_strike.desc,A heavy blow with your weapon.,Un colpo pesante con l'arma.
+spell.charge.desc,Rush at an enemy and stun it.,Corri contro un nemico e stordiscilo.
+spell.battle_shout.desc,Raises your damage for a while.,Alza il danno per un po'.
+spell.shield_bash.desc,Strike with your shield and stun the enemy. Needs a shield.,Colpisci con lo scudo e stordisci il nemico. Serve uno scudo.
+spell.shield_wall.desc,"Stops every blockable hit for a few seconds, but slows you down. Needs a shield.","Ferma ogni colpo bloccabile per pochi secondi, ma ti rallenta. Serve uno scudo."
+spell.last_stand.desc,Raises your maximum life for a while and heals you.,Alza la vita massima per un po' e ti cura.
+spell.whirlwind.desc,Strike every enemy around you.,Colpisci tutti i nemici attorno a te.
+spell.execute.desc,A stronger blow against wounded enemies.,Un colpo più forte sui nemici feriti.
+spell.leap.desc,Leap to a spot and stun the enemies where you land.,Salta sul punto indicato e stordisci chi sta dove atterri.
+spell.bladestorm.desc,A whirlwind that lasts while you walk.,Un turbine che dura mentre cammini.
+altar.talents,Reassign skills · {0} gold,Riassegna le abilità · {0} oro
+altar.talents_nothing,No skills to reassign,Nessuna abilità da riassegnare
+altar.confirm_talents,Start your skill tree over for {0} gold? All points come back and you can change specialization.,Ricominciare l'albero per {0} oro? Tutti i punti tornano e puoi cambiare specializzazione.
+altar.talents_done,Skills reset: spend your points with N,Abilità azzerate: spendi i punti con N
+altar.talents_poor,Not enough gold,Oro insufficiente

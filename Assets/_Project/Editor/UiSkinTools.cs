@@ -43,7 +43,7 @@ namespace DarkDescent.Editor
         };
 
         // pulsanti che restano come sono: le etichette a terra e il pulsante dei punti hanno uno stile loro
-        private static readonly string[] OwnStyle = { "GroundLabels", "PointsButton" };
+        private static readonly string[] OwnStyle = { "GroundLabels", "PointsButton", "ChoiceBlocker" };
 
         [MenuItem("DarkDescent/UI/Riveste l'interfaccia")]
         public static void ApplyToCore()

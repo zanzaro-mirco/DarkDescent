@@ -48,6 +48,18 @@ namespace DarkDescent.Talents
         /// <summary>Ci sono modifiche da applicare o da annullare.</summary>
         public bool HasChanges => !_pending.SameAs(_applied);
 
+        /// <summary>
+        /// I punti ancora da spendere negli alberi che si vedono: la classe e la specializzazione scelta
+        /// (quelli di una specializzazione non ancora scelta aspettano la scelta).
+        /// </summary>
+        public int UnspentPoints => Available(_class) + (_pending.Specialization != null ? Available(_pending.Specialization) : 0);
+
+        /// <summary>Si è al livello della specializzazione e non ne è stata scelta nessuna.</summary>
+        public bool NeedsSpecialization => Level >= TalentPoints.SpecializationLevel && _pending.Specialization == null;
+
+        /// <summary>C'è qualcosa di applicato da ricominciare all'altare: la specializzazione o dei nodi.</summary>
+        public bool HasApplied => _applied.Specialization != null || _applied.Records().Any();
+
         public void SetLevel(int level)
         {
             level = Math.Max(1, level);
@@ -68,6 +80,9 @@ namespace DarkDescent.Talents
 
         /// <summary>I punti spesi nell'albero nello stato in attesa, la radice esclusa.</summary>
         public int Spent(TalentTree tree) => _pending.Spent(tree);
+
+        /// <summary>I punti spesi nelle righe sopra la riga <paramref name="row"/>: quelli che contano per una linea.</summary>
+        public int SpentAbove(TalentTree tree, int row) => _pending.SpentAbove(tree, row);
 
         /// <summary>I punti ancora da spendere nell'albero.</summary>
         public int Available(TalentTree tree) => Math.Max(0, Budget(tree) - Spent(tree));

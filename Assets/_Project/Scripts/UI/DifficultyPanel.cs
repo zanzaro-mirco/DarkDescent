@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DarkDescent.Localization;
 using DarkDescent.Progression;
+using DarkDescent.Talents;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -28,6 +29,9 @@ namespace DarkDescent.UI
 
         [SerializeField] private Button _newWorld;
 
+        [Tooltip("Ricomincia l'albero delle abilità per 30 oro a livello (D11 della M20).")]
+        [SerializeField] private Button _resetTalents;
+
         [SerializeField] private Button _close;
 
         [SerializeField] private ConfirmDialog _confirm;
@@ -44,6 +48,7 @@ namespace DarkDescent.UI
         private DifficultyTable _table;
         private DifficultyProgress _progress;
         private Localizer _localizer;
+        private TalentBuild _talents;
         private bool _subscribed;
 
         /// <summary>Confermata un'altra difficoltà: l'indice.</summary>
@@ -52,9 +57,17 @@ namespace DarkDescent.UI
         /// <summary>Confermato "Rifai il mondo".</summary>
         public event Action NewWorldRequested;
 
+        /// <summary>Confermato "Riassegna le abilità": chi tiene la partita prende l'oro e azzera l'albero.</summary>
+        public event Action ResetTalentsRequested;
+
         public bool IsOpen => _root.activeSelf;
 
         public Button NewWorldButton => _newWorld;
+
+        public Button ResetTalentsButton => _resetTalents;
+
+        /// <summary>Il testo della voce delle abilità: per i test.</summary>
+        public string ResetTalentsText => _resetTalents.GetComponentInChildren<TMP_Text>(true).text;
 
         public Button CloseButton => _close;
 
@@ -82,9 +95,16 @@ namespace DarkDescent.UI
             }
         }
 
+        /// <summary>Collega l'albero delle abilità del cavaliere: la voce dell'altare ne legge il livello e quel che c'è da azzerare.</summary>
+        public void BindTalents(TalentBuild talents)
+        {
+            _talents = talents;
+        }
+
         public void Open()
         {
             Refresh();
+            RefreshTalents();
             _root.SetActive(true);
         }
 
@@ -103,6 +123,7 @@ namespace DarkDescent.UI
         private void OnEnable()
         {
             _newWorld.onClick.AddListener(HandleNewWorldClicked);
+            _resetTalents.onClick.AddListener(HandleResetTalentsClicked);
             _close.onClick.AddListener(Close);
             Subscribe();
         }
@@ -110,6 +131,7 @@ namespace DarkDescent.UI
         private void OnDisable()
         {
             _newWorld.onClick.RemoveListener(HandleNewWorldClicked);
+            _resetTalents.onClick.RemoveListener(HandleResetTalentsClicked);
             _close.onClick.RemoveListener(Close);
             Unsubscribe();
         }
@@ -201,6 +223,30 @@ namespace DarkDescent.UI
         private void HandleNewWorldClicked()
         {
             _confirm.Ask(_localizer.Get(TextKeys.AltarConfirmNewWorld), () => NewWorldRequested?.Invoke());
+        }
+
+        // "Riassegna le abilità · 600 oro": acceso solo se c'è qualcosa di applicato da ricominciare
+        private void RefreshTalents()
+        {
+            if (_talents == null)
+            {
+                return;
+            }
+
+            string text = _localizer.Format(TextKeys.AltarTalents, TalentPoints.ResetCost(_talents.Level));
+            _resetTalents.GetComponentInChildren<TMP_Text>(true).text = text;
+            _resetTalents.interactable = _talents.HasApplied;
+        }
+
+        private void HandleResetTalentsClicked()
+        {
+            if (_talents == null || !_talents.HasApplied)
+            {
+                return;
+            }
+
+            int cost = TalentPoints.ResetCost(_talents.Level);
+            _confirm.Ask(_localizer.Format(TextKeys.AltarConfirmTalents, cost), () => ResetTalentsRequested?.Invoke());
         }
     }
 }
