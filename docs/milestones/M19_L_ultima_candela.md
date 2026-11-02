@@ -53,17 +53,6 @@ Riverificato dopo la chiusura della M18 (tag `v1.6.0`).
 | ComfyUI | Nella cartella condivisa ci sono Z-Image-Turbo, TRELLIS.2 e Stable Audio 3 small SFX: **nessun modello di video né di musica**. La scheda è una RTX 5070 Ti Laptop con 12 GB; sul disco C ci sono 693 GB liberi |
 | Test | 517 EditMode e 260 PlayMode a ogni push, più quelli della ronda. `PhotoTour` (assembly `DarkDescent.Tests.Photos`) fa le foto fuori dalla CI, anche del borgo |
 
----|---|
-| Pacchetti | **Cinemachine 3.1.7** c'è già e muove la camera del gioco: Position Composer, rotazione e zoom. **Timeline** e **Recorder** non ci sono. Il modulo `video` di Unity è attivo, ma nessuna scena usa un `VideoPlayer`. ffmpeg non è installato |
-| Animazioni | Dal pacchetto completo *KayKit Character Animations 1.1* (CC0, lo zip è in `Downloads`) sono importati 3 file su 8 del rig medio: `CombatMelee`, `General`, `MovementBasic`. La M18 aggiunge `Simulation`, con le pose da seduti e il saluto. Restano `Special` (`Skeletons_Awaken_Floor`, `Skeletons_Awaken_Floor_Long`, `Skeletons_Death`, `Skeletons_Taunt`, `Skeletons_Walking`), `Tools` (`Holding_A/B/C`) e `MovementAdvanced` (`Crouching`, `Sneaking`). Sono tutti per il rig medio, lo stesso di cavaliere e scheletri |
-| Personaggi | Importati `Knight`, `Barbarian`, `Rogue_Hooded` e i sette scheletri; la M18 aggiunge `Mage`, `Ranger` e `Rogue` per gli abitanti. Il Re delle ossa usa i modelli degli scheletri, più grande, con l'`overrideController` degli scheletri |
-| Mondo | Dopo la M18 c'è il **borgo all'aperto**, con il giorno che passa (alba, giorno, tramonto, notte, da `DayCycle`): piazza, case, cappella con l'altare, cimitero, la grotta verso la cripta e il cunicolo alla profondità 1. **Il trono non c'è**: la sala del re è una stanza del generatore |
-| Vittoria oggi | Morto il re, `CompositionRoot.HandleBossDefeated` salva, apre il portale della vittoria nella sala e sblocca il tesoro. La prima volta a ogni difficoltà (`_firstVictory`) la finestra si apre arrivando in città dal portale (`HandleVictoryReached`); le volte dopo c'è solo la scritta "Il re è caduto" |
-| Nuova partita | Menu, scelta dello slot, città. Con `-newgame` e `-seed` dalla riga di comando, e nei test, non passa dal menu |
-| Musica | Quattro brani CC0 da OpenGameArt (cripta, caverne, boss, città) e il fondo della città. Nessun brano per i filmati |
-| ComfyUI | Nella cartella condivisa ci sono Z-Image-Turbo, TRELLIS.2 e Stable Audio 3 small SFX: **nessun modello di video né di musica**. La scheda è una RTX 5070 Ti Laptop con 12 GB; sul disco C ci sono 686 GB liberi |
-| Test | 486 EditMode e i PlayMode a ogni push, più quelli della ronda. `PhotoTour` (assembly `DarkDescent.Tests.Photos`) fa le foto fuori dalla CI |
-
 ---
 
 ## Decisioni
