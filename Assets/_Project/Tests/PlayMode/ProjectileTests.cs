@@ -52,7 +52,7 @@ namespace DarkDescent.Tests
             // dalla M20 il Dardo non è del Guerriero: lo dà il libro di prova (D3)
             Assert.IsTrue(magic.Learn(Firebolt));
 
-            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(skeleton.transform.position));
+            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Firebolt, skeleton.transform.position));
             Assert.AreEqual(0, pools.ActiveCount, "il proiettile aspetta la mano");
             yield return WaitUntil(() => pools.ActiveCount > 0, 1f);
             Assert.AreEqual(1, pools.ActiveCount, "partito");

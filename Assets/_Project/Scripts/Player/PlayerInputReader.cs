@@ -32,14 +32,17 @@ namespace DarkDescent.Player
         /// <summary>La rotella: +1 per uno scatto in avanti, che avvicina, -1 indietro (D11 della M8).</summary>
         public event Action<int> ZoomScrolled;
 
-        /// <summary>Q ed E: -1 gira la visuale a sinistra, +1 a destra, di 90° (D12 della M8).</summary>
+        /// <summary>Z e X: -1 gira la visuale a sinistra, +1 a destra, di 90° (D12 della M8; Q ed E fino alla M20).</summary>
         public event Action<int> ViewRotated;
 
-        /// <summary>Il tasto destro: lancia l'incantesimo scelto verso il cursore (D4 della M9).</summary>
-        public event Action CastPressed;
+        /// <summary>
+        /// Il tasto destro, Q o E: usa l'abilità della casella verso il cursore, da 1 a 3 (D18 della
+        /// M20). La casella 0, del sinistro, la usa il click su un nemico.
+        /// </summary>
+        public event Action<int> SkillPressed;
 
-        /// <summary>F1–F3: il posto dell'incantesimo scelto, da 0.</summary>
-        public event Action<int> SpellSelected;
+        /// <summary>K: apre e chiude il menu delle abilità, con le quattro caselle (D18 della M20).</summary>
+        public event Action SkillsToggled;
 
         /// <summary>T: la magia del portale per l'accampamento (passo 11.7 della M11).</summary>
         public event Action PortalPressed;
@@ -76,7 +79,8 @@ namespace DarkDescent.Player
             _controls.Gameplay.Zoom.performed += HandleZoomPerformed;
             _controls.Gameplay.Rotate.performed += HandleRotatePerformed;
             _controls.Gameplay.Cast.performed += HandleCastPerformed;
-            _controls.Gameplay.SelectSpell.performed += HandleSelectSpellPerformed;
+            _controls.Gameplay.UseSkill.performed += HandleUseSkillPerformed;
+            _controls.Gameplay.ToggleSkills.performed += HandleToggleSkillsPerformed;
             _controls.Gameplay.ShowLabels.performed += HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled += HandleLabelsCanceled;
             _controls.Gameplay.Pause.performed += HandlePausePerformed;
@@ -98,7 +102,8 @@ namespace DarkDescent.Player
             _controls.Gameplay.Zoom.performed -= HandleZoomPerformed;
             _controls.Gameplay.Rotate.performed -= HandleRotatePerformed;
             _controls.Gameplay.Cast.performed -= HandleCastPerformed;
-            _controls.Gameplay.SelectSpell.performed -= HandleSelectSpellPerformed;
+            _controls.Gameplay.UseSkill.performed -= HandleUseSkillPerformed;
+            _controls.Gameplay.ToggleSkills.performed -= HandleToggleSkillsPerformed;
             _controls.Gameplay.ShowLabels.performed -= HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled -= HandleLabelsCanceled;
             _controls.Gameplay.Pause.performed -= HandlePausePerformed;
@@ -196,7 +201,7 @@ namespace DarkDescent.Player
             }
         }
 
-        // Q e E sono i due capi di un asse: -1 e +1. Con tutti e due premuti l'asse torna a 0 e non gira
+        // Z e X sono i due capi di un asse: -1 e +1. Con tutti e due premuti l'asse torna a 0 e non gira
         private void HandleRotatePerformed(InputAction.CallbackContext context)
         {
             float value = context.ReadValue<float>();
@@ -208,16 +213,27 @@ namespace DarkDescent.Player
 
         private void HandleCastPerformed(InputAction.CallbackContext context)
         {
-            CastPressed?.Invoke();
+            PressSkill(1);
         }
 
-        // da F1 a F8 i tasti sono consecutivi nell'enum, come le cifre della cintura
-        private void HandleSelectSpellPerformed(InputAction.CallbackContext context)
+        // un'azione sola con due tasti: Q è la casella 2, E la 3
+        private void HandleUseSkillPerformed(InputAction.CallbackContext context)
         {
             if (context.control is KeyControl key)
             {
-                SpellSelected?.Invoke(key.keyCode - Key.F1);
+                PressSkill(key.keyCode == Key.Q ? 2 : 3);
             }
+        }
+
+        private void HandleToggleSkillsPerformed(InputAction.CallbackContext context)
+        {
+            SkillsToggled?.Invoke();
+        }
+
+        /// <summary>Come premere il tasto di una casella (1 il destro, 2 Q, 3 E): per i test.</summary>
+        public void PressSkill(int slot)
+        {
+            SkillPressed?.Invoke(slot);
         }
 
         private void HandlePortalPerformed(InputAction.CallbackContext context)

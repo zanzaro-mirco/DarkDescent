@@ -67,21 +67,21 @@ namespace DarkDescent.Tests
             yield return LoadSandbox();
             var skeleton = Object.FindFirstObjectByType<EnemyAI>();
             var health = skeleton.GetComponent<Health>();
-            Assert.AreSame(Spell("PowerStrike"), Magic.Book.SelectedSpell);
+            Assert.AreSame(Spell("PowerStrike"), Magic.Book[SpellBook.Secondary]);
 
             StandAt(skeleton.transform, 9f);
             yield return null;
-            Assert.AreEqual(CastResult.NoTarget, Magic.TryCastAt(Player.position + Player.forward * 2f));
+            Assert.AreEqual(CastResult.NoTarget, Magic.TryCastAt(Spell("PowerStrike"), Player.position + Player.forward * 2f));
             Assert.AreEqual(30f, Magic.Mana.Current, 0.01f, "senza bersaglio niente mana");
-            Assert.AreEqual(CastResult.Ready, Magic.Caster.Check(0), "e niente ricarica");
+            Assert.AreEqual(CastResult.Ready, Magic.Caster.Check(1), "e niente ricarica");
 
             StandAt(skeleton.transform, 1.6f);
             yield return null;
             int landed = 0;
             Player.GetComponent<MeleeAttack>().HitLanded += _ => landed++;
-            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(skeleton.transform.position));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("PowerStrike"), skeleton.transform.position));
             Assert.AreEqual(26f, Magic.Mana.Current, 0.2f);
-            Assert.AreEqual(CastResult.Cooldown, Magic.Caster.Check(0));
+            Assert.AreEqual(CastResult.Cooldown, Magic.Caster.Check(1));
             yield return Wait(0.5f);
             Assert.Less(health.Current, health.Max, "il colpo è arrivato");
             Assert.GreaterOrEqual(landed, 1);
@@ -96,7 +96,7 @@ namespace DarkDescent.Tests
             StandAt(skeleton.transform, 6f);
             yield return null;
             Assert.IsTrue(Magic.Learn(Spell("Charge")));
-            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(skeleton.transform.position));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("Charge"), skeleton.transform.position));
             for (float t = 0f; !skeleton.IsStunned; t += Time.deltaTime)
             {
                 Assert.Less(t, 2.5f, "la Carica non è arrivata");
@@ -123,11 +123,11 @@ namespace DarkDescent.Tests
             yield return null;
             Assert.IsTrue(Magic.Learn(Spell("ShieldBash")));
             block.SetShield(false, 0);
-            Assert.AreEqual(CastResult.NoShield, Magic.TryCastAt(skeleton.transform.position));
+            Assert.AreEqual(CastResult.NoShield, Magic.TryCastAt(Spell("ShieldBash"), skeleton.transform.position));
             Assert.AreEqual(30f, Magic.Mana.Current, 0.01f);
 
             block.SetShield(true, 10);
-            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(skeleton.transform.position));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("ShieldBash"), skeleton.transform.position));
             yield return Wait(0.5f);
             Assert.IsTrue(skeleton.IsStunned);
             Assert.That(skeleton.StunRemaining, Is.InRange(1.1f, 1.5f));
@@ -171,7 +171,7 @@ namespace DarkDescent.Tests
             yield return new WaitForFixedUpdate();
 
             Assert.IsTrue(Magic.Learn(Spell("Whirlwind")));
-            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Player.position));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("Whirlwind"), Player.position));
             yield return null;
             var healths = enemies.Select(e => e.GetComponent<Health>()).ToArray();
             Assert.Less(healths[0].Current, healths[0].Max);
@@ -202,7 +202,7 @@ namespace DarkDescent.Tests
             var abilities = Player.GetComponent<WarriorAbilities>();
             float before = stats.Sheet.Get(StatType.DamageBonus);
             Assert.IsTrue(Magic.Learn(Spell("BattleShout")));
-            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Player.position));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("BattleShout"), Player.position));
             Assert.AreEqual(before + 15f, stats.Sheet.Get(StatType.DamageBonus), 0.001f);
             Assert.That(abilities.Remaining(SpellKind.Shout), Is.InRange(11.5f, 12f));
 
@@ -210,7 +210,7 @@ namespace DarkDescent.Tests
             block.SetShield(true, 10);
             Magic.Mana.Fill();
             Assert.IsTrue(Magic.Learn(Spell("ShieldWall")));
-            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Player.position));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("ShieldWall"), Player.position));
             Assert.IsTrue(block.BlocksAll);
             Assert.AreEqual(0.5f, Player.GetComponent<MovementSlow>().AbilityFactor);
             Assert.IsTrue(block.TryBlock(new DamageInfo(5f, DamageType.Physical, null), new FixedRandomSource(0.99)), "anche con il tiro peggiore");
@@ -230,7 +230,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Magic.Learn(Spell("Leap")));
             var abilities = Player.GetComponent<WarriorAbilities>();
             Vector3 point = Vector3.MoveTowards(Player.position, skeleton.transform.position, 4f);
-            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(point));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("Leap"), point));
             Assert.IsTrue(abilities.IsBusy, "in aria");
             yield return Wait(0.8f);
             Assert.IsFalse(abilities.IsBusy);
@@ -249,7 +249,7 @@ namespace DarkDescent.Tests
             health.TakeDamage(new DamageInfo(max * 0.5f, DamageType.Physical, null));
             float wounded = health.Current;
             Assert.IsTrue(Magic.Learn(Spell("LastStand")));
-            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Player.position));
+            Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("LastStand"), Player.position));
             Assert.AreEqual(max * 1.3f, health.Max, 0.01f);
             Assert.AreEqual(wounded + max * 0.3f, health.Current, 0.01f, "curato quanto ha aggiunto");
             Assert.That(Player.GetComponent<WarriorAbilities>().Remaining(SpellKind.LastStand), Is.InRange(9.5f, 10f));

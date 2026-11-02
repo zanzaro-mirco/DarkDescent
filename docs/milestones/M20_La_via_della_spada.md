@@ -261,6 +261,52 @@ Colpo di scudo che stordiscono, la regola per grado, il Turbine, il Grido e il M
 l'Ultimo baluardo, Disciplina e le condizioni). Il primo test della barra (`MagicHudTests`) ora prova
 che il destro su un pavimento vuoto non lancia il Colpo possente. EditMode 558/558, PlayMode !Nightly 301/303 (i due saltati di sempre).
 
+## Passo 20.4b — Le quattro caselle (D18)
+
+**Com'è andata (2 nov 2026).** Niente più F1–F8 né abilità scelta: `SpellBook` ha **quattro caselle**,
+sinistro, destro, `Q` ed `E`, e tiene a parte l'elenco delle abilità note (`Known`). Il destro lancia
+quella del destro, `Q` ed `E` le loro (`PlayerInputReader.SkillPressed`); il sinistro del mouse resta
+il click del controller. La camera gira con `Z` e `X`, `K` apre il menu.
+
+**Il sinistro e l'Attacco.** `SpellBook.IsPrimary` vuole mana 0 e ricarica 0, come ha scritto Mirco:
+con gli asset di oggi lo soddisfa solo il nuovo asset **Attacco** (`SpellKind.Attack`, fatto da
+`TalentTools`, icona della spada), che `PlayerMagic` impara all'avvio. L'Attacco **non passa dal
+lanciatore**: il colpo è sempre quello di `PlayerController` e `MeleeAttack`, la casella lo mostra e
+lo assegna soltanto (`TryCastAt` su quella casella dà `NotKnown`). Le altre tre caselle non accettano
+l'Attacco, e nel sinistro non va nient'altro.
+
+**Note ma fuori dalle caselle.** Un'abilità nuova va nella prima casella libera che la accetta; se
+sono piene resta tra le note e il menu la mette dove si vuole. Assegnare scambia con l'abilità che
+c'era, se ci può stare nell'altra casella. L'altare e l'*Applica* tolgono e mettono dall'elenco
+(`PlayerMagic.SyncWithTree`).
+
+**Salvataggio.** Il formato resta l'8: `_bar` ora ha quattro posti e `_selectedSpell` si scrive a 0 e
+non conta più. Una barra a otto posti (il campione `save_v8`, del 20.3) si rimette per ordine nelle
+prime caselle libere, con l'Attacco a sinistra. Al caricamento prima l'albero rimette le abilità
+(`SyncWithTree`), poi `Arrange` le mette dove stavano.
+
+**Il menu** (`SkillMenu`, `SkillChoiceView`): un click su una casella apre la sua riga, con le abilità
+note che ci vanno e quella di adesso accesa; sceglierne una chiude, un secondo click sulla stessa
+casella pure. `K` apre le quattro righe e le lascia aperte; `Esc` le chiude prima di inventario e
+pausa. La casella aperta si accende nella barra. Finché le icone non ci sono (20.7) le abilità si
+leggono dal nome.
+
+**La grafica alla Diablo 3.** Quattro immagini con Z-Image-Turbo (`Tools/ComfyUI/images/hud.py`, semi
+2042, 2052, 2063, 2071): la pietra che si ripete, la cornice a nove parti, la casella d'oro delle
+abilità e quella di ferro delle pozioni. La console è 958×132, centrata in basso, con le sfere
+attaccate ai lati; da sinistra il portale, le otto pozioni e le quattro caselle con il tasto scritto
+sotto (SX, DX, Q, E; in inglese LMB, RMB). L'esperienza sta sopra la console. Lo monta
+`HudTools.BuildConsole` (si rilancia), le impostazioni di import sono in `GeneratedUiImporter`. Il
+menu prende la pelle delle finestre come le altre.
+
+**Test.** `ManaTests` (le caselle, la regola del sinistro, assegnare, `Arrange` anche dal vecchio),
+`SaveMigrationTests` (la barra a otto posti nelle quattro caselle), `MagicHudTests` (il destro, `Q` ed
+`E`, le caselle, il menu, `K` ed `Esc`), e i test della magia, dei salvataggi, del Guerriero e della
+camera messi sui nuovi tasti. Foto a 16:9 e a 4:3 in `Recordings/Photos/hud_*`. EditMode 560/560;
+PlayMode !Nightly 302/307 al primo giro (più i 2 saltati di sempre): i tre falliti erano test da
+aggiornare (il Grido e il Baluardo sui tasti giusti, un click ora sotto la console), e le loro classi
+sono tornate verdi. La PlayMode intera non è stata rilanciata dopo le correzioni.
+
 ## Fuori dai passi — I numeri del danno solo sui critici
 
 Richiesta di Mirco del 2 novembre, prima del 20.3: il numero del danno non esce più a ogni colpo, solo
@@ -278,7 +324,7 @@ faccia il numero e che il pool riusi i numeri dei critici.
 - [x] `TalentBuild` in `Core` con i test, salvataggio 8 con la migrazione (20.2)
 - [x] Niente pergamene nel loot né dal mercante; Dardo e Anello fuori dal Guerriero (20.3)
 - [x] Abilità attive con animazioni, stordimento, effetti e suoni (20.4)
-- [ ] Le quattro caselle, il menu delle abilità e la grafica alla Diablo 3 (20.4b)
+- [x] Le quattro caselle, il menu delle abilità e la grafica alla Diablo 3 (20.4b)
 - [ ] Spadone e ascia a due mani nel loot e dal mercante (20.5)
 - [ ] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6)
 - [ ] Icone approvate (20.7)

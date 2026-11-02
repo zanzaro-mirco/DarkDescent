@@ -4,34 +4,38 @@ using System.Collections.Generic;
 namespace DarkDescent.Magic
 {
     /// <summary>
-    /// La barra delle abilità, otto posti da F1 a F8 (D9 della M20), e quello scelto. Un'abilità
-    /// imparata va nel primo posto libero e si può spostare su un altro; quelle dell'albero le
-    /// mette e le toglie l'albero stesso, a ogni *Applica*. Prima della M20 i posti erano fissi, uno
-    /// per incantesimo, e gli incantesimi arrivavano dalle pergamene.
+    /// Le abilità note e le quattro caselle alla Diablo 3 (D18 della M20): il sinistro, il destro, Q
+    /// ed E. Nella casella del sinistro vanno solo abilità senza mana e senza ricarica (per ora
+    /// l'Attacco), e nelle altre tre solo quelle che costano. Un'abilità nuova va nella prima casella
+    /// libera che la accetta; se non ce n'è, resta nell'elenco e il menu delle abilità la mette dove
+    /// si vuole. Fino al 20.4 la barra aveva otto posti da F1 a F8 e un posto scelto, lanciato col
+    /// destro; prima della M20 i posti erano fissi, uno per incantesimo.
     /// </summary>
     public sealed class SpellBook
     {
-        public const int Slots = 8;
+        public const int Slots = 4;
 
+        /// <summary>La casella del sinistro: si usa con un click su un nemico.</summary>
+        public const int Primary = 0;
+
+        /// <summary>La casella del destro.</summary>
+        public const int Secondary = 1;
+
+        private readonly List<SpellDefinition> _known = new List<SpellDefinition>();
         private readonly SpellDefinition[] _bar = new SpellDefinition[Slots];
 
-        /// <summary>Un'abilità messa nella barra, con il suo posto.</summary>
+        /// <summary>Un'abilità nuova tra le note, con la casella dove è andata (-1 se nessuna).</summary>
         public event Action<int> Learned;
 
-        /// <summary>I posti sono cambiati: un'abilità tolta o spostata.</summary>
+        /// <summary>Le caselle sono cambiate: un'abilità tolta, messa o spostata.</summary>
         public event Action Rearranged;
-
-        /// <summary>Il posto scelto è cambiato; -1 se la barra si è svuotata.</summary>
-        public event Action<int> SelectionChanged;
 
         public SpellBook()
         {
-            Selected = -1;
         }
 
-        /// <summary>Un libro con queste abilità già nei primi posti: il libro di prova dei test.</summary>
+        /// <summary>Un libro con queste abilità già note e nelle caselle: il libro di prova dei test.</summary>
         public SpellBook(IEnumerable<SpellDefinition> spells)
-            : this()
         {
             foreach (var spell in spells ?? Array.Empty<SpellDefinition>())
             {
@@ -41,117 +45,110 @@ namespace DarkDescent.Magic
 
         public int Count => Slots;
 
-        /// <summary>Il posto scelto, o -1 se la barra è vuota.</summary>
-        public int Selected { get; private set; }
+        /// <summary>Le abilità note, nell'ordine in cui sono arrivate, nelle caselle o no.</summary>
+        public IReadOnlyList<SpellDefinition> Known => _known;
 
-        public SpellDefinition SelectedSpell => Selected >= 0 ? _bar[Selected] : null;
-
-        /// <summary>L'abilità di un posto, o null se è vuoto.</summary>
+        /// <summary>L'abilità di una casella, o null se è vuota.</summary>
         public SpellDefinition this[int slot] => slot >= 0 && slot < Slots ? _bar[slot] : null;
 
         public bool Knows(int slot) => this[slot] != null;
 
-        public bool Knows(SpellDefinition spell) => SlotOf(spell) >= 0;
+        public bool Knows(SpellDefinition spell) => spell != null && _known.Contains(spell);
 
+        /// <summary>La casella di un'abilità, o -1 se è nota ma fuori dalle caselle, o non nota.</summary>
         public int SlotOf(SpellDefinition spell) => spell != null ? Array.IndexOf(_bar, spell) : -1;
 
         /// <summary>
-        /// Mette un'abilità nel primo posto libero; false se c'è già o se la barra è piena. Se non
-        /// c'era niente di scelto, la sceglie.
+        /// Un'abilità senza mana e senza ricarica: va solo nella casella del sinistro, che vuole solo
+        /// queste (D18). I numeri sono quelli dell'asset, non quelli dell'albero: per ora basta.
+        /// </summary>
+        public static bool IsPrimary(SpellDefinition spell) => spell != null && spell.ManaCost <= 0f && spell.Cooldown <= 0f;
+
+        /// <summary>Se un'abilità può stare in una casella.</summary>
+        public static bool Fits(int slot, SpellDefinition spell) =>
+            spell != null && slot >= 0 && slot < Slots && (slot == Primary) == IsPrimary(spell);
+
+        /// <summary>Le abilità note che possono andare in una casella, nell'ordine dell'elenco: il menu.</summary>
+        public List<SpellDefinition> Choices(int slot)
+        {
+            return _known.FindAll(spell => Fits(slot, spell));
+        }
+
+        /// <summary>
+        /// Aggiunge un'abilità alle note e la mette nella prima casella libera che la accetta; false
+        /// se era già nota. Una già nota non si rimette: una casella lasciata vuota resta vuota.
         /// </summary>
         public bool Learn(SpellDefinition spell)
         {
-            int slot = spell != null && !Knows(spell) ? Array.IndexOf(_bar, null) : -1;
-            if (slot < 0)
+            if (spell == null || Knows(spell))
             {
                 return false;
             }
 
-            _bar[slot] = spell;
-            Learned?.Invoke(slot);
-            if (Selected < 0)
+            _known.Add(spell);
+            int slot = FirstFree(spell);
+            if (slot >= 0)
             {
-                TrySelect(slot);
+                _bar[slot] = spell;
             }
 
+            Learned?.Invoke(slot);
             return true;
         }
 
-        /// <summary>Toglie un'abilità dalla barra; se era la scelta, si sceglie la prima che resta.</summary>
+        /// <summary>Toglie un'abilità dalle note e dalla sua casella, che resta vuota.</summary>
         public bool Forget(SpellDefinition spell)
         {
-            int slot = SlotOf(spell);
-            if (slot < 0)
+            if (!_known.Remove(spell))
             {
                 return false;
             }
 
-            _bar[slot] = null;
-            Rearranged?.Invoke();
-            if (slot == Selected)
+            int slot = SlotOf(spell);
+            if (slot >= 0)
             {
-                Selected = -1;
-                SelectFirst();
+                _bar[slot] = null;
             }
 
+            Rearranged?.Invoke();
             return true;
         }
 
         /// <summary>
-        /// Sposta l'abilità di un posto su un altro, scambiandola con quella che c'era; la scelta
-        /// segue l'abilità. False se il primo posto è vuoto.
+        /// Mette un'abilità nota in una casella. Se stava in un'altra, le due si scambiano, quando
+        /// quella di prima ci può andare; altrimenti l'altra casella si svuota. False se l'abilità non
+        /// è nota o non è adatta alla casella.
         /// </summary>
-        public bool Move(int from, int to)
+        public bool Assign(int slot, SpellDefinition spell)
         {
-            if (!Knows(from) || to < 0 || to >= Slots || from == to)
+            if (!Knows(spell) || !Fits(slot, spell))
             {
                 return false;
             }
 
-            (_bar[from], _bar[to]) = (_bar[to], _bar[from]);
+            if (_bar[slot] == spell)
+            {
+                return true;
+            }
+
+            int from = SlotOf(spell);
+            if (from >= 0)
+            {
+                _bar[from] = Fits(from, _bar[slot]) ? _bar[slot] : null;
+            }
+
+            _bar[slot] = spell;
             Rearranged?.Invoke();
-            if (Selected == from || Selected == to)
-            {
-                Selected = Selected == from ? to : from;
-                SelectionChanged?.Invoke(Selected);
-            }
-
             return true;
         }
 
-        /// <summary>Sceglie il posto da lanciare con il tasto destro; false se è vuoto.</summary>
-        public bool TrySelect(int slot)
-        {
-            if (!Knows(slot))
-            {
-                return false;
-            }
-
-            if (slot != Selected)
-            {
-                Selected = slot;
-                SelectionChanged?.Invoke(slot);
-            }
-
-            return true;
-        }
-
-        /// <summary>Gli id delle abilità nella barra, senza i posti vuoti.</summary>
+        /// <summary>Gli id delle abilità note, anche fuori dalle caselle.</summary>
         public List<string> KnownIds()
         {
-            var ids = new List<string>();
-            foreach (var spell in _bar)
-            {
-                if (spell != null)
-                {
-                    ids.Add(spell.Id);
-                }
-            }
-
-            return ids;
+            return _known.ConvertAll(spell => spell.Id);
         }
 
-        /// <summary>La barra posto per posto, per il salvataggio: l'id, o vuoto.</summary>
+        /// <summary>Le caselle una per una, per il salvataggio: l'id, o vuoto.</summary>
         public List<string> Export()
         {
             var ids = new List<string>(Slots);
@@ -164,46 +161,54 @@ namespace DarkDescent.Magic
         }
 
         /// <summary>
-        /// Rimette i posti di un salvataggio sulle abilità che la barra ha già: ognuna torna al suo
-        /// posto, gli id che non ci sono si ignorano. Se il posto scelto è vuoto si sceglie il primo.
+        /// Rimette le caselle di un salvataggio sulle abilità già note: ognuna torna nella sua, se ci
+        /// può stare, e le caselle che il salvataggio aveva vuote restano vuote. Una barra più lunga di
+        /// quattro è quella a otto posti del 20.3: lì conta l'ordine, non il posto, e le abilità tornano
+        /// nelle prime caselle libere. La casella del sinistro, se resta vuota, riprende la sua abilità.
         /// </summary>
-        public void Arrange(IReadOnlyList<string> saved, int selected)
+        public void Arrange(IReadOnlyList<string> saved)
         {
-            for (int slot = 0; saved != null && slot < Math.Min(saved.Count, Slots); slot++)
+            if (saved == null || saved.Count == 0)
             {
-                string id = saved[slot];
-                if (string.IsNullOrEmpty(id) || _bar[slot]?.Id == id)
+                return;
+            }
+
+            Array.Clear(_bar, 0, Slots);
+            bool legacy = saved.Count > Slots;
+            for (int index = 0; index < saved.Count && (legacy || index < Slots); index++)
+            {
+                var spell = _known.Find(known => known.Id == saved[index]);
+                if (spell == null || SlotOf(spell) >= 0)
                 {
                     continue;
                 }
 
-                // un posto prima di questo già rimesso ha un altro id: lo scambio non lo tocca
-                int from = Array.FindIndex(_bar, spell => spell != null && spell.Id == id);
-                if (from >= 0)
+                int slot = legacy ? FirstFree(spell) : index;
+                if (Fits(slot, spell) && _bar[slot] == null)
                 {
-                    (_bar[from], _bar[slot]) = (_bar[slot], _bar[from]);
+                    _bar[slot] = spell;
                 }
             }
 
-            Rearranged?.Invoke();
-            Selected = -1;
-            if (!TrySelect(selected))
+            if (_bar[Primary] == null)
             {
-                SelectFirst();
+                _bar[Primary] = _known.Find(IsPrimary);
             }
+
+            Rearranged?.Invoke();
         }
 
-        private void SelectFirst()
+        private int FirstFree(SpellDefinition spell)
         {
-            for (int slot = 0; slot < Slots && Selected < 0; slot++)
+            for (int slot = 0; slot < Slots; slot++)
             {
-                TrySelect(slot);
+                if (_bar[slot] == null && Fits(slot, spell))
+                {
+                    return slot;
+                }
             }
 
-            if (Selected < 0)
-            {
-                SelectionChanged?.Invoke(-1);
-            }
+            return -1;
         }
     }
 }

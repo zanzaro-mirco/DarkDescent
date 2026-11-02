@@ -10,6 +10,7 @@ using DarkDescent.Films;
 using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Magic;
 using DarkDescent.Player;
 using DarkDescent.Progression;
 using DarkDescent.Rendering;
@@ -322,6 +323,42 @@ namespace DarkDescent.Tests
 
             yield return new WaitForSecondsRealtime(1.5f);
             yield return Snap("village_night_lights");
+        }
+
+        [UnityTest, Timeout(300000), Description("La console in basso (D18 della M20): le quattro caselle piene, il menu di una casella e quello di K, a 16:9 e a 4:3")]
+        public IEnumerator Hud()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+
+            var magic = Hero.GetComponent<PlayerMagic>();
+            foreach (string name in new[] { "BattleShout", "Whirlwind", "ShieldWall" })
+            {
+                magic.Learn(AssetDatabase.LoadAssetAtPath<SpellDefinition>($"Assets/_Project/Data/Spells/{name}.asset"));
+            }
+
+            yield return Settle();
+            var picker = Find<SkillMenu>();
+            foreach (var (width, height, tag) in new[] { (1920u, 1080u, "16x9"), (1440u, 1080u, "4x3") })
+            {
+                PlayModeWindow.SetCustomRenderingResolution(width, height, "Photos");
+                yield return Frames(5);
+                picker.Close();
+                yield return Snap("hud_bar_" + tag);
+                Find<SpellBarView>().ClickSlot(2);
+                yield return Frames(3);
+                yield return Snap("hud_pick_" + tag, world: false);
+                picker.Toggle();
+                yield return Frames(3);
+                yield return Snap("hud_menu_" + tag, world: false);
+            }
         }
 
         [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]

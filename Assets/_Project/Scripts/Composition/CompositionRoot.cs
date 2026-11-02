@@ -417,7 +417,11 @@ namespace DarkDescent.Core
             _hudMessage.Bind(inventory, magic, _localizer, shrineBonus);
             _shrineBonusView.Bind(shrineBonus);
             _manaOrb.Bind(magic.Mana);
-            _spellBar.Bind(magic);
+            _spellBar.Bind(magic, _localizer);
+            if (_spellBar.Menu != null)
+            {
+                _spellBar.Menu.Bind(magic, _reader, _localizer);
+            }
             _portalSlot.Bind(magic);
             // un generatore suo: i danni degli incantesimi non spostano i tiri della mischia (trappola 3 della M9)
             _player.GetComponent<Magic.PlayerSpells>().Bind(_projectiles, new SystemRandomSource(Environment.TickCount ^ 0x5A11));
@@ -660,6 +664,13 @@ namespace DarkDescent.Core
             if (_difficultyPanel.IsOpen)
             {
                 _difficultyPanel.Close();
+                return;
+            }
+
+            // il menu delle abilità (D18 della M20) si chiude da solo, come la difficoltà
+            if (_spellBar.Menu != null && _spellBar.Menu.IsOpen)
+            {
+                _spellBar.Menu.Close();
                 return;
             }
 

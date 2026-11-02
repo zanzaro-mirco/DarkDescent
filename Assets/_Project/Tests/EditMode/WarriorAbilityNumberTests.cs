@@ -127,12 +127,12 @@ namespace DarkDescent.Tests
             var caster = new SpellCaster(book, new ManaPool(30f));
             caster.SetNumbers(spell => spell.ManaCost - 4f, spell => spell.Cooldown - 4f);
             Assert.AreEqual((6f, 4f), (caster.ManaCost(charge), caster.Cooldown(charge)));
-            Assert.AreEqual(CastResult.Ready, caster.TryCast(0));
+            Assert.AreEqual(CastResult.Ready, caster.TryCast(1));
             Assert.AreEqual(24f, caster.Mana.Current);
             caster.Advance(1f);
-            Assert.AreEqual(0.75f, caster.CooldownFraction(0), 0.0001f);
+            Assert.AreEqual(0.75f, caster.CooldownFraction(1), 0.0001f);
             caster.SetNumbers(null, null);
-            Assert.AreEqual(0.75f, caster.CooldownFraction(0), 0.0001f, "la ricarica partita resta quella");
+            Assert.AreEqual(0.75f, caster.CooldownFraction(1), 0.0001f, "la ricarica partita resta quella");
             Assert.AreEqual(10f, caster.ManaCost(charge), "di nuovo quello dell'asset");
         }
     }

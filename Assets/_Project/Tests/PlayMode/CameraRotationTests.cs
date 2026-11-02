@@ -40,9 +40,9 @@ namespace DarkDescent.Tests
                 // il primo scatto con il tasto vero, gli altri dal componente
                 if (turn == 1)
                 {
-                    Press(keyboard.eKey);
+                    Press(keyboard.xKey);
                     yield return null;
-                    Release(keyboard.eKey);
+                    Release(keyboard.xKey);
                 }
                 else
                 {
@@ -58,10 +58,10 @@ namespace DarkDescent.Tests
 
             AssertView(rotation, walls, level, torches, automap);
 
-            // Q gira dall'altra parte
-            Press(keyboard.qKey);
+            // Z gira dall'altra parte (Q ed E sono due abilità, D18 della M20)
+            Press(keyboard.zKey);
             yield return null;
-            Release(keyboard.qKey);
+            Release(keyboard.zKey);
             yield return new WaitForSecondsRealtime(0.55f);
             Assert.AreEqual(3, rotation.Facing);
             AssertView(rotation, walls, level, torches, automap);

@@ -1,5 +1,6 @@
 using System.Collections;
 using DarkDescent.Magic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -7,9 +8,10 @@ using UnityEngine.UI;
 namespace DarkDescent.UI
 {
     /// <summary>
-    /// Un posto della barra degli incantesimi (D4, D10 della M9): l'icona se l'incantesimo è noto,
-    /// la cornice d'oro se è quello scelto, scuro se il mana non basta, e un velo che si ritira
-    /// durante la ricarica. La pressione la inoltra alla barra.
+    /// Una delle quattro caselle alla Diablo 3 (D18 della M20): l'icona dell'abilità, o il suo nome
+    /// finché le icone non ci sono (20.7); scura se il mana non basta; un velo che si ritira durante la
+    /// ricarica; il tasto scritto sotto; la cornice accesa mentre il menu delle abilità è aperto su di
+    /// lei. Un click la inoltra alla barra, che apre il menu.
     /// </summary>
     [DisallowMultipleComponent]
     public class SpellSlotView : MonoBehaviour, IPointerDownHandler
@@ -18,10 +20,16 @@ namespace DarkDescent.UI
 
         [SerializeField, Min(0)] private int _slot;
 
-        [Tooltip("L'icona dell'incantesimo, senza bersaglio dei raggi.")]
+        [Tooltip("L'icona dell'abilità, senza bersaglio dei raggi.")]
         [SerializeField] private Image _icon;
 
-        [Tooltip("La cornice del posto scelto, spenta a riposo.")]
+        [Tooltip("Il nome dell'abilità, quando non ha un'icona.")]
+        [SerializeField] private TMP_Text _name;
+
+        [Tooltip("Il tasto della casella: sinistro, destro, Q, E.")]
+        [SerializeField] private TMP_Text _key;
+
+        [Tooltip("La cornice della casella che il menu sta cambiando, spenta a riposo.")]
         [SerializeField] private Image _selectedFrame;
 
         [Tooltip("Il velo della ricarica: Filled radiale, dall'alto, si ritira fino a sparire.")]
@@ -36,18 +44,44 @@ namespace DarkDescent.UI
 
         public bool HasIcon => _icon.enabled;
 
+        /// <summary>Se la casella mostra un'abilità, con l'icona o con il nome.</summary>
+        public bool IsFilled => _icon.enabled || (_name != null && _name.enabled);
+
+        public string ShownName => _name != null && _name.enabled ? _name.text : "";
+
+        public string KeyText => _key != null ? _key.text : "";
+
         public bool IsSelected => _selectedFrame.enabled;
 
         public bool IsAffordable => _icon.color == Color.white;
 
         public float CooldownFill => _cooldown.enabled ? _cooldown.fillAmount : 0f;
 
-        public void Show(SpellDefinition spell, bool known, bool selected, bool affordable)
+        public void Show(SpellDefinition spell, string name, bool affordable)
         {
+            var color = affordable ? Color.white : _unaffordable;
             _icon.sprite = spell != null ? spell.Icon : null;
-            _icon.enabled = known && spell != null;
-            _icon.color = affordable ? Color.white : _unaffordable;
-            _selectedFrame.enabled = known && selected;
+            _icon.enabled = spell != null && spell.Icon != null;
+            _icon.color = color;
+            if (_name != null)
+            {
+                _name.text = name;
+                _name.enabled = spell != null && spell.Icon == null;
+                _name.color = color;
+            }
+        }
+
+        public void SetKey(string key)
+        {
+            if (_key != null)
+            {
+                _key.text = key;
+            }
+        }
+
+        public void SetSelected(bool selected)
+        {
+            _selectedFrame.enabled = selected;
         }
 
         /// <summary>Il velo segue la ricarica del lancio appena fatto, fino a sparire.</summary>

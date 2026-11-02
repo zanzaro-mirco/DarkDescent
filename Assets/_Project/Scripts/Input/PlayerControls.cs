@@ -185,7 +185,7 @@ namespace DarkDescent.Input
                     ""priority"": 0
                 },
                 {
-                    ""name"": ""SelectSpell"",
+                    ""name"": ""UseSkill"",
                     ""type"": ""Button"",
                     ""id"": ""cf648c7f-23a1-4115-a017-a6b1e24361a5"",
                     ""expectedControlType"": ""Button"",
@@ -218,6 +218,16 @@ namespace DarkDescent.Input
                     ""name"": ""TownPortal"",
                     ""type"": ""Button"",
                     ""id"": ""21255719-cc4d-4c2f-bc53-dde2d8586a47"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleSkills"",
+                    ""type"": ""Button"",
+                    ""id"": ""7012d56f-0086-47fb-9f98-14c0b18e4620"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -381,7 +391,7 @@ namespace DarkDescent.Input
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""Q/E"",
+                    ""name"": ""Z/X"",
                     ""id"": ""f061b99e-bd8e-4154-b8e3-7e78cc275ee4"",
                     ""path"": ""1DAxis"",
                     ""interactions"": """",
@@ -394,7 +404,7 @@ namespace DarkDescent.Input
                 {
                     ""name"": ""negative"",
                     ""id"": ""1853fa19-1d6b-42a4-a91a-a773dde3566c"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""path"": ""<Keyboard>/z"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -405,7 +415,7 @@ namespace DarkDescent.Input
                 {
                     ""name"": ""positive"",
                     ""id"": ""09e02bb5-463c-42ad-8806-9bb9de1147eb"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/x"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -460,88 +470,22 @@ namespace DarkDescent.Input
                 {
                     ""name"": """",
                     ""id"": ""b2aeddca-bf4e-4629-9575-b89c2fa35012"",
-                    ""path"": ""<Keyboard>/f1"",
+                    ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SelectSpell"",
+                    ""action"": ""UseSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
                     ""id"": ""5e8a29c8-6230-4e62-ae85-792cf3188870"",
-                    ""path"": ""<Keyboard>/f2"",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SelectSpell"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""f7722c7a-fce4-45f0-aa20-416747cfa0b3"",
-                    ""path"": ""<Keyboard>/f3"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SelectSpell"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""28c3797d-6fab-4a53-a24d-2ec4ef84acc3"",
-                    ""path"": ""<Keyboard>/f4"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SelectSpell"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""04682eae-b70c-4643-b9e6-e52101ad52da"",
-                    ""path"": ""<Keyboard>/f5"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SelectSpell"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""426881dc-bfae-4359-89cc-3446bbcef90d"",
-                    ""path"": ""<Keyboard>/f6"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SelectSpell"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""bcffa563-4355-4c07-8c56-b34f27846622"",
-                    ""path"": ""<Keyboard>/f7"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SelectSpell"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""0b0c9aaf-d209-4252-a477-99f7c34dcc76"",
-                    ""path"": ""<Keyboard>/f8"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SelectSpell"",
+                    ""action"": ""UseSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -553,6 +497,17 @@ namespace DarkDescent.Input
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""TownPortal"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6c4ec68e-6978-4cc1-9f2e-18853159005f"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleSkills"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -572,10 +527,11 @@ namespace DarkDescent.Input
             m_Gameplay_Zoom = m_Gameplay.FindAction("Zoom", throwIfNotFound: true);
             m_Gameplay_Rotate = m_Gameplay.FindAction("Rotate", throwIfNotFound: true);
             m_Gameplay_Cast = m_Gameplay.FindAction("Cast", throwIfNotFound: true);
-            m_Gameplay_SelectSpell = m_Gameplay.FindAction("SelectSpell", throwIfNotFound: true);
+            m_Gameplay_UseSkill = m_Gameplay.FindAction("UseSkill", throwIfNotFound: true);
             m_Gameplay_ShowLabels = m_Gameplay.FindAction("ShowLabels", throwIfNotFound: true);
             m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
             m_Gameplay_TownPortal = m_Gameplay.FindAction("TownPortal", throwIfNotFound: true);
+            m_Gameplay_ToggleSkills = m_Gameplay.FindAction("ToggleSkills", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -665,10 +621,11 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_Zoom;
         private readonly InputAction m_Gameplay_Rotate;
         private readonly InputAction m_Gameplay_Cast;
-        private readonly InputAction m_Gameplay_SelectSpell;
+        private readonly InputAction m_Gameplay_UseSkill;
         private readonly InputAction m_Gameplay_ShowLabels;
         private readonly InputAction m_Gameplay_Pause;
         private readonly InputAction m_Gameplay_TownPortal;
+        private readonly InputAction m_Gameplay_ToggleSkills;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -717,9 +674,9 @@ namespace DarkDescent.Input
             /// </summary>
             public InputAction @Cast => m_Wrapper.m_Gameplay_Cast;
             /// <summary>
-            /// Provides access to the underlying input action "Gameplay/SelectSpell".
+            /// Provides access to the underlying input action "Gameplay/UseSkill".
             /// </summary>
-            public InputAction @SelectSpell => m_Wrapper.m_Gameplay_SelectSpell;
+            public InputAction @UseSkill => m_Wrapper.m_Gameplay_UseSkill;
             /// <summary>
             /// Provides access to the underlying input action "Gameplay/ShowLabels".
             /// </summary>
@@ -732,6 +689,10 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/TownPortal".
             /// </summary>
             public InputAction @TownPortal => m_Wrapper.m_Gameplay_TownPortal;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/ToggleSkills".
+            /// </summary>
+            public InputAction @ToggleSkills => m_Wrapper.m_Gameplay_ToggleSkills;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -785,9 +746,9 @@ namespace DarkDescent.Input
                 @Cast.started += instance.OnCast;
                 @Cast.performed += instance.OnCast;
                 @Cast.canceled += instance.OnCast;
-                @SelectSpell.started += instance.OnSelectSpell;
-                @SelectSpell.performed += instance.OnSelectSpell;
-                @SelectSpell.canceled += instance.OnSelectSpell;
+                @UseSkill.started += instance.OnUseSkill;
+                @UseSkill.performed += instance.OnUseSkill;
+                @UseSkill.canceled += instance.OnUseSkill;
                 @ShowLabels.started += instance.OnShowLabels;
                 @ShowLabels.performed += instance.OnShowLabels;
                 @ShowLabels.canceled += instance.OnShowLabels;
@@ -797,6 +758,9 @@ namespace DarkDescent.Input
                 @TownPortal.started += instance.OnTownPortal;
                 @TownPortal.performed += instance.OnTownPortal;
                 @TownPortal.canceled += instance.OnTownPortal;
+                @ToggleSkills.started += instance.OnToggleSkills;
+                @ToggleSkills.performed += instance.OnToggleSkills;
+                @ToggleSkills.canceled += instance.OnToggleSkills;
             }
 
             /// <summary>
@@ -835,9 +799,9 @@ namespace DarkDescent.Input
                 @Cast.started -= instance.OnCast;
                 @Cast.performed -= instance.OnCast;
                 @Cast.canceled -= instance.OnCast;
-                @SelectSpell.started -= instance.OnSelectSpell;
-                @SelectSpell.performed -= instance.OnSelectSpell;
-                @SelectSpell.canceled -= instance.OnSelectSpell;
+                @UseSkill.started -= instance.OnUseSkill;
+                @UseSkill.performed -= instance.OnUseSkill;
+                @UseSkill.canceled -= instance.OnUseSkill;
                 @ShowLabels.started -= instance.OnShowLabels;
                 @ShowLabels.performed -= instance.OnShowLabels;
                 @ShowLabels.canceled -= instance.OnShowLabels;
@@ -847,6 +811,9 @@ namespace DarkDescent.Input
                 @TownPortal.started -= instance.OnTownPortal;
                 @TownPortal.performed -= instance.OnTownPortal;
                 @TownPortal.canceled -= instance.OnTownPortal;
+                @ToggleSkills.started -= instance.OnToggleSkills;
+                @ToggleSkills.performed -= instance.OnToggleSkills;
+                @ToggleSkills.canceled -= instance.OnToggleSkills;
             }
 
             /// <summary>
@@ -951,12 +918,12 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnCast(InputAction.CallbackContext context);
             /// <summary>
-            /// Method invoked when associated input action "SelectSpell" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// Method invoked when associated input action "UseSkill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>
             /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-            void OnSelectSpell(InputAction.CallbackContext context);
+            void OnUseSkill(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "ShowLabels" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>
@@ -978,6 +945,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnTownPortal(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleSkills" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleSkills(InputAction.CallbackContext context);
         }
     }
 }

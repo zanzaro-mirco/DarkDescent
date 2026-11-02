@@ -87,7 +87,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SelectSpell",
+                    "name": "UseSkill",
                     "type": "Button",
                     "id": "cf648c7f-23a1-4115-a017-a6b1e24361a5",
                     "expectedControlType": "Button",
@@ -117,6 +117,15 @@
                     "name": "TownPortal",
                     "type": "Button",
                     "id": "21255719-cc4d-4c2f-bc53-dde2d8586a47",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleSkills",
+                    "type": "Button",
+                    "id": "7012d56f-0086-47fb-9f98-14c0b18e4620",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -279,7 +288,7 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "Q/E",
+                    "name": "Z/X",
                     "id": "f061b99e-bd8e-4154-b8e3-7e78cc275ee4",
                     "path": "1DAxis",
                     "interactions": "",
@@ -292,7 +301,7 @@
                 {
                     "name": "negative",
                     "id": "1853fa19-1d6b-42a4-a91a-a773dde3566c",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/z",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -303,7 +312,7 @@
                 {
                     "name": "positive",
                     "id": "09e02bb5-463c-42ad-8806-9bb9de1147eb",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/x",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -358,88 +367,22 @@
                 {
                     "name": "",
                     "id": "b2aeddca-bf4e-4629-9575-b89c2fa35012",
-                    "path": "<Keyboard>/f1",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SelectSpell",
+                    "action": "UseSkill",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "5e8a29c8-6230-4e62-ae85-792cf3188870",
-                    "path": "<Keyboard>/f2",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SelectSpell",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "f7722c7a-fce4-45f0-aa20-416747cfa0b3",
-                    "path": "<Keyboard>/f3",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectSpell",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "28c3797d-6fab-4a53-a24d-2ec4ef84acc3",
-                    "path": "<Keyboard>/f4",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectSpell",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "04682eae-b70c-4643-b9e6-e52101ad52da",
-                    "path": "<Keyboard>/f5",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectSpell",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "426881dc-bfae-4359-89cc-3446bbcef90d",
-                    "path": "<Keyboard>/f6",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectSpell",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "bcffa563-4355-4c07-8c56-b34f27846622",
-                    "path": "<Keyboard>/f7",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectSpell",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "0b0c9aaf-d209-4252-a477-99f7c34dcc76",
-                    "path": "<Keyboard>/f8",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectSpell",
+                    "action": "UseSkill",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -451,6 +394,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "TownPortal",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6c4ec68e-6978-4cc1-9f2e-18853159005f",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSkills",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

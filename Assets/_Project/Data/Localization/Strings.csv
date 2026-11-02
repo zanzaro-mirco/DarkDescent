@@ -80,6 +80,29 @@ spell.fire_ring,Ring of Fire,Anello di fuoco
 spell.stone_skin,Stone Skin,Pelle di pietra
 spell.town_portal,Town Portal,Portale
 
+# Abilità del Guerriero e le quattro caselle (M20, D18)
+spell.attack,Attack,Attacco
+spell.power_strike,Power Strike,Colpo possente
+spell.charge,Charge,Carica
+spell.battle_shout,Battle Shout,Grido di battaglia
+spell.shield_bash,Shield Bash,Colpo di scudo
+spell.shield_wall,Shield Wall,Muro di scudi
+spell.last_stand,Last Stand,Ultimo baluardo
+spell.whirlwind,Whirlwind,Turbine
+spell.execute,Execute,Esecuzione
+spell.leap,Leap,Salto
+spell.bladestorm,Bladestorm,Tempesta d'acciaio
+skills.title,Skills (K),Abilità (K)
+skills.slot.primary,Left click,Tasto sinistro
+skills.slot.secondary,Right click,Tasto destro
+skills.slot.q,Q,Q
+skills.slot.e,E,E
+skills.key.primary,LMB,SX
+skills.key.secondary,RMB,DX
+skills.key.q,Q,Q
+skills.key.e,E,E
+skills.none,No skills for this slot yet,Nessuna abilità per questa casella
+
 # Oggetti a terra e scale
 exit.descend,Descend to level {0},Scendi al livello {0}
 hud.inventory_full,No room in the inventory,Non c'è posto nell'inventario

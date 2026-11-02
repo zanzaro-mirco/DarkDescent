@@ -149,7 +149,8 @@ namespace DarkDescent.Save
             // da morto il mana torna pieno con la vita (Revived): si salva pieno
             if (_magic != null)
             {
-                data.WithMagic(_magic.Book.KnownIds(), _magic.Book.Selected, _health.IsDead ? SaveData.FullMana : _magic.Mana.Current)
+                // il posto scelto non c'è più dal 20.4b: le caselle si usano ognuna col suo tasto
+                data.WithMagic(_magic.Book.KnownIds(), 0, _health.IsDead ? SaveData.FullMana : _magic.Mana.Current)
                     .WithBar(_magic.Book.Export());
             }
 
@@ -227,12 +228,12 @@ namespace DarkDescent.Save
             _health.SetCurrent(data.Life);
 
             // dopo attributi, livello e oggetti: il mana massimo è già quello giusto. L'albero ha già
-            // messo le sue abilità nella barra: qui tornano ai loro posti. Gli incantesimi noti di un
+            // messo le sue abilità tra le note: qui tornano nelle loro caselle. Gli incantesimi noti di un
             // salvataggio di prima della M20 non contano più (D4)
             if (_magic != null)
             {
                 _magic.SyncWithTree();
-                _magic.Book.Arrange(data.Bar, data.SelectedSpell);
+                _magic.Book.Arrange(data.Bar);
                 if (data.Mana < 0f)
                 {
                     _magic.Mana.Fill();

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Magic;
 using DarkDescent.Save;
 using DarkDescent.Stats;
 using DarkDescent.Talents;
@@ -272,6 +273,32 @@ namespace DarkDescent.Tests
             Assert.AreEqual(8, data.Bar.Count);
             Assert.AreEqual(("e7ec1fa760094797abc17b64a29afaca", "d947e2d3a5874b889f3fb34aecaf3eaa", ""), (data.Bar[0], data.Bar[1], data.Bar[2]));
             Assert.AreEqual(1, data.SelectedSpell);
+        }
+
+        [Test, Description("La barra a otto posti del 20.3 (D18): messa nelle quattro caselle, il sinistro ha l'Attacco e nessuna abilità che costa, e ogni casella tiene solo abilità che ci stanno")]
+        public void FormatEight_BarFitsTheFourSlots()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v8.json");
+            File.WriteAllText(_path, fixture.text);
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+
+            var all = AssetDatabase.FindAssets("t:SpellDefinition", new[] { "Assets/_Project/Data/Spells" })
+                .Select(guid => AssetDatabase.LoadAssetAtPath<SpellDefinition>(AssetDatabase.GUIDToAssetPath(guid)))
+                .ToList();
+            var book = new SpellBook(all);
+            book.Arrange(data.Bar);
+
+            Assert.IsTrue(SpellBook.IsPrimary(book[SpellBook.Primary]), "il sinistro ha l'Attacco");
+            for (int slot = 0; slot < SpellBook.Slots; slot++)
+            {
+                Assert.IsTrue(book[slot] == null || SpellBook.Fits(slot, book[slot]), $"la casella {slot} tiene solo abilità adatte");
+            }
+
+            var first = all.Find(spell => spell.Id == data.Bar[0]);
+            if (first != null && !SpellBook.IsPrimary(first))
+            {
+                Assert.AreEqual(SpellBook.Secondary, book.SlotOf(first), "la prima della vecchia barra va nel primo posto adatto");
+            }
         }
 
         [Test, Description("Il salvataggio vero del formato 6, alla Tenebra nel quarto mondo, si carica con il codice di oggi: nessun oggetto ha un nome, e rari, magici, livelli ricordati e difficoltà sono com'erano")]

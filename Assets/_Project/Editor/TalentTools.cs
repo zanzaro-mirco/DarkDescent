@@ -33,14 +33,11 @@ namespace DarkDescent.Editor
         private const string AnimationsFolder = "Assets/_Project/Art/Animations/KayKit";
         private const string SoundsFolder = "Assets/_Project/Audio/SFX";
 
-        // i posti della barra: 48 di lato, 6 di spazio (come la cintura)
-        private const float SlotSize = 48f;
-        private const float SlotSpacing = 6f;
-
         // le abilità del Guerriero (D8 e disegno): nome dell'asset, chiave, tipo, mana, ricarica, e i
         // numeri del loro comportamento (20.4)
         private static readonly AbilityRow[] Abilities =
         {
+            new AbilityRow("Attack", "spell.attack", SpellKind.Attack, 0f, 0f) { Icon = "Assets/_Project/Art/Icons/ShortSword.png" },
             new AbilityRow("PowerStrike", "spell.power_strike", SpellKind.Strike, 4f, 3f) { Weapon = 160f },
             new AbilityRow("Charge", "spell.charge", SpellKind.Charge, 10f, 8f) { Weapon = 100f, Stun = 1f, MinRange = 3f, Range = 10f },
             new AbilityRow("BattleShout", "spell.battle_shout", SpellKind.Shout, 12f, 30f) { Radius = 5f, Duration = 12f, Bonus = 15f },
@@ -78,6 +75,7 @@ namespace DarkDescent.Editor
                 spells[ability.Asset] = SaveAbility(ability);
             }
 
+            var attack = spells["Attack"];
             spells["StoneSkin"] = AssetDatabase.LoadAssetAtPath<SpellDefinition>($"{SpellsFolder}/StoneSkin.asset");
             var warrior = SaveTree("Warrior", "warrior", false, ClassNodes(spells), new[] { new TalentGate(3, 6), new TalentGate(6, 14) });
             var defense = SaveTree("WarriorDefense", "warrior.defense", true, DefenseNodes(spells), new[] { new TalentGate(3, 5), new TalentGate(5, 12) });
@@ -85,8 +83,7 @@ namespace DarkDescent.Editor
             AssetDatabase.SaveAssets();
             InstallAbilityStates();
             var effects = InstallAbilityEffects();
-            InstallOnPlayer(warrior, defense, arms, effects);
-            InstallBar();
+            InstallOnPlayer(warrior, defense, arms, effects, attack);
             Debug.Log($"[TalentTools] Guerriero: {warrior.Nodes.Count} nodi, Difesa {defense.Nodes.Count}, Armi {arms.Nodes.Count}");
         }
 
@@ -215,6 +212,11 @@ namespace DarkDescent.Editor
             so.FindProperty("_minRange").floatValue = ability.MinRange;
             so.FindProperty("_moveFactor").floatValue = ability.MoveFactor;
             so.FindProperty("_tick").floatValue = ability.Tick;
+            if (ability.Icon != null)
+            {
+                so.FindProperty("_icon").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(ability.Icon);
+            }
+
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(spell);
             return spell;
@@ -385,42 +387,7 @@ namespace DarkDescent.Editor
             return tree;
         }
 
-        /// <summary>
-        /// La barra di otto posti, F1–F8 (D9 della M20): i posti che mancano sono copie dell'ultimo, uno
-        /// accanto all'altro, ognuno con il suo numero, il suo tasto e il riferimento della barra.
-        /// </summary>
-        [MenuItem("DarkDescent/Talenti/Barra a otto posti in Core")]
-        public static void InstallBar()
-        {
-            var scene = EditorSceneManager.OpenScene(CoreScene, OpenSceneMode.Single);
-            var bar = UnityEngine.Object.FindFirstObjectByType<SpellBarView>(FindObjectsInactive.Include);
-            var so = new SerializedObject(bar);
-            var slots = so.FindProperty("_slots");
-            var last = (SpellSlotView)slots.GetArrayElementAtIndex(slots.arraySize - 1).objectReferenceValue;
-            for (int index = slots.arraySize; index < SpellBook.Slots; index++)
-            {
-                var copy = UnityEngine.Object.Instantiate(last.gameObject, last.transform.parent);
-                copy.name = $"Spell_{index + 1}";
-                var view = copy.GetComponent<SpellSlotView>();
-                var slot = new SerializedObject(view);
-                slot.FindProperty("_slot").intValue = index;
-                slot.FindProperty("_bar").objectReferenceValue = bar;
-                slot.ApplyModifiedPropertiesWithoutUndo();
-                ((RectTransform)copy.transform).anchoredPosition = new Vector2(index * (SlotSize + SlotSpacing), 0f);
-                copy.transform.Find("Key").GetComponent<TMP_Text>().text = $"F{index + 1}";
-                slots.arraySize = index + 1;
-                slots.GetArrayElementAtIndex(index).objectReferenceValue = view;
-            }
-
-            so.ApplyModifiedPropertiesWithoutUndo();
-            var rect = (RectTransform)bar.transform;
-            rect.sizeDelta = new Vector2(SpellBook.Slots * SlotSize + (SpellBook.Slots - 1) * SlotSpacing, SlotSize);
-            EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene);
-            Debug.Log($"[TalentTools] barra: {slots.arraySize} posti in {CoreScene}");
-        }
-
-        private static void InstallOnPlayer(TalentTree warrior, TalentTree defense, TalentTree arms, (AreaEffect spin, AreaEffect shout, GameObject stun) effects)
+        private static void InstallOnPlayer(TalentTree warrior, TalentTree defense, TalentTree arms, (AreaEffect spin, AreaEffect shout, GameObject stun) effects, SpellDefinition attack)
         {
             var player = PrefabUtility.LoadPrefabContents(PlayerPrefab);
             try
@@ -438,6 +405,11 @@ namespace DarkDescent.Editor
                 specializations.GetArrayElementAtIndex(0).objectReferenceValue = defense;
                 specializations.GetArrayElementAtIndex(1).objectReferenceValue = arms;
                 so.ApplyModifiedPropertiesWithoutUndo();
+
+                // l'Attacco è il colpo dell'arma nella casella del sinistro (D18)
+                var magic = new SerializedObject(player.GetComponent<PlayerMagic>());
+                magic.FindProperty("_attackSpell").objectReferenceValue = attack;
+                magic.ApplyModifiedPropertiesWithoutUndo();
 
                 // le abilità: i nemici e l'altoparlante degli incantesimi, il fendente del cavaliere
                 var abilities = player.GetComponent<WarriorAbilities>();
@@ -496,6 +468,7 @@ namespace DarkDescent.Editor
             public float MinRange { get; set; }
             public float MoveFactor { get; set; } = 1f;
             public float Tick { get; set; }
+            public string Icon { get; set; }
         }
     }
 }

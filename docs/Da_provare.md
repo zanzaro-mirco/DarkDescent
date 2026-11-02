@@ -18,6 +18,13 @@ Le prove della M18 restano valide.
   (le stelle sopra la testa) durano il giusto? I suoni nuovi (la lama, lo scudo, l'atterraggio, i
   tintinnii) e il grido vanno bene?
 
+- **Le quattro caselle** (passo 20.4b): la console in basso con le sfere attaccate ai lati, le pozioni
+  a sinistra e le quattro caselle a destra. Il sinistro su un nemico colpisce, il destro, `Q` ed `E`
+  lanciano le abilità delle loro caselle; la camera gira con `Z` e `X`. Un click su una casella apre
+  l'elenco, `K` le quattro righe, `Esc` le chiude. La grafica va bene a 16:9 e a 4:3? I nomi sulle
+  caselle si leggono finché non ci sono le icone (20.7)? Con una partita vecchia (a otto posti) le
+  abilità tornano in ordine nelle caselle?
+
 ## Dalla M19 — "L'ultima candela" (v1.7.0)
 
 - **L'apertura**: *Nuova partita* dal menu, scegli un posto. Parte il filmato di circa 50 s, con la

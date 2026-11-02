@@ -63,8 +63,8 @@ namespace DarkDescent.Tests
 
             var magic = Player.GetComponent<PlayerMagic>();
             Assert.IsTrue(magic.Learn(Spell("FireRing")));
-            Assert.AreSame(Spell("FireRing"), magic.Book.SelectedSpell, "imparato, è scelto");
-            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Player.position));
+            Assert.AreEqual(2, magic.Book.SlotOf(Spell("FireRing")), "imparato, va in Q");
+            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Spell("FireRing"), Player.position));
             Assert.AreEqual(15f, magic.Mana.Max - magic.Mana.Current, 0.5f);
             Assert.AreEqual(near.Max, near.Current, "il colpo aspetta la mano");
 
@@ -74,7 +74,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(far.Max, far.Current, "a 6 m non arriva");
             var effect = Object.FindFirstObjectByType<AreaEffect>();
             Assert.IsNotNull(effect, "il cerchio di fiamme");
-            Assert.AreEqual(CastResult.Cooldown, magic.Caster.Check(magic.Book.Selected));
+            Assert.AreEqual(CastResult.Cooldown, magic.Caster.Check(magic.Book.SlotOf(Spell("FireRing"))));
 
             yield return Wait(1.2f);
             Assert.IsFalse(effect.IsPlaying, "le fiamme si spengono");
@@ -89,7 +89,7 @@ namespace DarkDescent.Tests
             var magic = Player.GetComponent<PlayerMagic>();
             var spells = Player.GetComponent<PlayerSpells>();
             Assert.IsTrue(magic.Learn(Spell("StoneSkin")));
-            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Player.position));
+            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Spell("StoneSkin"), Player.position));
             yield return Wait(0.5f);
 
             Assert.AreEqual(30f, stats.Armor, 0.01f, "+50% di 20");
@@ -118,7 +118,7 @@ namespace DarkDescent.Tests
             // ricarica di 30 s: si riparte da capo con un cavaliere nuovo di mana e ricarica
             magic.Caster.Advance(30f);
             magic.Mana.Fill();
-            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Player.position));
+            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Spell("StoneSkin"), Player.position));
             yield return Wait(0.5f);
             Assert.AreEqual(30f, stats.Armor, 0.01f);
             Player.GetComponent<Health>().TakeDamage(new DamageInfo(10000f, DamageType.Fire, null));

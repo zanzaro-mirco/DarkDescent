@@ -413,7 +413,7 @@ namespace DarkDescent.Tests
             _resumes++;
 
             var magic = Hero.GetComponent<PlayerMagic>();
-            string resumed = Save.Capture().WithMagic(magic.Book.KnownIds(), magic.Book.Selected, saved.Mana)
+            string resumed = Save.Capture().WithMagic(magic.Book.KnownIds(), 0, saved.Mana)
                 .WithStats(saved.PlayTime, saved.Kills, saved.Deaths, saved.GoldCollected, saved.BossDefeated).ToJson();
             string expected = saved.ToJson();
             int differs = FirstDifference(expected, resumed);

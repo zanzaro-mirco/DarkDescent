@@ -201,8 +201,11 @@ Milestone precedenti:
   finché il re è vivo
 - con il mouse sopra la sfera della vita o del mana si legge quanto resta; un'opzione li lascia
   sempre scritti
-- click destro nel mondo per lanciare l'incantesimo scelto verso il cursore; `F1`–`F3`, o un
-  click sui tre posti accanto alla sfera del mana, scelgono l'incantesimo
+- le **quattro caselle** delle abilità, a destra nella console in basso: il click sinistro su un
+  nemico usa quella del sinistro (per ora solo l'**Attacco**, il colpo dell'arma), il click destro
+  nel mondo lancia quella del destro verso il cursore, `Q` ed `E` le altre due. Un click su una
+  casella apre l'elenco delle abilità che ci possono andare e ne mette una; `K` apre tutte e
+  quattro le righe insieme
 - `I` inventario: un click prende un oggetto, un altro lo posa (o lo mette nello slot);
   con un oggetto preso, un click fuori dalle finestre lo lascia a terra. Click destro su un
   oggetto della borsa per indossarlo
@@ -211,7 +214,7 @@ Milestone precedenti:
   da spendere, un `+` accanto a ogni attributo ne compra uno, e sopra la sfera della vita un
   pulsante dorato apre il pannello
 - `Alt` tenuto premuto mostra i nomi di tutti gli oggetti a terra; un click su un nome lo raccoglie
-- rotella del mouse per avvicinare e allontanare la visuale; `Q` ed `E` la girano di 90°
+- rotella del mouse per avvicinare e allontanare la visuale; `Z` e `X` la girano di 90°
 - `M` automappa: nell'angolo, sovrapposta al gioco, spenta
 - `Esc` chiude le finestre aperte, poi mette in pausa: da lì si riprende, si aprono le
   opzioni o si salva per tornare al menu iniziale

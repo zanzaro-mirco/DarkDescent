@@ -20,7 +20,7 @@ namespace DarkDescent.Tests
             yield return new WaitForSeconds(0.5f);
             Assert.Less(animator.GetFloat(SpeedHash), 0.05f, "da fermo Speed deve essere circa 0");
 
-            var target = new Vector3(-10f, 0f, -9f);
+            var target = new Vector3(6f, 0f, 1f);
             ClickAt(target);
             yield return new WaitForSeconds(0.6f);
             var before = leg.localRotation;

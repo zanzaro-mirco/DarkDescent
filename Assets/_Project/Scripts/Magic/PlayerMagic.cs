@@ -13,11 +13,13 @@ namespace DarkDescent.Magic
     /// <summary>
     /// La magia del cavaliere (M9): mana, incantesimi noti e lancio. Il mana massimo segue Magia,
     /// livello e affissi dalla scheda delle statistiche; si riempie salendo di livello e tornando in
-    /// vita. Il tasto destro lancia l'incantesimo scelto verso il cursore e annuncia
-    /// <see cref="Cast"/>: che cosa succede nel mondo lo decidono gli incantesimi che ascoltano. Dal
+    /// vita. Il tasto destro, Q ed E usano l'abilità della loro casella verso il cursore e annunciano
+    /// <see cref="Cast"/>: che cosa succede nel mondo lo decidono le abilità che ascoltano. Dal
     /// passo 11.7 della M11 c'è anche la magia del portale, con il suo tasto: sempre nota, apre il
-    /// portale per l'accampamento dove chi lo apre lo permette. Dalla M20 la barra ha otto posti e la
-    /// riempie l'albero delle abilità: a ogni *Applica* entrano le abilità nuove e escono quelle tolte.
+    /// portale per l'accampamento dove chi lo apre lo permette. Dalla M20 le abilità le dà l'albero: a
+    /// ogni *Applica* entrano le nuove ed escono quelle tolte. Con il 20.4b (D18) le caselle sono
+    /// quattro, alla Diablo 3, e nella prima, del sinistro, c'è l'Attacco: il colpo dell'arma, che
+    /// resta del controller e non passa da qui.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterStats), typeof(Health))]
@@ -25,6 +27,9 @@ namespace DarkDescent.Magic
     {
         [Tooltip("La magia del portale per l'accampamento, fuori dalla barra (passo 11.7 della M11).")]
         [SerializeField] private SpellDefinition _portalSpell;
+
+        [Tooltip("L'Attacco, il colpo dell'arma: sempre noto, nella casella del sinistro (D18 della M20).")]
+        [SerializeField] private SpellDefinition _attackSpell;
 
         [Tooltip("Il suono sordo di un lancio che non parte: niente mana, ricarica, incantesimo non noto.")]
         [SerializeField] private AudioClip _failClip;
@@ -52,8 +57,8 @@ namespace DarkDescent.Magic
         private readonly List<SpellDefinition> _dropped = new List<SpellDefinition>();
 
         // la pressione arriva da una callback dell'input, dove la UI risponde con il frame prima:
-        // si esegue nel primo Update, come il click del movimento
-        private bool _castPending;
+        // si esegue nel primo Update, come il click del movimento. -1 se non c'è niente
+        private int _skillPending = -1;
         private bool _portalPending;
 
         /// <summary>Un incantesimo è partito verso un punto del mondo: il mana è già speso.</summary>
@@ -67,9 +72,11 @@ namespace DarkDescent.Magic
 
         public SpellDefinition PortalSpell => _portalSpell;
 
+        public SpellDefinition AttackSpell => _attackSpell;
+
         public ManaPool Mana => _mana ??= new ManaPool(MaxMana());
 
-        public SpellBook Book => _book ??= new SpellBook();
+        public SpellBook Book => _book ??= CreateBook();
 
         public SpellCaster Caster => _caster ??= CreateCaster();
 
@@ -94,6 +101,13 @@ namespace DarkDescent.Magic
         public void SetTargeting(IAbilityTargeting targeting)
         {
             _targeting = targeting;
+        }
+
+        private SpellBook CreateBook()
+        {
+            var book = new SpellBook();
+            book.Learn(_attackSpell);
+            return book;
         }
 
         private SpellCaster CreateCaster()
@@ -161,13 +175,14 @@ namespace DarkDescent.Magic
             return Mana.Current >= _portalSpell.ManaCost ? PortalResult.Opened : PortalResult.NoMana;
         }
 
-        /// <summary>Sceglie il posto da lanciare (F1–F8 o un click sulla barra); false se è vuoto.</summary>
-        public bool Select(int slot) => Book.TrySelect(slot);
+        /// <summary>Mette un'abilità nota in una casella: il menu delle abilità. False se non ci può stare.</summary>
+        public bool Assign(int slot, SpellDefinition spell) => Book.Assign(slot, spell);
 
         /// <summary>
-        /// Mette nella barra un incantesimo fuori dall'albero e lo sceglie; false se c'era già. Dalla
-        /// M20 il Dardo e l'Anello di fuoco non sono del Guerriero: i test li danno con questo, come un
-        /// libro di prova (D3), finché il Mago della M21 non li riporta in un albero suo.
+        /// Dà un incantesimo fuori dall'albero e lo mette in una casella: la prima libera, o quella del
+        /// destro; false se era già noto. Dalla M20 il Dardo e l'Anello di fuoco non sono del Guerriero:
+        /// i test li danno con questo, come un libro di prova (D3), finché il Mago della M21 non li
+        /// riporta in un albero suo.
         /// </summary>
         public bool Learn(SpellDefinition spell)
         {
@@ -176,7 +191,10 @@ namespace DarkDescent.Magic
                 return false;
             }
 
-            Book.TrySelect(Book.SlotOf(spell));
+            if (Book.SlotOf(spell) < 0)
+            {
+                Book.Assign(SpellBook.Secondary, spell);
+            }
             if (_audio != null && _learnClip != null)
             {
                 _audio.PlayOneShot(_learnClip);
@@ -185,17 +203,22 @@ namespace DarkDescent.Magic
             return true;
         }
 
-        /// <summary>Lancia l'incantesimo scelto verso <paramref name="target"/>: il tasto destro, o un test.</summary>
-        public CastResult TryCastAt(Vector3 target)
+        /// <summary>Usa un'abilità verso <paramref name="target"/>, se è in una casella: i test.</summary>
+        public CastResult TryCastAt(SpellDefinition spell, Vector3 target) => TryCastAt(Book.SlotOf(spell), target);
+
+        /// <summary>
+        /// Usa l'abilità di una casella verso <paramref name="target"/>: il destro, Q, E, o un test. La
+        /// casella del sinistro non passa da qui: l'Attacco è il colpo del controller.
+        /// </summary>
+        public CastResult TryCastAt(int slot, Vector3 target)
         {
-            if (_health.IsDead)
+            if (_health.IsDead || slot <= SpellBook.Primary)
             {
                 return CastResult.NotKnown;
             }
 
             // un'abilità del Guerriero senza niente da colpire non spende il mana (M20)
-            int slot = Book.Selected;
-            var result = slot >= 0 ? Caster.Check(slot) : CastResult.NotKnown;
+            var result = Caster.Check(slot);
             if (result == CastResult.Ready && _targeting != null && Book[slot].IsWarriorAbility)
             {
                 result = _targeting.CanUse(Book[slot], target);
@@ -256,7 +279,7 @@ namespace DarkDescent.Magic
             }
 
             Unsubscribe();
-            _castPending = false;
+            _skillPending = -1;
             _portalPending = false;
         }
 
@@ -267,8 +290,7 @@ namespace DarkDescent.Magic
                 return;
             }
 
-            _reader.CastPressed += HandleCastPressed;
-            _reader.SpellSelected += HandleSpellSelected;
+            _reader.SkillPressed += HandleSkillPressed;
             _reader.PortalPressed += HandlePortalPressed;
             _subscribed = true;
         }
@@ -280,8 +302,7 @@ namespace DarkDescent.Magic
                 return;
             }
 
-            _reader.CastPressed -= HandleCastPressed;
-            _reader.SpellSelected -= HandleSpellSelected;
+            _reader.SkillPressed -= HandleSkillPressed;
             _reader.PortalPressed -= HandlePortalPressed;
             _subscribed = false;
         }
@@ -290,7 +311,7 @@ namespace DarkDescent.Magic
         {
             if (_health.IsDead)
             {
-                _castPending = false;
+                _skillPending = -1;
                 _portalPending = false;
                 return;
             }
@@ -305,38 +326,36 @@ namespace DarkDescent.Magic
                 TryCastPortal();
             }
 
-            if (_castPending)
+            if (_skillPending >= 0)
             {
-                _castPending = false;
-                bool overUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+                int slot = _skillPending;
+                _skillPending = -1;
+
+                // il destro sopra una finestra è un click della finestra; Q ed E valgono sempre
+                bool overUI = slot == SpellBook.Secondary && EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
                 if (!overUI && _controller != null)
                 {
                     // l'anello e la pelle di pietra partono dal cavaliere: il punto serve solo al dardo
                     if (_controller.TryGetCursorPoint(out Vector3 target))
                     {
-                        TryCastAt(target);
+                        TryCastAt(slot, target);
                     }
-                    else if (Book.SelectedSpell != null && Book.SelectedSpell.Kind != SpellKind.Projectile)
+                    else if (Book[slot] != null && Book[slot].Kind != SpellKind.Projectile)
                     {
-                        TryCastAt(transform.position);
+                        TryCastAt(slot, transform.position);
                     }
                 }
             }
         }
 
-        private void HandleCastPressed()
+        private void HandleSkillPressed(int slot)
         {
-            _castPending = true;
+            _skillPending = slot;
         }
 
         private void HandlePortalPressed()
         {
             _portalPending = true;
-        }
-
-        private void HandleSpellSelected(int slot)
-        {
-            Select(slot);
         }
 
         // salendo di livello il mana si riempie come la vita (D2): il massimo è già salito con la scheda
@@ -346,8 +365,9 @@ namespace DarkDescent.Magic
         }
 
         /// <summary>
-        /// La barra segue l'albero applicato: via le abilità tolte, dentro le nuove nei primi posti
-        /// liberi. Da spento non sente *Applica*: il salvataggio la chiama prima di rimettere i posti.
+        /// Le abilità note seguono l'albero applicato: via quelle tolte, dentro le nuove, nella prima
+        /// casella libera se c'è. Da spento non sente *Applica*: il salvataggio la chiama prima di
+        /// rimettere le caselle.
         /// </summary>
         public void SyncWithTree()
         {
@@ -372,7 +392,7 @@ namespace DarkDescent.Magic
                 Book.Forget(spell);
             }
 
-            // una già nella barra resta al suo posto
+            // una già nota resta dov'è, anche fuori dalle caselle
             foreach (var spell in abilities)
             {
                 _fromTree.Add(spell);

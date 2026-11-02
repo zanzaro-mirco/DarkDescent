@@ -6,9 +6,9 @@ using UnityEngine;
 namespace DarkDescent.Rendering
 {
     /// <summary>
-    /// Gira la camera attorno al cavaliere a scatti di 90° con Q ed E (D12 della M8). Cambia solo
-    /// l'orientamento: il Position Composer di Cinemachine porta la camera attorno al punto seguito
-    /// senza smorzamento. Chi dipende dai lati lontani (muri, automappa) ascolta gli eventi.
+    /// Gira la camera attorno al cavaliere a scatti di 90° con Z e X (D12 della M8; Q ed E fino al
+    /// 20.4b della M20, ora delle abilità). Cambia solo l'orientamento: il Position Composer di
+    /// Cinemachine porta la camera attorno al punto seguito senza smorzamento. Chi dipende dai lati lontani (muri, automappa) ascolta gli eventi.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CinemachineCamera))]

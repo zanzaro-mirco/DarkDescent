@@ -49,5 +49,11 @@ namespace DarkDescent.Magic
 
         /// <summary>Il turbine che dura mentre si cammina: Tempesta d'acciaio.</summary>
         Bladestorm,
+
+        /// <summary>
+        /// Il colpo dell'arma di sempre, nella casella del sinistro (D18 della M20): non si lancia, lo
+        /// usa il click su un nemico. Senza mana e senza ricarica.
+        /// </summary>
+        Attack,
     }
 }

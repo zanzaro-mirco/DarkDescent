@@ -103,112 +103,127 @@ namespace DarkDescent.Tests
             Assert.IsFalse(string.IsNullOrEmpty(firebolt.Id));
         }
 
-        [Test, Description("La barra (D9 della M20): otto posti vuoti; un'abilità imparata va nel primo libero e la prima è scelta; una seconda volta no; si sceglie solo un posto pieno; piena, non entra più niente")]
+        [Test, Description("Il libro (D18 della M20): quattro caselle vuote; un'abilità che costa va nella prima casella libera dopo il sinistro, che vuole solo l'Attacco; una seconda volta no; piene le tre, resta nota ma fuori dalle caselle")]
         public void Book_LearnsIntoTheFirstFreeSlot()
         {
             var book = new SpellBook();
-            Assert.AreEqual((8, -1), (book.Count, book.Selected));
-            Assert.IsNull(book.SelectedSpell);
+            Assert.AreEqual(4, book.Count);
+            Assert.IsNull(book[0]);
 
-            int learned = -1;
+            int learned = -2;
             book.Learned += slot => learned = slot;
             Assert.IsTrue(book.Learn(Spell("Firebolt")));
-            Assert.AreEqual((0, 0), (learned, book.Selected));
+            Assert.AreEqual((1, Spell("Firebolt")), (learned, book[SpellBook.Secondary]), "il sinistro non è per chi costa mana");
             Assert.IsTrue(book.Learn(Spell("FireRing")));
-            Assert.AreEqual((1, 0), (learned, book.Selected), "la scelta resta");
-            Assert.IsFalse(book.Learn(Spell("FireRing")), "già nella barra");
-            Assert.IsFalse(book.TrySelect(2), "un posto vuoto");
-            Assert.IsTrue(book.TrySelect(1));
-            Assert.AreEqual(Spell("FireRing"), book.SelectedSpell);
-            CollectionAssert.AreEqual(new[] { Spell("Firebolt").Id, Spell("FireRing").Id }, book.KnownIds());
+            Assert.AreEqual(2, learned);
+            Assert.IsFalse(book.Learn(Spell("FireRing")), "già nota");
+            Assert.IsTrue(book.Learn(Spell("StoneSkin")));
+            Assert.AreEqual(3, learned);
+            CollectionAssert.AreEqual(new[] { Spell("Firebolt").Id, Spell("FireRing").Id, Spell("StoneSkin").Id }, book.KnownIds());
 
-            var others = AssetDatabase.FindAssets("t:SpellDefinition", new[] { "Assets/_Project/Data/Spells" })
+            var fourth = AssetDatabase.FindAssets("t:SpellDefinition", new[] { "Assets/_Project/Data/Spells" })
                 .Select(guid => AssetDatabase.LoadAssetAtPath<SpellDefinition>(AssetDatabase.GUIDToAssetPath(guid)))
-                .Where(spell => !book.Knows(spell)).Take(7).ToList();
-            Assert.AreEqual(7, others.Count);
-            for (int i = 0; i < 6; i++)
-            {
-                Assert.IsTrue(book.Learn(others[i]));
-            }
-
-            Assert.IsFalse(book.Learn(others[6]), "otto posti pieni");
+                .First(spell => !book.Knows(spell) && !SpellBook.IsPrimary(spell));
+            Assert.IsTrue(book.Learn(fourth));
+            Assert.AreEqual(-1, learned, "le tre caselle sono piene: nota ma fuori");
+            Assert.AreEqual(-1, book.SlotOf(fourth));
+            Assert.IsTrue(book.Knows(fourth));
         }
 
-        [Test, Description("Spostare: l'abilità va sull'altro posto e si scambia con quella che c'era, la scelta la segue; togliere: se era la scelta, si sceglie la prima che resta")]
-        public void Book_MovesAndForgets()
+        [Test, Description("Il sinistro vuole solo abilità senza mana e senza ricarica, le altre caselle solo quelle che costano: l'Attacco entra solo nel sinistro e il menu offre a ogni casella solo le sue")]
+        public void Book_PrimaryTakesOnlyTheAttack()
         {
-            // F1 il Dardo, F2 l'Anello, F3 la Pelle
+            var attack = Spell("Attack");
+            Assert.IsTrue(SpellBook.IsPrimary(attack));
+            Assert.IsFalse(SpellBook.IsPrimary(Spell("Firebolt")));
+            Assert.IsFalse(SpellBook.IsPrimary(Spell("Whirlwind")), "il Turbine ha mana e ricarica");
+
+            var book = new SpellBook(new[] { Spell("Firebolt"), attack, Spell("FireRing") });
+            Assert.AreEqual((attack, Spell("Firebolt"), Spell("FireRing")), (book[0], book[1], book[2]), "l'Attacco prende il sinistro anche arrivato dopo");
+            CollectionAssert.AreEqual(new[] { attack }, book.Choices(SpellBook.Primary));
+            CollectionAssert.AreEqual(new[] { Spell("Firebolt"), Spell("FireRing") }, book.Choices(2));
+
+            Assert.IsFalse(book.Assign(SpellBook.Primary, Spell("Firebolt")), "chi costa non va nel sinistro");
+            Assert.IsFalse(book.Assign(2, attack), "l'Attacco non va negli altri");
+            Assert.IsFalse(book.Assign(1, Spell("StoneSkin")), "non nota");
+            Assert.IsFalse(book.Assign(4, Spell("Firebolt")), "la quinta casella non c'è");
+        }
+
+        [Test, Description("Assegnare: l'abilità va sull'altra casella e si scambia con quella che c'era; togliere: la casella resta vuota e l'abilità torna nel primo posto libero")]
+        public void Book_AssignsAndForgets()
+        {
+            // destro il Dardo, Q l'Anello, E la Pelle
             var book = new SpellBook(AllSpells());
             int rearranged = 0;
             book.Rearranged += () => rearranged++;
-            Assert.IsTrue(book.Move(0, 5));
-            Assert.AreEqual((5, Spell("Firebolt")), (book.Selected, book.SelectedSpell));
-            Assert.IsNull(book[0]);
-            Assert.IsTrue(book.Move(1, 5), "lo scambio");
-            Assert.AreEqual((Spell("Firebolt"), Spell("FireRing")), (book[1], book[5]));
-            Assert.AreEqual(1, book.Selected, "la scelta segue il Dardo");
-            Assert.IsFalse(book.Move(0, 3), "da un posto vuoto");
-            Assert.AreEqual(2, rearranged);
+            Assert.IsTrue(book.Assign(3, Spell("Firebolt")), "lo scambio con la Pelle");
+            Assert.AreEqual((Spell("StoneSkin"), Spell("FireRing"), Spell("Firebolt")), (book[1], book[2], book[3]));
+            Assert.IsTrue(book.Assign(3, Spell("Firebolt")), "già lì: niente da fare");
+            Assert.AreEqual(1, rearranged);
 
-            Assert.IsTrue(book.Forget(Spell("Firebolt")));
-            Assert.IsFalse(book.Knows(Spell("Firebolt")));
-            Assert.AreEqual(2, book.Selected, "tolto lo scelto, il primo che resta: la Pelle in F3");
-            Assert.IsFalse(book.Forget(Spell("Firebolt")), "non c'è più");
-            Assert.IsTrue(book.Learn(Spell("Firebolt")));
-            Assert.AreEqual(0, book.SlotOf(Spell("Firebolt")), "torna nel primo posto libero");
+            Assert.IsTrue(book.Forget(Spell("StoneSkin")));
+            Assert.IsFalse(book.Knows(Spell("StoneSkin")));
+            Assert.IsNull(book[1]);
+            Assert.IsFalse(book.Forget(Spell("StoneSkin")), "non c'è più");
+            Assert.IsTrue(book.Learn(Spell("StoneSkin")));
+            Assert.AreEqual(1, book.SlotOf(Spell("StoneSkin")), "torna nel primo posto libero");
         }
 
-        [Test, Description("Dal salvataggio: la barra posto per posto, vuoti compresi; rimessa su un libro che ha le stesse abilità in un altro ordine, ognuna torna al suo posto, gli id che non ci sono si ignorano; un posto scelto vuoto passa al primo pieno")]
+        [Test, Description("Dal salvataggio: le quattro caselle posto per posto, vuote comprese; gli id che non ci sono si ignorano; il sinistro vuoto riprende l'Attacco; la barra a otto posti del 20.3 si rimette per ordine")]
         public void Book_ArrangesFromSave()
         {
-            var book = new SpellBook(AllSpells());
-            book.Move(0, 4);
+            var attack = Spell("Attack");
+            var book = new SpellBook(new[] { attack, Spell("Firebolt"), Spell("FireRing"), Spell("StoneSkin") });
+            book.Assign(3, Spell("Firebolt"));
             var saved = book.Export();
-            Assert.AreEqual(8, saved.Count);
-            CollectionAssert.AreEqual(new[] { "", Spell("FireRing").Id, Spell("StoneSkin").Id, "", Spell("Firebolt").Id, "", "", "" }, saved);
+            CollectionAssert.AreEqual(new[] { attack.Id, Spell("StoneSkin").Id, Spell("FireRing").Id, Spell("Firebolt").Id }, saved);
 
             // come la mette l'albero: senza l'Anello, in un altro ordine
-            var again = new SpellBook(new[] { Spell("StoneSkin"), Spell("Firebolt") });
-            saved[7] = "sconosciuto";
-            again.Arrange(saved, 4);
-            Assert.AreEqual((Spell("StoneSkin"), Spell("Firebolt")), (again[2], again[4]));
-            Assert.AreEqual(2, again.KnownIds().Count);
-            Assert.AreEqual(4, again.Selected);
+            var again = new SpellBook(new[] { Spell("StoneSkin"), Spell("Firebolt"), attack });
+            saved[2] = "sconosciuto";
+            again.Arrange(saved);
+            Assert.AreEqual((attack, Spell("StoneSkin"), (SpellDefinition)null, Spell("Firebolt")), (again[0], again[1], again[2], again[3]));
 
-            again.Arrange(new string[0], 7);
-            Assert.AreEqual(2, again.Selected, "F8 è vuoto: il primo pieno");
+            again.Arrange(new[] { "", "", "", "" });
+            Assert.AreEqual(attack, again[0], "il sinistro vuoto riprende l'Attacco");
+            Assert.IsNull(again[1]);
+
+            // il 20.3 aveva otto posti: contano l'ordine, non il posto
+            var legacy = new SpellBook(new[] { attack, Spell("FireRing"), Spell("Firebolt"), Spell("StoneSkin") });
+            legacy.Arrange(new[] { "", Spell("StoneSkin").Id, "", "", Spell("Firebolt").Id, "", Spell("FireRing").Id, "" });
+            Assert.AreEqual((attack, Spell("StoneSkin"), Spell("Firebolt"), Spell("FireRing")), (legacy[0], legacy[1], legacy[2], legacy[3]));
         }
 
-        [Test, Description("Il lancio: posto vuoto, senza mana o in ricarica non parte e non spende; pronto spende il costo e avvia la ricarica, che il tempo consuma; la ricarica è dell'abilità e la segue quando si sposta")]
+        [Test, Description("Il lancio: casella vuota, senza mana o in ricarica non parte e non spende; pronto spende il costo e avvia la ricarica, che il tempo consuma; la ricarica è dell'abilità e la segue quando si sposta")]
         public void Caster_ChecksKnownManaCooldown()
         {
             var book = new SpellBook(new[] { Spell("Firebolt") });
             var caster = new SpellCaster(book, new ManaPool(30f));
-            Assert.AreEqual(CastResult.NotKnown, caster.TryCast(1));
+            Assert.AreEqual(CastResult.NotKnown, caster.TryCast(2));
 
             book.Learn(Spell("FireRing"));
-            Assert.AreEqual(CastResult.Ready, caster.TryCast(1));
+            Assert.AreEqual(CastResult.Ready, caster.TryCast(2));
             Assert.AreEqual(15f, caster.Mana.Current);
-            Assert.AreEqual(1f, caster.CooldownFraction(1));
-            Assert.AreEqual(CastResult.Cooldown, caster.TryCast(1), "in ricarica");
+            Assert.AreEqual(1f, caster.CooldownFraction(2));
+            Assert.AreEqual(CastResult.Cooldown, caster.TryCast(2), "in ricarica");
             Assert.AreEqual(15f, caster.Mana.Current, "senza spendere");
 
-            book.Move(1, 6);
-            Assert.AreEqual((0f, 1f), (caster.CooldownFraction(1), caster.CooldownFraction(6)), "la ricarica va con l'Anello");
-            Assert.AreEqual(CastResult.Cooldown, caster.Check(6));
+            book.Assign(3, Spell("FireRing"));
+            Assert.AreEqual((0f, 1f), (caster.CooldownFraction(2), caster.CooldownFraction(3)), "la ricarica va con l'Anello");
+            Assert.AreEqual(CastResult.Cooldown, caster.Check(3));
 
             caster.Advance(1.5f);
-            Assert.AreEqual(0.5f, caster.CooldownFraction(6), 0.0001f);
+            Assert.AreEqual(0.5f, caster.CooldownFraction(3), 0.0001f);
             caster.Advance(1.5f);
-            Assert.AreEqual(CastResult.Ready, caster.Check(6));
+            Assert.AreEqual(CastResult.Ready, caster.Check(3));
 
-            Assert.AreEqual(CastResult.Ready, caster.TryCast(0));
-            Assert.AreEqual(CastResult.Cooldown, caster.TryCast(0), "anche il Dardo ha una ricarica breve");
+            Assert.AreEqual(CastResult.Ready, caster.TryCast(1));
+            Assert.AreEqual(CastResult.Cooldown, caster.TryCast(1), "anche il Dardo ha una ricarica breve");
             caster.Advance(0.8f);
-            Assert.AreEqual(CastResult.Ready, caster.TryCast(0));
+            Assert.AreEqual(CastResult.Ready, caster.TryCast(1));
             caster.Advance(0.8f);
             Assert.AreEqual(3f, caster.Mana.Current);
-            Assert.AreEqual(CastResult.NoMana, caster.TryCast(0), "3 di mana non bastano per 6");
+            Assert.AreEqual(CastResult.NoMana, caster.TryCast(1), "3 di mana non bastano per 6");
         }
     }
 }

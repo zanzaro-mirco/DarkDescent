@@ -24,11 +24,23 @@ namespace DarkDescent.Editor
         public const string PanelFrame = "panel_frame";
         public const string ButtonPlate = "button_plate";
 
+        // la console in basso (D18 della M20): pietra che si ripete, cornice a nove parti, due caselle
+        public const string HudBack = "hud_back";
+        public const string HudFrame = "hud_frame";
+        public const string SkillFrame = "skill_frame";
+        public const string PotionFrame = "potion_frame";
+
         /// <summary>Il bordo delle nove parti della cornice: l'angolo tenuto da <c>nine_slice</c> in <c>images/ui.py</c>.</summary>
         public const int FrameBorder = 76;
 
         /// <summary>Il bordo della placca dei pulsanti, come in <c>uiparts.py</c>.</summary>
         public const int PlateBorder = 6;
+
+        /// <summary>Il bordo della cornice della console: <c>nineslice 84</c> in <c>images/hud.py</c>.</summary>
+        public const int HudBorder = 84;
+
+        /// <summary>Il bordo della casella delle abilità: serve all'anello acceso, che è la stessa cornice a nove parti senza il centro.</summary>
+        public const int SkillBorder = 40;
 
         private void OnPreprocessTexture()
         {
@@ -47,7 +59,7 @@ namespace DarkDescent.Editor
             importer.maxTextureSize = background ? 2048 : 512;
             importer.textureCompression = TextureImporterCompression.Compressed;
             importer.spritePixelsPerUnit = 100f;
-            importer.wrapMode = name == PanelBack ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
+            importer.wrapMode = name == PanelBack || name == HudBack ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
             importer.filterMode = FilterMode.Bilinear;
 
             // nove parti e ripetizione vogliono la mesh piena
@@ -56,7 +68,7 @@ namespace DarkDescent.Editor
             settings.spriteMeshType = SpriteMeshType.FullRect;
             importer.SetTextureSettings(settings);
 
-            int border = name == PanelFrame ? FrameBorder : name == ButtonPlate ? PlateBorder : 0;
+            int border = name == PanelFrame ? FrameBorder : name == HudFrame ? HudBorder : name == SkillFrame ? SkillBorder : name == ButtonPlate ? PlateBorder : 0;
             importer.spriteBorder = new Vector4(border, border, border, border);
         }
     }

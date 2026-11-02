@@ -24,34 +24,34 @@ namespace DarkDescent.Tests
 
         private static string Fixture(string name) => AssetDatabase.LoadAssetAtPath<TextAsset>($"Assets/_Project/Tests/EditMode/Fixtures/{name}.json").text;
 
-        [UnityTest, Description("La barra segue l'albero (D9 della M20): la radice nel primo posto; con Armi applicata il Turbine entra nel primo posto libero; spostato, ci resta a ogni Applica; l'altare lo toglie e lascia il Colpo possente")]
+        [UnityTest, Description("Le caselle seguono l'albero (D9 e D18 della M20): l'Attacco nel sinistro e la radice nel destro; con Armi applicata il Turbine entra nella prima casella libera; spostato, ci resta a ogni Applica; l'altare lo toglie e lascia il Colpo possente")]
         public IEnumerator Bar_FollowsTheTree()
         {
             yield return LoadGeneratedCore();
             var progress = Player.GetComponent<PlayerProgress>().Progress;
             var build = Player.GetComponent<PlayerTalents>().Build;
             var book = Player.GetComponent<PlayerMagic>().Book;
-            CollectionAssert.AreEqual(new[] { Spell("PowerStrike").Id }, book.KnownIds(), "solo la radice: niente Dardo, niente Anello");
-            Assert.AreEqual(0, book.Selected);
+            CollectionAssert.AreEqual(new[] { Spell("Attack").Id, Spell("PowerStrike").Id }, book.KnownIds(), "l'Attacco e la radice: niente Dardo, niente Anello");
+            Assert.AreEqual((Spell("Attack"), Spell("PowerStrike")), (book[0], book[1]));
 
             progress.Restore(12, 0, 0);
             Assert.IsTrue(build.TryChoose(build.Specializations[1]));
             Assert.IsFalse(book.Knows(Spell("Whirlwind")), "in attesa non cambia niente");
             build.Apply();
-            Assert.AreEqual(1, book.SlotOf(Spell("Whirlwind")));
+            Assert.AreEqual(2, book.SlotOf(Spell("Whirlwind")));
 
-            Assert.IsTrue(book.Move(1, 5));
+            Assert.IsTrue(book.Assign(3, Spell("Whirlwind")));
             Assert.IsTrue(build.TryAdd(build.ClassTree, build.ClassTree.Find("toughness")));
             build.Apply();
-            Assert.AreEqual(5, book.SlotOf(Spell("Whirlwind")), "un altro Applica non lo sposta");
+            Assert.AreEqual(3, book.SlotOf(Spell("Whirlwind")), "un altro Applica non lo sposta");
 
             build.Reset();
             Assert.IsFalse(book.Knows(Spell("Whirlwind")));
-            Assert.AreEqual(0, book.SlotOf(Spell("PowerStrike")));
-            Assert.AreEqual(1, book.KnownIds().Count);
+            Assert.AreEqual(1, book.SlotOf(Spell("PowerStrike")));
+            Assert.AreEqual(2, book.KnownIds().Count, "l'Attacco resta");
         }
 
-        [UnityTest, Description("Il salvataggio del formato 8 (il campione save_v8) rimette l'albero con Armi e la barra posto per posto: il Turbine in F1, il Colpo possente in F2 e scelto")]
+        [UnityTest, Description("Il salvataggio del formato 8 (il campione save_v8) rimette l'albero con Armi e la barra a otto posti messa nelle quattro caselle: l'Attacco a sinistra, il Turbine nel destro, il Colpo possente in Q")]
         public IEnumerator SaveEight_RestoresTreeAndBar()
         {
             yield return LoadGeneratedCore();
@@ -64,9 +64,8 @@ namespace DarkDescent.Tests
 
             Assert.AreEqual("warrior.arms", build.AppliedSpecialization.Id);
             Assert.AreEqual(3, build.AppliedRank(build.ClassTree, build.ClassTree.Find("toughness")));
-            Assert.AreEqual((Spell("Whirlwind"), Spell("PowerStrike")), (book[0], book[1]));
-            Assert.AreEqual(1, book.Selected);
-            CollectionAssert.AreEqual(data.Bar, book.Export(), "ricatturata, la barra è la stessa");
+            Assert.AreEqual((Spell("Attack"), Spell("Whirlwind"), Spell("PowerStrike")), (book[0], book[1], book[2]));
+            Assert.AreEqual(4, book.Export().Count, "ricatturata, la barra è a quattro posti");
         }
 
         [UnityTest, Description("Il salvataggio rimette la barra anche con la magia spenta, come in pausa: riaccesa, i posti restano quelli salvati")]
@@ -80,8 +79,7 @@ namespace DarkDescent.Tests
             magic.enabled = true;
             yield return null;
 
-            Assert.AreEqual((Spell("Whirlwind"), Spell("PowerStrike")), (magic.Book[0], magic.Book[1]));
-            Assert.AreEqual(1, magic.Book.Selected);
+            Assert.AreEqual((Spell("Attack"), Spell("Whirlwind"), Spell("PowerStrike")), (magic.Book[0], magic.Book[1], magic.Book[2]));
         }
 
         [UnityTest, Description("Una pergamena nello zaino di un salvataggio vecchio (formato 4) diventa oro al caricamento, al prezzo del mercante, e non insegna niente (D4 della M20)")]
