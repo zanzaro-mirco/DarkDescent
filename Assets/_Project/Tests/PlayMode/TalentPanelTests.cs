@@ -193,7 +193,7 @@ namespace DarkDescent.Tests
 
             ClassNode("strong_arm").Hover();
             Assert.IsTrue(Panel.IsTooltipShown);
-            foreach (string part in new[] { "Strong Arm", "Passive", "Rank 0/3", "+3% damage" })
+            foreach (string part in new[] { "Strong Arm", "Passive", "Rank 0/3", "+2% damage" })
             {
                 StringAssert.Contains(part, Panel.TooltipText);
             }
@@ -201,7 +201,7 @@ namespace DarkDescent.Tests
             ClassNode("strong_arm").Click();
             StringAssert.Contains("Rank 1/3", Panel.TooltipText, "il tooltip si aggiorna col click");
             StringAssert.Contains("Next rank:", Panel.TooltipText);
-            StringAssert.Contains("+6% damage", Panel.TooltipText);
+            StringAssert.Contains("+4% damage", Panel.TooltipText);
 
             ClassNode("power_strike").Hover();
             foreach (string part in new[] { "Power Strike", "Active ability", "A heavy blow with your weapon.", "4 mana" })
@@ -218,7 +218,7 @@ namespace DarkDescent.Tests
             {
                 ClassNode("strong_arm").Hover();
                 StringAssert.Contains("Braccio forte", Panel.TooltipText);
-                StringAssert.Contains("+3% di danno", Panel.TooltipText);
+                StringAssert.Contains("+2% di danno", Panel.TooltipText);
                 Assert.AreEqual("Punti da spendere: 3", Panel.AreaPoints(false));
             }
             finally

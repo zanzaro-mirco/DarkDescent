@@ -10,6 +10,7 @@ using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
+using DarkDescent.Talents;
 using UnityEditor;
 using UnityEngine;
 
@@ -35,6 +36,8 @@ namespace DarkDescent.Editor
 
         /// <summary>Dall'Abisso I, con quasi un raro ogni cinque oggetti, l'equipaggiamento è raro.</summary>
         public const int FirstRareTier = 3;
+
+        public const string TalentsFolder = "Assets/_Project/Data/Talents";
 
         private const string ProgressionPath = "Assets/_Project/Data/Progression/Progression.asset";
         private const string MerchantPath = "Assets/_Project/Data/Loot/MerchantTable.asset";
@@ -90,6 +93,16 @@ namespace DarkDescent.Editor
         }
 
         public ProgressionSettings Settings => _settings;
+
+        /// <summary>
+        /// La specializzazione dell'albero di riferimento che il cavaliere ha speso (D14 della M20):
+        /// <c>WarriorArms</c> di partenza, <c>WarriorDefense</c> per il confronto, null per il cavaliere
+        /// senza albero. Solo i passivi di una scheda contano: le abilità attive non entrano nei colpi.
+        /// </summary>
+        public TalentTree Reference { get; set; } = LoadTree("WarriorArms");
+
+        /// <summary>Un albero del Guerriero dai dati (<c>Warrior</c>, <c>WarriorArms</c>, <c>WarriorDefense</c>).</summary>
+        public static TalentTree LoadTree(string name) => Load<TalentTree>($"{TalentsFolder}/{name}.asset");
 
         /// <summary>Una profondità di una difficoltà, con il cavaliere che ci arriva.</summary>
         public sealed class Row
@@ -207,7 +220,7 @@ namespace DarkDescent.Editor
             double n = _gearSeeds.Count;
             foreach (ulong gearSeed in _gearSeeds)
             {
-                var sheet = HeroSheet(heroLevel);
+                var sheet = HeroSheet(heroLevel, true);
                 var equipment = new Equipment(sheet);
                 HeroSetup.Equip(equipment, _stock, _generator, row.ItemLevel, gearSeed, row.Gear);
                 var hero = PowerCensus.Hero(sheet, equipment);
@@ -303,7 +316,7 @@ namespace DarkDescent.Editor
         }
 
         // il cavaliere al livello dato, con gli attributi del prefab e i punti spesi
-        private StatSheet HeroSheet(int heroLevel)
+        private StatSheet HeroSheet(int heroLevel, bool talents = false)
         {
             var sheet = new StatSheet();
             sheet.SetBase(StatType.Strength, _player.Strength);
@@ -311,6 +324,19 @@ namespace DarkDescent.Editor
             sheet.SetBase(StatType.Magic, _player.Magic);
             sheet.SetBase(StatType.Vitality, _player.Vitality);
             HeroSetup.RaiseTo(new CharacterProgress(_settings, sheet), heroLevel);
+            if (talents && Reference != null)
+            {
+                // il cavaliere della misura porta lo scudo: valgono i passivi sempre e quelli con lo scudo
+                var build = new TalentBuild(LoadTree("Warrior"), new[] { LoadTree("WarriorDefense"), LoadTree("WarriorArms") }, heroLevel);
+                HeroSetup.SpendTalents(build, Reference);
+                var modifiers = new List<StatModifier>();
+                build.CollectModifiers(modifiers, this, c => c == TalentCondition.None || c == TalentCondition.Shield);
+                foreach (var modifier in modifiers)
+                {
+                    sheet.AddModifier(modifier);
+                }
+            }
+
             return sheet;
         }
 

@@ -912,3 +912,45 @@ Formato:
 - **Decisione:** il tileset sa qual è il simbolo della strada (`LevelTileset.Road`). `LevelMap.CarriesRoad` dice quando un oggetto sta in mezzo alla strada, cioè ha la strada su due lati opposti, e `LevelBuilder` mette lì il pezzo di strada al posto del pavimento. La strada è di sampietrini, una texture nuova di `Tools/Textures/ground.py`; la terra resta per le tombe scavate e la bocca della grotta. Il fuoco è sul prato accanto alla strada, la panca è fuori, e due carriole cariche (`c`, `t`) stanno sul bordo destro. Il cavaliere della vittoria passa sotto l'arco e segue la strada.
 - **Alternative scartate:** un pezzo di strada dentro ogni prefab che può stare sulla strada, come la guaritrice, da rifare per ogni oggetto nuovo; un simbolo doppio nella mappa, che il formato non ha; un carro scaricato, che vuole un download, quando le carriole KayKit ci sono già.
 - **Conseguenze:** un oggetto nuovo sulla strada non la interrompe. Un test dice che la strada è tutta collegata e che sopra ci stanno solo l'arco, la partenza e le carriole. Il saluto all'arrivo arriva fino a 18 m, perché il fuoco ora è più lontano dalla partenza.
+
+## ADR-128 — L'albero delle abilità è un dato, e la logica sta in `Core`
+- **Data:** 2026-11-02 (passo 20.2)
+- **Contesto:** il Guerriero perde Dardo e Anello e prende un albero alla WoW: tre alberi (classe, Difesa, Armi) con nodi, gradi, collegamenti, righe che si aprono coi punti, nodi a scelta e un *Applica* che rende veri i punti spesi. Le classi dopo (Mago, M21) avranno i loro.
+- **Decisione:** un albero è un asset (`TalentTree`, in `Data/Talents`) fatto di nodi (`TalentNode`: id, posto, gradi, collegamenti, opzioni) e di effetti dichiarativi (`TalentEffect`: una statistica, un numero di un'abilità, qualcosa che scatta al colpo, al blocco o all'uccisione). La logica (cosa si può prendere, punti, righe, *Applica*, *Annulla*, riassegnazione) è in `TalentBuild`, in `Core`, con due stati, quello da applicare e quello applicato. `PlayerTalents` mette i passivi applicati sulla `StatSheet` con sé come sorgente e li toglie insieme a ogni *Applica*. Gli alberi si costruiscono da `TalentTools.BuildWarrior`, che è la fonte dei numeri. I punti non si salvano: vengono dal livello (`TalentPoints`), e il salvataggio 8 scrive solo quello che si è preso.
+- **Alternative scartate:** codice per ogni nodo, da rifare per ogni classe; i punti salvati a parte, che dopo un cambio di regole non tornerebbero; gli effetti come stringhe da interpretare.
+- **Conseguenze:** un valore ritarato cambia tutto insieme (effetto, frase del tooltip e misura delle difficoltà); un albero nuovo è dati più una scheda. Gli stessi dati servono alla misura (ADR-132).
+
+## ADR-129 — Quattro caselle alla Diablo 3, e l'Attacco è l'abilità del tasto sinistro
+- **Data:** 2026-11-02 (passo 20.4b, richiesta di Mirco dopo il 20.4)
+- **Contesto:** la barra a otto posti F1–F8 con un'abilità scelta e il destro che lancia non si leggeva con un albero: un'abilità presa andava in un posto e il tasto per sceglierla era un altro.
+- **Decisione:** `SpellBook` ha quattro caselle, ognuna un tasto: il sinistro (sul pavimento cammina, su un nemico usa l'abilità principale), il destro, `Q` ed `E`. Nel sinistro stanno solo abilità senza mana e senza ricarica: per ora l'**Attacco**, il colpo dell'arma di sempre. Un click su una casella apre l'elenco di quelle che ci stanno, `K` le quattro righe. La camera gira con `Z` e `X`. Il salvataggio resta l'8: la barra ha quattro posti e le partite a otto si riordinano.
+- **Alternative scartate:** tenere F1–F8 con l'albero a parte; sei posti; il sinistro anche con le abilità a mana.
+- **Conseguenze:** il gioco si fa con la mano sul mouse, come chiedeva Mirco; i tasti `Q` ed `E` non girano più la camera; ogni abilità nuova vuole una regola sulla casella in cui entra.
+
+## ADR-130 — L'arma a due mani prende anche il posto dello scudo
+- **Data:** 2026-11-03 (passo 20.5)
+- **Contesto:** la specializzazione *Armi* sarebbe stata una *Difesa* senza scudo, se non avesse avuto armi sue.
+- **Decisione:** lo spadone e l'ascia a due mani (modelli di *Adventurers*, clip `Melee_2H_*`) occupano lo slot dell'arma e quello dello scudo. `Equipment.Blocking` dice chi sta in mezzo: lo scudo va in borsa, e senza posto l'arma non si indossa; rimettendo lo scudo l'arma torna in borsa. La condizione `TwoHanded` dei passivi (Presa a due mani) si rilegge a ogni cambio. **La misura delle difficoltà resta quella di una mano e scudo**: `HeroSetup` non prende le armi a due mani.
+- **Alternative scartate:** armi a due mani senza regola dello slot; la specializzazione con le armi a una mano.
+- **Conseguenze:** il bilancio non si sposta con le armi nuove; un'arma a due mani a pieno ritmo si prova a mano.
+
+## ADR-131 — Le frasi dei talenti le fa il codice, dai numeri
+- **Data:** 2026-11-03 (passo 20.6)
+- **Contesto:** quarantacinque nodi e oltre cinquanta opzioni da descrivere in due lingue, con numeri che nelle ritarature cambiano (ADR-132).
+- **Decisione:** `TalentDescriber` compone il testo di un effetto da una frase per tipo (`talent.stat.<Stat>`, `talent.when.<Condizione>`, `talent.param.<Parametro>`, `talent.trigger.<Scatto>.<Esito>`) e dai numeri dell'effetto per grado. Nella tabella delle stringhe stanno solo le frasi, i nomi dei nodi e le descrizioni delle undici abilità attive.
+- **Alternative scartate:** una descrizione scritta a mano per nodo, che dopo una ritaratura dice il numero sbagliato.
+- **Conseguenze:** un valore ritarato cambia anche il tooltip. `TalentTextTests` controlla ogni nodo nelle due lingue e che le frasi seguano i numeri (nella M20 hanno fatto accorgere subito del cambio di Braccio forte).
+
+## ADR-132 — La misura delle difficoltà prende il cavaliere con l'albero di riferimento, e si ritarano i numeri dell'albero
+- **Data:** 2026-11-03 (passo 20.8, D14)
+- **Contesto:** le bande della M14 (colpi per uccidere, colpi retti, colpi subiti) tengono le difficoltà. Un albero che rende il cavaliere più forte le avrebbe rotte, e la ronda notturna avrebbe aperto una issue ogni mattina.
+- **Decisione:** `HeroSetup.SpendTalents` spende i punti del livello in un albero di riferimento, sempre allo stesso modo (la specializzazione *Armi*; *Difesa* per il confronto), e `DifficultyCensus` ne mette i passivi sulla scheda del cavaliere, che porta lo scudo: valgono i passivi sempre accesi e quelli con lo scudo. Il danno del critico entra nella misura (`CensusFighter.CritDamage`), che prima lo ignorava. Quando le fasce sono uscite dalla tolleranza del 5% si sono ritarati i numeri di nove nodi dell'albero, non le difficoltà; il lato corto delle fasce dei colpi per uccidere perde il 5%.
+- **Alternative scartate:** ritarare le difficoltà (rifare la M14 e la ronda); lasciare l'albero fuori dalla misura, con un cavaliere che nel gioco è più forte di quello misurato; abbassare il minimo del colpo subito, che una *Difesa* piena rompe a fine gioco (resta una decisione di Mirco).
+- **Conseguenze:** un passivo ritarato si vede subito nelle fasce, e la ronda lo guarda con i semi della notte. L'albero ha meno margine di quanto il disegno prometteva, soprattutto per il blocco e l'armatura: a fine gioco il cavaliere è già vicino al minimo del colpo subito. Il gradino dell'Abisso I all'Abisso II alla profondità 1 è al −4,0% contro il limite del −5%.
+
+## ADR-133 — Le icone dei talenti: una per tipo di passivo, con il seme scelto e l'import nello strumento
+- **Data:** 2026-11-03 (passo 20.7)
+- **Contesto:** quarantacinque nodi non vogliono quarantacinque icone: i passivi di un tipo (il danno, la vita, il critico…) si somigliano. Mirco ha lasciato la scelta dei semi a Claude, dopo aver visto i fogli di confronto.
+- **Decisione:** 44 icone Z-Image-Turbo da 256 × 256, nello stile di Diablo III: undici abilità attive e trentatré tipi di passivo, con le ricette in `Tools/ComfyUI/images/talents.py` (tre semi provati per icona, quello scelto resta nella ricetta). Le assegna `TalentIconTools.Apply`, che `TalentTools.BuildWarrior` richiama alla fine, così un albero rifatto non le perde; nel nodo del pannello l'icona sta dentro la placca, che la ritaglia con una `Mask`. I nodi a scelta hanno il nome finché non si sceglie un'opzione.
+- **Alternative scartate:** un pacchetto CC0, con uno stile suo e un download; i render dei modelli 3D, che somigliano meno alle icone dipinte; un'icona per ogni nodo.
+- **Conseguenze:** un talento nuovo di un tipo che c'è già non vuole un'immagine, uno di un tipo nuovo sì (una riga in `talents.py` e in `TalentIconTools.Passives`). `TalentIconTests` dice che la tabella copre ogni talento e che nella cartella ci sono tutte e solo le icone usate. Il prompt resta l'unica cosa da tenere d'occhio: i modelli ogni tanto disegnano lettere, e una di tre prove si è scartata per questo.

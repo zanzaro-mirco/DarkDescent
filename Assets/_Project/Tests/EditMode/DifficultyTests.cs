@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
 using DarkDescent.Items;
 using DarkDescent.Localization;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
+using DarkDescent.Talents;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -315,6 +317,31 @@ namespace DarkDescent.Tests
             Assert.AreEqual(62f, sheet.GetBase(StatType.Strength));
             Assert.AreEqual(62f, sheet.GetBase(StatType.Vitality));
             Assert.AreEqual(31f, sheet.GetBase(StatType.Dexterity));
+        }
+
+        [Test, Description("L'albero di riferimento della misura: al livello 12 spende tutti i punti, classe e specializzazione, sempre allo stesso modo; al livello 1 non spende niente")]
+        public void HeroSetup_SpendsTheReferenceTree()
+        {
+            TalentTree Load(string name) => AssetDatabase.LoadAssetAtPath<TalentTree>($"Assets/_Project/Data/Talents/{name}.asset");
+            var warrior = Load("Warrior");
+            var arms = Load("WarriorArms");
+            var specializations = new[] { Load("WarriorDefense"), arms };
+
+            var first = new TalentBuild(warrior, specializations, 12);
+            HeroSetup.SpendTalents(first, arms);
+            Assert.AreEqual(arms, first.AppliedSpecialization);
+            Assert.AreEqual(0, first.UnspentPoints, "tutti i punti spesi");
+            Assert.AreEqual(TalentPoints.ForClass(12), first.Spent(warrior));
+            Assert.AreEqual(TalentPoints.ForSpecialization(12), first.Spent(arms));
+            Assert.IsFalse(first.HasChanges, "applicato");
+
+            var second = new TalentBuild(warrior, specializations, 12);
+            HeroSetup.SpendTalents(second, arms);
+            CollectionAssert.AreEqual(first.Export().Select(r => (r.Tree, r.Node, r.Rank, r.Option)), second.Export().Select(r => (r.Tree, r.Node, r.Rank, r.Option)), "sempre lo stesso");
+
+            var none = new TalentBuild(warrior, specializations, 1);
+            HeroSetup.SpendTalents(none, arms);
+            Assert.IsFalse(none.HasApplied);
         }
     }
 }

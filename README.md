@@ -9,6 +9,23 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.8 — M20 "La via della spada"**, chiusa il 3 novembre 2026 (tag `v1.8.0`). Rispetto alla v1.7:
+
+- l'**albero delle abilità** del Guerriero, sul tasto `N`: la classe e, dal livello 10, la
+  specializzazione, *Difesa* con lo scudo o *Armi* con le armi a due mani; si guadagna un punto a ogni
+  livello dal 2, si prende un grado con il click sinistro e si toglie con il destro, e *Applica
+  modifiche* rende veri i punti. Quarantaquattro icone generate in locale con Z-Image-Turbo;
+- **undici abilità attive** con le animazioni, gli effetti e i suoni (Colpo possente, Carica, Pelle di
+  pietra, Grido di battaglia, Colpo di scudo, Muro di scudi, Ultimo baluardo, Turbine, Esecuzione, Salto,
+  Tempesta d'acciaio), che costano mana e si mettono nelle **quattro caselle** (sinistro, destro, `Q`,
+  `E`) della barra alla Diablo 3, con vita e mana in provette;
+- lo **spadone** e l'**ascia a due mani**, che occupano anche lo slot dello scudo;
+- all'**altare** si ricomincia l'albero per 30 oro a livello;
+- via le pergamene, il Dardo e l'Anello di fuoco (tornano con il Mago); le partite vecchie si
+  convertono, con i punti da spendere e le pergamene cambiate in oro;
+- la **misura delle difficoltà** prende il cavaliere con un albero di riferimento, e i numeri
+  dell'albero sono tarati perché le difficoltà restino quelle della v1.3.
+
 **v1.7 — M19 "L'ultima candela"**, chiusa il 1 novembre 2026 (tag `v1.7.0`). Rispetto alla v1.6:
 
 - l'**apertura**, *L'ultima candela*, a ogni *Nuova partita*: il borgo di notte con le candele che
@@ -195,7 +212,7 @@ Milestone precedenti:
 - click sinistro su fabbro, mercante o guaritrice per aprire il loro banco
 - click sinistro su un oggetto a terra per raccoglierlo, su una cassa per aprirla
 - `1`–`8` bevono la pozione in quel posto della cintura; click destro su una pozione,
-  nella cintura o nell'inventario, per berla, o su una pergamena per imparare l'incantesimo
+  nella cintura o nell'inventario, per berla
 - `T`, o un click sul posto a sinistra della cintura, lancia la **magia del portale** (10 di
   mana): apre un portale per il borgo. Non serve in città, e nella sala del re non funziona
   finché il re è vivo

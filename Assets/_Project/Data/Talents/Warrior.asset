@@ -45,7 +45,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 3
+        _perRank: 2
         _duration: 0
   - _id: charge
     _row: 1
@@ -172,7 +172,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 5
+        _perRank: 2
         _duration: 0
   - _id: discipline
     _row: 3
@@ -381,7 +381,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 5
+        _perRank: 3
         _duration: 0
       - _kind: 0
         _stat: 5
@@ -391,7 +391,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 5
+        _perRank: 3
         _duration: 0
   - _id: warlord
     _row: 6
@@ -458,7 +458,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 5
+        _perRank: 2
         _duration: 0
   _gates:
   - _row: 3

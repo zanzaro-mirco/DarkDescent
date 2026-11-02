@@ -3,14 +3,14 @@ namespace DarkDescent.Progression
     /// <summary>
     /// I numeri di chi combatte nella misura delle difficoltà (D10 della M14): vita, danno dell'arma
     /// con i suoi affissi, attributi che entrano nella formula del colpo, blocco e moltiplicatore del
-    /// danno; dalla M16 la velocità d'attacco e il danno ridotto. Una fotografia: non cambia dopo
+    /// danno; dalla M16 la velocità d'attacco e il danno ridotto; dalla M20 il danno del critico. Una fotografia: non cambia dopo
     /// essere stata presa.
     /// </summary>
     public readonly struct CensusFighter
     {
         public CensusFighter(float life, int minDamage, int maxDamage, float strength, float level, float dexterity,
             float armor, float toHit, float critBonus, bool canCrit, float block, float damageFactor,
-            float attackSpeed = 0f, float damageReduction = 0f, float lifeSteal = 0f)
+            float attackSpeed = 0f, float damageReduction = 0f, float lifeSteal = 0f, float critDamage = 0f)
         {
             Life = life;
             MinDamage = minDamage;
@@ -27,6 +27,7 @@ namespace DarkDescent.Progression
             AttackSpeed = attackSpeed;
             DamageReduction = damageReduction;
             LifeSteal = lifeSteal;
+            CritDamage = critDamage;
         }
 
         public float Life { get; }
@@ -65,5 +66,8 @@ namespace DarkDescent.Progression
 
         /// <summary>La parte del danno inflitto che torna in vita, in punti percentuali (D5 della M16).</summary>
         public float LifeSteal { get; }
+
+        /// <summary>I punti in più del moltiplicatore del critico, in centesimi (Punto debole, M20).</summary>
+        public float CritDamage { get; }
     }
 }

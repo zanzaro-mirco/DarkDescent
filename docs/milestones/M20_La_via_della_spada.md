@@ -416,6 +416,45 @@ ricette; i file stanno in `Art/Icons/Talents`.
   usate. EditMode 577/577, PlayMode 302 verdi e 2 saltati. Foto in `Recordings/Photos/icone_pannello` e
   `icone_barra`.
 
+## Passo 20.8 — Bilancio e chiusura (D14)
+
+**Com'è andata (3 nov 2026).** La misura delle difficoltà ora prende il cavaliere con l'**albero di
+riferimento**: `HeroSetup.SpendTalents` sceglie la specializzazione (*Armi*, e *Difesa* come confronto) e
+spende tutti i punti del livello sempre allo stesso modo, dall'alto, riga per riga e da sinistra, prima la
+classe e poi la specializzazione; `DifficultyCensus.Reference` dice quale (di partenza *Armi*, `null` per il
+cavaliere senza albero). Contano i passivi della scheda con lo scudo in mano; le abilità attive e i colpi
+rimandati no.
+
+- **La misura non vedeva il critico.** `PowerCensus` contava i punti di critico ma non il danno del critico
+  (Punto debole): `CensusFighter.CritDamage` ora ci entra, con `CritMultiplierFor` come nel gioco.
+- **I numeri dell'albero, non le difficoltà.** Con i numeri del disegno il cavaliere con *Armi* usciva dalle
+  fasce: il Crepuscolo alla profondità 8 cadeva in 3,79 colpi (fascia 4–14), l'Abisso II cominciava il 6%
+  più facile dell'Abisso I, e a fine gioco il bruto lo colpiva il 3–4% delle volte (almeno 5%). Si sono
+  ritarati i numeri di nove nodi (elenco in `M20_albero_Guerriero.md`): meno danno, meno critico e molta meno
+  armatura in percentuale. Con l'albero il bruto cade in al più il 20% di colpi
+  in meno che senza (la Tenebra alla profondità 1: 8,83 contro 10,98) e il cavaliere regge al più il 15% di colpi in più.
+- **La tolleranza.** Le fasce dei colpi per uccidere perdono il 5% sul lato corto (`CensusChecks.SwingsFloor`,
+  la stessa tolleranza dei gradini): il Crepuscolo alla profondità 8 cade in 3,90 colpi e l'Ombra alla
+  profondità 1 in 8,97. Le fasce del colpo subito (almeno il 5% dei colpi arriva) reggono senza tolleranza
+  con *Armi* (5,9% al minimo) e con *Difesa* (5,1%).
+- **Un margine sottile.** Il gradino Abisso I → Abisso II alla profondità 1 è al −4,0% (limite −5%; senza
+  albero era −3,4%). La ronda con i semi della notte oscilla del 3%: se un giorno cade lì, è il posto dove
+  guardare.
+- **La Difesa e il colpo subito.** A fine gioco il cavaliere senza albero è già vicino al minimo del colpo
+  subito (7%), quindi blocco e armatura in più lo portano sotto il 5% con poco: per questo l'Armatura del
+  custode vale +1% per grado e lo Scudo pesante +2 punti di blocco. Se un giorno si vuole una *Difesa* più
+  forte, prima si alza il minimo della fascia (una decisione di Mirco, non un numero dell'albero).
+
+**Test.** `HeroSetup_SpendsTheReferenceTree` (spende tutti i punti, sempre gli stessi, niente al livello 1),
+`ReferenceTree_Defense_StaysInTheBands` (le stesse fasce con la *Difesa*) e
+`ReferenceTree_StrengthensTheKnightALittle` (contro il cavaliere senza albero, al più il 22% in meno di colpi
+per uccidere e il 30% in più di colpi retti, in tutte e due le specializzazioni) in `DifficultyCensusTests`;
+le fasce di `CensusChecks` valgono anche per la ronda. Frasi di Braccio forte e Armatura del custode
+aggiornate in `TalentTextTests` e `TalentPanelTests`.
+
+**Chiusura.** ADR-128…133 in `DECISIONS.md`, le lezioni e la riga v2.71 nel piano, la v1.8 nel README,
+`bundleVersion` 1.8.0, le prove della M20 in `docs/Da_provare.md`.
+
 ## Fuori dai passi — I numeri del danno solo sui critici
 
 Richiesta di Mirco del 2 novembre, prima del 20.3: il numero del danno non esce più a ogni colpo, solo
@@ -436,8 +475,8 @@ faccia il numero e che il pool riusi i numeri dei critici.
 - [x] Le quattro caselle, il menu delle abilità e la grafica alla Diablo 3 (20.4b)
 - [x] Spadone e ascia a due mani nel loot e dal mercante (20.5)
 - [x] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6)
-- [ ] Icone approvate (20.7: fatto, foto da approvare)
-- [ ] Misura delle difficoltà con l'albero di riferimento dentro la tolleranza; ronda verde (20.8)
+- [x] Icone approvate (20.7)
+- [x] Misura delle difficoltà con l'albero di riferimento dentro la tolleranza (20.8); ronda verde: da leggere dopo la notte
 - [ ] EditMode e PlayMode verdi in locale e in CI
-- [ ] ADR, lezioni nel piano, README, prove da fare, `bundleVersion` 1.8.0
+- [x] ADR, lezioni nel piano, README, prove da fare, `bundleVersion` 1.8.0
 - [ ] Tag `v1.8.0` dopo i Tests verdi, build verde, peso dell'artefatto

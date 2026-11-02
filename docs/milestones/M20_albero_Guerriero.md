@@ -4,6 +4,12 @@ Il disegno del passo 20.1 della M20 "La via della spada" (`M20_La_via_della_spad
 da Mirco il 2 novembre 2026. È la fotografia del disegno: dal passo 20.2 la fonte dell'albero è
 `Editor/TalentTools.cs`, che costruisce gli asset.
 
+> **Ritarati al passo 20.8** (la misura delle difficoltà con l'albero dentro, D14). Il disegno qui sotto
+> resta com'era approvato; nei dati sono cambiati solo questi numeri: Braccio forte +2% (era 3),
+> Cotta robusta +2% armatura (5), Maestro d'armi +3% e +3 a colpire (5), Cuore di ferro +2% armatura (5),
+> Scudo pesante +2 punti di blocco (3), Armatura del custode +1% (6), Punto debole +5% (10), Occhio del
+> boia +0,5 punti di critico (3), Maestria delle armi +3% (4).
+
 ## Stili di gioco
 
 - **Il muro** (Difesa). Sta in mezzo allo sciame con lo scudo: blocca, stordisce con il Colpo di scudo, rimanda i colpi con la Rappresaglia, e con il Muro di scudi e l'Ultimo baluardo regge il re. Dalla classe prende Tempra, Cotta robusta, Pelle di pietra e Ultima difesa.

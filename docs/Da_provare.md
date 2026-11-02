@@ -4,10 +4,10 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 1 nov 2026, build della v1.7.0 da provare (l'artefatto della build del tag).
-Le prove della M18 restano valide.
+Ultimo aggiornamento: 3 nov 2026, build della v1.8.0 da provare (l'artefatto della build del tag).
+Le prove della M18 e della M19 restano valide.
 
-## Dalla M20 — "La via della spada" (v1.8.0, in corso)
+## Dalla M20 — "La via della spada" (v1.8.0)
 
 - **I numeri del danno**: compaiono solo sui colpi critici, arancio e con il punto esclamativo. I colpi
   normali si capiscono lo stesso dal lampo e dalla barra della vita? *Mancato*, *Bloccato* e
@@ -28,6 +28,13 @@ Le prove della M18 restano valide.
 - **Le armi a due mani** (passo 20.5): dal fabbro o da un forziere, uno spadone e un'ascia a due mani. Indossandoli lo scudo va nella borsa (e senza posto non succede niente); rimettendo lo scudo l'arma torna in borsa. Il gesto d'attacco si legge, e la lama arriva insieme al danno? Il Turbine con l'arma grande arriva un po' più in là?
 
 - **Il pannello delle abilità** (passo 20.6): `N` apre l'albero a tutto schermo: click sinistro prende un grado, destro lo toglie, *Applica modifiche* li rende veri e *Annulla* li butta. Dal livello 10 si sceglie la specializzazione dalle schede. Il tooltip si legge e dice cosa manca per aprire un nodo? Il nodo a scelta mostra le due opzioni? L'avviso «Abilità +N» accanto alla sfera del mana compare e sparisce quando serve? All'altare la voce «Riassegna le abilità» prende 30 oro per livello e riporta tutti i punti? Le icone dei nodi (20.7) dicono cosa fa il talento, o ce n'è qualcuna da cambiare? I nodi a scelta mostrano ancora il nome.
+
+- **Il bilancio con l'albero** (passo 20.8): la misura dice che con l'albero *Armi* il cavaliere è più
+  forte fino al 20% e che le difficoltà restano nelle fasce, ma la sensazione si prova giocando. Un
+  personaggio al 12, al 29 e al 40 con le abilità prese: le discese più alte sono ancora una sfida come
+  nella v1.7, o sono troppo facili (o troppo dure)? Con la *Difesa*, il blocco e l'armatura contano o
+  si sentono appena? I numeri di nove nodi sono stati abbassati rispetto al disegno approvato (elenco in
+  `docs/milestones/M20_albero_Guerriero.md`): c'è un talento che non si sente?
 
 ## Dalla M19 — "L'ultima candela" (v1.7.0)
 

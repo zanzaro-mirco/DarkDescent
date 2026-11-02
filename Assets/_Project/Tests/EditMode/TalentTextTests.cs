@@ -94,12 +94,12 @@ namespace DarkDescent.Tests
 
             string Describe(TalentTree tree, string id, int rank, int option = 0) => TalentDescriber.Describe(tree.Find(id).Options[option], rank, localizer);
 
-            Assert.AreEqual("+3% damage", Describe(warrior, "strong_arm", 1));
-            Assert.AreEqual("+9% damage", Describe(warrior, "strong_arm", 3));
+            Assert.AreEqual("+2% damage", Describe(warrior, "strong_arm", 1));
+            Assert.AreEqual("+6% damage", Describe(warrior, "strong_arm", 3));
             Assert.AreEqual("Charge: -2 s recharge", Describe(warrior, "momentum", 1));
             Assert.AreEqual("Charge: -4 s recharge", Describe(warrior, "momentum", 2));
             Assert.AreEqual("-30% damage taken (below 30% life)", Describe(warrior, "last_defense", 1));
-            Assert.AreEqual("+6% armor (with a shield)", Describe(defense, "guardian_armor", 1));
+            Assert.AreEqual("+1% armor (with a shield)", Describe(defense, "guardian_armor", 1));
             Assert.AreEqual("+15% damage (two-handed weapon)", Describe(arms, "two_handed_grip", 3));
             Assert.AreEqual("Every hit gives 2 mana", Describe(warrior, "discipline", 2));
             Assert.AreEqual("A blocked hit returns 50% of its damage to the attacker", Describe(defense, "retaliation", 2));
@@ -115,7 +115,7 @@ namespace DarkDescent.Tests
         {
             var localizer = new Localizer(Table, "it");
             var warrior = Tree("Warrior");
-            Assert.AreEqual("+3% di danno", TalentDescriber.Describe(warrior.Find("strong_arm").Options[0], 1, localizer));
+            Assert.AreEqual("+2% di danno", TalentDescriber.Describe(warrior.Find("strong_arm").Options[0], 1, localizer));
             Assert.AreEqual("Carica: -2 s di ricarica", TalentDescriber.Describe(warrior.Find("momentum").Options[0], 1, localizer));
             Assert.AreEqual("Braccio forte", localizer.Get("talent.strong_arm"));
             Assert.AreEqual("Guerriero", localizer.Get(warrior.NameKey));

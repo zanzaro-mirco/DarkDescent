@@ -45,7 +45,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 3
+        _perRank: 2
         _duration: 0
   - _id: shield_wall
     _row: 1
@@ -163,7 +163,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 6
+        _perRank: 1
         _duration: 0
   - _id: retaliation
     _row: 3

@@ -87,7 +87,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 10
+        _perRank: 5
         _duration: 0
   - _id: circular_motion
     _row: 2
@@ -163,7 +163,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 3
+        _perRank: 0.5
         _duration: 0
   - _id: slaughter
     _row: 3
@@ -298,7 +298,7 @@ MonoBehaviour:
         _param: 0
         _trigger: 0
         _outcome: 0
-        _perRank: 4
+        _perRank: 3
         _duration: 0
   - _id: bladestorm
     _row: 5

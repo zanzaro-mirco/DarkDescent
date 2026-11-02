@@ -94,14 +94,14 @@ namespace DarkDescent.Editor
         private static TalentNode[] ClassNodes(Dictionary<string, SpellDefinition> s) => new[]
         {
             Active("power_strike", 0, 3, s["PowerStrike"]),
-            Passive("strong_arm", 1, 1, 3, Links("power_strike"), Stat(StatType.DamageBonus, 3f)),
+            Passive("strong_arm", 1, 1, 3, Links("power_strike"), Stat(StatType.DamageBonus, 2f)),
             Active("charge", 1, 3, s["Charge"], Links("power_strike")),
             Passive("toughness", 1, 5, 3, Links("power_strike"), Stat(StatType.MaxLifePercent, 4f)),
             Passive("keen_eye", 2, 0, 3, Links("strong_arm"), Stat(StatType.CritChance, 2f)),
             Passive("steady_hand", 2, 2, 2, Links("strong_arm"), Stat(StatType.ToHit, 5f)),
             Passive("momentum", 2, 3, 2, Links("charge"), TalentEffect.ForAbility(s["Charge"], AbilityParam.Cooldown, -2f)),
             Active("stone_skin", 2, 4, s["StoneSkin"], Links("toughness")),
-            Passive("sturdy_mail", 2, 6, 3, Links("toughness"), Stat(StatType.Armor, 5f, ModifierKind.Percent)),
+            Passive("sturdy_mail", 2, 6, 3, Links("toughness"), Stat(StatType.Armor, 2f, ModifierKind.Percent)),
             Passive("discipline", 3, 1, 2, Links("keen_eye", "steady_hand"), TalentEffect.OnTrigger(TalentTrigger.Hit, TalentOutcome.Mana, 1f)),
             Active("battle_shout", 3, 3, s["BattleShout"], Links("steady_hand", "momentum", "stone_skin")),
             Passive("second_skin", 3, 5, 2, Links("stone_skin", "sturdy_mail"),
@@ -113,24 +113,24 @@ namespace DarkDescent.Editor
             Passive("last_defense", 4, 5, 1, Links("second_skin"), Stat(StatType.DamageResist, 30f, condition: TalentCondition.LowLife)),
             Passive("heavy_step", 5, 2, 2, Links("battle_instinct", "rousing_shout"), Stat(StatType.MoveSpeed, 5f)),
             Passive("recovery", 5, 4, 2, Links("rousing_shout", "last_defense"), Stat(StatType.PotionBonus, 15f)),
-            Passive("weapon_master", 6, 1, 2, Links("heavy_step"), Stat(StatType.DamageBonus, 5f), Stat(StatType.ToHit, 5f)),
+            Passive("weapon_master", 6, 1, 2, Links("heavy_step"), Stat(StatType.DamageBonus, 3f), Stat(StatType.ToHit, 3f)),
             Choice("warlord", 6, 3, Links("heavy_step", "recovery"),
                 Option("furious_charge", TalentEffect.ForAbility(s["Charge"], AbilityParam.Radius, 3f)),
                 Option("fathers_shout", TalentEffect.ForAbility(s["BattleShout"], AbilityParam.Heal, 15f))),
-            Passive("iron_heart", 6, 5, 2, Links("recovery"), Stat(StatType.MaxLifePercent, 5f), Stat(StatType.Armor, 5f, ModifierKind.Percent)),
+            Passive("iron_heart", 6, 5, 2, Links("recovery"), Stat(StatType.MaxLifePercent, 5f), Stat(StatType.Armor, 2f, ModifierKind.Percent)),
         };
 
         // Difesa: lo scudo, i blocchi e gli stordimenti
         private static TalentNode[] DefenseNodes(Dictionary<string, SpellDefinition> s) => new[]
         {
             Active("shield_bash", 0, 3, s["ShieldBash"]),
-            Passive("heavy_shield", 1, 1, 3, Links("shield_bash"), Stat(StatType.BlockChance, 3f)),
+            Passive("heavy_shield", 1, 1, 3, Links("shield_bash"), Stat(StatType.BlockChance, 2f)),
             Active("shield_wall", 1, 3, s["ShieldWall"], Links("shield_bash")),
             Passive("thick_skin", 1, 5, 3, Links("shield_bash"), Stat(StatType.DamageReduction, 1f)),
             Passive("recoil", 2, 0, 2, Links("heavy_shield"), TalentEffect.OnTrigger(TalentTrigger.Block, TalentOutcome.Mana, 2f)),
             Passive("shoulder_charge", 2, 2, 2, Links("heavy_shield", "shield_wall"), TalentEffect.ForAbility(s["ShieldBash"], AbilityParam.Cooldown, -2f)),
             Passive("bulwark", 2, 4, 2, Links("shield_wall", "thick_skin"), TalentEffect.ForAbility(s["ShieldWall"], AbilityParam.Duration, 1.5f)),
-            Passive("guardian_armor", 2, 6, 3, Links("thick_skin"), Stat(StatType.Armor, 6f, ModifierKind.Percent, TalentCondition.Shield)),
+            Passive("guardian_armor", 2, 6, 3, Links("thick_skin"), Stat(StatType.Armor, 1f, ModifierKind.Percent, TalentCondition.Shield)),
             Passive("retaliation", 3, 1, 2, Links("recoil", "shoulder_charge"), TalentEffect.OnTrigger(TalentTrigger.Block, TalentOutcome.Reflect, 25f)),
             Choice("shield_mastery", 3, 3, Links("shoulder_charge", "bulwark"),
                 Option("thunder_shield", TalentEffect.ForAbility(s["ShieldBash"], AbilityParam.Radius, 2.5f)),
@@ -148,11 +148,11 @@ namespace DarkDescent.Editor
             Active("whirlwind", 0, 3, s["Whirlwind"]),
             Passive("two_handed_grip", 1, 1, 3, Links("whirlwind"), Stat(StatType.DamageBonus, 5f, condition: TalentCondition.TwoHanded)),
             Passive("keen_edge", 1, 3, 2, Links("whirlwind"), TalentEffect.ForAbility(s["Whirlwind"], AbilityParam.Damage, 15f)),
-            Passive("weak_spot", 1, 5, 3, Links("whirlwind"), Stat(StatType.CritDamage, 10f)),
+            Passive("weak_spot", 1, 5, 3, Links("whirlwind"), Stat(StatType.CritDamage, 5f)),
             Passive("circular_motion", 2, 0, 2, Links("two_handed_grip"), Stat(StatType.AttackSpeed, 5f)),
             Active("execute", 2, 2, s["Execute"], Links("two_handed_grip", "keen_edge")),
             Passive("vortex", 2, 4, 2, Links("keen_edge", "weak_spot"), TalentEffect.ForAbility(s["Whirlwind"], AbilityParam.Radius, 0.5f)),
-            Passive("executioners_eye", 2, 6, 2, Links("weak_spot"), Stat(StatType.CritChance, 3f)),
+            Passive("executioners_eye", 2, 6, 2, Links("weak_spot"), Stat(StatType.CritChance, 0.5f)),
             Passive("slaughter", 3, 1, 2, Links("circular_motion", "execute"), TalentEffect.OnTrigger(TalentTrigger.Kill, TalentOutcome.Mana, 3f)),
             Active("leap", 3, 3, s["Leap"], Links("execute", "vortex")),
             Passive("blood_on_the_blade", 3, 5, 2, Links("vortex", "executioners_eye"), Stat(StatType.LifeSteal, 2f)),
@@ -161,7 +161,7 @@ namespace DarkDescent.Editor
                 Option("endless_whirlwind", TalentEffect.ForAbility(s["Whirlwind"], AbilityParam.ManaCost, -4f))),
             Passive("frenzy", 4, 4, 2, Links("leap", "blood_on_the_blade"),
                 TalentEffect.OnTrigger(TalentTrigger.Kill, TalentOutcome.Buff, 5f, StatType.AttackSpeed, 5f)),
-            Passive("weapon_mastery", 5, 1, 3, Links("fighting_style"), Stat(StatType.DamageBonus, 4f)),
+            Passive("weapon_mastery", 5, 1, 3, Links("fighting_style"), Stat(StatType.DamageBonus, 3f)),
             Active("bladestorm", 5, 3, s["Bladestorm"], Links("fighting_style", "frenzy")),
         };
 

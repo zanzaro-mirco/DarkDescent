@@ -21,6 +21,12 @@ namespace DarkDescent.Tests
         /// </summary>
         public const double StepTolerance = 0.05;
 
+        /// <summary>
+        /// Le fasce dei colpi per uccidere valgono con il cavaliere che ha speso l'albero di riferimento
+        /// (D14 della M20), che colpisce un po' più forte: il lato corto scende della stessa tolleranza del 5%.
+        /// </summary>
+        private const double SwingsFloor = 1.0 - StepTolerance;
+
         /// <summary>In media da 4 a 5 oggetti a livello, un po' di margine sopra; rari dal 10 al 25%, magici dal 25 al 35%.</summary>
         public static string Loot(LootCensus.Tally total)
         {
@@ -37,7 +43,7 @@ namespace DarkDescent.Tests
         }
 
         /// <summary>
-        /// A ogni difficoltà e profondità: scheletro in 1–5 colpi, bruto in 4–14; il cavaliere regge
+        /// A ogni difficoltà e profondità: scheletro in 1–5 colpi, bruto in 4–14 (il lato corto meno il 5% per l'albero); il cavaliere regge
         /// almeno 3 colpi del bruto e 2 del re; colpisce il bruto almeno 2 volte su 3, e il bruto lo
         /// colpisce tra il 5% e il 45% delle volte.
         /// </summary>
@@ -45,8 +51,8 @@ namespace DarkDescent.Tests
         {
             foreach (var row in rows)
             {
-                string error = Outside("colpi allo scheletro", row.SkeletonSwings, 1.0, 5.0)
-                    ?? Outside("colpi al bruto", row.BruteSwings, 4.0, 14.0)
+                string error = Outside("colpi allo scheletro", row.SkeletonSwings, 1.0 * SwingsFloor, 5.0)
+                    ?? Outside("colpi al bruto", row.BruteSwings, 4.0 * SwingsFloor, 14.0)
                     ?? Outside("colpi del bruto retti", row.BruteHitsTaken, 3.0, double.MaxValue)
                     ?? Outside("colpi del re retti", row.KingHitsTaken, 2.0, double.MaxValue)
                     ?? Outside("colpi a segno sul bruto", row.HeroLandsOnBrute, 0.65, 1.0)
@@ -70,7 +76,7 @@ namespace DarkDescent.Tests
             for (int t = 1; t < tiers; t++)
             {
                 var first = rows.Single(r => r.Tier == t && r.Depth == 1);
-                string error = Outside("colpi al bruto alla profondità 1", first.BruteSwings, 9.0, 14.0);
+                string error = Outside("colpi al bruto alla profondità 1", first.BruteSwings, 9.0 * SwingsFloor, 14.0);
                 if (error != null)
                 {
                     return $"{first.TierName}: {error}";

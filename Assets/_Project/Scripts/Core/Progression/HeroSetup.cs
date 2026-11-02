@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DarkDescent.Core;
 using DarkDescent.Items;
 using DarkDescent.Stats;
+using DarkDescent.Talents;
 
 namespace DarkDescent.Progression
 {
@@ -33,6 +35,40 @@ namespace DarkDescent.Progression
             {
                 progress.TrySpend(Pattern[i % Pattern.Length]);
             }
+        }
+
+        /// <summary>
+        /// L'albero di riferimento (D14 della M20): spende tutti i punti del livello di <paramref name="build"/>
+        /// come <see cref="RaiseTo"/> spende gli attributi, sempre allo stesso modo. Sceglie la specializzazione,
+        /// poi riempie dall'alto, riga per riga e da sinistra, prima la classe e poi quella: ogni nodo al grado
+        /// massimo (e la prima opzione, per quelli a scelta) prima del successivo, finché i punti o i nodi aperti
+        /// finiscono. Alla fine applica. Senza specializzazione spende solo la classe.
+        /// </summary>
+        public static void SpendTalents(TalentBuild build, TalentTree specialization)
+        {
+            if (specialization != null)
+            {
+                build.TryChoose(specialization);
+            }
+
+            foreach (var tree in new[] { build.ClassTree, build.Specialization }.Where(t => t != null))
+            {
+                var order = tree.Nodes.OrderBy(n => n.Row).ThenBy(n => n.Column).ToList();
+                bool added = true;
+                while (added)
+                {
+                    added = false;
+                    foreach (var node in order)
+                    {
+                        while (build.TryAdd(tree, node))
+                        {
+                            added = true;
+                        }
+                    }
+                }
+            }
+
+            build.Apply();
         }
 
         /// <summary>

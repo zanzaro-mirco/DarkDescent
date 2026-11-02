@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DarkDescent.Editor;
 using DarkDescent.Progression;
 using NUnit.Framework;
@@ -78,6 +79,36 @@ namespace DarkDescent.Tests
         public void Experience_KeepsUpWithTheZone()
         {
             MapChecks.Pass("misura delle difficoltà", CensusChecks.ExperienceKeepsUp(_rows, _table, _census.Settings));
+        }
+
+        [Test, Description("Con la specializzazione Difesa al posto di Armi le fasce reggono lo stesso (D14 della M20: Armi è il riferimento, Difesa il confronto)")]
+        public void ReferenceTree_Defense_StaysInTheBands()
+        {
+            var rows = new DifficultyCensus(20, 8) { Reference = DifficultyCensus.LoadTree("WarriorDefense") }.Measure(_table);
+            MapChecks.Pass("misura con la Difesa", CensusChecks.EveryDepth(rows)
+                ?? CensusChecks.EachDifficultyStartsHarder(rows, _table.Count)
+                ?? CensusChecks.KingLastsALittleLonger(rows)
+                ?? CensusChecks.ExperienceKeepsUp(rows, _table, _census.Settings));
+        }
+
+        [Test, Description("L'albero rende il cavaliere più forte ma non rompe le difficoltà: contro il cavaliere senza albero, mai più del 22% in meno di colpi per uccidere e mai più del 30% in più di colpi retti, in entrambe le specializzazioni")]
+        public void ReferenceTree_StrengthensTheKnightALittle()
+        {
+            var bare = new DifficultyCensus(20, 8) { Reference = null }.Measure(_table);
+            foreach (string name in new[] { "WarriorArms", "WarriorDefense" })
+            {
+                var rows = new DifficultyCensus(20, 8) { Reference = DifficultyCensus.LoadTree(name) }.Measure(_table);
+                for (int i = 0; i < rows.Count; i++)
+                {
+                    string where = $"{name}, {rows[i].TierName} profondità {rows[i].Depth}";
+                    Assert.GreaterOrEqual(rows[i].BruteSwings, bare[i].BruteSwings * 0.78, $"{where}: colpi al bruto");
+                    Assert.GreaterOrEqual(rows[i].KingSwings, bare[i].KingSwings * 0.78, $"{where}: colpi al re");
+                    Assert.LessOrEqual(rows[i].BruteHitsTaken, bare[i].BruteHitsTaken * 1.30, $"{where}: colpi del bruto retti");
+                    Assert.LessOrEqual(rows[i].KingHitsTaken, bare[i].KingHitsTaken * 1.30, $"{where}: colpi del re retti");
+                }
+
+                Assert.IsTrue(rows.Zip(bare, (r, b) => r.BruteSwings <= b.BruteSwings).All(x => x), $"{name}: l'albero non toglie forza");
+            }
         }
 
         [Test, Description("La rarità dell'equipaggiamento segue la difficoltà: normale al Crepuscolo, magica all'Ombra e alla Tenebra, rara dall'Abisso")]

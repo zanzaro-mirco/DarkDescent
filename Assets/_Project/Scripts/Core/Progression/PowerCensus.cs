@@ -16,7 +16,7 @@ namespace DarkDescent.Progression
         /// <summary>
         /// Il cavaliere con la sua scheda e quello che porta: l'arma (o i pugni, 1–2), lo scudo con il
         /// blocco e la Destrezza, la vita di Vitalità, livelli e affissi; dalla M16 il danno in più, la
-        /// velocità d'attacco, il danno ridotto e il rubavita.
+        /// velocità d'attacco, il danno ridotto e il rubavita; dalla M20 anche il danno del critico.
         /// </summary>
         public static CensusFighter Hero(StatSheet sheet, Equipment equipment)
         {
@@ -40,7 +40,7 @@ namespace DarkDescent.Progression
                 min, max, sheet.Get(StatType.Strength), sheet.Get(StatType.Level), dexterity,
                 sheet.Get(StatType.Armor), sheet.Get(StatType.ToHit), sheet.Get(StatType.CritChance),
                 true, block, CombatFormulas.WithBonus(1f, sheet.Get(StatType.DamageBonus)),
-                sheet.Get(StatType.AttackSpeed), sheet.Get(StatType.DamageReduction), sheet.Get(StatType.LifeSteal));
+                sheet.Get(StatType.AttackSpeed), sheet.Get(StatType.DamageReduction), sheet.Get(StatType.LifeSteal), sheet.Get(StatType.CritDamage));
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace DarkDescent.Progression
             if (attacker.CanCrit)
             {
                 double crit = CombatFormulas.CritChance(attacker.Dexterity, attacker.CritBonus) / 100.0;
-                hit *= 1.0 + crit * (CombatFormulas.CritMultiplier - 1f);
+                hit *= 1.0 + crit * (CombatFormulas.CritMultiplierFor(attacker.CritDamage) - 1f);
             }
 
             return hit;
