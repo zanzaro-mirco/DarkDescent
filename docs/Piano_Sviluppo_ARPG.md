@@ -555,7 +555,7 @@ Chiusa il 26 ottobre 2026 con il tag `v1.4.0`: 466 test EditMode e 252 PlayMode 
 
 ### M20 — "La via della spada" ✅
 
-Chiusa il 3 novembre 2026 con il tag `v1.8.0`: 580 test EditMode e i PlayMode verdi a ogni push, più quelli della ronda. L'albero ha tre alberi (la classe, *Difesa* e *Armi*, 50 nodi) e undici abilità attive; la misura delle difficoltà lo spende come riferimento (ADR-132).
+Chiusa il 3 novembre 2026 con il tag `v1.8.0`: 580 test EditMode e i PlayMode verdi a ogni push, più quelli della ronda. L'albero ha tre alberi (la classe, *Difesa* e *Armi*, 50 nodi) e undici abilità attive; la misura delle difficoltà lo spende come riferimento (ADR-132). Il run Tests del commit di chiusura (41527321739) è caduto la prima volta per lo spazio del runner (Docker senza disco) ed è verde al secondo tentativo; la build del tag (41529821395) pesa 60,57 MB, 1,40 MB più della v1.7.0.
 
 - **Il disegno prima del codice, e il sì di Mirco sul disegno:** l'albero approvato come pagina è rimasto lo stesso nel codice. Quello che ha cambiato i numeri è stata la misura, non il gusto: prima di fidarsi di un disegno, un conto con le fasce.
 - **Una misura che non vede una statistica non vede l'albero:** `PowerCensus` ignorava il danno del critico, e solo quando il Punto debole c'è finito dentro i numeri dell'albero hanno avuto un senso. Con un sistema nuovo si guarda per prima cosa se la misura lo conta.

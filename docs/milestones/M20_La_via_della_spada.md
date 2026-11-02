@@ -477,6 +477,6 @@ faccia il numero e che il pool riusi i numeri dei critici.
 - [x] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6)
 - [x] Icone approvate (20.7)
 - [x] Misura delle difficoltà con l'albero di riferimento dentro la tolleranza (20.8); ronda verde: da leggere dopo la notte
-- [ ] EditMode e PlayMode verdi in locale e in CI
+- [x] EditMode e PlayMode verdi in locale e in CI
 - [x] ADR, lezioni nel piano, README, prove da fare, `bundleVersion` 1.8.0
-- [ ] Tag `v1.8.0` dopo i Tests verdi, build verde, peso dell'artefatto
+- [x] Tag `v1.8.0` dopo i Tests verdi, build verde (41529821395), peso dell'artefatto 60,57 MB (+1,40 MB sulla v1.7.0)
