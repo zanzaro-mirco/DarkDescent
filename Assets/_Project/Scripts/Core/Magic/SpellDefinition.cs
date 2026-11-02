@@ -30,9 +30,6 @@ namespace DarkDescent.Magic
         [Tooltip("Secondi prima di poterlo rilanciare; 0 per il proiettile, che ha solo il costo.")]
         [SerializeField, Min(0f)] private float _cooldown;
 
-        [Tooltip("Lo si conosce dall'inizio; gli altri si imparano dalle pergamene (D5).")]
-        [SerializeField] private bool _knownFromStart;
-
         [Header("Danno: tiro tra minimo e massimo, più Magia / divisore")]
         [SerializeField, Min(0)] private int _minDamage;
 
@@ -64,7 +61,6 @@ namespace DarkDescent.Magic
         public GameObject Effect => _effect;
         public float ManaCost => _manaCost;
         public float Cooldown => _cooldown;
-        public bool KnownFromStart => _knownFromStart;
         public int MinDamage => _minDamage;
         public int MaxDamage => _maxDamage;
         public float MagicDivisor => _magicDivisor;

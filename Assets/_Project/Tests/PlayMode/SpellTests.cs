@@ -127,32 +127,24 @@ namespace DarkDescent.Tests
             Assert.IsFalse(aura.IsPlaying);
         }
 
-        [UnityTest, Description("Click destro su una pergamena nell'inventario: insegna l'incantesimo, lo sceglie e sparisce; una seconda pergamena dello stesso incantesimo resta nello zaino")]
-        public IEnumerator Scroll_TeachesAndDisappears()
+        [UnityTest, Description("Una pergamena rimasta da prima della M20 non si legge più: il click destro non insegna niente e la lascia nello zaino (D4)")]
+        public IEnumerator OldScroll_TeachesNothing()
         {
             yield return LoadSandbox();
             var inventory = Player.GetComponent<PlayerInventory>();
             var magic = Player.GetComponent<PlayerMagic>();
             var scroll = Asset<ScrollDefinition>("Data/Items/ScrollStoneSkin.asset");
-            var first = new ItemInstance(scroll);
-            var second = new ItemInstance(scroll);
-            Assert.IsTrue(inventory.TryPickUp(first));
-            Assert.IsTrue(inventory.TryPickUp(second));
-            Assert.IsTrue(inventory.CarriesScrollOf(scroll.Spell));
-            Assert.IsTrue(inventory.Inventory.Grid.TryGetPlacement(first, out var area));
+            var item = new ItemInstance(scroll);
+            Assert.IsTrue(inventory.TryPickUp(item));
+            Assert.IsTrue(inventory.Inventory.Grid.TryGetPlacement(item, out var area));
 
             var panel = Object.FindFirstObjectByType<InventoryPanel>(FindObjectsInactive.Include);
             panel.SetOpen(true);
             yield return null;
             panel.UseCell(area.position);
 
-            Assert.IsTrue(magic.Book.Knows(scroll.Spell));
-            Assert.AreSame(scroll.Spell, magic.Book.SelectedSpell);
-            Assert.IsFalse(inventory.Inventory.Grid.TryGetPlacement(first, out _), "letta, sparisce");
-            Assert.IsTrue(inventory.Inventory.Grid.TryGetPlacement(second, out var secondArea));
-
-            panel.UseCell(secondArea.position);
-            Assert.IsTrue(inventory.Inventory.Grid.TryGetPlacement(second, out _), "già noto: resta");
+            Assert.IsFalse(magic.Book.Knows(scroll.Spell));
+            Assert.IsTrue(inventory.Inventory.Grid.TryGetPlacement(item, out _), "resta nello zaino");
         }
 
         [UnityTest, Description("La pozione di mana va nella cintura e rende metà del mana massimo; a mana pieno non si beve; la pozione di cura non tocca il mana")]
@@ -175,50 +167,6 @@ namespace DarkDescent.Tests
             Assert.IsTrue(inventory.DrinkFromBelt(0));
             Assert.AreEqual(18f, magic.Mana.Current, 0.01f, "3 + metà di 30");
             Assert.IsNull(inventory.Belt.Get(0));
-        }
-
-        [UnityTest, Description("Nella cripta alla profondità 2, con un seme che dà la pergamena, uno solo tra nemici e casse la porta; ucciso, la lascia a terra")]
-        public IEnumerator LevelScroll_IsCarriedAndDropped()
-        {
-            yield return LoadGeneratedCore();
-            var root = Object.FindFirstObjectByType<DarkDescent.Core.CompositionRoot>();
-            var table = Asset<ScrollTable>("Data/Loot/ScrollTable.asset");
-            var affixes = Asset<AffixDatabase>("Data/AffixDatabase.asset");
-            ulong seed = 1;
-            for (; seed < 200; seed++)
-            {
-                var roller = new LootRoller(new ItemGenerator(affixes.Affixes, RarityTable.Default), seed);
-                if (roller.RollScroll(table, 2, null, out _) != null)
-                {
-                    break;
-                }
-            }
-
-            root.UseLootSeed(seed);
-            var manager = Object.FindFirstObjectByType<LevelManager>();
-            manager.LoadLevel("Level_Crypt", "FromAbove", 2);
-            for (float t = 0f; t < 10f && (manager.IsTransitioning || manager.CurrentLevel == null || manager.CurrentLevel.Depth != 2); t += Time.unscaledDeltaTime)
-            {
-                yield return null;
-            }
-
-            var level = manager.CurrentLevel;
-            Assert.AreEqual(2, level.Depth);
-            var carriers = level.Enemies.Select(e => e.GetComponent<LootDrop>()).Where(d => d.Carried != null).ToArray();
-            var chests = level.Chests.Where(c => c.Carried != null).ToArray();
-            Assert.AreEqual(1, carriers.Length + chests.Length, "una pergamena sola");
-            if (carriers.Length == 0)
-            {
-                Assert.IsInstanceOf<ScrollDefinition>(chests[0].Carried.Definition);
-                yield break;
-            }
-
-            var scroll = carriers[0].Carried;
-            Assert.IsInstanceOf<ScrollDefinition>(scroll.Definition);
-            carriers[0].GetComponent<Health>().TakeDamage(new DamageInfo(10000f, DamageType.Physical, Player.gameObject));
-            yield return null;
-            Assert.IsTrue(Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None).Any(g => g.Item == scroll), "a terra");
-            Assert.IsNull(carriers[0].Carried);
         }
     }
 }

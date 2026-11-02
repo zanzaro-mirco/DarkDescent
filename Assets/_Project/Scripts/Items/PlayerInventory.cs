@@ -114,17 +114,12 @@ namespace DarkDescent.Items
         }
 
         /// <summary>
-        /// Il click destro su una cella della griglia: beve la pozione o legge la pergamena che c'è;
-        /// false se non si può.
+        /// Il click destro su una cella della griglia: indossa l'oggetto o beve la pozione che c'è;
+        /// false se non si può. Le pergamene non si leggono più dalla M20 (D4).
         /// </summary>
         public bool UseAt(Vector2Int cell)
         {
             ItemInstance item = Inventory.Grid.ItemAt(cell);
-            if (item?.Definition is ScrollDefinition scroll)
-            {
-                return Read(item, scroll);
-            }
-
             if (item?.Definition != null && item.Definition.Slot != EquipSlot.None)
             {
                 return Inventory.EquipFromGrid(cell);
@@ -173,31 +168,6 @@ namespace DarkDescent.Items
             {
                 _audio.PlayOneShot(clip);
             }
-        }
-
-        // una pergamena di un incantesimo già noto resta nello zaino: non insegna niente
-        private bool Read(ItemInstance item, ScrollDefinition scroll)
-        {
-            if (_magic == null || _health.IsDead || _magic.Book.SlotOf(scroll.Spell) < 0 || _magic.Book.Knows(scroll.Spell))
-            {
-                return false;
-            }
-
-            return Inventory.Grid.Remove(item) && _magic.Learn(scroll.Spell);
-        }
-
-        /// <summary>Vero se nella griglia c'è una pergamena di <paramref name="spell"/>: non ne cade un'altra.</summary>
-        public bool CarriesScrollOf(SpellDefinition spell)
-        {
-            foreach (var item in Inventory.Grid.Placements.Keys)
-            {
-                if (item.Definition is ScrollDefinition scroll && scroll.Spell == spell)
-                {
-                    return true;
-                }
-            }
-
-            return Inventory.Held?.Definition is ScrollDefinition held && held.Spell == spell;
         }
 
         /// <summary>Chiudendo l'inventario l'oggetto sul cursore torna nella griglia, o a terra se non c'è posto.</summary>

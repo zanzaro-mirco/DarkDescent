@@ -1270,10 +1270,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d83a11ffcdcb5cd45bbbeed43c93ee0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Magic.PlayerMagic
-  _spells:
-  - {fileID: 11400000, guid: 2b51a1b27f7fb154c96cbdeccbfa15dc, type: 2}
-  - {fileID: 11400000, guid: 7888b154766d17f4cb098c4a49f30ac2, type: 2}
-  - {fileID: 11400000, guid: 3b596d532d26ec14fab30fdc18ac2a44, type: 2}
   _portalSpell: {fileID: 11400000, guid: 2d17115044bdb904a9262be190e921d7, type: 2}
   _failClip: {fileID: 8300000, guid: a77c9d43b49eeab46b96d6ac4e131c67, type: 3}
   _learnClip: {fileID: 8300000, guid: 13ad3d458866ba942a02b5447335c677, type: 3}

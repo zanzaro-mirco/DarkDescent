@@ -1,8 +1,13 @@
 using System.Collections;
+using System.IO;
+using System.Linq;
 using DarkDescent.Combat;
+using DarkDescent.Items;
+using DarkDescent.Magic;
 using DarkDescent.Progression;
 using DarkDescent.Save;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -11,10 +16,81 @@ namespace DarkDescent.Tests
     /// <summary>
     /// L'albero delle abilità nel gioco (passo 20.2 della M20): i punti seguono il livello del
     /// cavaliere, un nodo applicato cambia la scheda, l'altare la riporta com'era, e il salvataggio
-    /// rimette l'albero dopo il livello, senza perderne niente.
+    /// rimette l'albero dopo il livello, senza perderne niente. La barra la riempie l'albero (20.3).
     /// </summary>
     public class TalentPlayModeTests : SandboxFixture
     {
+        private static SpellDefinition Spell(string name) => AssetDatabase.LoadAssetAtPath<SpellDefinition>($"Assets/_Project/Data/Spells/{name}.asset");
+
+        private static string Fixture(string name) => AssetDatabase.LoadAssetAtPath<TextAsset>($"Assets/_Project/Tests/EditMode/Fixtures/{name}.json").text;
+
+        [UnityTest, Description("La barra segue l'albero (D9 della M20): la radice nel primo posto; con Armi applicata il Turbine entra nel primo posto libero; spostato, ci resta a ogni Applica; l'altare lo toglie e lascia il Colpo possente")]
+        public IEnumerator Bar_FollowsTheTree()
+        {
+            yield return LoadGeneratedCore();
+            var progress = Player.GetComponent<PlayerProgress>().Progress;
+            var build = Player.GetComponent<PlayerTalents>().Build;
+            var book = Player.GetComponent<PlayerMagic>().Book;
+            CollectionAssert.AreEqual(new[] { Spell("PowerStrike").Id }, book.KnownIds(), "solo la radice: niente Dardo, niente Anello");
+            Assert.AreEqual(0, book.Selected);
+
+            progress.Restore(12, 0, 0);
+            Assert.IsTrue(build.TryChoose(build.Specializations[1]));
+            Assert.IsFalse(book.Knows(Spell("Whirlwind")), "in attesa non cambia niente");
+            build.Apply();
+            Assert.AreEqual(1, book.SlotOf(Spell("Whirlwind")));
+
+            Assert.IsTrue(book.Move(1, 5));
+            Assert.IsTrue(build.TryAdd(build.ClassTree, build.ClassTree.Find("toughness")));
+            build.Apply();
+            Assert.AreEqual(5, book.SlotOf(Spell("Whirlwind")), "un altro Applica non lo sposta");
+
+            build.Reset();
+            Assert.IsFalse(book.Knows(Spell("Whirlwind")));
+            Assert.AreEqual(0, book.SlotOf(Spell("PowerStrike")));
+            Assert.AreEqual(1, book.KnownIds().Count);
+        }
+
+        [UnityTest, Description("Il salvataggio del formato 8 (il campione save_v8) rimette l'albero con Armi e la barra posto per posto: il Turbine in F1, il Colpo possente in F2 e scelto")]
+        public IEnumerator SaveEight_RestoresTreeAndBar()
+        {
+            yield return LoadGeneratedCore();
+            var save = Object.FindFirstObjectByType<SaveGame>();
+            var build = Player.GetComponent<PlayerTalents>().Build;
+            var book = Player.GetComponent<PlayerMagic>().Book;
+            var data = SaveData.FromJson(Fixture("save_v8"));
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
+            save.Apply(data);
+
+            Assert.AreEqual("warrior.arms", build.AppliedSpecialization.Id);
+            Assert.AreEqual(3, build.AppliedRank(build.ClassTree, build.ClassTree.Find("toughness")));
+            Assert.AreEqual((Spell("Whirlwind"), Spell("PowerStrike")), (book[0], book[1]));
+            Assert.AreEqual(1, book.Selected);
+            CollectionAssert.AreEqual(data.Bar, book.Export(), "ricatturata, la barra è la stessa");
+        }
+
+        [UnityTest, Description("Una pergamena nello zaino di un salvataggio vecchio (formato 4) diventa oro al caricamento, al prezzo del mercante, e non insegna niente (D4 della M20)")]
+        public IEnumerator OldSave_SellsTheScroll()
+        {
+            yield return LoadGeneratedCore();
+            var save = Object.FindFirstObjectByType<SaveGame>();
+            var inventory = Player.GetComponent<PlayerInventory>().Inventory;
+            string path = Path.Combine(Application.temporaryCachePath, "save_v4_scroll.json");
+            File.WriteAllText(path, Fixture("save_v4"));
+            try
+            {
+                Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(path, out var data));
+                save.Apply(data);
+                Assert.IsFalse(inventory.Grid.Placements.Keys.Any(item => item.Definition is ScrollDefinition), "niente pergamene nello zaino");
+                Assert.Greater(inventory.Gold, data.Gold, "venduta");
+                Assert.IsFalse(Player.GetComponent<PlayerMagic>().Book.Knows(Spell("StoneSkin")));
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
         [UnityTest, Description("Un punto speso nell'albero cambia la vita solo dopo Applica: tre gradi di Tempra, +12%; ripartire da zero la riporta com'era")]
         public IEnumerator AppliedPoint_ChangesTheStat()
         {

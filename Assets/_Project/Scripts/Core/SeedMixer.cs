@@ -33,14 +33,6 @@ namespace DarkDescent.Core
             return Mix(seed ^ (ulong)(uint)depth);
         }
 
-        // "SCROLL" in ASCII: la pergamena di un livello non sposta né la mappa né il loot dei nemici
-        private const ulong ScrollDomain = 0x5343524F4C4CUL;
-
-        public static ulong ForScroll(ulong runSeed, int depth)
-        {
-            return Mix(ForLevel(runSeed, depth) ^ ScrollDomain);
-        }
-
         // "GOLD" in ASCII: l'oro di un nemico o di una cassa non sposta né l'oggetto né la pozione
         private const ulong GoldDomain = 0x474F4C44UL;
 

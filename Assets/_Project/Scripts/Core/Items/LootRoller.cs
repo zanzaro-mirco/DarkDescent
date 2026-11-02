@@ -351,22 +351,5 @@ namespace DarkDescent.Items
                 into.Add(_generator.Generate(item, ItemLevel(depth), random.NextUInt64(), Rarities));
             }
         }
-
-        /// <summary>
-        /// La pergamena di un livello (D5 della M9), o null: un tiro per profondità con un seme suo.
-        /// <paramref name="wanted"/> dice quali incantesimi può ancora insegnare; <paramref name="carrier"/>,
-        /// tra 0 e 1, sceglie tra nemici e casse chi la porta.
-        /// </summary>
-        public ItemInstance RollScroll(ScrollTable table, int depth, Func<Magic.SpellDefinition, bool> wanted, out double carrier)
-        {
-            carrier = 0.0;
-            if (table == null)
-            {
-                return null;
-            }
-
-            var random = new SplitMix64Source(SeedMixer.ForScroll(RunSeed, depth));
-            return table.TryRoll(random, depth, wanted, out var scroll, out carrier) ? new ItemInstance(scroll) : null;
-        }
     }
 }

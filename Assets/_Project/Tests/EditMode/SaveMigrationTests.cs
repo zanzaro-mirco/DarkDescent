@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Save;
@@ -94,7 +95,7 @@ namespace DarkDescent.Tests
             StringAssert.Contains($"\"_version\": {SaveData.CurrentVersion}", File.ReadAllText(_path));
         }
 
-        [Test, Description("Il salvataggio vero del formato 2 si carica con il codice di oggi: il solo Dardo di fuoco, il primo posto e il mana pieno; mappa, Magia e oggetti della M9 (pergamena, pozione blu, affissi della magia) com'erano")]
+        [Test, Description("Il salvataggio vero del formato 2 si carica con il codice di oggi: la barra vuota e il mana pieno; mappa, Magia e oggetti della M9 (pozione blu, affissi della magia) com'erano, e la pergamena diventa oro (M20)")]
         public void FormatTwo_LoadsWithFormatThreeCode()
         {
             var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v2.json");
@@ -114,12 +115,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(18f, data.Magic);
             Assert.AreEqual(1, data.Explored.Count, "la mappa della profondità 3");
 
-            var spells = new[] { "Firebolt", "FireRing", "StoneSkin" };
-            var book = new Magic.SpellBook(System.Array.ConvertAll(spells, n => AssetDatabase.LoadAssetAtPath<Magic.SpellDefinition>($"Assets/_Project/Data/Spells/{n}.asset")));
-            book.Restore(data.KnownSpells, data.SelectedSpell);
-            Assert.IsTrue(book.Knows(0));
-            Assert.IsFalse(book.Knows(1) || book.Knows(2));
-            Assert.AreEqual(0, book.Selected);
+            Assert.AreEqual(0, data.Bar.Count, "la barra la riempie l'albero (M20)");
 
             var sheet = new StatSheet();
             sheet.SetBase(StatType.Strength, data.Strength);
@@ -129,8 +125,15 @@ namespace DarkDescent.Tests
             Assert.IsTrue(data.Inventory.Restore(inventory, items, affixes));
             Assert.AreEqual(3f, sheet.Get(StatType.Magic), "l'elmo della Stregoneria");
             Assert.AreEqual(9f, sheet.Get(StatType.Mana), "l'anello Arcano");
-            Assert.IsTrue(inventory.Grid.Placements.Keys.GetEnumerator().MoveNext(), "la pergamena nello zaino");
+            var scroll = inventory.Grid.Placements.Keys.Single(item => item.Definition is ScrollDefinition);
             Assert.AreEqual(2, inventory.Belt.Count, "pozione rossa e blu");
+
+            // dalla M20 le pergamene non ci sono più: diventano oro, al prezzo del mercante (D4)
+            int price = ItemPricing.SellPrice(scroll);
+            Assert.Greater(price, 0);
+            Assert.AreEqual(price, inventory.SellWhere(item => item.Definition is ScrollDefinition));
+            Assert.AreEqual(price, inventory.Gold);
+            Assert.IsFalse(inventory.Grid.Placements.Keys.Any(item => item.Definition is ScrollDefinition));
         }
 
         [Test, Description("Il salvataggio vero del formato 3 si carica con il codice di oggi: niente oro, nel dungeon, contatori a zero, nessun livello ricordato; incantesimi, mana, mappa e oggetti com'erano")]
@@ -251,6 +254,24 @@ namespace DarkDescent.Tests
             Assert.AreEqual("warrior.arms", again.Specialization);
             Assert.AreEqual(("warrior", "strong_arm", 2, 0), (again.Talents[0].Tree, again.Talents[0].Node, again.Talents[0].Rank, again.Talents[0].Option));
             CollectionAssert.AreEqual(new[] { "a", "", "b" }, again.Bar);
+        }
+
+        [Test, Description("Il campione del formato 8 (M20), il borgo al livello 24 con Armi: si carica com'è, con la specializzazione, i nodi presi e la barra posto per posto")]
+        public void FormatEight_LoadsAsItIs()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v8.json");
+            StringAssert.Contains("\"_version\": 8", fixture.text, "il file congelato è davvero del formato 8");
+            File.WriteAllText(_path, fixture.text);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(8, data.Version);
+            Assert.AreEqual(("Town", 24, 4321), (data.Scene, data.Level, data.Gold));
+            Assert.AreEqual("warrior.arms", data.Specialization);
+            Assert.AreEqual(3, data.Talents.Count);
+            Assert.AreEqual(("warrior.arms", "keen_edge", 2), (data.Talents[2].Tree, data.Talents[2].Node, data.Talents[2].Rank));
+            Assert.AreEqual(8, data.Bar.Count);
+            Assert.AreEqual(("e7ec1fa760094797abc17b64a29afaca", "d947e2d3a5874b889f3fb34aecaf3eaa", ""), (data.Bar[0], data.Bar[1], data.Bar[2]));
+            Assert.AreEqual(1, data.SelectedSpell);
         }
 
         [Test, Description("Il salvataggio vero del formato 6, alla Tenebra nel quarto mondo, si carica con il codice di oggi: nessun oggetto ha un nome, e rari, magici, livelli ricordati e difficoltà sono com'erano")]

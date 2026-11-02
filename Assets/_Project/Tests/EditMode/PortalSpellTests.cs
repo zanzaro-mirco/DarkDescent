@@ -34,7 +34,7 @@ namespace DarkDescent.Tests
 
             var magic = Asset<GameObject>("Prefabs/Player.prefab").GetComponent<PlayerMagic>();
             Assert.AreSame(spell, magic.PortalSpell);
-            Assert.AreEqual(-1, magic.Book.SlotOf(spell), "non è tra F1, F2 e F3");
+            Assert.AreEqual(-1, magic.Book.SlotOf(spell), "non è nella barra");
         }
 
         [Test, Description("La pergamena del ritorno non c'è più: né oggetto, né modello, né nel database, né dal mercante, né tra le stringhe")]

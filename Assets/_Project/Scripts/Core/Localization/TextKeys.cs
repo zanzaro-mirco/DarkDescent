@@ -56,8 +56,6 @@ namespace DarkDescent.Localization
         public const string TooltipHeal = "tooltip.heal";
         public const string TooltipDrink = "tooltip.drink";
         public const string TooltipRestoreMana = "tooltip.restore_mana";
-        public const string TooltipTeaches = "tooltip.teaches";
-        public const string TooltipRead = "tooltip.read";
         public const string TooltipEquip = "tooltip.equip";
         public const string TooltipSetPieces = "tooltip.set_pieces";
         public const string TooltipSetFull = "tooltip.set_full";

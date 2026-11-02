@@ -269,6 +269,31 @@ namespace DarkDescent.Items
             }
         }
 
+        /// <summary>
+        /// Vende al prezzo del mercante gli oggetti della griglia e del cursore che
+        /// <paramref name="match"/> sceglie, senza il mercante: le pergamene di un salvataggio di prima
+        /// della M20 (D4). Restituisce l'oro preso.
+        /// </summary>
+        public int SellWhere(Func<ItemInstance, bool> match)
+        {
+            int gold = 0;
+            foreach (var item in new List<ItemInstance>(Grid.Placements.Keys))
+            {
+                if (match(item) && Grid.Remove(item))
+                {
+                    gold += ItemPricing.SellPrice(item);
+                }
+            }
+
+            if (Held != null && match(Held))
+            {
+                gold += ItemPricing.SellPrice(ReleaseHeld());
+            }
+
+            ReceiveGold(gold);
+            return gold;
+        }
+
         /// <summary>Lascia l'oggetto preso: chi lo chiama lo mette a terra.</summary>
         public ItemInstance ReleaseHeld()
         {

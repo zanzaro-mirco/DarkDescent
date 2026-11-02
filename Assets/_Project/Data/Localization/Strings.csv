@@ -123,8 +123,6 @@ tooltip.equipped_ring2,Equipped – ring 2,Equipaggiato – anello 2
 tooltip.heal,Restores {0}% of life,Rende il {0}% della vita
 tooltip.drink,Right-click or 1–8 on the belt to drink,Click destro o 1–8 dalla cintura per bere
 tooltip.restore_mana,Restores {0}% of mana,Rende il {0}% del mana
-tooltip.teaches,Teaches {0},Insegna {0}
-tooltip.read,Right-click to read,Click destro per leggere
 tooltip.equip,Right-click to equip,Click destro per indossare
 tooltip.set_pieces,({0} pieces),({0} pezzi)
 tooltip.set_full,(full set),(set completo)

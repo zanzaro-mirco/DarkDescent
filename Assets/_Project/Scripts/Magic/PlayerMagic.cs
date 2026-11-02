@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DarkDescent.Combat;
 using DarkDescent.Player;
 using DarkDescent.Progression;
@@ -14,22 +15,20 @@ namespace DarkDescent.Magic
     /// vita. Il tasto destro lancia l'incantesimo scelto verso il cursore e annuncia
     /// <see cref="Cast"/>: che cosa succede nel mondo lo decidono gli incantesimi che ascoltano. Dal
     /// passo 11.7 della M11 c'è anche la magia del portale, con il suo tasto: sempre nota, apre il
-    /// portale per l'accampamento dove chi lo apre lo permette.
+    /// portale per l'accampamento dove chi lo apre lo permette. Dalla M20 la barra ha otto posti e la
+    /// riempie l'albero delle abilità: a ogni *Applica* entrano le abilità nuove e escono quelle tolte.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterStats), typeof(Health))]
     public class PlayerMagic : MonoBehaviour
     {
-        [Tooltip("Gli incantesimi del gioco, nell'ordine dei posti F1, F2, F3.")]
-        [SerializeField] private SpellDefinition[] _spells;
-
-        [Tooltip("La magia del portale per l'accampamento, fuori dai posti F1–F3 (passo 11.7 della M11).")]
+        [Tooltip("La magia del portale per l'accampamento, fuori dalla barra (passo 11.7 della M11).")]
         [SerializeField] private SpellDefinition _portalSpell;
 
         [Tooltip("Il suono sordo di un lancio che non parte: niente mana, ricarica, incantesimo non noto.")]
         [SerializeField] private AudioClip _failClip;
 
-        [Tooltip("Il suono di un incantesimo imparato da una pergamena.")]
+        [Tooltip("Il suono di un'abilità imparata fuori dall'albero.")]
         [SerializeField] private AudioClip _learnClip;
 
         [SerializeField] private AudioSource _audio;
@@ -37,6 +36,7 @@ namespace DarkDescent.Magic
         private CharacterStats _stats;
         private Health _health;
         private PlayerProgress _progress;
+        private PlayerTalents _talents;
         private PlayerInputReader _reader;
         private PlayerController _controller;
         private ManaPool _mana;
@@ -44,6 +44,10 @@ namespace DarkDescent.Magic
         private SpellCaster _caster;
         private IPortalOpener _portalOpener;
         private bool _subscribed;
+
+        // le abilità che l'albero ha messo nella barra: le sole che toglie
+        private readonly HashSet<SpellDefinition> _fromTree = new HashSet<SpellDefinition>();
+        private readonly List<SpellDefinition> _dropped = new List<SpellDefinition>();
 
         // la pressione arriva da una callback dell'input, dove la UI risponde con il frame prima:
         // si esegue nel primo Update, come il click del movimento
@@ -63,7 +67,7 @@ namespace DarkDescent.Magic
 
         public ManaPool Mana => _mana ??= new ManaPool(MaxMana());
 
-        public SpellBook Book => _book ??= new SpellBook(_spells);
+        public SpellBook Book => _book ??= new SpellBook();
 
         public SpellCaster Caster => _caster ??= new SpellCaster(Book, Mana);
 
@@ -72,6 +76,7 @@ namespace DarkDescent.Magic
             _stats = GetComponent<CharacterStats>();
             _health = GetComponent<Health>();
             _progress = GetComponent<PlayerProgress>();
+            _talents = GetComponent<PlayerTalents>();
         }
 
         /// <summary>Collega tasti e mira. Bind e OnEnable arrivano in ordine qualsiasi: si iscrive chi arriva per secondo.</summary>
@@ -132,10 +137,14 @@ namespace DarkDescent.Magic
             return Mana.Current >= _portalSpell.ManaCost ? PortalResult.Opened : PortalResult.NoMana;
         }
 
-        /// <summary>Sceglie il posto da lanciare (F1–F3 o un click sulla barra); false se non è noto.</summary>
+        /// <summary>Sceglie il posto da lanciare (F1–F8 o un click sulla barra); false se è vuoto.</summary>
         public bool Select(int slot) => Book.TrySelect(slot);
 
-        /// <summary>Impara un incantesimo da una pergamena e lo sceglie; false se era già noto.</summary>
+        /// <summary>
+        /// Mette nella barra un incantesimo fuori dall'albero e lo sceglie; false se c'era già. Dalla
+        /// M20 il Dardo e l'Anello di fuoco non sono del Guerriero: i test li danno con questo, come un
+        /// libro di prova (D3), finché il Mago della M21 non li riporta in un albero suo.
+        /// </summary>
         public bool Learn(SpellDefinition spell)
         {
             if (!Book.Learn(spell))
@@ -181,6 +190,12 @@ namespace DarkDescent.Magic
 
         private void OnEnable()
         {
+            if (_talents != null)
+            {
+                _talents.Build.Applied += SyncTalents;
+                SyncTalents();
+            }
+
             _stats.Sheet.Changed += RefreshMax;
             _health.Revived += Mana.Fill;
             if (_progress != null)
@@ -193,6 +208,11 @@ namespace DarkDescent.Magic
 
         private void OnDisable()
         {
+            if (_talents != null)
+            {
+                _talents.Build.Applied -= SyncTalents;
+            }
+
             _stats.Sheet.Changed -= RefreshMax;
             _health.Revived -= Mana.Fill;
             if (_progress != null)
@@ -288,6 +308,33 @@ namespace DarkDescent.Magic
         private void HandleLevelUp(int level)
         {
             Mana.Fill();
+        }
+
+        // la barra segue l'albero applicato: via le abilità tolte, dentro le nuove nei primi posti liberi
+        private void SyncTalents()
+        {
+            var abilities = _talents.Build.Abilities();
+            _dropped.Clear();
+            foreach (var spell in _fromTree)
+            {
+                if (!abilities.Contains(spell))
+                {
+                    _dropped.Add(spell);
+                }
+            }
+
+            foreach (var spell in _dropped)
+            {
+                _fromTree.Remove(spell);
+                Book.Forget(spell);
+            }
+
+            // una già nella barra resta al suo posto
+            foreach (var spell in abilities)
+            {
+                _fromTree.Add(spell);
+                Book.Learn(spell);
+            }
         }
 
         private void RefreshMax()

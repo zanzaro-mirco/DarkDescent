@@ -142,9 +142,6 @@ namespace DarkDescent.Core
         [Tooltip("Gli unici e i pezzi di set che il loot può far cadere (M16).")]
         [SerializeField] private NamedItemDatabase _namedItems;
 
-        [Tooltip("Le pergamene e quanto spesso un livello ne ha una (D5 della M9).")]
-        [SerializeField] private ScrollTable _scrolls;
-
         [Tooltip("I portali per l'accampamento, che apre la magia del portale (D6 della M10, passo 11.7 della M11).")]
         [SerializeField] private Town.TownPortals _portals;
 
@@ -222,7 +219,6 @@ namespace DarkDescent.Core
         private PlayerProgress _progress;
         private Rendering.CameraRotation _cameraRotation;
         private Magic.PlayerMagic _magic;
-        private PlayerInventory _inventory;
 
         // i banchi del borgo, mercante, fabbro e guaritrice, se è il livello corrente (D5 della M10,
         // D18 della M18): un banco per ognuno, con la sua merce
@@ -250,9 +246,6 @@ namespace DarkDescent.Core
 
         // il boss del livello corrente, se c'è e non è ancora stato sconfitto (D8 della M10)
         private BossController _boss;
-
-        // quali pergamene possono ancora cadere: creata una volta, non a ogni livello
-        private Func<Magic.SpellDefinition, bool> _scrollWanted;
 
         // muri e torce del livello corrente, alti o bassi secondo la camera (D12 della M8); null nei livelli fatti a mano senza
         private WallView _walls;
@@ -417,8 +410,6 @@ namespace DarkDescent.Core
             _targetMarker.Bind(controller);
             var magic = _player.GetComponent<Magic.PlayerMagic>();
             _magic = magic;
-            _inventory = inventory;
-            _scrollWanted = spell => !_magic.Book.Knows(spell) && !_inventory.CarriesScrollOf(spell);
             magic.Bind(_reader, controller);
             magic.SetPortalOpener(_portals);
             var shrineBonus = _player.GetComponent<ShrineBonus>();
@@ -865,8 +856,6 @@ namespace DarkDescent.Core
                 trap.Bind(_player, level.Depth);
             }
 
-            PlaceScroll(level);
-
             _pack = new EnemyPack(level.Enemies);
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
@@ -1290,44 +1279,6 @@ namespace DarkDescent.Core
         {
             BindEnemy(enemy, _depth, rewarding: false);
             enemy.Alert();
-        }
-
-        // la pergamena del livello, se c'è, la porta uno dei nemici o una delle casse (D5 della M9)
-        private void PlaceScroll(LevelContext level)
-        {
-            var scroll = _loot.RollScroll(_scrolls, level.Depth, _scrollWanted, out double carrier);
-            if (scroll == null)
-            {
-                return;
-            }
-
-            int carriers = level.Chests.Count;
-            foreach (var enemy in level.Enemies)
-            {
-                if (enemy != null && enemy.TryGetComponent(out LootDrop _))
-                {
-                    carriers++;
-                }
-            }
-
-            int pick = Math.Min(carriers - 1, (int)(carrier * carriers));
-            foreach (var enemy in level.Enemies)
-            {
-                if (enemy != null && enemy.TryGetComponent(out LootDrop loot) && pick-- == 0)
-                {
-                    loot.Carry(scroll);
-                    return;
-                }
-            }
-
-            foreach (var chest in level.Chests)
-            {
-                if (pick-- == 0)
-                {
-                    chest.Carry(scroll);
-                    return;
-                }
-            }
         }
 
         private void ReleaseLevel(LevelContext level)

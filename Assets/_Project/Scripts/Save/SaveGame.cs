@@ -149,7 +149,8 @@ namespace DarkDescent.Save
             // da morto il mana torna pieno con la vita (Revived): si salva pieno
             if (_magic != null)
             {
-                data.WithMagic(_magic.Book.KnownIds(), _magic.Book.Selected, _health.IsDead ? SaveData.FullMana : _magic.Mana.Current);
+                data.WithMagic(_magic.Book.KnownIds(), _magic.Book.Selected, _health.IsDead ? SaveData.FullMana : _magic.Mana.Current)
+                    .WithBar(_magic.Book.Export());
             }
 
             return data;
@@ -206,6 +207,9 @@ namespace DarkDescent.Save
 
             bool complete = data.Inventory.Restore(_inventory.Inventory, _items, _affixes, _named);
             _inventory.Inventory.RestoreGold(data.Gold);
+
+            // le pergamene non ci sono più (D4 della M20): quelle di un salvataggio vecchio diventano oro
+            _inventory.Inventory.SellWhere(item => item.Definition is ScrollDefinition);
             _runStats.Restore(data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated);
             if (_portals != null)
             {
@@ -222,10 +226,12 @@ namespace DarkDescent.Save
 
             _health.SetCurrent(data.Life);
 
-            // dopo attributi, livello e oggetti: il mana massimo è già quello giusto
+            // dopo attributi, livello e oggetti: il mana massimo è già quello giusto. L'albero ha già
+            // messo le sue abilità nella barra: qui tornano ai loro posti. Gli incantesimi noti di un
+            // salvataggio di prima della M20 non contano più (D4)
             if (_magic != null)
             {
-                _magic.Book.Restore(data.KnownSpells, data.SelectedSpell);
+                _magic.Book.Arrange(data.Bar, data.SelectedSpell);
                 if (data.Mana < 0f)
                 {
                     _magic.Mana.Fill();

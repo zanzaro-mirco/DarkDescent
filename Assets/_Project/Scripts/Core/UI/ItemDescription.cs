@@ -126,11 +126,6 @@ namespace DarkDescent.UI
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(restoreKey), (int)System.Math.Round(potion.RestoreFraction * 100f));
                     builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipDrink)).Append("</color></size>");
                     break;
-
-                case ScrollDefinition scroll when scroll.Spell != null:
-                    builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipTeaches), localizer.Get(scroll.Spell.NameKey));
-                    builder.Append("\n<size=85%><color=").Append(HintColor).Append('>').Append(localizer.Get(TextKeys.TooltipRead)).Append("</color></size>");
-                    break;
             }
 
             foreach (var affix in item.Affixes)

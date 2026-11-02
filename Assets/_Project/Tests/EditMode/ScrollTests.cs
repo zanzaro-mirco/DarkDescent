@@ -11,10 +11,14 @@ using UnityEngine;
 
 namespace DarkDescent.Tests
 {
+    /// <summary>
+    /// Le pergamene della M9, uscite dal gioco con la M20 (D4): restano nel database perché un
+    /// salvataggio vecchio le ritrovi e le venda. Qui anche la pozione di mana, nata con loro.
+    /// </summary>
     public class ScrollTests
     {
         private static T Asset<T>(string path) where T : Object => AssetDatabase.LoadAssetAtPath<T>("Assets/_Project/" + path);
-        private static ScrollTable Table => Asset<ScrollTable>("Data/Loot/ScrollTable.asset");
+        private static ScrollDefinition[] Scrolls => new[] { Asset<ScrollDefinition>("Data/Items/ScrollFireRing.asset"), Asset<ScrollDefinition>("Data/Items/ScrollStoneSkin.asset") };
         private static SpellDefinition FireRing => Asset<SpellDefinition>("Data/Spells/FireRing.asset");
         private static SpellDefinition StoneSkin => Asset<SpellDefinition>("Data/Spells/StoneSkin.asset");
         private static AffixDatabase Affixes => Asset<AffixDatabase>("Data/AffixDatabase.asset");
@@ -28,10 +32,10 @@ namespace DarkDescent.Tests
             return localizer;
         }
 
-        [Test, Description("Le due pergamene della scheda (D5): 1 × 2 celle, una per l'Anello di fuoco e una per la Pelle di pietra, nel database; non si indossano")]
-        public void Scrolls_MatchTheScheda()
+        [Test, Description("Le due pergamene di prima della M20, una per l'Anello di fuoco e una per la Pelle di pietra, restano nel database per i salvataggi vecchi: 1 × 2 celle, non si indossano")]
+        public void Scrolls_StayInTheDatabase()
         {
-            var scrolls = Table.Scrolls;
+            var scrolls = Scrolls;
             CollectionAssert.AreEquivalent(new[] { FireRing, StoneSkin }, scrolls.Select(s => s.Spell).ToArray());
             var database = Asset<ItemDatabase>("Data/ItemDatabase.asset");
             foreach (var scroll in scrolls)
@@ -40,42 +44,6 @@ namespace DarkDescent.Tests
                 Assert.AreEqual(EquipSlot.None, scroll.Slot);
                 Assert.IsTrue(database.TryGet(scroll.Id, out var found) && found == scroll, scroll.name + " nel database");
                 Assert.IsNotNull(scroll.Icon, scroll.name + " ha l'icona");
-            }
-
-            Assert.AreEqual(2, Table.FirstDepth);
-        }
-
-        [Test, Description("Niente pergamene prima della profondità 2; dalla 2, su 3000 partite, circa un livello su tre ne ha una (tra 28% e 40%), sempre di un incantesimo voluto")]
-        public void ScrollChance_IsAboutOneLevelInThree()
-        {
-            int found = 0;
-            const int runs = 3000;
-            for (ulong seed = 1; seed <= runs; seed++)
-            {
-                var roller = Roller(seed);
-                Assert.IsNull(roller.RollScroll(Table, 1, null, out _), "profondità 1");
-                var scroll = roller.RollScroll(Table, 3, spell => spell != FireRing, out double carrier);
-                if (scroll != null)
-                {
-                    found++;
-                    Assert.AreSame(StoneSkin, ((ScrollDefinition)scroll.Definition).Spell, "l'Anello è già noto: non cade");
-                    Assert.That(carrier, Is.InRange(0.0, 1.0));
-                }
-            }
-
-            Assert.That(found / (float)runs, Is.InRange(0.28f, 0.40f));
-        }
-
-        [Test, Description("Con tutti e due gli incantesimi noti non cade nessuna pergamena; lo stesso seme dà sempre la stessa pergamena e lo stesso portatore")]
-        public void ScrollRoll_IsDeterministicAndSkipsKnownSpells()
-        {
-            for (ulong seed = 1; seed <= 300; seed++)
-            {
-                Assert.IsNull(Roller(seed).RollScroll(Table, 4, spell => false, out _));
-                var first = Roller(seed).RollScroll(Table, 4, null, out double carrierA);
-                var second = Roller(seed).RollScroll(Table, 4, null, out double carrierB);
-                Assert.AreEqual(first?.Definition, second?.Definition);
-                Assert.AreEqual(carrierA, carrierB);
             }
         }
 
@@ -104,15 +72,15 @@ namespace DarkDescent.Tests
             Assert.AreEqual(25f, mana.RestoreAmount(50f), "metà del mana massimo");
         }
 
-        [Test, Description("Tooltip: la pergamena dice quale incantesimo insegna e come si legge; la pozione blu dice che rende il mana")]
+        [Test, Description("Tooltip: la pergamena ha solo il nome, non si legge più (M20); la pozione blu dice che rende il mana")]
         public void Tooltips_DescribeScrollAndManaPotion()
         {
             var localizer = English();
             var builder = new StringBuilder();
             ItemDescription.Write(builder, new ItemInstance(Asset<ScrollDefinition>("Data/Items/ScrollFireRing.asset")), true, localizer);
             StringAssert.Contains("Scroll of Ring of Fire", builder.ToString());
-            StringAssert.Contains("Teaches Ring of Fire", builder.ToString());
-            StringAssert.Contains("Right-click to read", builder.ToString());
+            StringAssert.DoesNotContain("Teaches", builder.ToString());
+            StringAssert.DoesNotContain("Right-click", builder.ToString());
 
             ItemDescription.Write(builder, new ItemInstance(Asset<PotionDefinition>("Data/Items/ManaPotion.asset")), true, localizer);
             StringAssert.Contains("Restores 50% of mana", builder.ToString());

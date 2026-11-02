@@ -211,7 +211,7 @@ namespace DarkDescent.Player
             CastPressed?.Invoke();
         }
 
-        // F1, F2 e F3 sono consecutivi nell'enum dei tasti, come le cifre della cintura
+        // da F1 a F8 i tasti sono consecutivi nell'enum, come le cifre della cintura
         private void HandleSelectSpellPerformed(InputAction.CallbackContext context)
         {
             if (context.control is KeyControl key)

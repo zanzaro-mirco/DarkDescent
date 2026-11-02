@@ -49,6 +49,8 @@ namespace DarkDescent.Tests
             yield return null;
             var pools = Object.FindFirstObjectByType<ProjectilePools>();
             var magic = Player.GetComponent<PlayerMagic>();
+            // dalla M20 il Dardo non è del Guerriero: lo dà il libro di prova (D3)
+            Assert.IsTrue(magic.Learn(Firebolt));
 
             Assert.AreEqual(CastResult.Ready, magic.TryCastAt(skeleton.transform.position));
             Assert.AreEqual(0, pools.ActiveCount, "il proiettile aspetta la mano");

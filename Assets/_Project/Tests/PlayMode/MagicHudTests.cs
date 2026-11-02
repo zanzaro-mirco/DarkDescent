@@ -22,7 +22,7 @@ namespace DarkDescent.Tests
             yield return null;
         }
 
-        [UnityTest, Description("All'avvio: sfera del mana piena, il Dardo nel primo posto e scelto, gli altri posti vuoti; il tasto destro sul pavimento lancia verso il cursore, spende 6 di mana e la sfera scende")]
+        [UnityTest, Description("All'avvio: sfera del mana piena, otto posti, il Colpo possente (la radice dell'albero) nel primo e scelto, gli altri vuoti; il tasto destro sul pavimento lancia verso il cursore, spende 4 di mana e la sfera scende")]
         public IEnumerator RightClick_CastsSelectedSpell()
         {
             yield return LoadSandbox();
@@ -31,8 +31,12 @@ namespace DarkDescent.Tests
             var bar = Object.FindFirstObjectByType<SpellBarView>();
             Assert.AreEqual(30f, magic.Mana.Max, "Magia 10 al livello 1");
             Assert.AreEqual(1f, orb.FillAmount);
+            Assert.AreSame(Spell("PowerStrike"), magic.Book[0]);
             Assert.IsTrue(bar.Slot(0).HasIcon && bar.Slot(0).IsSelected);
-            Assert.IsFalse(bar.Slot(1).HasIcon || bar.Slot(2).HasIcon, "Anello e Pelle non si conoscono");
+            for (int i = 1; i < 8; i++)
+            {
+                Assert.IsFalse(bar.Slot(i).HasIcon, $"F{i + 1} vuoto");
+            }
 
             SpellDefinition cast = null;
             Vector3 target = Vector3.zero;
@@ -42,14 +46,14 @@ namespace DarkDescent.Tests
             yield return null;
             yield return Click(Mouse.rightButton);
 
-            Assert.AreEqual(Spell("Firebolt"), cast);
+            Assert.AreEqual(Spell("PowerStrike"), cast);
             Assert.AreEqual(floor.x, target.x, 0.3f, "verso il punto sotto il cursore");
             Assert.AreEqual(floor.z, target.z, 0.3f);
-            Assert.AreEqual(24f, magic.Mana.Current, 0.5f, "6 di mana spesi, più un soffio di rigenerazione");
-            Assert.Less(orb.FillAmount, 0.85f);
+            Assert.AreEqual(26f, magic.Mana.Current, 0.5f, "4 di mana spesi, più un soffio di rigenerazione");
+            Assert.Less(orb.FillAmount, 0.9f);
         }
 
-        [UnityTest, Description("F2 non sceglie un incantesimo non noto; imparato l'Anello compare nel secondo posto, F2 lo sceglie, lanciarlo avvia il velo della ricarica; senza mana il posto si scurisce e il lancio non parte")]
+        [UnityTest, Description("F2 non sceglie un posto vuoto; l'Anello, dato dal libro di prova, compare nel secondo posto; spostato in F8, F8 lo sceglie, lanciarlo avvia il velo della ricarica; senza mana il posto si scurisce e il lancio non parte")]
         public IEnumerator Keys_SelectAndCooldownAndMana()
         {
             yield return LoadSandbox();
@@ -58,27 +62,31 @@ namespace DarkDescent.Tests
             var bar = Object.FindFirstObjectByType<SpellBarView>();
 
             yield return Click(keyboard.f2Key);
-            Assert.AreEqual(0, magic.Book.Selected, "l'Anello non si conosce: resta il Dardo");
+            Assert.AreEqual(0, magic.Book.Selected, "F2 è vuoto: resta il Colpo possente");
 
             Assert.IsTrue(magic.Book.Learn(Spell("FireRing")));
             yield return null;
             Assert.IsTrue(bar.Slot(1).HasIcon);
-            yield return Click(keyboard.f2Key);
-            Assert.AreEqual(1, magic.Book.Selected);
-            Assert.IsTrue(bar.Slot(1).IsSelected && !bar.Slot(0).IsSelected);
+            Assert.IsTrue(magic.Book.Move(1, 7));
+            yield return null;
+            Assert.IsFalse(bar.Slot(1).HasIcon);
+            Assert.IsTrue(bar.Slot(7).HasIcon);
+            yield return Click(keyboard.f8Key);
+            Assert.AreEqual(7, magic.Book.Selected);
+            Assert.IsTrue(bar.Slot(7).IsSelected && !bar.Slot(0).IsSelected);
 
             Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Player.position));
             yield return null;
-            Assert.Greater(bar.Slot(1).CooldownFill, 0.8f, "il velo appena lanciato");
+            Assert.Greater(bar.Slot(7).CooldownFill, 0.8f, "il velo appena lanciato");
             Assert.AreEqual(CastResult.Cooldown, magic.TryCastAt(Player.position));
             yield return new WaitForSeconds(3.2f);
-            Assert.AreEqual(0f, bar.Slot(1).CooldownFill, "finita la ricarica il velo sparisce");
+            Assert.AreEqual(0f, bar.Slot(7).CooldownFill, "finita la ricarica il velo sparisce");
 
-            // 15 + 15 spesi: ne restano pochi, l'Anello costa 15
-            magic.Mana.TrySpend(magic.Mana.Current - 5f);
+            // l'Anello costa 15, il Colpo possente 4: con 3 non basta per nessuno dei due
+            magic.Mana.TrySpend(magic.Mana.Current - 3f);
             yield return null;
-            Assert.IsFalse(bar.Slot(1).IsAffordable, "il mana non basta: il posto è scuro");
-            Assert.IsTrue(bar.Slot(0).HasIcon && !bar.Slot(0).IsAffordable, "anche il Dardo, che ne costa 6");
+            Assert.IsFalse(bar.Slot(7).IsAffordable, "il mana non basta: il posto è scuro");
+            Assert.IsTrue(bar.Slot(0).HasIcon && !bar.Slot(0).IsAffordable, "anche il Colpo possente, che ne costa 4");
             CastResult failed = CastResult.Ready;
             magic.CastFailed += result => failed = result;
             Assert.AreEqual(CastResult.NoMana, magic.TryCastAt(Player.position));

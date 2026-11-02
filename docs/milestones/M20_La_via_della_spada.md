@@ -153,6 +153,53 @@ Tempra danno +12% di vita solo dopo *Applica*; un livello 30 con *Armi* salvato 
 uguale). Un test della M16 chiedeva il formato 7 scritto: ora chiede il formato corrente. EditMode
 553/553, PlayMode senza `Nightly` 289/291 (i due di sempre saltati).
 
+## Passo 20.3 — Via le pergamene, la barra a otto posti
+
+**Com'è andata (2 nov 2026).** La barra è diventata **otto posti, F1–F8** (D9). `SpellBook` non ha
+più un posto fisso per incantesimo: un'abilità imparata va nel primo posto libero, si sposta con
+`Move` (scambiandosi con quella che c'era, e la scelta la segue), si toglie con `Forget`. La
+riempie l'albero: `PlayerMagic` ascolta *Applica* e mette le abilità nuove nei primi posti liberi,
+toglie quelle che non ci sono più e lascia dove sono le altre. All'inizio c'è solo la radice, il
+**Colpo possente** in F1; con *Armi* arriva il Turbine, con *Difesa* il Colpo di scudo. L'altare
+lascia solo la radice. La **ricarica è dell'abilità** e non del posto (`SpellCaster`): spostata, se
+la porta dietro, e il velo della barra la segue.
+
+**Dardo e Anello fuori dal Guerriero** (D3). `PlayerMagic` non ha più la lista degli incantesimi; il
+Dardo, l'Anello e la Pelle di pietra restano nel gioco con il loro comportamento, e i test li danno
+con `PlayerMagic.Learn`, il **libro di prova**. Sparisce anche "noto dall'inizio" degli incantesimi.
+La Pelle di pietra torna come nodo dell'albero.
+
+**Via le pergamene** (D4). Niente più pergamena del livello (`PlaceScroll`, il tiro con il suo
+seme e la tabella `ScrollTable`): gli altri tiri non cambiano, il dominio del seme era a parte. Una
+pergamena non si legge più, e il tooltip non lo dice. Le due pergamene restano nel database per i
+salvataggi vecchi: al caricamento quelle nello zaino o sul cursore **diventano oro**, al prezzo del
+mercante (`Inventory.SellWhere`). Quelle rimaste a terra in un livello ricordato restano oggetti da
+vendere: il mercante le compra ancora. Il mercante non ne vendeva già prima.
+
+**Salvataggio.** `SaveGame` scrive la barra posto per posto in `_bar`; caricando, l'albero rimette le
+sue abilità e `SpellBook.Arrange` le riporta ai loro posti, ignorando gli id che non ci sono. Gli
+incantesimi "noti" di un salvataggio di prima non contano più. Il campione nuovo è `save_v8.json`
+(il borgo al livello 24 con *Armi*, il Turbine in F1 e il Colpo possente in F2).
+
+**La scena.** `TalentTools.InstallBar` (menu *Talenti → Barra a otto posti in Core*, e dentro
+*Costruisci il Guerriero*) copia l'ultimo posto fino a otto, 48 px con 6 di spazio come la cintura:
+la barra va da 233 a 659 px dal centro, e a 1920 × 1080 lascia 93 px prima della sfera del mana. Su
+uno schermo 4:3 la tocca: si guarda con le foto del 20.6. I tasti F4–F8 sono nell'asset dei
+comandi e nella classe generata.
+
+**Le abilità del Guerriero non fanno ancora niente**: lanciate spendono il mana, fanno il gesto e
+partono la ricarica, ma il loro effetto arriva nel 20.4.
+
+**Test.** Riscritti i test del libro (`ManaTests`: primo posto libero, barra piena, spostare e
+togliere, la ricarica che segue l'abilità, la barra dal salvataggio), `MagicHudTests` (otto posti,
+il Colpo possente in F1, F8 che sceglie l'Anello spostato), `SaveLoadTests` (la barra posto per
+posto, all'avvio l'albero e la barra), `ScrollTests` (le pergamene solo nel database, il tooltip
+senza "leggi"). Nuovi: `FormatEight_LoadsAsItIs` e, in `TalentPlayModeTests`, la barra che segue
+l'albero, il campione 8 caricato nel gioco e la pergamena di un salvataggio 4 che diventa oro; il
+salvataggio 2 converte la sua pergamena anche in EditMode. Tolti i due test del tiro della
+pergamena e quello della pergamena che insegna. EditMode 553/553, PlayMode senza `Nightly` 291/293 (i
+due di sempre saltati).
+
 ## Fuori dai passi — I numeri del danno solo sui critici
 
 Richiesta di Mirco del 2 novembre, prima del 20.3: il numero del danno non esce più a ogni colpo, solo
@@ -168,7 +215,7 @@ faccia il numero e che il pool riusi i numeri dei critici.
 
 - [x] Disegno dell'albero approvato da Mirco (20.1)
 - [x] `TalentBuild` in `Core` con i test, salvataggio 8 con la migrazione (20.2)
-- [ ] Niente pergamene nel loot né dal mercante; Dardo e Anello fuori dal Guerriero (20.3)
+- [x] Niente pergamene nel loot né dal mercante; Dardo e Anello fuori dal Guerriero (20.3)
 - [ ] Abilità attive con animazioni, stordimento, effetti e suoni (20.4)
 - [ ] Spadone e ascia a due mani nel loot e dal mercante (20.5)
 - [ ] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6)

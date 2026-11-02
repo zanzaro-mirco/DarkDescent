@@ -4,7 +4,10 @@ using DarkDescent.Magic;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
 using DarkDescent.Talents;
+using DarkDescent.UI;
+using TMPro;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace DarkDescent.Editor
@@ -21,6 +24,11 @@ namespace DarkDescent.Editor
         public const string SpellsFolder = "Assets/_Project/Data/Spells";
         public const string TalentsFolder = "Assets/_Project/Data/Talents";
         public const string PlayerPrefab = "Assets/_Project/Prefabs/Player.prefab";
+        public const string CoreScene = "Assets/_Project/Scenes/Core.unity";
+
+        // i posti della barra: 48 di lato, 6 di spazio (come la cintura)
+        private const float SlotSize = 48f;
+        private const float SlotSpacing = 6f;
 
         // le abilità del Guerriero (D8 e disegno): nome dell'asset, chiave, tipo, mana, ricarica,
         // raggio, durata. Danno, stordimento e il resto arrivano con il loro comportamento (20.4)
@@ -58,6 +66,7 @@ namespace DarkDescent.Editor
             var arms = SaveTree("WarriorArms", "warrior.arms", true, ArmsNodes(spells), new[] { new TalentGate(3, 5), new TalentGate(5, 12) });
             AssetDatabase.SaveAssets();
             InstallOnPlayer(warrior, defense, arms);
+            InstallBar();
             Debug.Log($"[TalentTools] Guerriero: {warrior.Nodes.Count} nodi, Difesa {defense.Nodes.Count}, Armi {arms.Nodes.Count}");
         }
 
@@ -199,6 +208,41 @@ namespace DarkDescent.Editor
 
             EditorUtility.SetDirty(tree);
             return tree;
+        }
+
+        /// <summary>
+        /// La barra di otto posti, F1–F8 (D9 della M20): i posti che mancano sono copie dell'ultimo, uno
+        /// accanto all'altro, ognuno con il suo numero, il suo tasto e il riferimento della barra.
+        /// </summary>
+        [MenuItem("DarkDescent/Talenti/Barra a otto posti in Core")]
+        public static void InstallBar()
+        {
+            var scene = EditorSceneManager.OpenScene(CoreScene, OpenSceneMode.Single);
+            var bar = UnityEngine.Object.FindFirstObjectByType<SpellBarView>(FindObjectsInactive.Include);
+            var so = new SerializedObject(bar);
+            var slots = so.FindProperty("_slots");
+            var last = (SpellSlotView)slots.GetArrayElementAtIndex(slots.arraySize - 1).objectReferenceValue;
+            for (int index = slots.arraySize; index < SpellBook.Slots; index++)
+            {
+                var copy = UnityEngine.Object.Instantiate(last.gameObject, last.transform.parent);
+                copy.name = $"Spell_{index + 1}";
+                var view = copy.GetComponent<SpellSlotView>();
+                var slot = new SerializedObject(view);
+                slot.FindProperty("_slot").intValue = index;
+                slot.FindProperty("_bar").objectReferenceValue = bar;
+                slot.ApplyModifiedPropertiesWithoutUndo();
+                ((RectTransform)copy.transform).anchoredPosition = new Vector2(index * (SlotSize + SlotSpacing), 0f);
+                copy.transform.Find("Key").GetComponent<TMP_Text>().text = $"F{index + 1}";
+                slots.arraySize = index + 1;
+                slots.GetArrayElementAtIndex(index).objectReferenceValue = view;
+            }
+
+            so.ApplyModifiedPropertiesWithoutUndo();
+            var rect = (RectTransform)bar.transform;
+            rect.sizeDelta = new Vector2(SpellBook.Slots * SlotSize + (SpellBook.Slots - 1) * SlotSpacing, SlotSize);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log($"[TalentTools] barra: {slots.arraySize} posti in {CoreScene}");
         }
 
         private static void InstallOnPlayer(TalentTree warrior, TalentTree defense, TalentTree arms)
