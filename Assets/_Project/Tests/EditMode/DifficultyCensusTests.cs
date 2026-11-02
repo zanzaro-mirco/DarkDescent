@@ -111,6 +111,18 @@ namespace DarkDescent.Tests
             }
         }
 
+        [Test, Description("I colpi al bruto del Guerriero di riferimento (Armi) alla profondità 1 di ogni difficoltà e alla 8 del Crepuscolo sono quelli del passo 20.8, a un centesimo: dà un colpo d'allarme se un'altra classe o un rifacimento della misura sposta il Guerriero dentro le fasce senza che nessuno se ne accorga")]
+        public void WarriorReference_KeepsItsNumbers()
+        {
+            double[] depthOne = { 6.95, 8.97, 8.83, 10.33, 9.92, 10.36, 10.90, 11.43, 11.85 };
+            for (int t = 0; t < depthOne.Length; t++)
+            {
+                Assert.AreEqual(depthOne[t], _rows.Single(r => r.Tier == t && r.Depth == 1).BruteSwings, 0.01, $"difficoltà {t}, profondità 1");
+            }
+
+            Assert.AreEqual(3.90, _rows.Single(r => r.Tier == 0 && r.Depth == 8).BruteSwings, 0.01, "Crepuscolo, profondità 8");
+        }
+
         [Test, Description("La rarità dell'equipaggiamento segue la difficoltà: normale al Crepuscolo, magica all'Ombra e alla Tenebra, rara dall'Abisso")]
         public void Gear_FollowsTheDifficulty()
         {
