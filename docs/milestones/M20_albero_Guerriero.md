@@ -32,6 +32,11 @@ tutti i suoi gradi.
 
 Al livello 50: 28 punti per 36 gradi nella classe, 21 per 27 nella specializzazione (i gratis esclusi), circa il 78%.
 
+## Stordimento
+
+Il re e i campioni ne prendono metà; dopo uno stordimento un nemico non si stordisce di nuovo per 3 s; gli
+Inarrestabili (M12) non si stordiscono mai.
+
 ## Barra e altare
 
 Con *Armi* le abilità attive possono essere otto: la barra ha **otto posti, F1–F8**. All'altare si riparte da
@@ -45,7 +50,7 @@ zero per **30 oro × livello**.
 
 | # | Nodo | Tipo | Gradi | Riga, colonna | Si apre da | Effetto | Perché |
 |---|---|---|---|---|---|---|---|
-| G01 | **Colpo possente** | attivo | 1 | 1, 4 | — | Un colpo al 170% del danno dell'arma. 4 mana, nessuna ricarica. **Preso gratis al livello 1.** | Il tasto destro fa qualcosa fin dal primo minuto, al posto del Dardo di fuoco. |
+| G01 | **Colpo possente** | attivo | 1 | 1, 4 | — | Un colpo al 160% del danno dell'arma. 4 mana, ricarica 3 s. **Preso gratis al livello 1.** | Il tasto destro fa qualcosa fin dal primo minuto, al posto del Dardo di fuoco. |
 | G02 | **Braccio forte** | passivo | 3 | 2, 2 | G01 | +3% danno per grado. | Il primo passo del ramo offensivo, buono per tutti. |
 | G03 | **Carica** | attivo | 1 | 2, 4 | G01 | Corre sul nemico sotto il cursore, da 3 a 10 m, lo colpisce al 100% e lo stordisce per 1 s. 10 mana, ricarica 8 s. | L'abilità del Guerriero: entra nella mischia senza prendere i colpi della strada. |
 | G04 | **Tempra** | passivo | 3 | 2, 6 | G01 | +4% vita massima per grado. | Il primo passo del ramo difensivo. |
@@ -77,7 +82,7 @@ zero per **30 oro × livello**.
 | D03 | **Muro di scudi** | attivo | 1 | 2, 4 | D01 | Con lo scudo: per 5 s blocca tutti i colpi che si possono bloccare, ma si cammina a metà velocità. 15 mana, ricarica 40 s. | Il bottone del pericolo: il re, un campione Furioso, una trappola di nemici. |
 | D04 | **Pelle spessa** | passivo | 3 | 2, 6 | D01 | −1 danno per ogni colpo preso, per grado. | Contro lo sciame di colpi piccoli. |
 | D05 | **Contraccolpo** | passivo | 2 | 3, 1 | D02 | Ogni colpo bloccato ridà 2 mana per grado. | Il mana della Difesa viene dai blocchi. |
-| D06 | **Spalla d'urto** | passivo | 2 | 3, 3 | D02, D03 | Colpo di scudo: −2 s di ricarica per grado. | Con due gradi si stordisce ogni 2 s: un nemico alla volta resta fermo. |
+| D06 | **Spalla d'urto** | passivo | 2 | 3, 3 | D02, D03 | Colpo di scudo: −2 s di ricarica per grado. | Con due gradi si colpisce ogni 2 s; lo stordimento segue la sua regola, quindi il re non resta fermo. |
 | D07 | **Bastione** | passivo | 2 | 3, 5 | D03, D04 | Muro di scudi: +1,5 s di durata per grado. | Per chi conta sul Muro contro il re. |
 | D08 | **Armatura del custode** | passivo | 3 | 3, 7 | D04 | Con lo scudo, +6% armatura per grado. | Lo scudo in mano vale di più. |
 | D09 | **Rappresaglia** | passivo | 2 | 4, 2 | D05, D06 | Un colpo bloccato rimanda al nemico il 25% del suo danno per grado. | La Difesa fa danno anche stando ferma. |
