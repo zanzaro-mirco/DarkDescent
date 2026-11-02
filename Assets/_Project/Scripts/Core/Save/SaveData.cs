@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using DarkDescent.Items;
 using DarkDescent.Levels;
+using DarkDescent.Talents;
 using UnityEngine;
 
 namespace DarkDescent.Save
@@ -16,7 +17,9 @@ namespace DarkDescent.Save
     /// riporta il portale e i ricordi dei livelli visitati (10.9 della M10): nemici uccisi, casse aperte
     /// e oggetti a terra, che un livello rigenerato dal seme rimette com'erano; dal formato 6 la
     /// difficoltà, la più alta completata e il numero del mondo (D14 della M14); dal formato 7 gli
-    /// unici e i pezzi di set, con il loro id e i valori delle proprietà (D13 della M16). Il campo
+    /// unici e i pezzi di set, con il loro id e i valori delle proprietà (D13 della M16); dal formato
+    /// 8 l'albero delle abilità, con la specializzazione e i nodi presi, e la barra delle abilità
+    /// (M20). Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
     /// </summary>
@@ -24,7 +27,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 7;
+        public const int CurrentVersion = 8;
 
         /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
         public const float FullMana = -1f;
@@ -78,6 +81,12 @@ namespace DarkDescent.Save
         [SerializeField] private int _difficulty;
         [SerializeField] private int _highestDifficulty = -1;
         [SerializeField] private int _world;
+
+        // formato 8: la specializzazione (vuota: nessuna), i nodi presi e applicati, e l'id
+        // dell'abilità in ogni posto della barra (vuoto: posto libero). I punti vengono dal livello
+        [SerializeField] private string _specialization = "";
+        [SerializeField] private List<TalentRecord> _talents = new List<TalentRecord>();
+        [SerializeField] private List<string> _bar = new List<string>();
 
         public int Version => _version;
 
@@ -147,6 +156,15 @@ namespace DarkDescent.Save
 
         /// <summary>Quanti mondi nuovi ci sono stati.</summary>
         public int World => _world;
+
+        /// <summary>L'id della specializzazione scelta; vuoto se nessuna.</summary>
+        public string Specialization => _specialization ?? "";
+
+        /// <summary>I nodi dell'albero presi e applicati, radici escluse.</summary>
+        public IReadOnlyList<TalentRecord> Talents => _talents;
+
+        /// <summary>L'id dell'abilità in ogni posto della barra; vuoto per un posto libero.</summary>
+        public IReadOnlyList<string> Bar => _bar;
 
         public static SaveData Create(ulong runSeed, string scene, string entrance, int depth)
         {
@@ -235,6 +253,21 @@ namespace DarkDescent.Save
             return this;
         }
 
+        /// <summary>L'albero delle abilità: la specializzazione (null o vuota: nessuna) e i nodi applicati.</summary>
+        public SaveData WithTalents(string specialization, List<TalentRecord> talents)
+        {
+            _specialization = specialization ?? "";
+            _talents = talents ?? new List<TalentRecord>();
+            return this;
+        }
+
+        /// <summary>La barra delle abilità: l'id dell'abilità di ogni posto, vuoto per un posto libero.</summary>
+        public SaveData WithBar(List<string> bar)
+        {
+            _bar = bar ?? new List<string>();
+            return this;
+        }
+
         /// <summary>I contatori della partita, per la schermata di vittoria.</summary>
         public SaveData WithStats(float playTime, int kills, int deaths, int goldCollected, bool bossDefeated)
         {
@@ -287,8 +320,19 @@ namespace DarkDescent.Save
                 _world = 0;
             }
 
+            // dal formato 7 all'8 (D4 della M20): nessun nodo preso e nessuna specializzazione, quindi
+            // tutti i punti del livello da spendere; la barra si riempie dalle abilità
+            if (_version < 8 && version >= 8)
+            {
+                _specialization = "";
+                _talents = new List<TalentRecord>();
+                _bar = new List<string>();
+            }
+
             _version = version;
             _explored ??= new List<ExploredLevel>();
+            _talents ??= new List<TalentRecord>();
+            _bar ??= new List<string>();
             _levels ??= new List<LevelRecord>();
             _knownSpells ??= new List<string>();
         }

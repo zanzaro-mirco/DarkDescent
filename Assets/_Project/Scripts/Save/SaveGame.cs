@@ -43,6 +43,7 @@ namespace DarkDescent.Save
         private LevelManager _levelManager;
         private PlayerInventory _inventory;
         private PlayerProgress _progress;
+        private PlayerTalents _talents;
         private PlayerMagic _magic;
         private RunStats _runStats;
         private CharacterStats _stats;
@@ -83,6 +84,8 @@ namespace DarkDescent.Save
             _exploration = exploration;
             _inventory = player.GetComponent<PlayerInventory>();
             _progress = player.GetComponent<PlayerProgress>();
+            // facoltativo: senza, il salvataggio non tocca l'albero delle abilità
+            _talents = player.GetComponent<PlayerTalents>();
             _stats = player.GetComponent<CharacterStats>();
             _health = player.GetComponent<Health>();
             _attack = player.GetComponent<MeleeAttack>();
@@ -138,6 +141,11 @@ namespace DarkDescent.Save
                 data.WithDifficulty(_difficulty.Current, _difficulty.HighestCompleted, _difficulty.World);
             }
 
+            if (_talents != null)
+            {
+                data.WithTalents(_talents.Build.AppliedSpecialization?.Id, _talents.Build.Export());
+            }
+
             // da morto il mana torna pieno con la vita (Revived): si salva pieno
             if (_magic != null)
             {
@@ -189,6 +197,13 @@ namespace DarkDescent.Save
             sheet.SetBase(StatType.Magic, data.Magic);
             sheet.SetBase(StatType.Vitality, data.Vitality);
             _progress.Progress.Restore(data.Level, data.Experience, data.UnspentPoints);
+
+            // dopo il livello, che decide i punti, e prima della vita, che la vita in più dell'albero alza
+            if (_talents != null)
+            {
+                _talents.Build.Restore(data.Level, data.Specialization, data.Talents);
+            }
+
             bool complete = data.Inventory.Restore(_inventory.Inventory, _items, _affixes, _named);
             _inventory.Inventory.RestoreGold(data.Gold);
             _runStats.Restore(data.PlayTime, data.Kills, data.Deaths, data.GoldCollected, data.BossDefeated);

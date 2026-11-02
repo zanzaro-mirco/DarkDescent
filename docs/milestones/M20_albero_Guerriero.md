@@ -1,7 +1,8 @@
 # L'albero del Guerriero
 
 Il disegno del passo 20.1 della M20 "La via della spada" (`M20_La_via_della_spada.md`), approvato
-da Mirco il 2 novembre 2026. La pagina con gli alberi disegnati si genera dagli stessi dati.
+da Mirco il 2 novembre 2026. È la fotografia del disegno: dal passo 20.2 la fonte dell'albero è
+`Editor/TalentTools.cs`, che costruisce gli asset.
 
 ## Stili di gioco
 

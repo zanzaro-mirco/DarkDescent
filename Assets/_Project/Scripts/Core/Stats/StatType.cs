@@ -44,5 +44,29 @@ namespace DarkDescent.Stats
 
         /// <summary>Punti tolti al danno di ogni colpo preso (unici e set, D5 della M16).</summary>
         DamageReduction,
+
+        /// <summary>Punti percentuali in più alla vita massima, Vitalità compresa (l'albero, M20).</summary>
+        MaxLifePercent,
+
+        /// <summary>Punti in più alla probabilità di blocco con lo scudo; il tetto resta 75 (l'albero, M20).</summary>
+        BlockChance,
+
+        /// <summary>Punti percentuali tolti al danno di ogni colpo preso (l'albero, M20).</summary>
+        DamageResist,
+
+        /// <summary>Punti percentuali in più al danno dei critici: 30 porta il ×2 a ×2,3 (l'albero, M20).</summary>
+        CritDamage,
+
+        /// <summary>Punti percentuali in più alla velocità di movimento (l'albero, M20).</summary>
+        MoveSpeed,
+
+        /// <summary>Punti percentuali in più alla cura delle pozioni (l'albero, M20).</summary>
+        PotionBonus,
+
+        /// <summary>
+        /// Punti percentuali del danno fermati quando lo scudo avrebbe bloccato un colpo imparabile
+        /// (la Fortezza dell'albero, M20).
+        /// </summary>
+        PiercedBlock,
     }
 }

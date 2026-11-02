@@ -112,10 +112,53 @@ a 22,5–30,5. Mirco ha approvato il disegno e gli otto posti il 2 novembre 2026
 
 ---
 
+## Passo 20.2 — Il sistema in `Core`
+
+**Com'è andata (2 nov 2026).** L'albero è un asset per albero, `TalentTree`, in `Data/Talents`:
+`Warrior`, `WarriorDefense` e `WarriorArms`. Ogni nodo (`TalentNode`) ha il posto, i gradi, i legami
+con la riga sopra e una o due opzioni (`TalentOption`): un'abilità oppure degli effetti
+(`TalentEffect`). Gli effetti sono di tre tipi: un modificatore della scheda, anche con una
+condizione (scudo, due mani, vita bassa); un numero di un'abilità (`AbilityParam`); qualcosa che
+scatta a un colpo, a un'uccisione o a un blocco. Le regole stanno in `TalentBuild`, logica pura:
+- i punti vengono dal livello (`TalentPoints`) e non si salvano;
+- un nodo si apre quando un legame ha tutti i gradi, e le linee contano i punti spesi nelle righe
+  sopra, così togliere un grado non lascia appeso un nodo più in basso;
+- le modifiche stanno in uno stato in attesa e diventano vere con *Applica*; il gioco legge solo
+  quello applicato;
+- la specializzazione si sceglie dal livello 10, anche lei in attesa fino ad *Applica*;
+- `Restore` non lancia mai: id sconosciuti, gradi oltre il massimo, legami mancanti e punti finiti
+  si lasciano, riga per riga, così un albero ritarato non rompe i salvataggi.
+
+`PlayerTalents`, sul cavaliere, passa il livello all'albero e mette sulla scheda i passivi
+applicati con sé come sorgente. Il **salvataggio 8** ha la specializzazione, i nodi applicati e,
+già adesso, la barra (posto per posto), che userà il 20.3; un salvataggio 7 si apre senza nodi, con
+tutti i punti da spendere. `SaveGame` rimette l'albero **dopo il livello**, che decide i punti, e
+prima della vita, che la vita in più dell'albero alza.
+
+Le statistiche nuove vanno in fondo a `StatType`: vita massima in percentuale (letta già dalla vita e
+dalla misura delle difficoltà), blocco, danno preso in percentuale, danno dei critici, velocità di
+movimento, cura delle pozioni e il colpo imparabile fermato a metà; le altre si leggono nel 20.4.
+Anche i dieci tipi delle abilità nuove vanno in fondo a `SpellKind`, con gli asset in `Data/Spells`
+(mana, ricarica, raggio e durata del disegno).
+
+**La fonte dell'albero** adesso è `TalentTools.BuildWarrior`, che costruisce abilità, alberi e
+componente sul cavaliere e controlla la forma di ogni albero; `M20_albero_Guerriero.md` resta la
+fotografia del disegno approvato.
+
+**Test.** Nuovi: `TalentBuildTests` (le regole su due alberi piccoli: punti, legami, linee, nodi a
+scelta, *Applica* e *Annulla*, specializzazione, altare, salvataggio tollerante), `WarriorTreeTests`
+(i numeri del disegno, le linee ai livelli 7, 21, 18 e 32, ogni nodo raggiungibile, 28 e 21 punti
+spendibili al livello 50), il formato 7 → 8 e, in PlayMode, `TalentPlayModeTests` (tre gradi di
+Tempra danno +12% di vita solo dopo *Applica*; un livello 30 con *Armi* salvato e ricaricato torna
+uguale). Un test della M16 chiedeva il formato 7 scritto: ora chiede il formato corrente. EditMode
+553/553, PlayMode senza `Nightly` 289/291 (i due di sempre saltati).
+
+---
+
 ## Checklist di chiusura
 
 - [x] Disegno dell'albero approvato da Mirco (20.1)
-- [ ] `TalentBuild` in `Core` con i test, salvataggio 8 con la migrazione (20.2)
+- [x] `TalentBuild` in `Core` con i test, salvataggio 8 con la migrazione (20.2)
 - [ ] Niente pergamene nel loot né dal mercante; Dardo e Anello fuori dal Guerriero (20.3)
 - [ ] Abilità attive con animazioni, stordimento, effetti e suoni (20.4)
 - [ ] Spadone e ascia a due mani nel loot e dal mercante (20.5)

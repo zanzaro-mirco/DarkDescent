@@ -1,0 +1,467 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63b8a4f0bc82a7c49aa5532d64384705, type: 3}
+  m_Name: Warrior
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Talents.TalentTree
+  _id: warrior
+  _nameKey: talent.tree.warrior
+  _specialization: 0
+  _nodes:
+  - _id: power_strike
+    _row: 0
+    _column: 3
+    _ranks: 1
+    _links: []
+    _options:
+    - _nameKey: talent.power_strike
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 85e07d12446674b4eb47e876bccfc9c2, type: 2}
+      _effects: []
+  - _id: strong_arm
+    _row: 1
+    _column: 1
+    _ranks: 3
+    _links:
+    - power_strike
+    _options:
+    - _nameKey: talent.strong_arm
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 10
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: charge
+    _row: 1
+    _column: 3
+    _ranks: 1
+    _links:
+    - power_strike
+    _options:
+    - _nameKey: talent.charge
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: b7305ffed6a145a40b2ad41dd6cbd3c9, type: 2}
+      _effects: []
+  - _id: toughness
+    _row: 1
+    _column: 5
+    _ranks: 3
+    _links:
+    - power_strike
+    _options:
+    - _nameKey: talent.toughness
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 15
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 4
+        _duration: 0
+  - _id: keen_eye
+    _row: 2
+    _column: 0
+    _ranks: 3
+    _links:
+    - strong_arm
+    _options:
+    - _nameKey: talent.keen_eye
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 7
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 2
+        _duration: 0
+  - _id: steady_hand
+    _row: 2
+    _column: 2
+    _ranks: 2
+    _links:
+    - strong_arm
+    _options:
+    - _nameKey: talent.steady_hand
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 5
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+  - _id: momentum
+    _row: 2
+    _column: 3
+    _ranks: 2
+    _links:
+    - charge
+    _options:
+    - _nameKey: talent.momentum
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: b7305ffed6a145a40b2ad41dd6cbd3c9, type: 2}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: -2
+        _duration: 0
+  - _id: stone_skin
+    _row: 2
+    _column: 4
+    _ranks: 1
+    _links:
+    - toughness
+    _options:
+    - _nameKey: talent.stone_skin
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 3b596d532d26ec14fab30fdc18ac2a44, type: 2}
+      _effects: []
+  - _id: sturdy_mail
+    _row: 2
+    _column: 6
+    _ranks: 3
+    _links:
+    - toughness
+    _options:
+    - _nameKey: talent.sturdy_mail
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 4
+        _modifier: 1
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+  - _id: discipline
+    _row: 3
+    _column: 1
+    _ranks: 2
+    _links:
+    - keen_eye
+    - steady_hand
+    _options:
+    - _nameKey: talent.discipline
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 1
+        _duration: 0
+  - _id: battle_shout
+    _row: 3
+    _column: 3
+    _ranks: 1
+    _links:
+    - steady_hand
+    - momentum
+    - stone_skin
+    _options:
+    - _nameKey: talent.battle_shout
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: f2dda1a4f012b4541ab88dc3bce70066, type: 2}
+      _effects: []
+  - _id: second_skin
+    _row: 3
+    _column: 5
+    _ranks: 2
+    _links:
+    - stone_skin
+    - sturdy_mail
+    _options:
+    - _nameKey: talent.second_skin
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 3b596d532d26ec14fab30fdc18ac2a44, type: 2}
+        _param: 3
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 3b596d532d26ec14fab30fdc18ac2a44, type: 2}
+        _param: 1
+        _trigger: 0
+        _outcome: 0
+        _perRank: -2
+        _duration: 0
+  - _id: battle_instinct
+    _row: 4
+    _column: 1
+    _ranks: 1
+    _links:
+    - discipline
+    _options:
+    - _nameKey: talent.bloodlust
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 13
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+    - _nameKey: talent.battle_rhythm
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 12
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 8
+        _duration: 0
+  - _id: rousing_shout
+    _row: 4
+    _column: 3
+    _ranks: 2
+    _links:
+    - battle_shout
+    _options:
+    - _nameKey: talent.rousing_shout
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: f2dda1a4f012b4541ab88dc3bce70066, type: 2}
+        _param: 5
+        _trigger: 0
+        _outcome: 0
+        _perRank: 1
+        _duration: 0
+  - _id: last_defense
+    _row: 4
+    _column: 5
+    _ranks: 1
+    _links:
+    - second_skin
+    _options:
+    - _nameKey: talent.last_defense
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 17
+        _modifier: 0
+        _condition: 3
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 30
+        _duration: 0
+  - _id: heavy_step
+    _row: 5
+    _column: 2
+    _ranks: 2
+    _links:
+    - battle_instinct
+    - rousing_shout
+    _options:
+    - _nameKey: talent.heavy_step
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 19
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+  - _id: recovery
+    _row: 5
+    _column: 4
+    _ranks: 2
+    _links:
+    - rousing_shout
+    - last_defense
+    _options:
+    - _nameKey: talent.recovery
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 20
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 15
+        _duration: 0
+  - _id: weapon_master
+    _row: 6
+    _column: 1
+    _ranks: 2
+    _links:
+    - heavy_step
+    _options:
+    - _nameKey: talent.weapon_master
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 10
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+      - _kind: 0
+        _stat: 5
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+  - _id: warlord
+    _row: 6
+    _column: 3
+    _ranks: 1
+    _links:
+    - heavy_step
+    - recovery
+    _options:
+    - _nameKey: talent.furious_charge
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: b7305ffed6a145a40b2ad41dd6cbd3c9, type: 2}
+        _param: 4
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+    - _nameKey: talent.fathers_shout
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: f2dda1a4f012b4541ab88dc3bce70066, type: 2}
+        _param: 6
+        _trigger: 0
+        _outcome: 0
+        _perRank: 15
+        _duration: 0
+  - _id: iron_heart
+    _row: 6
+    _column: 5
+    _ranks: 2
+    _links:
+    - recovery
+    _options:
+    - _nameKey: talent.iron_heart
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 15
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+      - _kind: 0
+        _stat: 4
+        _modifier: 1
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+  _gates:
+  - _row: 3
+    _points: 6
+  - _row: 6
+    _points: 14

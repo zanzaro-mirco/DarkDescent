@@ -116,7 +116,7 @@ namespace DarkDescent.Combat
         private float MaxLife()
         {
             return TryGetComponent(out CharacterStats stats) && stats.LifeFromVitality
-                ? CombatFormulas.MaxLife(stats.Vitality) + stats.Life
+                ? CombatFormulas.WithBonus(CombatFormulas.MaxLife(stats.Vitality) + stats.Life, stats.Sheet.Get(StatType.MaxLifePercent))
                 : _maxHealth;
         }
 

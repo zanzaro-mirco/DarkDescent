@@ -792,6 +792,7 @@ GameObject:
   - component: {fileID: 2157874775504651773}
   - component: {fileID: 2453725279522403638}
   - component: {fileID: 7216540692975863265}
+  - component: {fileID: 7894283482052697381}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1326,6 +1327,22 @@ MonoBehaviour:
   _audio: {fileID: 106908924181147097}
   _endClip: {fileID: 8300000, guid: e1026789252917949ae7938c6ca5ce3c, type: 3}
   _volume: 0.7
+--- !u!114 &7894283482052697381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0200b2df11de5f47b8bebd29b654163, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Progression.PlayerTalents
+  _classTree: {fileID: 11400000, guid: d57952e3cf95e5e4a8bceb8cc887e5bb, type: 2}
+  _specializations:
+  - {fileID: 11400000, guid: 08a65373fc6c11c458e8501f4656b4d0, type: 2}
+  - {fileID: 11400000, guid: a0ff5cc3c2ff48e41b95cb2e54ed3068, type: 2}
 --- !u!1001 &1532508494701324347
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -36,7 +36,7 @@ namespace DarkDescent.Progression
             float dexterity = sheet.Get(StatType.Dexterity);
             float block = shield?.Definition is ArmorDefinition ? CombatFormulas.BlockChance(ItemStats.ShieldBlock(shield), dexterity) : 0f;
             return new CensusFighter(
-                CombatFormulas.MaxLife(sheet.Get(StatType.Vitality)) + sheet.Get(StatType.Life),
+                CombatFormulas.WithBonus(CombatFormulas.MaxLife(sheet.Get(StatType.Vitality)) + sheet.Get(StatType.Life), sheet.Get(StatType.MaxLifePercent)),
                 min, max, sheet.Get(StatType.Strength), sheet.Get(StatType.Level), dexterity,
                 sheet.Get(StatType.Armor), sheet.Get(StatType.ToHit), sheet.Get(StatType.CritChance),
                 true, block, CombatFormulas.WithBonus(1f, sheet.Get(StatType.DamageBonus)),

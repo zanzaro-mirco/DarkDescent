@@ -50,6 +50,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(7);
             }
 
+            // formato 7 → 8 (D4 della M20): arriva l'albero delle abilità; un salvataggio vecchio non ha
+            // nodi presi, e riparte con tutti i punti del suo livello da spendere
+            if (data.Version == 7)
+            {
+                data.UpgradeTo(8);
+            }
+
             return data;
         }
     }

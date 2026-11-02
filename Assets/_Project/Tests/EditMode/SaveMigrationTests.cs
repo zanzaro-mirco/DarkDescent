@@ -4,6 +4,7 @@ using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Save;
 using DarkDescent.Stats;
+using DarkDescent.Talents;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -58,7 +59,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(7, data.Version, "portato al formato corrente");
+            Assert.AreEqual(8, data.Version, "portato al formato corrente");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.IsNotNull(data.Explored);
             Assert.AreEqual(0, data.Explored.Count, "un salvataggio vecchio non ha mappe");
@@ -102,7 +103,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(7, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6 e dal 6 al 7");
+            Assert.AreEqual(8, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6, dal 6 al 7 e dal 7 all'8");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.KnownSpells.Count, "nessun incantesimo imparato: il Dardo è noto dall'inizio");
             Assert.AreEqual(0, data.SelectedSpell);
@@ -227,6 +228,31 @@ namespace DarkDescent.Tests
 
         private static UniqueDefinition Named(string path) => AssetDatabase.LoadAssetAtPath<UniqueDefinition>($"Assets/_Project/Data/Named/{path}.asset");
 
+        [Test, Description("Il salvataggio vero del formato 7, nel borgo al livello 24, si carica con il codice di oggi: nessun nodo dell'albero preso, nessuna specializzazione e la barra vuota, quindi tutti i punti del livello da spendere; il resto com'era")]
+        public void FormatSeven_LoadsWithNoTalents()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v7_camp.json");
+            StringAssert.Contains("\"_version\": 7", fixture.text, "il file congelato è davvero del formato 7");
+            StringAssert.DoesNotContain("_talents", fixture.text);
+            File.WriteAllText(_path, fixture.text);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
+            Assert.AreEqual(("Town", 24), (data.Scene, data.Level));
+            Assert.AreEqual("", data.Specialization);
+            Assert.AreEqual(0, data.Talents.Count);
+            Assert.AreEqual(0, data.Bar.Count);
+
+            // riscritto e riletto, l'albero passa intero
+            data.WithTalents("warrior.arms", new List<TalentRecord> { new TalentRecord("warrior", "strong_arm", 2, 0) })
+                .WithBar(new List<string> { "a", "", "b" });
+            SaveFile.Write(_path, data);
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var again));
+            Assert.AreEqual("warrior.arms", again.Specialization);
+            Assert.AreEqual(("warrior", "strong_arm", 2, 0), (again.Talents[0].Tree, again.Talents[0].Node, again.Talents[0].Rank, again.Talents[0].Option));
+            CollectionAssert.AreEqual(new[] { "a", "", "b" }, again.Bar);
+        }
+
         [Test, Description("Il salvataggio vero del formato 6, alla Tenebra nel quarto mondo, si carica con il codice di oggi: nessun oggetto ha un nome, e rari, magici, livelli ricordati e difficoltà sono com'erano")]
         public void FormatSix_LoadsWithTodaysCode()
         {
@@ -286,7 +312,7 @@ namespace DarkDescent.Tests
                 .WithLevels(new List<LevelRecord> { record });
             SaveFile.Write(_path, data);
             string json = File.ReadAllText(_path);
-            StringAssert.Contains("\"_version\": 7", json);
+            StringAssert.Contains($"\"_version\": {SaveData.CurrentVersion}", json);
             StringAssert.Contains(fang.NamedId, json);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));

@@ -1,0 +1,329 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63b8a4f0bc82a7c49aa5532d64384705, type: 3}
+  m_Name: WarriorDefense
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Talents.TalentTree
+  _id: warrior.defense
+  _nameKey: talent.tree.warrior.defense
+  _specialization: 1
+  _nodes:
+  - _id: shield_bash
+    _row: 0
+    _column: 3
+    _ranks: 1
+    _links: []
+    _options:
+    - _nameKey: talent.shield_bash
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 0520fb37b1174614893492a5b6a2c116, type: 2}
+      _effects: []
+  - _id: heavy_shield
+    _row: 1
+    _column: 1
+    _ranks: 3
+    _links:
+    - shield_bash
+    _options:
+    - _nameKey: talent.heavy_shield
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 16
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: shield_wall
+    _row: 1
+    _column: 3
+    _ranks: 1
+    _links:
+    - shield_bash
+    _options:
+    - _nameKey: talent.shield_wall
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 2b05c61eac51ae9478833510a5de9d7e, type: 2}
+      _effects: []
+  - _id: thick_skin
+    _row: 1
+    _column: 5
+    _ranks: 3
+    _links:
+    - shield_bash
+    _options:
+    - _nameKey: talent.thick_skin
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 14
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 1
+        _duration: 0
+  - _id: recoil
+    _row: 2
+    _column: 0
+    _ranks: 2
+    _links:
+    - heavy_shield
+    _options:
+    - _nameKey: talent.recoil
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 2
+        _outcome: 0
+        _perRank: 2
+        _duration: 0
+  - _id: shoulder_charge
+    _row: 2
+    _column: 2
+    _ranks: 2
+    _links:
+    - heavy_shield
+    - shield_wall
+    _options:
+    - _nameKey: talent.shoulder_charge
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 0520fb37b1174614893492a5b6a2c116, type: 2}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: -2
+        _duration: 0
+  - _id: bulwark
+    _row: 2
+    _column: 4
+    _ranks: 2
+    _links:
+    - shield_wall
+    - thick_skin
+    _options:
+    - _nameKey: talent.bulwark
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 2b05c61eac51ae9478833510a5de9d7e, type: 2}
+        _param: 3
+        _trigger: 0
+        _outcome: 0
+        _perRank: 1.5
+        _duration: 0
+  - _id: guardian_armor
+    _row: 2
+    _column: 6
+    _ranks: 3
+    _links:
+    - thick_skin
+    _options:
+    - _nameKey: talent.guardian_armor
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 4
+        _modifier: 1
+        _condition: 1
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 6
+        _duration: 0
+  - _id: retaliation
+    _row: 3
+    _column: 1
+    _ranks: 2
+    _links:
+    - recoil
+    - shoulder_charge
+    _options:
+    - _nameKey: talent.retaliation
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 2
+        _outcome: 1
+        _perRank: 25
+        _duration: 0
+  - _id: shield_mastery
+    _row: 3
+    _column: 3
+    _ranks: 1
+    _links:
+    - shoulder_charge
+    - bulwark
+    _options:
+    - _nameKey: talent.thunder_shield
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 0520fb37b1174614893492a5b6a2c116, type: 2}
+        _param: 4
+        _trigger: 0
+        _outcome: 0
+        _perRank: 2.5
+        _duration: 0
+    - _nameKey: talent.blinding_shield
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 0520fb37b1174614893492a5b6a2c116, type: 2}
+        _param: 5
+        _trigger: 0
+        _outcome: 0
+        _perRank: 1.5
+        _duration: 0
+  - _id: steadfast
+    _row: 3
+    _column: 5
+    _ranks: 2
+    _links:
+    - bulwark
+    - guardian_armor
+    _options:
+    - _nameKey: talent.steadfast
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 15
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+  - _id: avenger
+    _row: 4
+    _column: 2
+    _ranks: 2
+    _links:
+    - retaliation
+    - shield_mastery
+    _options:
+    - _nameKey: talent.avenger
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 2
+        _outcome: 3
+        _perRank: 15
+        _duration: 0
+  - _id: shelter
+    _row: 4
+    _column: 4
+    _ranks: 2
+    _links:
+    - shield_mastery
+    - steadfast
+    _options:
+    - _nameKey: talent.shelter
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 17
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 4
+        _duration: 0
+  - _id: last_stand
+    _row: 5
+    _column: 3
+    _ranks: 1
+    _links:
+    - avenger
+    - shelter
+    _options:
+    - _nameKey: talent.last_stand
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 52c0b1c5e4e4a944ba3c97d1a9e0c4d1, type: 2}
+      _effects: []
+  - _id: fortress
+    _row: 5
+    _column: 5
+    _ranks: 1
+    _links:
+    - shelter
+    _options:
+    - _nameKey: talent.fortress
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 21
+        _modifier: 0
+        _condition: 1
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 50
+        _duration: 0
+  _gates:
+  - _row: 3
+    _points: 5
+  - _row: 5
+    _points: 12
