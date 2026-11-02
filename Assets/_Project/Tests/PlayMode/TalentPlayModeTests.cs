@@ -69,6 +69,21 @@ namespace DarkDescent.Tests
             CollectionAssert.AreEqual(data.Bar, book.Export(), "ricatturata, la barra è la stessa");
         }
 
+        [UnityTest, Description("Il salvataggio rimette la barra anche con la magia spenta, come in pausa: riaccesa, i posti restano quelli salvati")]
+        public IEnumerator SaveEight_WithMagicOff_KeepsTheBar()
+        {
+            yield return LoadGeneratedCore();
+            var save = Object.FindFirstObjectByType<SaveGame>();
+            var magic = Player.GetComponent<PlayerMagic>();
+            magic.enabled = false;
+            save.Apply(SaveData.FromJson(Fixture("save_v8")));
+            magic.enabled = true;
+            yield return null;
+
+            Assert.AreEqual((Spell("Whirlwind"), Spell("PowerStrike")), (magic.Book[0], magic.Book[1]));
+            Assert.AreEqual(1, magic.Book.Selected);
+        }
+
         [UnityTest, Description("Una pergamena nello zaino di un salvataggio vecchio (formato 4) diventa oro al caricamento, al prezzo del mercante, e non insegna niente (D4 della M20)")]
         public IEnumerator OldSave_SellsTheScroll()
         {

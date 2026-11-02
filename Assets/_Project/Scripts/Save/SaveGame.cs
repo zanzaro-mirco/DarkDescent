@@ -231,6 +231,7 @@ namespace DarkDescent.Save
             // salvataggio di prima della M20 non contano più (D4)
             if (_magic != null)
             {
+                _magic.SyncWithTree();
                 _magic.Book.Arrange(data.Bar, data.SelectedSpell);
                 if (data.Mana < 0f)
                 {

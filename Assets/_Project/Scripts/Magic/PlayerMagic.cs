@@ -192,8 +192,8 @@ namespace DarkDescent.Magic
         {
             if (_talents != null)
             {
-                _talents.Build.Applied += SyncTalents;
-                SyncTalents();
+                _talents.Build.Applied += SyncWithTree;
+                SyncWithTree();
             }
 
             _stats.Sheet.Changed += RefreshMax;
@@ -210,7 +210,7 @@ namespace DarkDescent.Magic
         {
             if (_talents != null)
             {
-                _talents.Build.Applied -= SyncTalents;
+                _talents.Build.Applied -= SyncWithTree;
             }
 
             _stats.Sheet.Changed -= RefreshMax;
@@ -310,9 +310,17 @@ namespace DarkDescent.Magic
             Mana.Fill();
         }
 
-        // la barra segue l'albero applicato: via le abilità tolte, dentro le nuove nei primi posti liberi
-        private void SyncTalents()
+        /// <summary>
+        /// La barra segue l'albero applicato: via le abilità tolte, dentro le nuove nei primi posti
+        /// liberi. Da spento non sente *Applica*: il salvataggio la chiama prima di rimettere i posti.
+        /// </summary>
+        public void SyncWithTree()
         {
+            if (_talents == null)
+            {
+                return;
+            }
+
             var abilities = _talents.Build.Abilities();
             _dropped.Clear();
             foreach (var spell in _fromTree)

@@ -177,7 +177,9 @@ mercante (`Inventory.SellWhere`). Quelle rimaste a terra in un livello ricordato
 vendere: il mercante le compra ancora. Il mercante non ne vendeva già prima.
 
 **Salvataggio.** `SaveGame` scrive la barra posto per posto in `_bar`; caricando, l'albero rimette le
-sue abilità e `SpellBook.Arrange` le riporta ai loro posti, ignorando gli id che non ci sono. Gli
+sue abilità e `SpellBook.Arrange` le riporta ai loro posti, ignorando gli id che non ci sono. Prima
+di rimetterli `SaveGame` chiede a `PlayerMagic` di allineare la barra all'albero: da spenta, come in
+pausa, la magia non sente *Applica*. Gli
 incantesimi "noti" di un salvataggio di prima non contano più. Il campione nuovo è `save_v8.json`
 (il borgo al livello 24 con *Armi*, il Turbine in F1 e il Colpo possente in F2).
 
@@ -198,7 +200,8 @@ senza "leggi"). Nuovi: `FormatEight_LoadsAsItIs` e, in `TalentPlayModeTests`, la
 l'albero, il campione 8 caricato nel gioco e la pergamena di un salvataggio 4 che diventa oro; il
 salvataggio 2 converte la sua pergamena anche in EditMode. Tolti i due test del tiro della
 pergamena e quello della pergamena che insegna. EditMode 553/553, PlayMode senza `Nightly` 291/293 (i
-due di sempre saltati).
+due di sempre saltati); dopo il caricamento a magia spenta, le tre classi toccate 13/13 ed EditMode
+di nuovo 553/553.
 
 ## Fuori dai passi — I numeri del danno solo sui critici
 
