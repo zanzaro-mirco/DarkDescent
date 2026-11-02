@@ -6,7 +6,7 @@ del disegno: dal passo 21.5 la fonte dell'albero è `Editor/TalentTools.cs`, che
 ## Il Mago in breve
 
 - Il tasto sinistro è il **Dardo arcano**: dalla bacchetta o dal bastone, a distanza, senza mana e senza ricarica.
-- Il mana si rigenera piano (1% al secondo, il doppio fuori dal combattimento); il Guerriero resta com'è.
+- Il mana torna più in fretta: 3% del massimo al secondo, contro il 2% di oggi, che resta quello del Guerriero.
 - Poca vita e poca armatura, tanto mana; i punti a livello vanno Magia, Vitalità, Magia, Vitalità, Destrezza.
 - Bacchetta (una mano) col tomo, o bastone (due mani); chiedono Magia.
 
