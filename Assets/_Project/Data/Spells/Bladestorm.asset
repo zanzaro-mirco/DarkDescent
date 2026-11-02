@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: f5816cb3f7714613a547f0b066ef20b6
   _nameKey: spell.bladestorm
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: eed58099dbe107d4d94bd5a7715db950, type: 3}
   _kind: 13
   _effect: {fileID: 0}
   _manaCost: 25

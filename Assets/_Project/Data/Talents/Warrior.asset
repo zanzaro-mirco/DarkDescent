@@ -34,7 +34,7 @@ MonoBehaviour:
     - power_strike
     _options:
     - _nameKey: talent.strong_arm
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 39d7f16b728fe824691d38b2c07f2edc, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
     - power_strike
     _options:
     - _nameKey: talent.toughness
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: ba9239a5364cdca41af989089d554979, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -87,7 +87,7 @@ MonoBehaviour:
     - strong_arm
     _options:
     - _nameKey: talent.keen_eye
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 529d42e22503f5042b652032fad980c9, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -108,7 +108,7 @@ MonoBehaviour:
     - strong_arm
     _options:
     - _nameKey: talent.steady_hand
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 061be0c0014849249a5a59ef533a7ddf, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -129,7 +129,7 @@ MonoBehaviour:
     - charge
     _options:
     - _nameKey: talent.momentum
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 12ec94407e3e78e4b9bd12db937460e2, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -161,7 +161,7 @@ MonoBehaviour:
     - toughness
     _options:
     - _nameKey: talent.sturdy_mail
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 7915cc64d9f041a4b80676aa9cf059e1, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -183,7 +183,7 @@ MonoBehaviour:
     - steady_hand
     _options:
     - _nameKey: talent.discipline
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 1b5b9a0d8d1615043bcb18a45a5e5482, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -218,7 +218,7 @@ MonoBehaviour:
     - sturdy_mail
     _options:
     - _nameKey: talent.second_skin
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 462d93fb33c68cb44be501eb9df0e297, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -249,7 +249,7 @@ MonoBehaviour:
     - discipline
     _options:
     - _nameKey: talent.bloodlust
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 165b22272f26fd147b5a2b13c707fff9, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -263,7 +263,7 @@ MonoBehaviour:
         _perRank: 3
         _duration: 0
     - _nameKey: talent.battle_rhythm
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: ac6b2675692b671489f93b2e0966f49e, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -284,7 +284,7 @@ MonoBehaviour:
     - battle_shout
     _options:
     - _nameKey: talent.rousing_shout
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 8e6ff4f0b159eae4c8239b903b21482f, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -305,7 +305,7 @@ MonoBehaviour:
     - second_skin
     _options:
     - _nameKey: talent.last_defense
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 924946e1069256a43a4a0a2ca6c347f2, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -327,7 +327,7 @@ MonoBehaviour:
     - rousing_shout
     _options:
     - _nameKey: talent.heavy_step
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 5f798d03077ca3049a3fc63b59a46b6a, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -349,7 +349,7 @@ MonoBehaviour:
     - last_defense
     _options:
     - _nameKey: talent.recovery
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 01371d34ffe1a3e4eb1af45834de95cf, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -370,7 +370,7 @@ MonoBehaviour:
     - heavy_step
     _options:
     - _nameKey: talent.weapon_master
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: e643e53445573df46ad2130ba1c01cc7, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -402,7 +402,7 @@ MonoBehaviour:
     - recovery
     _options:
     - _nameKey: talent.furious_charge
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: d0e9bd0be4dd2f647831fee83afd0ad3, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -416,7 +416,7 @@ MonoBehaviour:
         _perRank: 3
         _duration: 0
     - _nameKey: talent.fathers_shout
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 5d4aaa2a3f8a57747a1cc196a529704f, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -437,7 +437,7 @@ MonoBehaviour:
     - recovery
     _options:
     - _nameKey: talent.iron_heart
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: e736e86f0595414449136951e60bf6f0, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0

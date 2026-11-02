@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: 2863ab51cd1c4e62ab1f219dc5ee14c9
   _nameKey: spell.battle_shout
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 9afe937d857284f44817d6207706db85, type: 3}
   _kind: 6
   _effect: {fileID: 0}
   _manaCost: 12

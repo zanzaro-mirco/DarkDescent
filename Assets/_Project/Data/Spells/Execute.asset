@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: 142c01b7e3bf48e38773e4a183395bef
   _nameKey: spell.execute
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: e2f67edd5732317479cc5e333578fc84, type: 3}
   _kind: 11
   _effect: {fileID: 0}
   _manaCost: 10

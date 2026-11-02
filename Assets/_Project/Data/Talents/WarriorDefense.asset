@@ -34,7 +34,7 @@ MonoBehaviour:
     - shield_bash
     _options:
     - _nameKey: talent.heavy_shield
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 6422ecccef666354ea98bd3622a4355d, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
     - shield_bash
     _options:
     - _nameKey: talent.thick_skin
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 3848b5d8b777f46469534f1df89d3901, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -87,7 +87,7 @@ MonoBehaviour:
     - heavy_shield
     _options:
     - _nameKey: talent.recoil
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 766116d49e2a7fe41b71b14858bd377b, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -109,7 +109,7 @@ MonoBehaviour:
     - shield_wall
     _options:
     - _nameKey: talent.shoulder_charge
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 12ec94407e3e78e4b9bd12db937460e2, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -131,7 +131,7 @@ MonoBehaviour:
     - thick_skin
     _options:
     - _nameKey: talent.bulwark
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 36575b92cf456cb4d890234b9778dee6, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -152,7 +152,7 @@ MonoBehaviour:
     - thick_skin
     _options:
     - _nameKey: talent.guardian_armor
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: f28504d02f098ce418f0353d1cff0f95, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
     - shoulder_charge
     _options:
     - _nameKey: talent.retaliation
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: c58d033dae9266f4782d5b706d9cdc14, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -196,7 +196,7 @@ MonoBehaviour:
     - bulwark
     _options:
     - _nameKey: talent.thunder_shield
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: d0e9bd0be4dd2f647831fee83afd0ad3, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -210,7 +210,7 @@ MonoBehaviour:
         _perRank: 2.5
         _duration: 0
     - _nameKey: talent.blinding_shield
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 8e6ff4f0b159eae4c8239b903b21482f, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -232,7 +232,7 @@ MonoBehaviour:
     - guardian_armor
     _options:
     - _nameKey: talent.steadfast
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: ba9239a5364cdca41af989089d554979, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -254,7 +254,7 @@ MonoBehaviour:
     - shield_mastery
     _options:
     - _nameKey: talent.avenger
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 46b60078059f38e4d962d141705dce2e, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -276,7 +276,7 @@ MonoBehaviour:
     - steadfast
     _options:
     - _nameKey: talent.shelter
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 09952b489e4252e4dbabba6dad1f8f66, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -309,7 +309,7 @@ MonoBehaviour:
     - shelter
     _options:
     - _nameKey: talent.fortress
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: ad48d875d05cfce43a45d185c66a5ee1, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0

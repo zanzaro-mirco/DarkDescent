@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: 652575e00ab547adb60bfc69cbb306f1
   _nameKey: spell.charge
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 1816808736980ce4ca03b346eb0cac6f, type: 3}
   _kind: 5
   _effect: {fileID: 0}
   _manaCost: 10

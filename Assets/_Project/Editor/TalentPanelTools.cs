@@ -257,12 +257,20 @@ namespace DarkDescent.Editor
         {
             var node = HudTools.Node(root, "NodeTemplate", typeof(TalentNodeView));
             HudTools.Place(node, new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(NodeSize, NodeSize));
-            var plate = HudTools.Node(node, "Plate", typeof(Image));
+            // la placca ritaglia l'icona: la maschera ha la sua forma, tonda, quadrata o ottagonale
+            var plate = HudTools.Node(node, "Plate", typeof(Image), typeof(Mask));
             HudTools.Stretch(plate, Vector2.zero, Vector2.zero);
-            var icon = HudTools.Node(node, "Icon", typeof(Image));
-            HudTools.Stretch(icon, new Vector2(8f, 8f), new Vector2(-8f, -8f));
+            plate.GetComponent<Mask>().showMaskGraphic = true;
+            var movedIcon = node.Find("Icon");
+            if (movedIcon != null)
+            {
+                movedIcon.SetParent(plate, false);
+            }
+
+            var icon = HudTools.Node(plate, "Icon", typeof(Image));
+            HudTools.Stretch(icon, Vector2.zero, Vector2.zero);
             icon.GetComponent<Image>().raycastTarget = false;
-            icon.GetComponent<Image>().preserveAspect = true;
+            icon.GetComponent<Image>().preserveAspect = false;
             var ring = HudTools.Node(node, "Ring", typeof(Image));
             HudTools.Stretch(ring, Vector2.zero, Vector2.zero);
             ring.GetComponent<Image>().raycastTarget = false;

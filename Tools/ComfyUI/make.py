@@ -6,6 +6,7 @@
     python Tools/ComfyUI/make.py Statue_Gen --out DIR
     python Tools/ComfyUI/make.py panel_back --takes 4 --page immagini, con la pagina di confronto
     python Tools/ComfyUI/make.py film_opening --takes 3 --page  brani, con la pagina di ascolto
+    python Tools/ComfyUI/make.py talents --takes 3 --page    il nome di un modulo di images/ vale per tutte le sue immagini
 
 Ogni modulo in sounds/ dichiara SOUNDS (nome del WAV -> ricetta con prompt, seconds e seed), TITLE,
 DESCRIPTION, COMPARE e MAX_DUR, come quelli di Tools/Audio; i WAV passano dalla stessa finitura e dalla
@@ -53,6 +54,7 @@ def recipes(folder):
                                                       os.path.join(path, info.name + ".py"))
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
+        module.NAME = info.name
         yield module
 
 
@@ -237,6 +239,10 @@ def main():
         model_modules = list(recipes("models"))
         image_modules = list(recipes("images"))
         music_modules = list(recipes("music"))
+        # il nome di un modulo di images/ vale per tutte le sue ricette (talents: le icone del Guerriero)
+        for module in image_modules:
+            if module.NAME in args.names:
+                args.names = [n for n in args.names if n != module.NAME] + list(module.IMAGES)
         known = ({n for m in sound_modules for n in m.SOUNDS} | {n for m in model_modules for n in m.MODELS}
                  | {n for m in image_modules for n in m.IMAGES} | {n for m in music_modules for n in m.MUSIC})
         unknown = set(args.names) - known

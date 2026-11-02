@@ -14,12 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: bcfda7804f9f404a8696310d6691ea9d
   _nameKey: spell.stone_skin
-  _icon: {fileID: 2141671851645666773, guid: c8705f895bdcecd42b3776df85716c60, type: 3}
+  _icon: {fileID: 21300000, guid: a13790dc5c382594da0a3efc8a1aecd5, type: 3}
   _kind: 2
   _effect: {fileID: 4745980757906689171, guid: acb70657b7ce4984393e68896eea9054, type: 3}
   _manaCost: 12
   _cooldown: 30
-  _knownFromStart: 0
   _minDamage: 0
   _maxDamage: 0
   _magicDivisor: 4
@@ -28,3 +27,10 @@ MonoBehaviour:
   _radius: 4
   _armorPercent: 50
   _duration: 20
+  _weaponPercent: 0
+  _stun: 0
+  _bonusPercent: 0
+  _threshold: 0
+  _minRange: 0
+  _moveFactor: 1
+  _tick: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: d947e2d3a5874b889f3fb34aecaf3eaa
   _nameKey: spell.power_strike
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 88ed363b536cc3e46a06714eb38a383c, type: 3}
   _kind: 4
   _effect: {fileID: 0}
   _manaCost: 4

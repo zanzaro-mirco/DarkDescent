@@ -393,6 +393,29 @@ con *Applica* e *Annulla*, il nodo a scelta, il tooltip nelle due lingue, la spe
 l'avviso, l'altare con l'oro). Foto in `Recordings/Photos/pannello` (`PhotoTour.Talents`): vuoto al 1, l'avviso
 al 5, la scelta al 12, gli alberi a metà al 30 con il tooltip e la finestrella, l'altare, a 16:9 e a 4:3.
 
+## Passo 20.7 — Le icone (D12)
+
+**Com'è andata (3 nov 2026).** Quarantaquattro icone Z-Image-Turbo, 256 × 256, nello stile di Diablo III:
+**undici abilità attive** (una per ognuna) e **trentatré tipi di passivo** (danno, vita, critico, armatura,
+blocco…); i tipi servono a più talenti (il danno vale per *Braccio forte*, *Filo affilato* e *Maestria*, la
+vita per *Tempra* e *Saldo*…). Le ricette sono in `Tools/ComfyUI/images/talents.py` (un'immagine per nome,
+`make.py talents`), con tre semi a testa provati e fogli di confronto per Mirco; Mirco ha lasciato la scelta a
+Claude (3 nov), che ha scartato le prove con la cornice bianca o lo sfondo grigio (Grido 2213, Danno 2301,
+Furto di vita 2332) e quella dove la torre del Muro di scudi aveva una scritta (2220). I semi scelti sono nelle
+ricette; i file stanno in `Art/Icons/Talents`.
+
+- **Dove vanno.** `TalentIconTools.Apply` (menu *DarkDescent / Talenti / Assegna le icone*, si rilancia)
+  importa i PNG come sprite e li dà alle undici `SpellDefinition` e alle opzioni dei talenti; `TalentTools.BuildWarrior`
+  lo richiama alla fine, così un albero rifatto non perde le icone. Le caselle della barra, il menu delle
+  abilità e i nodi del pannello leggono già `Icon`: non è cambiato nient'altro.
+- **I nodi.** La placca tonda o quadrata ora ritaglia l'icona (`Mask`): l'icona è figlia della placca e sta
+  a tutto tondo. I nodi a scelta (ottagoni) hanno ancora il nome: l'icona è dell'opzione presa, e finché non
+  si sceglie non c'è.
+- **Test.** `TalentIconTests`: la tabella copre ogni talento e niente di più, ogni abilità e opzione ha la sua
+  icona dalla cartella `Talents`, le icone sono quadrate (≥ 128) e nella cartella ci sono tutte e solo quelle
+  usate. EditMode 577/577, PlayMode 302 verdi e 2 saltati. Foto in `Recordings/Photos/icone_pannello` e
+  `icone_barra`.
+
 ## Fuori dai passi — I numeri del danno solo sui critici
 
 Richiesta di Mirco del 2 novembre, prima del 20.3: il numero del danno non esce più a ogni colpo, solo
@@ -412,8 +435,8 @@ faccia il numero e che il pool riusi i numeri dei critici.
 - [x] Abilità attive con animazioni, stordimento, effetti e suoni (20.4)
 - [x] Le quattro caselle, il menu delle abilità e la grafica alla Diablo 3 (20.4b)
 - [x] Spadone e ascia a due mani nel loot e dal mercante (20.5)
-- [ ] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6: fatto, foto da approvare)
-- [ ] Icone approvate (20.7)
+- [x] Pannello N con *Applica*, l'avviso dei punti, l'altare che riassegna; foto approvate (20.6)
+- [ ] Icone approvate (20.7: fatto, foto da approvare)
 - [ ] Misura delle difficoltà con l'albero di riferimento dentro la tolleranza; ronda verde (20.8)
 - [ ] EditMode e PlayMode verdi in locale e in CI
 - [ ] ADR, lezioni nel piano, README, prove da fare, `bundleVersion` 1.8.0

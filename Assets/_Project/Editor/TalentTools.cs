@@ -82,6 +82,8 @@ namespace DarkDescent.Editor
             var defense = SaveTree("WarriorDefense", "warrior.defense", true, DefenseNodes(spells), new[] { new TalentGate(3, 5), new TalentGate(5, 12) });
             var arms = SaveTree("WarriorArms", "warrior.arms", true, ArmsNodes(spells), new[] { new TalentGate(3, 5), new TalentGate(5, 12) });
             AssetDatabase.SaveAssets();
+            // le icone di Z-Image, se ci sono già (20.7)
+            TalentIconTools.Apply();
             InstallAbilityStates();
             var effects = InstallAbilityEffects();
             InstallOnPlayer(warrior, defense, arms, effects, attack);

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: e7ec1fa760094797abc17b64a29afaca
   _nameKey: spell.whirlwind
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 756d73e2a4677e34b8fb9bff4866e3d5, type: 3}
   _kind: 10
   _effect: {fileID: 0}
   _manaCost: 12

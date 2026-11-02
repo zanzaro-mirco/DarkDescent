@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: 587bf0843b1a4cf494a521eadffd7d9e
   _nameKey: spell.shield_wall
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 5ade5ee2a51cab047bb197041f6745b2, type: 3}
   _kind: 8
   _effect: {fileID: 0}
   _manaCost: 15

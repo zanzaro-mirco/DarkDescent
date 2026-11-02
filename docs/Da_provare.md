@@ -21,13 +21,13 @@ Le prove della M18 restano valide.
 - **Le quattro caselle** (passo 20.4b): la console in basso con le sfere attaccate ai lati, le pozioni
   a sinistra e le quattro caselle a destra. Il sinistro su un nemico colpisce, il destro, `Q` ed `E`
   lanciano le abilità delle loro caselle; la camera gira con `Z` e `X`. Un click su una casella apre
-  l'elenco, `K` le quattro righe, `Esc` le chiude. La grafica va bene a 16:9 e a 4:3? I nomi sulle
-  caselle si leggono finché non ci sono le icone (20.7)? Con una partita vecchia (a otto posti) le
+  l'elenco, `K` le quattro righe, `Esc` le chiude. La grafica va bene a 16:9 e a 4:3? Le icone sulle
+  caselle (20.7) si riconoscono a colpo d'occhio? Con una partita vecchia (a otto posti) le
   abilità tornano in ordine nelle caselle?
 
 - **Le armi a due mani** (passo 20.5): dal fabbro o da un forziere, uno spadone e un'ascia a due mani. Indossandoli lo scudo va nella borsa (e senza posto non succede niente); rimettendo lo scudo l'arma torna in borsa. Il gesto d'attacco si legge, e la lama arriva insieme al danno? Il Turbine con l'arma grande arriva un po' più in là?
 
-- **Il pannello delle abilità** (passo 20.6): `N` apre l'albero a tutto schermo: click sinistro prende un grado, destro lo toglie, *Applica modifiche* li rende veri e *Annulla* li butta. Dal livello 10 si sceglie la specializzazione dalle schede. Il tooltip si legge e dice cosa manca per aprire un nodo? Il nodo a scelta mostra le due opzioni? L'avviso «Abilità +N» accanto alla sfera del mana compare e sparisce quando serve? All'altare la voce «Riassegna le abilità» prende 30 oro per livello e riporta tutti i punti? I nomi dentro i nodi sono provvisori finché non ci sono le icone (20.7).
+- **Il pannello delle abilità** (passo 20.6): `N` apre l'albero a tutto schermo: click sinistro prende un grado, destro lo toglie, *Applica modifiche* li rende veri e *Annulla* li butta. Dal livello 10 si sceglie la specializzazione dalle schede. Il tooltip si legge e dice cosa manca per aprire un nodo? Il nodo a scelta mostra le due opzioni? L'avviso «Abilità +N» accanto alla sfera del mana compare e sparisce quando serve? All'altare la voce «Riassegna le abilità» prende 30 oro per livello e riporta tutti i punti? Le icone dei nodi (20.7) dicono cosa fa il talento, o ce n'è qualcuna da cambiare? I nodi a scelta mostrano ancora il nome.
 
 ## Dalla M19 — "L'ultima candela" (v1.7.0)
 

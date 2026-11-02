@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: 4c9415147e6e47119a91f1a893eba8d4
   _nameKey: spell.last_stand
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 3d2f2c3655b59ec47bc4a30e8857714f, type: 3}
   _kind: 9
   _effect: {fileID: 0}
   _manaCost: 20

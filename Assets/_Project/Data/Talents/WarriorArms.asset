@@ -34,7 +34,7 @@ MonoBehaviour:
     - whirlwind
     _options:
     - _nameKey: talent.two_handed_grip
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 78c4efba8a4c5d440bc1151a3b401bbc, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -55,7 +55,7 @@ MonoBehaviour:
     - whirlwind
     _options:
     - _nameKey: talent.keen_edge
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 39d7f16b728fe824691d38b2c07f2edc, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -76,7 +76,7 @@ MonoBehaviour:
     - whirlwind
     _options:
     - _nameKey: talent.weak_spot
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: fa4073b327e7eab4e873d94be773b83b, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -97,7 +97,7 @@ MonoBehaviour:
     - two_handed_grip
     _options:
     - _nameKey: talent.circular_motion
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: ac6b2675692b671489f93b2e0966f49e, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -131,7 +131,7 @@ MonoBehaviour:
     - weak_spot
     _options:
     - _nameKey: talent.vortex
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: d0e9bd0be4dd2f647831fee83afd0ad3, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -152,7 +152,7 @@ MonoBehaviour:
     - weak_spot
     _options:
     - _nameKey: talent.executioners_eye
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 529d42e22503f5042b652032fad980c9, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
     - execute
     _options:
     - _nameKey: talent.slaughter
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: d543a213fa9dcd44ca5e06d2f06e5a00, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -208,7 +208,7 @@ MonoBehaviour:
     - executioners_eye
     _options:
     - _nameKey: talent.blood_on_the_blade
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 165b22272f26fd147b5a2b13c707fff9, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -230,7 +230,7 @@ MonoBehaviour:
     - slaughter
     _options:
     - _nameKey: talent.headsman
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 3e28d2433e249e14cbe82700634609a0, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -244,7 +244,7 @@ MonoBehaviour:
         _perRank: 10
         _duration: 0
     - _nameKey: talent.endless_whirlwind
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 336617619bafb264e8dea6718c069bbf, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -266,7 +266,7 @@ MonoBehaviour:
     - blood_on_the_blade
     _options:
     - _nameKey: talent.frenzy
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: f82c5fd042bde90489359d382af5330f, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -287,7 +287,7 @@ MonoBehaviour:
     - fighting_style
     _options:
     - _nameKey: talent.weapon_mastery
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 39d7f16b728fe824691d38b2c07f2edc, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0

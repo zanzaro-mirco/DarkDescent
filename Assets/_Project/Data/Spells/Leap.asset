@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: f6eb7596ef704c28afb12739fbd303f4
   _nameKey: spell.leap
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: b7c1c13188b01b94e92079bf87d95410, type: 3}
   _kind: 12
   _effect: {fileID: 0}
   _manaCost: 14
