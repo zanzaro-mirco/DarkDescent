@@ -14,6 +14,12 @@ namespace DarkDescent.Tests
     /// </summary>
     public class LeashTests : SandboxFixture
     {
+        [TearDown]
+        public void ResetTime()
+        {
+            Time.timeScale = 1f;
+        }
+
         [UnityTest, Description("Un nemico che insegue il cavaliere lontano si ferma al suo limite da casa (20 m, lo sciame 30), ci torna e riprende la vita piena")]
         public IEnumerator Enemy_StopsChasingFarFromHome()
         {
@@ -48,6 +54,8 @@ namespace DarkDescent.Tests
             chaser.Alert();
             Assert.AreEqual(EnemyState.Chase, chaser.State);
 
+            // a velocità 4: sono venti metri all'andata e altrettanti al ritorno, e il passo dell'agente segue il tempo
+            Time.timeScale = 4f;
             float farthestFromHome = 0f;
             for (float time = 0f; chaser.State != EnemyState.Return; time += Time.deltaTime)
             {

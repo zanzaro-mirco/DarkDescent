@@ -254,6 +254,7 @@ Tre workflow di GitHub Actions, con [GameCI](https://game.ci) e la licenza Unity
 
 - **[Tests](.github/workflows/tests.yml)**: test EditMode e PlayMode a ogni push su
   `main` e a ogni pull request. I risultati XML restano 14 giorni tra gli artifact del run.
+  In locale, con Unity chiuso: `Tools/run_tests.sh edit` (circa un minuto) e `Tools/run_tests.sh play` (circa sei), o solo alcune classi con `Tools/run_tests.sh play Classe1;Classe2`. Lasciano fuori la ronda notturna e il giro di foto, che da soli aggiungono dieci minuti.
 - **[Build](.github/workflows/build.yml)**: build Windows sui tag di milestone (`m*`) e di
   versione (`v*`), o ad avvio manuale da *Actions → Build → Run workflow*, dove si può
   scegliere anche la build Web (`WebGL`). Prima rifà i test; la build si scarica dagli

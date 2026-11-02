@@ -15,7 +15,7 @@ namespace DarkDescent.Tests
     {
         private static T Asset<T>(string path) where T : Object => AssetDatabase.LoadAssetAtPath<T>("Assets/_Project/" + path);
 
-        [Test, Description("La magia del portale: tipo suo, icona, costo, nome nelle due lingue; il cavaliere la ha, fuori dai posti F1–F3")]
+        [Test, Description("La magia del portale: tipo suo, icona, costo, nome nelle due lingue; il cavaliere la ha, fuori dalle quattro caselle")]
         public void PortalSpell_IsWired()
         {
             var spell = Asset<SpellDefinition>("Data/Spells/TownPortal.asset");

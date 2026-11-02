@@ -66,7 +66,11 @@ namespace DarkDescent.Editor
             // la console sotto le sfere e le caselle
             var console = Node(hud, "Console");
             Place(console, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, ConsoleBottom), new Vector2(ConsoleWidth, ConsoleHeight));
-            console.SetSiblingIndex(healthOrb.GetSiblingIndex());
+            // sotto le provette: se è già sotto resta, se è sopra va al loro posto
+            if (console.GetSiblingIndex() > healthOrb.GetSiblingIndex())
+            {
+                console.SetSiblingIndex(healthOrb.GetSiblingIndex());
+            }
             var consoleBack = Node(console, "ConsoleBack", typeof(Image));
             Stretch(consoleBack, Vector2.zero, Vector2.zero);
             var backImage = consoleBack.GetComponent<Image>();

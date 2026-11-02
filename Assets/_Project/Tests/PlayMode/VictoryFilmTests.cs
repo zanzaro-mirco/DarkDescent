@@ -164,6 +164,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(0f, Time.timeScale, "il gioco fermo sulle statistiche");
             Assert.IsFalse(Manager.CurrentLevel.Daylight.IsHeld, "l'ora torna all'orologio");
             Assert.IsTrue(Hero.GetComponentsInChildren<SkinnedMeshRenderer>().All(r => r.enabled), "il cavaliere vero si vede");
+            // le comparse si distruggono a fine frame: un fotogramma e sono sparite (senza, il test falliva una volta ogni tanto)
+            yield return null;
             Assert.IsEmpty(Object.FindObjectsByType<FilmActor>(FindObjectsInactive.Include, FindObjectsSortMode.None), "le comparse sparite");
             Assert.IsTrue(Object.FindObjectsByType<Villager>(FindObjectsInactive.Include, FindObjectsSortMode.None).All(v => v.gameObject.activeSelf), "gli abitanti al loro posto");
             var fire = Object.FindFirstObjectByType<Hearth>().transform.position;
