@@ -413,6 +413,39 @@ namespace DarkDescent.Tests
             yield return Snap("twohanded_inventory", world: false);
         }
 
+        [UnityTest, Timeout(300000), Description("Il corpo del Mago sul rig del cavaliere (D2 della M21): a riposo, in corsa, a un colpo e al lancio, accanto al cavaliere")]
+        public IEnumerator MageBody()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 1);
+            yield return Settle();
+
+            var driver = Hero.GetComponentInChildren<CharacterAnimatorDriver>();
+            var playerClass = Hero.GetComponent<PlayerClass>();
+            yield return Snap("body_knight_idle");
+            foreach (string id in new[] { "mage" })
+            {
+                Root.ApplyClass(playerClass.Catalog.Find(id), "Prova");
+                yield return Settle();
+                yield return Snap($"body_{id}_idle");
+                driver.PlayAttack();
+                yield return new WaitForSecondsRealtime(0.5f);
+                yield return Snap($"body_{id}_attack");
+                yield return new WaitForSecondsRealtime(1.2f);
+                driver.PlayCast();
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return Snap($"body_{id}_cast");
+            }
+        }
+
         [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]
         public IEnumerator VillageShops()
         {

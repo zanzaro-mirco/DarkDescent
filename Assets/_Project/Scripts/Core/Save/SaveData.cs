@@ -27,7 +27,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 8;
+        public const int CurrentVersion = 9;
 
         /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
         public const float FullMana = -1f;
@@ -87,6 +87,11 @@ namespace DarkDescent.Save
         [SerializeField] private string _specialization = "";
         [SerializeField] private List<TalentRecord> _talents = new List<TalentRecord>();
         [SerializeField] private List<string> _bar = new List<string>();
+
+        // formato 9 (M21): la classe e il nome del personaggio. Un salvataggio vecchio è un Guerriero
+        // senza nome: la schermata mostra il nome di partenza della classe
+        [SerializeField] private string _class = "warrior";
+        [SerializeField] private string _name = "";
 
         public int Version => _version;
 
@@ -165,6 +170,12 @@ namespace DarkDescent.Save
 
         /// <summary>L'id dell'abilità in ogni posto della barra; vuoto per un posto libero.</summary>
         public IReadOnlyList<string> Bar => _bar;
+
+        /// <summary>L'id della classe del personaggio: warrior, mage.</summary>
+        public string Class => string.IsNullOrEmpty(_class) ? "warrior" : _class;
+
+        /// <summary>Il nome scelto alla creazione; vuoto per un salvataggio di prima.</summary>
+        public string CharacterName => _name ?? "";
 
         public static SaveData Create(ulong runSeed, string scene, string entrance, int depth)
         {
@@ -268,6 +279,14 @@ namespace DarkDescent.Save
             return this;
         }
 
+        /// <summary>La classe e il nome del personaggio (formato 9).</summary>
+        public SaveData WithCharacter(string classId, string name)
+        {
+            _class = string.IsNullOrEmpty(classId) ? "warrior" : classId;
+            _name = name ?? "";
+            return this;
+        }
+
         /// <summary>I contatori della partita, per la schermata di vittoria.</summary>
         public SaveData WithStats(float playTime, int kills, int deaths, int goldCollected, bool bossDefeated)
         {
@@ -327,6 +346,13 @@ namespace DarkDescent.Save
                 _specialization = "";
                 _talents = new List<TalentRecord>();
                 _bar = new List<string>();
+            }
+
+            // dal formato 8 al 9 (D9 della M21): un Guerriero senza nome
+            if (_version < 9 && version >= 9)
+            {
+                _class = "warrior";
+                _name = "";
             }
 
             _version = version;

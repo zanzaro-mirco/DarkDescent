@@ -15,8 +15,8 @@ namespace DarkDescent.Talents
     /// </summary>
     public sealed class TalentBuild
     {
-        private readonly TalentTree _class;
-        private readonly TalentTree[] _specializations;
+        private TalentTree _class;
+        private TalentTree[] _specializations;
         private State _applied = new State();
         private State _pending = new State();
 
@@ -25,6 +25,21 @@ namespace DarkDescent.Talents
             _class = classTree != null ? classTree : throw new ArgumentNullException(nameof(classTree));
             _specializations = (specializations ?? Enumerable.Empty<TalentTree>()).Where(s => s != null).ToArray();
             Level = Math.Max(1, level);
+        }
+
+        /// <summary>
+        /// Cambia gli alberi (la classe del personaggio, D2 della M21) e riparte da zero: l'oggetto resta lo
+        /// stesso, così il pannello, l'altare e il salvataggio che l'hanno già collegato continuano ad
+        /// ascoltarlo. Solo a personaggio nuovo o prima di rimettere uno stato salvato.
+        /// </summary>
+        public void SetTrees(TalentTree classTree, IEnumerable<TalentTree> specializations)
+        {
+            _class = classTree != null ? classTree : throw new ArgumentNullException(nameof(classTree));
+            _specializations = (specializations ?? Enumerable.Empty<TalentTree>()).Where(s => s != null).ToArray();
+            _applied = new State();
+            _pending = new State();
+            Applied?.Invoke();
+            Changed?.Invoke();
         }
 
         /// <summary>Cambiato lo stato in attesa, o il livello: il pannello si ridisegna.</summary>

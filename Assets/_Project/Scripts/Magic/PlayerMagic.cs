@@ -76,6 +76,9 @@ namespace DarkDescent.Magic
 
         public ManaPool Mana => _mana ??= new ManaPool(MaxMana());
 
+        /// <summary>Il mana che torna ogni secondo, in parte del massimo: quello della classe (D7 della M21).</summary>
+        public float ManaRegenPerSecond { get; set; } = CombatFormulas.ManaRegenPerSecond;
+
         public SpellBook Book => _book ??= CreateBook();
 
         public SpellCaster Caster => _caster ??= CreateCaster();
@@ -317,7 +320,7 @@ namespace DarkDescent.Magic
             }
 
             float deltaTime = Time.deltaTime;
-            Mana.Regenerate(deltaTime, CombatFormulas.ManaRegenPerSecond);
+            Mana.Regenerate(deltaTime, ManaRegenPerSecond);
             Caster.Advance(deltaTime);
 
             if (_portalPending)

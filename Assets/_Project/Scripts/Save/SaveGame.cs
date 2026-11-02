@@ -44,6 +44,7 @@ namespace DarkDescent.Save
         private PlayerInventory _inventory;
         private PlayerProgress _progress;
         private PlayerTalents _talents;
+        private PlayerClass _class;
         private PlayerMagic _magic;
         private RunStats _runStats;
         private CharacterStats _stats;
@@ -86,6 +87,8 @@ namespace DarkDescent.Save
             _progress = player.GetComponent<PlayerProgress>();
             // facoltativo: senza, il salvataggio non tocca l'albero delle abilità
             _talents = player.GetComponent<PlayerTalents>();
+            // facoltativo: senza, il salvataggio è di un Guerriero senza nome
+            _class = player.GetComponent<PlayerClass>();
             _stats = player.GetComponent<CharacterStats>();
             _health = player.GetComponent<Health>();
             _attack = player.GetComponent<MeleeAttack>();
@@ -141,6 +144,11 @@ namespace DarkDescent.Save
                 data.WithDifficulty(_difficulty.Current, _difficulty.HighestCompleted, _difficulty.World);
             }
 
+            if (_class != null && _class.Current != null)
+            {
+                data.WithCharacter(_class.Current.Id, _class.CharacterName);
+            }
+
             if (_talents != null)
             {
                 data.WithTalents(_talents.Build.AppliedSpecialization?.Id, _talents.Build.Export());
@@ -193,6 +201,17 @@ namespace DarkDescent.Save
         /// </summary>
         public bool Apply(SaveData data)
         {
+            // la classe per prima: dà gli alberi (e li azzera), il corpo e il mana, e gli attributi
+            // sono quelli salvati, non quelli di partenza
+            if (_class != null && _class.Catalog != null)
+            {
+                var savedClass = _class.Catalog.Find(data.Class);
+                if (savedClass != null)
+                {
+                    _class.Apply(savedClass, data.CharacterName, false);
+                }
+            }
+
             var sheet = _stats.Sheet;
             sheet.SetBase(StatType.Strength, data.Strength);
             sheet.SetBase(StatType.Dexterity, data.Dexterity);

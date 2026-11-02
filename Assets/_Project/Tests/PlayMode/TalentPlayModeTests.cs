@@ -58,7 +58,7 @@ namespace DarkDescent.Tests
             var save = Object.FindFirstObjectByType<SaveGame>();
             var build = Player.GetComponent<PlayerTalents>().Build;
             var book = Player.GetComponent<PlayerMagic>().Book;
-            var data = SaveData.FromJson(Fixture("save_v8"));
+            var data = SaveMigrator.Migrate(SaveData.FromJson(Fixture("save_v8")));
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             save.Apply(data);
 
@@ -75,7 +75,7 @@ namespace DarkDescent.Tests
             var save = Object.FindFirstObjectByType<SaveGame>();
             var magic = Player.GetComponent<PlayerMagic>();
             magic.enabled = false;
-            save.Apply(SaveData.FromJson(Fixture("save_v8")));
+            save.Apply(SaveMigrator.Migrate(SaveData.FromJson(Fixture("save_v8"))));
             magic.enabled = true;
             yield return null;
 

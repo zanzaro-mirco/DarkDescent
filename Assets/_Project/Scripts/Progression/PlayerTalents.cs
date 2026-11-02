@@ -51,6 +51,20 @@ namespace DarkDescent.Progression
         /// <summary>Vero sotto il 30% della vita: l'Ultima difesa vale.</summary>
         public bool IsLowLife => _lowLife;
 
+        /// <summary>
+        /// Dà al personaggio gli alberi di una classe (D2 della M21) e riparte da zero. Il <see cref="Build"/>
+        /// resta lo stesso oggetto, quindi pannello, altare e salvataggio già collegati lo ascoltano ancora.
+        /// </summary>
+        public void SetClass(Classes.CharacterClass characterClass)
+        {
+            if (characterClass == null || characterClass.ClassTree == null)
+            {
+                throw new System.ArgumentException("Una classe senza albero non si applica", nameof(characterClass));
+            }
+
+            Build.SetTrees(characterClass.ClassTree, characterClass.Specializations);
+        }
+
         private CharacterProgress Progress => _progress ??= GetComponent<PlayerProgress>().Progress;
 
         private void Awake()

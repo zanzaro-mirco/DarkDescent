@@ -57,6 +57,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(8);
             }
 
+            // formato 8 → 9 (D9 della M21): arrivano la classe e il nome; un salvataggio vecchio è un
+            // Guerriero senza nome, che la schermata chiama con il nome di partenza
+            if (data.Version == 8)
+            {
+                data.UpgradeTo(9);
+            }
+
             return data;
         }
     }

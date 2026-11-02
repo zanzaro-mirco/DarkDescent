@@ -30,10 +30,21 @@ namespace DarkDescent.Progression
         /// <summary>Porta il cavaliere al livello <paramref name="level"/> e ne spende tutti i punti.</summary>
         public static void RaiseTo(CharacterProgress progress, int level)
         {
+            RaiseTo(progress, level, Pattern);
+        }
+
+        /// <summary>Lo stesso con lo schema di una classe (D2 della M21): per il Mago, Magia e Vitalità.</summary>
+        public static void RaiseTo(CharacterProgress progress, int level, IReadOnlyList<StatType> pattern)
+        {
+            if (pattern == null || pattern.Count == 0)
+            {
+                pattern = Pattern;
+            }
+
             progress.Restore(level, 0, (Math.Max(1, level) - 1) * 5);
             for (int i = 0; progress.UnspentPoints > 0; i++)
             {
-                progress.TrySpend(Pattern[i % Pattern.Length]);
+                progress.TrySpend(pattern[i % pattern.Count]);
             }
         }
 

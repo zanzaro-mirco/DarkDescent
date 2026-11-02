@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a70c76d114cce004087c9ed349aa1d1e, type: 3}
+  m_Name: Warrior
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Classes.CharacterClass
+  _id: warrior
+  _nameKey: class.warrior
+  _body: knight
+  _classTree: {fileID: 11400000, guid: d57952e3cf95e5e4a8bceb8cc887e5bb, type: 2}
+  _specializations:
+  - {fileID: 11400000, guid: 08a65373fc6c11c458e8501f4656b4d0, type: 2}
+  - {fileID: 11400000, guid: a0ff5cc3c2ff48e41b95cb2e54ed3068, type: 2}
+  _strength: 30
+  _dexterity: 20
+  _magic: 10
+  _vitality: 25
+  _pointPattern: 0000000003000000000000000300000001000000
+  _manaRegenFactor: 1
+  _attackSpell: {fileID: 11400000, guid: b1d453d40a9aff74fb826ab5018179e7, type: 2}

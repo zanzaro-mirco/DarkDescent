@@ -83,12 +83,52 @@ Una verifica dei dati controlla che ogni nodo stia una riga sotto quelli a cui �
 sovrappongano e che ogni albero abbia una radice sola, attiva. Al livello 50 i punti coprono l'85% della
 classe e il 75–81% delle specializzazioni. Mirco ha approvato il disegno il 2 novembre 2026, senza tagli.
 
+## Passo 21.2 — La classe come dato (D2, D7, D9)
+
+**Com'è andata (2 nov 2026).** `CharacterClass` (in `Core/Classes`) è un asset: id, nome, corpo, albero della
+classe e specializzazioni, attributi di partenza, schema dei punti, fattore del mana e abilità del sinistro. Il
+Guerriero (`Data/Classes/Warrior`) prende gli attributi dal prefab, quindi il cavaliere di sempre resta lo
+stesso; il Mago (`Mage`) ha Forza 8, Destrezza 17, Magia 35 e Vitalità 20, spende i punti Magia, Vitalità,
+Magia, Vitalità, Destrezza e riprende il mana a 1,5 volte quello di tutti, cioè il 3% al secondo (D7). Gli
+alberi del Mago (`Mage`, `MageFire`, `MageFrost`) arrivano al 21.5: finché mancano il Mago ha
+`IsPlayable` falso e la creazione non lo mostrerà. L'elenco è `ClassCatalog`; un id che non c'è torna il Guerriero.
+
+- **Un prefab solo, due corpi.** I modelli KayKit hanno tutti lo stesso scheletro. `PlayerBodyTools` aggiunge alla
+  `Model` del giocatore i pezzi del Mago (cappello, mantello, tunica, gambe), legati per nome alle ossa del
+  cavaliere e spenti; `PlayerBody` ne accende uno e spegne l'altro secondo la classe. L'Animator, le mani per le
+  armi e il lampo del colpo restano quelli di prima, e le foto lo mostrano: il Mago a riposo, al colpo e al
+  lancio con le clip del cavaliere (`Recordings/Photos/mago_corpo`). In mano ha ancora la spada e lo scudo, finché
+  non ci sono bastone e bacchetta (21.3).
+- **`PlayerClass`.** `Apply(classe, nome, attributiNuovi)` dà gli alberi (`PlayerTalents.SetClass`), il corpo, il
+  mana e, a un personaggio nuovo, gli attributi con vita e mana pieni. Gli alberi si cambiano **nello stesso
+  `TalentBuild`** (`SetTrees`): il pannello, l'altare e il salvataggio che l'hanno già collegato lo ascoltano
+  ancora, e il suo stato riparte da zero. Una classe senza albero non si applica agli alberi.
+- **Il salvataggio 9.** Aggiunge `class` e `name`; la migrazione dall'8 mette Guerriero e nome vuoto, che la
+  schermata chiamerà con il nome di partenza della classe. `SaveGame` scrive la classe e la rimette **per prima**,
+  prima di attributi, livello e albero, perché cambiare gli alberi azzera lo stato. Il campione `save_v8` si
+  carica e passa al 9.
+- **Da riga di comando.** `-class mage` e `-heroname Nome` (con `-newgame`) scelgono la classe di una partita
+  nuova, e `-herolevel` spende i punti con lo schema della classe (`HeroSetup.RaiseTo` con lo schema); il
+  composition root la applica in `Start`, dopo gli Awake. `CompositionRoot.ApplyClass` è quello che userà la
+  schermata della creazione.
+- **Il Guerriero non si muove (D14).** Un test congela i colpi al bruto della misura del 20.8 a un centesimo
+  (`WarriorReference_KeepsItsNumbers`), così un rifacimento della misura o una classe nuova non lo sposta in
+  silenzio dentro le fasce. `HeroSetup.RaiseTo` ha ora una variante con lo schema, e quella di sempre la usa.
+- **Corretta la D7.** La proposta diceva che il mana del Guerriero non si rigenera: torna già al 2% al secondo
+  (`ManaRegenPerSecond`). Il Mago non è «lento», è più veloce: 3%, con il fattore 1,5 nel dato della classe.
+
+**Test.** EditMode 587 e PlayMode 309 (2 saltati) verdi. EditMode: `CharacterClassTests` (l'elenco, il Guerriero uguale al prefab e a `HeroSetup`, il Mago, il
+cambio d'alberi nello stesso `TalentBuild`, i due corpi sulle stesse ossa), `SaveMigrationTests` (il formato 9, il
+nome e la classe, la migrazione dal 8), `WarriorReference_KeepsItsNumbers`. PlayMode: `ClassPlayModeTests` (di
+partenza il Guerriero; il Mago al posto del cavaliere e ritorno; gli alberi nello stesso oggetto; il salvataggio
+che rimette la classe; `-class` e `-heroname`).
+
 ---
 
 ## Checklist di chiusura
 
 - [ ] Disegno dell'albero del Mago approvato da Mirco (21.1)
-- [ ] `CharacterClass`, salvataggio 9 e migrazione, fattore del mana (21.2)
+- [x] `CharacterClass`, salvataggio 9 e migrazione, fattore del mana (21.2)
 - [ ] Bastone, bacchetta e tomo nel loot e dal mercante (21.3)
 - [ ] Dardo arcano e le undici abilità del Mago (21.4)
 - [ ] Albero del Mago nel pannello; altare per entrambe le classi (21.5)

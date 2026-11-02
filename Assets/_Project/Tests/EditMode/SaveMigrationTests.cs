@@ -61,7 +61,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(8, data.Version, "portato al formato corrente");
+            Assert.AreEqual(9, data.Version, "portato al formato corrente");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.IsNotNull(data.Explored);
             Assert.AreEqual(0, data.Explored.Count, "un salvataggio vecchio non ha mappe");
@@ -105,7 +105,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(8, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6, dal 6 al 7 e dal 7 all'8");
+            Assert.AreEqual(9, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6, dal 6 al 7, dal 7 all'8 e dall'8 al 9");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.KnownSpells.Count, "nessun incantesimo imparato: il Dardo è noto dall'inizio");
             Assert.AreEqual(0, data.SelectedSpell);
@@ -265,7 +265,8 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(8, data.Version);
+            Assert.AreEqual(9, data.Version, "portato al formato 9: un Guerriero senza nome");
+            Assert.AreEqual(("warrior", ""), (data.Class, data.CharacterName));
             Assert.AreEqual(("Town", 24, 4321), (data.Scene, data.Level, data.Gold));
             Assert.AreEqual("warrior.arms", data.Specialization);
             Assert.AreEqual(3, data.Talents.Count);
@@ -273,6 +274,23 @@ namespace DarkDescent.Tests
             Assert.AreEqual(8, data.Bar.Count);
             Assert.AreEqual(("e7ec1fa760094797abc17b64a29afaca", "d947e2d3a5874b889f3fb34aecaf3eaa", ""), (data.Bar[0], data.Bar[1], data.Bar[2]));
             Assert.AreEqual(1, data.SelectedSpell);
+        }
+
+        [Test, Description("Il formato 9 (M21) scrive classe e nome e li rilegge; un salvataggio di prima è un Guerriero senza nome")]
+        public void FormatNine_KeepsClassAndName()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v8.json");
+            File.WriteAllText(_path, fixture.text);
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(("warrior", ""), (data.Class, data.CharacterName));
+
+            data.WithCharacter("mage", "Merlino");
+            SaveFile.Write(_path, data);
+            StringAssert.Contains($"\"_version\": {SaveData.CurrentVersion}", File.ReadAllText(_path));
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var again));
+            Assert.AreEqual((9, "mage", "Merlino"), (again.Version, again.Class, again.CharacterName));
+
+            Assert.AreEqual("warrior", data.WithCharacter(null, null).Class, "senza classe è il Guerriero");
         }
 
         [Test, Description("La barra a otto posti del 20.3 (D18): messa nelle quattro caselle, il sinistro ha l'Attacco e nessuna abilità che costa, e ogni casella tiene solo abilità che ci stanno")]

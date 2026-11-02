@@ -182,6 +182,10 @@ namespace DarkDescent.Core
         private const string HeroLevelOption = "-herolevel";
         private const string NamedChanceOption = "-namedchance";
 
+        // la classe e il nome di una partita nuova, per provarli senza la schermata della creazione (M21)
+        private const string ClassOption = "-class";
+        private const string HeroNameOption = "-heroname";
+
         /// <summary>Opzioni in più, separate da spazi, come se fossero sulla riga di comando: per i test.</summary>
         public const string ArgumentsVariable = "DARKDESCENT_ARGS";
 
@@ -266,6 +270,8 @@ namespace DarkDescent.Core
         // a che difficoltà si gioca (D3 della M14), e il livello di -herolevel da dare in Start (0: niente)
         private DifficultyProgress _difficulty;
         private int _heroLevel;
+        private string _classId;
+        private string _heroName = "";
         private readonly List<string> _bossModifiers = new List<string>();
 
         // un generatore solo per tutti i tiri del combattimento, con un seme diverso a ogni avvio (D3)
@@ -449,6 +455,13 @@ namespace DarkDescent.Core
                 _pendingSave = null;
             }
 
+            if (_classId != null)
+            {
+                var playerClass = _player.GetComponent<PlayerClass>();
+                ApplyClass(playerClass.Catalog.Find(_classId), _heroName);
+                _classId = null;
+            }
+
             if (_heroLevel > 0)
             {
                 PrepareHero(_heroLevel);
@@ -502,6 +515,18 @@ namespace DarkDescent.Core
             {
                 _heroLevel = Math.Max(0, level);
             }
+
+            _classId = CommandLine.TryGetValue(args, ClassOption, out text) ? text : null;
+            _heroName = CommandLine.TryGetValue(args, HeroNameOption, out text) ? text : "";
+        }
+
+        /// <summary>
+        /// Dà al personaggio la classe e il nome di una partita nuova, con gli attributi di partenza: la
+        /// creazione del personaggio e <c>-class</c>. Dopo gli Awake, con gli alberi già collegati.
+        /// </summary>
+        public void ApplyClass(Classes.CharacterClass characterClass, string characterName)
+        {
+            _player.GetComponent<PlayerClass>().Apply(characterClass, characterName, true);
         }
 
         /// <summary>
@@ -510,7 +535,7 @@ namespace DarkDescent.Core
         /// </summary>
         public void PrepareHero(int level)
         {
-            HeroSetup.RaiseTo(_progress.Progress, level);
+            HeroSetup.RaiseTo(_progress.Progress, level, _player.GetComponent<PlayerClass>().Current?.PointPattern);
             int equipped = HeroSetup.Equip(_playerInventory.Equipment, _merchantTable.Stock, _loot.Generator, level, _loot.RunSeed);
             _player.Heal(_player.Max);
             Debug.Log($"[DarkDescent] cavaliere di livello {level} da riga di comando, {equipped} oggetti");
