@@ -367,8 +367,8 @@ namespace DarkDescent.UI
                     return Pair(CombatFormulas.CritChance(sheet.Get(StatType.Dexterity), sheet.Get(StatType.CritChance)),
                         CombatFormulas.CritChance(sheet.GetBase(StatType.Dexterity), sheet.GetBase(StatType.CritChance)), out value, out baseValue);
                 case 11:
-                    return Pair(CombatFormulas.MaxMana(sheet.Get(StatType.Magic), level, sheet.Get(StatType.Mana)),
-                        CombatFormulas.MaxMana(sheet.GetBase(StatType.Magic), level, sheet.GetBase(StatType.Mana)), out value, out baseValue);
+                    return Pair(CombatFormulas.MaxMana(sheet.Get(StatType.Magic), level, sheet.Get(StatType.Mana), sheet.Get(StatType.MaxManaPercent)),
+                        CombatFormulas.MaxMana(sheet.GetBase(StatType.Magic), level, sheet.GetBase(StatType.Mana), sheet.GetBase(StatType.MaxManaPercent)), out value, out baseValue);
                 default:
                     value = baseValue = 0;
                     return false;

@@ -196,6 +196,11 @@ namespace DarkDescent.Magic
             {
                 var meteor = _meteors[i];
                 meteor.Timer -= deltaTime;
+                if (!meteor.Fell && meteor.Timer <= meteor.Spell.Delay)
+                {
+                    Drop(meteor);
+                }
+
                 if (meteor.Timer <= 0f)
                 {
                     _meteors.RemoveAt(i);
@@ -330,12 +335,29 @@ namespace DarkDescent.Magic
         private void CallMeteor(SpellDefinition spell, Vector3 point)
         {
             point = Ground(point);
-            _meteors.Add(new Meteor { Spell = spell, Point = point, Timer = spell.Delay });
-            if (_meteorEffect != null && _pools != null && spell.Delay > 0f)
+            var first = new Meteor { Spell = spell, Point = point, Timer = spell.Delay };
+            _meteors.Add(first);
+            if (spell.Delay > 0f)
             {
-                // scende dritta sul punto: senza spostamento di lato, il NavMesh non la ferma prima
-                Vector3 from = point + Vector3.up * _meteorHeight;
-                _pools.Launch(_meteorEffect, from, Vector3.down, _meteorHeight / spell.Delay, _meteorHeight + 1f, 0f, gameObject, 0);
+                Drop(first);
+            }
+
+            // la Meteora doppia: le altre cadono sullo stesso punto, a un secondo l'una dall'altra
+            int extra = Mathf.RoundToInt(_magic.AbilityValue(spell, AbilityParam.Echo));
+            for (int i = 1; i <= extra; i++)
+            {
+                _meteors.Add(new Meteor { Spell = spell, Point = point, Timer = spell.Delay + PlayerSpells.EchoDelay * i });
+            }
+        }
+
+        // la meteora scende dritta sul punto: senza spostamento di lato, il NavMesh non la ferma prima
+        private void Drop(Meteor meteor)
+        {
+            meteor.Fell = true;
+            if (_meteorEffect != null && _pools != null && meteor.Spell.Delay > 0f)
+            {
+                Vector3 from = meteor.Point + Vector3.up * _meteorHeight;
+                _pools.Launch(_meteorEffect, from, Vector3.down, _meteorHeight / meteor.Spell.Delay, _meteorHeight + 1f, 0f, gameObject, 0);
             }
         }
 
@@ -374,12 +396,44 @@ namespace DarkDescent.Magic
             });
         }
 
+        /// <summary>
+        /// Le fiamme che la Palla di fuoco lascia a terra con la Marea di fuoco (M21): un cerchio che brucia per tanti secondi,
+        /// a ogni battito con una parte del danno della Palla.
+        /// </summary>
+        public void OpenGround(SpellDefinition spell, Vector3 point, float radius, float seconds)
+        {
+            _zones.Add(new Zone
+            {
+                Spell = spell,
+                Center = Ground(point),
+                Along = Vector3.right,
+                Remaining = seconds,
+                Interval = GroundInterval,
+                Tick = GroundInterval,
+                Radius = radius,
+                Factor = GroundFactor,
+            });
+        }
+
+        // a ogni battito di 0,5 s le fiamme a terra fanno il 10% del danno della Palla: 4 s sono un 80% in più su chi resta
+        private const float GroundInterval = 0.5f;
+        private const float GroundFactor = 0.1f;
+
         // un battito: chi sta dentro prende il danno e il rallentamento, e le fiamme o la neve si accendono
         private void Beat(Zone zone)
         {
             var spell = zone.Spell;
             int count;
-            if (spell.Length > 0f)
+            if (zone.Radius > 0f)
+            {
+                count = Physics.OverlapSphereNonAlloc(zone.Center + Vector3.up * _searchHeight, zone.Radius, AreaHits, _targetLayers, QueryTriggerInteraction.Ignore);
+                for (int i = 0; i < 2; i++)
+                {
+                    Vector2 inside = Random.insideUnitCircle * zone.Radius * 0.7f;
+                    PlayEffect(_wallEffect, zone.Center + new Vector3(inside.x, 0f, inside.y), 0.9f);
+                }
+            }
+            else if (spell.Length > 0f)
             {
                 Vector3 half = zone.Along * (spell.Length * 0.5f);
                 Vector3 a = zone.Center - half + Vector3.up * _searchHeight;
@@ -403,11 +457,11 @@ namespace DarkDescent.Magic
                 }
             }
 
-            Hit(spell, count);
+            Hit(spell, count, zone.Factor);
         }
 
         // tutti i nemici vivi trovati, una volta sola anche con più collider, ognuno con il suo tiro
-        private void Hit(SpellDefinition spell, int count)
+        private void Hit(SpellDefinition spell, int count, float factor = 1f)
         {
             _targets.Clear();
             for (int i = 0; i < count; i++)
@@ -420,7 +474,7 @@ namespace DarkDescent.Magic
 
                 if (spell.MaxDamage > 0)
                 {
-                    target.TakeDamage(new DamageInfo(_spells.RollDamage(spell), spell.DamageType, gameObject));
+                    target.TakeDamage(new DamageInfo(_spells.RollDamage(spell) * factor, spell.DamageType, gameObject));
                 }
 
                 _spells.ApplyFrost(spell, target);
@@ -506,6 +560,7 @@ namespace DarkDescent.Magic
             public SpellDefinition Spell;
             public Vector3 Point;
             public float Timer;
+            public bool Fell;
         }
 
         private sealed class Zone
@@ -516,6 +571,10 @@ namespace DarkDescent.Magic
             public float Remaining;
             public float Interval;
             public float Tick;
+
+            // le fiamme a terra della Marea di fuoco: un cerchio di questo raggio, a questa parte del danno dell'abilità
+            public float Radius;
+            public float Factor = 1f;
         }
     }
 }

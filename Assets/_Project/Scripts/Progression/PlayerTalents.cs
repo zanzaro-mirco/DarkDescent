@@ -42,6 +42,7 @@ namespace DarkDescent.Progression
         private ShieldBlock _block;
         private MeleeAttack _attack;
         private PlayerMagic _magic;
+        private PlayerSpells _spells;
         private bool _lowLife;
 
         // creato al primo accesso, come la crescita: pannello e salvataggio si collegano dal
@@ -74,6 +75,7 @@ namespace DarkDescent.Progression
             _block = GetComponent<ShieldBlock>();
             _attack = GetComponent<MeleeAttack>();
             _magic = GetComponent<PlayerMagic>();
+            _spells = GetComponent<PlayerSpells>();
         }
 
         private void OnEnable()
@@ -95,6 +97,12 @@ namespace DarkDescent.Progression
             {
                 _attack.HitLanded += HandleHit;
                 _attack.WeaponChanged += Refresh;
+            }
+
+            if (_spells != null)
+            {
+                _spells.Struck += HandleStruck;
+                _spells.Froze += HandleFroze;
             }
 
             HandleProgressChanged();
@@ -120,6 +128,12 @@ namespace DarkDescent.Progression
             {
                 _attack.HitLanded -= HandleHit;
                 _attack.WeaponChanged -= Refresh;
+            }
+
+            if (_spells != null)
+            {
+                _spells.Struck -= HandleStruck;
+                _spells.Froze -= HandleFroze;
             }
 
             EndBuffs();
@@ -208,6 +222,44 @@ namespace DarkDescent.Progression
 
             // il colpo dopo il blocco vale per tutti i colpi di questo frame (un Turbine), poi si toglie
             _avengerUsed = true;
+        }
+
+        // il Dardo arcano a segno: il mana della Concentrazione e la Scintilla (M21)
+        private void HandleStruck(SpellDefinition spell, Health target)
+        {
+            if (spell == null || spell != _spells.Bolt)
+            {
+                return;
+            }
+
+            foreach (var (effect, rank) in Build.Triggers(TalentTrigger.BoltHit))
+            {
+                switch (effect.Outcome)
+                {
+                    case TalentOutcome.Mana:
+                        RestoreMana(effect.Value(rank));
+                        break;
+                    case TalentOutcome.Cast:
+                        if (_spells.Chance(effect.Value(rank)))
+                        {
+                            _spells.CastFree(effect.Ability, target);
+                        }
+
+                        break;
+                }
+            }
+        }
+
+        // un nemico congelato da un'abilità: il mana della Mente di ghiaccio (M21)
+        private void HandleFroze(Health target)
+        {
+            foreach (var (effect, rank) in Build.Triggers(TalentTrigger.Freeze))
+            {
+                if (effect.Outcome == TalentOutcome.Mana)
+                {
+                    RestoreMana(effect.Value(rank));
+                }
+            }
         }
 
         private void HandleBlocked(DamageInfo info)

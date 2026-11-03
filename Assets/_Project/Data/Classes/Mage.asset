@@ -15,10 +15,10 @@ MonoBehaviour:
   _id: mage
   _nameKey: class.mage
   _body: mage
-  _classTree: {fileID: 0}
+  _classTree: {fileID: 11400000, guid: 3105d9fbec90a284e938b02e43d07713, type: 2}
   _specializations:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 845afbb23f47d7a4c8936bc87b978f14, type: 2}
+  - {fileID: 11400000, guid: 3711a20b43a3b8e46b324b572e13ef43, type: 2}
   _strength: 8
   _dexterity: 17
   _magic: 35

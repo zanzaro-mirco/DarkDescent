@@ -1,0 +1,329 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63b8a4f0bc82a7c49aa5532d64384705, type: 3}
+  m_Name: MageFire
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Talents.TalentTree
+  _id: mage.fire
+  _nameKey: talent.tree.mage.fire
+  _specialization: 1
+  _nodes:
+  - _id: fireball
+    _row: 0
+    _column: 3
+    _ranks: 1
+    _links: []
+    _options:
+    - _nameKey: talent.fireball
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 06e3bcdc677366c4dab1aadaa5afa885, type: 2}
+      _effects: []
+  - _id: inflamed_mind
+    _row: 1
+    _column: 1
+    _ranks: 3
+    _links:
+    - fireball
+    _options:
+    - _nameKey: talent.inflamed_mind
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 22
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 4
+        _duration: 0
+  - _id: flame_wall
+    _row: 1
+    _column: 3
+    _ranks: 1
+    _links:
+    - fireball
+    _options:
+    - _nameKey: talent.flame_wall
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: cc48a2b8407c8594aacd41226c077c5d, type: 2}
+      _effects: []
+  - _id: great_blaze
+    _row: 1
+    _column: 5
+    _ranks: 3
+    _links:
+    - fireball
+    _options:
+    - _nameKey: talent.great_blaze
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 06e3bcdc677366c4dab1aadaa5afa885, type: 2}
+        _param: 4
+        _trigger: 0
+        _outcome: 0
+        _perRank: 0.5
+        _duration: 0
+  - _id: explosion
+    _row: 2
+    _column: 0
+    _ranks: 2
+    _links:
+    - inflamed_mind
+    _options:
+    - _nameKey: talent.explosion
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 06e3bcdc677366c4dab1aadaa5afa885, type: 2}
+        _param: 2
+        _trigger: 0
+        _outcome: 0
+        _perRank: 15
+        _duration: 0
+  - _id: quick_hand
+    _row: 2
+    _column: 2
+    _ranks: 2
+    _links:
+    - inflamed_mind
+    - flame_wall
+    _options:
+    - _nameKey: talent.quick_hand
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 06e3bcdc677366c4dab1aadaa5afa885, type: 2}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: -1
+        _duration: 0
+  - _id: lasting_flames
+    _row: 2
+    _column: 4
+    _ranks: 2
+    _links:
+    - flame_wall
+    - great_blaze
+    _options:
+    - _nameKey: talent.lasting_flames
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: cc48a2b8407c8594aacd41226c077c5d, type: 2}
+        _param: 3
+        _trigger: 0
+        _outcome: 0
+        _perRank: 2
+        _duration: 0
+  - _id: burning_magic
+    _row: 2
+    _column: 6
+    _ranks: 2
+    _links:
+    - great_blaze
+    _options:
+    - _nameKey: talent.burning_magic
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 2
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: pyre
+    _row: 3
+    _column: 1
+    _ranks: 2
+    _links:
+    - explosion
+    - quick_hand
+    _options:
+    - _nameKey: talent.pyre
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 1
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: live_embers
+    _row: 3
+    _column: 3
+    _ranks: 2
+    _links:
+    - quick_hand
+    - lasting_flames
+    _options:
+    - _nameKey: talent.live_embers
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: cc48a2b8407c8594aacd41226c077c5d, type: 2}
+        _param: 2
+        _trigger: 0
+        _outcome: 0
+        _perRank: 20
+        _duration: 0
+  - _id: ardor
+    _row: 3
+    _column: 5
+    _ranks: 2
+    _links:
+    - lasting_flames
+    - burning_magic
+    _options:
+    - _nameKey: talent.ardor
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 12
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 1
+        _outcome: 2
+        _perRank: 5
+        _duration: 5
+  - _id: fire_end
+    _row: 4
+    _column: 2
+    _ranks: 1
+    _links:
+    - pyre
+    - live_embers
+    _options:
+    - _nameKey: talent.double_meteor
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: caa20dd9ea3b0d04990cfe52aea948a2, type: 2}
+        _param: 11
+        _trigger: 0
+        _outcome: 0
+        _perRank: 1
+        _duration: 0
+    - _nameKey: talent.fire_tide
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 06e3bcdc677366c4dab1aadaa5afa885, type: 2}
+        _param: 12
+        _trigger: 0
+        _outcome: 0
+        _perRank: 4
+        _duration: 0
+  - _id: searing_bolt
+    _row: 4
+    _column: 4
+    _ranks: 2
+    _links:
+    - live_embers
+    - ardor
+    _options:
+    - _nameKey: talent.searing_bolt
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 2b51a1b27f7fb154c96cbdeccbfa15dc, type: 2}
+        _param: 2
+        _trigger: 0
+        _outcome: 0
+        _perRank: 15
+        _duration: 0
+  - _id: fire_mastery
+    _row: 5
+    _column: 1
+    _ranks: 3
+    _links:
+    - fire_end
+    _options:
+    - _nameKey: talent.fire_mastery
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 22
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: meteor
+    _row: 5
+    _column: 3
+    _ranks: 1
+    _links:
+    - fire_end
+    - searing_bolt
+    _options:
+    - _nameKey: talent.meteor
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: caa20dd9ea3b0d04990cfe52aea948a2, type: 2}
+      _effects: []
+  _gates:
+  - _row: 3
+    _points: 5
+  - _row: 5
+    _points: 12

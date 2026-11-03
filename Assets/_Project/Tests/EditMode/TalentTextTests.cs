@@ -16,7 +16,7 @@ namespace DarkDescent.Tests
     {
         private const string TablePath = "Assets/_Project/Data/Localization/Strings.csv";
 
-        private static readonly string[] Names = { "Warrior", "WarriorDefense", "WarriorArms" };
+        private static readonly string[] Names = { "Warrior", "WarriorDefense", "WarriorArms", "Mage", "MageFire", "MageFrost" };
 
         private static StringTable Table => StringTable.Parse(AssetDatabase.LoadAssetAtPath<TextAsset>(TablePath).text);
 
@@ -75,7 +75,7 @@ namespace DarkDescent.Tests
                     }
                 }
 
-                foreach (string key in new[] { "talents.title", "talents.apply", "talents.cancel", "talents.spec.warrior.defense", "talents.spec.warrior.arms" })
+                foreach (string key in new[] { "talents.title", "talents.apply", "talents.cancel", "talents.spec.warrior.defense", "talents.spec.warrior.arms", "talents.spec.mage.fire", "talents.spec.mage.frost" })
                 {
                     Check(key);
                 }
@@ -108,6 +108,30 @@ namespace DarkDescent.Tests
             Assert.AreEqual("Whirlwind: -4 mana", Describe(arms, "fighting_style", 1, option: 1));
             Assert.AreEqual("-1 damage from every hit taken", Describe(defense, "thick_skin", 1));
             Assert.AreEqual("A shield stops 50% of an unblockable hit (with a shield)", Describe(defense, "fortress", 1));
+        }
+
+        [Test, Description("Le frasi del Mago: i passivi della scheda, i nodi che cambiano un'abilità (bruciatura, ripetizione, fiamme a terra), gli inneschi (a segno, congelamento) e il lancio gratis con il nome dell'abilità")]
+        public void MagePhrases_FollowTheNumbers()
+        {
+            var localizer = new Localizer(Table, "en");
+            var mage = Tree("Mage");
+            var fire = Tree("MageFire");
+            var frost = Tree("MageFrost");
+            string Describe(TalentTree tree, string id, int rank, int option = 0) => TalentDescriber.Describe(tree.Find(id).Options[option], rank, localizer);
+
+            Assert.AreEqual("+9% spell damage", Describe(mage, "keen_mind", 3));
+            Assert.AreEqual("+10% maximum mana", Describe(mage, "mana_reserve", 2));
+            Assert.AreEqual("+100% mana regeneration", Describe(mage, "cold_mind", 2));
+            Assert.AreEqual("+6 magic", Describe(fire, "burning_magic", 2));
+            Assert.AreEqual("Firebolt: -1 s recharge", Describe(mage, "swift_bolt", 2));
+            Assert.AreEqual("Every arcane bolt that hits gives 2 mana", Describe(mage, "concentration", 2));
+            Assert.AreEqual("Every arcane bolt that hits has a 10% chance to cast Firebolt for free", Describe(mage, "fire_craft", 1, option: 0));
+            Assert.AreEqual("Firebolt: +3 s of burning (60% of the damage)", Describe(mage, "fire_craft", 1, option: 1));
+            Assert.AreEqual("Meteor: +1 repeat, 1 s later", Describe(fire, "fire_end", 1, option: 0));
+            Assert.AreEqual("Fireball: +4 s of flames left on the ground", Describe(fire, "fire_end", 1, option: 1));
+            Assert.AreEqual("Frost Nova: +3 s of slowing", Describe(frost, "frost_end", 1, option: 0));
+            Assert.AreEqual("Every frozen enemy gives 4 mana", Describe(frost, "ice_mind", 2));
+            Assert.AreEqual("-25% damage taken (below 30% life)", Describe(mage, "last_spark", 1));
         }
 
         [Test, Description("In italiano le stesse frasi: i numeri uguali, il testo tradotto")]

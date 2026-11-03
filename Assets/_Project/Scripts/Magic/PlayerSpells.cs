@@ -67,11 +67,19 @@ namespace DarkDescent.Magic
         // il Dardo arcano del Mago, se la classe ce l'ha (M21)
         private SpellDefinition _bolt;
 
+        // i nemici che bruciano e le aree che si ripetono (nodi dell'albero del Mago, M21)
+        private readonly List<Burn> _burns = new List<Burn>();
+        private readonly List<Echo> _echoes = new List<Echo>();
+        private MageAbilities _mage;
+
         /// <summary>I secondi che restano al potenziamento in corso; 0 se non ce n'è.</summary>
         public float BuffRemaining => _buff != null ? _buffRemaining : 0f;
 
         /// <summary>Un'abilità del Mago ha colpito un nemico (M21): chi se ne serve (la Concentrazione, la Pira) lo sente qui.</summary>
         public event Action<SpellDefinition, Health> Struck;
+
+        /// <summary>Un nemico si è congelato per un'abilità (M21): la Mente di ghiaccio ne ricava mana.</summary>
+        public event Action<Health> Froze;
 
         /// <summary>Lo dice <see cref="MageAbilities"/>: la Meteora o un'area che resta ha colpito un nemico.</summary>
         public void ReportStruck(SpellDefinition spell, Health target)
@@ -101,6 +109,7 @@ namespace DarkDescent.Magic
             _health = GetComponent<Health>();
             _motor = GetComponent<PlayerMotor>();
             _animator = GetComponent<CharacterAnimatorDriver>();
+            _mage = GetComponent<MageAbilities>();
         }
 
         private void OnEnable()
@@ -114,11 +123,16 @@ namespace DarkDescent.Magic
             _magic.Cast -= HandleCast;
             _health.Died -= EndBuff;
             _pendingSpell = null;
+            _burns.Clear();
+            _echoes.Clear();
             EndBuff();
         }
 
         private void Update()
         {
+            TickBurns(Time.deltaTime);
+            TickEchoes(Time.deltaTime);
+
             if (_buff != null)
             {
                 _buffRemaining -= Time.deltaTime;
@@ -189,10 +203,11 @@ namespace DarkDescent.Magic
             switch (spell.Kind)
             {
                 case SpellKind.Projectile:
-                    LaunchProjectile(spell);
+                    LaunchProjectile(spell, _pendingTarget);
                     break;
                 case SpellKind.Area:
                     StrikeArea(spell);
+                    ScheduleEchoes(spell);
                     break;
                 case SpellKind.Buff:
                     StartBuff(spell);
@@ -200,7 +215,29 @@ namespace DarkDescent.Magic
             }
         }
 
-        private void LaunchProjectile(SpellDefinition spell)
+        /// <summary>Quanti lanci gratis sono partiti: per i test.</summary>
+        public int FreeCasts { get; private set; }
+
+        /// <summary>
+        /// Lancia gratis un proiettile verso un nemico (la Scintilla dell'albero, M21): senza mana, ricarica né gesto.
+        /// Niente se non è un proiettile.
+        /// </summary>
+        public void CastFree(SpellDefinition spell, Health target)
+        {
+            if (spell != null && spell.Kind == SpellKind.Projectile && target != null && !target.IsDead)
+            {
+                FreeCasts++;
+                LaunchProjectile(spell, target.transform.position);
+            }
+        }
+
+        /// <summary>Vero con la probabilità data in punti percentuali, col tiro di questo flusso di numeri.</summary>
+        public bool Chance(float percent)
+        {
+            return _random != null && percent > 0f && _random.NextDouble() * 100.0 < percent;
+        }
+
+        private void LaunchProjectile(SpellDefinition spell, Vector3 targetPoint)
         {
             if (_pools == null || spell.Effect == null)
             {
@@ -208,7 +245,7 @@ namespace DarkDescent.Magic
             }
 
             Vector3 from = transform.position + Vector3.up * _launchHeight;
-            Vector3 aim = _pendingTarget - transform.position;
+            Vector3 aim = targetPoint - transform.position;
             aim.y = 0f;
             if (aim.sqrMagnitude < 0.0001f)
             {
@@ -223,13 +260,15 @@ namespace DarkDescent.Magic
             // la Palla di fuoco fa tutto il suo danno allo scoppio, a tutti quelli attorno; gli altri al bersaglio che toccano
             bool blast = _magic.AbilityValue(spell, AbilityParam.Radius) > 0f;
             var projectile = _pools.Launch(spell.Effect, from, direction, spell.Speed, spell.Range, blast ? 0f : damage, gameObject, _targetLayers);
-            if (blast || spell.SlowPercent > 0f || spell.Freeze > 0f)
+            bool burns = _magic.AbilityValue(spell, AbilityParam.Burn) > 0f;
+            bool ground = _magic.AbilityValue(spell, AbilityParam.Ground) > 0f;
+            if (blast || burns || ground || spell.SlowPercent > 0f || spell.Freeze > 0f)
             {
                 Action<Projectile, IDamageable> detonate = null;
                 detonate = (exploded, target) =>
                 {
                     exploded.Exploded -= detonate;
-                    Detonate(spell, exploded.transform.position, target);
+                    Detonate(spell, exploded.transform.position, target, damage);
                 };
                 projectile.Exploded += detonate;
             }
@@ -271,9 +310,16 @@ namespace DarkDescent.Magic
 
         // lo scoppio di un proiettile del Mago: la Palla di fuoco colpisce tutti entro il raggio, ognuno con il suo tiro,
         // il Dardo di ghiaccio rallenta chi ha colpito; il gelo e il rallentamento seguono le regole dei nemici
-        private void Detonate(SpellDefinition spell, Vector3 point, IDamageable direct)
+        private void Detonate(SpellDefinition spell, Vector3 point, IDamageable direct, float directDamage)
         {
             float radius = _magic.AbilityValue(spell, AbilityParam.Radius);
+            float ground = _magic.AbilityValue(spell, AbilityParam.Ground);
+            if (ground > 0f && _mage != null)
+            {
+                // la Marea di fuoco: le fiamme restano dove è scoppiata, per quanto è larga
+                _mage.OpenGround(spell, point, Mathf.Max(radius, 1f), ground);
+            }
+
             if (radius > 0f)
             {
                 int count = Physics.OverlapSphereNonAlloc(point, radius, AreaHits, _targetLayers, QueryTriggerInteraction.Ignore);
@@ -286,8 +332,10 @@ namespace DarkDescent.Magic
                         continue;
                     }
 
-                    target.TakeDamage(new DamageInfo(RollDamage(spell), spell.DamageType, gameObject));
+                    float damage = RollDamage(spell);
+                    target.TakeDamage(new DamageInfo(damage, spell.DamageType, gameObject));
                     ApplyFrost(spell, target);
+                    ApplyBurn(spell, target, damage);
                     Struck?.Invoke(spell, target);
                 }
 
@@ -296,8 +344,117 @@ namespace DarkDescent.Magic
             else if (direct is Health hit)
             {
                 ApplyFrost(spell, hit);
+                ApplyBurn(spell, hit, directDamage);
                 Struck?.Invoke(spell, hit);
             }
+        }
+
+        /// <summary>
+        /// Il fuoco che resta (Fiammata, Anello infuocato, M21): il nemico colpito brucia per i secondi del nodo, e in tutto
+        /// perde il 60% del danno del colpo. Chi brucia già tiene il più forte e il più lungo.
+        /// </summary>
+        public void ApplyBurn(SpellDefinition spell, Health target, float hitDamage)
+        {
+            float seconds = _magic.AbilityValue(spell, AbilityParam.Burn);
+            if (seconds <= 0f || target == null || target.IsDead || hitDamage <= 0f)
+            {
+                return;
+            }
+
+            float perSecond = hitDamage * BurnFraction / seconds;
+            foreach (var burn in _burns)
+            {
+                if (burn.Target == target)
+                {
+                    burn.PerSecond = Mathf.Max(burn.PerSecond, perSecond);
+                    burn.Remaining = Mathf.Max(burn.Remaining, seconds);
+                    return;
+                }
+            }
+
+            _burns.Add(new Burn { Target = target, PerSecond = perSecond, Remaining = seconds, Tick = BurnInterval });
+        }
+
+        /// <summary>Quanti nemici bruciano adesso: per i test.</summary>
+        public int Burning => _burns.Count;
+
+        private void TickBurns(float deltaTime)
+        {
+            for (int i = _burns.Count - 1; i >= 0; i--)
+            {
+                var burn = _burns[i];
+                if (burn.Target == null || burn.Target.IsDead)
+                {
+                    _burns.RemoveAt(i);
+                    continue;
+                }
+
+                // il danno si somma tempo per tempo e cade a battiti; l'ultimo porta il resto, così in tutto è quello detto
+                burn.Pending += burn.PerSecond * Mathf.Min(deltaTime, burn.Remaining);
+                burn.Remaining -= deltaTime;
+                burn.Tick -= deltaTime;
+                if (burn.Tick <= 0f || burn.Remaining <= 0f)
+                {
+                    burn.Tick += BurnInterval;
+                    if (burn.Pending > 0f)
+                    {
+                        burn.Target.TakeDamage(new DamageInfo(burn.Pending, DamageType.Fire, gameObject));
+                        burn.Pending = 0f;
+                    }
+                }
+
+                if (burn.Remaining <= 0f)
+                {
+                    _burns.RemoveAt(i);
+                }
+            }
+        }
+
+        // la parte del colpo che resta a bruciare, e ogni quanto cade; una ripetizione arriva dopo un secondo
+        public const float BurnFraction = 0.6f;
+        private const float BurnInterval = 0.5f;
+        public const float EchoDelay = 1f;
+
+        private void ScheduleEchoes(SpellDefinition spell)
+        {
+            int extra = Mathf.RoundToInt(_magic.AbilityValue(spell, AbilityParam.Echo));
+            for (int i = 1; i <= extra; i++)
+            {
+                _echoes.Add(new Echo { Spell = spell, Timer = EchoDelay * i });
+            }
+        }
+
+        // la Nova doppia: scatta ancora attorno a dove è adesso il Mago
+        private void TickEchoes(float deltaTime)
+        {
+            for (int i = _echoes.Count - 1; i >= 0; i--)
+            {
+                var echo = _echoes[i];
+                echo.Timer -= deltaTime;
+                if (echo.Timer <= 0f)
+                {
+                    _echoes.RemoveAt(i);
+                    if (!_health.IsDead)
+                    {
+                        StrikeArea(echo.Spell);
+                    }
+                }
+            }
+        }
+
+        private sealed class Burn
+        {
+            public Health Target;
+            public float PerSecond;
+            public float Remaining;
+            public float Tick;
+            public float Pending;
+        }
+
+        private sealed class Echo
+        {
+            public SpellDefinition Spell;
+            public float Timer;
         }
 
         /// <summary>Il rallentamento e il congelamento di un'abilità su un nemico, con i nodi dell'albero; niente su chi non è un nemico.</summary>
@@ -308,14 +465,17 @@ namespace DarkDescent.Magic
                 return;
             }
 
-            if (spell.SlowPercent > 0f)
+            float freeze = spell.Freeze > 0f ? _magic.AbilityValue(spell, AbilityParam.Freeze) : 0f;
+            float seconds = spell.SlowPercent > 0f ? _magic.AbilityValue(spell, AbilityParam.Slow) : 0f;
+            if (seconds > 0f)
             {
-                enemy.Slow(spell.SlowPercent / 100f, _magic.AbilityValue(spell, AbilityParam.Slow));
+                // con il gelo che resta, il rallentamento dura quanto il gelo più i suoi secondi: finito il gelo, ne restano tutti
+                enemy.Slow(spell.SlowPercent / 100f, seconds + freeze);
             }
 
-            if (spell.Freeze > 0f)
+            if (freeze > 0f && enemy.Freeze(freeze))
             {
-                enemy.Freeze(_magic.AbilityValue(spell, AbilityParam.Freeze));
+                Froze?.Invoke(target);
             }
         }
 
@@ -347,7 +507,9 @@ namespace DarkDescent.Magic
                 // la Nova di gelo non fa danno, solo gelo; l'Anello di fuoco fa danno
                 if (spell.MaxDamage > 0)
                 {
-                    target.TakeDamage(new DamageInfo(RollDamage(spell), spell.DamageType, gameObject));
+                    float damage = RollDamage(spell);
+                    target.TakeDamage(new DamageInfo(damage, spell.DamageType, gameObject));
+                    ApplyBurn(spell, target, damage);
                 }
 
                 ApplyFrost(spell, target);
@@ -372,7 +534,7 @@ namespace DarkDescent.Magic
         // il danno dell'incantesimo con il bonus del santuario della Furia (M13) e quello dei nodi dell'albero (M21)
         public float RollDamage(SpellDefinition spell)
         {
-            float bonus = _stats.Sheet.Get(StatType.DamageBonus) + _magic.AbilityValue(spell, AbilityParam.Damage);
+            float bonus = _stats.Sheet.Get(StatType.DamageBonus) + _stats.Sheet.Get(StatType.SpellDamage) + _magic.AbilityValue(spell, AbilityParam.Damage);
             return CombatFormulas.WithBonus(spell.RollDamage(_stats.Magic, _random), bonus);
         }
 

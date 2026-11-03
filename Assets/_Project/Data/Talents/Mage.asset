@@ -1,0 +1,427 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63b8a4f0bc82a7c49aa5532d64384705, type: 3}
+  m_Name: Mage
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Talents.TalentTree
+  _id: mage
+  _nameKey: talent.tree.mage
+  _specialization: 0
+  _nodes:
+  - _id: firebolt
+    _row: 0
+    _column: 3
+    _ranks: 1
+    _links: []
+    _options:
+    - _nameKey: talent.firebolt
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 2b51a1b27f7fb154c96cbdeccbfa15dc, type: 2}
+      _effects: []
+  - _id: keen_mind
+    _row: 1
+    _column: 1
+    _ranks: 3
+    _links:
+    - firebolt
+    _options:
+    - _nameKey: talent.keen_mind
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 22
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: fire_ring
+    _row: 1
+    _column: 3
+    _ranks: 1
+    _links:
+    - firebolt
+    _options:
+    - _nameKey: talent.fire_ring
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 7888b154766d17f4cb098c4a49f30ac2, type: 2}
+      _effects: []
+  - _id: mana_reserve
+    _row: 1
+    _column: 5
+    _ranks: 3
+    _links:
+    - firebolt
+    _options:
+    - _nameKey: talent.mana_reserve
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 23
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+  - _id: swift_bolt
+    _row: 2
+    _column: 0
+    _ranks: 2
+    _links:
+    - keen_mind
+    _options:
+    - _nameKey: talent.swift_bolt
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 2b51a1b27f7fb154c96cbdeccbfa15dc, type: 2}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: -0.5
+        _duration: 0
+  - _id: wide_flame
+    _row: 2
+    _column: 2
+    _ranks: 2
+    _links:
+    - keen_mind
+    - fire_ring
+    _options:
+    - _nameKey: talent.wide_flame
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 7888b154766d17f4cb098c4a49f30ac2, type: 2}
+        _param: 4
+        _trigger: 0
+        _outcome: 0
+        _perRank: 0.5
+        _duration: 0
+  - _id: blink
+    _row: 2
+    _column: 4
+    _ranks: 1
+    _links:
+    - fire_ring
+    - mana_reserve
+    _options:
+    - _nameKey: talent.blink
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 464297e126404b846b8dd11443773e1c, type: 2}
+      _effects: []
+  - _id: ash_skin
+    _row: 2
+    _column: 6
+    _ranks: 3
+    _links:
+    - mana_reserve
+    _options:
+    - _nameKey: talent.ash_skin
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 15
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 4
+        _duration: 0
+  - _id: concentration
+    _row: 3
+    _column: 1
+    _ranks: 2
+    _links:
+    - swift_bolt
+    - wide_flame
+    _options:
+    - _nameKey: talent.concentration
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 3
+        _outcome: 0
+        _perRank: 1
+        _duration: 0
+  - _id: mana_shield
+    _row: 3
+    _column: 3
+    _ranks: 1
+    _links:
+    - wide_flame
+    - blink
+    _options:
+    - _nameKey: talent.mana_shield
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: dfb58386ebb44fc48ba74ab7ce9c6f9e, type: 2}
+      _effects: []
+  - _id: cold_mind
+    _row: 3
+    _column: 5
+    _ranks: 2
+    _links:
+    - blink
+    - ash_skin
+    _options:
+    - _nameKey: talent.cold_mind
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 24
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 50
+        _duration: 0
+  - _id: fire_craft
+    _row: 4
+    _column: 1
+    _ranks: 1
+    _links:
+    - concentration
+    _options:
+    - _nameKey: talent.spark
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 2b51a1b27f7fb154c96cbdeccbfa15dc, type: 2}
+        _param: 0
+        _trigger: 3
+        _outcome: 4
+        _perRank: 10
+        _duration: 0
+    - _nameKey: talent.blaze
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 2b51a1b27f7fb154c96cbdeccbfa15dc, type: 2}
+        _param: 10
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: lasting_shield
+    _row: 4
+    _column: 3
+    _ranks: 2
+    _links:
+    - mana_shield
+    _options:
+    - _nameKey: talent.lasting_shield
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: dfb58386ebb44fc48ba74ab7ce9c6f9e, type: 2}
+        _param: 3
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: last_spark
+    _row: 4
+    _column: 5
+    _ranks: 1
+    _links:
+    - cold_mind
+    _options:
+    - _nameKey: talent.last_spark
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 17
+        _modifier: 0
+        _condition: 3
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 25
+        _duration: 0
+  - _id: quick_step
+    _row: 5
+    _column: 2
+    _ranks: 2
+    _links:
+    - fire_craft
+    - lasting_shield
+    _options:
+    - _nameKey: talent.quick_step
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 464297e126404b846b8dd11443773e1c, type: 2}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: -3
+        _duration: 0
+  - _id: restoration
+    _row: 5
+    _column: 4
+    _ranks: 2
+    _links:
+    - lasting_shield
+    - last_spark
+    _options:
+    - _nameKey: talent.restoration
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 20
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 15
+        _duration: 0
+  - _id: fire_master
+    _row: 6
+    _column: 1
+    _ranks: 2
+    _links:
+    - quick_step
+    _options:
+    - _nameKey: talent.fire_master
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 22
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 4
+        _duration: 0
+  - _id: fire_finale
+    _row: 6
+    _column: 3
+    _ranks: 1
+    _links:
+    - quick_step
+    - restoration
+    _options:
+    - _nameKey: talent.spark_rain
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 2b51a1b27f7fb154c96cbdeccbfa15dc, type: 2}
+        _param: 4
+        _trigger: 0
+        _outcome: 0
+        _perRank: 2
+        _duration: 0
+    - _nameKey: talent.burning_ring
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 7888b154766d17f4cb098c4a49f30ac2, type: 2}
+        _param: 10
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  - _id: arcane_heart
+    _row: 6
+    _column: 5
+    _ranks: 2
+    _links:
+    - restoration
+    _options:
+    - _nameKey: talent.arcane_heart
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 23
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 5
+        _duration: 0
+      - _kind: 0
+        _stat: 15
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+  _gates:
+  - _row: 3
+    _points: 6
+  - _row: 6
+    _points: 14

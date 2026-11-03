@@ -36,7 +36,7 @@ MonoBehaviour:
   _tick: 0
   _damageType: 3
   _blastRadius: 0
-  _slowPercent: 0
+  _slowPercent: 40
   _slowSeconds: 0
   _freeze: 1.5
   _delay: 0

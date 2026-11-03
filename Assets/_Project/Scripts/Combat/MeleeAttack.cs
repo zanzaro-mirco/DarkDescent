@@ -490,7 +490,7 @@ namespace DarkDescent.Combat
                 int span = _maxDamage - _minDamage + 1;
                 int roll = Math.Min(_maxDamage, _minDamage + (int)(_random.NextDouble() * span));
                 float amount = CombatFormulas.SpellDamage(roll, CharacterStats.ValueOf(_stats, StatType.Magic), _boltDivisor) * DamageMultiplier;
-                amount = CombatFormulas.WithBonus(amount, CharacterStats.ValueOf(_stats, StatType.DamageBonus));
+                amount = CombatFormulas.WithBonus(amount, CharacterStats.ValueOf(_stats, StatType.DamageBonus) + CharacterStats.ValueOf(_stats, StatType.SpellDamage));
                 _bolt.Shoot(_swingTransform, amount);
             }
 

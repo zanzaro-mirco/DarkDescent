@@ -14,5 +14,8 @@ namespace DarkDescent.Talents
 
         /// <summary>Punti percentuali di danno in più al colpo successivo (Vendicatore).</summary>
         NextHit,
+
+        /// <summary>Lancia gratis l'abilità del nodo, con la probabilità in punti percentuali (Scintilla, M21).</summary>
+        Cast,
     }
 }

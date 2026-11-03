@@ -1329,5 +1329,110 @@ namespace DarkDescent.Tests
 
             altar.Close();
         }
+
+        [UnityTest, Timeout(600000), Description("L'albero del Mago (21.5): la scelta tra Fuoco e Gelo al 12, la classe e il Fuoco al 50 con un nodo a scelta aperto e un tooltip, e il Gelo")]
+        public IEnumerator MageTalents()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(1);
+            yield return Settle();
+
+            var playerClass = Hero.GetComponent<PlayerClass>();
+            playerClass.Apply(playerClass.Catalog.Find("mage"), "Merlino", true);
+            var build = Hero.GetComponent<PlayerTalents>().Build;
+            var progress = Hero.GetComponent<PlayerProgress>().Progress;
+            var panel = Find<TalentPanel>();
+            PlayModeWindow.SetCustomRenderingResolution(1920u, 1080u, "Photos");
+
+            void Take(TalentTree tree, string id, int ranks, int option = 0)
+            {
+                for (int i = 0; i < ranks; i++)
+                {
+                    Assert.IsTrue(build.TryAdd(tree, tree.Find(id), option), $"{id} {i + 1}");
+                }
+            }
+
+            // 1. livello 12: le due schede, Fuoco e Gelo
+            progress.Restore(12, 0, 0);
+            panel.Open();
+            panel.SpecTab(1).onClick.Invoke();
+            yield return Frames(5);
+            yield return Snap("mage_choose", world: false);
+            panel.Close();
+
+            // 2. livello 50: la classe e il Fuoco a buon punto
+            progress.Restore(50, 0, 0);
+            var mage = build.ClassTree;
+            foreach (var (id, ranks) in new[]
+            {
+                ("keen_mind", 3), ("fire_ring", 1), ("mana_reserve", 3), ("swift_bolt", 2), ("wide_flame", 2), ("blink", 1), ("ash_skin", 3),
+                ("concentration", 2), ("mana_shield", 1), ("cold_mind", 2), ("fire_craft", 1), ("lasting_shield", 2), ("last_spark", 1),
+            })
+            {
+                Take(mage, id, ranks);
+            }
+
+            Assert.IsTrue(build.TryChoose(build.Specializations[0]));
+            var fire = build.Specialization;
+            foreach (var (id, ranks) in new[]
+            {
+                ("flame_wall", 1), ("inflamed_mind", 3), ("great_blaze", 3), ("explosion", 2), ("quick_hand", 2), ("lasting_flames", 2),
+                ("live_embers", 2), ("burning_magic", 2),
+            })
+            {
+                Take(fire, id, ranks);
+            }
+
+            Take(fire, "fire_end", 1, option: 1);
+            Take(fire, "meteor", 1);
+            build.Apply();
+            panel.Open();
+            yield return Frames(5);
+            yield return Snap("mage_tree", world: false);
+            panel.View(mage, "concentration").Hover();
+            yield return Frames(3);
+            yield return Snap("mage_tooltip", world: false);
+            panel.View(mage, "concentration").Unhover();
+
+            // il nodo a scelta aperto, con le due opzioni
+            panel.View(mage, "fire_craft").Hover();
+            panel.View(mage, "fire_craft").Click();
+            yield return Frames(3);
+            yield return Snap("mage_choice", world: false);
+            panel.View(mage, "fire_craft").Click();
+            panel.View(mage, "fire_craft").Unhover();
+
+            // 3. il Gelo al posto del Fuoco
+            build.Cancel();
+            build.Reset();
+            foreach (var (id, ranks) in new[] { ("keen_mind", 3), ("fire_ring", 1), ("mana_reserve", 3), ("blink", 1), ("ash_skin", 3), ("cold_mind", 2), ("mana_shield", 1) })
+            {
+                Take(mage, id, ranks);
+            }
+
+            Assert.IsTrue(build.TryChoose(build.Specializations[1]));
+            var frost = build.Specialization;
+            foreach (var (id, ranks) in new[]
+            {
+                ("frost_nova", 1), ("frozen_skin", 3), ("piercing_cold", 3), ("quick_frost", 2), ("deep_frost", 2), ("rime", 2), ("ice_shelter", 2),
+                ("cold_blood", 3),
+            })
+            {
+                Take(frost, id, ranks);
+            }
+
+            Take(frost, "frost_end", 1, option: 0);
+            build.Apply();
+            yield return Frames(5);
+            yield return Snap("mage_frost", world: false);
+            panel.Close();
+        }
     }
 }

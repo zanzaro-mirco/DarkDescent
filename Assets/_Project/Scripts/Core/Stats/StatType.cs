@@ -68,5 +68,14 @@ namespace DarkDescent.Stats
         /// (la Fortezza dell'albero, M20).
         /// </summary>
         PiercedBlock,
+
+        /// <summary>Punti percentuali in più al danno degli incantesimi, il Dardo arcano compreso (l'albero del Mago, M21).</summary>
+        SpellDamage,
+
+        /// <summary>Punti percentuali in più al mana massimo (l'albero del Mago, M21).</summary>
+        MaxManaPercent,
+
+        /// <summary>Punti percentuali in più al mana che torna ogni secondo (l'albero del Mago, M21).</summary>
+        ManaRegenPercent,
     }
 }

@@ -356,7 +356,7 @@ namespace DarkDescent.Magic
             }
 
             float deltaTime = Time.deltaTime;
-            Mana.Regenerate(deltaTime, ManaRegenPerSecond);
+            Mana.Regenerate(deltaTime, ManaRegenPerSecond * (1f + _stats.Sheet.Get(StatType.ManaRegenPercent) / 100f));
             Caster.Advance(deltaTime);
 
             if (_portalPending)
@@ -447,7 +447,7 @@ namespace DarkDescent.Magic
         private float MaxMana()
         {
             var sheet = _stats != null ? _stats.Sheet : GetComponent<CharacterStats>().Sheet;
-            return CombatFormulas.MaxMana(sheet.Get(StatType.Magic), sheet.Get(StatType.Level), sheet.Get(StatType.Mana));
+            return CombatFormulas.MaxMana(sheet.Get(StatType.Magic), sheet.Get(StatType.Level), sheet.Get(StatType.Mana), sheet.Get(StatType.MaxManaPercent));
         }
     }
 }

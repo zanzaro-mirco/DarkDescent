@@ -38,7 +38,7 @@ namespace DarkDescent.Editor
             new Row("FlameWall", "spell.flame_wall", SpellKind.Zone, 16f, 20f, null, "FireRing") { Min = 2, Max = 5, Divisor = 10f, Range = 12f, Duration = 6f, Tick = 0.5f, Length = 5f },
             new Row("Meteor", "spell.meteor", SpellKind.Meteor, 30f, 45f, "MeteorFall", "FireRing") { Min = 36, Max = 72, Divisor = 0.7f, Range = 14f, Radius = 4f, Delay = 1.2f },
             new Row("IceBolt", "spell.ice_bolt", SpellKind.Projectile, 8f, 3f, "FrostBolt", "Firebolt") { Min = 6, Max = 12, Divisor = 4f, Speed = 14f, Range = 14f, SlowPercent = 40f, SlowSeconds = 3f, Type = DamageType.Frost },
-            new Row("FrostNova", "spell.frost_nova", SpellKind.Area, 12f, 14f, "FrostNova", "FireRing") { Radius = 3.5f, Freeze = 1.5f, Type = DamageType.Frost },
+            new Row("FrostNova", "spell.frost_nova", SpellKind.Area, 12f, 14f, "FrostNova", "FireRing") { Radius = 3.5f, Freeze = 1.5f, SlowPercent = 40f, Type = DamageType.Frost },
             new Row("FrostArmor", "spell.frost_armor", SpellKind.Buff, 12f, 35f, "FrostArmor", "StoneSkin") { ArmorPercent = 40, Duration = 15f, SlowPercent = 30f, SlowSeconds = 3f, Type = DamageType.Frost },
             new Row("Blizzard", "spell.blizzard", SpellKind.Zone, 28f, 60f, null, "FireRing") { Min = 2, Max = 5, Divisor = 10f, Range = 14f, Radius = 5f, Duration = 6f, Tick = 0.5f, SlowPercent = 50f, SlowSeconds = 1f, Type = DamageType.Frost },
         };

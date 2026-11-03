@@ -69,10 +69,11 @@ namespace DarkDescent.Talents
             return new TalentEffect { _kind = TalentEffectKind.Ability, _ability = ability, _param = param, _perRank = perRank };
         }
 
-        /// <summary>Qualcosa che scatta; per <see cref="TalentOutcome.Buff"/> servono la statistica e la durata.</summary>
-        public static TalentEffect OnTrigger(TalentTrigger trigger, TalentOutcome outcome, float perRank, StatType stat = default, float duration = 0f)
+        /// <summary>Qualcosa che scatta; per <see cref="TalentOutcome.Buff"/> servono la statistica e la durata, per <see cref="TalentOutcome.Cast"/> l'abilità.</summary>
+        public static TalentEffect OnTrigger(TalentTrigger trigger, TalentOutcome outcome, float perRank, StatType stat = default, float duration = 0f,
+            SpellDefinition ability = null)
         {
-            return new TalentEffect { _kind = TalentEffectKind.Trigger, _trigger = trigger, _outcome = outcome, _perRank = perRank, _stat = stat, _duration = duration };
+            return new TalentEffect { _kind = TalentEffectKind.Trigger, _trigger = trigger, _outcome = outcome, _perRank = perRank, _stat = stat, _duration = duration, _ability = ability };
         }
     }
 }

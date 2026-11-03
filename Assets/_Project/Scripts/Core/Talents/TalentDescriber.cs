@@ -31,6 +31,11 @@ namespace DarkDescent.Talents
                     break;
                 case TalentEffectKind.Trigger:
                     yield return TriggerKey(effect);
+                    if (effect.Outcome == TalentOutcome.Cast)
+                    {
+                        yield return effect.Ability.NameKey;
+                    }
+
                     if (effect.Outcome == TalentOutcome.Buff)
                     {
                         yield return "talent.statname." + effect.Stat;
@@ -52,6 +57,11 @@ namespace DarkDescent.Talents
                 case TalentEffectKind.Ability:
                     return localizer.Format("talent.param." + effect.Param, localizer.Get(effect.Ability.NameKey), Signed(value));
                 default:
+                    if (effect.Outcome == TalentOutcome.Cast)
+                    {
+                        return localizer.Format(TriggerKey(effect), Number(value), localizer.Get(effect.Ability.NameKey));
+                    }
+
                     // la statistica del Buff è il terzo pezzo della frase, col suo nome: "velocità d'attacco"
                     return effect.Outcome == TalentOutcome.Buff
                         ? localizer.Format(TriggerKey(effect), Number(value), Number(effect.Duration), localizer.Get("talent.statname." + effect.Stat))

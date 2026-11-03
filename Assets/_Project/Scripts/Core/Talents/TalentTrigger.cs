@@ -11,5 +11,11 @@ namespace DarkDescent.Talents
 
         /// <summary>Un colpo fermato dallo scudo.</summary>
         Block,
+
+        /// <summary>Il Dardo arcano a segno (Concentrazione, Scintilla, M21).</summary>
+        BoltHit,
+
+        /// <summary>Un nemico congelato (Mente di ghiaccio, M21).</summary>
+        Freeze,
     }
 }

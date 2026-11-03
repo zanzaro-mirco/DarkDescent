@@ -231,13 +231,62 @@ colore la moltiplica); il Muro di fiamme è una fila di cerchi, non un muro. Son
 
 ---
 
+## Passo 21.5 — L'albero del Mago (D5)
+
+Fatto il 3 novembre 2026.
+
+**I dati.** `MageTalentTools.BuildMage` (menu *Talenti → Costruisci il Mago*) rifà gli alberi dal disegno: `Mage` (19 nodi,
+34 gradi), `MageFire` (15, 29) e `MageFrost` (15, 27) in `Data/Talents`, con le stesse linee del Guerriero (la classe a 6 e
+14 punti, le specializzazioni a 5 e 12), e li dà alla classe `Mage`, che da qui ha `IsPlayable` vero. Righe e colonne del
+disegno partono da 1, nel codice da 0. Il pannello e l'altare non sapevano nulla del Guerriero (leggono gli alberi del
+`TalentBuild`, che la classe cambia con `SetTrees`): per il Mago servono solo i dati e i testi, e l'altare azzera i suoi
+punti come quelli del Guerriero (un test lo guarda con `Build.Reset`).
+
+**Gli effetti nuovi.** Quasi tutto il disegno stava già nei tre tipi di effetto della M20 (il numero di un'abilità, un
+modificatore della scheda, un innesco). Per il resto:
+
+| Nuovo | Dove | A cosa serve |
+|---|---|---|
+| `StatType.SpellDamage` | `RollDamage` degli incantesimi e il Dardo arcano (`MeleeAttack.ResolveBolt`) | Mente acuta, Maestro del fuoco, Mente infuocata, Maestria del fuoco |
+| `StatType.MaxManaPercent` | `CombatFormulas.MaxMana(…, percent)`, `PlayerMagic`, scheda del personaggio | Riserva di mana, Cuore arcano |
+| `StatType.ManaRegenPercent` | `PlayerMagic.Update`: il mana torna a `ManaRegenPerSecond × (1 + %)` | Mente fredda (due gradi: il 6% al secondo) |
+| `TalentTrigger.BoltHit`, `Freeze` | `PlayerTalents` ascolta `PlayerSpells.Struck` (solo per il Dardo arcano) e `Froze` | Concentrazione, Scintilla, Mente di ghiaccio |
+| `TalentOutcome.Cast` | `PlayerSpells.CastFree` e `Chance` (col flusso casuale del gioco) | Scintilla: il 10% di un Dardo di fuoco gratis |
+| `AbilityParam.Burn` | `PlayerSpells.ApplyBurn`: brucia il 60% del colpo in tanti secondi, a battiti di 0,5 s, e l'ultimo porta il resto | Fiammata, Anello infuocato |
+| `AbilityParam.Echo` | la Nova si ripete dopo 1 s (`PlayerSpells`), la Meteora cade ancora (`MageAbilities`) | Nova doppia, Meteora doppia |
+| `AbilityParam.Ground` | `MageAbilities.OpenGround`: la Palla lascia un cerchio che brucia, il 10% del suo danno a ogni battito | Marea di fuoco |
+
+La Pioggia di scintille è il raggio dello scoppio (`AbilityParam.Radius`, che per un proiettile è lo scoppio) del Dardo di
+fuoco, quindi non ha codice suo. Il rallentamento della Nova c'è nell'asset (40%) ma dura 0 s: Gelo che resta gli dà 3 s,
+che cominciano a gelo finito (la durata è il gelo più i suoi secondi).
+
+**Le frasi** (`TalentDescriber`): ogni effetto si scrive dai suoi numeri, come per il Guerriero; il lancio gratis nomina
+l'abilità. Nomi, tre alberi, descrizioni delle due specializzazioni e nuove frasi sono nelle due lingue.
+
+**Da rivedere con Mirco.**
+- **Nova doppia** è debole: un nemico congelato non si congela di nuovo per 3 s (la regola dello stordimento, D6), quindi la
+  seconda Nova prende solo chi è arrivato nel secondo che passa. Si può cambiarla (per esempio in una Nova più larga, o che
+  non ha il tempo di pausa) se non piace.
+- I passivi non hanno ancora l'icona (21.7): nel pannello c'è il nome nel cerchio, e i più lunghi (*Concentrazione*)
+  escono dal bordo.
+- La Fiammata e l'Anello infuocato non hanno ancora un segno sul nemico che brucia: il danno c'è, la fiamma no.
+
+**Test.** EditMode 610 verdi (`MageTreeTests`: forma, abilità, linee, nodi raggiungibili, classe, i nodi a scelta e i
+passivi nuovi sulle righe giuste; `TalentTextTests` con i tre alberi del Mago e le frasi nuove). PlayMode: `MageTalentPlayModeTests`
+(14): le abilità nel libro e l'altare, i passivi sulla scheda, la rigenerazione, il danno degli incantesimi, Concentrazione,
+Scintilla e il lancio gratis, Fiammata, Pioggia di scintille, Meteora doppia, Marea di fuoco, Nova doppia, Gelo che resta, Mente di
+ghiaccio. Foto in `Recordings/Photos/mago_albero` (la scelta tra Fuoco e Gelo, la classe e il Fuoco a buon punto, un
+tooltip, un nodo a scelta aperto, il Gelo).
+
+---
+
 ## Checklist di chiusura
 
-- [ ] Disegno dell'albero del Mago approvato da Mirco (21.1)
+- [x] Disegno dell'albero del Mago approvato da Mirco (21.1)
 - [x] `CharacterClass`, salvataggio 9 e migrazione, fattore del mana (21.2)
 - [x] Bastone, bacchetta e tomo nel loot e dal mercante (21.3)
 - [x] Dardo arcano e le undici abilità del Mago (21.4)
-- [ ] Albero del Mago nel pannello; altare per entrambe le classi (21.5)
+- [x] Albero del Mago nel pannello; altare per entrambe le classi (21.5)
 - [ ] Creazione del personaggio con nome; i tre posti; foto approvate (21.6)
 - [ ] Icone approvate (21.7)
 - [ ] Misura delle difficoltà con il Mago dentro la tolleranza; ronda verde (21.8)

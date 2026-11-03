@@ -35,5 +35,14 @@ namespace DarkDescent.Talents
 
         /// <summary>Secondi di congelamento in più (Gelo profondo, M21).</summary>
         Freeze,
+
+        /// <summary>Secondi in cui il nemico colpito brucia, il 60% del danno del colpo (Fiammata, Anello infuocato, M21).</summary>
+        Burn,
+
+        /// <summary>Quante volte in più l'abilità si ripete, a un secondo di distanza (Meteora doppia, Nova doppia, M21).</summary>
+        Echo,
+
+        /// <summary>Secondi in cui lo scoppio lascia le fiamme a terra (Marea di fuoco, M21).</summary>
+        Ground,
     }
 }

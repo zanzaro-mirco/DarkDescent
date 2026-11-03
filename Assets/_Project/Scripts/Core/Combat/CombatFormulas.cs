@@ -189,9 +189,9 @@ namespace DarkDescent.Combat
         /// Mana massimo (D2 della M9): 10 + 2 × Magia, più 1 per ogni livello oltre il primo, più il
         /// mana degli affissi. Con la Magia 10 di partenza, 30.
         /// </summary>
-        public static float MaxMana(float magic, float level, float bonus = 0f)
+        public static float MaxMana(float magic, float level, float bonus = 0f, float percent = 0f)
         {
-            return BaseMana + ManaPerMagic * magic + ManaPerLevel * Math.Max(0f, level - 1f) + bonus;
+            return WithBonus(BaseMana + ManaPerMagic * magic + ManaPerLevel * Math.Max(0f, level - 1f) + bonus, percent);
         }
 
         /// <summary>

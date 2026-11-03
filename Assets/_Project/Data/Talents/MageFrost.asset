@@ -1,0 +1,319 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63b8a4f0bc82a7c49aa5532d64384705, type: 3}
+  m_Name: MageFrost
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Talents.TalentTree
+  _id: mage.frost
+  _nameKey: talent.tree.mage.frost
+  _specialization: 1
+  _nodes:
+  - _id: ice_bolt
+    _row: 0
+    _column: 3
+    _ranks: 1
+    _links: []
+    _options:
+    - _nameKey: talent.ice_bolt
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 42b1852c3c10e5647a4849d5da5783e5, type: 2}
+      _effects: []
+  - _id: frozen_skin
+    _row: 1
+    _column: 1
+    _ranks: 3
+    _links:
+    - ice_bolt
+    _options:
+    - _nameKey: talent.frozen_skin
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 4
+        _modifier: 1
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 2
+        _duration: 0
+  - _id: frost_nova
+    _row: 1
+    _column: 3
+    _ranks: 1
+    _links:
+    - ice_bolt
+    _options:
+    - _nameKey: talent.frost_nova
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: 3fb0afb22853a3d4bbea14a9bc98f617, type: 2}
+      _effects: []
+  - _id: piercing_cold
+    _row: 1
+    _column: 5
+    _ranks: 3
+    _links:
+    - ice_bolt
+    _options:
+    - _nameKey: talent.piercing_cold
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 42b1852c3c10e5647a4849d5da5783e5, type: 2}
+        _param: 8
+        _trigger: 0
+        _outcome: 0
+        _perRank: 1
+        _duration: 0
+  - _id: shards
+    _row: 2
+    _column: 0
+    _ranks: 2
+    _links:
+    - frozen_skin
+    _options:
+    - _nameKey: talent.shards
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 42b1852c3c10e5647a4849d5da5783e5, type: 2}
+        _param: 2
+        _trigger: 0
+        _outcome: 0
+        _perRank: 15
+        _duration: 0
+  - _id: quick_frost
+    _row: 2
+    _column: 2
+    _ranks: 2
+    _links:
+    - frozen_skin
+    - frost_nova
+    _options:
+    - _nameKey: talent.quick_frost
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 3fb0afb22853a3d4bbea14a9bc98f617, type: 2}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: -2
+        _duration: 0
+  - _id: deep_frost
+    _row: 2
+    _column: 4
+    _ranks: 2
+    _links:
+    - frost_nova
+    - piercing_cold
+    _options:
+    - _nameKey: talent.deep_frost
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 3fb0afb22853a3d4bbea14a9bc98f617, type: 2}
+        _param: 9
+        _trigger: 0
+        _outcome: 0
+        _perRank: 0.5
+        _duration: 0
+  - _id: cold_blood
+    _row: 2
+    _column: 6
+    _ranks: 3
+    _links:
+    - piercing_cold
+    _options:
+    - _nameKey: talent.cold_blood
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 15
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 4
+        _duration: 0
+  - _id: frost_armor
+    _row: 3
+    _column: 1
+    _ranks: 1
+    _links:
+    - shards
+    - quick_frost
+    _options:
+    - _nameKey: talent.frost_armor
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: e66e524cd6cdb7b42926b5afa9f2441f, type: 2}
+      _effects: []
+  - _id: rime
+    _row: 3
+    _column: 3
+    _ranks: 2
+    _links:
+    - quick_frost
+    - deep_frost
+    _options:
+    - _nameKey: talent.rime
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 3fb0afb22853a3d4bbea14a9bc98f617, type: 2}
+        _param: 4
+        _trigger: 0
+        _outcome: 0
+        _perRank: 0.5
+        _duration: 0
+  - _id: ice_shelter
+    _row: 3
+    _column: 5
+    _ranks: 2
+    _links:
+    - deep_frost
+    - cold_blood
+    _options:
+    - _nameKey: talent.ice_shelter
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 0
+        _stat: 17
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 0
+        _outcome: 0
+        _perRank: 4
+        _duration: 0
+  - _id: frost_end
+    _row: 4
+    _column: 2
+    _ranks: 1
+    _links:
+    - frost_armor
+    - rime
+    _options:
+    - _nameKey: talent.lingering_frost
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 3fb0afb22853a3d4bbea14a9bc98f617, type: 2}
+        _param: 8
+        _trigger: 0
+        _outcome: 0
+        _perRank: 3
+        _duration: 0
+    - _nameKey: talent.double_nova
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: 3fb0afb22853a3d4bbea14a9bc98f617, type: 2}
+        _param: 11
+        _trigger: 0
+        _outcome: 0
+        _perRank: 1
+        _duration: 0
+  - _id: ice_mind
+    _row: 4
+    _column: 4
+    _ranks: 2
+    _links:
+    - rime
+    - ice_shelter
+    _options:
+    - _nameKey: talent.ice_mind
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 2
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 0}
+        _param: 0
+        _trigger: 4
+        _outcome: 0
+        _perRank: 2
+        _duration: 0
+  - _id: blizzard
+    _row: 5
+    _column: 3
+    _ranks: 1
+    _links:
+    - frost_end
+    - ice_mind
+    _options:
+    - _nameKey: talent.blizzard
+      _icon: {fileID: 0}
+      _ability: {fileID: 11400000, guid: d710e27ad31d0144c93b138819c9b373, type: 2}
+      _effects: []
+  - _id: ice_fortress
+    _row: 5
+    _column: 5
+    _ranks: 1
+    _links:
+    - ice_mind
+    _options:
+    - _nameKey: talent.ice_fortress
+      _icon: {fileID: 0}
+      _ability: {fileID: 0}
+      _effects:
+      - _kind: 1
+        _stat: 0
+        _modifier: 0
+        _condition: 0
+        _ability: {fileID: 11400000, guid: e66e524cd6cdb7b42926b5afa9f2441f, type: 2}
+        _param: 3
+        _trigger: 0
+        _outcome: 0
+        _perRank: 10
+        _duration: 0
+  _gates:
+  - _row: 3
+    _points: 5
+  - _row: 5
+    _points: 12

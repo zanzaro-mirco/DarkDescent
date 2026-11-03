@@ -168,20 +168,20 @@ namespace DarkDescent.Editor
         private static AudioClip Sound(string path) =>
             AssetDatabase.LoadAssetAtPath<AudioClip>($"{SoundsFolder}/{path}") ?? throw new InvalidOperationException($"manca il suono {path}");
 
-        private static string[] Links(params string[] ids) => ids;
+        internal static string[] Links(params string[] ids) => ids;
 
-        private static TalentEffect Stat(StatType stat, float perRank, ModifierKind modifier = ModifierKind.Flat, TalentCondition condition = TalentCondition.None) =>
+        internal static TalentEffect Stat(StatType stat, float perRank, ModifierKind modifier = ModifierKind.Flat, TalentCondition condition = TalentCondition.None) =>
             TalentEffect.ForStat(stat, perRank, modifier, condition);
 
-        private static TalentOption Option(string id, params TalentEffect[] effects) => new TalentOption("talent." + id, null, effects);
+        internal static TalentOption Option(string id, params TalentEffect[] effects) => new TalentOption("talent." + id, null, effects);
 
-        private static TalentNode Active(string id, int row, int column, SpellDefinition ability, string[] links = null) =>
+        internal static TalentNode Active(string id, int row, int column, SpellDefinition ability, string[] links = null) =>
             new TalentNode(id, row, column, 1, links, new TalentOption("talent." + id, ability ?? throw new ArgumentNullException(nameof(ability), id)));
 
-        private static TalentNode Passive(string id, int row, int column, int ranks, string[] links, params TalentEffect[] effects) =>
+        internal static TalentNode Passive(string id, int row, int column, int ranks, string[] links, params TalentEffect[] effects) =>
             new TalentNode(id, row, column, ranks, links, Option(id, effects));
 
-        private static TalentNode Choice(string id, int row, int column, string[] links, TalentOption first, TalentOption second) =>
+        internal static TalentNode Choice(string id, int row, int column, string[] links, TalentOption first, TalentOption second) =>
             new TalentNode(id, row, column, 1, links, first, second);
 
         private static SpellDefinition SaveAbility(AbilityRow ability)
@@ -369,7 +369,7 @@ namespace DarkDescent.Editor
             return AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<AreaEffect>();
         }
 
-        private static TalentTree SaveTree(string asset, string id, bool specialization, TalentNode[] nodes, TalentGate[] gates)
+        internal static TalentTree SaveTree(string asset, string id, bool specialization, TalentNode[] nodes, TalentGate[] gates)
         {
             string path = $"{TalentsFolder}/{asset}.asset";
             var tree = AssetDatabase.LoadAssetAtPath<TalentTree>(path);

@@ -636,3 +636,66 @@ altar.talents_nothing,No skills to reassign,Nessuna abilità da riassegnare
 altar.confirm_talents,Start your skill tree over for {0} gold? All points come back and you can change specialization.,Ricominciare l'albero per {0} oro? Tutti i punti tornano e puoi cambiare specializzazione.
 altar.talents_done,Skills reset: spend your points with N,Abilità azzerate: spendi i punti con N
 altar.talents_poor,Not enough gold,Oro insufficiente
+talent.tree.mage,Mage,Mago
+talent.tree.mage.fire,Fire,Fuoco
+talent.tree.mage.frost,Frost,Gelo
+talents.spec.mage.fire,Damage and areas: fireball and wall of flames,Danno e aree: palla di fuoco e muro di fiamme
+talents.spec.mage.frost,Control and defense: slow and freeze,Controllo e difesa: rallentare e congelare
+talent.stat.SpellDamage,+{0}% spell damage,+{0}% di danno degli incantesimi
+talent.stat.MaxManaPercent,+{0}% maximum mana,+{0}% di mana massimo
+talent.stat.ManaRegenPercent,+{0}% mana regeneration,+{0}% di rigenerazione del mana
+talent.stat.Magic,+{0} magic,+{0} di Magia
+talent.param.Slow,{0}: {1} s of slowing,{0}: {1} s di rallentamento
+talent.param.Freeze,{0}: {1} s of freezing,{0}: {1} s di congelamento
+talent.param.Burn,{0}: {1} s of burning (60% of the damage),{0}: {1} s di bruciatura (il 60% del danno)
+talent.param.Echo,"{0}: {1} repeat, 1 s later","{0}: {1} ripetizione, dopo 1 s"
+talent.param.Ground,{0}: {1} s of flames left on the ground,{0}: {1} s di fiamme lasciate a terra
+talent.trigger.BoltHit.Mana,Every arcane bolt that hits gives {0} mana,Ogni Dardo arcano a segno dà {0} di mana
+talent.trigger.BoltHit.Cast,Every arcane bolt that hits has a {0}% chance to cast {1} for free,Ogni Dardo arcano a segno ha il {0}% di probabilità di lanciare gratis {1}
+talent.trigger.Freeze.Mana,Every frozen enemy gives {0} mana,Ogni nemico congelato dà {0} di mana
+talent.keen_mind,Keen Mind,Mente acuta
+talent.mana_reserve,Mana Reserve,Riserva di mana
+talent.swift_bolt,Swift Bolt,Dardo rapido
+talent.wide_flame,Wide Flame,Fiamma ampia
+talent.ash_skin,Ash Skin,Pelle di cenere
+talent.concentration,Concentration,Concentrazione
+talent.cold_mind,Cold Mind,Mente fredda
+talent.fire_craft,Fire Craft,Arte del fuoco
+talent.spark,Spark,Scintilla
+talent.blaze,Blaze,Fiammata
+talent.lasting_shield,Lasting Shield,Scudo duraturo
+talent.last_spark,Last Spark,Ultima scintilla
+talent.quick_step,Quick Step,Passo veloce
+talent.restoration,Restoration,Recupero
+talent.fire_master,Fire Master,Maestro del fuoco
+talent.fire_finale,Fire Finale,Culmine del fuoco
+talent.spark_rain,Spark Rain,Pioggia di scintille
+talent.burning_ring,Burning Ring,Anello infuocato
+talent.arcane_heart,Arcane Heart,Cuore arcano
+talent.inflamed_mind,Inflamed Mind,Mente infuocata
+talent.great_blaze,Great Blaze,Vasto incendio
+talent.explosion,Explosion,Esplosione
+talent.quick_hand,Quick Hand,Mano rapida
+talent.lasting_flames,Lasting Flames,Fiamme durature
+talent.burning_magic,Burning Magic,Magia ardente
+talent.pyre,Pyre,Pira
+talent.live_embers,Live Embers,Brace viva
+talent.ardor,Ardor,Ardore
+talent.fire_end,Fire's End,Finale di fuoco
+talent.double_meteor,Double Meteor,Meteora doppia
+talent.fire_tide,Fire Tide,Marea di fuoco
+talent.searing_bolt,Searing Bolt,Colpo ardente
+talent.fire_mastery,Fire Mastery,Maestria del fuoco
+talent.frozen_skin,Frozen Skin,Pelle gelata
+talent.piercing_cold,Piercing Cold,Freddo penetrante
+talent.shards,Shards,Schegge
+talent.quick_frost,Quick Frost,Gelo veloce
+talent.deep_frost,Deep Frost,Gelo profondo
+talent.cold_blood,Cold Blood,Sangue freddo
+talent.rime,Rime,Brina
+talent.ice_shelter,Ice Shelter,Riparo di ghiaccio
+talent.frost_end,Frost's End,Finale di gelo
+talent.lingering_frost,Lingering Frost,Gelo che resta
+talent.double_nova,Double Nova,Nova doppia
+talent.ice_mind,Ice Mind,Mente di ghiaccio
+talent.ice_fortress,Ice Fortress,Fortezza di ghiaccio
