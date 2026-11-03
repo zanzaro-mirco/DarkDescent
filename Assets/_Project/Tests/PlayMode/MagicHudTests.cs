@@ -110,10 +110,10 @@ namespace DarkDescent.Tests
             yield return null;
             Assert.Greater(bar.Slot(3).CooldownFill, 0.8f, "il velo appena lanciato");
             Assert.AreEqual(CastResult.Cooldown, magic.TryCastAt(Spell("FireRing"), Player.position));
-            yield return new WaitForSeconds(3.2f);
+            yield return new WaitForSeconds(8.2f);
             Assert.AreEqual(0f, bar.Slot(3).CooldownFill, "finita la ricarica il velo sparisce");
 
-            // l'Anello costa 15, il Colpo possente 4: con 3 non basta per nessuno dei due
+            // l'Anello costa 12, il Colpo possente 4: con 3 non basta per nessuno dei due
             magic.Mana.TrySpend(magic.Mana.Current - 3f);
             yield return null;
             Assert.IsFalse(bar.Slot(3).IsAffordable, "il mana non basta: la casella è scura");

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9004472040291489711}
   - component: {fileID: 8337219058047543236}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Barbarian_LegRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -543,7 +543,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5193504380935054983}
   - component: {fileID: 505311330087210427}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Barbarian_ArmRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -850,7 +850,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2741047642687325048}
   - component: {fileID: 7675120900817928261}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Barbarian_LegLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -965,7 +965,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9105422980832228902}
   - component: {fileID: 1431010459468841350}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Barbarian_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1325,7 +1325,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8842073333192491642}
   - component: {fileID: 794584159965112330}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Barbarian_ArmLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1472,7 +1472,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3241881323561680914}
   - component: {fileID: 5446804628507492054}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Barbarian_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1792,6 +1792,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 03e462aa0e2542a48f17bef0dec78826, type: 3}
       propertyPath: m_Name
       value: SmithHammer
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 03e462aa0e2542a48f17bef0dec78826, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

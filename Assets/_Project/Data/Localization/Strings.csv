@@ -92,6 +92,18 @@ spell.whirlwind,Whirlwind,Turbine
 spell.execute,Execute,Esecuzione
 spell.leap,Leap,Salto
 spell.bladestorm,Bladestorm,Tempesta d'acciaio
+
+# Abilità del Mago (M21, D3)
+spell.arcane_bolt,Arcane Bolt,Dardo arcano
+spell.blink,Blink,Passo di luce
+spell.mana_shield,Mana Shield,Scudo di mana
+spell.fireball,Fireball,Palla di fuoco
+spell.flame_wall,Wall of Flames,Muro di fiamme
+spell.meteor,Meteor,Meteora
+spell.ice_bolt,Ice Bolt,Dardo di ghiaccio
+spell.frost_nova,Frost Nova,Nova di gelo
+spell.frost_armor,Frost Armor,Armatura di ghiaccio
+spell.blizzard,Blizzard,Tempesta di neve
 skills.title,Skills (K),Abilità (K)
 skills.slot.primary,Left click,Tasto sinistro
 skills.slot.secondary,Right click,Tasto destro
@@ -607,6 +619,18 @@ spell.whirlwind.desc,Strike every enemy around you.,Colpisci tutti i nemici atto
 spell.execute.desc,A stronger blow against wounded enemies.,Un colpo più forte sui nemici feriti.
 spell.leap.desc,Leap to a spot and stun the enemies where you land.,Salta sul punto indicato e stordisci chi sta dove atterri.
 spell.bladestorm.desc,A whirlwind that lasts while you walk.,Un turbine che dura mentre cammini.
+spell.arcane_bolt.desc,"A bolt from your wand or staff, from afar. Costs no mana.","Un dardo dalla bacchetta o dal bastone, da lontano. Non costa mana."
+spell.firebolt.desc,A bolt of fire.,Un dardo che brucia.
+spell.fire_ring.desc,A ring of flames around you.,Un anello di fiamme attorno a te.
+spell.blink.desc,"Step to the spot you point at, over enemies but not walls.","Ti sposta subito sul punto indicato, sopra i nemici ma non sui muri."
+spell.mana_shield.desc,"For a while, the damage you take costs mana instead of life.","Per un po' il danno che prendi scala il mana invece della vita."
+spell.fireball.desc,A slow ball of fire that bursts on impact.,Una palla di fuoco lenta che esplode all'impatto.
+spell.flame_wall.desc,"A wall of flames that stays for a while: whoever crosses it burns.","Un muro di fiamme che resta per un po': chi lo attraversa brucia."
+spell.meteor.desc,A meteor falls on the spot you point at.,Una meteora cade sul punto indicato.
+spell.ice_bolt.desc,A bolt of ice that slows the enemy.,Un dardo di ghiaccio che rallenta il nemico.
+spell.frost_nova.desc,A wave of frost around you that freezes the enemies nearby.,Un'onda di gelo attorno a te che congela i nemici vicini.
+spell.frost_armor.desc,"Raises your armor for a while, and slows who hits you in melee.","Alza l'armatura per un po' e rallenta chi ti colpisce in mischia."
+spell.blizzard.desc,A snowstorm that slows the enemies inside and strikes them.,Una tempesta di neve che rallenta i nemici e li colpisce.
 altar.talents,Reassign skills · {0} gold,Riassegna le abilità · {0} oro
 altar.talents_nothing,No skills to reassign,Nessuna abilità da riassegnare
 altar.confirm_talents,Start your skill tree over for {0} gold? All points come back and you can change specialization.,Ricominciare l'albero per {0} oro? Tutti i punti tornano e puoi cambiare specializzazione.

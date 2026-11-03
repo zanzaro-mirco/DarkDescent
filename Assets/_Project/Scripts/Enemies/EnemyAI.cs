@@ -32,6 +32,12 @@ namespace DarkDescent.Enemies
         private RangedAttack _ranged;
         private readonly StunTimer _stun = new StunTimer();
 
+        // il gelo del Mago (M21): il congelamento segue la regola dello stordimento, il rallentamento no
+        private readonly StunTimer _freeze = new StunTimer();
+        private readonly SlowTimer _slow = new SlowTimer();
+        private float _slowBase;
+        private float _slowSpeed;
+
         // dove sta andando il mago: la destinazione si rinnova solo quando il bersaglio si è spostato
         private Vector3 _approachPoint;
 
@@ -60,6 +66,33 @@ namespace DarkDescent.Enemies
 
         /// <summary>I secondi in cui non si stordisce di nuovo, dopo uno stordimento.</summary>
         public float StunImmunity => _stun.ImmuneFor;
+
+        /// <summary>Congelato da un'abilità del Mago (M21), con i secondi che prende davvero.</summary>
+        public event System.Action<EnemyAI, float> Frozen;
+
+        /// <summary>Il congelamento è finito.</summary>
+        public event System.Action<EnemyAI> FreezeEnded;
+
+        /// <summary>Rallentato (M21), o il rallentamento è cambiato o finito: chi lo mostra lo rilegge.</summary>
+        public event System.Action<EnemyAI> SlowChanged;
+
+        /// <summary>Congelato: fermo e senza colpi né lanci, come uno stordito, ma con la sua immunità.</summary>
+        public bool IsFrozen => _freeze.IsStunned;
+
+        public float FreezeRemaining => _freeze.Remaining;
+
+        /// <summary>I secondi in cui non si congela di nuovo, dopo un congelamento.</summary>
+        public float FreezeImmunity => _freeze.ImmuneFor;
+
+        /// <summary>Fermo per uno stordimento o un congelamento: niente movimento, colpi né lanci.</summary>
+        public bool IsImmobilized => _stun.IsStunned || _freeze.IsStunned;
+
+        public bool IsSlowed => _slow.IsSlowed;
+
+        /// <summary>La parte della velocità che perde ora, tra 0 e 1, con la regola del grado.</summary>
+        public float SlowFraction => _slow.Fraction;
+
+        public float SlowRemaining => _slow.Remaining;
 
         public EnemyState State => _brain.State;
 
@@ -113,6 +146,8 @@ namespace DarkDescent.Enemies
             _homePosition = transform.position;
             _homeRotation = transform.rotation;
             _stun.Ended += () => StunEnded?.Invoke(this);
+            _freeze.Ended += () => FreezeEnded?.Invoke(this);
+            _slow.Ended += EndSlow;
 
             // priorità diverse da un nemico all'altro: nello stesso corridoio uno cede il passo (trappola 5)
             int spread = _archetype.AvoidanceSpread;
@@ -182,6 +217,112 @@ namespace DarkDescent.Enemies
             return true;
         }
 
+        /// <summary>
+        /// Lo congela per tanti secondi (M21): la regola dello stordimento, con il suo tempo di pausa a parte,
+        /// quindi un nemico stordito si può congelare e viceversa. Metà per il re, i campioni e gli unici, mai
+        /// per un Inamovibile. Il colpo in corso si annulla, il lancio pure. False se non l'ha preso.
+        /// </summary>
+        public bool Freeze(float seconds)
+        {
+            if (_health.IsDead)
+            {
+                return false;
+            }
+
+            ReadRank(out bool reduced, out bool unstoppable);
+            if (!_freeze.TryStun(StunTimer.Scaled(seconds, reduced, unstoppable)))
+            {
+                return false;
+            }
+
+            _attack.Interrupt(_freeze.Remaining);
+            if (_ranged != null)
+            {
+                _ranged.Cancel();
+            }
+
+            StopMoving();
+            _brain.Alert();
+            ShowFrost();
+            Frozen?.Invoke(this, _freeze.Remaining);
+            return true;
+        }
+
+        /// <summary>
+        /// Lo rallenta di <paramref name="fraction"/> (0,4: il 40%) per tanti secondi (M21): la metà per il
+        /// re, i campioni e gli unici; chi è già rallentato tiene il più forte e il più lungo. Niente tempo di pausa.
+        /// </summary>
+        public bool Slow(float fraction, float seconds)
+        {
+            if (_health.IsDead)
+            {
+                return false;
+            }
+
+            ReadRank(out bool reduced, out _);
+            bool wasSlowed = _slow.IsSlowed;
+            if (!_slow.Apply(SlowTimer.Scaled(fraction, reduced), seconds))
+            {
+                return false;
+            }
+
+            if (!wasSlowed)
+            {
+                _slowBase = _agent.speed;
+            }
+
+            RefreshSlowSpeed();
+            _brain.Alert();
+            ShowFrost();
+            SlowChanged?.Invoke(this);
+            return true;
+        }
+
+        private void ReadRank(out bool reduced, out bool unstoppable)
+        {
+            var special = GetComponent<SpecialEnemy>();
+            reduced = (special != null && special.Rank != EnemyRank.Normal) || GetComponent<BossController>() != null;
+            unstoppable = special != null && special.IsUnstoppable;
+        }
+
+        // chi scrive la velocità dell'agent è anche il Rapido e il re furioso: se l'hanno cambiata
+        // mentre era rallentato, la nuova è la base da cui togliere la parte
+        private void RefreshSlowSpeed()
+        {
+            if (_agent == null || !_slow.IsSlowed)
+            {
+                return;
+            }
+
+            if (!Mathf.Approximately(_agent.speed, _slowSpeed) && _slowSpeed > 0f)
+            {
+                _slowBase = _agent.speed;
+            }
+
+            _slowSpeed = _slowBase * (1f - _slow.Fraction);
+            _agent.speed = _slowSpeed;
+        }
+
+        private void EndSlow()
+        {
+            if (_agent != null && Mathf.Approximately(_agent.speed, _slowSpeed))
+            {
+                _agent.speed = _slowBase;
+            }
+
+            _slowSpeed = 0f;
+            SlowChanged?.Invoke(this);
+        }
+
+        // la tinta fredda e il fermo immagine li fa un componente che nasce al primo gelo: niente da mettere nei prefab
+        private void ShowFrost()
+        {
+            if (!TryGetComponent(out EnemyFrostView _))
+            {
+                gameObject.AddComponent<EnemyFrostView>();
+            }
+        }
+
         /// <summary>Un compagno l'ha visto: se è fermo, insegue anche lui. Non avvisa a sua volta.</summary>
         public void Alert()
         {
@@ -211,15 +352,40 @@ namespace DarkDescent.Enemies
             transform.rotation = _homeRotation;
             _health.Heal(_health.Max);
             _stun.Clear();
+            ClearFrost();
+        }
+
+        // senza gelo: tornato a casa o morto. La velocità torna quella di prima
+        private void ClearFrost()
+        {
+            bool wasFrozen = _freeze.IsStunned;
+            _freeze.Clear();
+            if (wasFrozen)
+            {
+                FreezeEnded?.Invoke(this);
+            }
+
+            if (_slow.IsSlowed)
+            {
+                _slow.Clear();
+                EndSlow();
+            }
         }
 
         private void Update()
         {
-            // stordito non pensa: l'attacco è già bloccato per lo stesso tempo
-            if (_stun.IsStunned || _stun.ImmuneFor > 0f)
+            if (_slow.IsSlowed)
+            {
+                RefreshSlowSpeed();
+                _slow.Advance(Time.deltaTime);
+            }
+
+            // stordito o congelato non pensa: l'attacco è già bloccato per lo stesso tempo
+            if (_stun.IsStunned || _stun.ImmuneFor > 0f || _freeze.IsStunned || _freeze.ImmuneFor > 0f)
             {
                 _stun.Advance(Time.deltaTime);
-                if (_stun.IsStunned)
+                _freeze.Advance(Time.deltaTime);
+                if (_stun.IsStunned || _freeze.IsStunned)
                 {
                     StopMoving();
                     return;
@@ -380,6 +546,7 @@ namespace DarkDescent.Enemies
         private void HandleDied()
         {
             _stun.Clear();
+            ClearFrost();
             _brain.Die();
             Killed?.Invoke(this);
 

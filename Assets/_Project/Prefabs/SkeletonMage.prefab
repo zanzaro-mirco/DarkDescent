@@ -547,6 +547,7 @@ MonoBehaviour:
   _forwardOffset: 0.9
   _potionSideOffset: 0.7
   _dropHeight: 1
+  _extraAngle: 75
 --- !u!114 &2841678628531358379
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -630,6 +631,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skeleton_Staff
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 54f96054999670041a382f6ef716255b, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -691,9 +696,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7894015408979192578, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -6146638616742225096, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -5579317612387346480, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -5341487384504831007, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -3234361240640084177, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -1790057254660308634, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -292432277699267885, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
       propertyPath: m_Name
       value: Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 1492459173789977741, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 4834140477070624119, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 8cb474b78e638ca40be75c7b3f1dacee, type: 3}
       propertyPath: m_Controller
@@ -750,6 +791,7 @@ MonoBehaviour:
   _attackSpeed: 1
   _quickAttackSpeed: 1
   _clipHitTime: 0
+  _twoHandedClipHitTime: 0
 --- !u!114 &8922961271977242547
 MonoBehaviour:
   m_ObjectHideFlags: 0

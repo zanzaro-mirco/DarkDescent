@@ -65,6 +65,9 @@ namespace DarkDescent.Progression
             if (magic != null)
             {
                 magic.ManaRegenPerSecond = characterClass.ManaRegenPerSecond;
+
+                // il colpo del sinistro: l'Attacco del Guerriero, il Dardo arcano del Mago (D3 della M21)
+                magic.SetAttackSpell(characterClass.AttackSpell);
             }
 
             if (freshAttributes)

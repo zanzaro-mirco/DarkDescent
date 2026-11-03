@@ -319,6 +319,7 @@ MonoBehaviour:
   _forwardOffset: 0.9
   _potionSideOffset: 0.7
   _dropHeight: 1
+  _extraAngle: 75
 --- !u!1001 &1237933401813136760
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -379,14 +380,54 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7481553341492842829, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -5347222918006164120, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -1629752511985229400, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -638838958707032469, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 213639004123055921, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
       propertyPath: m_Name
       value: Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 1549165989305881335, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2845814981272638743, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3088531729282718444, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3180038364905222915, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 22100000, guid: cb628644c0bbe26478527ebf91be644c, type: 2}
+    - target: {fileID: 9124204593878465275, guid: e23a7c0b3e1140dc8d4e9044c586e621, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -433,6 +474,7 @@ MonoBehaviour:
   _attackSpeed: 1
   _quickAttackSpeed: 1
   _clipHitTime: 0
+  _twoHandedClipHitTime: 0
 --- !u!114 &7737563540835327200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -516,6 +558,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: da85e36e56e0daf448adc9f0c64f607d, type: 3}
       propertyPath: m_Name
       value: Skeleton_Blade
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: da85e36e56e0daf448adc9f0c64f607d, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

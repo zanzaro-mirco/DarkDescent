@@ -76,6 +76,31 @@ namespace DarkDescent.Magic
         [Tooltip("Secondi tra un colpo e l'altro, per la Tempesta d'acciaio.")]
         [SerializeField, Min(0f)] private float _tick;
 
+        [Header("Abilità del Mago (M21)")]
+        [Tooltip("Il tipo di danno che fa: fuoco, gelo o magia.")]
+        [SerializeField] private DamageType _damageType = DamageType.Fire;
+
+        [Tooltip("Metri attorno all'impatto in cui un proiettile esplode e colpisce tutti: la Palla di fuoco. 0: colpisce solo chi tocca.")]
+        [SerializeField, Min(0f)] private float _blastRadius;
+
+        [Tooltip("La parte della velocità che toglie ai nemici colpiti, in punti percentuali: 40 il Dardo di ghiaccio, 50 la Tempesta di neve, 30 l'Armatura di ghiaccio a chi colpisce in mischia.")]
+        [SerializeField, Range(0f, 100f)] private float _slowPercent;
+
+        [Tooltip("Secondi di rallentamento ai nemici colpiti.")]
+        [SerializeField, Min(0f)] private float _slowSeconds;
+
+        [Tooltip("Secondi di congelamento ai nemici colpiti, prima della regola dello stordimento: la Nova di gelo.")]
+        [SerializeField, Min(0f)] private float _freeze;
+
+        [Tooltip("Secondi tra il lancio e l'effetto: la caduta della Meteora, e la partenza del Dardo arcano dal gesto.")]
+        [SerializeField, Min(0f)] private float _delay;
+
+        [Tooltip("Metri della riga di fiamme del Muro, o della distanza massima del Passo di luce se la gittata non basta.")]
+        [SerializeField, Min(0f)] private float _length;
+
+        [Tooltip("Punti di mana che costa ogni punto di danno assorbito: lo Scudo di mana.")]
+        [SerializeField, Min(0f)] private float _manaPerDamage;
+
         public string Id => _id;
         public string NameKey => _nameKey;
         public Sprite Icon => _icon;
@@ -99,8 +124,26 @@ namespace DarkDescent.Magic
         public float MoveFactor => _moveFactor;
         public float Tick => _tick;
 
+        public DamageType DamageType => _damageType;
+        public float BlastRadius => _blastRadius;
+
+        /// <summary>Il raggio che le abilità di area e i nodi dell'albero cambiano: quello dell'area, o dello scoppio per un proiettile.</summary>
+        public float EffectRadius => _kind == SpellKind.Projectile ? _blastRadius : _radius;
+
+        /// <summary>Un lancio che vuole il punto sotto il cursore, e senza non parte: il proiettile, il Passo di luce, la Meteora e le aree che restano.</summary>
+        public bool NeedsPoint => _kind == SpellKind.Projectile || _kind == SpellKind.Teleport || _kind == SpellKind.Meteor || _kind == SpellKind.Zone;
+        public float SlowPercent => _slowPercent;
+        public float SlowSeconds => _slowSeconds;
+        public float Freeze => _freeze;
+        public float Delay => _delay;
+        public float Length => _length;
+        public float ManaPerDamage => _manaPerDamage;
+
         /// <summary>Un'abilità del Guerriero (M20), non un incantesimo: la fa <c>WarriorAbilities</c>.</summary>
-        public bool IsWarriorAbility => _kind >= SpellKind.Strike;
+        public bool IsWarriorAbility => _kind >= SpellKind.Strike && _kind <= SpellKind.Attack;
+
+        /// <summary>Un tipo che solo il Mago ha (M21): lo fa <c>MageAbilities</c>, o il click del sinistro per il Dardo arcano.</summary>
+        public bool IsMageAbility => _kind >= SpellKind.ArcaneBolt;
 
         /// <summary>Il danno di un lancio con questa Magia: non usa la Forza né il livello (D3).</summary>
         public float RollDamage(float magic, IRandomSource random)

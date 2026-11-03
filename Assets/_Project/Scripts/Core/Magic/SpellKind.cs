@@ -55,5 +55,26 @@ namespace DarkDescent.Magic
         /// usa il click su un nemico. Senza mana e senza ricarica.
         /// </summary>
         Attack,
+
+        // le abilità del Mago (D3 della M21): il Dardo di fuoco, l'Anello, la Palla di fuoco, il Dardo di ghiaccio, la Nova e l'Armatura di ghiaccio
+        // sono proiettili, aree e potenziamenti di sempre con i numeri nuovi dell'asset; questi sono i tipi che mancavano
+
+        /// <summary>
+        /// Il colpo del sinistro del Mago: un dardo dalla bacchetta o dal bastone, a distanza, senza mana e senza
+        /// ricarica. Lo usa il click su un nemico, come l'Attacco, ma parte da lontano.
+        /// </summary>
+        ArcaneBolt,
+
+        /// <summary>Si sposta subito sul punto indicato, passando sopra i nemici: il Passo di luce.</summary>
+        Teleport,
+
+        /// <summary>Per un po' il danno preso scala il mana invece della vita: lo Scudo di mana.</summary>
+        ManaShield,
+
+        /// <summary>Dopo un attimo una meteora cade sul punto indicato: la Meteora.</summary>
+        Meteor,
+
+        /// <summary>Un'area che resta e colpisce a ogni battito chi ci sta dentro: il Muro di fiamme (una riga) e la Tempesta di neve (un cerchio).</summary>
+        Zone,
     }
 }

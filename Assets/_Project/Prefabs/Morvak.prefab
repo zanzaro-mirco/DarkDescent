@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shield
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e67b3df4fcc14f79af7cdcde28b0a21d, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -70,9 +74,37 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 472539412114290438, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 544816584095552241, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
       propertyPath: m_Name
       value: Morvak
+      objectReference: {fileID: 0}
+    - target: {fileID: 632223178512255161, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1334248235101423080, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2059563834160141232, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3414723401518585213, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 5515015613745583366, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 5834737783639312415, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 6381474352372389961, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
       propertyPath: _archetype
@@ -117,6 +149,18 @@ PrefabInstance:
     - target: {fileID: 6432807766451126628, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7752416915238382012, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8126477168784786177, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8837285181330471588, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

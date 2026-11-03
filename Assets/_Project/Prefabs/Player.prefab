@@ -1485,6 +1485,7 @@ GameObject:
   - component: {fileID: 7894283482052697381}
   - component: {fileID: 902799416862227697}
   - component: {fileID: 1784828739858549232}
+  - component: {fileID: 5848655382438379071}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -2079,6 +2080,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Progression.PlayerClass
   _catalog: {fileID: 11400000, guid: e4eb9186f79119740b1f9c3894bdb4c6, type: 2}
+--- !u!114 &5848655382438379071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7183737884788070027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddf4bf33164c57348bedccd04840f8f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DarkDescent::DarkDescent.Magic.MageAbilities
+  _targetLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  _searchHeight: 1.1
+  _wallMargin: 0.4
+  _wallHalfWidth: 0.8
+  _meteorHeight: 12
+  _audio: {fileID: 4117437698390640255}
+  _blinkEffect: {fileID: 7084718043052930496, guid: 39c9818ebdb5f0e43aa6fbf27ba1b497, type: 3}
+  _shieldEffect: {fileID: 4745980757906689171, guid: afc49583d95098e45b2347c140a3649b, type: 3}
+  _meteorEffect: {fileID: 7582448901973598493, guid: 64f4f6aa35f0d564ea72ab6a6dc530d6, type: 3}
+  _meteorImpact: {fileID: 7084718043052930496, guid: e819eb3e2b5dafa43911fcf10395acd9, type: 3}
+  _wallEffect: {fileID: 7084718043052930496, guid: e39d67e09d4a48f42a936b872da6f5d6, type: 3}
+  _snowEffect: {fileID: 7084718043052930496, guid: e09802779ffedc74f897cd2dd7e3bc16, type: 3}
+  _blinkClip: {fileID: 8300000, guid: 57fcae2522e45aa488e5bcce54d6fb9d, type: 3}
+  _shieldClip: {fileID: 8300000, guid: bebb1701b1d911d41996d399b2409bdb, type: 3}
+  _meteorClip: {fileID: 8300000, guid: a62ca9eba94eb09418b86a6a4bbb6d16, type: 3}
 --- !u!1 &8374291605083222237
 GameObject:
   m_ObjectHideFlags: 0

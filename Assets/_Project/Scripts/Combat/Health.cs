@@ -35,6 +35,12 @@ namespace DarkDescent.Combat
         /// <summary>Un colpo mancato: nessun danno, nessun lampo, solo la scritta.</summary>
         public event Action<DamageInfo> Evaded;
 
+        /// <summary>
+        /// Chi assorbe una parte del danno prima della vita, con il danno già ridotto: riceve quanto sta per
+        /// arrivare e restituisce quanto ne passa alla vita (lo Scudo di mana, M21). Null: niente.
+        /// </summary>
+        public Func<float, float> Absorber { get; set; }
+
         public float Current => Model.Current;
         public float Max => Model.Max;
         public bool IsDead => Model.IsDead;
@@ -57,6 +63,11 @@ namespace DarkDescent.Combat
             {
                 amount = CombatFormulas.ReduceDamage(amount, _stats.Sheet.Get(StatType.DamageReduction));
                 amount = CombatFormulas.ResistDamage(amount, _stats.Sheet.Get(StatType.DamageResist));
+            }
+
+            if (Absorber != null && !Model.IsDead)
+            {
+                amount = Absorber(amount);
             }
 
             float applied = Model.ApplyDamage(amount);

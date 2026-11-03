@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e8cfac43a2621d45b39eec31ea0c062, type: 3}
+  m_Name: Blink
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
+  _id: c42312ab299342de9afcc6f3232aa2ca
+  _nameKey: spell.blink
+  _icon: {fileID: 8787291131096080919, guid: fb0ec0d4a982faf42b33e76ca0d24980, type: 3}
+  _kind: 16
+  _effect: {fileID: 4929656189442915014, guid: 39c9818ebdb5f0e43aa6fbf27ba1b497, type: 3}
+  _manaCost: 8
+  _cooldown: 12
+  _minDamage: 0
+  _maxDamage: 0
+  _magicDivisor: 4
+  _speed: 14
+  _range: 8
+  _radius: 0
+  _armorPercent: 0
+  _duration: 0
+  _weaponPercent: 0
+  _stun: 0
+  _bonusPercent: 0
+  _threshold: 0
+  _minRange: 0
+  _moveFactor: 1
+  _tick: 0
+  _damageType: 1
+  _blastRadius: 0
+  _slowPercent: 0
+  _slowSeconds: 0
+  _freeze: 0
+  _delay: 0
+  _length: 0
+  _manaPerDamage: 0

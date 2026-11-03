@@ -344,9 +344,13 @@ namespace DarkDescent.Talents
                 case AbilityParam.Duration:
                     return ability.Duration;
                 case AbilityParam.Radius:
-                    return ability.Radius;
+                    return ability.EffectRadius;
                 case AbilityParam.Stun:
                     return ability.Stun;
+                case AbilityParam.Slow:
+                    return ability.SlowSeconds;
+                case AbilityParam.Freeze:
+                    return ability.Freeze;
                 case AbilityParam.Threshold:
                     return ability.Threshold;
                 default:

@@ -19,6 +19,15 @@ namespace DarkDescent.Editor
     {
         public const string LayerName = "Hero";
         public const int Layer = 10;
+
+        /// <summary>
+        /// Nemici e persone del borgo (richiesta di Mirco, M21): coprono il cavaliere come qualunque cosa, ma senza la
+        /// sagoma. Si disegnano a parte come lui, scrivendo lo stencil che la sagoma non attraversa.
+        /// </summary>
+        public const string CharacterLayerName = "Characters";
+        public const int CharacterLayer = 11;
+        public const string CharacterFeature = "Characters";
+        public const int CharacterStencil = 1;
         public const string HiddenFeature = "HeroHidden";
         public const string HeroFeature = "Hero";
         public const string MaterialPath = "Assets/_Project/Art/Materials/M_HeroSilhouette.mat";
@@ -32,7 +41,8 @@ namespace DarkDescent.Editor
         [MenuItem("DarkDescent/Borgo/Sagoma del cavaliere")]
         public static void Setup()
         {
-            AddLayer();
+            AddLayer(Layer, LayerName);
+            AddLayer(CharacterLayer, CharacterLayerName);
             var material = SilhouetteMaterial();
             foreach (string path in Renderers)
             {
@@ -40,19 +50,20 @@ namespace DarkDescent.Editor
             }
 
             MovePlayerModel();
+            MoveCharacterModels();
             AssetDatabase.SaveAssets();
             Debug.Log("[DarkDescent] sagoma del cavaliere: layer, materiale, renderer e prefab pronti");
         }
 
-        private static void AddLayer()
+        private static void AddLayer(int index, string name)
         {
             var tags = new SerializedObject(AssetDatabase.LoadMainAssetAtPath("ProjectSettings/TagManager.asset"));
             var layers = tags.FindProperty("layers");
-            var slot = layers.GetArrayElementAtIndex(Layer);
-            if (slot.stringValue != LayerName)
+            var slot = layers.GetArrayElementAtIndex(index);
+            if (slot.stringValue != name)
             {
-                Debug.Assert(string.IsNullOrEmpty(slot.stringValue), $"il layer {Layer} è già {slot.stringValue}");
-                slot.stringValue = LayerName;
+                Debug.Assert(string.IsNullOrEmpty(slot.stringValue), $"il layer {index} è già {slot.stringValue}");
+                slot.stringValue = name;
                 tags.ApplyModifiedPropertiesWithoutUndo();
             }
         }
@@ -74,9 +85,10 @@ namespace DarkDescent.Editor
         private static void ConfigureRenderer(UniversalRendererData data, Material material)
         {
             int mask = 1 << Layer;
-            data.opaqueLayerMask &= ~mask;
+            int characters = 1 << CharacterLayer;
+            data.opaqueLayerMask &= ~(mask | characters);
 
-            foreach (var old in data.rendererFeatures.Where(f => f != null && (f.name == HiddenFeature || f.name == HeroFeature)).ToList())
+            foreach (var old in data.rendererFeatures.Where(f => f != null && (f.name == HiddenFeature || f.name == HeroFeature || f.name == CharacterFeature)).ToList())
             {
                 data.rendererFeatures.Remove(old);
                 AssetDatabase.RemoveObjectFromAsset(old);
@@ -94,15 +106,33 @@ namespace DarkDescent.Editor
             hidden.settings.depthCompareFunction = CompareFunction.Greater;
             hidden.settings.enableWrite = false;
 
-            var hero = ScriptableObject.CreateInstance<RenderObjects>();
+            // dove c'è un nemico o una persona la sagoma non si vede: il loro stencil la ferma
+            hidden.settings.stencilSettings.overrideStencilState = true;
+            hidden.settings.stencilSettings.stencilReference = CharacterStencil;
+            hidden.settings.stencilSettings.stencilCompareFunction = CompareFunction.NotEqual;
+            hidden.settings.stencilSettings.passOperation = StencilOp.Keep;
+
+            // nemici e persone coprono come tutti, con i loro materiali, e scrivono lo stencil
+            var people = ScriptableObject.CreateInstance<RenderObjects>();
+            people.name = CharacterFeature;
+            people.settings.Event = RenderPassEvent.AfterRenderingOpaques;
+            people.settings.filterSettings.RenderQueueType = RenderQueueType.Opaque;
+            people.settings.filterSettings.LayerMask = characters;
+            people.settings.overrideMode = RenderObjects.RenderObjectsSettings.OverrideMaterialMode.None;
+            people.settings.stencilSettings.overrideStencilState = true;
+            people.settings.stencilSettings.stencilReference = CharacterStencil;
+            people.settings.stencilSettings.stencilCompareFunction = CompareFunction.Always;
+            people.settings.stencilSettings.passOperation = StencilOp.Replace;
+
+            var hero =ScriptableObject.CreateInstance<RenderObjects>();
             hero.name = HeroFeature;
             hero.settings.Event = RenderPassEvent.AfterRenderingOpaques;
             hero.settings.filterSettings.RenderQueueType = RenderQueueType.Opaque;
             hero.settings.filterSettings.LayerMask = mask;
             hero.settings.overrideMode = RenderObjects.RenderObjectsSettings.OverrideMaterialMode.None;
 
-            // la sagoma prima: quando la disegna, il cavaliere non è ancora nella profondità
-            foreach (var feature in new ScriptableRendererFeature[] { hidden, hero })
+            // prima chi copre, poi la sagoma: quando la disegna, il cavaliere non è ancora nella profondità
+            foreach (var feature in new ScriptableRendererFeature[] { people, hidden, hero })
             {
                 AssetDatabase.AddObjectToAsset(feature, data);
                 data.rendererFeatures.Add(feature);
@@ -112,6 +142,49 @@ namespace DarkDescent.Editor
             typeof(ScriptableRendererData).GetMethod("ValidateRendererFeatures", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(data, null);
             data.SetDirty();
             EditorUtility.SetDirty(data);
+        }
+
+        // I nemici e le persone del borgo: ogni prefab con un Animator che non è il cavaliere, tranne i filmati (che
+        // hanno il loro cavaliere). Come per lui, solo i pezzi del modello sotto l'Animator.
+        private static void MoveCharacterModels()
+        {
+            int moved = 0;
+            foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/_Project/Prefabs" }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (path == PlayerPath || path.Contains("/Films/"))
+                {
+                    continue;
+                }
+
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    var animators = root.GetComponentsInChildren<Animator>(true);
+                    foreach (var animator in animators)
+                    {
+                        foreach (var renderer in animator.GetComponentsInChildren<Renderer>(true))
+                        {
+                            if (renderer is MeshRenderer || renderer is SkinnedMeshRenderer)
+                            {
+                                renderer.gameObject.layer = CharacterLayer;
+                            }
+                        }
+                    }
+
+                    if (animators.Length > 0)
+                    {
+                        PrefabUtility.SaveAsPrefabAsset(root, path);
+                        moved++;
+                    }
+                }
+                finally
+                {
+                    PrefabUtility.UnloadPrefabContents(root);
+                }
+            }
+
+            Debug.Log($"[DarkDescent] sagoma: {moved} prefab con personaggi sul layer {CharacterLayerName}");
         }
 
         // Solo i pezzi del modello sotto l'Animator: il corpo e quello che ha in mano. Luci, cerchio del

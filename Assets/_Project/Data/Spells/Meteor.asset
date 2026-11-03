@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e8cfac43a2621d45b39eec31ea0c062, type: 3}
+  m_Name: Meteor
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
+  _id: 540daf2a8fa84ca0872f53d95237ac82
+  _nameKey: spell.meteor
+  _icon: {fileID: 8787291131096080919, guid: fb0ec0d4a982faf42b33e76ca0d24980, type: 3}
+  _kind: 18
+  _effect: {fileID: 7582448901973598493, guid: 64f4f6aa35f0d564ea72ab6a6dc530d6, type: 3}
+  _manaCost: 30
+  _cooldown: 45
+  _minDamage: 36
+  _maxDamage: 72
+  _magicDivisor: 0.7
+  _speed: 14
+  _range: 14
+  _radius: 4
+  _armorPercent: 0
+  _duration: 0
+  _weaponPercent: 0
+  _stun: 0
+  _bonusPercent: 0
+  _threshold: 0
+  _minRange: 0
+  _moveFactor: 1
+  _tick: 0
+  _damageType: 1
+  _blastRadius: 0
+  _slowPercent: 0
+  _slowSeconds: 0
+  _freeze: 0
+  _delay: 1.2
+  _length: 0
+  _manaPerDamage: 0

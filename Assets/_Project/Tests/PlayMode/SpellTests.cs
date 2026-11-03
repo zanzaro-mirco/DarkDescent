@@ -44,7 +44,7 @@ namespace DarkDescent.Tests
             return Vector3.zero;
         }
 
-        [UnityTest, Description("L'Anello di fuoco colpisce il nemico a 3 m con 11–18 di danno (8–14 + Magia 10 / 3) e non quello a 6 m; spende 15 di mana e parte la ricarica di 3 s; l'effetto si accende e poi si spegne")]
+        [UnityTest, Description("L'Anello di fuoco colpisce il nemico a 2,5 m con 10–17 di danno (7–14 + Magia 10 / 3,3) e non quello a 6 m; spende 12 di mana e parte la ricarica di 8 s; l'effetto si accende e poi si spegne")]
         public IEnumerator FireRing_HitsOnlyEnemiesInRadius()
         {
             yield return LoadSandbox(allSkeletons: true);
@@ -57,7 +57,7 @@ namespace DarkDescent.Tests
 
             var near = enemies[0].GetComponent<Health>();
             var far = enemies[1].GetComponent<Health>();
-            enemies[0].GetComponent<NavMeshAgent>().Warp(PointAround(3f, 0f));
+            enemies[0].GetComponent<NavMeshAgent>().Warp(PointAround(2.5f, 0f));
             enemies[1].GetComponent<NavMeshAgent>().Warp(PointAround(6f, 180f));
             yield return null;
 
@@ -65,12 +65,12 @@ namespace DarkDescent.Tests
             Assert.IsTrue(magic.Learn(Spell("FireRing")));
             Assert.AreEqual(2, magic.Book.SlotOf(Spell("FireRing")), "imparato, va in Q");
             Assert.AreEqual(CastResult.Ready, magic.TryCastAt(Spell("FireRing"), Player.position));
-            Assert.AreEqual(15f, magic.Mana.Max - magic.Mana.Current, 0.5f);
+            Assert.AreEqual(12f, magic.Mana.Max - magic.Mana.Current, 0.5f);
             Assert.AreEqual(near.Max, near.Current, "il colpo aspetta la mano");
 
             yield return Wait(0.6f);
             float damage = near.Max - near.Current;
-            Assert.That(damage, Is.InRange(11f, 18f), "danno dell'anello");
+            Assert.That(damage, Is.InRange(10f, 17f), "danno dell'anello");
             Assert.AreEqual(far.Max, far.Current, "a 6 m non arriva");
             var effect = Object.FindFirstObjectByType<AreaEffect>();
             Assert.IsNotNull(effect, "il cerchio di fiamme");

@@ -25,4 +25,4 @@ MonoBehaviour:
   _vitality: 20
   _pointPattern: 0200000003000000020000000300000001000000
   _manaRegenFactor: 1.5
-  _attackSpell: {fileID: 11400000, guid: b1d453d40a9aff74fb826ab5018179e7, type: 2}
+  _attackSpell: {fileID: 11400000, guid: eb8ee22c8f469e54f8d2ea04673fdd27, type: 2}

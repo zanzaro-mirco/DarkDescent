@@ -18,13 +18,27 @@ MonoBehaviour:
   _kind: 0
   _effect: {fileID: 7582448901973598493, guid: 502645253b63a8542b5234edd22bb8bb, type: 3}
   _manaCost: 6
-  _cooldown: 0.8
-  _knownFromStart: 1
+  _cooldown: 2
   _minDamage: 6
   _maxDamage: 12
   _magicDivisor: 4
   _speed: 14
   _range: 14
-  _radius: 4
+  _radius: 0
   _armorPercent: 0
   _duration: 0
+  _weaponPercent: 0
+  _stun: 0
+  _bonusPercent: 0
+  _threshold: 0
+  _minRange: 0
+  _moveFactor: 1
+  _tick: 0
+  _damageType: 1
+  _blastRadius: 0
+  _slowPercent: 0
+  _slowSeconds: 0
+  _freeze: 0
+  _delay: 0
+  _length: 0
+  _manaPerDamage: 0

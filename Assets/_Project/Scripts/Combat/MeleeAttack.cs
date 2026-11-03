@@ -75,6 +75,13 @@ namespace DarkDescent.Combat
         private bool _hitPending;
         private float _hitTimer;
 
+        // il Dardo arcano del Mago (M21)
+        private IBoltShooter _bolt;
+        private float _boltRange;
+        private float _boltHitDelay;
+        private float _boltDivisor = 6f;
+        private bool _swingIsBolt;
+
         private float _cooldown;
         private float _repathTimer;
         private float _lockTimer;
@@ -96,6 +103,26 @@ namespace DarkDescent.Combat
         public event Action SwingEnded;
 
         public WeaponDefinition Weapon => _weapon;
+
+        /// <summary>Il colpo è un dardo da lontano (il Mago, M21): la portata è la sua e il danno lo porta il proiettile.</summary>
+        public bool IsBolt => _bolt != null;
+
+        /// <summary>
+        /// Il colpo del sinistro diventa un dardo (D3 della M21): parte a <paramref name="range"/> metri tra i bordi,
+        /// dopo <paramref name="hitDelay"/> secondi di gesto, con il ritmo dell'arma. Il danno è il tiro dell'arma più la
+        /// Magia / <paramref name="magicDivisor"/>, senza tiro per colpire: un incantesimo non manca. Null rimette il colpo
+        /// dell'arma. Un colpo in corso arriva com'era.
+        /// </summary>
+        public void SetBolt(IBoltShooter shooter, float range, float hitDelay, float magicDivisor)
+        {
+            _bolt = shooter;
+            _boltRange = range;
+            _boltHitDelay = hitDelay;
+            _boltDivisor = Mathf.Max(0.1f, magicDivisor);
+        }
+
+        // la portata del colpo che sta per partire: quella del dardo, o dell'arma
+        private float Reach => _bolt != null ? _boltRange : _weapon.Range;
 
         /// <summary>Il danno minimo dell'arma con i suoi affissi, prima della Forza.</summary>
         public int MinDamage => _minDamage;
@@ -122,7 +149,10 @@ namespace DarkDescent.Combat
         public WeaponDefinition SwingWeapon => _swingWeapon != null ? _swingWeapon : _weapon;
 
         /// <summary>Quanto dura la carica del colpo, con la velocità dei campioni Rapidi (M12) e degli oggetti (M16).</summary>
-        public float SwingHitDelay => SwingWeapon.HitDelay / SpeedMultiplier;
+        public float SwingHitDelay => (_swingIsBolt ? _boltHitDelay : SwingWeapon.HitDelay) / SpeedMultiplier;
+
+        /// <summary>Il colpo in corso, o l'ultimo, è un dardo: il gesto è quello del lancio e non quello dell'arma.</summary>
+        public bool SwingIsBolt => _swingIsBolt;
 
         /// <summary>Il danno in più del grado e della difficoltà insieme: i due si moltiplicano qui e solo qui (M14).</summary>
         public float DamageMultiplier => _damageMultiplier * _difficultyMultiplier;
@@ -307,7 +337,8 @@ namespace DarkDescent.Combat
             }
 
             Vector3 toTarget = Flat(_targetTransform.position - transform.position);
-            _inRange = EdgeDistance(toTarget, _targetRadius) <= _weapon.Range;
+            // un dardo non passa per un muro: dietro uno spigolo ci si avvicina, come per un colpo di spada
+            _inRange = EdgeDistance(toTarget, _targetRadius) <= Reach && (_bolt == null || HasClearShot());
             if (!_inRange)
             {
                 Chase();
@@ -355,11 +386,12 @@ namespace DarkDescent.Combat
             // senza tiri (un bersaglio di prova) sempre l'arma
             _swingIsQuick = _pattern != null && _random != null && !_pattern.NextIsHeavy(_random);
             _swingWeapon = _swingIsQuick ? _quickWeapon : _weapon;
+            _swingIsBolt = _bolt != null;
 
             _attackRequested = false;
             _hitPending = true;
             float speed = SpeedMultiplier;
-            _hitTimer = _swingWeapon.HitDelay / speed;
+            _hitTimer = (_swingIsBolt ? _boltHitDelay : _swingWeapon.HitDelay) / speed;
             _cooldown = _swingWeapon.AttackInterval / speed;
 
             _swingTarget = _target;
@@ -376,6 +408,12 @@ namespace DarkDescent.Combat
         private void ResolveHit()
         {
             _hitPending = false;
+            if (_swingIsBolt)
+            {
+                ResolveBolt();
+                return;
+            }
+
             bool inReach = _swingTransform != null
                 && _swingTarget.IsAlive()
                 && EdgeDistance(Flat(_swingTransform.position - transform.position), _swingTargetRadius) <= _swingWeapon.Range + _swingWeapon.RangeTolerance
@@ -434,6 +472,37 @@ namespace DarkDescent.Combat
 
             ForgetSwingTarget();
             SwingEnded?.Invoke();
+        }
+
+        // Il dardo parte se il bersaglio è ancora a portata (con un metro di tolleranza per il passo che ha fatto durante
+        // il gesto): il tiro dell'arma più la Magia, e il bonus del danno. Niente tiro per colpire, critico né rubavita.
+        private void ResolveBolt()
+        {
+            bool inReach = _bolt != null && _swingTransform != null && _swingTarget.IsAlive()
+                && EdgeDistance(Flat(_swingTransform.position - transform.position), _swingTargetRadius) <= _boltRange + BoltTolerance;
+            if (inReach)
+            {
+                if (_random == null)
+                {
+                    throw new InvalidOperationException($"{name}: MeleeAttack senza IRandomSource, lo collega il CompositionRoot");
+                }
+
+                int span = _maxDamage - _minDamage + 1;
+                int roll = Math.Min(_maxDamage, _minDamage + (int)(_random.NextDouble() * span));
+                float amount = CombatFormulas.SpellDamage(roll, CharacterStats.ValueOf(_stats, StatType.Magic), _boltDivisor) * DamageMultiplier;
+                amount = CombatFormulas.WithBonus(amount, CharacterStats.ValueOf(_stats, StatType.DamageBonus));
+                _bolt.Shoot(_swingTransform, amount);
+            }
+
+            ForgetSwingTarget();
+            SwingEnded?.Invoke();
+        }
+
+        private const float BoltTolerance = 1f;
+
+        private bool HasClearShot()
+        {
+            return !NavMesh.Raycast(transform.position, _targetTransform.position, out _, NavMesh.AllAreas);
         }
 
         /// <summary>

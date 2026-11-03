@@ -236,7 +236,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5584112896518566505}
   - component: {fileID: 1972381828417940190}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -383,7 +383,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6326289839899802642}
   - component: {fileID: 5496054455065212554}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_ArmRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -498,7 +498,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4994020116594085691}
   - component: {fileID: 1625798282335916422}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_LegLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -824,7 +824,7 @@ GameObject:
   m_Component:
   - component: {fileID: 429977822148864276}
   - component: {fileID: 5404380782247728726}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_LegRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1003,7 +1003,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6215382763620927384}
   - component: {fileID: 1076732666555792716}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Hat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1181,7 +1181,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5276703626566538284}
   - component: {fileID: 272966733002923356}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Cape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1458,7 +1458,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8774913369276678563}
   - component: {fileID: 790449494343786024}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1573,7 +1573,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1580071932878542387}
   - component: {fileID: 3612120040267879383}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_ArmLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -495,6 +495,107 @@ namespace DarkDescent.Tests
             yield return Snap("mageweapons_inventory", world: false);
         }
 
+        [UnityTest, Timeout(600000), Description("Le abilità del Mago in azione (D3 della M21): il Dardo arcano e le undici, contro scheletri messi davanti, a metà effetto")]
+        public IEnumerator MageSpells()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 1);
+            yield return Settle();
+
+            var playerClass = Hero.GetComponent<PlayerClass>();
+            Root.ApplyClass(playerClass.Catalog.Find("mage"), "Prova");
+            Hero.GetComponent<CharacterStats>().Sheet.SetBase(StatType.Magic, 60f);
+            yield return Settle();
+
+            var magic = Hero.GetComponent<PlayerMagic>();
+            var agent = Hero.GetComponent<NavMeshAgent>();
+            var enemies = Manager.CurrentLevel.Enemies.Where(e => e != null).Take(4).ToArray();
+            Assert.GreaterOrEqual(enemies.Length, 2, "servono dei nemici");
+            foreach (var enemy in enemies)
+            {
+                // tanta vita: devono reggere tutto il giro, e stare fermi dove li mettiamo
+                enemy.GetComponent<Health>().MultiplyMax(100f);
+                enemy.GetComponent<NavMeshAgent>().isStopped = true;
+            }
+
+            // gli scheletri a 6 m davanti, in fila di lato; il Mago li guarda
+            void Line(float forward)
+            {
+                Vector3 ahead = Hero.transform.forward;
+                Vector3 side = Vector3.Cross(Vector3.up, ahead);
+                for (int i = 0; i < enemies.Length; i++)
+                {
+                    Vector3 wanted = Hero.transform.position + ahead * forward + side * ((i - (enemies.Length - 1) * 0.5f) * 1.6f);
+                    if (NavMesh.SamplePosition(wanted, out var hit, 2f, NavMesh.AllAreas))
+                    {
+                        enemies[i].GetComponent<NavMeshAgent>().Warp(hit.position);
+                    }
+                }
+            }
+
+            IEnumerator Cast(string label, string spellName, float forward, float wait, bool atFirst = true)
+            {
+                Line(forward);
+                magic.Mana.Fill();
+                var spell = AssetDatabase.LoadAssetAtPath<SpellDefinition>($"Assets/_Project/Data/Spells/{spellName}.asset");
+                magic.Learn(spell);
+                yield return Frames(3);
+                Vector3 target = atFirst ? enemies[enemies.Length / 2].transform.position : Hero.transform.position;
+                Assert.AreEqual(CastResult.Ready, magic.TryCastAt(spell, target), spellName);
+                yield return new WaitForSecondsRealtime(wait);
+                yield return Snap($"magespell_{label}");
+                yield return new WaitForSecondsRealtime(1.5f);
+            }
+
+            // il Dardo arcano: il click sul nemico, dopo il gesto il dardo è in volo
+            Line(6f);
+            yield return Frames(3);
+            Hero.GetComponent<MeleeAttack>().SetTarget(enemies[1].GetComponent<Health>());
+            yield return new WaitForSecondsRealtime(0.4f);
+            yield return Snap("magespell_arcane_bolt");
+            yield return new WaitForSecondsRealtime(1.5f);
+
+            yield return Cast("firebolt", "Firebolt", 6f, 0.3f);
+            yield return Cast("fireball", "Fireball", 6f, 1.2f);
+            yield return Cast("ice_bolt", "IceBolt", 6f, 0.9f);
+            yield return Cast("fire_ring", "FireRing", 2f, 0.4f, atFirst: false);
+            yield return Cast("frost_nova", "FrostNova", 2f, 0.45f, atFirst: false);
+            yield return Cast("flame_wall", "FlameWall", 5f, 1.6f);
+            yield return Cast("blizzard", "Blizzard", 5f, 1.6f);
+            // la Meteora ha 45 s di ricarica: una sola, fotografata in aria e poi allo scoppio
+            Line(6f);
+            magic.Mana.Fill();
+            var meteor = AssetDatabase.LoadAssetAtPath<SpellDefinition>("Assets/_Project/Data/Spells/Meteor.asset");
+            magic.Learn(meteor);
+            yield return Frames(3);
+            Assert.AreEqual(CastResult.Ready, magic.TryCastAt(meteor, enemies[enemies.Length / 2].transform.position));
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Snap("magespell_meteor_falling");
+            yield return new WaitForSecondsRealtime(0.55f);
+            yield return Snap("magespell_meteor_impact");
+            yield return new WaitForSecondsRealtime(1.5f);
+            yield return Cast("mana_shield", "ManaShield", 6f, 0.6f, atFirst: false);
+            yield return Cast("frost_armor", "FrostArmor", 6f, 0.6f, atFirst: false);
+
+            // il Passo di luce: prima e dopo
+            Line(10f);
+            yield return Snap("magespell_blink_before");
+            var blink = AssetDatabase.LoadAssetAtPath<SpellDefinition>("Assets/_Project/Data/Spells/Blink.asset");
+            magic.Learn(blink);
+            magic.Mana.Fill();
+            magic.TryCastAt(blink, Hero.transform.position + Hero.transform.forward * 6f);
+            yield return new WaitForSecondsRealtime(0.25f);
+            yield return Snap("magespell_blink_after");
+        }
+
         [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]
         public IEnumerator VillageShops()
         {

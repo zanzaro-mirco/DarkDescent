@@ -113,6 +113,42 @@ namespace DarkDescent.Magic
             return book;
         }
 
+        /// <summary>
+        /// Il colpo del sinistro della classe (M21): per il Guerriero l'Attacco, il colpo dell'arma; per il Mago il
+        /// Dardo arcano, che parte da lontano dalla bacchetta o dal bastone. Prende il posto di quello di prima nella
+        /// casella del sinistro; le abilità note e le altre caselle restano.
+        /// </summary>
+        public void SetAttackSpell(SpellDefinition attack)
+        {
+            if (attack == null || attack == _attackSpell && Book.Knows(attack))
+            {
+                return;
+            }
+
+            var previous = _attackSpell;
+            _attackSpell = attack;
+            if (previous != null && previous != attack)
+            {
+                Book.Forget(previous);
+            }
+
+            Book.Learn(attack);
+            Book.Assign(SpellBook.Primary, attack);
+
+            // il dardo parte dal colpo dell'arma: stessa scelta del bersaglio, stesso ritmo, ma da lontano
+            var bolt = attack.Kind == SpellKind.ArcaneBolt;
+            var spells = GetComponent<PlayerSpells>();
+            if (spells != null)
+            {
+                spells.SetBolt(bolt ? attack : null);
+            }
+
+            if (TryGetComponent(out MeleeAttack melee))
+            {
+                melee.SetBolt(bolt ? spells : null, attack.Range, attack.Delay, attack.MagicDivisor);
+            }
+        }
+
         private SpellCaster CreateCaster()
         {
             var caster = new SpellCaster(Book, Mana);
@@ -343,7 +379,7 @@ namespace DarkDescent.Magic
                     {
                         TryCastAt(slot, target);
                     }
-                    else if (Book[slot] != null && Book[slot].Kind != SpellKind.Projectile)
+                    else if (Book[slot] != null && !Book[slot].NeedsPoint)
                     {
                         TryCastAt(slot, transform.position);
                     }

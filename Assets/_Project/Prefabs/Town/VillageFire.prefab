@@ -158,7 +158,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5596602758348499751}
   - component: {fileID: 6222815442986400101}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Rogue_Cape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -273,7 +273,7 @@ GameObject:
   m_Component:
   - component: {fileID: 289996496274299954}
   - component: {fileID: 6612012385166676405}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ranger_ArmRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -612,7 +612,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3617513223600974830}
   - component: {fileID: 1009710659173878269}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Rogue_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1082,7 +1082,7 @@ GameObject:
   m_Component:
   - component: {fileID: 817332421189940582}
   - component: {fileID: 1877337280044513953}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_ArmLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1390,7 +1390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6750900555442941955}
   - component: {fileID: 8665540326794672006}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ranger_Cape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1697,7 +1697,7 @@ GameObject:
   m_Component:
   - component: {fileID: 577876183389321534}
   - component: {fileID: 5640440370473752667}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_LegLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1994,7 +1994,7 @@ GameObject:
   m_Component:
   - component: {fileID: 641737522114627544}
   - component: {fileID: 5324694610129812012}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2141,7 +2141,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2388045042016065607}
   - component: {fileID: 1774903473849091095}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_ArmLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2287,7 +2287,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5240553314264338646}
   - component: {fileID: 5442478274992180446}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_LegLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2822,7 +2822,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1081042302898234206}
   - component: {fileID: 3240741907937042045}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ranger_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3003,7 +3003,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2062500466652956615}
   - component: {fileID: 2489813761410417475}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_ArmRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3214,7 +3214,7 @@ GameObject:
   m_Component:
   - component: {fileID: 64279492066198559}
   - component: {fileID: 5772608803964883228}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_ArmRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3329,7 +3329,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2080102245867024387}
   - component: {fileID: 338622334651003147}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_LegRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3476,7 +3476,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5267121205971940847}
   - component: {fileID: 2366847940429065917}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3685,7 +3685,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4674664871753198828}
   - component: {fileID: 1200410462009448680}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Rogue_LegRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3927,7 +3927,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3147964034762368549}
   - component: {fileID: 1145105046187743830}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ranger_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4202,7 +4202,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4407573819887088654}
   - component: {fileID: 7334276289445264134}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_LegRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4758,7 +4758,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1580914636389215829}
   - component: {fileID: 6795917889828455503}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4905,7 +4905,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5962634010292963542}
   - component: {fileID: 177957425202680842}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ranger_LegLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5181,7 +5181,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6277686027225485589}
   - component: {fileID: 4143005472820705568}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Rogue_LegLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5330,7 +5330,7 @@ GameObject:
   m_Component:
   - component: {fileID: 753660973723322104}
   - component: {fileID: 2673275905982140505}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Rogue_ArmLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5445,7 +5445,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7773793095921077394}
   - component: {fileID: 42463733820394311}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ranger_ArmLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5560,7 +5560,7 @@ GameObject:
   m_Component:
   - component: {fileID: 831117055303694596}
   - component: {fileID: 1989067014324809096}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Cape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5867,7 +5867,7 @@ GameObject:
   m_Component:
   - component: {fileID: 23688981090006534}
   - component: {fileID: 8261485517932319458}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Cape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6077,7 +6077,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3177369345067163672}
   - component: {fileID: 831490160183104188}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ranger_LegRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6349,7 +6349,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8037351012171834109}
   - component: {fileID: 3875080779360065367}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mage_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6495,7 +6495,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6361218228512982010}
   - component: {fileID: 1380272379358805325}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Rogue_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6673,7 +6673,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6731766686035338766}
   - component: {fileID: 5526719687819795873}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Rogue_ArmRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}

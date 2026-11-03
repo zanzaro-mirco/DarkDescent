@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e8cfac43a2621d45b39eec31ea0c062, type: 3}
+  m_Name: Blizzard
+  m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
+  _id: e347345e2cbf4667be8d07cba590613b
+  _nameKey: spell.blizzard
+  _icon: {fileID: 8787291131096080919, guid: fb0ec0d4a982faf42b33e76ca0d24980, type: 3}
+  _kind: 19
+  _effect: {fileID: 0}
+  _manaCost: 28
+  _cooldown: 60
+  _minDamage: 2
+  _maxDamage: 5
+  _magicDivisor: 10
+  _speed: 14
+  _range: 14
+  _radius: 5
+  _armorPercent: 0
+  _duration: 6
+  _weaponPercent: 0
+  _stun: 0
+  _bonusPercent: 0
+  _threshold: 0
+  _minRange: 0
+  _moveFactor: 1
+  _tick: 0.5
+  _damageType: 3
+  _blastRadius: 0
+  _slowPercent: 50
+  _slowSeconds: 1
+  _freeze: 0
+  _delay: 0
+  _length: 0
+  _manaPerDamage: 0

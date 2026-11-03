@@ -29,5 +29,11 @@ namespace DarkDescent.Talents
 
         /// <summary>Punti percentuali in più alla soglia della vita del nemico (Esecuzione).</summary>
         Threshold,
+
+        /// <summary>Secondi di rallentamento in più ai nemici colpiti (Freddo penetrante, M21).</summary>
+        Slow,
+
+        /// <summary>Secondi di congelamento in più (Gelo profondo, M21).</summary>
+        Freeze,
     }
 }

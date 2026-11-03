@@ -85,13 +85,13 @@ namespace DarkDescent.Tests
             var skin = Spell("StoneSkin");
             Assert.AreEqual(SpellKind.Projectile, firebolt.Kind);
             Assert.AreEqual(6f, firebolt.ManaCost);
-            Assert.AreEqual(0.8f, firebolt.Cooldown, "non a raffica: la prova della build lo trovava una mitragliatrice");
+            Assert.AreEqual(2f, firebolt.Cooldown, "non a raffica; dal Mago (M21) è il Dardo di fuoco dell'albero, ogni 2 s");
             Assert.AreEqual((9, 15), firebolt.DamageRange(10f), "6–12 + 10 / 4, arrotondato");
             Assert.AreEqual(SpellKind.Area, ring.Kind);
-            Assert.AreEqual(15f, ring.ManaCost);
-            Assert.AreEqual(3f, ring.Cooldown);
-            Assert.AreEqual(4f, ring.Radius);
-            Assert.AreEqual((11, 17), ring.DamageRange(10f), "8–14 + 10 / 3");
+            Assert.AreEqual(12f, ring.ManaCost);
+            Assert.AreEqual(8f, ring.Cooldown);
+            Assert.AreEqual(3f, ring.Radius);
+            Assert.AreEqual((10, 17), ring.DamageRange(10f), "7–14 + 10 / 3,3: il 120% del Dardo di fuoco (M21)");
             Assert.AreEqual(SpellKind.Buff, skin.Kind);
             Assert.AreEqual(50, skin.ArmorPercent);
             Assert.AreEqual(20f, skin.Duration);
@@ -198,32 +198,32 @@ namespace DarkDescent.Tests
         public void Caster_ChecksKnownManaCooldown()
         {
             var book = new SpellBook(new[] { Spell("Firebolt") });
-            var caster = new SpellCaster(book, new ManaPool(30f));
+            var caster = new SpellCaster(book, new ManaPool(25f));
             Assert.AreEqual(CastResult.NotKnown, caster.TryCast(2));
 
             book.Learn(Spell("FireRing"));
             Assert.AreEqual(CastResult.Ready, caster.TryCast(2));
-            Assert.AreEqual(15f, caster.Mana.Current);
+            Assert.AreEqual(13f, caster.Mana.Current);
             Assert.AreEqual(1f, caster.CooldownFraction(2));
             Assert.AreEqual(CastResult.Cooldown, caster.TryCast(2), "in ricarica");
-            Assert.AreEqual(15f, caster.Mana.Current, "senza spendere");
+            Assert.AreEqual(13f, caster.Mana.Current, "senza spendere");
 
             book.Assign(3, Spell("FireRing"));
             Assert.AreEqual((0f, 1f), (caster.CooldownFraction(2), caster.CooldownFraction(3)), "la ricarica va con l'Anello");
             Assert.AreEqual(CastResult.Cooldown, caster.Check(3));
 
-            caster.Advance(1.5f);
+            caster.Advance(4f);
             Assert.AreEqual(0.5f, caster.CooldownFraction(3), 0.0001f);
-            caster.Advance(1.5f);
+            caster.Advance(4f);
             Assert.AreEqual(CastResult.Ready, caster.Check(3));
 
             Assert.AreEqual(CastResult.Ready, caster.TryCast(1));
             Assert.AreEqual(CastResult.Cooldown, caster.TryCast(1), "anche il Dardo ha una ricarica breve");
-            caster.Advance(0.8f);
+            caster.Advance(2f);
             Assert.AreEqual(CastResult.Ready, caster.TryCast(1));
-            caster.Advance(0.8f);
-            Assert.AreEqual(3f, caster.Mana.Current);
-            Assert.AreEqual(CastResult.NoMana, caster.TryCast(1), "3 di mana non bastano per 6");
+            caster.Advance(2f);
+            Assert.AreEqual(1f, caster.Mana.Current);
+            Assert.AreEqual(CastResult.NoMana, caster.TryCast(1), "1 di mana non basta per 6");
         }
     }
 }

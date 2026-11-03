@@ -440,6 +440,7 @@ namespace DarkDescent.Core
             _player.GetComponent<Magic.PlayerSpells>().Bind(_projectiles, new SystemRandomSource(Environment.TickCount ^ 0x5A11));
             // le abilità del Guerriero (M20) tirano con un flusso loro: i colpi normali restano dove sono
             _player.GetComponent<Magic.WarriorAbilities>().Bind(new SystemRandomSource(Environment.TickCount ^ 0x4B1D));
+            _player.GetComponent<Magic.MageAbilities>().Bind(_projectiles);
             _talents = _player.GetComponent<PlayerTalents>();
             _talentPanel.Bind(_talents, _reader, _localizer);
             _talentPointsButton.Bind(_talents, _talentPanel, _localizer);

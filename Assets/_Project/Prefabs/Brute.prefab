@@ -320,6 +320,7 @@ MonoBehaviour:
   _forwardOffset: 0.9
   _potionSideOffset: 0.7
   _dropHeight: 1
+  _extraAngle: 75
 --- !u!114 &516965659781621926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -397,14 +398,54 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8309345695219228954, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -8110273064344171391, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -1989275365836501738, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: -1971157526087973125, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 706669411668437172, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
       propertyPath: m_Name
       value: Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820415068267828097, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2679246266346571245, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3317954870978603177, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 4711493698728651245, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 22100000, guid: cb628644c0bbe26478527ebf91be644c, type: 2}
+    - target: {fileID: 6660457463088833137, guid: d5511c58df284f8da551b5205eb48af8, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -451,6 +492,7 @@ MonoBehaviour:
   _attackSpeed: 0.46666667
   _quickAttackSpeed: 1
   _clipHitTime: 0
+  _twoHandedClipHitTime: 0
 --- !u!114 &2656149454514861902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -526,6 +568,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: d16f5c31ebd0439b80f8e802fa144869, type: 3}
       propertyPath: m_Name
       value: Skeleton_Axe
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d16f5c31ebd0439b80f8e802fa144869, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

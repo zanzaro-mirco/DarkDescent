@@ -162,12 +162,81 @@ bonus e la regola delle mani, gli affissi ammessi, il loot e i banchi, il toolti
 
 ---
 
+## Passo 21.4 — Le abilità del Mago (D3, D6)
+
+Fatto il 3 novembre 2026.
+
+**Il gelo dei nemici (D6).** `EnemyAI.Slow(parte, secondi)` e `EnemyAI.Freeze(secondi)`. Il **congelamento** ha la regola
+dello stordimento (un `StunTimer` suo: metà per il re, i campioni e gli unici, mai per un Inamovibile, 3 s di tregua
+dopo), ma a parte: un nemico stordito si può congelare e viceversa. Fermo, senza colpi né lanci, con l'animazione ferma.
+`EnemyAI.IsImmobilized` vale per tutti e due, e il re guarda quello. Il **rallentamento** (`SlowTimer`, logica pura) toglie
+una parte della velocità dell'agent: la metà per il re e i campioni, niente tempo di pausa, un secondo colpo tiene il più
+forte e il più lungo; se il Rapido o il re furioso cambiano la velocità mentre dura, la nuova è la base. La tinta fredda
+la dà `EnemyFrostView`, che nasce da solo al primo gelo (niente da mettere nei prefab) e rimette la tinta di prima, quella
+dei campioni compresa.
+
+**Il Dardo arcano (D3).** Il sinistro del Mago passa dal colpo di `MeleeAttack`: stessa scelta del bersaglio, stesso
+inseguimento e stesso ritmo dell'arma (bacchetta 0,8 s, bastone 1,5 s), ma `SetBolt` lo fa partire da **9 m** (con la linea
+libera sul NavMesh: dietro uno spigolo ci si avvicina), con il gesto del lancio dopo 0,25 s. Il danno è il **tiro
+dell'arma** più Magia / 6 (con il +% dei suoi affissi e il bonus del danno), senza tiro per colpire: un incantesimo non
+manca. Costa niente e non ricarica, quindi sta nella casella del sinistro (`IsPrimary`). Il proiettile lo lancia
+`PlayerSpells.Shoot` (`IBoltShooter`). `PlayerMagic.SetAttackSpell` mette il dardo al posto dell'Attacco quando
+`PlayerClass.Apply` dà la classe, e rimette l'Attacco al Guerriero.
+
+**Le dodici abilità** (`MageSpellTools`, menu *Classi → Abilità del Mago*): sei sono tipi di sempre con i numeri nuovi,
+sei hanno un tipo loro (`SpellKind.ArcaneBolt`, `Teleport`, `ManaShield`, `Meteor`, `Zone`).
+
+| Abilità | Tipo | Mana | Ricarica | Numeri |
+|---|---|---|---|---|
+| Dardo di fuoco | proiettile | 6 | 2 s | 6–12 + Magia/4 |
+| Anello di fuoco | area | 12 | 8 s | 7–14 + Magia/3,3, raggio 3 m |
+| Passo di luce | `Teleport` | 8 | 12 s | fino a 8 m, sopra i nemici, non sui muri |
+| Scudo di mana | `ManaShield` | 10 | 40 s | 12 s, 2 mana per punto di danno |
+| Palla di fuoco | proiettile che scoppia | 14 | 6 s | 12–24 + Magia/2, scoppio 3 m |
+| Muro di fiamme | `Zone` (riga) | 16 | 20 s | 5 m, 6 s, ogni 0,5 s 2–5 + Magia/10 |
+| Meteora | `Meteor` | 30 | 45 s | dopo 1,2 s, 36–72 + Magia/0,7, 4 m |
+| Dardo di ghiaccio | proiettile | 8 | 3 s | 6–12 + Magia/4, rallenta 40% per 3 s |
+| Nova di gelo | area | 12 | 14 s | 3,5 m, congela 1,5 s, nessun danno |
+| Armatura di ghiaccio | potenziamento | 12 | 35 s | +40% armatura 15 s, rallenta 30% chi colpisce di mischia |
+| Tempesta di neve | `Zone` (cerchio) | 28 | 60 s | 5 m, 6 s, ogni 0,5 s 2–5 + Magia/10, rallenta 50% |
+
+Le proporzioni del disegno si leggono nei dati (un test le controlla: la Palla 200% del Dardo di fuoco, la Meteora 300%
+della Palla, il Dardo di ghiaccio 100%, l'Anello 120%, il Muro 40% a battito). Gli effetti sono copie tinte di quelli
+del Dardo e dell'Anello di fuoco (`Prefabs/Magic`); le icone sono provvisorie (quelle di sempre) fino al 21.7.
+
+**Cambiati i numeri di due abilità che c'erano già** (D14 non li tocca: il Guerriero non le usa dall'M20): il Dardo di
+fuoco passa da 0,8 a 2 s di ricarica; l'Anello da 15 mana e 3 s a 12 mana e 8 s, raggio da 4 a 3 m.
+
+**Come i nodi dell'albero le cambieranno** (21.5): `AbilityParam` ha ora `Slow` e `Freeze`, e `Radius` legge lo scoppio per
+un proiettile e il raggio per le aree (`SpellDefinition.EffectRadius`); costo, ricarica, durata e danno (`Damage`, in
+punti percentuali) passano già dai nodi. `PlayerSpells.Struck` dice quando un'abilità ha colpito un nemico, per la
+Concentrazione e la Pira.
+
+**Il resto.** `Health.Absorber` (un filtro sul danno, dopo le riduzioni) è come lo Scudo di mana fa pagare il mana;
+`DamageType.Frost` è nuovo; `MageAbilities` sta sul prefab del giocatore.
+
+**La sagoma del personaggio (richiesta di Mirco, 3 novembre).** Dietro nemici e persone del borgo la sagoma gialla del
+personaggio non deve comparire: va bene dietro case, alberi e muri, perché senza non si saprebbe dov'è, ma non dietro un
+nemico. Nemici e persone (11 prefab con un Animator, i filmati esclusi) stanno ora sul layer **Characters** (11) e si
+disegnano a parte come il personaggio, **scrivendo lo stencil 1**; la sagoma lo rispetta (*NotEqual 1*) e non passa dove
+c'è uno di loro. L'ordine dei renderer è: chi copre, la sagoma, il personaggio. `HeroSilhouette.Setup` rifà tutto
+(layer, due renderer, prefab). Due test lo controllano; foto in `Recordings/Photos/mago_abilita`.
+
+**Foto degli effetti** (`PhotoTour.MageSpells`, in `Recordings/Photos/mago_abilita`): il Dardo arcano viola, il Dardo
+di ghiaccio, la Nova, il Muro, la Tempesta, la Meteora in aria e allo scoppio, lo Scudo di mana, l'Armatura di ghiaccio,
+il Passo di luce. Trovato dalla foto: lo Scudo di mana non aveva l'alone (l'alone si accende con `Play()`, non
+attivando l'oggetto): corretto, con un controllo nel test. **Da rivedere con Mirco:** gli effetti del ghiaccio sono
+copie dell'Anello di fuoco tinte con il colore di avvio delle particelle e vengono verdastri (la texture è arancione e il
+colore la moltiplica); il Muro di fiamme è una fila di cerchi, non un muro. Sono provvisori come le icone.
+
+---
+
 ## Checklist di chiusura
 
 - [ ] Disegno dell'albero del Mago approvato da Mirco (21.1)
 - [x] `CharacterClass`, salvataggio 9 e migrazione, fattore del mana (21.2)
 - [x] Bastone, bacchetta e tomo nel loot e dal mercante (21.3)
-- [ ] Dardo arcano e le undici abilità del Mago (21.4)
+- [x] Dardo arcano e le undici abilità del Mago (21.4)
 - [ ] Albero del Mago nel pannello; altare per entrambe le classi (21.5)
 - [ ] Creazione del personaggio con nome; i tre posti; foto approvate (21.6)
 - [ ] Icone approvate (21.7)

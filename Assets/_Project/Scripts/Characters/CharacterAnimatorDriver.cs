@@ -158,6 +158,13 @@ namespace DarkDescent.Characters
 
         public void PlayAttack()
         {
+            // il dardo del Mago è un lancio, non un fendente (M21)
+            if (_attack != null && _attack.SwingIsBolt)
+            {
+                PlayCast();
+                return;
+            }
+
             // a ogni colpo: Rebind, alla ripartenza, riporta i parametri ai valori del controller
             if (_hasAttackSpeed)
             {
