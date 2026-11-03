@@ -8,8 +8,12 @@ namespace DarkDescent.Items
         {
             switch (item)
             {
+                case WeaponDefinition { IsCaster: true }:
+                    return ShopGoods.Arcane;
                 case WeaponDefinition _:
                     return ShopGoods.Weapons;
+                case ArmorDefinition { IsTome: true }:
+                    return ShopGoods.Arcane;
                 case ArmorDefinition _:
                     return ShopGoods.Armor;
                 case JewelryDefinition _:

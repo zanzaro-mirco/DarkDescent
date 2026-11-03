@@ -19,5 +19,6 @@ MonoBehaviour:
   _min: 5
   _max: 15
   _minItemLevel: 1
-  _targets: 24
+  _grade: 1
+  _targets: 56
   _group: mana

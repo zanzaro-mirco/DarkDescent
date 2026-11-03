@@ -117,6 +117,15 @@ namespace DarkDescent.UI
                     break;
 
                 case ArmorDefinition armor:
+                    if (armor.IsTome)
+                    {
+                        // il tomo non ripara e non blocca: dà Magia e mana (D4 della M21)
+                        AppendEffect(builder, AffixColor, AffixEffect.Magic, armor.BonusMagic, null, localizer);
+                        AppendEffect(builder, AffixColor, AffixEffect.Mana, armor.BonusMana, null, localizer);
+                        AppendRequirement(builder, armor, meetsRequirements, localizer);
+                        break;
+                    }
+
                     builder.Append('\n').AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipArmor), ItemStats.ItemArmor(item));
                     if (armor.IsShield)
                     {
@@ -241,10 +250,16 @@ namespace DarkDescent.UI
             builder.Append("</color>");
         }
 
-        // la Forza richiesta, in rosso se non basta; niente riga per chi non ne chiede
+        // la Forza e la Magia richieste, in rosso se non bastano; niente riga per chi non ne chiede
         private static void AppendRequirement(StringBuilder builder, ItemDefinition definition, bool meetsRequirements, Localizer localizer)
         {
-            if (definition.RequiredStrength <= 0)
+            AppendRequirementLine(builder, TextKeys.TooltipRequiredStrength, definition.RequiredStrength, meetsRequirements, localizer);
+            AppendRequirementLine(builder, TextKeys.TooltipRequiredMagic, definition.RequiredMagic, meetsRequirements, localizer);
+        }
+
+        private static void AppendRequirementLine(StringBuilder builder, string key, int required, bool meetsRequirements, Localizer localizer)
+        {
+            if (required <= 0)
             {
                 return;
             }
@@ -255,7 +270,7 @@ namespace DarkDescent.UI
                 builder.Append("<color=").Append(UnmetColor).Append('>');
             }
 
-            builder.AppendFormat(CultureInfo.InvariantCulture, localizer.Get(TextKeys.TooltipRequiredStrength), definition.RequiredStrength);
+            builder.AppendFormat(CultureInfo.InvariantCulture, localizer.Get(key), required);
             if (!meetsRequirements)
             {
                 builder.Append("</color>");

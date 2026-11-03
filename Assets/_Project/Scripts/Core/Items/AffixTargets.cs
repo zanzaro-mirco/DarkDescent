@@ -19,6 +19,9 @@ namespace DarkDescent.Items
         /// <summary>Gli elmi, oltre che armature: gli affissi della magia (M9) vanno su gioielli ed elmi.</summary>
         Helm = 1 << 4,
 
+        /// <summary>Bastoni, bacchette e tomi (D4 e D12 della M21): gli affissi della magia, non quelli del blocco.</summary>
+        Caster = 1 << 5,
+
         All = Weapon | Shield | Armor | Jewelry,
     }
 }

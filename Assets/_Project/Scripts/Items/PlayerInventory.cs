@@ -255,7 +255,8 @@ namespace DarkDescent.Items
             else if (slot == EquipSlot.Offhand && _block != null)
             {
                 var item = Equipment.Get(EquipSlot.Offhand);
-                bool isShield = item?.Definition is ArmorDefinition;
+                // il tomo sta nella stessa mano ma non è uno scudo: non blocca (D4 della M21)
+                bool isShield = item?.Definition is ArmorDefinition { IsShield: true };
                 _block.SetShield(isShield, isShield ? ItemStats.ShieldBlock(item) : 0);
             }
         }

@@ -120,6 +120,7 @@ speed.normal,Normal,Normale
 speed.slow,Slow,Lenta
 tooltip.armor,Armor: {0},Armatura: {0}
 tooltip.required_strength,Required Strength: {0},Forza richiesta: {0}
+tooltip.required_magic,Required Magic: {0},Magia richiesta: {0}
 tooltip.block,Block chance: {0}%,Blocco: {0}%
 chest,Chest,Cassa
 chest.gold,Gold chest,Forziere
@@ -479,6 +480,12 @@ item.greatsword,Greatsword,Spadone
 item.great_axe,Great Axe,Ascia a due mani
 item.greatsword.gender,n,m
 item.great_axe.gender,n,f
+item.staff,Staff,Bastone
+item.wand,Wand,Bacchetta
+item.tome,Tome,Tomo
+item.staff.gender,n,m
+item.wand.gender,n,f
+item.tome.gender,n,m
 
 # Il pannello delle abilità del Guerriero (D10 e D11 della M20): alberi, nodi, frasi degli effetti
 talents.title,Skill tree (N),Albero delle abilità (N)

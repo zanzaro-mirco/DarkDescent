@@ -129,8 +129,8 @@ namespace DarkDescent.Tests
         [Test, Description("Le basi della M5 hanno i valori della scheda (D7): otto oggetti a una mano, più la pozione della M6")]
         public void M5Bases_MatchTheScheda()
         {
-            // le otto della M5, le undici della M8 e le due a due mani della M20
-            Assert.AreEqual(21, Database.Items.Count(item => item.Slot != EquipSlot.None));
+            // le otto della M5, le undici della M8, le due a due mani della M20 e le tre del Mago della M21
+            Assert.AreEqual(24,Database.Items.Count(item => item.Slot != EquipSlot.None));
             // la pozione di cura della M6 e quella di mana della M9
             Assert.AreEqual(2, Database.Items.Count(item => item is PotionDefinition));
 

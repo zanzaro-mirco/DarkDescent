@@ -446,6 +446,55 @@ namespace DarkDescent.Tests
             }
         }
 
+        [UnityTest, Timeout(300000), Description("Le armi del Mago in mano (D4 della M21): bacchetta e tomo, poi il bastone a due mani, a riposo, al colpo e al lancio, e la borsa con i tre oggetti")]
+        public IEnumerator MageWeapons()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 1);
+            yield return Settle();
+
+            var playerClass = Hero.GetComponent<PlayerClass>();
+            Root.ApplyClass(playerClass.Catalog.Find("mage"), "Prova");
+            Hero.GetComponent<CharacterStats>().Sheet.SetBase(StatType.Magic, 60f);
+            yield return Settle();
+
+            var inventory = Hero.GetComponent<PlayerInventory>();
+            var driver = Hero.GetComponentInChildren<CharacterAnimatorDriver>();
+            foreach (var (label, names) in new[] { ("wand_tome", new[] { "Wand", "Tome" }), ("staff", new[] { "Staff" }) })
+            {
+                foreach (string name in names)
+                {
+                    var item = new ItemInstance(AssetDatabase.LoadAssetAtPath<ItemDefinition>($"Assets/_Project/Data/Items/{name}.asset"));
+                    Assert.IsTrue(inventory.Inventory.Grid.TryAutoPlace(item), name);
+                    Assert.IsTrue(inventory.Inventory.Grid.TryGetPlacement(item, out RectInt area), name);
+                    Assert.IsTrue(inventory.Inventory.EquipFromGrid(area.position), name);
+                }
+
+                yield return Settle();
+                yield return Snap($"mageweapons_{label}_idle");
+                driver.PlayAttack();
+                yield return new WaitForSecondsRealtime(0.5f);
+                yield return Snap($"mageweapons_{label}_swing");
+                yield return new WaitForSecondsRealtime(1.5f);
+                driver.PlayCast();
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return Snap($"mageweapons_{label}_cast");
+                yield return new WaitForSecondsRealtime(1.2f);
+            }
+
+            Find<InventoryPanel>().SetOpen(true);
+            yield return Frames(5);
+            yield return Snap("mageweapons_inventory", world: false);
+        }
+
         [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]
         public IEnumerator VillageShops()
         {

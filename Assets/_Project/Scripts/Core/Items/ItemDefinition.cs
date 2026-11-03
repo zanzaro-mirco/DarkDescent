@@ -65,6 +65,9 @@ namespace DarkDescent.Items
         /// <summary>Forza necessaria per indossarlo; 0 per chi non ne chiede.</summary>
         public virtual int RequiredStrength => 0;
 
+        /// <summary>Magia necessaria per indossarlo (D4 della M21); 0 per chi non ne chiede.</summary>
+        public virtual int RequiredMagic => 0;
+
         /// <summary>La rarità più bassa con cui può nascere: normale per quasi tutti.</summary>
         public virtual Rarity MinRarity => Rarity.Normal;
 

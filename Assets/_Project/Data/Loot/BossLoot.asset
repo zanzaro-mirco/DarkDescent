@@ -56,6 +56,12 @@ MonoBehaviour:
     _weight: 1
   - _item: {fileID: 11400000, guid: b5a33ce6645b68b4e8442ffadcd15591, type: 2}
     _weight: 1
+  - _item: {fileID: 11400000, guid: db7f251cb953e2b458e982b6e1355cb7, type: 2}
+    _weight: 1
+  - _item: {fileID: 11400000, guid: 41668f68efc32b84482c28b894e05b29, type: 2}
+    _weight: 1
+  - _item: {fileID: 11400000, guid: 7d71e081a6570404fbb7391c1c40be3e, type: 2}
+    _weight: 1
   _minRarity: 2
   _potion: {fileID: 11400000, guid: c94daa5854b2b2f48851de7b3d27463c, type: 2}
   _potionChance: 1

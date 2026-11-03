@@ -11,5 +11,11 @@ namespace DarkDescent.Items
         Dagger,
         Sword,
         Axe,
+
+        /// <summary>Il bastone del Mago (D4 della M21): a due mani, chiede Magia.</summary>
+        Staff,
+
+        /// <summary>La bacchetta del Mago (D4 della M21): a una mano, con il tomo nell'altra.</summary>
+        Wand,
     }
 }

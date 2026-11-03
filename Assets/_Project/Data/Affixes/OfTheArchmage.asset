@@ -20,5 +20,5 @@ MonoBehaviour:
   _max: 24
   _minItemLevel: 25
   _grade: 4
-  _targets: 24
+  _targets: 56
   _group: magic

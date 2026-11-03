@@ -25,6 +25,9 @@ namespace DarkDescent.Items
         [Tooltip("Forza necessaria per equipaggiarla.")]
         [SerializeField, Min(0)] private int _requiredStrength;
 
+        [Tooltip("Magia necessaria per equipaggiarla (bastoni e bacchette, D4 della M21).")]
+        [SerializeField, Min(0)] private int _requiredMagic;
+
         [Tooltip("Portata tra i bordi: distanza tra i centri meno il raggio di chi attacca e quello del bersaglio.")]
         [SerializeField, Min(0f)] private float _range = 0.6f;
 
@@ -50,6 +53,11 @@ namespace DarkDescent.Items
         public DamageType DamageType => _damageType;
         public WeaponKind Kind => _kind;
         public override int RequiredStrength => _requiredStrength;
+        public override int RequiredMagic => _requiredMagic;
+
+        /// <summary>Bastone o bacchetta: l'arma del Mago, che vende il mercante e non il fabbro, e ammette gli affissi della magia.</summary>
+        public bool IsCaster => _kind == WeaponKind.Staff || _kind == WeaponKind.Wand;
+
         public float Range => _range;
         public float RangeTolerance => _rangeTolerance;
         public float AttackInterval => _attackInterval;
@@ -58,7 +66,7 @@ namespace DarkDescent.Items
 
         public override EquipSlot Slot => EquipSlot.Weapon;
 
-        public override AffixTargets AffixTarget => AffixTargets.Weapon;
+        public override AffixTargets AffixTarget => IsCaster ? AffixTargets.Weapon | AffixTargets.Caster : AffixTargets.Weapon;
 
         protected override void OnValidate()
         {

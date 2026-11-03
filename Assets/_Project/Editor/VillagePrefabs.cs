@@ -164,7 +164,7 @@ namespace DarkDescent.Editor
         private const string BlacksmithPath = TownPrefabs + "Blacksmith.prefab";
         private const string HealerPath = TownPrefabs + "Healer.prefab";
         private const string MerchantStallPath = TownPrefabs + "MerchantStall.prefab";
-        private const int MerchantStock = 4;
+        private const int MerchantStock = 6;
         private const int BlacksmithStock = 8;
         private static readonly Color BlacksmithTint = new Color(0.85f, 0.78f, 0.72f);
         private static readonly Color HealerTint = new Color(0.72f, 0.92f, 0.74f);
@@ -802,7 +802,7 @@ namespace DarkDescent.Editor
 
             var stall = AssetDatabase.LoadAssetAtPath<GameObject>(MerchantStallPath).GetComponent<Merchant>();
             var so = new SerializedObject(stall);
-            so.FindProperty("_goods").intValue = (int)(ShopGoods.Jewelry | ShopGoods.Scrolls);
+            so.FindProperty("_goods").intValue = (int)(ShopGoods.Jewelry | ShopGoods.Scrolls | ShopGoods.Arcane);
             so.FindProperty("_stockSize").intValue = MerchantStock;
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(stall);

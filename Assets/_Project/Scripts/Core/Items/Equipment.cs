@@ -41,10 +41,10 @@ namespace DarkDescent.Items
             return definition.Slot == slot || (definition.Slot == EquipSlot.Ring && slot == EquipSlot.Ring2);
         }
 
-        /// <summary>Se i requisiti dell'oggetto sono soddisfatti dalle statistiche attuali.</summary>
+        /// <summary>Se i requisiti dell'oggetto (Forza e Magia) sono soddisfatti dalle statistiche attuali.</summary>
         public bool MeetsRequirements(ItemDefinition definition)
         {
-            return _stats.Get(StatType.Strength) >= definition.RequiredStrength;
+            return _stats.Get(StatType.Strength) >= definition.RequiredStrength && _stats.Get(StatType.Magic) >= definition.RequiredMagic;
         }
 
         /// <summary>Se l'arma indossata è a due mani.</summary>
@@ -144,12 +144,23 @@ namespace DarkDescent.Items
             // il danno dell'arma e il blocco dello scudo li leggono MeleeAttack e ShieldBlock; qui
             // l'Armatura di scudi e pezzi d'armatura, con il suo "+%", e gli affissi del personaggio.
             // Tutto con l'oggetto come sorgente: toglierlo toglie tutto insieme.
-            if (item.Definition is ArmorDefinition)
+            if (item.Definition is ArmorDefinition armorDefinition)
             {
                 int armor = ItemStats.ItemArmor(item);
                 if (armor != 0)
                 {
                     _stats.AddModifier(new StatModifier(StatType.Armor, ModifierKind.Flat, armor, item));
+                }
+
+                // il tomo dà Magia e mana da sé, prima degli affissi (D4 della M21)
+                if (armorDefinition.BonusMagic != 0)
+                {
+                    _stats.AddModifier(new StatModifier(StatType.Magic, ModifierKind.Flat, armorDefinition.BonusMagic, item));
+                }
+
+                if (armorDefinition.BonusMana != 0)
+                {
+                    _stats.AddModifier(new StatModifier(StatType.Mana, ModifierKind.Flat, armorDefinition.BonusMana, item));
                 }
             }
 

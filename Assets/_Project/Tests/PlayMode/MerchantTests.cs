@@ -81,7 +81,7 @@ namespace DarkDescent.Tests
             yield return Visit(goods);
         }
 
-        [UnityTest, Description("Raggiunto il mercante si apre il banco con l'inventario accanto: quattro anelli e amuleti del livello 1, con il prezzo; il nome sopra è Mercante")]
+        [UnityTest, Description("Raggiunto il mercante si apre il banco con l'inventario accanto: sei oggetti del livello 1 tra anelli, amuleti e merce del Mago, con il prezzo; il nome sopra è Mercante")]
         public IEnumerator Merchant_OpensTheShop()
         {
             yield return OpenTheShop();
@@ -89,14 +89,16 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Bag.IsTrading);
             Assert.AreEqual("Merchant", Town.Merchant.GetComponent<Interactable>().GetLabel(Localizer));
             Assert.AreEqual(TextKeys.MerchantName, Shop.TitleKey);
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 6; i++)
             {
                 Assert.IsTrue(Shop.Slot(i).HasItem, $"posto {i} vuoto");
-                Assert.IsInstanceOf<JewelryDefinition>(Shop.ItemAt(i).Definition, $"posto {i}");
+                // gioielli e, dal Mago (D12 della M21), bastoni, bacchette e tomi
+                var goods = ItemGoods.Of(Shop.ItemAt(i).Definition);
+                Assert.IsTrue(goods == ShopGoods.Jewelry || goods == ShopGoods.Arcane, $"posto {i}: {Shop.ItemAt(i).Definition.name}");
                 Assert.AreEqual(1, Shop.ItemAt(i).ItemLevel);
             }
 
-            Assert.IsFalse(Shop.Slot(4).HasItem);
+            Assert.IsFalse(Shop.Slot(6).HasItem);
             Assert.IsNotEmpty(Shop.Slot(0).PriceText);
         }
 

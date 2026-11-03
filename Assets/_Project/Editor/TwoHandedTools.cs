@@ -100,7 +100,7 @@ namespace DarkDescent.Editor
             return weapon;
         }
 
-        private static void AddToTable(string name, ItemDefinition[] items)
+        internal static void AddToTable(string name, ItemDefinition[] items)
         {
             string path = $"{LootFolder}/{name}.asset";
             var table = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);

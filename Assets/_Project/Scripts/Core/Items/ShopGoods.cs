@@ -19,6 +19,9 @@ namespace DarkDescent.Items
         Jewelry = 4,
         Potions = 8,
         Scrolls = 16,
-        All = Weapons | Armor | Jewelry | Potions | Scrolls,
+
+        /// <summary>Bastoni, bacchette e tomi (D12 della M21): li tratta il mercante, il fabbro resta delle armi da guerriero.</summary>
+        Arcane = 32,
+        All = Weapons | Armor | Jewelry | Potions | Scrolls | Arcane,
     }
 }

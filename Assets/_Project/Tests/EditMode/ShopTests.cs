@@ -189,7 +189,7 @@ namespace DarkDescent.Tests
 
             var smith = new Shop(ShopGoods.Weapons | ShopGoods.Armor);
             smith.Restock(Table.Supplies, stock);
-            Assert.AreEqual(stock.Count(i => i.Definition is WeaponDefinition || i.Definition is ArmorDefinition), smith.Count, "niente pozioni né gioielli");
+            Assert.AreEqual(stock.Count(i => ItemGoods.Of(i.Definition) == ShopGoods.Weapons || ItemGoods.Of(i.Definition) == ShopGoods.Armor), smith.Count, "niente pozioni, gioielli né merce del Mago");
 
             var inventory = NewInventory(0);
             var ring = new ItemInstance(Item("Ring"), Rarity.Magic, 4, 1UL, null);
@@ -210,8 +210,8 @@ namespace DarkDescent.Tests
             var stalls = new[] { "MerchantStall", "Blacksmith", "Healer" }
                 .Select(n => AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/_Project/Prefabs/Town/{n}.prefab").GetComponent<Town.Merchant>())
                 .ToArray();
-            Assert.AreEqual(ShopGoods.Jewelry | ShopGoods.Scrolls, stalls[0].Goods);
-            Assert.AreEqual(4, stalls[0].StockSize);
+            Assert.AreEqual(ShopGoods.Jewelry | ShopGoods.Scrolls | ShopGoods.Arcane, stalls[0].Goods, "anche la merce del Mago (D12 della M21)");
+            Assert.AreEqual(6, stalls[0].StockSize);
             Assert.AreEqual(ShopGoods.Weapons | ShopGoods.Armor, stalls[1].Goods);
             Assert.AreEqual(8, stalls[1].StockSize);
             Assert.AreEqual(ShopGoods.Potions, stalls[2].Goods);

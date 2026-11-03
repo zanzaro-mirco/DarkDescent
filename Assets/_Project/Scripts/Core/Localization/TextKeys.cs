@@ -59,6 +59,7 @@ namespace DarkDescent.Localization
         public const string SpeedSlow = "speed.slow";
         public const string TooltipArmor = "tooltip.armor";
         public const string TooltipRequiredStrength = "tooltip.required_strength";
+        public const string TooltipRequiredMagic = "tooltip.required_magic";
         public const string TooltipTwoHanded = "tooltip.two_handed";
         public const string TooltipBlock = "tooltip.block";
         public const string Chest = "chest";

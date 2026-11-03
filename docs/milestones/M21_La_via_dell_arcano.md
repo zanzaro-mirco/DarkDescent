@@ -125,11 +125,48 @@ che rimette la classe; `-class` e `-heroname`).
 
 ---
 
+## Passo 21.3 — Le armi del Mago (D4, D12)
+
+Fatto il 3 novembre 2026.
+
+- **Tre oggetti nuovi** in `Data/Items`, con i modelli di *Adventurers* (`staff`, `wand`, `spellbook_closed`, presi
+  dallo zip già scaricato) e le icone dal modello: il **Bastone** (due mani, 12–18, ogni 1,5 s, Magia 40), la
+  **Bacchetta** (una mano, 4–7, ogni 0,8 s, Magia 20) e il **Tomo** (mano libera, Magia 30, dà sempre +5 Magia e
+  +20 mana). `WeaponKind.Staff` e `Wand` in fondo all'elenco.
+- **Il requisito di Magia.** `ItemDefinition.RequiredMagic` (virtuale, 0 per tutti gli altri); `Equipment.MeetsRequirements`
+  controlla Forza e Magia, e il tooltip scrive «Magia richiesta» in rosso se non basta. Il Guerriero (Magia 10) non
+  porta niente di questo, il Mago che parte (Magia 35) porta bacchetta e tomo e il bastone dal 40.
+- **Il tomo non è uno scudo.** Sta nello slot della mano sinistra ma `ArmorDefinition.IsShield` è falso: non blocca
+  (senza questa regola avrebbe dato il blocco di Destrezza/2 al Mago), non ripara, e l'arma a due mani lo toglie come
+  fa con lo scudo. `PlayerInventory` e `PowerCensus` guardano `IsShield`, non più «è un'armatura».
+- **Gli affissi (D12).** Nuovo `AffixTargets.Caster`: bastone e bacchetta sono `Weapon | Caster`, il tomo solo
+  `Caster`. Gli affissi della Magia e del mana (12 asset) ammettono anche `Caster`; blocco e Armatura dello scudo non
+  cadono sul tomo, e sulle armi del Mago non cadono quelli degli scudi. **Rimandati al 21.4** il danno degli
+  incantesimi e la ricarica: servono le loro statistiche, che nascono con le abilità.
+- **Il mercante.** `ShopGoods.Arcane` (32): `ItemGoods.Of` dà «Arcane» a bastone, bacchetta e tomo, che il fabbro non
+  tratta più; il banco del mercante vende gioielli, pergamene e merce arcana, e tira sei oggetti invece di quattro.
+  Le tre voci sono anche nelle tabelle dei forzieri, dei bruti e del re.
+- **Lo strumento** `MageWeaponTools` (menu *Oggetti → Armi del Mago*) rifà tutto e si rilancia senza duplicare voci.
+  Trappola trovata: `ItemTools.UpdateDatabase` rifà anche il database degli affissi **in un altro ordine**, e l'ordine
+  sposta le scelte a seme dei Guerriero: la misura delle difficoltà è saltata di colpo (6,95 → 7,06). Lo strumento ora
+  rifà il database solo se un oggetto manca.
+- **La posa in mano** è stata ritoccata con la foto: il bastone e la bacchetta partivano rovesciati (sfera in giù), ora
+  girati di 180° sulla X; l'icona del tomo era di taglio, ora a tre quarti con le fibbie.
+- **Da fare più avanti.** Il Mago nato dalla schermata prende ancora il kit di partenza del Guerriero (ascia e scudo in
+  borsa): lo deciderà il 21.6, con la creazione.
+
+**Test.** EditMode 593 verdi (`MageWeaponTests`: i numeri degli asset, il requisito di Magia, il tomo con i suoi
+bonus e la regola delle mani, gli affissi ammessi, il loot e i banchi, il tooltip; adeguati `ItemDatabaseTests`,
+`ShopTests`); PlayMode mirato (banchi, equipaggiamento, borsa, classe, loot) verde; foto in
+`Recordings/Photos/mago_armi` (bacchetta e tomo, bastone, a riposo, al colpo, al lancio, la borsa).
+
+---
+
 ## Checklist di chiusura
 
 - [ ] Disegno dell'albero del Mago approvato da Mirco (21.1)
 - [x] `CharacterClass`, salvataggio 9 e migrazione, fattore del mana (21.2)
-- [ ] Bastone, bacchetta e tomo nel loot e dal mercante (21.3)
+- [x] Bastone, bacchetta e tomo nel loot e dal mercante (21.3)
 - [ ] Dardo arcano e le undici abilità del Mago (21.4)
 - [ ] Albero del Mago nel pannello; altare per entrambe le classi (21.5)
 - [ ] Creazione del personaggio con nome; i tre posti; foto approvate (21.6)
