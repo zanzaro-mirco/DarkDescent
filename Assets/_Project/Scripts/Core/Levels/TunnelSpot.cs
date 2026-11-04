@@ -192,6 +192,12 @@ namespace DarkDescent.Levels
             return layout.StaysConnectedWithout(cell);
         }
 
+        /// <summary>La cella davanti allo sbocco, dalla parte della stanza.</summary>
+        public static Vector2Int FrontOf(Vector2Int cell, MapDirection wall)
+        {
+            return cell - Step(wall);
+        }
+
         /// <summary>La direttiva d'arrivo con il tipo, la colonna, la riga e il muro.</summary>
         public static string[] ToTokens(string arrival, Vector2Int cell, MapDirection wall)
         {

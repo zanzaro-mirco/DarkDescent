@@ -58,6 +58,38 @@ namespace DarkDescent.Tests
             }
         }
 
+        // le partite della ronda PlayMode del 4 nov 2026 con un forziere d'oro sulla scala in su
+        private static readonly (ulong seed, int depth)[] GoldChestOnTheStairs =
+        {
+            (11963189544893850589UL, 6), (3618124043355943647UL, 8), (14089442880255926572UL, 5), (5483644417616918220UL, 8),
+            (10123123305678590094UL, 5), (4524977696308130997UL, 6), (10103121470444447766UL, 5), (12702274555325855629UL, 7),
+            (9032558377792104318UL, 5), (10843878497754344252UL, 6),
+        };
+
+        [Test, Description("La mappa che il gioco costruisce tiene libere la scala in su e il suo davanti: le partite in cui un forziere d'oro ci finiva sopra (ronda del 4 nov 2026) e 64 semi a ogni profondità")]
+        public void TheBuiltMap_KeepsTheStairsUpClear()
+        {
+            var caves = AssetDatabase.LoadAssetAtPath<DungeonSettings>("Assets/_Project/Data/Levels/CaveSettings.asset");
+            foreach (var (seed, depth) in GoldChestOnTheStairs)
+            {
+                var map = DungeonLevel.CreateMap(caves, seed, depth, out _);
+                MapChecks.Pass($"partita {seed}, profondità {depth}", MapChecks.UpExitClear(map));
+            }
+
+            foreach (string asset in new[] { "CryptSettings", "CaveSettings" })
+            {
+                var settings = AssetDatabase.LoadAssetAtPath<DungeonSettings>($"Assets/_Project/Data/Levels/{asset}.asset");
+                for (int depth = settings.FirstDepth; depth <= settings.LastDepth; depth++)
+                {
+                    for (ulong seed = 1; seed <= Seeds; seed++)
+                    {
+                        var map = DungeonLevel.CreateMap(settings, seed, depth, out _);
+                        MapChecks.Pass($"{asset}, seme {seed}, profondità {depth}", MapChecks.UpExitClear(map));
+                    }
+                }
+            }
+        }
+
         [Test, Description("Una profondità che le impostazioni non coprono non ha un livello di sopra: il controllo non chiede niente")]
         public void WithoutALevelAbove_NothingIsExpected()
         {

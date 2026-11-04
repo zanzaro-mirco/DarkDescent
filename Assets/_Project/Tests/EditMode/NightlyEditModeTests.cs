@@ -240,7 +240,7 @@ namespace DarkDescent.Tests
                     // la mappa che il gioco costruisce: nemici speciali, forzieri, tesoro del re, scala tolta all'ultima
                     var map = DungeonLevel.CreateMap(settings, runSeed, depth, out var built);
                     bool stairs = HasStairs(settings, depth);
-                    Collect(errors, where + ", mappa del gioco", MapChecks.Reachable(built, stairs), MapChecks.ObstaclesLeavePath(built, stairs));
+                    Collect(errors, where + ", mappa del gioco", MapChecks.Reachable(built, stairs), MapChecks.ObstaclesLeavePath(built, stairs), MapChecks.UpExitClear(map));
                     if (settings is CaveSettings caves && depth == caves.BossDepth)
                     {
                         Collect(errors, where + ", sala del re", CaveChecks.BossRoom(map));

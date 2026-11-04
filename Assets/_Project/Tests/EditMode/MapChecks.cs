@@ -199,6 +199,30 @@ namespace DarkDescent.Tests
         }
 
         /// <summary>
+        /// La mappa che il gioco costruisce: la cella della scala in su e il suo davanti non portano né una cassa, né un forziere, né un
+        /// tesoro, né la scala giù (ronda del 4 nov 2026: un forziere d'oro finiva sull'uscita, messo dopo dai nemici speciali).
+        /// </summary>
+        public static string UpExitClear(LevelMap map)
+        {
+            if (!TunnelSpot.TryFindUpExit(map, out var cell) || !TunnelSpot.TryRead(map.GetDirective(TunnelSpot.ArrivalDirective), out _, out var wall))
+            {
+                return null;
+            }
+
+            foreach (var spot in new[] { cell, TunnelSpot.FrontOf(cell, wall) })
+            {
+                char symbol = map.GetSymbol(spot.x, spot.y);
+                if (DungeonPopulator.IsChest(symbol) || symbol == SpecialEnemyPlanner.GoldChestSymbol || symbol == SpecialEnemyPlanner.TreasureSymbol
+                    || symbol == DungeonGenerator.StairsSymbol)
+                {
+                    return $"sulla scala in su, in ({spot.x}, {spot.y}), c'è '{symbol}'\n{Text(map)}";
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Un ingresso; se c'è la scala, una sola, con la roccia a nord (lo stendardo) e il pavimento a sud
         /// (da dove si arriva), ad almeno il 45% della distanza massima dall'ingresso (<see cref="LeastStairsShare"/>).
         /// </summary>

@@ -13,6 +13,7 @@ namespace DarkDescent.Levels
         private readonly char[,] _cells;
         private readonly List<RectInt> _rooms;
         private readonly List<RoomFeature> _features = new List<RoomFeature>();
+        private readonly HashSet<Vector2Int> _reserved = new HashSet<Vector2Int>();
 
         public DungeonLayout(char[,] cells, List<RectInt> rooms, int startRoom, int exitRoom, Vector2Int entrance, Vector2Int stairs)
         {
@@ -63,10 +64,20 @@ namespace DarkDescent.Levels
             return this[x, y] != LevelMap.Rock;
         }
 
-        /// <summary>Un marcatore su una cella di pavimento libera; false se la cella è roccia o già occupata.</summary>
+        /// <summary>
+        /// Tiene libera una cella per quello che il livello metterà dopo, come lo sbocco della scala in su e il suo davanti: <see cref="TryPlace"/>
+        /// la rifiuta, e i forzieri dei nemici speciali ne scelgono un'altra (ronda del 4 nov 2026: un forziere d'oro sulla scala in su).
+        /// Non cambia i tiri del seme: scarta solo la cella sbagliata.
+        /// </summary>
+        public void Reserve(Vector2Int cell)
+        {
+            _reserved.Add(cell);
+        }
+
+        /// <summary>Un marcatore su una cella di pavimento libera; false se la cella è roccia, già occupata o tenuta libera.</summary>
         public bool TryPlace(char symbol, int x, int y)
         {
-            if (this[x, y] != LevelMap.Floor)
+            if (this[x, y] != LevelMap.Floor || _reserved.Contains(new Vector2Int(x, y)))
             {
                 return false;
             }
