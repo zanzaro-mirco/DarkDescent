@@ -34,7 +34,7 @@ MonoBehaviour:
     - fireball
     _options:
     - _nameKey: talent.inflamed_mind
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 4769dcd12c0830943acd8ba23250c52b, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
     - fireball
     _options:
     - _nameKey: talent.great_blaze
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: d0e9bd0be4dd2f647831fee83afd0ad3, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -87,7 +87,7 @@ MonoBehaviour:
     - inflamed_mind
     _options:
     - _nameKey: talent.explosion
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: edf56c2ceb4ec3943b34637c95183438, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -109,7 +109,7 @@ MonoBehaviour:
     - flame_wall
     _options:
     - _nameKey: talent.quick_hand
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 12ec94407e3e78e4b9bd12db937460e2, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -131,7 +131,7 @@ MonoBehaviour:
     - great_blaze
     _options:
     - _nameKey: talent.lasting_flames
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 36575b92cf456cb4d890234b9778dee6, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -152,7 +152,7 @@ MonoBehaviour:
     - great_blaze
     _options:
     - _nameKey: talent.burning_magic
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 2390afdba3d3aa443af0fd374691161e, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
     - quick_hand
     _options:
     - _nameKey: talent.pyre
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: d543a213fa9dcd44ca5e06d2f06e5a00, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -196,7 +196,7 @@ MonoBehaviour:
     - lasting_flames
     _options:
     - _nameKey: talent.live_embers
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: edf56c2ceb4ec3943b34637c95183438, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -218,7 +218,7 @@ MonoBehaviour:
     - burning_magic
     _options:
     - _nameKey: talent.ardor
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: bb3478f8e5a9b5e40bc0ba6b6966efe7, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -240,7 +240,7 @@ MonoBehaviour:
     - live_embers
     _options:
     - _nameKey: talent.double_meteor
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: b3046543bfb64874a992a934738f4a94, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -254,7 +254,7 @@ MonoBehaviour:
         _perRank: 1
         _duration: 0
     - _nameKey: talent.fire_tide
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 60f0c73dfa5b00b438b4f1c1bd061b14, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -276,7 +276,7 @@ MonoBehaviour:
     - ardor
     _options:
     - _nameKey: talent.searing_bolt
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: edf56c2ceb4ec3943b34637c95183438, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -297,7 +297,7 @@ MonoBehaviour:
     - fire_end
     _options:
     - _nameKey: talent.fire_mastery
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 4769dcd12c0830943acd8ba23250c52b, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0

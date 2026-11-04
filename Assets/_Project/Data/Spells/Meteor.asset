@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: 540daf2a8fa84ca0872f53d95237ac82
   _nameKey: spell.meteor
-  _icon: {fileID: 8787291131096080919, guid: fb0ec0d4a982faf42b33e76ca0d24980, type: 3}
+  _icon: {fileID: 21300000, guid: 4a61a60965a671a419f8ae6fac706fde, type: 3}
   _kind: 18
   _effect: {fileID: 7582448901973598493, guid: 64f4f6aa35f0d564ea72ab6a6dc530d6, type: 3}
   _manaCost: 30

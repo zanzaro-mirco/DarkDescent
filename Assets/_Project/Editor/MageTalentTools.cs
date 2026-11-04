@@ -42,6 +42,8 @@ namespace DarkDescent.Editor
             var frost = SaveTree("MageFrost", "mage.frost", true, FrostNodes(s), new[] { new TalentGate(3, 5), new TalentGate(5, 12) });
             AssetDatabase.SaveAssets();
             GiveToClass(mage, fire, frost);
+            // le icone di Z-Image, se ci sono già (21.7)
+            TalentIconTools.Apply();
             Debug.Log($"[MageTalentTools] Mago: {mage.Nodes.Count} nodi, Fuoco {fire.Nodes.Count}, Gelo {frost.Nodes.Count}");
         }
 

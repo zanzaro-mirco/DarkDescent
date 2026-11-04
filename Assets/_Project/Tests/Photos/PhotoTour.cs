@@ -373,6 +373,38 @@ namespace DarkDescent.Tests
             }
         }
 
+        [UnityTest, Timeout(300000), Description("La console del Mago (21.7): le quattro caselle con le sue icone, il menu di una casella e quello di K")]
+        public IEnumerator MageHud()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            MenuSteps.StartNew(menu, 1, "mage", "Merlino");
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+
+            var magic = Hero.GetComponent<PlayerMagic>();
+            foreach (string name in new[] { "FireRing", "Blink", "ManaShield", "Fireball" })
+            {
+                magic.Learn(AssetDatabase.LoadAssetAtPath<SpellDefinition>($"Assets/_Project/Data/Spells/{name}.asset"));
+            }
+
+            yield return Settle();
+            var picker = Find<SkillMenu>();
+            PlayModeWindow.SetCustomRenderingResolution(1920u, 1080u, "Photos");
+            yield return Frames(5);
+            picker.Close();
+            yield return Snap("mage_hud_bar");
+            Find<SpellBarView>().ClickSlot(2);
+            yield return Frames(3);
+            yield return Snap("mage_hud_pick", world: false);
+            picker.Toggle();
+            yield return Frames(3);
+            yield return Snap("mage_hud_menu", world: false);
+        }
+
         [UnityTest, Timeout(300000), Description("Le armi a due mani (D5 della M20): lo spadone e l'ascia in mano al cavaliere, a riposo e a metà colpo, e la borsa con le loro icone")]
         public IEnumerator TwoHanded()
         {

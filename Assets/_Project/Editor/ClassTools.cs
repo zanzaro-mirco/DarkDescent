@@ -27,6 +27,7 @@ namespace DarkDescent.Editor
         private const string AttackPath = "Assets/_Project/Data/Spells/Attack.asset";
         private const string ArcanePath = "Assets/_Project/Data/Spells/ArcaneBolt.asset";
         private const string ItemsFolder = "Assets/_Project/Data/Items";
+        private const string IconsFolder = "Assets/_Project/Art/Icons/Classes";
 
         // come HeroSetup di sempre: due punti in Forza, due in Vitalità e uno in Destrezza
         private static readonly StatType[] WarriorPattern = { StatType.Strength, StatType.Vitality, StatType.Strength, StatType.Vitality, StatType.Dexterity };
@@ -62,6 +63,15 @@ namespace DarkDescent.Editor
             // la bacchetta e il tomo: il Mago non comincia con la spada del cavaliere (21.6)
             mage.DefineKit(AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemsFolder + "/Wand.asset"), AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemsFolder + "/Tome.asset"));
             EditorUtility.SetDirty(mage);
+
+            // gli emblemi di Z-Image, se ci sono già (21.7)
+            foreach (var characterClass in new[] { warrior, mage })
+            {
+                string iconPath = $"{IconsFolder}/class_{characterClass.Id}.png";
+                TalentIconTools.ImportSprite(iconPath);
+                characterClass.DefineIcon(AssetDatabase.LoadAssetAtPath<Sprite>(iconPath));
+                EditorUtility.SetDirty(characterClass);
+            }
 
             var catalog = Asset<CharacterClassCatalog>("ClassCatalog");
             catalog.Define(new[] { warrior, mage });

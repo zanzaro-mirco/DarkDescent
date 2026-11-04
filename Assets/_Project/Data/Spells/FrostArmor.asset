@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: 8cf3405223954c9b94fa85f0553c136b
   _nameKey: spell.frost_armor
-  _icon: {fileID: 2141671851645666773, guid: c8705f895bdcecd42b3776df85716c60, type: 3}
+  _icon: {fileID: 21300000, guid: 73731a29f9bd02c408434690d5c8eb45, type: 3}
   _kind: 2
   _effect: {fileID: 4745980757906689171, guid: bc0f3c9f5f972a441919237dd7db18ea, type: 3}
   _manaCost: 12

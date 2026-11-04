@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: c42312ab299342de9afcc6f3232aa2ca
   _nameKey: spell.blink
-  _icon: {fileID: 8787291131096080919, guid: fb0ec0d4a982faf42b33e76ca0d24980, type: 3}
+  _icon: {fileID: 21300000, guid: f3f053da8caef424cb70959ccc1675aa, type: 3}
   _kind: 16
   _effect: {fileID: 4929656189442915014, guid: 39c9818ebdb5f0e43aa6fbf27ba1b497, type: 3}
   _manaCost: 8

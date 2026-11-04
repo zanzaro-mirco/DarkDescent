@@ -325,6 +325,36 @@ colpi, non la vita) e due che davano per fisso il mana del Mago, che ora ha il t
 
 ---
 
+## Passo 21.7 — Le icone (D13)
+
+Fatto il 4 novembre 2026.
+
+**Ventotto icone Z-Image-Turbo**, 256 × 256, nello stile di Diablo III come quelle della M20: **dodici abilità attive** (il Dardo
+arcano del sinistro e le undici degli alberi: Dardo di fuoco, Anello di fuoco, Passo di luce, Scudo di mana, Palla di fuoco,
+Muro di fiamme, Meteora, Dardo di ghiaccio, Nova di gelo, Armatura di ghiaccio, Tempesta di neve), **quattordici tipi di passivo
+nuovi** (danno degli incantesimi, riserva e rigenerazione del mana, Magia, danno del fuoco e del gelo, rallentamento, congelamento,
+lancio gratis, bruciatura, pioggia di scintille, eco, fuoco a terra, velocità di lancio) e **due emblemi di classe**, per le schede
+della creazione. Gli altri tipi sono quelli del Guerriero (cooldown, area, vita, armatura, durata, pozione…): le icone sono ora 70 in
+`Art/Icons/Talents` (44 + 26) più `Art/Icons/Classes`. Le ricette sono in `Tools/ComfyUI/images/mage_talents.py` e `classes.py`,
+con tre semi a testa provati (fogli in `Recordings/Photos/icone_mago`). Come alla M20 la scelta l'ha fatta Claude: scartata la prova
+del Muro di fiamme con la cornice chiara (2519) e quella del lancio gratis con un simbolo estraneo (2632), e rifatte con un'altra
+ricetta la Tempesta di neve (la prima mostrava un riquadro luminoso invece della tormenta) e la bruciatura (era uguale al danno del
+fuoco: ora è una figura avvolta dalle fiamme). Z-Image disegna anche qui «icon» come un'icona di interfaccia se la ricetta la
+nomina: i soggetti descrivono la scena e basta.
+
+- **Dove vanno.** `TalentIconTools` ha ora le tabelle del Mago (`MageSkills`, `MagePassives`) e le assegna alle dodici
+  `SpellDefinition` e a tutte le opzioni dei sei alberi; `MageTalentTools.BuildMage` lo richiama alla fine, come il Guerriero.
+  `ClassTools` dà alle classi il loro emblema (`CharacterClass.Icon`) e le schede della creazione lo mostrano a sinistra del nome.
+- **Test.** `TalentIconTests` copre anche il Mago (la tabella ha una voce per ogni passivo e opzione e per niente altro, le dodici
+  abilità, ogni icona esiste, quadrata, e nella cartella ci sono tutte e solo quelle usate); `HeroNameTests` controlla che ogni
+  classe che si sceglie abbia l'emblema. EditMode 623 verdi.
+- **Foto** in `Recordings/Photos/icone_mago_pannello`: l'albero (la classe e il Fuoco), il Gelo, il tooltip, un nodo a scelta, la
+  console con le quattro caselle del Mago, il menu di una casella e di K, e la creazione con gli emblemi.
+- **Ancora da vedere.** I nodi a scelta (ottagoni) hanno il nome finché non si sceglie, come nel Guerriero; nella foto della classe «Fire
+  Finale» è sull'ottagono grigio.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Disegno dell'albero del Mago approvato da Mirco (21.1)

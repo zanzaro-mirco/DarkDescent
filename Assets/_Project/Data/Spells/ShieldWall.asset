@@ -34,3 +34,11 @@ MonoBehaviour:
   _minRange: 0
   _moveFactor: 0.5
   _tick: 0
+  _damageType: 1
+  _blastRadius: 0
+  _slowPercent: 0
+  _slowSeconds: 0
+  _freeze: 0
+  _delay: 0
+  _length: 0
+  _manaPerDamage: 0

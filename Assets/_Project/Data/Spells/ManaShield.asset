@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: DarkDescent.Core::DarkDescent.Magic.SpellDefinition
   _id: bb8410fecfe84820bb26c5d2e4033f05
   _nameKey: spell.mana_shield
-  _icon: {fileID: 2141671851645666773, guid: c8705f895bdcecd42b3776df85716c60, type: 3}
+  _icon: {fileID: 21300000, guid: 243aea6f424f36c42bff51ecef177833, type: 3}
   _kind: 17
   _effect: {fileID: 0}
   _manaCost: 10

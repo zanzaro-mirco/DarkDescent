@@ -180,6 +180,13 @@ namespace DarkDescent.UI
                 card.gameObject.name = "Card_" + characterClass.Id;
                 card.gameObject.SetActive(true);
                 card.GetComponentInChildren<TMP_Text>(true).text = _localizer.Get(characterClass.NameKey);
+                var emblem = card.transform.Find("Icon");
+                if (emblem != null)
+                {
+                    emblem.GetComponent<Image>().sprite = characterClass.Icon;
+                    emblem.gameObject.SetActive(characterClass.Icon != null);
+                }
+
                 string id = characterClass.Id;
                 card.onClick.AddListener(() => Choose(id));
                 _cards.Add((characterClass, card));

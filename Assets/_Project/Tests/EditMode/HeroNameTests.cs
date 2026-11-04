@@ -42,6 +42,7 @@ namespace DarkDescent.Tests
             foreach (var characterClass in catalog.Playable)
             {
                 count++;
+                Assert.IsNotNull(characterClass.Icon, $"{characterClass.Id}: manca l'emblema");
                 foreach (string key in new[] { characterClass.NameKey, characterClass.DescriptionKey, characterClass.DefaultNameKey })
                 {
                     Assert.IsTrue(table.Contains(key), $"{characterClass.Id}: manca {key}");

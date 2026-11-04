@@ -80,6 +80,15 @@ namespace DarkDescent.Editor
             template.name = "CardTemplate";
             Strip(template);
             template.GetComponentInChildren<TMP_Text>(true).text = "Class";
+            // l'emblema della classe, a sinistra della scritta
+            var emblem = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            emblem.transform.SetParent(template.transform, false);
+            var emblemRect = (RectTransform)emblem.transform;
+            emblemRect.anchorMin = emblemRect.anchorMax = new Vector2(0f, 0.5f);
+            emblemRect.pivot = new Vector2(0.5f, 0.5f);
+            emblemRect.anchoredPosition = new Vector2(44f, 0f);
+            emblemRect.sizeDelta = new Vector2(56f, 56f);
+            emblem.GetComponent<Image>().raycastTarget = false;
             // la scheda scelta ha il bordo dorato, acceso dal pannello
             var outline = template.AddComponent<Outline>();
             outline.effectColor = new Color(1f, 0.82f, 0.38f, 1f);

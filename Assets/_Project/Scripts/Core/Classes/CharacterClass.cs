@@ -56,6 +56,9 @@ namespace DarkDescent.Classes
         [Tooltip("L'oggetto nella mano libera di un personaggio nuovo: il tomo del Mago.")]
         [SerializeField] private ItemDefinition _startingOffhand;
 
+        [Tooltip("L'emblema della classe nella creazione del personaggio.")]
+        [SerializeField] private Sprite _icon;
+
         public string Id => _id;
         public string NameKey => _nameKey;
         public string DescriptionKey => _nameKey + ".desc";
@@ -72,6 +75,7 @@ namespace DarkDescent.Classes
         public SpellDefinition AttackSpell => _attackSpell;
         public ItemDefinition StartingWeapon => _startingWeapon;
         public ItemDefinition StartingOffhand => _startingOffhand;
+        public Sprite Icon => _icon;
 
         /// <summary>Ha un albero: solo allora si può scegliere nella creazione del personaggio.</summary>
         public bool IsPlayable => _classTree != null;
@@ -107,6 +111,12 @@ namespace DarkDescent.Classes
             _pointPattern = (pointPattern ?? Enumerable.Empty<StatType>()).ToArray();
             _manaRegenFactor = manaRegenFactor;
             _attackSpell = attackSpell;
+        }
+
+        /// <summary>Lo strumento dell'editor: l'emblema della classe.</summary>
+        public void DefineIcon(Sprite icon)
+        {
+            _icon = icon;
         }
 
         /// <summary>Lo strumento dell'editor: l'equipaggiamento di partenza.</summary>

@@ -34,7 +34,7 @@ MonoBehaviour:
     - ice_bolt
     _options:
     - _nameKey: talent.frozen_skin
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 7915cc64d9f041a4b80676aa9cf059e1, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
     - ice_bolt
     _options:
     - _nameKey: talent.piercing_cold
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 080d9ada796caf641a1f463d0626ebce, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -87,7 +87,7 @@ MonoBehaviour:
     - frozen_skin
     _options:
     - _nameKey: talent.shards
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 39b2a386df316a244b4176a4f3d6b532, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -109,7 +109,7 @@ MonoBehaviour:
     - frost_nova
     _options:
     - _nameKey: talent.quick_frost
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 12ec94407e3e78e4b9bd12db937460e2, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -131,7 +131,7 @@ MonoBehaviour:
     - piercing_cold
     _options:
     - _nameKey: talent.deep_frost
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: c7503bbfc2fb33048ba61f4a8df4b74a, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -152,7 +152,7 @@ MonoBehaviour:
     - piercing_cold
     _options:
     - _nameKey: talent.cold_blood
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: ba9239a5364cdca41af989089d554979, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -186,7 +186,7 @@ MonoBehaviour:
     - deep_frost
     _options:
     - _nameKey: talent.rime
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: d0e9bd0be4dd2f647831fee83afd0ad3, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -208,7 +208,7 @@ MonoBehaviour:
     - cold_blood
     _options:
     - _nameKey: talent.ice_shelter
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 09952b489e4252e4dbabba6dad1f8f66, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 0
@@ -230,7 +230,7 @@ MonoBehaviour:
     - rime
     _options:
     - _nameKey: talent.lingering_frost
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 080d9ada796caf641a1f463d0626ebce, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -244,7 +244,7 @@ MonoBehaviour:
         _perRank: 3
         _duration: 0
     - _nameKey: talent.double_nova
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: b3046543bfb64874a992a934738f4a94, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1
@@ -266,7 +266,7 @@ MonoBehaviour:
     - ice_shelter
     _options:
     - _nameKey: talent.ice_mind
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 1b5b9a0d8d1615043bcb18a45a5e5482, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 2
@@ -299,7 +299,7 @@ MonoBehaviour:
     - ice_mind
     _options:
     - _nameKey: talent.ice_fortress
-      _icon: {fileID: 0}
+      _icon: {fileID: 21300000, guid: 36575b92cf456cb4d890234b9778dee6, type: 3}
       _ability: {fileID: 0}
       _effects:
       - _kind: 1

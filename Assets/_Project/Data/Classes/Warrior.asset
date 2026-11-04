@@ -28,3 +28,4 @@ MonoBehaviour:
   _attackSpell: {fileID: 11400000, guid: b1d453d40a9aff74fb826ab5018179e7, type: 2}
   _startingWeapon: {fileID: 0}
   _startingOffhand: {fileID: 0}
+  _icon: {fileID: 21300000, guid: bb6d2ec900bdec947b2074e2cc026d0e, type: 3}

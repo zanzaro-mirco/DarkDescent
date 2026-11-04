@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DarkDescent.Magic;
 using UnityEditor;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine;
 namespace DarkDescent.Editor
 {
     /// <summary>
-    /// Le icone dei talenti del Guerriero (D12 della M20): le undici abilità attive e i trentatré tipi di
+    /// Le icone dei talenti (D12 della M20 e D13 della M21): le abilità attive e i tipi di
     /// passivo, generate con Z-Image da <c>Tools/ComfyUI/images/talents.py</c> e messe in
     /// <c>Art/Icons/Talents</c> dopo il sì di Mirco. Questo strumento le importa come sprite e le dà alle
     /// abilità e alle opzioni dei nodi; <see cref="TalentTools.BuildWarrior"/> lo richiama alla fine, così
@@ -89,6 +90,75 @@ namespace DarkDescent.Editor
             ["weapon_mastery"] = "talent_damage",
         };
 
+        // le dodici abilità del Mago (M21, D13): il Dardo arcano del sinistro e le undici degli alberi
+        public static readonly (string Spell, string Icon)[] MageSkills =
+        {
+            ("ArcaneBolt", "skill_arcane_bolt"),
+            ("Firebolt", "skill_firebolt"),
+            ("FireRing", "skill_fire_ring"),
+            ("Blink", "skill_blink"),
+            ("ManaShield", "skill_mana_shield"),
+            ("Fireball", "skill_fireball"),
+            ("FlameWall", "skill_flame_wall"),
+            ("Meteor", "skill_meteor"),
+            ("IceBolt", "skill_ice_bolt"),
+            ("FrostNova", "skill_frost_nova"),
+            ("FrostArmor", "skill_frost_armor"),
+            ("Blizzard", "skill_blizzard"),
+        };
+
+        // i passivi del Mago: molti tipi sono quelli del Guerriero (cooldown, area, vita, armatura, durata…)
+        public static readonly Dictionary<string, string> MagePassives = new Dictionary<string, string>
+        {
+            // la classe
+            ["keen_mind"] = "talent_spell_damage",
+            ["mana_reserve"] = "talent_mana_pool",
+            ["swift_bolt"] = "talent_cooldown",
+            ["wide_flame"] = "talent_area",
+            ["ash_skin"] = "talent_life",
+            ["concentration"] = "talent_mana_hit",
+            ["cold_mind"] = "talent_mana_regen",
+            ["lasting_shield"] = "talent_duration",
+            ["last_spark"] = "talent_last_defense",
+            ["quick_step"] = "talent_cooldown",
+            ["restoration"] = "talent_potion",
+            ["fire_master"] = "talent_spell_damage",
+            ["arcane_heart"] = "talent_mana_pool",
+            ["spark"] = "talent_free_cast",
+            ["blaze"] = "talent_burn",
+            ["spark_rain"] = "talent_spark_rain",
+            ["burning_ring"] = "talent_burn",
+
+            // Fuoco
+            ["inflamed_mind"] = "talent_spell_damage",
+            ["great_blaze"] = "talent_area",
+            ["explosion"] = "talent_fire_damage",
+            ["quick_hand"] = "talent_cooldown",
+            ["lasting_flames"] = "talent_duration",
+            ["burning_magic"] = "talent_magic",
+            ["pyre"] = "talent_mana_kill",
+            ["live_embers"] = "talent_fire_damage",
+            ["ardor"] = "talent_cast_haste",
+            ["searing_bolt"] = "talent_fire_damage",
+            ["fire_mastery"] = "talent_spell_damage",
+            ["double_meteor"] = "talent_echo",
+            ["fire_tide"] = "talent_fire_ground",
+
+            // Gelo
+            ["frozen_skin"] = "talent_armor",
+            ["piercing_cold"] = "talent_slow",
+            ["shards"] = "talent_frost_damage",
+            ["quick_frost"] = "talent_cooldown",
+            ["deep_frost"] = "talent_freeze",
+            ["cold_blood"] = "talent_life",
+            ["rime"] = "talent_area",
+            ["ice_shelter"] = "talent_resist",
+            ["ice_mind"] = "talent_mana_hit",
+            ["ice_fortress"] = "talent_duration",
+            ["lingering_frost"] = "talent_slow",
+            ["double_nova"] = "talent_echo",
+        };
+
         [MenuItem("DarkDescent/Talenti/Assegna le icone")]
         public static void Apply()
         {
@@ -104,7 +174,7 @@ namespace DarkDescent.Editor
             }
 
             int spells = 0;
-            foreach (var (spell, icon) in Skills)
+            foreach (var (spell, icon) in Skills.Concat(MageSkills))
             {
                 var asset = AssetDatabase.LoadAssetAtPath<SpellDefinition>($"{SpellsFolder}/{spell}.asset");
                 var sprite = Sprite(icon);
@@ -121,7 +191,7 @@ namespace DarkDescent.Editor
             }
 
             int options = 0;
-            foreach (string name in new[] { "Warrior", "WarriorDefense", "WarriorArms" })
+            foreach (string name in new[] { "Warrior", "WarriorDefense", "WarriorArms", "Mage", "MageFire", "MageFrost" })
             {
                 var tree = AssetDatabase.LoadAssetAtPath<ScriptableObject>($"{TalentsFolder}/{name}.asset");
                 var so = new SerializedObject(tree);
@@ -133,7 +203,7 @@ namespace DarkDescent.Editor
                     {
                         var option = list.GetArrayElementAtIndex(j);
                         string id = option.FindPropertyRelative("_nameKey").stringValue.Replace("talent.", "");
-                        if (Passives.TryGetValue(id, out string icon) && Sprite(icon) != null)
+                        if ((Passives.TryGetValue(id, out string icon) || MagePassives.TryGetValue(id, out icon)) && Sprite(icon) != null)
                         {
                             option.FindPropertyRelative("_icon").objectReferenceValue = Sprite(icon);
                             options++;
@@ -152,6 +222,16 @@ namespace DarkDescent.Editor
         private static Sprite Sprite(string name) => AssetDatabase.LoadAssetAtPath<Sprite>($"{Folder}/{name}.png");
 
         // sprite quadrati senza mipmap, come le altre icone
+        public static void ImportSprite(string path)
+        {
+            if (!File.Exists(path))
+            {
+                return;
+            }
+
+            Import(path);
+        }
+
         private static void Import(string path)
         {
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
