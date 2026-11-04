@@ -4,8 +4,26 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 4 nov 2026, build della v1.9.0 da provare (l'artefatto della build del tag).
+Ultimo aggiornamento: 4 nov 2026, build della v1.10.0 da provare (l'artefatto della build del tag).
 Le prove della M18 e della M19 restano valide.
+
+## Dalla M22 — "La strada del ritorno" (v1.10.0)
+
+- **La scala in su**: in ogni livello, nella stanza dove si arriva (o attorno all'ingresso, nelle caverne), c'è lo sbocco del
+  cunicolo con le sue luci. Passarci accanto non fa risalire: si clicca e il cavaliere ci va. Il nome sotto il cursore dice
+  «Sali al livello N» (e «Torna al borgo» alla 1). Risalendo si arriva davanti alla scala giù del livello di sopra, rivolti
+  via da lei, senza riscendere subito. Ti sembra il posto giusto, o lo vorresti più lontano dalla strada principale?
+- **Il livello di sopra com'era**: uccidi, apri una cassa, lascia un oggetto a terra, scendi, risali. Tutto come l'hai
+  lasciato, la mappa scoperta compresa. Funziona anche tra le caverne (5) e la cripta (4).
+- **Dal borgo alla cripta e ritorno**: alla 1 la scala in su porta fuori dalla grotta, nella piazzola a sud dell'arco, e la
+  grotta riporta alla 1.
+- **L'automappa**: la scala in su è una cella azzurra (la scala giù è gialla, l'ingresso verde). Si legge bene, o la vuoi più
+  evidente?
+- **Le stanze della cripta**: più grandi (da 4 a 8 celle per lato). Se i livelli ti sembrano vuoti, si alza il numero dei
+  gruppi, non la forza (D12 della scheda).
+- **Un vecchio salvataggio**: *Continua* da una cripta rimette nello stesso posto, in un livello nuovo dello stesso seme: i
+  nemici uccisi e le casse aperte prima non si ricordano più (formato 10).
+- **Il re**: durante lo scontro la porta si chiude e la scala in su dell'8, che sta nella stanza d'ingresso, non si raggiunge.
 
 ## Dalla M21 — "La via dell'arcano" (v1.9.0)
 

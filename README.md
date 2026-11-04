@@ -9,6 +9,19 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.10 — M22 "La strada del ritorno"**, chiusa il 4 novembre 2026 (tag `v1.10.0`). Rispetto alla v1.9:
+
+- la **scala in su**, in ogni livello della cripta e delle caverne: è lo sbocco del cunicolo, con le sue luci;
+  si clicca e il cavaliere risale al livello di sopra, che torna com'era (nemici uccisi, casse aperte, oggetti a
+  terra, mappa scoperta), e arriva davanti alla sua scala giù. Dalla profondità 1 si esce nel borgo, da una grotta
+  nuova a sud dell'arco, e da lì si riscende. L'automappa la mostra in azzurro;
+- le **stanze della cripta più grandi**: da 4 a 8 celle per lato (la mediana passa da 16 a 25 celle), con gli
+  stessi nemici e le stesse casse, più arredi e punti d'interesse;
+- il **salvataggio 10**: una partita in una cripta riprende nello stesso posto, ma in un livello nuovo, perché le
+  stanze sono cambiate; le mappe scoperte restano;
+- la **ronda notturna** prova anche la scala in su (c'è, si raggiunge, non chiude un passaggio, niente sopra), su
+  tutte le mappe e sui livelli costruiti con il NavMesh.
+
 **v1.9 — M21 "La via dell'arcano"**, chiusa il 4 novembre 2026 (tag `v1.9.0`). Rispetto alla v1.8:
 
 - la **creazione del personaggio**: *Nuova partita*, il posto, e una schermata con le classi (il

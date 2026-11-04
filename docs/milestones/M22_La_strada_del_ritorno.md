@@ -201,3 +201,32 @@ numeri e lo stesso errore: **non dipende dalle stanze**, c'è dalla M21. È un'a
   `BossPlayModeTests.StairsUp_IsOutOfReachWhileTheKingFights` (D9): la scala in su dell'8 c'è, sta nella stanza d'ingresso; dalla sala del re prima dello
   scontro il NavMesh la raggiunge, con la porta chiusa no, morto il re sì. Nessuna regola nuova: la porta fa già il lavoro; il portale resta rifiutato
   nella sala (`Portal_IsRefusedInTheBossRoom`, già c'era). PlayMode mirata (scale, re, automappa, ricordi, salvataggi, portale, albero): 28/28.
+
+---
+
+## Passo 22.5 — Misura e chiusura
+
+**Fatto il 4 novembre 2026.**
+
+- **La ronda con i controlli della scala in su (D14).** `MapChecks.UpExit` (a ogni profondità che ha un livello di sopra il posto c'è, sta su un pavimento
+  libero con la roccia dietro, il davanti si raggiunge a piedi e tolta la cella ogni pavimento, la scala giù compresa, resta raggiungibile) e `UpExitClear` (la
+  cella e il suo davanti non portano una cassa, un forziere, un tesoro o la scala giù) girano sulle mappe di cripta e caverne di ogni notte, e `UpExitChecksTests`
+  li fa girare a ogni push su 64 semi e tutte le otto profondità. La ronda PlayMode prova sul NavMesh che la scala in su si raggiunge dall'ingresso e da dove si
+  arriva risalendo, e che l'ingresso non sta nel suo trigger.
+- **Cosa ha trovato la ronda (seme 20261104, in locale).** Tre cose, nessuna delle quali i test di ogni push avevano visto:
+  1. **Nessun posto in 10 livelli su 40000.** Nella cripta (4) una stanza da quattro righe con i barili ai lati lascia tasche di pavimento che lo sbocco isolerebbe,
+     e nessun muro della stanza va bene; nelle caverne (6) il solo posto era oltre i 14 passi dall'ingresso. Ora `TunnelSpot` ripiega sulla ricerca delle caverne,
+     in tutto il livello, e nelle caverne senza limite di passi se il raggio non basta. I dieci livelli sono un test.
+  2. **Un forziere d'oro sulla scala in su in 10 livelli su 1600 (caverne).** I nemici speciali si piazzano dopo lo sbocco e non sapevano che la cella era presa:
+     `DungeonLayout.Reserve` fa rifiutare la cella e il suo davanti a `TryPlace`, senza cambiare i tiri del seme (la prima versione, che toglieva le celle dai
+     candidati, spostava la misura del cavaliere e il suo test fisso è caduto: la D15 vuole quei numeri fermi).
+  3. **Lo sbocco a una cella dall'ingresso.** Nella cripta la regola di prima poteva metterlo a 0,5 m dal bordo del trigger di dove si arriva. Ora prima un posto ad
+     almeno due celle, e il più vicino solo se la stanza non ne ha.
+- **La scala in su scatta solo con un click.** Il test dei passi è caduto due volte in CI (run su c380f17 e 15a6684) e mai in locale: il seme della partita è del
+  momento, e quando la strada dall'ingresso alla scala giù passava per il trigger della scala in su il cavaliere finiva nel borgo, camminando soltanto. Una scala in
+  su nella stanza d'ingresso sta dove si cammina: `LevelExit.ClickOnly` la fa scattare solo dopo un click, quando il cavaliere arriva davanti
+  (`Interactable.Used`); la scala giù, in fondo a un cammino, scatta ancora entrandoci. `LevelContext.Exits` ha comunque la scala in su sempre in fondo.
+- **Numeri.** EditMode 639 verdi. Ronda EditMode del seme 20261104: mappe della cripta e delle caverne su 20000 partite ciascuna, loot, unici e set, misura
+  delle difficoltà del cavaliere e del Mago, tutto verde; la mancanza del bruto a 3,799 del Crepuscolo alla 8 che la ronda locale del 5 nov (seme 20261105) aveva
+  segnato non c'è con questo seme: dipende dal seme, non dalle stanze (resta da guardare, a parte). Ronda PlayMode: 1600 livelli costruiti, 0 con errori, 9093 pezzi
+  raggiunti, 8596 barili rotti, 5893 portali; generazione, costruzione e NavMesh in media 34–35 ms nella cripta e 28–29 nelle caverne, il peggiore 52 ms (il limite è 150).
