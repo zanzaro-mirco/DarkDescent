@@ -29,3 +29,5 @@ MonoBehaviour:
   _startingWeapon: {fileID: 0}
   _startingOffhand: {fileID: 0}
   _icon: {fileID: 21300000, guid: bb6d2ec900bdec947b2074e2cc026d0e, type: 3}
+  _armorBonus: 0
+  _armorPerLevel: 0

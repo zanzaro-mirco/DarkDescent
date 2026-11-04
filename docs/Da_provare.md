@@ -4,8 +4,28 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 2 nov 2026, build della v1.8.0 da provare (l'artefatto della build del tag).
+Ultimo aggiornamento: 4 nov 2026, build della v1.9.0 da provare (l'artefatto della build del tag).
 Le prove della M18 e della M19 restano valide.
+
+## Dalla M21 — "La via dell'arcano" (v1.9.0)
+
+- **La creazione**: *Nuova partita*, un posto, la schermata. Il modello gira piano, le due schede cambiano
+  testo e numeri, il nome di partenza segue la classe finché non scrivi il tuo, *Indietro* torna ai posti.
+  Il campo del nome è un rettangolo nero semplice: va bene o lo vuoi nella pelle del gioco? Gli emblemi
+  sulle schede sono piccoli.
+- **Il Mago a mano**: il Dardo arcano al sinistro (da 9 m, senza mana), il destro con il Dardo di fuoco, `Q`
+  con l'Anello e `E` con il Passo di luce o lo Scudo di mana. I gesti, i suoni e gli effetti si leggono?
+  Il ghiaccio è verdastro, il Muro di fiamme è una fila di anelli, la bruciatura non mostra la fiamma
+  sul nemico.
+- **Il Mago che cresce**: `DarkDescent.exe -class mage -herolevel 20`, poi `-herolevel 50`. A fine gioco
+  il Mago deve essere forte ma non invincibile: la crescita degli incantesimi è ripida (Magia 200 fa cinque
+  volte e mezza i numeri di base) e l'Armatura di classe è 22 + 1,3 a livello. Se è troppo, si abbassa la
+  pendenza e si rivedono le fasce.
+- **Gli alberi**: la scelta tra *Fuoco* e *Gelo* al livello 10, i nodi a scelta (Scintilla o Fiammata, Pioggia di
+  scintille o Anello infuocato, Meteora doppia o Marea di fuoco, Gelo che resta o Nova doppia). La Nova
+  doppia è debole (la seconda ondata congela solo chi è arrivato nel frattempo).
+- **I posti**: «Nome · Classe · livello · luogo»; un salvataggio vecchio dice «Cavaliere · Guerriero».
+- **Il Mago nell'apertura e nella vittoria**: il modello e le didascalie con «l'eroe».
 
 ## Dalla M20 — "La via della spada" (v1.8.0)
 

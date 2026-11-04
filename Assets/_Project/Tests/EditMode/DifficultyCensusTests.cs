@@ -123,6 +123,56 @@ namespace DarkDescent.Tests
             Assert.AreEqual(3.90, _rows.Single(r => r.Tier == 0 && r.Depth == 8).BruteSwings, 0.01, "Crepuscolo, profondità 8");
         }
 
+        [Test, Description("Il Mago di riferimento (D11 della M21: Fuoco, e Gelo per il confronto, con il dardo arcano, bacchetta e tomo, l'Armatura di classe) sta nelle stesse fasce del cavaliere, con la tolleranza del 5% sul lato corto e quella del Mago sul gradino dell'Abisso II")]
+        public void Mage_StaysInTheBands()
+        {
+            foreach (string spec in new[] { "MageFire", "MageFrost" })
+            {
+                var rows = DifficultyCensus.ForMage(20, 8, spec).Measure(_table);
+                MapChecks.Pass("misura del Mago, " + spec, CensusChecks.EveryDepth(rows)
+                    ?? CensusChecks.EachDifficultyStartsHarder(rows, _table.Count, CensusChecks.MageStepTolerance)
+                    ?? CensusChecks.KingLastsALittleLonger(rows)
+                    ?? CensusChecks.ExperienceKeepsUp(rows, _table, _census.Settings));
+            }
+        }
+
+        [Test, Description("Il Mago porta bacchetta e tomo e non spada e scudo, anche con tanti oggetti tra cui scegliere; il cavaliere continua a prendere quello che i requisiti permettono")]
+        public void HeroSetup_EquipsTheMageWithCasterGear()
+        {
+            var catalog = AssetDatabase.LoadAssetAtPath<Classes.CharacterClassCatalog>(ClassTools.CatalogPath);
+            var mage = catalog.Find("mage");
+            var sheet = new Stats.StatSheet();
+            sheet.SetBase(Stats.StatType.Strength, mage.Strength);
+            sheet.SetBase(Stats.StatType.Dexterity, mage.Dexterity);
+            sheet.SetBase(Stats.StatType.Magic, mage.Magic + 100f);
+            sheet.SetBase(Stats.StatType.Vitality, mage.Vitality);
+            var equipment = new Items.Equipment(sheet);
+            var stock = AssetDatabase.LoadAssetAtPath<Items.MerchantTable>("Assets/_Project/Data/Loot/MerchantTable.asset").Stock;
+            var generator = new Items.ItemGenerator(AssetDatabase.LoadAssetAtPath<Items.AffixDatabase>("Assets/_Project/Data/AffixDatabase.asset").Affixes, Items.RarityTable.Default);
+            HeroSetup.Equip(equipment, stock, generator, 20, 7UL, Items.Rarity.Rare, mage);
+            Assert.IsTrue(equipment.Get(Items.EquipSlot.Weapon).Definition is Items.WeaponDefinition { IsCaster: true, TwoHanded: false }, "una bacchetta");
+            Assert.IsTrue(equipment.Get(Items.EquipSlot.Offhand).Definition is Items.ArmorDefinition { IsTome: true }, "un tomo");
+            Assert.IsTrue(mage.IsCaster);
+            Assert.IsFalse(catalog.Warrior.IsCaster);
+            Assert.IsTrue(catalog.Warrior.Allows(equipment.Get(Items.EquipSlot.Weapon).Definition), "il cavaliere non ha regole di classe");
+        }
+
+        [Test, Description("La crescita degli incantesimi vale 1 con la Magia di partenza del Mago, sale con la Magia sempre più in fretta, e sotto la partenza scende")]
+        public void SpellGrowth_StartsAtOne()
+        {
+            Assert.AreEqual(1f, Combat.CombatFormulas.SpellGrowth(Combat.CombatFormulas.SpellStartMagic), 1e-5f);
+            float previous = 0f;
+            for (float magic = 0f; magic <= 300f; magic += 10f)
+            {
+                float growth = Combat.CombatFormulas.SpellGrowth(magic);
+                Assert.Greater(growth, previous, $"Magia {magic}");
+                previous = growth;
+            }
+
+            Assert.Less(Combat.CombatFormulas.SpellGrowth(10f), 1f);
+            Assert.Greater(Combat.CombatFormulas.SpellGrowth(200f), 5f, "a fine gioco il Mago fa molte volte i numeri di base");
+        }
+
         [Test, Description("La rarità dell'equipaggiamento segue la difficoltà: normale al Crepuscolo, magica all'Ombra e alla Tenebra, rara dall'Abisso")]
         public void Gear_FollowsTheDifficulty()
         {

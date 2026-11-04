@@ -545,7 +545,8 @@ namespace DarkDescent.Core
         public void PrepareHero(int level)
         {
             HeroSetup.RaiseTo(_progress.Progress, level, _player.GetComponent<PlayerClass>().Current?.PointPattern);
-            int equipped = HeroSetup.Equip(_playerInventory.Equipment, _merchantTable.Stock, _loot.Generator, level, _loot.RunSeed);
+            int equipped = HeroSetup.Equip(_playerInventory.Equipment, _merchantTable.Stock, _loot.Generator, level, _loot.RunSeed,
+                heroClass: _player.GetComponent<PlayerClass>().Current);
             _player.Heal(_player.Max);
             Debug.Log($"[DarkDescent] cavaliere di livello {level} da riga di comando, {equipped} oggetti");
         }

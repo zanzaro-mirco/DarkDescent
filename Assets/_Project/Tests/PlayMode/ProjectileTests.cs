@@ -39,7 +39,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [UnityTest, Description("Il Dardo parte dopo il gesto, colpisce lo scheletro con 9–15 di danno (Magia 10), lo sveglia, esplode e torna al pool")]
+        [UnityTest, Description("Il Dardo parte dopo il gesto, colpisce lo scheletro con 6–10 di danno (Magia 10, crescita 0,69: D11 della M21), lo sveglia, esplode e torna al pool")]
         public IEnumerator Firebolt_HitsEnemyAndReturnsToPool()
         {
             yield return LoadSandbox();
@@ -59,7 +59,7 @@ namespace DarkDescent.Tests
 
             yield return WaitUntil(() => health.Current < health.Max, 2f);
             float damage = health.Max - health.Current;
-            Assert.That(damage, Is.InRange(9f, 15f), "6–12 + Magia 10 / 4");
+            Assert.That(damage, Is.InRange(6f, 10f), "(6–12 + Magia 10 / 4) per la crescita della Magia 10");
             Assert.AreNotEqual(EnemyState.Idle, skeleton.State, "colpito da lontano, si sveglia");
 
             yield return WaitUntil(() => pools.ActiveCount == 0, 2f);

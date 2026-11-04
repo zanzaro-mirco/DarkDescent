@@ -10,7 +10,8 @@ namespace DarkDescent.Progression
     {
         public CensusFighter(float life, int minDamage, int maxDamage, float strength, float level, float dexterity,
             float armor, float toHit, float critBonus, bool canCrit, float block, float damageFactor,
-            float attackSpeed = 0f, float damageReduction = 0f, float lifeSteal = 0f, float critDamage = 0f)
+            float attackSpeed = 0f, float damageReduction = 0f, float lifeSteal = 0f, float critDamage = 0f,
+            float magic = 0f, float boltDivisor = 0f)
         {
             Life = life;
             MinDamage = minDamage;
@@ -28,6 +29,8 @@ namespace DarkDescent.Progression
             DamageReduction = damageReduction;
             LifeSteal = lifeSteal;
             CritDamage = critDamage;
+            Magic = magic;
+            BoltDivisor = boltDivisor;
         }
 
         public float Life { get; }
@@ -69,5 +72,13 @@ namespace DarkDescent.Progression
 
         /// <summary>I punti in più del moltiplicatore del critico, in centesimi (Punto debole, M20).</summary>
         public float CritDamage { get; }
+
+        /// <summary>La Magia, che il dardo del Mago somma al tiro dell'arma (D3 della M21).</summary>
+        public float Magic { get; }
+
+        /// <summary>Più di zero: il colpo è il dardo del Mago, tiro più Magia / questo numero, senza tiro per colpire né critico. Zero: il colpo dell'arma.</summary>
+        public float BoltDivisor { get; }
+
+        public bool IsBolt => BoltDivisor > 0f;
     }
 }

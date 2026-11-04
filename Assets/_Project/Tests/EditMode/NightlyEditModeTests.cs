@@ -146,6 +146,31 @@ namespace DarkDescent.Tests
             }
         }
 
+        [Test, Timeout(TenMinutes), Description("La stessa misura con il Mago di riferimento (Fuoco, D11 della M21): le fasce del cavaliere, con la tolleranza del Mago sul gradino dell'Abisso II")]
+        public void DifficultyCensus_Mage_OnNewSeeds()
+        {
+            ulong night = NightlyRun.Seed();
+            var table = AssetDatabase.LoadAssetAtPath<DifficultyTable>(DifficultyCensus.DifficultiesPath);
+            var census = DifficultyCensus.ForMage(NightSeeds(night, DifficultyMapPart, DifficultyGames), NightSeeds(night, GearPart, GearSets));
+            var rows = census.Measure(table);
+            Assert.AreEqual(table.Count * 8, rows.Count);
+            string describe = CensusChecks.DescribeDifficulties(rows);
+            Debug.Log($"[DarkDescent] ronda notturna, misura delle difficoltà del Mago: {describe}");
+            var errors = new[]
+            {
+                CensusChecks.EveryDepth(rows),
+                CensusChecks.EachDifficultyStartsHarder(rows, table.Count, CensusChecks.MageStepTolerance),
+                CensusChecks.KingLastsALittleLonger(rows),
+                CensusChecks.ExperienceKeepsUp(rows, table, census.Settings),
+            }.Where(e => e != null).ToList();
+            NightlyReport.Append(NightlyReport.Part("Misura delle difficoltà, il Mago", $"{rows.Count} righe con il Mago di riferimento (Fuoco); di ogni misura il valore più basso e il più alto:", errors,
+                "- " + describe.Replace("; ", "\n- ")));
+            if (errors.Count > 0)
+            {
+                Assert.Fail($"misura delle difficoltà del Mago (per rifare la notte: {NightlyRun.SeedOption} {night}):\n" + string.Join("\n", errors));
+            }
+        }
+
         [Test, Timeout(TenMinutes), Description("La misura di unici e set su 400 partite nuove per profondità e 512 equipaggiamenti nuovi, con le fasce dei suoi test di ogni push")]
         public void NamedCensus_OnNewSeeds()
         {

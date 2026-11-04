@@ -70,7 +70,7 @@ namespace DarkDescent.Tests
 
             yield return Wait(0.6f);
             float damage = near.Max - near.Current;
-            Assert.That(damage, Is.InRange(10f, 17f), "danno dell'anello");
+            Assert.That(damage, Is.InRange(7f, 12f), "danno dell'anello: 7–14 + Magia 10 / 3,3, per la crescita 0,69 della Magia 10 (D11 della M21)");
             Assert.AreEqual(far.Max, far.Current, "a 6 m non arriva");
             var effect = Object.FindFirstObjectByType<AreaEffect>();
             Assert.IsNotNull(effect, "il cerchio di fiamme");

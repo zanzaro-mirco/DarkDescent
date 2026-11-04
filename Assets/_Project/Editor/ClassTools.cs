@@ -27,6 +27,8 @@ namespace DarkDescent.Editor
         private const string AttackPath = "Assets/_Project/Data/Spells/Attack.asset";
         private const string ArcanePath = "Assets/_Project/Data/Spells/ArcaneBolt.asset";
         private const string ItemsFolder = "Assets/_Project/Data/Items";
+        public const float MageArmor = 22f;
+        public const float MageArmorPerLevel = 1.3f;
         private const string IconsFolder = "Assets/_Project/Art/Icons/Classes";
 
         // come HeroSetup di sempre: due punti in Forza, due in Vitalità e uno in Destrezza
@@ -62,6 +64,8 @@ namespace DarkDescent.Editor
                 8f, 17f, 35f, 20f, MagePattern, 1.5f, arcane);
             // la bacchetta e il tomo: il Mago non comincia con la spada del cavaliere (21.6)
             mage.DefineKit(AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemsFolder + "/Wand.asset"), AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemsFolder + "/Tome.asset"));
+            // l'Armatura di classe del Mago: senza scudo, la misura delle difficoltà chiede questa per tenere il bruto sotto il 45% (21.8)
+            mage.DefineArmor(MageArmor, MageArmorPerLevel);
             EditorUtility.SetDirty(mage);
 
             // gli emblemi di Z-Image, se ci sono già (21.7)

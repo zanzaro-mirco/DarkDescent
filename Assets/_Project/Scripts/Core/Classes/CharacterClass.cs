@@ -59,6 +59,10 @@ namespace DarkDescent.Classes
         [Tooltip("L'emblema della classe nella creazione del personaggio.")]
         [SerializeField] private Sprite _icon;
 
+        [Tooltip("Armatura in più, sempre, e quella che ogni livello ne aggiunge: il Mago non porta lo scudo né l'armatura pesante, e senza questa il bruto lo colpirebbe più spesso di quanto le fasce della misura permettono (D11 della M21).")]
+        [SerializeField, Min(0f)] private float _armorBonus;
+        [SerializeField, Min(0f)] private float _armorPerLevel;
+
         public string Id => _id;
         public string NameKey => _nameKey;
         public string DescriptionKey => _nameKey + ".desc";
@@ -76,9 +80,35 @@ namespace DarkDescent.Classes
         public ItemDefinition StartingWeapon => _startingWeapon;
         public ItemDefinition StartingOffhand => _startingOffhand;
         public Sprite Icon => _icon;
+        public float ArmorBonus => _armorBonus;
+
+        /// <summary>L'Armatura di classe a un livello: quella di base più quella che ogni livello aggiunge.</summary>
+        public float ArmorAt(float level) => _armorBonus + _armorPerLevel * Math.Max(0f, level);
 
         /// <summary>Ha un albero: solo allora si può scegliere nella creazione del personaggio.</summary>
         public bool IsPlayable => _classTree != null;
+
+        /// <summary>Ha la bacchetta di partenza: combatte con i dardi e porta l'equipaggiamento da incantatore (il Mago).</summary>
+        public bool IsCaster => _startingWeapon is WeaponDefinition { IsCaster: true };
+
+        /// <summary>
+        /// L'oggetto che la classe sceglie per sé quando si equipaggia da sola (<c>-herolevel</c> e la misura delle difficoltà):
+        /// un incantatore prende solo armi da incantatore e il tomo, e non lo scudo; il Guerriero tutto quello che i requisiti permettono.
+        /// </summary>
+        public bool Allows(ItemDefinition item)
+        {
+            if (!IsCaster)
+            {
+                return true;
+            }
+
+            return item switch
+            {
+                WeaponDefinition weapon => weapon.IsCaster,
+                ArmorDefinition armor when armor.Slot == EquipSlot.Offhand => armor.IsTome,
+                _ => true,
+            };
+        }
 
         /// <summary>Il mana che torna ogni secondo, in parte del massimo.</summary>
         public float ManaRegenPerSecond => CombatFormulas.ManaRegenPerSecond * _manaRegenFactor;
@@ -111,6 +141,13 @@ namespace DarkDescent.Classes
             _pointPattern = (pointPattern ?? Enumerable.Empty<StatType>()).ToArray();
             _manaRegenFactor = manaRegenFactor;
             _attackSpell = attackSpell;
+        }
+
+        /// <summary>Lo strumento dell'editor: l'Armatura in più della classe.</summary>
+        public void DefineArmor(float armorBonus, float armorPerLevel)
+        {
+            _armorBonus = armorBonus;
+            _armorPerLevel = armorPerLevel;
         }
 
         /// <summary>Lo strumento dell'editor: l'emblema della classe.</summary>

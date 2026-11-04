@@ -355,6 +355,46 @@ nomina: i soggetti descrivono la scena e basta.
 
 ---
 
+## Passo 21.8 — Bilancio e chiusura (D11)
+
+Fatto il 4 novembre 2026.
+
+**La misura prende il Mago.** `DifficultyCensus.Hero` dice la classe di riferimento (null è il cavaliere di sempre, che non è
+cambiato di un centesimo: `WarriorReference_KeepsItsNumbers` regge) e `DifficultyCensus.ForMage` prende il Mago con il *Fuoco*, o
+il *Gelo* per il confronto: i suoi attributi e il suo schema dei punti, bacchetta e tomo al posto di spada e scudo
+(`HeroSetup.Equip` ora sceglie tra gli oggetti che la classe porta, `CharacterClass.Allows`, e vale anche per `-herolevel`), i soli
+passivi sempre accesi, il **dardo arcano** al posto del colpo dell'arma (`CensusFighter.BoltDivisor`: sempre a segno, né critico né
+Forza) e l'Armatura di classe. Le fasce sono quelle della M14 con la tolleranza del 5%. La ronda misura le due classi
+(`DifficultyCensus_Mage_OnNewSeeds`).
+
+**Cosa è uscito dalle fasce, e cosa si è ritarato** (le difficoltà no, come dice la D11). Con i numeri del 21.4 il Mago non
+reggeva: a fine gioco faceva un decimo del danno del cavaliere (57 a colpo contro 338: il cavaliere ha la Forza che moltiplica,
+fino a 313 con gli oggetti) e il bruto lo colpiva dal 62% al 91% delle volte, senza scudo.
+
+- **La crescita degli incantesimi.** `CombatFormulas.SpellGrowth`: il tiro più Magia / divisore si moltiplica per
+  (1 + (Magia/50)^1,8), diviso per lo stesso numero con la Magia di partenza del Mago (35): all'inizio non cambia niente, a Magia 200
+  gli incantesimi fanno cinque volte e mezzo. Vale per **tutti** gli incantesimi, non solo per il dardo, perché il Muro di fiamme o la
+  Meteora non finiscano sotto il colpo gratis. Sotto la Magia di partenza gli incantesimi fanno un po' meno (Magia 10: ×0,69), e
+  cinque test di prima hanno cambiato i loro numeri. Il divisore del dardo arcano passa da 6 a 11.
+- **L'Armatura di classe.** `CharacterClass.ArmorAt(livello)`: 22 più 1,3 a livello per il Mago, niente per il Guerriero; la tiene
+  `PlayerClass` come un modificatore (e la rifà quando il livello cambia). Porta il colpo del bruto sul Mago tra l'8% e il 42%, dentro
+  il 5–45%.
+- **Il gradino dell'Abisso II.** Al passaggio ai rari il cavaliere guadagna Forza da tutta l'armatura, il Mago Magia solo da gioielli
+  ed elmi: l'Abisso I è il gradino duro per lui, e l'Abisso II comincia più facile fino al 15%. Per il Mago `CensusChecks.MageStepTolerance`
+  è il **20%** invece del 5%; **da decidere con Mirco** (vedi sotto).
+
+I numeri alla fine: scheletro in 1,4–3,5 colpi (1–5), bruto in 4,4–10,6 (4–14), colpi del bruto retti 3,4–6,7 (≥ 3), del re 2,2–4,5
+(≥ 2), il bruto lo colpisce 8–42% (5–45%); con il *Gelo* e con quattro semi diversi della ronda lo stesso.
+
+**Chiusura.** ADR-134…138 in `DECISIONS.md`, le lezioni e la riga v2.73 nel piano, la v1.9 nel README, `bundleVersion` 1.9.0, le prove
+della M21 in `docs/Da_provare.md`. Tag `v1.9.0` solo dopo il sì di Mirco e i Tests verdi in CI.
+
+**Cose da guardare** (da dire a Mirco): la tolleranza del 20% sul gradino dell'Abisso II del Mago; la crescita ripida della Magia (il
+Mago a fine gioco è molto più forte a parità di Magia: il numero 50 e l'esponente 1,8 si ritarano in `CombatFormulas`); la Nova
+doppia debole (21.5); gli effetti del ghiaccio verdastri e il Muro di fiamme fatto di anelli (21.4); la bruciatura senza fiamma sul nemico.
+
+---
+
 ## Checklist di chiusura
 
 - [x] Disegno dell'albero del Mago approvato da Mirco (21.1)
@@ -364,7 +404,7 @@ nomina: i soggetti descrivono la scena e basta.
 - [x] Albero del Mago nel pannello; altare per entrambe le classi (21.5)
 - [ ] Creazione del personaggio con nome; i tre posti; foto approvate (21.6)
 - [ ] Icone approvate (21.7)
-- [ ] Misura delle difficoltà con il Mago dentro la tolleranza; ronda verde (21.8)
+- [x] Misura delle difficoltà con il Mago dentro la tolleranza; ronda verde (21.8) — la ronda col Mago gira dalla prossima notte
 - [ ] EditMode e PlayMode verdi in locale e in CI
-- [ ] ADR, lezioni nel piano, README, prove da fare, `bundleVersion` 1.9.0
+- [x] ADR, lezioni nel piano, README, prove da fare, `bundleVersion` 1.9.0
 - [ ] Tag `v1.9.0` dopo i Tests verdi, build verde, peso dell'artefatto

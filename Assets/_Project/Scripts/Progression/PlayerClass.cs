@@ -24,6 +24,7 @@ namespace DarkDescent.Progression
         [SerializeField] private CharacterClassCatalog _catalog;
 
         private CharacterClass _current;
+        private float _armorLevel = -1f;
 
         /// <summary>Cambiata la classe o il nome: chi li mostra li rilegge.</summary>
         public event Action Changed;
@@ -71,6 +72,8 @@ namespace DarkDescent.Progression
                 magic.SetAttackSpell(characterClass.AttackSpell);
             }
 
+            RefreshArmor();
+
             if (freshAttributes)
             {
                 var sheet = GetComponent<CharacterStats>().Sheet;
@@ -96,6 +99,28 @@ namespace DarkDescent.Progression
             }
 
             Changed?.Invoke();
+        }
+
+        // l'Armatura di classe (D11 della M21), con il livello di adesso: una classe porta via quella dell'altra
+        private void RefreshArmor()
+        {
+            var sheet = GetComponent<CharacterStats>().Sheet;
+            _armorLevel = sheet.Get(StatType.Level);
+            sheet.RemoveModifiersFrom(this);
+            float armor = Current != null ? Current.ArmorAt(_armorLevel) : 0f;
+            if (armor > 0f)
+            {
+                sheet.AddModifier(new StatModifier(StatType.Armor, ModifierKind.Flat, armor, this));
+            }
+        }
+
+        // sale con i livelli
+        private void Update()
+        {
+            if (_current != null && GetComponent<CharacterStats>().Sheet.Get(StatType.Level) != _armorLevel)
+            {
+                RefreshArmor();
+            }
         }
 
         // l'equipaggiamento di un personaggio nuovo: dopo gli attributi, perché l'arma chiede la sua Magia. Quello che c'era

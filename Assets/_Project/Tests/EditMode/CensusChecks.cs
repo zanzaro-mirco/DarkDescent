@@ -25,6 +25,13 @@ namespace DarkDescent.Tests
         /// Le fasce dei colpi per uccidere valgono con il cavaliere che ha speso l'albero di riferimento
         /// (D14 della M20), che colpisce un po' più forte: il lato corto scende della stessa tolleranza del 5%.
         /// </summary>
+        /// <summary>
+        /// Quanto l'Abisso II può cominciare più facile dell'Abisso I per il Mago (D11 della M21): il Mago prende la forza dagli oggetti più piano del
+        /// cavaliere (la sua Magia viene da gioielli ed elmi, la Forza del cavaliere da tutta l'armatura), e al passaggio ai rari l'Abisso I
+        /// è il gradino più duro. Per il cavaliere resta <see cref="StepTolerance"/>.
+        /// </summary>
+        public const double MageStepTolerance = 0.20;
+
         private const double SwingsFloor = 1.0 - StepTolerance;
 
         /// <summary>In media da 4 a 5 oggetti a livello, un po' di margine sopra; rari dal 10 al 25%, magici dal 25 al 35%.</summary>
@@ -70,7 +77,7 @@ namespace DarkDescent.Tests
         /// Dall'Ombra ogni discesa comincia dura (bruto in 9–14 colpi alla profondità 1), e non più
         /// facile della precedente, a meno di <see cref="StepTolerance"/>.
         /// </summary>
-        public static string EachDifficultyStartsHarder(IReadOnlyList<DifficultyCensus.Row> rows, int tiers)
+        public static string EachDifficultyStartsHarder(IReadOnlyList<DifficultyCensus.Row> rows, int tiers, double stepTolerance = StepTolerance)
         {
             double previous = 0.0;
             for (int t = 1; t < tiers; t++)
@@ -82,9 +89,9 @@ namespace DarkDescent.Tests
                     return $"{first.TierName}: {error}";
                 }
 
-                if (first.BruteSwings < previous * (1.0 - StepTolerance))
+                if (first.BruteSwings < previous * (1.0 - stepTolerance))
                 {
-                    return $"{first.TierName}: il bruto alla profondità 1 cade in {first.BruteSwings:F2} colpi, oltre il 5% meno dei {previous:F2} della difficoltà prima";
+                    return $"{first.TierName}: il bruto alla profondità 1 cade in {first.BruteSwings:F2} colpi, oltre il {stepTolerance:P0} meno dei {previous:F2} della difficoltà prima";
                 }
 
                 previous = first.BruteSwings;

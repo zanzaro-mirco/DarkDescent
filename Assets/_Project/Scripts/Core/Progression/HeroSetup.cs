@@ -85,10 +85,11 @@ namespace DarkDescent.Progression
         /// <summary>
         /// Per ogni slot, la base di valore più alto tra <paramref name="bases"/> che il cavaliere può
         /// portare, rara (o della rarità data, per la misura delle difficoltà) e del livello dato.
+        /// Con una classe (D2 della M21) sceglie solo tra gli oggetti che lei porta.
         /// Restituisce quanti oggetti ha messo.
         /// </summary>
         public static int Equip(Equipment equipment, IReadOnlyList<LootEntry> bases, ItemGenerator generator, int itemLevel, ulong runSeed,
-            Rarity rarity = Rarity.Rare)
+            Rarity rarity = Rarity.Rare, Classes.CharacterClass heroClass = null)
         {
             int equipped = 0;
             foreach (var slot in Slots)
@@ -99,6 +100,12 @@ namespace DarkDescent.Progression
                     var item = entry.Item;
                     // le armi a due mani no: la misura delle difficoltà è quella di una mano e scudo (D5 della M20)
                     if (item is WeaponDefinition { TwoHanded: true })
+                    {
+                        continue;
+                    }
+
+                    // una classe porta solo il suo: il Mago bacchetta e tomo, non spada e scudo (D12 della M21)
+                    if (heroClass != null && !heroClass.Allows(item))
                     {
                         continue;
                     }

@@ -84,6 +84,28 @@ namespace DarkDescent.Tests
             Assert.AreEqual(2, changes);
         }
 
+        [UnityTest, Description("L'Armatura di classe del Mago (D11 della M21): si somma a quella degli oggetti, cresce con i livelli, e passando al Guerriero sparisce")]
+        public IEnumerator Mage_ArmorGrowsWithTheLevel()
+        {
+            yield return LoadSandbox();
+            var sheet = Player.GetComponent<CharacterStats>().Sheet;
+            float before = sheet.Get(StatType.Armor);
+            Class.Apply(Mage, "Merlino", true);
+            float atStart = sheet.Get(StatType.Armor);
+            Assert.AreEqual(Mage.ArmorAt(sheet.Get(StatType.Level)), atStart - before, 0.01f, "l'Armatura di classe del livello di adesso");
+            Assert.Greater(atStart, before);
+
+            var progress = Player.GetComponent<PlayerProgress>().Progress;
+            progress.Restore(20, 0, 0);
+            yield return null;
+            yield return null;
+            Assert.AreEqual(Mage.ArmorAt(20f), sheet.Get(StatType.Armor) - before, 0.01f, "al livello 20 ne ha di più");
+            Assert.Greater(sheet.Get(StatType.Armor), atStart);
+
+            Class.Apply(Warrior, "", true);
+            Assert.AreEqual(before, sheet.Get(StatType.Armor), 0.01f, "il cavaliere non ha l'Armatura di classe");
+        }
+
         [UnityTest, Description("Una classe con i suoi alberi li mette nello stesso TalentBuild già collegato, e riparte da zero: il pannello e il salvataggio non perdono l'oggetto")]
         public IEnumerator ClassWithTrees_ReplacesTheBuildTreesInPlace()
         {

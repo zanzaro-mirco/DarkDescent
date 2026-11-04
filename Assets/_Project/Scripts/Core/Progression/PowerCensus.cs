@@ -18,7 +18,7 @@ namespace DarkDescent.Progression
         /// blocco e la Destrezza, la vita di Vitalità, livelli e affissi; dalla M16 il danno in più, la
         /// velocità d'attacco, il danno ridotto e il rubavita; dalla M20 anche il danno del critico.
         /// </summary>
-        public static CensusFighter Hero(StatSheet sheet, Equipment equipment)
+        public static CensusFighter Hero(StatSheet sheet, Equipment equipment, float boltDivisor = 0f)
         {
             if (sheet == null)
             {
@@ -32,6 +32,8 @@ namespace DarkDescent.Progression
 
             var weapon = equipment.Get(EquipSlot.Weapon);
             var (min, max) = weapon?.Definition is WeaponDefinition ? ItemStats.WeaponDamage(weapon) : (1, 2);
+            // il Mago con la bacchetta tira il dardo: la Magia al posto di Forza e livello, niente critico (D3 della M21)
+            bool bolt = boltDivisor > 0f && weapon?.Definition is WeaponDefinition { IsCaster: true };
             var shield = equipment.Get(EquipSlot.Offhand);
             float dexterity = sheet.Get(StatType.Dexterity);
             float block = shield?.Definition is ArmorDefinition { IsShield: true } ? CombatFormulas.BlockChance(ItemStats.ShieldBlock(shield), dexterity) : 0f;
@@ -39,8 +41,9 @@ namespace DarkDescent.Progression
                 CombatFormulas.WithBonus(CombatFormulas.MaxLife(sheet.Get(StatType.Vitality)) + sheet.Get(StatType.Life), sheet.Get(StatType.MaxLifePercent)),
                 min, max, sheet.Get(StatType.Strength), sheet.Get(StatType.Level), dexterity,
                 sheet.Get(StatType.Armor), sheet.Get(StatType.ToHit), sheet.Get(StatType.CritChance),
-                true, block, CombatFormulas.WithBonus(1f, sheet.Get(StatType.DamageBonus)),
-                sheet.Get(StatType.AttackSpeed), sheet.Get(StatType.DamageReduction), sheet.Get(StatType.LifeSteal), sheet.Get(StatType.CritDamage));
+                !bolt, block, CombatFormulas.WithBonus(1f, sheet.Get(StatType.DamageBonus) + (bolt ? sheet.Get(StatType.SpellDamage) : 0f)),
+                sheet.Get(StatType.AttackSpeed), sheet.Get(StatType.DamageReduction), sheet.Get(StatType.LifeSteal), sheet.Get(StatType.CritDamage),
+                bolt ? sheet.Get(StatType.Magic) : 0f, bolt ? boltDivisor : 0f);
         }
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace DarkDescent.Progression
             double sum = 0.0;
             for (int roll = min; roll <= max; roll++)
             {
-                sum += CombatFormulas.Damage(roll, attacker.Strength, attacker.Level);
+                sum += attacker.IsBolt ? CombatFormulas.SpellDamage(roll, attacker.Magic, attacker.BoltDivisor) : CombatFormulas.Damage(roll, attacker.Strength, attacker.Level);
             }
 
             double hit = sum / (max - min + 1) * attacker.DamageFactor;
@@ -85,7 +88,8 @@ namespace DarkDescent.Progression
         /// <summary>La probabilità che un colpo faccia danno: colpito e non bloccato, da 0 a 1.</summary>
         public static double LandChance(in CensusFighter attacker, in CensusFighter defender)
         {
-            double hit = CombatFormulas.HitChance(attacker.Dexterity, defender.Armor, attacker.ToHit) / 100.0;
+            // un dardo non manca: solo il blocco, se ce n'è, lo ferma
+            double hit = attacker.IsBolt ? 1.0 : CombatFormulas.HitChance(attacker.Dexterity, defender.Armor, attacker.ToHit) / 100.0;
             return hit * (1.0 - defender.Block / 100.0);
         }
 

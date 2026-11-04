@@ -195,13 +195,31 @@ namespace DarkDescent.Combat
         }
 
         /// <summary>
-        /// Il danno di un incantesimo (D3 della M9): il tiro più Magia / divisore, intero e almeno 1.
-        /// Niente Forza né livello: è la Magia a far crescere gli incantesimi.
+        /// Il danno di un incantesimo (D3 della M9, D11 della M21): il tiro più Magia / divisore, per <see cref="SpellGrowth"/>: la Magia
+        /// fa crescere gli incantesimi più della semplice somma, come la Forza fa con le armi (<see cref="Damage"/>). Intero e almeno 1.
         /// </summary>
         public static int SpellDamage(int roll, float magic, float magicDivisor)
         {
             // a metà per eccesso: 8,5 fa 9, non 8 come l'arrotondamento al pari
-            return Math.Max(1, (int)Math.Round(roll + magic / magicDivisor, MidpointRounding.AwayFromZero));
+            return Math.Max(1, (int)Math.Round((roll + magic / magicDivisor) * SpellGrowth(magic), MidpointRounding.AwayFromZero));
         }
+
+        /// <summary>
+        /// Quanto la Magia moltiplica gli incantesimi: 1 con la Magia di partenza del Mago (<see cref="SpellStartMagic"/>), poi cresce con
+        /// la potenza 1,8 della Magia (<see cref="SpellGrowthScale"/>, <see cref="SpellGrowthExponent"/>). Il Mago non ha scudo né critico: la
+        /// sua crescita viene tutta di qui, ed è tarata sulla misura delle difficoltà (passo 21.8).
+        /// </summary>
+        public static float SpellGrowth(float magic)
+        {
+            return (1f + (float)Math.Pow(Math.Max(0f, magic) / SpellGrowthScale, SpellGrowthExponent))
+                / (1f + (float)Math.Pow(SpellStartMagic / SpellGrowthScale, SpellGrowthExponent));
+        }
+
+        public const float SpellGrowthScale = 50f;
+
+        public const float SpellGrowthExponent = 1.8f;
+
+        /// <summary>La Magia con cui comincia il Mago: con lei gli incantesimi fanno i loro numeri di base.</summary>
+        public const float SpellStartMagic = 35f;
     }
 }

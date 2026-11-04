@@ -954,3 +954,38 @@ Formato:
 - **Decisione:** 44 icone Z-Image-Turbo da 256 × 256, nello stile di Diablo III: undici abilità attive e trentatré tipi di passivo, con le ricette in `Tools/ComfyUI/images/talents.py` (tre semi provati per icona, quello scelto resta nella ricetta). Le assegna `TalentIconTools.Apply`, che `TalentTools.BuildWarrior` richiama alla fine, così un albero rifatto non le perde; nel nodo del pannello l'icona sta dentro la placca, che la ritaglia con una `Mask`. I nodi a scelta hanno il nome finché non si sceglie un'opzione.
 - **Alternative scartate:** un pacchetto CC0, con uno stile suo e un download; i render dei modelli 3D, che somigliano meno alle icone dipinte; un'icona per ogni nodo.
 - **Conseguenze:** un talento nuovo di un tipo che c'è già non vuole un'immagine, uno di un tipo nuovo sì (una riga in `talents.py` e in `TalentIconTools.Passives`). `TalentIconTests` dice che la tabella copre ogni talento e che nella cartella ci sono tutte e solo le icone usate. Il prompt resta l'unica cosa da tenere d'occhio: i modelli ogni tanto disegnano lettere, e una di tre prove si è scartata per questo.
+
+## ADR-134 — La classe è un dato, con un prefab solo
+- **Data:** 2026-11-02 (passo 21.2, D2)
+- **Contesto:** il Mago (e domani il Ranger e il Ladro) non vuole un secondo giocatore da tenere uguale al primo a ogni modifica.
+- **Decisione:** `CharacterClass` è un asset (id, nome, corpo, albero della classe e specializzazioni, attributi, schema dei punti, fattore del mana, abilità del sinistro, e dal 21.6 il kit di partenza, l'emblema e dal 21.8 l'Armatura di classe). Il prefab `Player` ha tutti i corpi spenti tranne uno, i pezzi del Mago legati alle ossa del cavaliere (`PlayerBody`); `PlayerClass.Apply` mette alla partita quello della classe. `PlayerTalents`, `HeroSetup`, il salvataggio 9 e la misura leggono la classe, non il Guerriero.
+- **Alternative scartate:** un prefab per classe; una sottoclasse di `PlayerController` per ognuna.
+- **Conseguenze:** una classe nuova è una riga di dati, i suoi alberi, e un corpo da aggiungere. Chi cambia il prefab cambia tutte le classi.
+
+## ADR-135 — Il Mago combatte con il dardo arcano, e il gelo dei nemici ha i suoi timer
+- **Data:** 2026-11-03 (passi 21.4 e 21.5, D3 e D6)
+- **Contesto:** il sinistro non costa mana e non ricarica (ADR-129): per il Mago è un incantesimo, non un colpo di spada.
+- **Decisione:** `MeleeAttack.SetBolt` fa partire il colpo del sinistro da 9 m, con il gesto del lancio e il ritmo dell'arma, per il tiro dell'arma più Magia / divisore, senza tiro per colpire né critico. Il congelamento dei nemici (`EnemyAI.Freeze`) usa un `StunTimer` suo, con la tregua dello stordimento, e il rallentamento (`SlowTimer`, logica pura) toglie una parte della velocità dell'agent. Gli effetti dell'albero (bruciatura, eco, fuoco a terra, lancio gratis) sono parametri e inneschi dell'albero (`AbilityParam.Burn/Echo/Ground`, `TalentTrigger.BoltHit/Freeze`), non codice per classe.
+- **Alternative scartate:** il bastone in mischia; il sinistro che costa mana; un congelamento che riusa lo stordimento (un nemico stordito non si poteva più congelare).
+- **Conseguenze:** la Nova doppia congela solo chi è arrivato nel frattempo (la tregua): è debole, da rivedere. Un nemico fuori dal suo posto torna a casa e si cura del tutto: i test contano i colpi, non la vita.
+
+## ADR-136 — La creazione del personaggio: un palco di copie, e un nome ripulito
+- **Data:** 2026-11-04 (passo 21.6, D8)
+- **Contesto:** *Nuova partita* deve fare scegliere classe e nome, con il modello che gira, senza un secondo modello da tenere in giro.
+- **Decisione:** dopo il posto si apre `CharacterCreationPanel`; `Comincia` dà `Created(posto, classe, nome)` e il `CompositionRoot` applica la classe prima di `-herolevel` e dell'apertura. Il modello è una copia per classe del giocatore (`FilmActor.Clone`, quella dei filmati) su un palco a −600 m con camera e luci sue, scritta su una texture; la camera gira solo a schermata aperta e il palco si smonta alla partita. `HeroName.Clean` taglia a 16 lettere, toglie `<` e `>` (il nome finisce nei posti, che sono testo ricco) e ripiega sul nome di partenza. Nel salvataggio e nei posti un file di prima è «Cavaliere · Guerriero». Tutti i test che cominciano una partita passano da `MenuSteps.StartNew`.
+- **Alternative scartate:** un modello vero e proprio per la schermata; una scena a parte; il nome senza pulizia.
+- **Conseguenze:** il palco copia il corpo che il giocatore ha adesso, quindi si costruisce una volta e prima di cominciare. Il kit di partenza della classe si equipaggia prima del pieno di vita e mana, perché il tomo dà mana in più (la CI se n'è accorta, il PC no).
+
+## ADR-137 — Le icone del Mago riusano i tipi del Guerriero
+- **Data:** 2026-11-04 (passo 21.7, D13)
+- **Contesto:** ADR-133 vale anche per il Mago: i passivi di un tipo si somigliano.
+- **Decisione:** ventotto icone Z-Image-Turbo (dodici abilità, quattordici tipi di passivo nuovi, due emblemi di classe) con le ricette in `mage_talents.py` e `classes.py`; gli altri tipi sono quelli del Guerriero. Le assegna `TalentIconTools` (tabelle `MageSkills` e `MagePassives`), che `MageTalentTools` richiama alla fine; l'emblema lo dà `ClassTools`. Un'icona che nomina «icon» nella ricetta viene disegnata come un'icona di interfaccia: i soggetti descrivono la scena e basta.
+- **Alternative scartate:** un'icona per nodo; riusare le icone del Guerriero anche per le abilità.
+- **Conseguenze:** come per il Guerriero, un talento di un tipo nuovo vuole una riga nella ricetta e nella tabella.
+
+## ADR-138 — Il Mago nella misura: si ritarano la Magia e l'Armatura della classe, e il gradino ha la sua tolleranza
+- **Data:** 2026-11-04 (passo 21.8, D11)
+- **Contesto:** la D11 vuole il Mago nelle stesse fasce della M14, ritarando i numeri della classe. Con i numeri del 21.4 faceva un decimo del danno del cavaliere a fine gioco e subiva fino al 91% dei colpi del bruto.
+- **Decisione:** `DifficultyCensus.Hero` mette la classe nella misura (`ForMage`, bacchetta e tomo, dardo arcano, passivi sempre accesi). `CombatFormulas.SpellGrowth` fa crescere tutti gli incantesimi con la Magia, normalizzata a 1 con la Magia di partenza del Mago; `CharacterClass.ArmorAt` dà 22 + 1,3 a livello di Armatura al Mago; il divisore del dardo arcano è 11. Il gradino dell'Abisso II ha per il Mago il 20% di tolleranza (`CensusChecks.MageStepTolerance`).
+- **Alternative scartate:** ritarare le difficoltà (rifare la M14); lasciare il Mago fuori dalla misura; far crescere solo il dardo (il Muro di fiamme sarebbe finito sotto il colpo gratis); aprire gli affissi della Magia a tutta l'armatura (cambia i tiri del cavaliere, che il D14 vuole fermi).
+- **Conseguenze:** il cavaliere non cambia (`WarriorReference_KeepsItsNumbers`). Un numero della Magia ritarato si vede nelle fasce, e la ronda misura il Mago con i semi della notte. La crescita ripida rende la Magia molto preziosa a fine gioco: se Mirco la vuole più piatta, si abbassa l'esponente e il Mago cade sotto le fasce, che a quel punto si decidono.

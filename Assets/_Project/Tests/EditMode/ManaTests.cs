@@ -86,19 +86,19 @@ namespace DarkDescent.Tests
             Assert.AreEqual(SpellKind.Projectile, firebolt.Kind);
             Assert.AreEqual(6f, firebolt.ManaCost);
             Assert.AreEqual(2f, firebolt.Cooldown, "non a raffica; dal Mago (M21) è il Dardo di fuoco dell'albero, ogni 2 s");
-            Assert.AreEqual((9, 15), firebolt.DamageRange(10f), "6–12 + 10 / 4, arrotondato");
+            Assert.AreEqual((6, 10), firebolt.DamageRange(10f), "6–12 + 10 / 4, per la crescita della Magia 10, 0,69: sotto la Magia di partenza del Mago gli incantesimi fanno meno (D11 della M21)");
             Assert.AreEqual(SpellKind.Area, ring.Kind);
             Assert.AreEqual(12f, ring.ManaCost);
             Assert.AreEqual(8f, ring.Cooldown);
             Assert.AreEqual(3f, ring.Radius);
-            Assert.AreEqual((10, 17), ring.DamageRange(10f), "7–14 + 10 / 3,3: il 120% del Dardo di fuoco (M21)");
+            Assert.AreEqual((7, 12), ring.DamageRange(10f), "7–14 + 10 / 3,3 per la crescita 0,69: il 120% del Dardo di fuoco (M21)");
             Assert.AreEqual(SpellKind.Buff, skin.Kind);
             Assert.AreEqual(50, skin.ArmorPercent);
             Assert.AreEqual(20f, skin.Duration);
             Assert.AreEqual(30f, skin.Cooldown);
 
-            Assert.AreEqual(6 + 3, firebolt.RollDamage(12f, new FixedRandomSource(0.0)), "il tiro più basso con la Magia 12");
-            Assert.AreEqual(12 + 3, firebolt.RollDamage(12f, new FixedRandomSource(0.9999)), "il più alto");
+            Assert.AreEqual(6f, firebolt.RollDamage(12f, new FixedRandomSource(0.0)), "il tiro più basso con la Magia 12: (6 + 3) per la crescita 0,70");
+            Assert.AreEqual(11f, firebolt.RollDamage(12f, new FixedRandomSource(0.9999)), "il più alto: (12 + 3) per 0,70");
             Assert.AreNotEqual(firebolt.Id, ring.Id);
             Assert.IsFalse(string.IsNullOrEmpty(firebolt.Id));
         }

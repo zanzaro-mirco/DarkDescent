@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using DarkDescent.Classes;
 using DarkDescent.Combat;
 using DarkDescent.Enemies;
 using DarkDescent.Items;
@@ -101,6 +102,25 @@ namespace DarkDescent.Editor
         /// </summary>
         public TalentTree Reference { get; set; } = LoadTree("WarriorArms");
 
+        /// <summary>
+        /// La classe di riferimento (D11 della M21): null è il cavaliere di sempre, con gli attributi del prefab, il suo schema dei punti e
+        /// la spada e lo scudo, come alla M20; il Mago ha i suoi attributi, il suo schema, la bacchetta e il tomo, il dardo arcano al posto del
+        /// colpo dell'arma e i suoi alberi (<see cref="Reference"/> è allora <c>MageFire</c> o <c>MageFrost</c>).
+        /// </summary>
+        public CharacterClass Hero { get; set; }
+
+        /// <summary>Il Mago di riferimento, dai dati, con il <c>Fuoco</c> (o il <c>Gelo</c>, per il confronto) come albero speso.</summary>
+        public static DifficultyCensus ForMage(int mapSeeds, int gearSeeds, string specialization = "MageFire")
+        {
+            return ForMage(LootCensus.FixedSeeds(Math.Max(1, mapSeeds)), GearSeeds(Math.Max(1, gearSeeds)), specialization);
+        }
+
+        public static DifficultyCensus ForMage(IReadOnlyList<ulong> mapSeeds, IReadOnlyList<ulong> gearSeeds, string specialization = "MageFire")
+        {
+            var catalog = Load<CharacterClassCatalog>(ClassTools.CatalogPath);
+            return new DifficultyCensus(mapSeeds, gearSeeds) { Hero = catalog.Find("mage"), Reference = LoadTree(specialization) };
+        }
+
         /// <summary>Un albero del Guerriero dai dati (<c>Warrior</c>, <c>WarriorArms</c>, <c>WarriorDefense</c>).</summary>
         public static TalentTree LoadTree(string name) => Load<TalentTree>($"{TalentsFolder}/{name}.asset");
 
@@ -124,6 +144,9 @@ namespace DarkDescent.Editor
             public double HeroArmor { get; set; }
 
             public double HeroDexterity { get; set; }
+
+            /// <summary>Il danno medio di un colpo arrivato, con critico e moltiplicatori (D11 della M21: per confrontare le classi).</summary>
+            public double HeroHit { get; set; }
 
             public double HeroToHit { get; set; }
 
@@ -222,13 +245,14 @@ namespace DarkDescent.Editor
             {
                 var sheet = HeroSheet(heroLevel, true);
                 var equipment = new Equipment(sheet);
-                HeroSetup.Equip(equipment, _stock, _generator, row.ItemLevel, gearSeed, row.Gear);
-                var hero = PowerCensus.Hero(sheet, equipment);
+                HeroSetup.Equip(equipment, _stock, _generator, row.ItemLevel, gearSeed, row.Gear, Hero);
+                var hero = PowerCensus.Hero(sheet, equipment, BoltDivisor);
 
                 row.HeroLife += hero.Life / n;
                 row.HeroArmor += hero.Armor / n;
                 row.HeroDexterity += hero.Dexterity / n;
                 row.HeroToHit += hero.ToHit / n;
+                row.HeroHit += PowerCensus.AverageHit(hero) / n;
                 row.HeroBlock += hero.Block / n;
                 row.HeroLandsOnBrute += PowerCensus.LandChance(hero, brute) / n;
                 row.BruteLandsOnHero += PowerCensus.LandChance(brute, hero) / n;
@@ -319,18 +343,26 @@ namespace DarkDescent.Editor
         private StatSheet HeroSheet(int heroLevel, bool talents = false)
         {
             var sheet = new StatSheet();
-            sheet.SetBase(StatType.Strength, _player.Strength);
-            sheet.SetBase(StatType.Dexterity, _player.Dexterity);
-            sheet.SetBase(StatType.Magic, _player.Magic);
-            sheet.SetBase(StatType.Vitality, _player.Vitality);
-            HeroSetup.RaiseTo(new CharacterProgress(_settings, sheet), heroLevel);
+            sheet.SetBase(StatType.Strength, Hero != null ? Hero.Strength : _player.Strength);
+            sheet.SetBase(StatType.Dexterity, Hero != null ? Hero.Dexterity : _player.Dexterity);
+            sheet.SetBase(StatType.Magic, Hero != null ? Hero.Magic : _player.Magic);
+            sheet.SetBase(StatType.Vitality, Hero != null ? Hero.Vitality : _player.Vitality);
+            HeroSetup.RaiseTo(new CharacterProgress(_settings, sheet), heroLevel, Hero?.PointPattern);
+            if (Hero != null && Hero.ArmorAt(heroLevel) > 0f)
+            {
+                sheet.AddModifier(new StatModifier(StatType.Armor, ModifierKind.Flat, Hero.ArmorAt(heroLevel), this));
+            }
+
             if (talents && Reference != null)
             {
-                // il cavaliere della misura porta lo scudo: valgono i passivi sempre e quelli con lo scudo
-                var build = new TalentBuild(LoadTree("Warrior"), new[] { LoadTree("WarriorDefense"), LoadTree("WarriorArms") }, heroLevel);
+                // il cavaliere della misura porta lo scudo: valgono i passivi sempre e quelli con lo scudo; il Mago i soli sempre accesi
+                var build = Hero != null && Hero.IsCaster
+                    ? new TalentBuild(Hero.ClassTree, Hero.Specializations, heroLevel)
+                    : new TalentBuild(LoadTree("Warrior"), new[] { LoadTree("WarriorDefense"), LoadTree("WarriorArms") }, heroLevel);
                 HeroSetup.SpendTalents(build, Reference);
                 var modifiers = new List<StatModifier>();
-                build.CollectModifiers(modifiers, this, c => c == TalentCondition.None || c == TalentCondition.Shield);
+                bool shield = Hero == null || !Hero.IsCaster;
+                build.CollectModifiers(modifiers, this, c => c == TalentCondition.None || (shield && c == TalentCondition.Shield));
                 foreach (var modifier in modifiers)
                 {
                     sheet.AddModifier(modifier);
@@ -339,6 +371,9 @@ namespace DarkDescent.Editor
 
             return sheet;
         }
+
+        // il dardo del Mago: la Magia che si somma al tiro dell'arma, dal suo asset; zero per chi combatte con l'arma
+        private float BoltDivisor => Hero != null && Hero.IsCaster && Hero.AttackSpell != null ? Hero.AttackSpell.MagicDivisor : 0f;
 
         /// <summary>L'esperienza attesa di un livello a quella profondità, per un cavaliere di quel livello.</summary>
         public double ExperienceAt(DifficultyTier tier, int depth, int heroLevel)

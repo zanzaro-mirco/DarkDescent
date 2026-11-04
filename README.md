@@ -9,6 +9,23 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.9 — M21 "La via dell'arcano"**, chiusa il 4 novembre 2026 (tag `v1.9.0`). Rispetto alla v1.8:
+
+- la **creazione del personaggio**: *Nuova partita*, il posto, e una schermata con le classi (il
+  Guerriero e il Mago, con il loro emblema), il modello che gira, i numeri di partenza e il nome, fino a
+  16 lettere. Nome e classe vanno nel salvataggio e nei tre posti del menu; i salvataggi di prima si aprono
+  come «Cavaliere»;
+- il **Mago**: bacchetta e tomo (o il bastone a due mani), il **dardo arcano** al tasto sinistro, gratis e
+  da lontano, e dodici abilità (Dardo e Anello di fuoco, Passo di luce, Scudo di mana, Palla di fuoco, Muro
+  di fiamme, Meteora, Dardo di ghiaccio, Nova di gelo, Armatura di ghiaccio, Tempesta di neve). I nemici
+  si rallentano e si congelano; il mana torna più in fretta;
+- l'**albero del Mago**, sullo stesso pannello `N`: la classe e, dal livello 10, *Fuoco* o *Gelo*, con
+  nodi a scelta e effetti nuovi (bruciatura, eco, fuoco che resta, lancio gratis). Ventotto icone nuove;
+- l'apertura e la vittoria dicono «l'eroe» e mostrano la classe scelta;
+- la **misura delle difficoltà** prende anche il Mago, e la ronda notturna la rifà ogni notte. Per
+  tenerlo nelle stesse fasce del cavaliere la Magia fa crescere gli incantesimi sempre più in fretta e il
+  Mago ha un'Armatura di classe.
+
 **v1.8 — M20 "La via della spada"**, chiusa il 2 novembre 2026 (tag `v1.8.0`). Rispetto alla v1.7:
 
 - l'**albero delle abilità** del Guerriero, sul tasto `N`: la classe e, dal livello 10, la

@@ -29,7 +29,7 @@ namespace DarkDescent.Editor
         // nome dell'asset, chiave, tipo, mana, ricarica, effetto, icona provvisoria (le definitive sono del 21.7)
         private static readonly Row[] Rows =
         {
-            new Row("ArcaneBolt", "spell.arcane_bolt", SpellKind.ArcaneBolt, 0f, 0f, "ArcaneBolt", "Firebolt") { Divisor = 6f, Speed = 16f, Range = 9f, Delay = 0.25f, Type = DamageType.Magic },
+            new Row("ArcaneBolt", "spell.arcane_bolt", SpellKind.ArcaneBolt, 0f, 0f, "ArcaneBolt", "Firebolt") { Divisor = 11f, Speed = 16f, Range = 9f, Delay = 0.25f, Type = DamageType.Magic },
             new Row("Firebolt", "spell.firebolt", SpellKind.Projectile, 6f, 2f, null, null) { Min = 6, Max = 12, Divisor = 4f, Speed = 14f, Range = 14f },
             new Row("FireRing", "spell.fire_ring", SpellKind.Area, 12f, 8f, null, null) { Min = 7, Max = 14, Divisor = 3.3f, Radius = 3f },
             new Row("Blink", "spell.blink", SpellKind.Teleport, 8f, 12f, "Blink", "FireRing") { Range = 8f },
