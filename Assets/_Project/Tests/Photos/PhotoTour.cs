@@ -121,8 +121,7 @@ namespace DarkDescent.Tests
             yield return Frames(2);
 
             // l'accampamento, con un cavaliere del livello 20 e un raro per slot
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             // il seme del mondo e quello del loot: lo stesso equipaggiamento a ogni giro (il banco del
             // mercante viene dalla partita nuova e può cambiare)
@@ -298,8 +297,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
 
@@ -335,8 +333,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
 
@@ -384,8 +381,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
             yield return Descend("Level_Crypt", 1);
@@ -421,8 +417,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
             yield return Descend("Level_Crypt", 1);
@@ -454,8 +449,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
             yield return Descend("Level_Crypt", 1);
@@ -503,8 +497,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
             yield return Descend("Level_Crypt", 1);
@@ -604,8 +597,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
 
@@ -633,8 +625,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
 
@@ -688,8 +679,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(HeroLevel);
             HideHeroAndHud();
@@ -761,8 +751,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             var films = Root.Films;
             for (float t = 0f; !films.IsPlaying; t += Time.unscaledDeltaTime)
@@ -817,8 +806,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             var films = Root.Films;
             for (float t = 0f; !films.IsPlaying; t += Time.unscaledDeltaTime)
@@ -960,8 +948,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             yield return Frames(3);
             Root.Films.Press();
@@ -1215,8 +1202,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(1);
             yield return Settle();
@@ -1330,6 +1316,69 @@ namespace DarkDescent.Tests
             altar.Close();
         }
 
+        [UnityTest, Timeout(300000), Description("La creazione del personaggio (21.6): il Guerriero e il Mago con il loro testo e il nome, l'apertura con il Mago, e i posti con nome e classe")]
+        public IEnumerator Creation()
+        {
+            ForgetPreferences();
+            PlayerPrefs.SetString(CompositionRoot.LanguagePreference, "it");
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            Environment.SetEnvironmentVariable(CompositionRoot.FilmsVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            PlayModeWindow.SetCustomRenderingResolution(1920u, 1080u, "Photos");
+            menu.NewGameButton.onClick.Invoke();
+            menu.SlotView(1).Button.onClick.Invoke();
+            yield return new WaitForSecondsRealtime(1.5f);
+            yield return Snap("creation_1_warrior", world: false);
+            menu.Creation.Card("mage").onClick.Invoke();
+            yield return new WaitForSecondsRealtime(3f);
+            yield return Snap("creation_2_mage", world: false);
+            menu.Creation.NameField.text = "Merlino";
+            yield return Frames(3);
+            yield return Snap("creation_3_name", world: false);
+
+            menu.Creation.StartButton.onClick.Invoke();
+            yield return WaitForLevel();
+            var films = Root.Films;
+            for (float t = 0f; !films.IsPlaying; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 10f, "l'apertura non parte");
+                yield return null;
+            }
+
+            var director = Root.CurrentFilm.Director;
+            Time.timeScale = 0f;
+            foreach (var (name, time) in OpeningShots.Where(s => s.Name == "opening_1_out" || s.Name == "opening_4_arrival" || s.Name == "opening_4_altar"))
+            {
+                director.time = time;
+                director.Evaluate();
+                yield return new WaitForSecondsRealtime(1.6f);
+                yield return Snap("creation_4_" + name, world: false);
+            }
+
+            Time.timeScale = 1f;
+            films.Press();
+            films.Press();
+            yield return Frames(3);
+
+            // il Mago è nel posto 1; Carica li mostra con nome e classe
+            for (float t = 0f; !File.Exists(Path.Combine(_saves, "save_1.json")); t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 10f, "il posto 1 non si scrive");
+                yield return null;
+            }
+
+            yield return Frames(5);
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            menu = Find<MainMenu>();
+            menu.LoadButton.onClick.Invoke();
+            yield return Frames(3);
+            yield return Snap("creation_5_slots", world: false);
+            ForgetPreferences();
+        }
+
         [UnityTest, Timeout(600000), Description("L'albero del Mago (21.5): la scelta tra Fuoco e Gelo al 12, la classe e il Fuoco al 50 con un nodo a scelta aperto e un tooltip, e il Gelo")]
         public IEnumerator MageTalents()
         {
@@ -1338,8 +1387,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return Frames(10);
             var menu = Find<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
             Root.PrepareHero(1);
             yield return Settle();

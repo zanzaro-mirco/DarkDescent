@@ -2,6 +2,7 @@ using System;
 using DarkDescent.Characters;
 using DarkDescent.Classes;
 using DarkDescent.Combat;
+using DarkDescent.Items;
 using DarkDescent.Magic;
 using DarkDescent.Stats;
 using UnityEngine;
@@ -89,9 +90,31 @@ namespace DarkDescent.Progression
                 {
                     magic.Mana.Fill();
                 }
+
+                EquipKit(characterClass);
             }
 
             Changed?.Invoke();
+        }
+
+        // l'equipaggiamento di un personaggio nuovo: dopo gli attributi, perché l'arma chiede la sua Magia. Quello che c'era
+        // (la spada del prefab, che può già essere in mano o no) si lascia andare: il Mago non la porta
+        private void EquipKit(CharacterClass characterClass)
+        {
+            var inventory = GetComponent<PlayerInventory>();
+            if (inventory == null || characterClass.StartingWeapon == null)
+            {
+                return;
+            }
+
+            var equipment = inventory.Equipment;
+            equipment.Unequip(EquipSlot.Weapon);
+            equipment.Unequip(EquipSlot.Offhand);
+            equipment.TryEquip(new ItemInstance(characterClass.StartingWeapon), out _);
+            if (characterClass.StartingOffhand != null)
+            {
+                equipment.TryEquip(new ItemInstance(characterClass.StartingOffhand), out _);
+            }
         }
     }
 }

@@ -88,6 +88,16 @@ namespace DarkDescent.Localization
         public const string MenuFilms = "menu.films";
         public const string SlotEmpty = "slot.empty";
         public const string SlotSummary = "slot.summary";
+        public const string SlotHero = "slot.hero";
+        public const string HeroLegacy = "hero.legacy";
+
+        // la creazione del personaggio (D8 della M21); le classi hanno le loro chiavi, da CharacterClass
+        public const string CreateTitle = "create.title";
+        public const string CreateName = "create.name";
+        public const string CreateNameHint = "create.name_hint";
+        public const string CreateStart = "create.start";
+        public const string CreateAttributes = "create.attributes";
+
         public const string ConfirmOverwrite = "confirm.overwrite";
         public const string ConfirmDelete = "confirm.delete";
         public const string OptionsLanguage = "options.language";

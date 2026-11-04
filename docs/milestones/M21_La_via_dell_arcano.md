@@ -280,6 +280,51 @@ tooltip, un nodo a scelta aperto, il Gelo).
 
 ---
 
+## Passo 21.6 — La creazione del personaggio (D8, D10)
+
+Fatto il 4 novembre 2026.
+
+**Il flusso.** *Nuova partita* → il posto (con la conferma se è occupato) → la schermata di creazione → *Comincia*. Il menu
+emette `Created(posto, classe, nome)` (le partite da riprendere restano `Chosen(posto, false)`) e il `CompositionRoot` le
+applica prima di tutto il resto della partita nuova: classe e nome (`PlayerClass.Apply`), poi `-herolevel` e l'apertura, che
+clona il corpo scelto. La scelta della creazione vale più di `-class`; ora `-class` funziona anche dal menu. *Indietro* riporta ai
+posti: finché non si preme *Comincia* non si scrive niente, e il vecchio salvataggio resta com'era.
+
+**La schermata** (`CharacterCreationPanel`, costruita da `CreationTools`, copiando il pannello dei posti): una scheda per ogni
+classe che si può scegliere (la scelta ha il bordo e la scritta dorati), la descrizione, i numeri di partenza («Forza 8 ·
+Destrezza 17 · Magia 35 · Vitalità 20»), il nome e *Comincia*. Il **modello che gira** (`CharacterPreview`) è una copia del
+cavaliere per ogni classe, come quelle dei filmati (`FilmActor`, in posa di riposo), su un palco alla radice della scena a −600 m
+con tre luci e una camera che scrive su una texture; la camera gira solo a schermata aperta e il palco si smonta quando la
+partita comincia. Il corpo di ogni classe lo accende `PlayerBody` per il tempo della copia; le armi in mano sono quelle del kit
+della classe (il Mago ha bacchetta e tomo, non la spada del prefab).
+
+**Il nome** (`HeroName.Clean`, in Core): fino a 16 lettere, spazi ai bordi tolti e quelli di mezzo ridotti a uno, **senza `<` e
+`>`** (il nome finisce nei posti del menu, che sono testo ricco: `<color=red>` altrimenti li colorerebbe), e se non resta niente
+il nome di partenza della classe (Aldric, Elowen). Il nome di partenza segue la classe finché chi gioca non ne scrive uno.
+
+**Il kit di partenza.** `CharacterClass` ha arma e mano libera di partenza (`DefineKit`, da `ClassTools`): il Mago ha *Bacchetta* e
+*Tomo*, il Guerriero niente (resta la spada del prefab). `PlayerClass.Apply` li mette a un personaggio nuovo **dopo** gli
+attributi (la bacchetta chiede la Magia), buttando quello che c'era; il Mago comincia quindi con Magia 35 + 5 del tomo.
+
+**I posti.** «Posto 1 – Merlino · Mago · livello 1 · Il borgo · Crepuscolo · data». Un salvataggio di prima della M21 non ha nome
+né classe: si legge «Cavaliere · Guerriero». Il testo del posto si rimpicciolisce se è lungo (`SaveSlotView`). Anche il nome letto da un
+file passa da `HeroName.Clean`.
+
+**Le parole (D10).** «L'eroe» al posto del cavaliere nelle didascalie dei filmati (*Poi dalla strada arrivò un eroe*, *All'alba
+l'eroe risalì dalla cripta*) e nel titolo del pannello del personaggio; «cavaliere» resta nei nomi degli oggetti e nel Guerriero.
+
+**Tutti i test che cominciano una partita** passano da `MenuSteps.StartNew(menu, posto, classe, nome)`, che clicca anche la
+creazione (anche le foto e la ronda). Cambiano le frasi attese dei posti («Slot 3 – Knight · Warrior · level 3 · …»).
+
+**Test.** EditMode 622 verdi (`HeroNameTests`: le regole del nome, il ripiego, i testi e il kit delle classi). PlayMode:
+`CharacterCreationTests` (6): le schede, il modello che cambia, il nome scritto che resta, Indietro con il salvataggio intatto, il
+Mago nuovo (classe, nome, attributi, bacchetta e tomo, Dardo di fuoco in barra, corpo, albero, salvataggio), il Guerriero con la spada e
+i posti con nome e classe. Corretti due test instabili dei Mago (un nemico fuori dal suo posto torna a casa e si cura: si contano i
+colpi, non la vita) e due che davano per fisso il mana del Mago, che ora ha il tomo. Foto in `Recordings/Photos/creazione`
+(il Guerriero, il Mago, il nome, l'apertura con il Mago, i posti).
+
+---
+
 ## Checklist di chiusura
 
 - [x] Disegno dell'albero del Mago approvato da Mirco (21.1)

@@ -40,6 +40,14 @@ namespace DarkDescent.UI
             _delete.gameObject.SetActive(deletable);
         }
 
+        private void Awake()
+        {
+            // il riepilogo con nome, classe e data è lungo: il testo si rimpicciolisce invece di uscire dal posto
+            _text.enableAutoSizing = true;
+            _text.fontSizeMax = _text.fontSize;
+            _text.fontSizeMin = 14f;
+        }
+
         private void OnEnable()
         {
             _button.onClick.AddListener(HandleClick);

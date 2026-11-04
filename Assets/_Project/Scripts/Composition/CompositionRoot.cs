@@ -456,12 +456,7 @@ namespace DarkDescent.Core
                 _pendingSave = null;
             }
 
-            if (_classId != null)
-            {
-                var playerClass = _player.GetComponent<PlayerClass>();
-                ApplyClass(playerClass.Catalog.Find(_classId), _heroName);
-                _classId = null;
-            }
+            ApplyChosenClass();
 
             if (_heroLevel > 0)
             {
@@ -472,8 +467,21 @@ namespace DarkDescent.Core
             {
                 // fermo finché non si sceglie: niente tasti del gioco sotto il menu
                 _reader.enabled = false;
-                _mainMenu.Show(_saves, _localizer, _difficulties);
+                _mainMenu.Show(_saves, _localizer, _difficulties, _player.GetComponent<PlayerClass>().Catalog, _player.gameObject);
             }
+        }
+
+        // la classe di -class o della creazione, se ce n'è una: una volta sola, dopo gli Awake
+        private void ApplyChosenClass()
+        {
+            if (_classId == null)
+            {
+                return;
+            }
+
+            var playerClass = _player.GetComponent<PlayerClass>();
+            ApplyClass(playerClass.Catalog.Find(_classId), _heroName);
+            _classId = null;
         }
 
         // Una partita nuova comincia in città (D3 della M10). Senza menu e senza riga di comando, cioè
@@ -573,6 +581,21 @@ namespace DarkDescent.Core
         /// </summary>
         private void HandleMenuChosen(int slot, bool isNew)
         {
+            BeginGame(slot, isNew, null, null);
+        }
+
+        /// <summary>
+        /// Un personaggio nuovo dalla creazione (D8 della M21): la classe e il nome scelti, nel posto scelto.
+        /// Si applicano prima di tutto il resto (il livello di <c>-herolevel</c>, l'apertura): i punti, l'equipaggiamento e il
+        /// corpo che il filmato copia sono quelli della classe.
+        /// </summary>
+        private void HandleMenuCreated(int slot, string classId, string heroName)
+        {
+            BeginGame(slot, true, classId, heroName);
+        }
+
+        private void BeginGame(int slot, bool isNew, string classId, string heroName)
+        {
             _saveGame.UseFile(_saves.PathOf(slot));
             ulong seed = (ulong)DateTime.UtcNow.Ticks;
             _runStats.Restore(0f, 0, 0, 0, false);
@@ -602,6 +625,14 @@ namespace DarkDescent.Core
             if (!resumed)
             {
                 ReadNewGameOptions(Arguments());
+                // la scelta della creazione vale più di -class
+                if (classId != null)
+                {
+                    _classId = classId;
+                    _heroName = heroName;
+                }
+
+                ApplyChosenClass();
                 if (_heroLevel > 0)
                 {
                     PrepareHero(_heroLevel);
@@ -788,6 +819,7 @@ namespace DarkDescent.Core
         {
             _player.Died += HandlePlayerDied;
             _mainMenu.Chosen += HandleMenuChosen;
+            _mainMenu.Created += HandleMenuCreated;
             _mainMenu.FilmChosen += HandleFilmChosen;
             _reader.PausePressed += HandlePausePressed;
             _pauseMenu.PausedChanged += HandlePausedChanged;
@@ -816,6 +848,7 @@ namespace DarkDescent.Core
         {
             _player.Died -= HandlePlayerDied;
             _mainMenu.Chosen -= HandleMenuChosen;
+            _mainMenu.Created -= HandleMenuCreated;
             _mainMenu.FilmChosen -= HandleFilmChosen;
             _reader.PausePressed -= HandlePausePressed;
             _pauseMenu.PausedChanged -= HandlePausedChanged;

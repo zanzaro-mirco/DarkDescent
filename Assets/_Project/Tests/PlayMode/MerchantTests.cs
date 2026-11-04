@@ -57,8 +57,7 @@ namespace DarkDescent.Tests
             yield return null;
             yield return null;
             var menu = UnityEngine.Object.FindFirstObjectByType<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
         }
 

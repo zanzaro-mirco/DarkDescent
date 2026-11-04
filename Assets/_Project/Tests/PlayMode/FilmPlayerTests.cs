@@ -69,8 +69,7 @@ namespace DarkDescent.Tests
             yield return null;
             yield return null;
             var menu = Object.FindFirstObjectByType<MainMenu>();
-            menu.NewGameButton.onClick.Invoke();
-            menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(menu, 1);
             yield return WaitForLevel();
 
             _timeline = ScriptableObject.CreateInstance<TimelineAsset>();

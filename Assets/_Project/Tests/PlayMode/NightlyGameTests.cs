@@ -271,8 +271,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return null;
             yield return null;
-            Menu.NewGameButton.onClick.Invoke();
-            Menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(Menu, 1);
             yield return Arrive(level => level.IsTown, "la partita nuova in città");
             Root.UseLootSeed(seed);
             Manager.RunSeed = seed;

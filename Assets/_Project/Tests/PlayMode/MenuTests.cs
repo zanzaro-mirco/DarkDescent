@@ -115,8 +115,7 @@ namespace DarkDescent.Tests
             var root = UnityEngine.Object.FindFirstObjectByType<CompositionRoot>();
             Assert.AreEqual(0, root.Difficulty.Current, "sotto il menu non c'è ancora una partita");
 
-            Menu.NewGameButton.onClick.Invoke();
-            Menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(Menu, 1);
             yield return WaitForLevel();
             Assert.AreEqual((2, 1), (root.Difficulty.Current, root.Difficulty.HighestCompleted));
             Assert.AreEqual(20, GameObject.Find("Player").GetComponent<PlayerProgress>().Progress.Level);
@@ -155,6 +154,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Menu.IsChoosingSlot);
             StringAssert.Contains("empty", Menu.SlotView(1).Text);
             Menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.Create(Menu, "warrior");
             Assert.IsFalse(Menu.IsShown);
             yield return WaitForLevel();
             Assert.IsTrue(Manager.CurrentLevel.IsTown, "si comincia in città (D3)");
@@ -176,7 +176,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Menu.ContinueButton.gameObject.activeSelf);
 
             Menu.LoadButton.onClick.Invoke();
-            StringAssert.Contains("Slot 3 – level 3 · Crypt – Level 3 · Dusk", Menu.SlotView(3).Text);
+            StringAssert.Contains("Slot 3 – Knight · Warrior · level 3 · Crypt – Level 3 · Dusk", Menu.SlotView(3).Text);
             Assert.IsFalse(Menu.SlotView(2).Button.interactable, "un posto vuoto non si carica");
             Assert.IsFalse(Menu.SlotView(2).DeleteButton.gameObject.activeSelf);
 
@@ -203,8 +203,9 @@ namespace DarkDescent.Tests
             Menu.SlotView(2).Button.onClick.Invoke();
             Assert.IsTrue(Menu.Confirm.IsOpen);
             StringAssert.Contains("Overwrite slot 2", Menu.Confirm.Message);
-            Assert.IsTrue(Menu.IsShown, "senza conferma non parte");
+            Assert.IsFalse(Menu.IsCreating, "senza conferma non si crea niente");
             Menu.Confirm.Yes.onClick.Invoke();
+            MenuSteps.Create(Menu, "warrior");
             Assert.IsFalse(Menu.IsShown);
             yield return WaitForLevel();
             Assert.IsTrue(Manager.CurrentLevel.IsTown, "una partita nuova riparte dalla città");
@@ -252,8 +253,7 @@ namespace DarkDescent.Tests
         public IEnumerator SaveAndQuit_ReturnsToTheMenu()
         {
             yield return LoadWithMenu();
-            Menu.NewGameButton.onClick.Invoke();
-            Menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(Menu, 1);
             yield return WaitForLevel();
             var reader = GameObject.Find("Player").GetComponent<PlayerInputReader>();
             reader.PressPause();

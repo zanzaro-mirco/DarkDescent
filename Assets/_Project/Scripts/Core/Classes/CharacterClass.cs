@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DarkDescent.Combat;
+using DarkDescent.Items;
 using DarkDescent.Magic;
 using DarkDescent.Stats;
 using DarkDescent.Talents;
@@ -49,6 +50,12 @@ namespace DarkDescent.Classes
         [Tooltip("L'abilità del tasto sinistro: senza mana e senza ricarica (D18 della M20).")]
         [SerializeField] private SpellDefinition _attackSpell;
 
+        [Tooltip("L'arma che un personaggio nuovo ha in mano al posto di quella del prefab: la bacchetta del Mago. Vuoto: resta quella del prefab.")]
+        [SerializeField] private ItemDefinition _startingWeapon;
+
+        [Tooltip("L'oggetto nella mano libera di un personaggio nuovo: il tomo del Mago.")]
+        [SerializeField] private ItemDefinition _startingOffhand;
+
         public string Id => _id;
         public string NameKey => _nameKey;
         public string DescriptionKey => _nameKey + ".desc";
@@ -63,6 +70,8 @@ namespace DarkDescent.Classes
         public IReadOnlyList<StatType> PointPattern => _pointPattern ?? Array.Empty<StatType>();
         public float ManaRegenFactor => _manaRegenFactor;
         public SpellDefinition AttackSpell => _attackSpell;
+        public ItemDefinition StartingWeapon => _startingWeapon;
+        public ItemDefinition StartingOffhand => _startingOffhand;
 
         /// <summary>Ha un albero: solo allora si può scegliere nella creazione del personaggio.</summary>
         public bool IsPlayable => _classTree != null;
@@ -98,6 +107,13 @@ namespace DarkDescent.Classes
             _pointPattern = (pointPattern ?? Enumerable.Empty<StatType>()).ToArray();
             _manaRegenFactor = manaRegenFactor;
             _attackSpell = attackSpell;
+        }
+
+        /// <summary>Lo strumento dell'editor: l'equipaggiamento di partenza.</summary>
+        public void DefineKit(ItemDefinition weapon, ItemDefinition offhand)
+        {
+            _startingWeapon = weapon;
+            _startingOffhand = offhand;
         }
     }
 }

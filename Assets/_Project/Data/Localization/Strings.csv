@@ -12,7 +12,7 @@ hud.gloves,Gloves,Guanti
 hud.boots,Boots,Stivali
 hud.amulet,Amulet,Amuleto
 hud.ring,Ring,Anello
-hud.character,Knight,Cavaliere
+hud.character,Hero,Eroe
 hud.stat_names,Strength\nDexterity\nMagic\nVitality\n\nLife\nArmor\nDamage\nHit chance\nCritical chance\nBlock chance\nMana,Forza\nDestrezza\nMagia\nVitalità\n\nVita\nArmatura\nDanno\nColpire\nCritico\nBlocco\nMana
 hud.you_died,YOU DIED,SEI MORTO
 hud.restart,Continue,Continua
@@ -31,7 +31,9 @@ menu.back,Back,Indietro
 menu.new_title,Where to save the new game,Dove salvare la nuova partita
 menu.load_title,Load a game,Carica una partita
 slot.empty,Slot {0} – empty,Posto {0} – vuoto
-slot.summary,Slot {0} – level {1} · {2},Posto {0} – livello {1} · {2}
+slot.summary,Slot {0} – {1} · level {2} · {3},Posto {0} – {1} · livello {2} · {3}
+slot.hero,{0} · {1},{0} · {1}
+hero.legacy,Knight,Cavaliere
 slot.delete,Delete,Cancella
 confirm.overwrite,Overwrite slot {0}? The game saved there will be lost.,Sovrascrivere il posto {0}? La partita salvata lì andrà persa.
 confirm.delete,Delete slot {0}? The game saved there will be lost.,Cancellare il posto {0}? La partita salvata lì andrà persa.
@@ -417,11 +419,11 @@ film.opening.vigil,"For a hundred years, the village kept a candle lit for every
 film.opening.out,"One night, the candles went out on their own.",Una notte le candele si spensero da sole.
 film.opening.rise,And the dead rose from the earth.,E i morti uscirono dalla terra.
 film.opening.dawn,"By dawn, few were left.",All'alba ne restavano pochi.
-film.opening.knight,Then a knight came up the road.,Poi dalla strada arrivò un cavaliere.
+film.opening.knight,Then a hero came up the road.,Poi dalla strada arrivò un eroe.
 film.opening.king,The Bone King has awoken. Only one candle still burns.,Il Re delle ossa si è svegliato. Brucia ancora una candela sola.
 film.victory.name,Victory,La vittoria
 film.victory.fallen,The Bone King would never rise again.,Il Re delle ossa non si sarebbe più rialzato.
-film.victory.dawn,"At dawn, the knight climbed back out of the crypt.",All'alba il cavaliere risalì dalla cripta.
+film.victory.dawn,"At dawn, the hero climbed back out of the crypt.",All'alba l'eroe risalì dalla cripta.
 film.victory.candles,And the village lit every candle again.,E il borgo riaccese tutte le sue candele.
 portal.to_town,Portal to the village,Portale per il borgo
 portal.to_depth,Portal to level {0},Portale per il livello {0}
@@ -699,3 +701,16 @@ talent.lingering_frost,Lingering Frost,Gelo che resta
 talent.double_nova,Double Nova,Nova doppia
 talent.ice_mind,Ice Mind,Mente di ghiaccio
 talent.ice_fortress,Ice Fortress,Fortezza di ghiaccio
+
+# La creazione del personaggio e le classi (M21, D8)
+create.title,Create your hero,Crea il tuo eroe
+create.name,Name,Nome
+create.name_hint,Type a name,Scrivi un nome
+create.start,Begin,Comincia
+create.attributes,Strength {0} · Dexterity {1} · Magic {2} · Vitality {3},Forza {0} · Destrezza {1} · Magia {2} · Vitalità {3}
+class.warrior,Warrior,Guerriero
+class.warrior.name,Aldric,Aldric
+class.warrior.desc,"Fights up close with heavy weapons and a shield. Takes the blows and gives them back.",Combatte da vicino con armi pesanti e scudo. Regge i colpi e li restituisce.
+class.mage,Mage,Mago
+class.mage.name,Elowen,Elowen
+class.mage.desc,"Hurls fire and frost from afar. Frail up close, devastating at range.",Scaglia fuoco e ghiaccio da lontano. Fragile da vicino e devastante a distanza.

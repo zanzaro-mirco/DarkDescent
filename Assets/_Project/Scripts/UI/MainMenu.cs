@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using DarkDescent.Classes;
 using DarkDescent.Localization;
 using DarkDescent.Progression;
 using DarkDescent.Save;
@@ -54,6 +55,9 @@ namespace DarkDescent.UI
 
         [SerializeField] private FilmsPanel _filmsPanel;
 
+        [Tooltip("La creazione del personaggio, dopo il posto di una partita nuova (D8 della M21).")]
+        [SerializeField] private CharacterCreationPanel _creation;
+
         [Tooltip("La versione del gioco in piccolo, in basso a destra (D7 della M11): serve per le segnalazioni.")]
         [SerializeField] private TMP_Text _version;
 
@@ -61,9 +65,15 @@ namespace DarkDescent.UI
         private Localizer _localizer;
         private DifficultyTable _difficulties;
         private bool _choosingNew;
+        private CharacterClassCatalog _classes;
+        private GameObject _hero;
+        private int _creatingSlot;
 
         /// <summary>Una partita scelta: il posto e se è nuova (true) o da riprendere.</summary>
         public event Action<int, bool> Chosen;
+
+        /// <summary>Un personaggio nuovo creato nel posto: il posto, l'id della classe e il nome.</summary>
+        public event Action<int, string, string> Created;
 
         /// <summary>Un filmato da rivedere, con il suo id: il menu si chiude e il filmato parte.</summary>
         public event Action<string> FilmChosen;
@@ -71,6 +81,10 @@ namespace DarkDescent.UI
         public bool IsShown => _root.activeSelf;
 
         public bool IsChoosingSlot => _slotsPanel.activeSelf;
+
+        public bool IsCreating => _creation != null && _creation.IsOpen;
+
+        public CharacterCreationPanel Creation => _creation;
 
         public Button ContinueButton => _continue;
 
@@ -93,11 +107,15 @@ namespace DarkDescent.UI
         public SaveSlotView SlotView(int slot) => _slots[slot - 1];
 
         /// <param name="difficulties">Per scrivere la difficoltà di ogni posto (D14 della M14).</param>
-        public void Show(SaveSlots saves, Localizer localizer, DifficultyTable difficulties)
+        /// <param name="classes">Le classi, per scrivere quella di ogni posto e per la creazione (D8 della M21).</param>
+        /// <param name="hero">Il giocatore, da cui la creazione copia il corpo di ogni classe.</param>
+        public void Show(SaveSlots saves, Localizer localizer, DifficultyTable difficulties, CharacterClassCatalog classes, GameObject hero)
         {
             _saves = saves;
             _localizer = localizer;
             _difficulties = difficulties;
+            _classes = classes;
+            _hero = hero;
             _root.SetActive(true);
             ShowMain();
         }
@@ -105,6 +123,7 @@ namespace DarkDescent.UI
         public void Hide()
         {
             _confirm.Close();
+            _creation.Release();
             _optionsPanel.Closed -= ShowMain;
             _optionsPanel.Close();
             _creditsPanel.Closed -= ShowMain;
@@ -124,6 +143,8 @@ namespace DarkDescent.UI
         {
             _continue.onClick.AddListener(HandleContinue);
             _newGame.onClick.AddListener(HandleNewGame);
+            _creation.Started += HandleCreationStarted;
+            _creation.Closed += HandleCreationClosed;
             _load.onClick.AddListener(HandleLoad);
             _credits.onClick.AddListener(HandleCredits);
             _films.onClick.AddListener(HandleFilms);
@@ -142,6 +163,8 @@ namespace DarkDescent.UI
         {
             _continue.onClick.RemoveListener(HandleContinue);
             _newGame.onClick.RemoveListener(HandleNewGame);
+            _creation.Started -= HandleCreationStarted;
+            _creation.Closed -= HandleCreationClosed;
             _load.onClick.RemoveListener(HandleLoad);
             _credits.onClick.RemoveListener(HandleCredits);
             _films.onClick.RemoveListener(HandleFilms);
@@ -239,7 +262,7 @@ namespace DarkDescent.UI
             }
         }
 
-        // "Posto 2 – livello 9 · Caverne – Livello 6 · Ombra · 12/10/2026 14:30"
+        // "Posto 2 – Aldric · Guerriero · livello 9 · Caverne – Livello 6 · Ombra · 12/10/2026 14:30"
         private string Summary(int slot, SaveData data)
         {
             string place = data.InTown
@@ -248,7 +271,16 @@ namespace DarkDescent.UI
             DateTime? written = _saves.LastWrite(slot);
             string date = written.HasValue ? written.Value.ToLocalTime().ToString("g", Culture()) : string.Empty;
             string difficulty = _localizer.Get(_difficulties.Tier(data.Difficulty).NameKey);
-            return _localizer.Format(TextKeys.SlotSummary, slot, data.Level, place) + " · " + difficulty + " · " + date;
+            return _localizer.Format(TextKeys.SlotSummary, slot, Hero(data), data.Level, place) + " · " + difficulty + " · " + date;
+        }
+
+        // "Aldric · Guerriero"; un salvataggio di prima della M21 non ha nome: è il Cavaliere
+        private string Hero(SaveData data)
+        {
+            string name = HeroName.Clean(data.CharacterName, _localizer.Get(TextKeys.HeroLegacy));
+            var characterClass = _classes != null ? _classes.Find(data.Class) : null;
+            string className = characterClass != null ? _localizer.Get(characterClass.NameKey) : "";
+            return _localizer.Format(TextKeys.SlotHero, name, className);
         }
 
         private CultureInfo Culture()
@@ -277,11 +309,30 @@ namespace DarkDescent.UI
 
             if (_saves.IsUsed(slot))
             {
-                _confirm.Ask(_localizer.Format(TextKeys.ConfirmOverwrite, slot), () => Chosen?.Invoke(slot, true));
+                _confirm.Ask(_localizer.Format(TextKeys.ConfirmOverwrite, slot), () => OpenCreation(slot));
                 return;
             }
 
-            Chosen?.Invoke(slot, true);
+            OpenCreation(slot);
+        }
+
+        // il posto è scelto, e se era occupato si è confermato; il vecchio salvataggio resta finché non si comincia
+        private void OpenCreation(int slot)
+        {
+            _creatingSlot = slot;
+            _slotsPanel.SetActive(false);
+            _creation.Open(_localizer, _classes, _hero);
+        }
+
+        private void HandleCreationStarted(string classId, string heroName)
+        {
+            Created?.Invoke(_creatingSlot, classId, heroName);
+        }
+
+        // Indietro dalla creazione: ai posti, con il salvataggio intatto
+        private void HandleCreationClosed()
+        {
+            ShowSlots(true);
         }
 
         private void HandleDeleteClicked(int slot)

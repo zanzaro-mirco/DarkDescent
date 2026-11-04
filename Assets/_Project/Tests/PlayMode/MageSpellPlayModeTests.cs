@@ -99,6 +99,7 @@ namespace DarkDescent.Tests
             var health = skeleton.GetComponent<Health>();
             StandAt(skeleton.transform, 6f);
             yield return null;
+            Magic.Mana.Fill(); // il tomo ha del mana in più: si parte dal pieno, che non cresce
             float mana = Magic.Mana.Current;
             int swings = 0;
             attack.SwingStarted += () => swings++;
@@ -229,12 +230,16 @@ namespace DarkDescent.Tests
             PlaceNear(enemies[1], enemies[0].transform.position, 1.5f);
             PlaceNear(enemies[2], enemies[0].transform.position, 8f);
             yield return null;
+            // si contano i colpi e non la vita: un nemico fuori dal suo posto torna a casa e si cura
+            bool targetHit = false, neighbourHit = false;
+            enemies[0].GetComponent<Health>().Damaged += (info, applied) => targetHit = true;
+            enemies[1].GetComponent<Health>().Damaged += (info, applied) => neighbourHit = true;
             FullMana();
             Assert.IsTrue(Magic.Learn(Spell("Fireball")));
             Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("Fireball"), enemies[0].transform.position));
             yield return Wait(1.8f);
-            Assert.Less(enemies[0].GetComponent<Health>().Current, enemies[0].GetComponent<Health>().Max, "il bersaglio");
-            Assert.Less(enemies[1].GetComponent<Health>().Current, enemies[1].GetComponent<Health>().Max, "chi gli sta accanto");
+            Assert.IsTrue(targetHit, "il bersaglio");
+            Assert.IsTrue(neighbourHit, "chi gli sta accanto");
             Assert.AreEqual(enemies[2].GetComponent<Health>().Max, enemies[2].GetComponent<Health>().Current, "chi è lontano no");
         }
 

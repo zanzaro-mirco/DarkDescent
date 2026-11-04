@@ -97,8 +97,7 @@ namespace DarkDescent.Tests
         public IEnumerator LeftLevel_StaysAsItWas()
         {
             yield return OpenMenu();
-            Menu.NewGameButton.onClick.Invoke();
-            Menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(Menu, 1);
             yield return WaitForLevel();
             yield return Travel("Level_Crypt", "Start", 1);
 

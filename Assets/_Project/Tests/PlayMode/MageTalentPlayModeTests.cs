@@ -235,6 +235,7 @@ namespace DarkDescent.Tests
             yield return null;
             var playerClass = Player.GetComponent<PlayerClass>();
             playerClass.Apply(playerClass.Catalog.Find("mage"), "Merlino", true);
+            Magic.Mana.Fill(); // il tomo ha del mana in più: si parte dal pieno
             float mana = Magic.Mana.Current;
             Spells.CastFree(Spell("Firebolt"), health);
             Assert.AreEqual(1, Spells.FreeCasts);

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using DarkDescent.Classes;
+using DarkDescent.Items;
 using DarkDescent.Magic;
 using DarkDescent.Progression;
 using DarkDescent.Stats;
@@ -24,6 +25,8 @@ namespace DarkDescent.Editor
         private const string PlayerPath = "Assets/_Project/Prefabs/Player.prefab";
         private const string TalentsFolder = "Assets/_Project/Data/Talents";
         private const string AttackPath = "Assets/_Project/Data/Spells/Attack.asset";
+        private const string ArcanePath = "Assets/_Project/Data/Spells/ArcaneBolt.asset";
+        private const string ItemsFolder = "Assets/_Project/Data/Items";
 
         // come HeroSetup di sempre: due punti in Forza, due in Vitalità e uno in Destrezza
         private static readonly StatType[] WarriorPattern = { StatType.Strength, StatType.Vitality, StatType.Strength, StatType.Vitality, StatType.Dexterity };
@@ -36,6 +39,8 @@ namespace DarkDescent.Editor
         {
             Directory.CreateDirectory(Folder);
             var attack = AssetDatabase.LoadAssetAtPath<SpellDefinition>(AttackPath);
+            // il Dardo arcano è del sinistro del Mago (21.4)
+            var arcane = AssetDatabase.LoadAssetAtPath<SpellDefinition>(ArcanePath) ?? attack;
 
             // gli attributi del cavaliere sono quelli del prefab
             var player = AssetDatabase.LoadAssetAtPath<GameObject>(PlayerPath);
@@ -53,7 +58,9 @@ namespace DarkDescent.Editor
             // il Mago non ha ancora l'albero (21.5): finché manca non si sceglie nella creazione
             var mage = Asset<CharacterClass>("Mage");
             mage.Define("mage", "class.mage", "mage", Tree("Mage"), new[] { Tree("MageFire"), Tree("MageFrost") },
-                8f, 17f, 35f, 20f, MagePattern, 1.5f, attack);
+                8f, 17f, 35f, 20f, MagePattern, 1.5f, arcane);
+            // la bacchetta e il tomo: il Mago non comincia con la spada del cavaliere (21.6)
+            mage.DefineKit(AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemsFolder + "/Wand.asset"), AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemsFolder + "/Tome.asset"));
             EditorUtility.SetDirty(mage);
 
             var catalog = Asset<CharacterClassCatalog>("ClassCatalog");

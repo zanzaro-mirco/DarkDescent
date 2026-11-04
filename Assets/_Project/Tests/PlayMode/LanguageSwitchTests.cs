@@ -56,7 +56,7 @@ namespace DarkDescent.Tests
             var character = Object.FindFirstObjectByType<CharacterPanel>();
             character.Toggle();
             yield return null;
-            Assert.AreEqual("Cavaliere", Label("hud.character"), "la finestra era chiusa al cambio");
+            Assert.AreEqual("Eroe", Label("hud.character"), "la finestra era chiusa al cambio");
             StringAssert.StartsWith("Forza\nDestrezza", Label("hud.stat_names"));
 
             SceneManager.LoadScene("Core");

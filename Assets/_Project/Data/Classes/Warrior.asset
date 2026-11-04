@@ -26,3 +26,5 @@ MonoBehaviour:
   _pointPattern: 0000000003000000000000000300000001000000
   _manaRegenFactor: 1
   _attackSpell: {fileID: 11400000, guid: b1d453d40a9aff74fb826ab5018179e7, type: 2}
+  _startingWeapon: {fileID: 0}
+  _startingOffhand: {fileID: 0}

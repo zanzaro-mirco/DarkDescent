@@ -53,8 +53,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return null;
             yield return null;
-            Menu.NewGameButton.onClick.Invoke();
-            Menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(Menu, 1);
             yield return WaitForLevel();
         }
 
@@ -241,7 +240,7 @@ namespace DarkDescent.Tests
             yield return null;
             yield return null;
             Menu.LoadButton.onClick.Invoke();
-            StringAssert.Contains("Slot 1 – level 1 · The village", Menu.SlotView(1).Text);
+            StringAssert.Contains("Slot 1 – Aldric · Warrior · level 1 · The village", Menu.SlotView(1).Text);
             Menu.ContinueButton.onClick.Invoke();
             yield return WaitForLevel();
             Assert.IsTrue(Manager.CurrentLevel.IsTown);
@@ -258,7 +257,7 @@ namespace DarkDescent.Tests
             yield return null;
             yield return null;
             Menu.LoadButton.onClick.Invoke();
-            StringAssert.Contains("Slot 1 – level 24 · The village", Menu.SlotView(1).Text);
+            StringAssert.Contains("Slot 1 – Knight · Warrior · level 24 · The village", Menu.SlotView(1).Text);
             Menu.ContinueButton.onClick.Invoke();
             yield return WaitForLevel();
 

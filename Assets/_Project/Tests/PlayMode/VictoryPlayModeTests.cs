@@ -64,8 +64,7 @@ namespace DarkDescent.Tests
             SceneManager.LoadScene("Core");
             yield return null;
             yield return null;
-            Menu.NewGameButton.onClick.Invoke();
-            Menu.SlotView(1).Button.onClick.Invoke();
+            MenuSteps.StartNew(Menu, 1);
             yield return WaitForLevel();
 
             Manager.LoadLevel("Level_Caves", "FromAbove", 8);
