@@ -18,6 +18,9 @@ namespace DarkDescent.Levels
         [Tooltip("La profondità del livello di arrivo, per i livelli generati; 0 è il borgo. Meno di 0 = quella di questo livello più uno (M22).")]
         [SerializeField, Min(-1)] private int _targetDepth = -1;
 
+        [Tooltip("La scala in su (M22) sta nella stanza d'ingresso, dove si cammina: non scatta entrandoci, ma solo dopo un click sopra, quando il cavaliere arriva davanti.")]
+        [SerializeField] private bool _clickOnly;
+
         public event Action<LevelExit> Triggered;
 
         public string TargetScene => _targetScene;
@@ -26,12 +29,22 @@ namespace DarkDescent.Levels
 
         public int TargetDepth => _targetDepth;
 
+        /// <summary>Scatta solo dopo un click (<see cref="Activate"/>), non entrando nel trigger.</summary>
+        public bool ClickOnly => _clickOnly;
+
         /// <summary>Per chi costruisce il livello (<see cref="LevelBuilder"/>).</summary>
-        public void Configure(string targetScene, string targetEntrance, int targetDepth)
+        public void Configure(string targetScene, string targetEntrance, int targetDepth, bool clickOnly = false)
         {
+            _clickOnly = clickOnly;
             _targetScene = targetScene;
             _targetEntrance = targetEntrance;
             _targetDepth = targetDepth;
+        }
+
+        /// <summary>Il cavaliere è arrivato davanti all'uscita dopo un click: chi la usa dice che è scattata.</summary>
+        public void Activate()
+        {
+            Triggered?.Invoke(this);
         }
 
         private void Reset()
@@ -44,7 +57,7 @@ namespace DarkDescent.Levels
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.GetComponentInParent<PlayerController>() != null)
+            if (!_clickOnly && other.GetComponentInParent<PlayerController>() != null)
             {
                 Triggered?.Invoke(this);
             }

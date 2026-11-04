@@ -81,9 +81,9 @@ namespace DarkDescent.Levels
                 }
             }
 
-            cell = layout.Entrance;
-            wall = MapDirection.North;
-            return false;
+            // Una stanza da quattro righe con i barili ai lati lascia a volte tasche di pavimento che lo sbocco isolerebbe, e nessun suo
+            // muro va bene (4 livelli su 20000 della ronda del 4 nov 2026): si cerca allora come nelle caverne, in tutto il livello.
+            return TryChooseInCave(layout, out cell, out wall);
         }
 
         /// <summary>Quante celle, almeno, tra l'ingresso e la scala in su: il trigger sporge oltre la cella davanti, e più vicino si ripartirebbe appena arrivati.</summary>
@@ -105,11 +105,6 @@ namespace DarkDescent.Levels
             {
                 var current = queue.Dequeue();
                 order.Add(current);
-                if (steps[current] >= CaveSearchRadius)
-                {
-                    continue;
-                }
-
                 foreach (var step in LevelGrid.Steps)
                 {
                     var next = current + step;
@@ -125,21 +120,27 @@ namespace DarkDescent.Levels
             // Come nelle stanze: prima il muro nord, poi l'ovest, che la camera vede alti, poi est e sud. Su ogni muro il tratto più
             // vicino (l'ordine della visita è per distanza, senza tiri), prima quello che somiglia a un muro di stanza e poi, se le pareti
             // storte della caverna non ne hanno, con meno pretese.
-            foreach (var side in Walls)
+            // Prima entro CaveSearchRadius passi dall'ingresso; se lì non c'è niente (una caverna stretta, ronda del 4 nov 2026: sei livelli
+            // su 20000), in tutto il livello.
+            foreach (int radius in new[] { CaveSearchRadius, int.MaxValue })
             {
-                Vector2Int back = Step(side);
-                var along = new Vector2Int(Mathf.Abs(back.y), Mathf.Abs(back.x));
-                for (int strictness = 0; strictness < CavePasses; strictness++)
+                foreach (var side in Walls)
                 {
-                    foreach (var candidate in order)
+                    Vector2Int back = Step(side);
+                    var along = new Vector2Int(Mathf.Abs(back.y), Mathf.Abs(back.x));
+                    for (int strictness = 0; strictness < CavePasses; strictness++)
                     {
-                        if (FarFromEntrance(layout, candidate, LeastFromEntrance)
-                            && layout[candidate.x, candidate.y] == LevelMap.Floor
-                            && FitsInCave(layout, candidate, back, along, strictness))
+                        foreach (var candidate in order)
                         {
-                            cell = candidate;
-                            wall = side;
-                            return true;
+                            if (steps[candidate] <= radius
+                                && FarFromEntrance(layout, candidate, LeastFromEntrance)
+                                && layout[candidate.x, candidate.y] == LevelMap.Floor
+                                && FitsInCave(layout, candidate, back, along, strictness))
+                            {
+                                cell = candidate;
+                                wall = side;
+                                return true;
+                            }
                         }
                     }
                 }

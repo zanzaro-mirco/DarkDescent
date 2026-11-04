@@ -40,6 +40,12 @@ namespace DarkDescent.Tests
             Vector3 approach = exit.GetComponent<Interactable>().ApproachPoint;
             Assert.IsTrue(NavMesh.SamplePosition(approach, out var hit, 1.5f, NavMesh.AllAreas), $"{exit.name}: il punto davanti all'uscita non è sul NavMesh");
             PlayerAgent.Warp(hit.position);
+
+            // la scala in su scatta dopo un click, quando il cavaliere arriva davanti: è quello che fa PlayerController
+            if (exit.ClickOnly)
+            {
+                exit.GetComponent<Interactable>().Use(Player.gameObject);
+            }
         }
 
         private static string SceneOf(int depth) => depth > 4 ? "Level_Caves" : "Level_Crypt";
@@ -89,6 +95,27 @@ namespace DarkDescent.Tests
             StepOn(Manager.CurrentLevel.Exits[0]);
             yield return WaitFor("Level_Crypt", 1);
             Assert.AreEqual("Start", Manager.CurrentEntrance);
+        }
+
+        [UnityTest, Timeout(300000), Description("La scala in su non scatta camminandoci dentro (ronda di CI del 4 nov 2026: la strada verso la scala giù passava dal suo trigger e il cavaliere finiva nel borgo): fermo nel suo trigger si resta, e solo il click, arrivati davanti, fa risalire")]
+        public IEnumerator StairsUp_NeedsAClick()
+        {
+            yield return LoadGeneratedCore();
+            yield return WaitFor("Level_Crypt", 1);
+            var up = Manager.CurrentLevel.UpExit;
+            Assert.IsTrue(up.ClickOnly, "la scala in su è a click");
+            Assert.IsFalse(Manager.CurrentLevel.DownExits.First().ClickOnly, "la scala giù scatta entrandoci, come sempre");
+
+            Vector3 inside = up.GetComponent<Interactable>().ApproachPoint;
+            Assert.IsTrue(up.GetComponent<BoxCollider>().bounds.Contains(inside), "il punto davanti alla scala è dentro il suo trigger");
+            Assert.IsTrue(NavMesh.SamplePosition(inside, out var hit, 1.5f, NavMesh.AllAreas));
+            PlayerAgent.Warp(hit.position);
+            yield return new WaitForSeconds(1.5f);
+            Assert.AreEqual(1, Manager.CurrentLevel.Depth, "dentro il trigger non si risale");
+            Assert.IsFalse(Manager.IsTransitioning);
+
+            up.GetComponent<Interactable>().Use(Player.gameObject);
+            yield return WaitFor("Town", 0);
         }
 
         [UnityTest, Timeout(300000), Description("L'ingresso di ogni livello non è nel trigger della sua scala in su: arrivando dall'alto non si risale subito, e dopo un secondo si è ancora lì (profondità 1–8)")]

@@ -624,7 +624,9 @@ namespace DarkDescent.Levels
             trigger.size = new Vector3(LevelMap.CellSize, 2f, LevelMap.CellSize + ExitTriggerReach);
             go.AddComponent<Rigidbody>().isKinematic = true;
 
-            go.AddComponent<LevelExit>().Configure(targetScene, targetEntrance, targetDepth);
+            // la scala in su sta dove si cammina, nella stanza d'ingresso: passarle accanto non deve far risalire, solo un click (ronda di CI del 4 nov 2026)
+            var levelExit = go.AddComponent<LevelExit>();
+            levelExit.Configure(targetScene, targetEntrance, targetDepth, clickOnly: up);
 
             // il collider del click è separato dal trigger: il raggio del click ignora i trigger.
             // Alto quanto le balaustre, così il cursore prende la scala anche passando sopra di loro.
@@ -640,7 +642,12 @@ namespace DarkDescent.Levels
             approach.localPosition = new Vector3(0f, 0f, ApproachDistance);
             // "Descend to level {0}" o "Climb to level {0}": il numero è la profondità di arrivo; al borgo, "Return to the village"
             string label = !up ? TextKeys.ExitDescend : targetDepth > 0 ? TextKeys.ExitAscend : TextKeys.ExitToVillage;
-            go.AddComponent<Interactable>().Configure(approach, label, targetDepth.ToString());
+            var interactable = go.AddComponent<Interactable>();
+            interactable.Configure(approach, label, targetDepth.ToString());
+            if (up)
+            {
+                interactable.Used += _ => levelExit.Activate();
+            }
 
             Debug.Assert(ApproachDistance > half && ApproachDistance < half + ExitTriggerReach, "il punto d'arrivo deve stare nel trigger");
             return go;
