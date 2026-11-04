@@ -439,10 +439,13 @@ namespace DarkDescent.Core
             // un generatore suo: i danni degli incantesimi non spostano i tiri della mischia (trappola 3 della M9)
             _player.GetComponent<Magic.PlayerSpells>().Bind(_projectiles, new SystemRandomSource(Environment.TickCount ^ 0x5A11));
             // le abilità del Guerriero (M20) tirano con un flusso loro: i colpi normali restano dove sono
-            _player.GetComponent<Magic.WarriorAbilities>().Bind(new SystemRandomSource(Environment.TickCount ^ 0x4B1D));
+            var warrior = _player.GetComponent<Magic.WarriorAbilities>();
+            warrior.Bind(new SystemRandomSource(Environment.TickCount ^ 0x4B1D));
             _player.GetComponent<Magic.MageAbilities>().Bind(_projectiles);
             _talents = _player.GetComponent<PlayerTalents>();
             _talentPanel.Bind(_talents, _reader, _localizer);
+            // WASD non muove sotto una finestra a tutto schermo (le abilità, l'altare) né mentre un'abilità porta il cavaliere (D8 della M23)
+            controller.SetKeyboardBlocker(() => _talentPanel.IsOpen || _difficultyPanel.IsOpen || warrior.IsBusy);
             _talentPointsButton.Bind(_talents, _talentPanel, _localizer);
             _difficultyPanel.BindTalents(_talents.Build);
             _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);

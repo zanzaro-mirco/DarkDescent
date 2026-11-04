@@ -243,6 +243,16 @@ namespace DarkDescent.Input
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""Move2D"",
+                    ""type"": ""Value"",
+                    ""id"": ""1139e5ac-b3b2-4116-a70a-f3234dd72f71"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -531,6 +541,116 @@ namespace DarkDescent.Input
                     ""action"": ""ToggleTalents"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""WASD"",
+                    ""id"": ""aaa27414-3df6-47da-8a21-a5d615a368af"",
+                    ""path"": ""2DVector(mode=2)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""7e127e86-0ceb-40aa-9cb2-e3eb4e1a137a"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""f33aaf51-e463-4f77-8584-8426ebd00ef2"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""c974e80d-fc6c-4367-beca-37eb74a8ddeb"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""683bc2e1-ba7f-45a3-a4d5-096029f81ff9"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""Arrows"",
+                    ""id"": ""afab1e6a-d674-4ba2-ad45-2a4cbdc69725"",
+                    ""path"": ""2DVector(mode=2)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""39b77174-088b-47f9-9b17-4cf813ae71ad"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""207e0355-dab9-4624-b7df-5735558ff11c"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""0b125df2-09e7-4c8b-abc6-f6821d86611b"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""65bae7cb-46c1-4660-949a-34e477ad71a1"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2D"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -554,6 +674,7 @@ namespace DarkDescent.Input
             m_Gameplay_TownPortal = m_Gameplay.FindAction("TownPortal", throwIfNotFound: true);
             m_Gameplay_ToggleSkills = m_Gameplay.FindAction("ToggleSkills", throwIfNotFound: true);
             m_Gameplay_ToggleTalents = m_Gameplay.FindAction("ToggleTalents", throwIfNotFound: true);
+            m_Gameplay_Move2D = m_Gameplay.FindAction("Move2D", throwIfNotFound: true);
         }
 
         ~@PlayerControls()
@@ -649,6 +770,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_TownPortal;
         private readonly InputAction m_Gameplay_ToggleSkills;
         private readonly InputAction m_Gameplay_ToggleTalents;
+        private readonly InputAction m_Gameplay_Move2D;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
         /// </summary>
@@ -721,6 +843,10 @@ namespace DarkDescent.Input
             /// </summary>
             public InputAction @ToggleTalents => m_Wrapper.m_Gameplay_ToggleTalents;
             /// <summary>
+            /// Provides access to the underlying input action "Gameplay/Move2D".
+            /// </summary>
+            public InputAction @Move2D => m_Wrapper.m_Gameplay_Move2D;
+            /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
             public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
@@ -791,6 +917,9 @@ namespace DarkDescent.Input
                 @ToggleTalents.started += instance.OnToggleTalents;
                 @ToggleTalents.performed += instance.OnToggleTalents;
                 @ToggleTalents.canceled += instance.OnToggleTalents;
+                @Move2D.started += instance.OnMove2D;
+                @Move2D.performed += instance.OnMove2D;
+                @Move2D.canceled += instance.OnMove2D;
             }
 
             /// <summary>
@@ -847,6 +976,9 @@ namespace DarkDescent.Input
                 @ToggleTalents.started -= instance.OnToggleTalents;
                 @ToggleTalents.performed -= instance.OnToggleTalents;
                 @ToggleTalents.canceled -= instance.OnToggleTalents;
+                @Move2D.started -= instance.OnMove2D;
+                @Move2D.performed -= instance.OnMove2D;
+                @Move2D.canceled -= instance.OnMove2D;
             }
 
             /// <summary>
@@ -992,6 +1124,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnToggleTalents(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Move2D" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnMove2D(InputAction.CallbackContext context);
         }
     }
 }

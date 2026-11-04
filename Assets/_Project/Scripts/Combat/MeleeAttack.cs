@@ -265,6 +265,22 @@ namespace DarkDescent.Combat
             _attackRequested = true;
         }
 
+        /// <summary>
+        /// Il bersaglio è già a portata del colpo, o del dardo con la linea libera: chi colpisce da fermo (un click sul nemico
+        /// mentre si cammina con WASD, D6 della M23) lo chiede prima di <see cref="SetTarget"/>, che altrimenti inseguirebbe.
+        /// </summary>
+        public bool IsInReach(IDamageable target)
+        {
+            if (!(target is Component component) || !target.IsAlive())
+            {
+                return false;
+            }
+
+            Vector3 toTarget = Flat(component.transform.position - transform.position);
+            bool inReach = EdgeDistance(toTarget, RadiusOf(component)) <= Reach;
+            return inReach && (_bolt == null || !NavMesh.Raycast(transform.position, component.transform.position, out _, NavMesh.AllAreas));
+        }
+
         /// <summary>Lascia il bersaglio. Un colpo già partito arriva comunque.</summary>
         public void ClearTarget()
         {

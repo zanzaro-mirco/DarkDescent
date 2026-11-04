@@ -62,6 +62,9 @@ namespace DarkDescent.Player
 
         public Vector2 PointerScreenPosition => _controls.Gameplay.Point.ReadValue<Vector2>();
 
+        /// <summary>W A S D e le frecce (D2 della M23): x a destra, y in alto sullo schermo, lunghezza al più 1. Zero con le azioni spente.</summary>
+        public Vector2 MoveKeys => _controls.Gameplay.Move2D.ReadValue<Vector2>();
+
         private PlayerControls _controls;
 
         private void Awake()

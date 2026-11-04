@@ -75,6 +75,18 @@ namespace DarkDescent.Player
         private bool _pressPending;
         private bool _pressStartedOverUI;
 
+        // WASD (M23): chi lo spegne (finestre a tutto schermo, abilità in corso) lo dice da fuori
+        private Func<bool> _keyboardBlocked;
+
+        // i tasti guidano il cavaliere: il percorso del click non c'è più e quando si rilasciano ci si ferma
+        private bool _keyboardDriving;
+
+        // un click su un oggetto da usare, a tasti premuti, è un comando nuovo: i tasti tacciono finché non si rilasciano
+        private bool _keysSuppressed;
+
+        // un colpo dato da fermo a tasti premuti (D6): finché dura, i tasti non spostano il cavaliere
+        private bool _standingAttack;
+
         /// <summary>L'oggetto da usare sotto il cursore è cambiato; null = nessuno.</summary>
         public event Action<Interactable> HoveredChanged;
 
@@ -89,6 +101,18 @@ namespace DarkDescent.Player
         public event Action<Breakable> HoveredBreakableChanged;
 
         public Breakable HoveredBreakable { get; private set; }
+
+        /// <summary>I tasti di movimento stanno guidando il cavaliere in questo momento (per i test).</summary>
+        public bool IsKeyboardDriving => _keyboardDriving;
+
+        /// <summary>
+        /// Quando <paramref name="blocked"/> dice vero i tasti di movimento non muovono: una finestra a tutto schermo, o
+        /// un'abilità che porta il cavaliere da sé (D8 della M23). Pausa, morte, filmati e menu spengono già il controller o il reader.
+        /// </summary>
+        public void SetKeyboardBlocker(Func<bool> blocked)
+        {
+            _keyboardBlocked = blocked;
+        }
 
         private void Awake()
         {
@@ -114,6 +138,15 @@ namespace DarkDescent.Player
             _input.MoveCommandStarted -= HandleMoveCommandStarted;
             _input.MoveCommandCanceled -= HandleMoveCommandCanceled;
 
+            if (_keyboardDriving && _motor != null)
+            {
+                _motor.Stop();
+            }
+
+            _keyboardDriving = false;
+            _keysSuppressed = false;
+            _standingAttack = false;
+
             // spento il controller (morte, cambio di livello) niente resta evidenziato né da usare
             SetHovered(null);
             SetHoveredEnemy(null);
@@ -125,6 +158,11 @@ namespace DarkDescent.Player
         {
             UpdateHover();
             UpdatePendingUse();
+
+            if (UpdateKeyboard())
+            {
+                return;
+            }
 
             if (_hasQueuedMove && !IsBusy)
             {
@@ -165,6 +203,169 @@ namespace DarkDescent.Player
 
             // tenendo premuto e passando sopra un nemico non si cambia idea: si continua a camminare
             ExecuteCursorCommand(allowAttack: false);
+        }
+
+        // WASD e frecce (M23). Vero se i tasti hanno preso il frame: il resto dell'Update (la coda del click, la pressione,
+        // il tasto tenuto) non gira. Un tasto premuto ha la precedenza sul percorso del click (D5); a tasti fermi tutto
+        // torna com'è, anche il tasto sinistro tenuto, che riprende a seguire il cursore.
+        private bool UpdateKeyboard()
+        {
+            Vector2 keys = _input.MoveKeys;
+            bool pressed = KeyboardMove.IsPressed(keys);
+            if (!pressed)
+            {
+                _keysSuppressed = false;
+            }
+
+            bool active = pressed && !_keysSuppressed && _camera != null && (_keyboardBlocked == null || !_keyboardBlocked());
+            if (!active)
+            {
+                if (_keyboardDriving)
+                {
+                    _keyboardDriving = false;
+                    if (!_attack.HasTarget)
+                    {
+                        _motor.Stop();
+                    }
+                }
+
+                _standingAttack &= StandingAttackLocks;
+                return false;
+            }
+
+            if (_pressPending)
+            {
+                _pressPending = false;
+                ExecutePressWithKeys();
+                if (_keysSuppressed)
+                {
+                    _keyboardDriving = false;
+                    return false;
+                }
+            }
+
+            if (_standingAttack)
+            {
+                HoldStandingAttack();
+                if (StandingAttackLocks)
+                {
+                    return true;
+                }
+
+                _standingAttack = false;
+            }
+
+            if (!_keyboardDriving)
+            {
+                // i tasti ricominciano a guidare: l'oggetto che si andava a usare e il colpo da inseguire si lasciano
+                _keyboardDriving = true;
+                _pendingUse = null;
+            }
+
+            _hasQueuedMove = false;
+            _heldTarget = null;
+            ClearUiSelection();
+            if (_attack.HasTarget)
+            {
+                _attack.ClearTarget();
+            }
+
+            // il colpo partito si finisce, e un colpo forte tiene fermi: i passi ripartono da soli, con la direzione di allora
+            if (IsBusy)
+            {
+                return true;
+            }
+
+            Transform view = _camera.transform;
+            _motor.Steer(KeyboardMove.WorldDirection(keys, view.forward, view.up, view.right));
+            return true;
+        }
+
+        // il colpo dato da fermo tiene il cavaliere finché il bersaglio c'è, il tasto sinistro è premuto su di lui o il colpo non è finito
+        private bool StandingAttackLocks => (_heldTarget != null && _heldTarget.IsAlive()) || _attack.HasTarget || IsBusy;
+
+        // A tasti premuti un click su un nemico a portata lo colpisce da fermo; fuori portata, e sul pavimento, non fa niente (D6).
+        // Un oggetto da usare (cassa, scala) si cammina e si usa come sempre: il click è un comando nuovo, i tasti tacciono.
+        private void ExecutePressWithKeys()
+        {
+            _holdTimer = _holdRepathInterval;
+            _heldTarget = null;
+            _pressStartedOverUI = IsPointerOverUI();
+            if (_pressStartedOverUI || !TryRaycastCursor(out RaycastHit hit))
+            {
+                return;
+            }
+
+            IDamageable target = EnemyUnderCursor(hit);
+            if (target == null)
+            {
+                target = BreakableUnderCursor(hit);
+            }
+
+            if (target != null)
+            {
+                if (target.IsAlive() && _attack.IsInReach(target))
+                {
+                    _heldTarget = target;
+                    _standingAttack = true;
+                    _hasQueuedMove = false;
+                    _pendingUse = null;
+                    _attack.SetTarget(target);
+                }
+
+                return;
+            }
+
+            if ((_interactableLayers.value & (1 << hit.collider.gameObject.layer)) == 0)
+            {
+                return;
+            }
+
+            var interactable = hit.collider.GetComponentInParent<Interactable>();
+            if (interactable != null)
+            {
+                _keysSuppressed = true;
+                _standingAttack = false;
+                RequestWalk(interactable.ApproachPoint);
+                _pendingUse = interactable;
+            }
+        }
+
+        // tenendo premuto il sinistro sul nemico, a tasti premuti, si continua a colpirlo finché è a portata; fuori portata si lascia
+        private void HoldStandingAttack()
+        {
+            if (_heldTarget == null || !_input.IsMoveCommandHeld || _pressStartedOverUI)
+            {
+                return;
+            }
+
+            _holdTimer -= Time.deltaTime;
+            if (_holdTimer > 0f)
+            {
+                return;
+            }
+
+            _holdTimer = _holdRepathInterval;
+            if (_heldTarget.IsAlive() && _attack.IsInReach(_heldTarget))
+            {
+                _attack.SetTarget(_heldTarget);
+                return;
+            }
+
+            // fuori portata non si insegue: i tasti riprendono a muovere
+            _heldTarget = null;
+            _attack.ClearTarget();
+        }
+
+        // un bottone cliccato resta selezionato: con WASD e le frecce la navigazione dell'interfaccia ne sposterebbe l'evidenza
+        private static void ClearUiSelection()
+        {
+            var system = EventSystem.current;
+            if (system != null && system.currentSelectedGameObject != null
+                && system.currentSelectedGameObject.GetComponent<TMPro.TMP_InputField>() == null)
+            {
+                system.SetSelectedGameObject(null);
+            }
         }
 
         private void HandleMoveCommandStarted()

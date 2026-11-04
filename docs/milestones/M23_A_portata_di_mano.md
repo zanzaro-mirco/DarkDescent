@@ -132,5 +132,51 @@ gioco, le barre, il riquadro e il pannello sono disegnati sopra. Cosa mostra:
 lo fa davvero), e il pannello è alto 800 px su 1080: con una riga in più nei gruppi non basta, e andrebbe in tre
 colonne.
 
-**Da approvare:** le barre (dimensione, colori dei gradi, il nome sopra l'unico); il riquadro **A o B**; il pannello e
-il pulsante *Comandi*. Poi il 23.2.
+**Approvato da Mirco il 4 novembre 2026:** il riquadro **A** (in basso al centro), le barre e il pannello com'erano
+disegnati, con il pulsante *Comandi* nella pausa.
+
+---
+
+## Passo 23.2 — WASD
+
+**Cosa c'è (4 nov 2026).** `Move2D` (Value, Vector2) nel `PlayerControls` con due composti, **WASD** e le **frecce**
+(`2DVector` normalizzato: la diagonale non è più veloce); il wrapper si è rigenerato da solo al primo avvio di Unity.
+`PlayerInputReader.MoveKeys` li legge (zero con le azioni spente: menu, filmati e morte restano coperti).
+
+- **`KeyboardMove`** (`Core/Player`, logica pura): dai tasti e dalla camera di quel frame la direzione in piano, di
+  lunghezza 1; di una camera a picco, che non ha un avanti in piano, usa il suo su. Sei test EditMode: i quattro scatti
+  della visuale, le diagonali, la zona morta.
+- **`PlayerMotor.Steer`** (D4): una destinazione a 1,5 m, **ritagliata sul bordo del NavMesh** con `NavMesh.Raycast`.
+  Contro un bordo storto si scivola lungo il bordo (la direzione proiettata sul bordo), contro uno dritto ci si ferma:
+  un punto oltre il muro, preso con `MoveTo`, avrebbe mandato l'agent a fare il giro dall'altra parte. Non ho provato
+  `NavMeshAgent.Move`: la destinazione ritagliata passa le prove (muro dritto, muro di sbieco, spiazzo) e non cambia
+  animazioni e passi, che seguono la velocità dell'agent.
+- **`MeleeAttack.IsInReach`**: il bersaglio è già a portata (colpo o dardo con la linea libera), senza inseguirlo.
+- **`PlayerController`** (D5–D8): i tasti hanno la precedenza e prendono tutto il frame (coda del click, pressione,
+  tasto tenuto); rilasciati ci si ferma, e il sinistro tenuto riprende a seguire il cursore.
+  - Un click su un **nemico a portata** (o un barile) lo colpisce **da fermo**: i tasti non spostano il cavaliere finché il
+    bersaglio c'è, il sinistro è tenuto su di lui o il colpo non è finito; tenuto premuto si continua a colpire, fuori
+    portata si lascia e i tasti riprendono. Un click su un nemico **fuori portata** e sul **pavimento** non fa niente.
+  - Un click su un **oggetto da usare** (cassa, scala) è un comando nuovo: il cavaliere ci cammina e lo usa, e i tasti
+    **tacciono finché non si rilasciano tutti** (se no il frame dopo il tasto ripigliava il comando e l'oggetto si usava
+    quando capitava di passarci accanto).
+  - Un tasto che ricomincia a guidare lascia l'oggetto che si andava a usare e il nemico da inseguire. Durante un colpo
+    partito non si cammina e non si accoda niente: la direzione si rilegge a ogni frame.
+  - Il bottone cliccato resta selezionato dall'interfaccia, e le sue frecce e WASD ne sposterebbero l'evidenza: a ogni
+    frame di tasti la selezione si toglie (tranne un campo di testo).
+- **Chi spegne i tasti (D8):** `SetKeyboardBlocker`, dato dalla `CompositionRoot`: il pannello delle abilità (`N`, a
+  tutto schermo), l'altare delle difficoltà e un'abilità del Guerriero che porta il cavaliere (`WarriorAbilities.IsBusy`).
+  Pausa, morte, filmati, menu e vittoria spengono già il controller o il reader. **Due scostamenti dalla scheda:** il
+  **banco** del borgo non blocca i tasti (si chiude da solo allontanandosi, come col click: bloccarli avrebbe lasciato il
+  banco aperto a chi cammina con la tastiera), e il campo del nome vive nel menu iniziale, dove il reader è spento.
+- **Gli incantesimi (D7)** non cambiano: mirano al cursore, e il `Stop` del lancio dura un frame, poi i tasti riprendono.
+
+**Prove.** EditMode 645 verdi (+6). PlayMode `KeyboardMovementTests`, 13: le quattro direzioni e la diagonale, la
+diagonale non più veloce, l'arresto al rilascio, il muro dritto e di sbieco, il tasto sopra il click e il click che
+riprende, il click sul pavimento che non cambia strada, il blocco da fuori, il colpo da fermo (Guerriero e Mago, dardo a
+4 m), il click fuori portata, la cassa con i tasti giù, W a ogni scatto della visuale nel livello generato.
+
+**Lezioni.** (1) Con più `Set` di fila su una tastiera di prova i tasti si cancellano: ogni evento scrive il byte dei
+tasti letto prima che gli altri siano elaborati (W e S stanno nello stesso byte); si manda **un solo stato** con tutti i
+tasti (`KeyboardState`). (2) Dopo uno `Warp` il collider segue al passo di fisica: un click nello stesso frame colpisce
+il pavimento; serve `Physics.SyncTransforms()`.
