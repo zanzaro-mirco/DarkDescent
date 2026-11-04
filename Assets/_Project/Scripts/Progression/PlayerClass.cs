@@ -79,6 +79,9 @@ namespace DarkDescent.Progression
                 sheet.SetBase(StatType.Magic, characterClass.Magic);
                 sheet.SetBase(StatType.Vitality, characterClass.Vitality);
 
+                // prima l'equipaggiamento: il tomo dà del mana in più, e il pieno si conta dopo
+                EquipKit(characterClass);
+
                 // un personaggio nuovo comincia con vita e mana pieni, qualunque siano i suoi attributi
                 var health = GetComponent<Health>();
                 if (health != null)
@@ -90,8 +93,6 @@ namespace DarkDescent.Progression
                 {
                     magic.Mana.Fill();
                 }
-
-                EquipKit(characterClass);
             }
 
             Changed?.Invoke();
