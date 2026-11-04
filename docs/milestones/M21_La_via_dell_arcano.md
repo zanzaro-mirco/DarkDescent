@@ -402,9 +402,9 @@ doppia debole (21.5); gli effetti del ghiaccio verdastri e il Muro di fiamme fat
 - [x] Bastone, bacchetta e tomo nel loot e dal mercante (21.3)
 - [x] Dardo arcano e le undici abilità del Mago (21.4)
 - [x] Albero del Mago nel pannello; altare per entrambe le classi (21.5)
-- [ ] Creazione del personaggio con nome; i tre posti; foto approvate (21.6)
-- [ ] Icone approvate (21.7)
+- [x] Creazione del personaggio con nome; i tre posti; foto approvate (21.6)
+- [x] Icone approvate (21.7)
 - [x] Misura delle difficoltà con il Mago dentro la tolleranza; ronda verde (21.8) — la ronda col Mago gira dalla prossima notte
-- [ ] EditMode e PlayMode verdi in locale e in CI
+- [x] EditMode e PlayMode verdi in locale e in CI (Tests 41823549526)
 - [x] ADR, lezioni nel piano, README, prove da fare, `bundleVersion` 1.9.0
-- [ ] Tag `v1.9.0` dopo i Tests verdi, build verde, peso dell'artefatto
+- [x] Tag `v1.9.0` dopo i Tests verdi, build verde (41835856766), artefatto 61,32 MB

@@ -557,7 +557,7 @@ Chiusa il 26 ottobre 2026 con il tag `v1.4.0`: 466 test EditMode e 252 PlayMode 
 
 ### M21 — "La via dell'arcano" ✅
 
-Chiusa il 4 novembre 2026 (tag `v1.9.0` dopo il sì di Mirco): 626 test EditMode e 342 PlayMode verdi in locale (2 saltati), più quelli della ronda, che ora misura anche il Mago. Il Mago ha tre alberi (la classe, *Fuoco* e *Gelo*, 49 nodi), le sue armi, dodici abilità, ventotto icone e una schermata di creazione con il nome. Lezioni emerse:
+Chiusa il 4 novembre 2026 (tag `v1.9.0`, build 41835856766 verde, artefatto 61,32 MB): 626 test EditMode e 342 PlayMode verdi in locale (2 saltati), più quelli della ronda, che ora misura anche il Mago. Il Mago ha tre alberi (la classe, *Fuoco* e *Gelo*, 49 nodi), le sue armi, dodici abilità, ventotto icone e una schermata di creazione con il nome. Lezioni emerse:
 
 - **Una classe dà i suoi attrezzi, ma non i suoi numeri:** con i numeri del disegno il Mago faceva un decimo del danno del cavaliere a fine gioco e subiva il 62–91% dei colpi del bruto. Lo si è visto solo mettendolo nella misura (ADR-138): un disegno di classe nuovo si conta con le fasce prima di fidarsi.
 - **Il cavaliere cresce da tutta l'armatura, il Mago da due slot:** la Forza è ovunque tra gli affissi, la Magia solo su gioielli ed elmi, e il passaggio ai rari è il gradino dove si vede. Aprire gli affissi della Magia a tutta l'armatura cambierebbe i tiri del cavaliere: per questo si è ritarato il Mago e il cavaliere non si è toccato.
