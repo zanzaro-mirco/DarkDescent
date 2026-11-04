@@ -196,7 +196,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("Il punto d'interesse sta solo nelle stanze da 5 x 5 in su, mai in quella di partenza, al centro e lontano dai passaggi, da casse e scala; al più un pozzo e un santuario per livello, e niente trappole prima della profondità 3 (D4 della M13)")]
+        [Test, Description("Il punto d'interesse sta solo nelle stanze da 6 x 6 in su, mai in quella di partenza, al centro e lontano dai passaggi, da casse e scala; al più un pozzo e un santuario per livello, e niente trappole prima della profondità 3 (D4 della M13)")]
         public void Features_StandInTheMiddleOfBigRooms()
         {
             var generator = new DungeonGenerator(_settings);
@@ -247,7 +247,7 @@ namespace DarkDescent.Tests
                 }
             }
 
-            Assert.Greater(bigRooms, 100, "stanze grandi da provare");
+            Assert.Greater(bigRooms, 60, "stanze grandi da provare");
             int total = kinds.Values.Sum();
             Assert.Greater(total, bigRooms / 2, "più di metà delle stanze grandi ha un punto d'interesse");
             foreach (RoomFeatureKind kind in new[] { RoomFeatureKind.Barrels, RoomFeatureKind.Well, RoomFeatureKind.Shrine, RoomFeatureKind.Traps })

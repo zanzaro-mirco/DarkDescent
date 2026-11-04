@@ -62,7 +62,7 @@ namespace DarkDescent.Levels
         public const char SpikeSymbol = '^';
 
         /// <summary>Il lato minimo, in celle, di una stanza con un punto d'interesse (dove andava il colonnato).</summary>
-        public const int MinFeatureRoom = 5;
+        public const int MinFeatureRoom = 6;
 
         /// <summary>
         /// I mucchietti a terra (passo 11.7 della M11): ossa e teschi, piatti e bottiglie, armi rotte; dal

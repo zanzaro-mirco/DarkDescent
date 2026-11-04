@@ -126,3 +126,28 @@ Il pezzo di scala nuovo (alternativa di D3) si può solo descrivere: non esiste 
 di KayKit in 22.3. Le caverne non hanno ancora lo sbocco: lì è la stessa galleria, nel muro più vicino all'ingresso.
 
 **Da approvare:** le stanze (B, o un'altra colonna) e lo sbocco come scala in su. Poi il 22.2.
+
+---
+
+## Passo 22.2 — Le stanze più grandi
+
+**Fatto il 4 novembre 2026.** Colonna B del disegno, approvata da Mirco: `CryptSettings` ha la griglia 32×32, le zone
+da 7 a 12 e le stanze da 4 a 8 celle per lato. Le caverne e i valori di partenza della classe `DungeonSettings`
+non cambiano (le caverne non hanno stanze; i test che creano le impostazioni da zero restano sulla vecchia forma).
+
+Quello che le stanze nuove hanno mosso, trovato dal giro dei test:
+
+| Cosa | Perché si è mosso | Cosa ho fatto |
+|---|---|---|
+| Barili per livello 10,9 (fascia 5–10) e 3 spuntoni al seme 50 (al più 2) | Un punto d'interesse sta in una stanza di almeno 5 × 5 celle: con le stanze da 4 a 8 ne qualificano il 64%, non il 36% | `DungeonPopulator.MinFeatureRoom` da 5 a **6**: la quota di stanze con un punto d'interesse torna quella di prima (3 lati su 5, al quadrato). La fascia dei barili e il tetto degli spuntoni non si toccano |
+| La misura delle difficoltà esce dalla fascia (Tenebra, profondità 1: 8,40 contro 8,55) | Nelle stanze più grandi le scorte dei campioni (2–4 nemici) si formano al completo: l'esperienza per livello sale dell'1,8–3,5% (200 semi: 1327→1373 alla profondità 2) e il cavaliere arriva più forte | La scorta nella cripta da 2–4 a **2–3** (`CryptSettings`): l'esperienza scende dello 0,8–2,4% sotto quella di prima e i numeri fissati del cavaliere di riferimento tornano uguali. Le caverne non cambiano |
+| `Tunnel_NeverClosesAPassage` al seme 39595 | Lo sbocco sulla cella accanto a un arredo d'angolo lasciava chiusa fuori la cella di lato | `DungeonLayout.StaysConnectedWithout`: `TunnelSpot` scarta una cella se, tolta, parte del livello (con gli arredi e le casse come ostacoli) non si raggiunge più dall'ingresso. Il seme è già tra quelli del test |
+| `Features_StandInTheMiddleOfBigRooms` | Con la soglia a 6 le stanze grandi del campione di test sono 96, non più di 100 | Il minimo del campione scende a 60: serve solo a non provare il vuoto |
+
+**Test nuovi** (`CryptRoomsTests`): le impostazioni vere del gioco, nessuna stanza sotto i 4 lati né sopra gli 8 su 300 semi e
+quattro profondità, la mediana almeno 24 celle, le caverne sempre da 28. **EditMode 629/629 verdi.**
+
+**Ronda locale** (`-nightly-seed 20261105`, mappe di cripta e caverne su 20000 partite ciascuna, loot, unici e set,
+Mago): verde, salvo la misura delle difficoltà del cavaliere al Crepuscolo, profondità 8: colpi al bruto **3,799** contro il
+minimo di 3,8. La stessa misura con lo stesso seme sul codice di prima (`git stash`, commit `e8103df`) dà gli stessi
+numeri e lo stesso errore: **non dipende dalle stanze**, c'è dalla M21. È un'altra cosa da guardare, a parte.

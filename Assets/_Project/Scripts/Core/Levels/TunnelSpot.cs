@@ -112,7 +112,7 @@ namespace DarkDescent.Levels
             }
 
             var behind = cell + back;
-            return layout[behind.x, behind.y] == LevelMap.Rock;
+            return layout[behind.x, behind.y] == LevelMap.Rock && layout.StaysConnectedWithout(cell);
         }
 
         // le righe della mappa scendono verso sud

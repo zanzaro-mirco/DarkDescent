@@ -65,7 +65,7 @@ namespace DarkDescent.Levels
         [SerializeField, Min(0)] private int _maxDecorPerRoom = 4;
 
         [Header("Punto d'interesse (D4 della M13)")]
-        [Tooltip("Probabilità che il punto d'interesse di una stanza di almeno 5 × 5 celle sia un gruppo di barili. Quello che manca all'1 tra le quattro è una stanza senza.")]
+        [Tooltip("Probabilità che il punto d'interesse di una stanza di almeno 6 × 6 celle sia un gruppo di barili. Quello che manca all'1 tra le quattro è una stanza senza.")]
         [SerializeField, Range(0f, 1f)] private float _barrelsChance = 0.35f;
 
         [Tooltip("Probabilità di un pozzo della vita o del mana: al più uno per livello, un secondo diventa barili.")]

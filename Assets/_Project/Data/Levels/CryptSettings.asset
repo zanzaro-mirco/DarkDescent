@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c74e9dbdb448ed64691eec5fc3b48263, type: 3}
   m_Name: CryptSettings
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Levels.DungeonSettings
-  _width: 28
-  _height: 28
-  _minLeaf: 6
-  _maxLeaf: 11
-  _minRoom: 3
-  _maxRoom: 7
+  _width: 32
+  _height: 32
+  _minLeaf: 7
+  _maxLeaf: 12
+  _minRoom: 4
+  _maxRoom: 8
   _sceneName: Level_Crypt
   _firstDepth: 1
   _lastDepth: 4
@@ -45,7 +45,7 @@ MonoBehaviour:
     _minDepth: 2
     _groups: 1
     _extraGroupChance: 0.4
-    _escort: {x: 2, y: 4}
+    _escort: {x: 2, y: 3}
     _swarmEscort: {x: 4, y: 6}
     _escortRadius: 2
     _spacing: 4

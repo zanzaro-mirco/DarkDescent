@@ -83,6 +83,54 @@ namespace DarkDescent.Levels
             _features.Add(feature);
         }
 
+        /// <summary>
+        /// Ogni cella libera si raggiunge dall'ingresso a piedi anche se <paramref name="removed"/> diventa muro:
+        /// gli arredi e le casse non si attraversano, la scala nemmeno. Lo chiede lo sbocco (e la scala in su),
+        /// che prende il posto di un pezzo di muro e non deve chiudere fuori la cella accanto (22.2 della M22).
+        /// </summary>
+        public bool StaysConnectedWithout(Vector2Int removed)
+        {
+            // le celle raggiunte con la cella tolta devono essere tutte quelle di prima meno lei: dove un arredo
+            // chiudeva già un angolo, il livello di prima non era connesso e non è colpa dello sbocco
+            return Reachable(null) - 1 == Reachable(removed);
+        }
+
+        private int Reachable(Vector2Int? removed)
+        {
+            bool Walkable(int x, int y)
+            {
+                if (!IsFloor(x, y) || (removed.HasValue && x == removed.Value.x && y == removed.Value.y))
+                {
+                    return false;
+                }
+
+                char symbol = _cells[x, y];
+                return symbol != DungeonGenerator.StairsSymbol && !DungeonPopulator.IsObstacle(symbol);
+            }
+
+            var seen = new bool[Width, Height];
+            var queue = new Queue<Vector2Int>();
+            seen[Entrance.x, Entrance.y] = true;
+            queue.Enqueue(Entrance);
+            int reached = 0;
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+                reached++;
+                foreach (var step in LevelGrid.Steps)
+                {
+                    var next = cell + step;
+                    if (Walkable(next.x, next.y) && !seen[next.x, next.y])
+                    {
+                        seen[next.x, next.y] = true;
+                        queue.Enqueue(next);
+                    }
+                }
+            }
+
+            return reached;
+        }
+
         /// <summary>Toglie un marcatore messo con <see cref="TryPlace"/>: la cella torna pavimento.</summary>
         public void Remove(int x, int y)
         {
