@@ -51,7 +51,7 @@ gira con **Z e X**, README), e **le pergamene non ci sono più** (le ha tolte la
 
 ## Decisioni
 
-**Da confermare da Mirco.**
+**Confermate da Mirco il 4 novembre 2026:** tutte, D1–D16, senza tagli. Il disegno (23.1) resta da approvare prima del codice.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
