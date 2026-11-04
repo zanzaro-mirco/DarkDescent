@@ -115,4 +115,22 @@ gira con **Z e X**, README), e **le pergamene non ci sono più** (le ha tolte la
 
 ## Passo 23.1 — Il disegno
 
-*(da scrivere a passo iniziato)*
+**Com'è andata (4 nov 2026).** Il foglio `Recordings/Photos/m23_disegno/disegno.html` (fuori da git, una pagina sola con
+le immagini dentro) è montato su foto vere del gioco (`13_caves_room`, `09_crypt_room`, `14_pause`): niente è ancora nel
+gioco, le barre, il riquadro e il pannello sono disegnati sopra. Cosa mostra:
+
+- **Le barre (D9, D10).** Uno sciame di sette nelle caverne con la barra solo sui quattro feriti (62%, 34%, 81%, 18%),
+  uno dei quali campione (dorata); la cripta con un unico (arancione, nome sopra la barra) e uno scheletro. Barra di
+  74 × 10 px a 1080p, bordo scuro, riempimento che si accorcia da destra.
+- **Il riquadro (D11, D12).** Due posti, **A** in basso al centro sopra la cintura e **B** in alto a sinistra (l'automappa
+  è a destra), con titolo in oro, una o due righe, i tasti disegnati come tasti e la barra sottile degli 8 secondi; due
+  esempi di testo (italiano, inglese) e la tabella dei dieci momenti.
+- **Il pannello (D14).** Il menu di pausa con il quarto pulsante *Comandi*, poi il pannello in italiano e in inglese:
+  *Movimento*, *Vedere* a sinistra, *Combattimento*, *Finestre* a destra, con la riga del Mago e il pulsante *Chiudi (F1)*.
+
+**Due cose da sapere:** i tasti con il numero 1 in Cinzel somigliano a una I (nel gioco si guarda se il carattere
+lo fa davvero), e il pannello è alto 800 px su 1080: con una riga in più nei gruppi non basta, e andrebbe in tre
+colonne.
+
+**Da approvare:** le barre (dimensione, colori dei gradi, il nome sopra l'unico); il riquadro **A o B**; il pannello e
+il pulsante *Comandi*. Poi il 23.2.
