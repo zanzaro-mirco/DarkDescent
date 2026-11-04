@@ -99,3 +99,30 @@ girato su 5000 semi; la misura vera, con il generatore, è il passo 22.2.
   profondità, le foto del disegno (22.1) mostrano anche il caso dei muri bassi.
 - **NavMesh e tempi.** I livelli crescono di circa il 30% di pavimento: si rimisurano i tempi di generazione e
   cottura (`-benchmark-levels`, M18) e il peso dell'artefatto.
+
+---
+
+## Passo 22.1 — Il disegno
+
+**Com'è andata (4 nov 2026).** Il foglio `Recordings/Photos/m22_disegno/rooms_compare.png` (fuori da git) è
+disegnato dal **generatore vero** (`PhotoTour.RoomDesign`): quattro righe, una per seme, cinque colonne, nell'ordine
+*oggi*, **A**, **B**, **C**, **D** (le impostazioni di D11). Le stanze con un lato di 3 celle sono rosa; il verde è
+l'ingresso, il giallo la scala giù. Cambiando le impostazioni cambia anche il tiro del seme, quindi le righe non
+sono lo stesso livello più grande: sono lo stesso seme, un livello diverso.
+
+I numeri sono su 64 semi, alla profondità 3, dal generatore vero (la stima della scheda era giusta):
+
+| Impostazione | Griglia | Zone | Stanze | Stanze per livello | Area mediana (celle) | ≤ 12 celle | Con un lato di 3 | Pavimento |
+|---|---|---|---|---|---|---|---|---|
+| **oggi** | 28 | 6–11 | 3–7 | 11,2 | 16 | 32% | 58% | 29,8% |
+| A | 28 | 6–11 | 4–7 | 11,2 | 20 | 0% | 0% | 35,6% |
+| **B (proposta)** | 32 | 7–12 | 4–8 | 10,9 | 25 | 0% | 0% | 33,3% |
+| C | 34 | 7–13 | 4–9 | 12,5 | 28 | 0% | 0% | 35,0% |
+| D | 36 | 8–13 | 5–9 | 10,6 | 40 | 0% | 0% | 35,9% |
+
+**La scala in su.** La foto dello sbocco della M18 (`Recordings/Photos/crypt_tunnel.jpg`) è l'aspetto proposto per
+tutti i livelli: il fronte di massi con le travi rosse e i due bracieri, nel muro nord della stanza d'ingresso.
+Il pezzo di scala nuovo (alternativa di D3) si può solo descrivere: non esiste ancora e si costruirebbe dai pezzi
+di KayKit in 22.3. Le caverne non hanno ancora lo sbocco: lì è la stessa galleria, nel muro più vicino all'ingresso.
+
+**Da approvare:** le stanze (B, o un'altra colonna) e lo sbocco come scala in su. Poi il 22.2.

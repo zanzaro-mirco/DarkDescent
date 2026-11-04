@@ -701,6 +701,134 @@ namespace DarkDescent.Tests
             yield return Snap("crypt_tunnel_empty");
         }
 
+        [UnityTest, Timeout(300000), Description("Le stanze della cripta di prima e di dopo (22.1, D11 della M22): quattro semi con le impostazioni di oggi e le alternative, disegnati dal generatore vero, e i numeri su 64 semi")]
+        public IEnumerator RoomDesign()
+        {
+            // oggi, poi le alternative misurate nella scheda: nome, griglia, zone (min e max), stanze (min e max)
+            var configs = new[]
+            {
+                ("oggi", 28, 6, 11, 3, 7), ("A", 28, 6, 11, 4, 7), ("B", 32, 7, 12, 4, 8), ("C", 34, 7, 13, 4, 9), ("D", 36, 8, 13, 5, 9),
+            };
+            const int depth = 3;
+            const int cell = 10;
+            const int slot = 36 * cell + 12;
+            var seeds = new ulong[] { 20261104, 20261105, 20261106, 20261107 };
+            var settings = new DungeonSettings[configs.Length];
+            for (int i = 0; i < configs.Length; i++)
+            {
+                settings[i] = Object.Instantiate(AssetDatabase.LoadAssetAtPath<DungeonSettings>("Assets/_Project/Data/Levels/CryptSettings.asset"));
+                var so = new SerializedObject(settings[i]);
+                var (_, grid, minLeaf, maxLeaf, minRoom, maxRoom) = configs[i];
+                so.FindProperty("_width").intValue = grid;
+                so.FindProperty("_height").intValue = grid;
+                so.FindProperty("_minLeaf").intValue = minLeaf;
+                so.FindProperty("_maxLeaf").intValue = maxLeaf;
+                so.FindProperty("_minRoom").intValue = minRoom;
+                so.FindProperty("_maxRoom").intValue = maxRoom;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            // una riga per seme, una colonna per impostazione; le stanze con un lato di 3 celle sono rosate
+            var sheet = new Texture2D(slot * configs.Length, slot * seeds.Length, TextureFormat.RGBA32, false);
+            var background = new Color32(40, 40, 46, 255);
+            var fill = new Color32[sheet.width * sheet.height];
+            for (int i = 0; i < fill.Length; i++)
+            {
+                fill[i] = background;
+            }
+
+            sheet.SetPixels32(fill);
+            for (int row = 0; row < seeds.Length; row++)
+            {
+                for (int column = 0; column < configs.Length; column++)
+                {
+                    var layout = settings[column].CreateGenerator().Generate(SeedMixer.ForLevel(seeds[row], depth), depth);
+                    var narrow = new bool[layout.Width, layout.Height];
+                    foreach (var room in layout.Rooms)
+                    {
+                        if (Mathf.Min(room.width, room.height) < 4)
+                        {
+                            for (int y = room.yMin; y < room.yMax; y++)
+                            {
+                                for (int x = room.xMin; x < room.xMax; x++)
+                                {
+                                    narrow[x, y] = true;
+                                }
+                            }
+                        }
+                    }
+
+                    int originX = column * slot + 6;
+                    int originY = (seeds.Length - 1 - row) * slot + 6;
+                    for (int y = 0; y < layout.Height; y++)
+                    {
+                        for (int x = 0; x < layout.Width; x++)
+                        {
+                            Color32 color = MapPainter.ColorOf(layout[x, y]);
+                            if (narrow[x, y])
+                            {
+                                color = new Color32(190, 110, 110, 255);
+                            }
+
+                            for (int py = 0; py < cell - 1; py++)
+                            {
+                                for (int px = 0; px < cell - 1; px++)
+                                {
+                                    sheet.SetPixel(originX + x * cell + px, originY + (layout.Height - 1 - y) * cell + py, color);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            sheet.Apply();
+            File.WriteAllBytes(Path.Combine(_folder, "rooms_compare.png"), sheet.EncodeToPNG());
+            Object.Destroy(sheet);
+
+            var lines = new List<string> { "impostazione | stanze/livello | area mediana (celle) | stanze <=12 celle | stanze con un lato di 3 | pavimento %" };
+            for (int column = 0; column < configs.Length; column++)
+            {
+                var areas = new List<int>();
+                var counts = new List<int>();
+                int small = 0, narrowCount = 0;
+                double floor = 0;
+                for (ulong n = 1; n <= 64; n++)
+                {
+                    var layout = settings[column].CreateGenerator().Generate(SeedMixer.ForLevel(20261000UL + n, depth), depth);
+                    counts.Add(layout.Rooms.Count);
+                    int floorCells = 0;
+                    for (int y = 0; y < layout.Height; y++)
+                    {
+                        for (int x = 0; x < layout.Width; x++)
+                        {
+                            floorCells += layout.IsFloor(x, y) ? 1 : 0;
+                        }
+                    }
+
+                    floor += 100.0 * floorCells / (layout.Width * layout.Height);
+                    foreach (var room in layout.Rooms)
+                    {
+                        areas.Add(room.width * room.height);
+                        small += room.width * room.height <= 12 ? 1 : 0;
+                        narrowCount += Mathf.Min(room.width, room.height) < 4 ? 1 : 0;
+                    }
+                }
+
+                areas.Sort();
+                lines.Add($"{configs[column].Item1} | {counts.Average():F1} | {areas[areas.Count / 2]} | {100.0 * small / areas.Count:F0}% | {100.0 * narrowCount / areas.Count:F0}% | {floor / 64:F1}");
+                yield return null;
+            }
+
+            File.WriteAllLines(Path.Combine(_folder, "rooms_stats.txt"), lines);
+            foreach (var s in settings)
+            {
+                Object.Destroy(s);
+            }
+
+            _taken.Add("rooms_compare.png");
+        }
+
         [UnityTest, Timeout(300000), Description("Il borgo dei filmati (19.3): la notte, metà delle candele spente, il cimitero con le tombe smosse e la lanterna, l'alba con il fuoco spento")]
         public IEnumerator FilmSet()
         {
