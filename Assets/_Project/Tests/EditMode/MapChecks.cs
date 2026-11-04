@@ -149,6 +149,56 @@ namespace DarkDescent.Tests
         }
 
         /// <summary>
+        /// La scala in su (D14 della M22): a ogni profondità che ha un livello di sopra il posto c'è, è un pavimento libero
+        /// con roccia dietro, il davanti è libero e si raggiunge a piedi, e tolta quella cella ogni pavimento, la
+        /// scala giù compresa, resta raggiungibile (lo sbocco non chiude un corridoio né un passaggio).
+        /// </summary>
+        public static string UpExit(DungeonSettings settings, DungeonLayout layout, int depth)
+        {
+            if (!settings.TryGetUpExit(depth, out _, out _, out _))
+            {
+                return null;
+            }
+
+            if (!TunnelSpot.TryChoose(layout, out var cell, out var wall))
+            {
+                return $"nessun posto per la scala in su\n{Text(layout)}";
+            }
+
+            Vector2Int toRoom = wall == MapDirection.North ? Vector2Int.up
+                : wall == MapDirection.South ? Vector2Int.down
+                : wall == MapDirection.East ? Vector2Int.left
+                : Vector2Int.right;
+            char symbol = layout[cell.x, cell.y];
+            if (symbol != LevelMap.Floor && symbol != DungeonPopulator.TorchSymbol)
+            {
+                return $"la scala in su in ({cell.x}, {cell.y}) sta su '{symbol}'\n{Text(layout)}";
+            }
+
+            // a due celle dall'ingresso, o a una se la stanza non ha di meglio: che il trigger resti fuori da dove si arriva lo prova la ronda in PlayMode
+            if (cell == layout.Entrance)
+            {
+                return $"la scala in su in ({cell.x}, {cell.y}) è sull'ingresso\n{Text(layout)}";
+            }
+
+            var behind = cell - toRoom;
+            if (layout[behind.x, behind.y] != LevelMap.Rock)
+            {
+                return $"dietro la scala in su in ({cell.x}, {cell.y}) non c'è la roccia\n{Text(layout)}";
+            }
+
+            Func<char, bool> passable = c => c != DungeonGenerator.StairsSymbol && !DungeonPopulator.IsObstacle(c);
+            var distances = Walk(layout, passable);
+            var front = cell + toRoom;
+            if (!distances.ContainsKey(cell) || !distances.ContainsKey(front))
+            {
+                return $"la scala in su in ({cell.x}, {cell.y}) non si raggiunge a piedi\n{Text(layout)}";
+            }
+
+            return layout.StaysConnectedWithout(cell) ? null : $"la scala in su in ({cell.x}, {cell.y}) chiude un passaggio\n{Text(layout)}";
+        }
+
+        /// <summary>
         /// Un ingresso; se c'è la scala, una sola, con la roccia a nord (lo stendardo) e il pavimento a sud
         /// (da dove si arriva), ad almeno il 45% della distanza massima dall'ingresso (<see cref="LeastStairsShare"/>).
         /// </summary>

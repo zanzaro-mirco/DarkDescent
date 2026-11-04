@@ -246,7 +246,7 @@ namespace DarkDescent.Tests
             Assert.IsTrue(Manager.CurrentLevel.IsTown);
         }
 
-        [UnityTest, Description("Un salvataggio fatto nell'accampamento della v1.5.0 (formato 7, accampamento di 13 × 10 celle tutto scoperto, portale aperto alla profondità 5) continua nel borgo: livello, oro e portale com'erano, la mappa scoperta del borgo riparte (D12 della M18)")]
+        [UnityTest, Description("Un salvataggio fatto nell'accampamento della v1.5.0 (formato 7, accampamento di 13 × 10 celle tutto scoperto, portale aperto alla profondità 5) continua nel borgo: livello e oro com'erano, il portale aperto alla profondità 5 riporta all'ingresso (il formato 10 azzera il punto, D13 della M22), la mappa scoperta del borgo riparte (D12 della M18)")]
         public IEnumerator OldCampSave_ContinuesInTheVillage()
         {
             var fixture = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v7_camp.json");
@@ -272,7 +272,7 @@ namespace DarkDescent.Tests
 
             var portals = UnityEngine.Object.FindFirstObjectByType<DarkDescent.Town.TownPortals>();
             Assert.AreEqual(5, portals.PortalDepth, "il portale aperto resta");
-            Assert.AreEqual(new Vector3(36f, 0f, -20f), portals.PortalSpot);
+            Assert.IsNull(portals.PortalSpot, "il formato 10 azzera il punto: riporta all'ingresso della profondità");
 
             // l'accampamento scoperto aveva un'altra misura: il borgo si scopre da capo
             var exploration = UnityEngine.Object.FindFirstObjectByType<ExplorationTracker>().Exploration;

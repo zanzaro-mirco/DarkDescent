@@ -101,6 +101,12 @@ namespace DarkDescent.Tests
                 var level = Manager.CurrentLevel;
                 var up = level.UpExit;
                 Assert.IsNotNull(up, $"profondità {depth}");
+                Assert.AreSame(up, level.Exits[level.Exits.Count - 1], $"profondità {depth}: la scala in su sta in fondo alle uscite");
+                if (depth < 8)
+                {
+                    Assert.AreSame(level.DownExits.First(), level.Exits[0], $"profondità {depth}: Exits[0] è la scala giù");
+                }
+
                 Assert.IsFalse(up.GetComponent<BoxCollider>().bounds.Contains(Player.position), $"profondità {depth}: l'arrivo è dentro il trigger della scala in su");
                 yield return new WaitForSeconds(1f);
                 Assert.AreEqual(depth, Manager.CurrentLevel.Depth, $"profondità {depth}: rimbalzo");

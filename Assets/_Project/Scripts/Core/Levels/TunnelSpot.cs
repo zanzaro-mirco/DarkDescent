@@ -51,28 +51,33 @@ namespace DarkDescent.Levels
                 return TryChooseInCave(layout, out cell, out wall);
             }
 
+            // Prima un posto ad almeno due celle dall'ingresso, in un muro qualunque; se la stanza non ne ha, il più vicino: a una cella
+            // il trigger della scala resta a mezzo metro da dove si arriva
             var room = layout.Rooms[layout.StartRoom];
-            foreach (var side in Walls)
+            for (int least = LeastFromEntrance; least >= 1; least--)
             {
-                Vector2Int back = Step(side);
-                var along = new Vector2Int(Mathf.Abs(back.y), Mathf.Abs(back.x));
-                int best = int.MaxValue;
-                cell = layout.Entrance;
-                foreach (var candidate in Row(room, side))
+                foreach (var side in Walls)
                 {
-                    var offset = candidate - layout.Entrance;
-                    int distance = Mathf.Abs(offset.x * along.x + offset.y * along.y);
-                    if (distance < best && Fits(layout, room, candidate, back, along))
+                    Vector2Int back = Step(side);
+                    var along = new Vector2Int(Mathf.Abs(back.y), Mathf.Abs(back.x));
+                    int best = int.MaxValue;
+                    cell = layout.Entrance;
+                    foreach (var candidate in Row(room, side))
                     {
-                        best = distance;
-                        cell = candidate;
+                        var offset = candidate - layout.Entrance;
+                        int distance = Mathf.Abs(offset.x * along.x + offset.y * along.y);
+                        if (distance < best && FarFromEntrance(layout, candidate, least) && Fits(layout, room, candidate, back, along))
+                        {
+                            best = distance;
+                            cell = candidate;
+                        }
                     }
-                }
 
-                if (best != int.MaxValue)
-                {
-                    wall = side;
-                    return true;
+                    if (best != int.MaxValue)
+                    {
+                        wall = side;
+                        return true;
+                    }
                 }
             }
 
@@ -80,6 +85,9 @@ namespace DarkDescent.Levels
             wall = MapDirection.North;
             return false;
         }
+
+        /// <summary>Quante celle, almeno, tra l'ingresso e la scala in su: il trigger sporge oltre la cella davanti, e più vicino si ripartirebbe appena arrivati.</summary>
+        public const int LeastFromEntrance = 2;
 
         /// <summary>Quanti passi dall'ingresso, al più, si cerca il posto nelle caverne.</summary>
         public const int CaveSearchRadius = 14;
@@ -125,7 +133,7 @@ namespace DarkDescent.Levels
                 {
                     foreach (var candidate in order)
                     {
-                        if (Mathf.Max(Mathf.Abs(candidate.x - layout.Entrance.x), Mathf.Abs(candidate.y - layout.Entrance.y)) >= 2
+                        if (FarFromEntrance(layout, candidate, LeastFromEntrance)
                             && layout[candidate.x, candidate.y] == LevelMap.Floor
                             && FitsInCave(layout, candidate, back, along, strictness))
                         {
@@ -143,6 +151,11 @@ namespace DarkDescent.Levels
         }
 
         private const int CavePasses = 3;
+
+        private static bool FarFromEntrance(DungeonLayout layout, Vector2Int cell, int least)
+        {
+            return Mathf.Max(Mathf.Abs(cell.x - layout.Entrance.x), Mathf.Abs(cell.y - layout.Entrance.y)) >= least;
+        }
 
         // 0: un tratto di muro dritto con le celle di lato e il quadrato davanti liberi; 1: le celle di lato possono essere
         // roccia (una nicchia nel muro); 2: basta roccia dietro e una cella libera davanti

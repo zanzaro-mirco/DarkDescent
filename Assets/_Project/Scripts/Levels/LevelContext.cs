@@ -39,6 +39,7 @@ namespace DarkDescent.Levels
         /// <summary>I nemici presenti al caricamento. Quelli morti e spariti restano nella lista come null di Unity.</summary>
         public IReadOnlyList<EnemyAI> Enemies => _enemies;
 
+        /// <summary>Tutte le uscite: le scale giù nell'ordine della scena, e in fondo la scala in su, se c'è.</summary>
         public IReadOnlyList<LevelExit> Exits => _exits;
 
         /// <summary>Le scale che scendono: tutte le uscite tranne la scala in su (M22).</summary>
@@ -191,6 +192,15 @@ namespace DarkDescent.Levels
                 {
                     Daylight = root.GetComponentInChildren<Rendering.DayCycleView>(true);
                 }
+            }
+
+            // l'ordine della gerarchia non è quello delle scale: la scala in su sta sempre in fondo, e Exits[0] è la prima scala giù
+            int up = _exits.FindIndex(exit => exit.name == LevelBuilder.UpExitName);
+            if (up >= 0 && up < _exits.Count - 1)
+            {
+                var stairsUp = _exits[up];
+                _exits.RemoveAt(up);
+                _exits.Add(stairsUp);
             }
         }
 

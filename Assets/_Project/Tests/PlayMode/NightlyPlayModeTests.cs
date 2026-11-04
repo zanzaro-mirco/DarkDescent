@@ -77,7 +77,7 @@ namespace DarkDescent.Tests
             Debug.Log($"[DarkDescent] ronda notturna, PlayMode: seme della notte {seed} (per rifarla: {NightlyRun.SeedOption} {seed})");
         }
 
-        [UnityTest, Timeout(OneHour), Description("200 partite nuove dalla profondità 1 all'8, costruite come nel gioco: dall'ingresso si arriva sul NavMesh alla scala, a casse e forzieri, pozzi e santuari e al re, e si rompe ogni barile; i nemici stanno sul NavMesh, il portale trova un posto raggiungibile, nessun pezzo sta sopra un altro, e nessun livello supera i 150 ms")]
+        [UnityTest, Timeout(OneHour), Description("200 partite nuove dalla profondità 1 all'8, costruite come nel gioco: dall'ingresso si arriva sul NavMesh alla scala giù e alla scala in su (raggiunta anche da dove si arriva risalendo, con l'ingresso fuori dal suo trigger), a casse e forzieri, pozzi e santuari e al re, e si rompe ogni barile; i nemici stanno sul NavMesh, il portale trova un posto raggiungibile, nessun pezzo sta sopra un altro, e nessun livello supera i 150 ms")]
         public IEnumerator BuiltLevels_AreWhole()
         {
             ulong night = NightlyRun.Seed();
@@ -186,9 +186,31 @@ namespace DarkDescent.Tests
 
             // dall'ingresso, a piedi sul NavMesh
             Vector3 entrance = Player.position;
-            foreach (var exit in level.Exits)
+            foreach (var exit in level.DownExits)
             {
-                Reach(entrance, exit.GetComponent<Interactable>().ApproachPoint, NearPiece, "la scala", Error);
+                Reach(entrance, exit.GetComponent<Interactable>().ApproachPoint, NearPiece, "la scala giù", Error);
+            }
+
+            // la scala in su (D14 della M22): c'è a ogni profondità, dall'ingresso e da dove si arriva risalendo si raggiunge sul NavMesh,
+            // e l'ingresso non è nel suo trigger (arrivando dall'alto non si risale subito)
+            var up = level.UpExit;
+            if (up == null)
+            {
+                Error("nessuna scala in su");
+            }
+            else
+            {
+                Vector3 upApproach = up.GetComponent<Interactable>().ApproachPoint;
+                Reach(entrance, upApproach, NearPiece, "la scala in su", Error);
+                if (up.GetComponent<BoxCollider>().bounds.Contains(entrance))
+                {
+                    Error("l'ingresso è dentro il trigger della scala in su");
+                }
+
+                foreach (var down in level.DownExits)
+                {
+                    Reach(down.GetComponent<Interactable>().ApproachPoint, upApproach, NearPiece, "la scala in su", Error, "dalla scala giù");
+                }
             }
 
             foreach (var chest in level.Chests)
@@ -327,7 +349,7 @@ namespace DarkDescent.Tests
             return false;
         }
 
-        private void Reach(Vector3 from, Vector3 target, float near, string what, Action<string> error)
+        private void Reach(Vector3 from, Vector3 target, float near, string what, Action<string> error, string origin = "dall'ingresso")
         {
             _pieces++;
             if (!NavMesh.SamplePosition(target, out var hit, near, NavMesh.AllAreas))
@@ -339,7 +361,7 @@ namespace DarkDescent.Tests
             var path = new NavMeshPath();
             if (!NavMesh.CalculatePath(from, hit.position, NavMesh.AllAreas, path) || path.status != NavMeshPathStatus.PathComplete)
             {
-                error($"a {what} in {target} non si arriva dall'ingresso");
+                error($"a {what} in {target} non si arriva {origin}");
             }
         }
 

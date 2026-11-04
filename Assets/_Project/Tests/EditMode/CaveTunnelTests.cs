@@ -159,31 +159,41 @@ namespace DarkDescent.Tests
             return new DungeonLayout(cells, new List<RectInt> { room }, 0, 0, entrance, entrance);
         }
 
-        [Test, Description("TunnelSpot sceglie il muro nord e la cella più vicina all'ingresso, anche con la torcia o accanto a un corridoio che parte dal suo muro; salta gli angoli, le celle occupate, quelle davanti a un corridoio e quelle dove un corridoio parte di lato, e se il nord è tutto preso passa all'ovest")]
+        [Test, Description("TunnelSpot sceglie il muro nord e la cella più vicina all'ingresso, ma ad almeno due celle da lui, anche con la torcia o accanto a un corridoio che parte dal suo muro; salta gli angoli, le celle occupate, quelle davanti a un corridoio e quelle dove un corridoio parte di lato, e se il nord è tutto preso passa all'ovest; senza un posto a due celle ripiega sul più vicino")]
         public void TunnelSpot_TakesAFreeStretchOfWall()
         {
-            var room = new RectInt(1, 1, 5, 3);
-            var entrance = new Vector2Int(3, 2);
-            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#.....#", "#..<..#", "#.....#", "#######"), out var cell, out var wall));
-            Assert.AreEqual((new Vector2Int(3, 1), MapDirection.North), (cell, wall), "di fronte all'ingresso");
+            var room = new RectInt(1, 1, 5, 5);
+            var entrance = new Vector2Int(3, 3);
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#.....#", "#.....#", "#..<..#", "#.....#", "#.....#", "#######"), out var cell, out var wall));
+            Assert.AreEqual((new Vector2Int(3, 1), MapDirection.North), (cell, wall), "di fronte all'ingresso, a due celle");
 
-            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#..B..#", "#..<..#", "#.....#", "#######"), out cell, out wall));
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#..B..#", "#.....#", "#..<..#", "#.....#", "#.....#", "#######"), out cell, out wall));
             Assert.AreEqual((new Vector2Int(2, 1), MapDirection.North), (cell, wall), "accanto al barile");
 
-            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#..T..#", "#..<..#", "#.....#", "#######"), out cell, out wall));
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#..T..#", "#.....#", "#..<..#", "#.....#", "#.....#", "#######"), out cell, out wall));
             Assert.AreEqual((new Vector2Int(3, 1), MapDirection.North), (cell, wall), "al posto della torcia");
 
-            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "###.###", "#.....#", "#..<..#", "#.....#", "#######"), out cell, out wall));
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "###.###", "#.....#", "#.....#", "#..<..#", "#.....#", "#.....#", "#######"), out cell, out wall));
             Assert.AreEqual((new Vector2Int(2, 1), MapDirection.North), (cell, wall), "accanto alla bocca del corridoio, non davanti");
 
             // il corridoio parte verso est dalla fila del muro nord: la cella più vicina all'ingresso è
             // quella del suo imbocco, e il fronte di massi lo stringerebbe (ronde del 31 ott e del 1 nov 2026)
-            var corner = new Vector2Int(5, 2);
-            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, corner, "#######", "#......", "#....<#", "#.....#", "#######"), out cell, out wall));
+            var corner = new Vector2Int(5, 3);
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, corner, "#######", "#......", "#.....#", "#....<#", "#.....#", "#.....#", "#######"), out cell, out wall));
             Assert.AreEqual((new Vector2Int(4, 1), MapDirection.North), (cell, wall), "non all'imbocco del corridoio di lato");
 
-            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#BBBBB#", "#..<..#", "#.....#", "#######"), out cell, out wall));
-            Assert.AreEqual((new Vector2Int(1, 2), MapDirection.West), (cell, wall), "il nord è tutto preso, e gli angoli non vanno");
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(room, entrance, "#######", "#BBBBB#", "#.....#", "#..<..#", "#.....#", "#.....#", "#######"), out cell, out wall));
+            Assert.AreEqual((new Vector2Int(1, 3), MapDirection.West), (cell, wall), "il nord è tutto preso, e gli angoli non vanno");
+
+            // un posto a una cella dall'ingresso non è il primo: con l'ingresso in mezzo a una stanza da 3 il muro nord è a una cella, ma l'ovest...
+            var small = new RectInt(1, 1, 5, 3);
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(small, new Vector2Int(3, 2), "#######", "#.....#", "#..<..#", "#.....#", "#######"), out cell, out wall));
+            Assert.AreEqual((new Vector2Int(1, 2), MapDirection.West), (cell, wall), "il nord è a una cella: si prende l'ovest, a due");
+
+            // nessun muro a due celle: si ripiega sul più vicino, com'era
+            var tiny = new RectInt(1, 1, 3, 3);
+            Assert.IsTrue(TunnelSpot.TryChoose(Layout(tiny, new Vector2Int(2, 2), "#####", "#...#", "#.<.#", "#...#", "#####"), out cell, out wall));
+            Assert.AreEqual((new Vector2Int(2, 1), MapDirection.North), (cell, wall), "nessuna a due celle: la più vicina sul muro nord");
 
             Assert.IsFalse(TunnelSpot.TryChoose(Layout(new RectInt(1, 1, 1, 1), new Vector2Int(1, 1), "###", "#<#", "###"), out _, out _), "una cella sola non ha muri liberi");
         }

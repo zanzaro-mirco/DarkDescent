@@ -78,6 +78,7 @@ namespace DarkDescent.Tests
                     MapChecks.Exits(layout, stairs),
                     CryptChecks.Population(layout, settings, depth),
                     MapChecks.ObstaclesLeavePath(layout, stairs),
+                    MapChecks.UpExit(settings, layout, depth),
                     CryptChecks.Torches(layout),
                     CryptChecks.ObstaclesAgainstWalls(layout),
                 };
@@ -100,6 +101,7 @@ namespace DarkDescent.Tests
                     CaveChecks.OpenEntrance(layout),
                     CaveChecks.Population(layout, settings, depth),
                     MapChecks.ObstaclesLeavePath(layout, stairs),
+                    MapChecks.UpExit(settings, layout, depth),
                     CaveChecks.Corridors(layout),
                     CaveChecks.Candles(layout, settings),
                 };
