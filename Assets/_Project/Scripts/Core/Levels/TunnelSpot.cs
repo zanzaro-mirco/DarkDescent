@@ -19,7 +19,28 @@ namespace DarkDescent.Levels
     /// </summary>
     public static class TunnelSpot
     {
+        /// <summary>La direttiva con l'arrivo e, per lo sbocco, la cella e il muro: <c>@arrival tunnel x y muro</c>.</summary>
+        public const string ArrivalDirective = "arrival";
+
+        /// <summary>Il tipo d'arrivo dello sbocco del cunicolo.</summary>
+        public const string TunnelArrival = "tunnel";
+
+        /// <summary>Dove porta lo sbocco, che dalla M22 è anche la scala in su: <c>@upexit scena ingresso profondità</c>.</summary>
+        public const string UpExitDirective = "upexit";
+
         private static readonly MapDirection[] Walls = { MapDirection.North, MapDirection.West, MapDirection.East, MapDirection.South };
+
+        /// <summary>
+        /// La cella della scala in su di una mappa (D10 della M22), per l'automappa: lo sbocco dell'arrivo, se la mappa ha
+        /// anche dove porta. false per le mappe senza, come il borgo.
+        /// </summary>
+        public static bool TryFindUpExit(LevelMap map, out Vector2Int cell)
+        {
+            cell = default;
+            var arrival = map.GetDirective(ArrivalDirective);
+            return map.GetDirective(UpExitDirective).Count >= 3 && arrival.Count > 0 && arrival[0] == TunnelArrival
+                && TryRead(arrival, out cell, out _);
+        }
 
         /// <summary>La cella dello sbocco e il muro che prende; false se nessun muro va bene, e il livello resta senza.</summary>
         public static bool TryChoose(DungeonLayout layout, out Vector2Int cell, out MapDirection wall)

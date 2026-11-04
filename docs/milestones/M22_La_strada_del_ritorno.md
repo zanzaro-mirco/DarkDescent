@@ -177,3 +177,27 @@ numeri e lo stesso errore: **non dipende dalle stanze**, c'è dalla M21. È un'a
   da 1 a 8 e si risale fino al borgo, a ogni livello l'ingresso è `FromBelow`, fuori dal trigger della scala giù e senza rimbalzo, e dal borgo si riscende;
   ogni ingresso dall'alto è fuori dal trigger della scala in su. Corretti i test che contavano una sola uscita (`DownExits`) e quello degli spuntoni,
   che supponeva il pavimento a nord.
+
+---
+
+## Passo 22.4 — Automappa, salvataggio e prova di partita
+
+**Fatto il 4 novembre 2026** (foto in `Recordings/Photos/m22_automappa`, `PhotoTour.StairsUp`).
+
+- **Automappa (D10).** La scala in su è la cella dello sbocco: `TunnelSpot.TryFindUpExit(mappa)` la legge dalle direttive (`@arrival tunnel` con
+  `@upexit`), e `MapPainter.PaintExplored` la riempie di azzurro (`ExploredUpStairs`) solo se la cella è scoperta, come la scala giù lo è di giallo.
+  `ExplorationMemory` non cambia: la cella è nella disposizione. Le costanti delle direttive sono passate da `LevelBuilder` a `TunnelSpot`
+  (nel `Core`, dove le legge il disegno della mappa).
+- **Salvataggio 10 (D13).** `SaveData.CurrentVersion = 10`; la migrazione dal 9 azzera i ricordi dei livelli (`_levels`) e il punto del portale
+  (`_hasPortalSpot`): il portale riporta all'ingresso della profondità, che resta. Scena, ingresso, profondità, seme, classe, nome e albero restano.
+  **La mappa scoperta resta**: si scarta da sola quando la misura non è più quella (le cripte da 28 passano a 32), e le caverne, che non cambiano,
+  la tengono. Campioni: `save_v9.json` (un Mago nel borgo al livello 24, con un livello ricordato e il portale a un punto: congelato dal formato di
+  oggi) e `save_v10.json` (lo stesso, migrato). Il portale attraversato riporta nel punto, come prima, per i salvataggi del 10.
+- **Test EditMode** (634): il 9 migra azzerando livelli e punto del portale, una partita in una cripta riprende nello stesso posto, il 10 si carica com'è
+  e un file del 10 non perde i ricordi; `FormatFive`/`FormatSix` leggono i livelli dal file congelato e verificano che migrati siano azzerati; la scala in su
+  azzurra sull'automappa solo se scoperta.
+- **Test PlayMode.** `StairsUpTests.Climb_LevelAboveIsAsItWas` (D6): alla profondità 1 e al confine caverne→cripta (5→4), dopo una discesa e una risalita
+  i nemici uccisi non ci sono, la cassa è aperta, le cose a terra sono dov'erano e l'automappa ricorda quello che si era visto.
+  `BossPlayModeTests.StairsUp_IsOutOfReachWhileTheKingFights` (D9): la scala in su dell'8 c'è, sta nella stanza d'ingresso; dalla sala del re prima dello
+  scontro il NavMesh la raggiunge, con la porta chiusa no, morto il re sì. Nessuna regola nuova: la porta fa già il lavoro; il portale resta rifiutato
+  nella sala (`Portal_IsRefusedInTheBossRoom`, già c'era). PlayMode mirata (scale, re, automappa, ricordi, salvataggi, portale, albero): 28/28.

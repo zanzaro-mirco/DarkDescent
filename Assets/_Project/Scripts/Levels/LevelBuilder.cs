@@ -45,15 +45,15 @@ namespace DarkDescent.Levels
         /// tileset nel muro di quella cella (D7 della M18). La scrive il livello generato della profondità 1,
         /// con la cella di <see cref="TunnelSpot"/>; le mappe a mano non ce l'hanno.
         /// </summary>
-        public const string ArrivalDirective = "arrival";
+        public const string ArrivalDirective = TunnelSpot.ArrivalDirective;
 
-        public const string TunnelArrival = "tunnel";
+        public const string TunnelArrival = TunnelSpot.TunnelArrival;
 
         /// <summary>
         /// Dove porta lo sbocco del cunicolo, che dalla M22 è anche la scala in su: <c>@upexit scena ingresso profondità</c>.
         /// Senza, lo sbocco è solo scenografia.
         /// </summary>
-        public const string UpExitDirective = "upexit";
+        public const string UpExitDirective = TunnelSpot.UpExitDirective;
 
         /// <summary>Il gruppo dell'erba e dei sassi sparsi, figlio della radice del livello.</summary>
         public const string ScatterGroup = "Scatter";

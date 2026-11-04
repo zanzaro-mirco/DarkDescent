@@ -1,6 +1,10 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using DarkDescent.Combat;
+using DarkDescent.Enemies;
 using DarkDescent.Interaction;
+using DarkDescent.Items;
 using DarkDescent.Levels;
 using NUnit.Framework;
 using UnityEngine;
@@ -103,6 +107,106 @@ namespace DarkDescent.Tests
                 if (depth < 8)
                 {
                     StepOn(level.DownExits.First());
+                    yield return WaitFor(SceneOf(depth + 1), depth + 1);
+                }
+            }
+        }
+        // quello che si fa a un livello prima di lasciarlo: nemici uccisi, una cassa aperta, le cose a terra, la mappa vista
+        private sealed class Marks
+        {
+            public readonly List<int> Killed = new List<int>();
+            public int Opened;
+            public List<string> Ground;
+            public int Explored;
+            public int EnemyCount;
+        }
+
+        private static GameObject PlayerObject => GameObject.Find("Player");
+
+        private static List<string> GroundNow()
+        {
+            var scene = Manager.CurrentLevel.gameObject.scene;
+            return Object.FindObjectsByType<GroundItem>(FindObjectsSortMode.None)
+                .Where(g => g.gameObject.scene == scene && g.gameObject.activeInHierarchy && g.Item != null)
+                .Select(g => $"{g.transform.position.x:0.0},{g.transform.position.z:0.0}:{(g.Gold > 0 ? "gold " + g.Gold : g.Item.Definition.name)}")
+                .OrderBy(s => s)
+                .ToList();
+        }
+
+        private static bool IsGone(EnemyAI enemy) => enemy == null || !enemy.gameObject.activeSelf;
+
+        private IEnumerator MarkTheLevel(Marks marks)
+        {
+            var level = Manager.CurrentLevel;
+            marks.EnemyCount = level.Enemies.Count;
+            for (int i = 0; i < level.Enemies.Count && (marks.Killed.Count < 3 || GroundNow().Count == 0) && marks.Killed.Count < 8; i++)
+            {
+                var enemy = level.Enemies[i];
+                if (enemy == null || !enemy.TryGetComponent(out LootDrop _))
+                {
+                    continue;
+                }
+
+                var health = enemy.GetComponent<Health>();
+                health.TakeDamage(new DamageInfo(health.Max, DamageType.Physical, null));
+                marks.Killed.Add(i);
+                if (marks.Opened == 0 && level.Chests.Count > 0)
+                {
+                    level.Chests[0].GetComponent<Interactable>().Use(PlayerObject);
+                    marks.Opened = 1;
+                }
+
+                yield return new WaitForSeconds(1f);
+            }
+
+            Assert.Greater(marks.Killed.Count, 0, "un nemico con il suo loot");
+            Assert.IsTrue(level.Chests.Count == 0 || level.Chests[0].IsOpen, "la cassa è aperta");
+            marks.Ground = GroundNow();
+            marks.Explored = Object.FindFirstObjectByType<ExplorationTracker>().Exploration.ExploredCount;
+        }
+
+        private void CheckTheLevelIsAsItWas(Marks marks, int depth)
+        {
+            var level = Manager.CurrentLevel;
+            Assert.AreEqual(depth, level.Depth);
+            Assert.AreEqual(marks.EnemyCount, level.Enemies.Count, $"profondità {depth}: lo stesso livello dal seme");
+            Assert.IsTrue(marks.Killed.All(v => IsGone(level.Enemies[v])), $"profondità {depth}: i nemici uccisi non rinascono");
+            Assert.AreEqual(marks.EnemyCount - marks.Killed.Count, level.Enemies.Count(e => !IsGone(e)), $"profondità {depth}: gli altri ci sono");
+            if (marks.Opened > 0)
+            {
+                Assert.IsTrue(level.Chests[0].IsOpen, $"profondità {depth}: la cassa resta aperta");
+            }
+
+            CollectionAssert.AreEqual(marks.Ground, GroundNow(), $"profondità {depth}: le cose a terra dov'erano, senza doppioni");
+            Assert.GreaterOrEqual(Object.FindFirstObjectByType<ExplorationTracker>().Exploration.ExploredCount, marks.Explored, $"profondità {depth}: l'automappa ricorda quello che si era visto");
+        }
+
+        [UnityTest, Timeout(300000), Description("Il livello di sopra torna com'era (D6): alla profondità 1 e dalle caverne alla cripta, dopo una discesa e una risalita i nemici uccisi non ci sono, la cassa è aperta, le cose a terra sono dov'erano e l'automappa ricorda quello che si era visto")]
+        public IEnumerator Climb_LevelAboveIsAsItWas()
+        {
+            yield return LoadGeneratedCore();
+            yield return WaitFor("Level_Crypt", 1);
+
+            // alla 1 e alla 4: la 4 tocca anche il confine tra le caverne e la cripta
+            for (int depth = 1; depth <= 4; depth++)
+            {
+                if (depth == 1 || depth == 4)
+                {
+                    var marks = new Marks();
+                    yield return MarkTheLevel(marks);
+
+                    StepOn(Manager.CurrentLevel.DownExits.First());
+                    yield return WaitFor(SceneOf(depth + 1), depth + 1);
+                    StepOn(Manager.CurrentLevel.UpExit);
+                    yield return WaitFor(SceneOf(depth), depth);
+                    yield return null;
+                    yield return null;
+                    CheckTheLevelIsAsItWas(marks, depth);
+                }
+
+                if (depth < 4)
+                {
+                    StepOn(Manager.CurrentLevel.DownExits.First());
                     yield return WaitFor(SceneOf(depth + 1), depth + 1);
                 }
             }

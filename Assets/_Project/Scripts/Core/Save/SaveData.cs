@@ -19,7 +19,8 @@ namespace DarkDescent.Save
     /// difficoltà, la più alta completata e il numero del mondo (D14 della M14); dal formato 7 gli
     /// unici e i pezzi di set, con il loro id e i valori delle proprietà (D13 della M16); dal formato
     /// 8 l'albero delle abilità, con la specializzazione e i nodi presi, e la barra delle abilità
-    /// (M20). Il campo
+    /// (M20); dal formato 9 la classe e il nome (M21); il 10 (M22) azzera i ricordi dei livelli e il
+    /// punto del portale, perché le stanze della cripta sono cambiate. Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
     /// </summary>
@@ -27,7 +28,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 9;
+        public const int CurrentVersion = 10;
 
         /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
         public const float FullMana = -1f;
@@ -353,6 +354,16 @@ namespace DarkDescent.Save
             {
                 _class = "warrior";
                 _name = "";
+            }
+
+            // dal formato 9 al 10 (D13 della M22): le stanze della cripta sono cambiate, e i ricordi leggono i posti di nemici e
+            // casse nell'ordine in cui il livello li costruisce. Nessun livello è ricordato e il portale riporta all'ingresso;
+            // la mappa scoperta resta, che si scarta da sola se la misura non è più quella
+            if (_version < 10 && version >= 10)
+            {
+                _hasPortalSpot = false;
+                _portalSpot = Vector3.zero;
+                _levels = new List<LevelRecord>();
             }
 
             _version = version;

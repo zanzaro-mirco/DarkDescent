@@ -5,6 +5,7 @@ using DarkDescent.Audio;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
+using DarkDescent.Interaction;
 using DarkDescent.Items;
 using DarkDescent.Levels;
 using DarkDescent.Magic;
@@ -178,6 +179,37 @@ namespace DarkDescent.Tests
             magic.Mana.Fill();
             Assert.AreEqual(PortalResult.Opened, magic.TryCastPortal(), "morto il re, il portale si apre");
             Assert.IsNotNull(portals.OpenPortal);
+        }
+
+        [UnityTest, Description("La scala in su dell'8 sta nella stanza d'ingresso (D9 della M22): prima dello scontro dalla sala del re ci si arriva, con la porta chiusa il NavMesh non passa e il cavaliere non la raggiunge, morto il re si arriva di nuovo")]
+        public IEnumerator StairsUp_IsOutOfReachWhileTheKingFights()
+        {
+            yield return GoToDepth8();
+            var level = Manager.CurrentLevel;
+            var boss = level.Boss;
+            Assert.IsNotNull(level.UpExit, "anche l'8 ha la sua scala in su");
+            Assert.AreEqual(7, level.UpExit.TargetDepth);
+            Assert.IsTrue(NavMesh.SamplePosition(level.UpExit.GetComponent<Interactable>().ApproachPoint, out var stairs, 1.5f, NavMesh.AllAreas));
+
+            // dentro la sala, il re ancora fermo: la porta è aperta e la scala si raggiunge a piedi
+            Vector3 home = boss.GetComponent<EnemyAI>().HomePosition;
+            Assert.IsTrue(NavMesh.SamplePosition(home + Vector3.back * 9f, out var inside, 1.5f, NavMesh.AllAreas));
+            Player.GetComponent<NavMeshAgent>().Warp(inside.position);
+            var path = new NavMeshPath();
+            Assert.IsTrue(NavMesh.CalculatePath(inside.position, stairs.position, NavMesh.AllAreas, path));
+            Assert.AreEqual(NavMeshPathStatus.PathComplete, path.status, "prima dello scontro la scala si raggiunge dalla sala");
+
+            yield return EnterTheRoom(boss);
+            Assert.IsTrue(level.BossGate.IsClosed);
+            yield return new WaitForSeconds(0.5f);
+            NavMesh.CalculatePath(Player.position, stairs.position, NavMesh.AllAreas, path);
+            Assert.AreNotEqual(NavMeshPathStatus.PathComplete, path.status, "durante lo scontro, con la porta chiusa, la scala non si raggiunge");
+
+            boss.Health.TakeDamage(Damage(boss.Health.Current));
+            yield return new WaitForSeconds(0.5f);
+            Assert.IsFalse(level.BossGate.IsClosed);
+            NavMesh.CalculatePath(Player.position, stairs.position, NavMesh.AllAreas, path);
+            Assert.AreEqual(NavMeshPathStatus.PathComplete, path.status, "morto il re, la porta si apre e la scala si raggiunge");
         }
 
         [UnityTest, Description("Morto il cavaliere durante lo scontro, tornato in vita all'ingresso: la porta si riapre, gli evocati spariscono e il re ricomincia a vita piena")]

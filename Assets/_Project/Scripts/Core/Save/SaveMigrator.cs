@@ -64,6 +64,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(9);
             }
 
+            // formato 9 → 10 (D13 della M22): le stanze della cripta cambiano, quindi i livelli ricordati e il punto del
+            // portale si azzerano; una partita in una cripta riprende in un livello nuovo dello stesso seme
+            if (data.Version == 9)
+            {
+                data.UpgradeTo(10);
+            }
+
             return data;
         }
     }

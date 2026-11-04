@@ -739,6 +739,20 @@ namespace DarkDescent.Tests
                 yield return Frames(3);
                 yield return Snap(name + "_hover");
                 interactable.SetHighlighted(false);
+
+                // l'automappa (D10): la scala in su, azzurra, dove si è passati
+                var automap = Find<AutomapView>();
+                for (int i = 0; i < 3 && automap.Mode != AutomapMode.Overlay; i++)
+                {
+                    automap.Cycle();
+                }
+
+                yield return Frames(3);
+                yield return Snap(name + "_map");
+                while (automap.Mode != AutomapMode.Corner)
+                {
+                    automap.Cycle();
+                }
             }
 
             yield return Descend("Level_Crypt", 1);

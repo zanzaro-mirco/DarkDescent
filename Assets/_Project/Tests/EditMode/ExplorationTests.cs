@@ -118,5 +118,35 @@ namespace DarkDescent.Tests
                 Object.DestroyImmediate(texture);
             }
         }
+
+        [Test, Description("La scala in su (D10 della M22) è azzurra sull'automappa, solo dove si è passati; senza la direttiva dello sbocco, la cella resta pavimento")]
+        public void PaintExplored_ShowsTheStairsUp()
+        {
+            string grid = Sample.Substring(Sample.IndexOf("#########"));
+            var with = LevelMap.Parse("@depth 2\n@entrance FromAbove\n@arrival tunnel 1 1 North\n@upexit Level_Crypt FromBelow 1\n" + grid);
+            Assert.IsTrue(TunnelSpot.TryFindUpExit(with, out var cell));
+            Assert.AreEqual(new Vector2Int(1, 1), cell);
+            Assert.IsFalse(TunnelSpot.TryFindUpExit(LevelMap.Parse(Sample), out _), "senza lo sbocco non c'è");
+            Assert.IsFalse(TunnelSpot.TryFindUpExit(LevelMap.Parse("@depth 1\n@arrival tunnel 1 1 North\n" + grid), out _), "uno sbocco senza dove porta è scenografia");
+
+            var texture = MapPainter.CreateExploredTexture(with, Size);
+            var pixels = new Color32[texture.width * texture.height];
+            try
+            {
+                var exploration = new Exploration(with);
+                MapPainter.PaintExplored(exploration, texture, pixels);
+                Assert.AreEqual(MapPainter.Unknown, Pixel(texture, with.Height, 1, 1, 5, 5), "non scoperta, non si vede");
+
+                exploration.Reveal(new Vector2Int(2, 2), 3);
+                MapPainter.PaintExplored(exploration, texture, pixels);
+                Assert.AreEqual(MapPainter.ExploredUpStairs, Pixel(texture, with.Height, 1, 1, 5, 5), "la scala in su, azzurra");
+                Assert.AreEqual(MapPainter.ExploredFloor, Pixel(texture, with.Height, 3, 1, 5, 5), "il pavimento accanto resta com'è");
+                Assert.AreNotEqual(MapPainter.ExploredStairs, MapPainter.ExploredUpStairs);
+            }
+            finally
+            {
+                Object.DestroyImmediate(texture);
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ using UnityEngine;
 namespace DarkDescent.Tests
 {
     /// <summary>
-    /// I formati dal 2 al 7 e la migrazione (D9 della M8, D11 della M9, D11 e 10.9 della M10, D14 della
+    /// I formati dal 2 al 10 e la migrazione (D9 della M8, D11 della M9, D11 e 10.9 della M10, D14 della
     /// M14, D13 della M16): i salvataggi veri dei formati dall'1 al 6, congelati in <c>Fixtures/save_v1.json</c>…<c>save_v6.json</c>
     /// quando erano quelli correnti, si caricano con il codice di oggi; la mappa scoperta di ogni profondità resta
     /// tornandoci e passa dal salvataggio.
@@ -61,7 +61,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(9, data.Version, "portato al formato corrente");
+            Assert.AreEqual(10, data.Version, "portato al formato corrente");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.IsNotNull(data.Explored);
             Assert.AreEqual(0, data.Explored.Count, "un salvataggio vecchio non ha mappe");
@@ -105,7 +105,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(9, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6, dal 6 al 7, dal 7 all'8 e dall'8 al 9");
+            Assert.AreEqual(10, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6, dal 6 al 7, dal 7 all'8, dall'8 al 9 e dal 9 al 10");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.KnownSpells.Count, "nessun incantesimo imparato: il Dardo è noto dall'inizio");
             Assert.AreEqual(0, data.SelectedSpell);
@@ -209,7 +209,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(1, data.Explored.Count);
         }
 
-        [Test, Description("Il salvataggio vero del formato 5, con il re battuto, si carica con il codice di oggi: al Crepuscolo, completato, nel primo mondo; livelli ricordati, oro, livello e contatori com'erano")]
+        [Test, Description("Il salvataggio vero del formato 5, con il re battuto, si carica con il codice di oggi: al Crepuscolo, completato, nel primo mondo; oro, livello e contatori com'erano, e i livelli ricordati azzerati dal formato 10")]
         public void FormatFive_LoadsWithTodaysCode()
         {
             var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v5.json");
@@ -224,8 +224,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(("Level_Crypt", 1), (data.Scene, data.Depth));
             Assert.AreEqual((14, 1200, 731), (data.Level, data.Experience, data.Gold));
             Assert.AreEqual(2, data.Kills);
-            Assert.AreEqual(1, data.Levels.Count);
-            Assert.AreEqual(2, data.Levels[0].Killed.Count);
+            Assert.AreEqual(0, data.Levels.Count, "i ricordi dei livelli si azzerano passando dal 9 al 10 (D13 della M22)");
+            Assert.AreEqual(2, SaveData.FromJson(fixture.text).Levels[0].Killed.Count, "nel file congelato c'erano");
         }
 
         private static NamedItemDatabase NamedItems => AssetDatabase.LoadAssetAtPath<NamedItemDatabase>("Assets/_Project/Data/NamedItemDatabase.asset");
@@ -265,7 +265,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(9, data.Version, "portato al formato 9: un Guerriero senza nome");
+            Assert.AreEqual(10, data.Version, "portato al formato 10, passando dal 9: un Guerriero senza nome");
             Assert.AreEqual(("warrior", ""), (data.Class, data.CharacterName));
             Assert.AreEqual(("Town", 24, 4321), (data.Scene, data.Level, data.Gold));
             Assert.AreEqual("warrior.arms", data.Specialization);
@@ -288,9 +288,77 @@ namespace DarkDescent.Tests
             SaveFile.Write(_path, data);
             StringAssert.Contains($"\"_version\": {SaveData.CurrentVersion}", File.ReadAllText(_path));
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var again));
-            Assert.AreEqual((9, "mage", "Merlino"), (again.Version, again.Class, again.CharacterName));
+            Assert.AreEqual((10, "mage", "Merlino"), (again.Version, again.Class, again.CharacterName));
 
             Assert.AreEqual("warrior", data.WithCharacter(null, null).Class, "senza classe è il Guerriero");
+        }
+
+        [Test, Description("Il campione del formato 9 (M21), un Mago nel borgo con un livello ricordato e il portale a un punto preciso: nel 10 i ricordi e il punto del portale si azzerano, il resto resta com'era (D13 della M22)")]
+        public void FormatNine_ClearsLevelMemoriesAndPortalSpot()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v9.json");
+            StringAssert.Contains("\"_version\": 9", fixture.text, "il file congelato è davvero del formato 9");
+            var raw = SaveData.FromJson(fixture.text);
+            Assert.AreEqual(1, raw.Levels.Count, "prima della migrazione il livello è ricordato");
+            Assert.IsNotNull(raw.PortalSpot);
+            File.WriteAllText(_path, fixture.text);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(10, data.Version);
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
+            Assert.AreEqual(0, data.Levels.Count, "nessun livello è ricordato: si rigenerano come nuovi");
+            Assert.IsNull(data.PortalSpot, "il portale riporta all'ingresso della profondità");
+            Assert.AreEqual(5, data.PortalDepth, "la profondità del portale resta");
+            Assert.AreEqual(("Town", "Start", 0), (data.Scene, data.Entrance, data.Depth));
+            Assert.AreEqual(7070707070707070707UL, data.RunSeed);
+            Assert.AreEqual(("mage", "Merlino"), (data.Class, data.CharacterName));
+            Assert.AreEqual((24, 4321, true), (data.Level, data.Gold, data.InTown));
+            Assert.AreEqual(2, data.Explored.Count, "la mappa scoperta resta: si scarta da sola se il livello ha un'altra misura");
+            Assert.AreEqual(3, data.Talents.Count);
+            Assert.AreEqual(8, data.Bar.Count);
+        }
+
+        [Test, Description("Chi ha una partita in una cripta, salvata nel formato 9, la riprende nello stesso posto: scena, ingresso e profondità restano, solo i ricordi dei livelli si azzerano")]
+        public void FormatNine_CryptGameResumesInTheSameSpot()
+        {
+            var inventory = new Inventory(new InventoryGrid(10, 4), new Equipment(new StatSheet()));
+            var record = new LevelRecord("Level_Crypt", 3, 10, 2);
+            record.AddKilled(4);
+            var data = SaveData.Create(77UL, "Level_Crypt", "FromAbove", 3)
+                .WithInventory(InventorySnapshot.Capture(inventory))
+                .WithTown(false, 3, new Vector3(8f, 0f, -4f))
+                .WithLevels(new List<LevelRecord> { record });
+            SaveFile.Write(_path, data);
+            string nine = File.ReadAllText(_path).Replace($"\"_version\": {SaveData.CurrentVersion}", "\"_version\": 9");
+            StringAssert.Contains("\"_version\": 9", nine);
+            File.WriteAllText(_path, nine);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
+            Assert.AreEqual(("Level_Crypt", "FromAbove", 3), (read.Scene, read.Entrance, read.Depth));
+            Assert.AreEqual(77UL, read.RunSeed);
+            Assert.AreEqual(0, read.Levels.Count);
+            Assert.IsNull(read.PortalSpot);
+        }
+
+        [Test, Description("Il campione del formato 10 (M22) si carica com'è, senza migrazione, e riscritto e riletto resta lo stesso; un file già del 10 non perde i ricordi dei livelli")]
+        public void FormatTen_LoadsAsItIs()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v10.json");
+            StringAssert.Contains("\"_version\": 10", fixture.text, "il file congelato è davvero del formato 10");
+            File.WriteAllText(_path, fixture.text);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(10, data.Version);
+            Assert.AreEqual((0, 5), (data.Levels.Count, data.PortalDepth));
+            Assert.IsNull(data.PortalSpot);
+            Assert.AreEqual(("mage", "Merlino", 24), (data.Class, data.CharacterName, data.Level));
+
+            // un livello ricordato dopo il 10 resta, tornando a leggere il file
+            data.WithLevels(new List<LevelRecord> { new LevelRecord("Level_Crypt", 2, 8, 1) }).WithTown(true, 2, new Vector3(1f, 0f, 2f));
+            SaveFile.Write(_path, data);
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var again));
+            Assert.AreEqual(1, again.Levels.Count, "un file del 10 non passa dalla migrazione che azzera");
+            Assert.AreEqual(new Vector3(1f, 0f, 2f), again.PortalSpot);
         }
 
         [Test, Description("La barra a otto posti del 20.3 (D18): messa nelle quattro caselle, il sinistro ha l'Attacco e nessuna abilità che costa, e ogni casella tiene solo abilità che ci stanno")]
@@ -319,7 +387,7 @@ namespace DarkDescent.Tests
             }
         }
 
-        [Test, Description("Il salvataggio vero del formato 6, alla Tenebra nel quarto mondo, si carica con il codice di oggi: nessun oggetto ha un nome, e rari, magici, livelli ricordati e difficoltà sono com'erano")]
+        [Test, Description("Il salvataggio vero del formato 6, alla Tenebra nel quarto mondo, si carica con il codice di oggi: nessun oggetto ha un nome, e rari, magici, e difficoltà sono com'erano; gli oggetti a terra del file congelato si leggono ancora")]
         public void FormatSix_LoadsWithTodaysCode()
         {
             var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v6.json");
@@ -347,7 +415,8 @@ namespace DarkDescent.Tests
             Assert.AreEqual(Rarity.Magic, inventory.Equipment.Get(EquipSlot.Boots).Rarity);
             Assert.AreEqual(2, inventory.Belt.Count);
 
-            var level = data.Levels[0];
+            Assert.AreEqual(0, data.Levels.Count, "migrato, i ricordi dei livelli sono azzerati (D13 della M22)");
+            var level = SaveData.FromJson(fixture.text).Levels[0];
             Assert.AreEqual(2, level.Items.Count);
             Assert.IsTrue(level.Items[0].Item.Resolve(items, affixes, NamedItems));
             Assert.AreEqual(("SpikedShield", Rarity.Rare), (level.Items[0].Item.Definition.name, level.Items[0].Item.Rarity));

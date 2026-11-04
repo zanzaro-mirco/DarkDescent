@@ -24,6 +24,7 @@ namespace DarkDescent.Levels
         public static readonly Color32 ExploredFloor = new Color32(120, 105, 85, 60);
         public static readonly Color32 ExploredWall = new Color32(220, 195, 145, 255);
         public static readonly Color32 ExploredStairs = new Color32(240, 200, 60, 220);
+        public static readonly Color32 ExploredUpStairs = new Color32(110, 170, 230, 220);
 
         /// <summary>Il colore di un simbolo della mappa; gli altri marcatori sono pavimento.</summary>
         public static Color32 ColorOf(char symbol)
@@ -73,7 +74,7 @@ namespace DarkDescent.Levels
 
         /// <summary>
         /// Ridisegna l'automappa: per ogni cella scoperta il pavimento appena accennato, una linea su
-        /// ogni lato che confina con la roccia, la scala piena, un quadratino per casse e ingresso.
+        /// ogni lato che confina con la roccia, la scala giù piena e la scala in su azzurra, un quadratino per casse e ingresso.
         /// Il resto è trasparente. <paramref name="pixels"/> è il buffer riusato, grande quanto la texture.
         /// </summary>
         public static void PaintExplored(Exploration exploration, Texture2D texture, Color32[] pixels)
@@ -88,6 +89,9 @@ namespace DarkDescent.Levels
             // un decimo di cella: nella minimappa resta più di un pixel, nella vista sovrapposta non diventa una striscia
             int line = Math.Max(1, size / 10);
             int markFrom = size * 3 / 10, markTo = size - markFrom;
+
+            // la scala in su (D10 della M22) è lo sbocco del cunicolo: sta nella disposizione, la sua cella si colora come la scala giù, ma azzurra
+            bool hasUp = TunnelSpot.TryFindUpExit(map, out var upCell);
             for (int y = 0; y < map.Height; y++)
             {
                 for (int x = 0; x < map.Width; x++)
@@ -96,7 +100,7 @@ namespace DarkDescent.Levels
                     char symbol = map.GetSymbol(x, y);
                     bool north = !map.IsFloor(x, y - 1), south = !map.IsFloor(x, y + 1);
                     bool west = !map.IsFloor(x - 1, y), east = !map.IsFloor(x + 1, y);
-                    Color32 fill = symbol == DungeonGenerator.StairsSymbol ? ExploredStairs : ExploredFloor;
+                    Color32 fill = symbol == DungeonGenerator.StairsSymbol ? ExploredStairs : hasUp && upCell.x == x && upCell.y == y ? ExploredUpStairs : ExploredFloor;
                     Color32 mark = DungeonPopulator.IsChest(symbol) ? Chest : symbol == DungeonGenerator.EntranceSymbol ? Entrance : Unknown;
 
                     // la riga 0 della texture è in basso: la cella (x, y) parte dalla riga (altezza - 1 - y)
