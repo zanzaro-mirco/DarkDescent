@@ -1,0 +1,118 @@
+# M23 — "A portata di mano"
+
+**Cosa deve succedere (Definition of Done):** il cavaliere (e il mago) si muove anche con **WASD** (e le frecce),
+con il mouse libero per colpire, raccogliere e lanciare; i nemici **feriti** hanno una **barra della vita sopra la
+testa**, se il giocatore la vuole (opzione, spenta di default); chi comincia trova **suggerimenti brevi la prima
+volta che servono** (il primo nemico, il primo oggetto a terra, la prima pozione...), e un **pannello di aiuto** con
+tutti i comandi, da **F1** o dal menu di pausa, in italiano e in inglese.
+
+- WASD segue la camera: **W va verso l'alto dello schermo**, qualunque sia la rotazione (Z e X, ADR-052). Due tasti
+  insieme fanno la diagonale. I muri e gli ostacoli fermano il cavaliere come col click; i nemici lo trovano come prima.
+- Il click non cambia: chi gioca solo col mouse non nota niente. Un tasto di movimento premuto prende il posto del
+  percorso del click; a tasti fermi il click riprende com'è.
+- Con i tasti premuti, un click su un nemico a portata lo colpisce **senza spostarsi**; un click sul pavimento non fa
+  muovere altrove.
+- Le barre stanno in un solo canvas e vengono da un pool; si aggiornano sugli eventi della vita, non a ogni frame.
+- I suggerimenti non fermano il gioco, non sono un livello a parte, ognuno compare **una volta sola** e si ricorda tra
+  le sessioni. Un'opzione li spegne tutti o li fa ripartire.
+- Salvataggio e livelli **non cambiano**: restano il formato 10 e i semi di prima.
+- Tag **`v1.11.0`**.
+
+**Fuori da questa milestone:** cambiare i tasti dal menu; il gamepad; un livello di tutorial; la barra sopra il re
+(ha la sua); nuovi comandi (corsa, schivata, mira libera); cambiare i tasti già usati (I, C, N, K, M, T, Q, E, Z, X,
+1–8, Alt, Esc); cambiare la barra in alto al centro (M7, M9), che resta.
+
+---
+
+## Stato verificato il 4 novembre 2026
+
+Verificato dopo la chiusura della M22 (tag `v1.10.0`, build 41870576525 verde). Il piano scritto il 9 e 18 ottobre
+ha **due cose non più vere**, corrette qui: **Q ed E non girano la camera** (sono due caselle di abilità; la camera
+gira con **Z e X**, README), e **le pergamene non ci sono più** (le ha tolte la M20), quindi niente suggerimento
+«prima pergamena».
+
+| Cosa | Com'è oggi |
+|---|---|
+| Il movimento | Solo col mouse. `PlayerInputReader` ha l'azione `Move` (tasto sinistro, `IsMoveCommandHeld`) e `Point` (la posizione); `PlayerController` fa il raggio sotto il cursore e chiama `PlayerMotor.MoveTo(punto)`, che usa il `NavMeshAgent` (`SamplePosition` entro 1 m, nuova destinazione solo oltre 0,2 m). Tenendo premuto, il comando si rinnova ogni 0,1 s (`_holdRepathInterval`): il cavaliere segue il cursore. `Walk` cancella il bersaglio d'attacco prima di muoversi |
+| Il colpo in corso | `IsBusy` (colpo in corso o interrotto): il movimento chiesto in quel momento va in coda (`_queuedMove`) e parte a colpo finito. Un movimento da tastiera deve rispettare la stessa regola |
+| Attaccare | `MeleeAttack.SetTarget(bersaglio)` fa avvicinare e colpire; ha `IsTargetInRange`, `HasTarget`, `Reach` (arma o dardo). Non c'è un «colpisci da fermo»: va aggiunto per il click con i tasti premuti |
+| I tasti usati | `Gameplay` ha: `I` inventario, `C` personaggio, `1`–`8` cintura, `M` automappa, rotella zoom, **`Z`/`X` ruotano**, tasto destro lancia, **`Q`/`E` abilità**, `Alt` nomi a terra, `Esc` pausa, `T` portale, `K` abilità, `N` talenti. **Liberi:** `W A S D`, le frecce, `F1`, `H` |
+| Camera | Gira a scatti di 90° (`ViewRotated`, ADR-052): la direzione di W si calcola dalla rotazione della camera **ogni frame**, non una volta |
+| La barra dei nemici | `EnemyBar` (M7/M9): in alto al centro, per il nemico sotto il cursore o l'ultimo colpito (3 s), con nome, vita, nome nel colore del grado e riga dei modificatori per campioni e unici. Ascolta `Health.Damaged`/`Died` di ogni nemico (`_tracked`). Resta com'è |
+| La vita | `Health` ha `HealthChanged(corrente, massima)`, `Damaged`, `Healed`, `Died`, `Revived`, `Current`, `Max`: bastano per sapere quando un nemico è ferito, senza controlli a ogni frame |
+| Un precedente di pool | `DamageNumbers` (M9) prende numeri da un pool e li anima: stessa idea per le barre |
+| Le preferenze | `PlayerPrefs` (lingua, volumi, nomi sempre visibili, numeri delle sfere, filtro retrò, zoom). `OptionsPanel` ha le sue costanti `*Preference` e dei `Toggle`; una nuova opzione è una costante, un toggle e una chiave di testo |
+| Il testo | `TextKeys` e `Data/Localization/Strings.csv` (718 righe, italiano e inglese); un test controlla le chiavi. Nessun suggerimento né pannello di aiuto: i comandi stanno **solo nel README** |
+| La pausa | `PauseMenu` ha *Riprendi*, *Opzioni*, *Esci*; `Esc` chiude le finestre aperte e poi mette in pausa |
+| Eventi per i suggerimenti | Ci sono: `Health` dei nemici, `Interactable.Used`/`HighlightChanged`, `PlayerProgress.LevelUpShown`, il portale e le scale (`LevelExit`), la cintura. **Da verificare in 23.4** quelli che mancano (nemico «visto», oggetto a terra comparso, punto talento) |
+| I test | `PlayerController` e `PlayerInputReader` hanno test PlayMode con l'`InputTestFixture`; le barre in alto e i numeri danno test per il canvas |
+
+---
+
+## Decisioni
+
+**Da confermare da Mirco.**
+
+| # | Decisione | Proposta | Perché |
+|---|---|---|---|
+| D1 | **Versione e nome** | **M23 "A portata di mano"**, tag **`v1.11.0`**. Dentro: WASD, le barre sui nemici feriti, i suggerimenti, il pannello di aiuto | Cambia come si gioca (si cammina da tastiera) ma non il mondo: versione minore |
+| D2 | **WASD e frecce** | **W A S D** e le **frecce** muovono; tenendoli premuti si cammina, rilasciandoli ci si ferma. Nessun cambio di tasti dal menu (fuori dalla milestone) | Le frecce costano una riga di binding e aiutano chi ha la tastiera in un'altra disposizione |
+| D3 | **Direzioni** | Relative alla **camera**, ogni frame: W = in alto sullo schermo, S = in basso, A = a sinistra, D = a destra. Due tasti = diagonale, normalizzata (non più veloce) | Con Z/X il «nord» cambia a ogni scatto; il giocatore ragiona sullo schermo |
+| D4 | **Come si muove** | Ogni frame con un tasto premuto, `PlayerMotor` riceve **una destinazione 1,5 m avanti** nella direzione dei tasti (`MoveTo`, con `SamplePosition`): resta il `NavMeshAgent`, muri e ostacoli fermano come col click, animazioni e passi seguono la velocità dell'agent. In alternativa `NavMeshAgent.Move`: si prova in 23.2 e si sceglie con una misura (angoli, animazioni), non a occhio | Non cambia niente di quello che già funziona; la destinazione vicina dà curve morbide |
+| D5 | **Convivenza col click** | **Un tasto premuto ha la precedenza**: il percorso del click si cancella e il tasto sinistro tenuto non rinnova il comando finché i tasti sono premuti. A tasti fermi il click riprende come oggi, anche tenendolo premuto. Una pressione nata sopra la UI non diventa mai un movimento (come oggi) | Evita due comandi che litigano |
+| D6 | **Colpire camminando** | Con un tasto di movimento premuto, un click su un **nemico a portata** lo colpisce **da fermo** (`IsTargetInRange`), senza avvicinarsi; fuori portata non fa niente. Un barile si tratta come un nemico. Un click su un oggetto da usare (cassa, scala) **funziona come sempre**: cammina e usa | È lo Shift di Diablo; un click su una scala o una cassa è già «voglio andare lì» |
+| D7 | **Incantesimi** | Il tasto destro e le abilità (`Q`, `E`) mirano al cursore **anche camminando**; il mago lancia muovendosi, come col click | Per il mago camminare e lanciare insieme è la ragione di WASD |
+| D8 | **Quando WASD non muove** | Con la **pausa**, i dialoghi (conferme), i banchi (`ShopPanel`), la creazione del personaggio (si scrive il nome), la morte e i filmati: **no**. Con inventario, personaggio, talenti e abilità aperti: **sì**, come in Diablo. Mai quando il campo di testo ha il fuoco | Una lettera scritta nel nome non deve muovere il cavaliere |
+| D9 | **Barre sopra i nemici** | Opzione **«Barre della vita sui nemici»**, **spenta di default** (il piano del 8 ott). Accesa: ogni nemico **ferito** e vivo ha sopra la testa una barra piccola (rossa; dorata per i campioni, arancione per gli unici, nei colori dei gradi della M12); intatti, morti e il **re** (ha la sua barra) non ne hanno. La barra in alto al centro resta | Nello sciame se ne vedono solo quelle che servono |
+| D10 | **Come sono fatte** | Un **solo canvas in world space**, barre prese da un **pool** (massimo 24, le più vicine al cavaliere), girate verso la camera. Si aggiornano su `Health.HealthChanged`/`Died`; la posizione segue il nemico solo per quelle mostrate. Niente `Update` per nemico, niente allocazioni | Lo sciame ha dieci nemici fitti: 10 canvas sarebbero 10 chiamate di disegno |
+| D11 | **Suggerimenti: quali** | Dieci, ognuno col suo momento: **muoversi** (a inizio partita: click o WASD), **il primo nemico in vista**, **il primo oggetto a terra** (Alt per i nomi, click per raccoglierlo), **la prima pozione in cintura** (1–8 o click destro), **la prima scala**, **il primo punto attributo** (C), **il primo punto talento** (N), **il portale** (T, la prima volta che c'è il mana), **le abilità** (Q/E/destro, la prima volta che c'è una seconda abilità), **il borgo** (fabbro, mercante, guaritrice, la prima volta). Fuori: la pergamena (non c'è più) | I tester del 18 ott non conoscevano i comandi; sono i momenti in cui i comandi servono |
+| D12 | **Suggerimenti: come** | Un **riquadro piccolo** in basso al centro, sopra la cintura: un titolo e una o due righe, **8 secondi** o finché si preme un tasto qualsiasi (non ruba il click), uno alla volta in coda, mai durante pausa, filmati, morte o sala del re. **Non ferma il gioco.** Il testo è nella tabella delle stringhe, nelle due lingue, e dice i tasti **veri** (se un giorno cambiano, il testo li legge dal binding, non dalla stringa) | Un riquadro che si chiude da solo non è un tutorial |
+| D13 | **Suggerimenti: la memoria** | Quali sono già stati visti sta nelle **preferenze del computer** (`PlayerPrefs`), non nel salvataggio: sono del giocatore, non del cavaliere, e un nuovo personaggio non li ripete. Opzione **«Suggerimenti»** (accesa di default) e un pulsante **«Rivedi i suggerimenti»** che li azzera | Il piano del 18 ott diceva «si ricordano tra le preferenze» |
+| D14 | **Il pannello di aiuto** | Si apre con **F1** (e si chiude con F1 o Esc) e dal menu di pausa con un pulsante **«Comandi»**. Quattro gruppi in due colonne: **Movimento** (click, WASD, tenere premuto, Z/X, rotella), **Combattimento** (click, tasto destro, Q/E, 1–8, T), **Finestre** (I, C, K, N, M, Esc) e **Vedere** (Alt, M). Italiano e inglese, dalla stessa tabella dei suggerimenti. Il testo cambia con la classe solo dove serve (il tasto sinistro del mago lancia il dardo) | I comandi oggi stanno solo nel README |
+| D15 | **Cosa NON cambia** | I numeri del combattimento e delle difficoltà, la barra in alto al centro (M7/M9), i tasti già usati, le mappe e i semi (nessun test fisso si muove), il salvataggio (resta 10), gli alberi, i filmati, la camera. Il README e il piano si correggono per le due cose non vere (Q/E, pergamene) | I numeri non si ritarano per un tasto |
+| D16 | **Si controlla** | **EditMode:** la direzione dei tasti rispetto alla camera (ognuno dei quattro scatti, le diagonali, normalizzata), la memoria dei suggerimenti (una volta sola, azzera, spenti), i testi in tutte e due le lingue per ogni suggerimento e per ogni riga del pannello, il tetto del pool delle barre. **PlayMode:** WASD muove nelle quattro rotazioni, un muro ferma, un tasto prende il posto del click e il click riprende, un click su un nemico a portata colpisce da fermo, fuori portata no, il mago lancia camminando, con la pausa o il campo del nome nessun movimento; le barre compaiono solo sui feriti, spariscono alla morte, restano al massimo 24, l'opzione le spegne; i suggerimenti compaiono una volta, in ordine, mai in pausa; F1 apre e chiude. **Foto:** la barra sullo sciame, il riquadro, il pannello nelle due lingue (`PhotoTour`). **Ronda:** invariata | Le foto sono la prova per chi gioca |
+
+---
+
+## Passi
+
+| # | Passo | Ore |
+|---|---|---|
+| 23.1 | **Il disegno**: una pagina con la **barra sopra un nemico ferito** (sciame, campione, unico: i tre colori), il **riquadro del suggerimento** (due versioni: in basso al centro, o in alto a sinistra) e il **pannello di aiuto** (le due lingue), con le foto del gioco. Si va avanti **solo con il sì di Mirco** | 1–2 |
+| 23.2 | **WASD**: l'azione `Move2D` e le frecce nel `PlayerControls`, la lettura nel `PlayerInputReader`, il ramo nel `PlayerController` (direzione dalla camera, precedenza al tasto, click da fermo sul nemico a portata, `IsBusy`, i casi di D8), `MeleeAttack` con l'attacco da fermo; la scelta tra destinazione e `Move` con la misura (D2–D8) | 4–5 |
+| 23.3 | **Le barre sui nemici**: il canvas, il pool, i colori dei gradi, l'opzione e la sua chiave, i test e le foto sullo sciame (D9, D10) | 3–4 |
+| 23.4 | **I suggerimenti**: il registro dei momenti, la memoria nelle preferenze, il riquadro, i dieci testi nelle due lingue, l'opzione e «Rivedi»; gli eventi che mancano si aggiungono dove servono (D11–D13) | 4–5 |
+| 23.5 | **Il pannello di aiuto**: F1 e il pulsante nella pausa, i quattro gruppi dalla tabella dei testi, il testo del mago, i test e le foto nelle due lingue (D14) | 2–3 |
+| 23.6 | **Misura e chiusura**: le ADR, le lezioni, il piano, il README (la sezione *Comandi* riscritta), `bundleVersion` 1.11.0, la lista *Da provare*, il tag `v1.11.0` dopo i Tests verdi in CI | 2–3 |
+
+**Stima: 16–22 h**, con il disegno e la chiusura. Se serve tagliare, in quest'ordine: il suggerimento del borgo e quello delle abilità (restano otto); le frecce (solo WASD); la riga del mago nel pannello; il pulsante «Rivedi i suggerimenti» (si azzerano dalle opzioni cancellando la preferenza). **Non si taglia:** la precedenza del tasto sul click, il click da fermo, il fuoco del campo del nome, la memoria dei suggerimenti.
+
+---
+
+## Rischi da tenere d'occhio
+
+- **Le lettere nel campo del nome.** La creazione del personaggio ha un campo di testo: scrivere «Dario» non deve far
+  camminare nessuno, né in quel pannello né nelle schermate dopo. Le azioni di `Gameplay` si spengono già fuori dal
+  gioco? Si controlla in 23.2 con un test (D8).
+- **Gli angoli e i muri.** Con una destinazione a 1,5 m, camminando contro un muro in diagonale il cavaliere può
+  strisciare o vibrare; la misura di 23.2 (destinazione contro `Move`) guarda proprio questo, con una scena di
+  prova a stanze strette (il corridoio di un metro e mezzo della cripta).
+- **Il colpo in corso e la coda.** Col click un movimento chiesto durante un colpo va in coda; con una tastiera
+  tenuta premuta la coda si riempie a ogni frame. Va decisa una volta (l'ultima direzione vince) e provata con una
+  spada e con il dardo.
+- **Il tasto sinistro tenuto.** Oggi il comando si rinnova ogni 0,1 s; con i tasti premuti non deve rinnovarsi, e a
+  tasti rilasciati con il tasto ancora premuto deve riprendere senza uno scatto verso il cursore.
+- **Il canvas delle barre.** Un canvas in world space con 24 barre cambia di disegno a ogni spostamento: si misura
+  in `-benchmark-levels` o nella scena dello sciame (i 531 fps del borgo non devono scendere, nel dungeon si guarda
+  l'attuale).
+- **I suggerimenti nei test.** Un riquadro che compare in un test PlayMode può coprire un click: i test lo
+  spengono con la preferenza (come i filmati con `DARKDESCENT_FILMS`), e solo i test dei suggerimenti lo accendono.
+- **Le due lingue.** Ogni testo nuovo è una riga della tabella: il test delle chiavi lo tiene d'occhio, ma i testi
+  lunghi nel riquadro e nel pannello si guardano nelle foto, soprattutto in inglese.
+- **Il gamepad.** Fuori dall'ambito; l'azione `Move2D` è fatta in modo che lo stick possa riusarla un giorno.
+
+---
+
+## Passo 23.1 — Il disegno
+
+*(da scrivere a passo iniziato)*
