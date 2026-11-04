@@ -15,8 +15,8 @@ namespace DarkDescent.Levels
         [SerializeField] private string _targetScene;
         [SerializeField] private string _targetEntrance = "FromAbove";
 
-        [Tooltip("La profondità del livello di arrivo, per i livelli generati. 0 = quella di questo livello più uno.")]
-        [SerializeField, Min(0)] private int _targetDepth;
+        [Tooltip("La profondità del livello di arrivo, per i livelli generati; 0 è il borgo. Meno di 0 = quella di questo livello più uno (M22).")]
+        [SerializeField, Min(-1)] private int _targetDepth = -1;
 
         public event Action<LevelExit> Triggered;
 

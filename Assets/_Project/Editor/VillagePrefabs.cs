@@ -1129,6 +1129,7 @@ namespace DarkDescent.Editor
                 ('L', AssetDatabase.LoadAssetAtPath<GameObject>(HealerPath), true, true),
                 ('A', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "DifficultyAltar.prefab"), false, false),
                 ('P', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "PortalSpot.prefab"), false, false),
+                ('K', AssetDatabase.LoadAssetAtPath<GameObject>(TownPrefabs + "CryptSpot.prefab"), false, true),
             };
 
             // l'erba conta il doppio dei sassi: quattro varianti d'erba e due di sassi

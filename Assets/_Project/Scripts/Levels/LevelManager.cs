@@ -195,7 +195,7 @@ namespace DarkDescent.Levels
             // un morto che scivola sulle scale non cambia livello
             if (!_playerHealth.IsDead)
             {
-                LoadLevel(exit.TargetScene, exit.TargetEntrance, exit.TargetDepth > 0 ? exit.TargetDepth : CurrentLevel.Depth + 1);
+                LoadLevel(exit.TargetScene, exit.TargetEntrance, exit.TargetDepth >= 0 ? exit.TargetDepth : CurrentLevel.Depth + 1);
             }
         }
 

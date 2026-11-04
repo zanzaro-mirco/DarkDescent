@@ -41,6 +41,38 @@ namespace DarkDescent.Levels
 
         public IReadOnlyList<LevelExit> Exits => _exits;
 
+        /// <summary>Le scale che scendono: tutte le uscite tranne la scala in su (M22).</summary>
+        public IEnumerable<LevelExit> DownExits
+        {
+            get
+            {
+                foreach (var exit in _exits)
+                {
+                    if (exit != UpExit)
+                    {
+                        yield return exit;
+                    }
+                }
+            }
+        }
+
+        /// <summary>La scala in su, lo sbocco con la sua uscita (M22); null nei livelli che non ne hanno, come il borgo.</summary>
+        public LevelExit UpExit
+        {
+            get
+            {
+                foreach (var exit in _exits)
+                {
+                    if (exit.name == LevelBuilder.UpExitName)
+                    {
+                        return exit;
+                    }
+                }
+
+                return null;
+            }
+        }
+
         /// <summary>Le casse da aprire (dalla M6): il loot le collega come i nemici.</summary>
         public IReadOnlyList<Chest> Chests => _chests;
 

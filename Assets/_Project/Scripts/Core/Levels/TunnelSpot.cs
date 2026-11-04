@@ -24,6 +24,12 @@ namespace DarkDescent.Levels
         /// <summary>La cella dello sbocco e il muro che prende; false se nessun muro va bene, e il livello resta senza.</summary>
         public static bool TryChoose(DungeonLayout layout, out Vector2Int cell, out MapDirection wall)
         {
+            // le caverne non hanno una stanza d'ingresso (M22): si cerca attorno all'ingresso
+            if (layout.StartRoom < 0 || layout.StartRoom >= layout.Rooms.Count)
+            {
+                return TryChooseInCave(layout, out cell, out wall);
+            }
+
             var room = layout.Rooms[layout.StartRoom];
             foreach (var side in Walls)
             {
@@ -52,6 +58,103 @@ namespace DarkDescent.Levels
             cell = layout.Entrance;
             wall = MapDirection.North;
             return false;
+        }
+
+        /// <summary>Quanti passi dall'ingresso, al più, si cerca il posto nelle caverne.</summary>
+        public const int CaveSearchRadius = 14;
+
+        // Nelle caverne: la cella libera più vicina all'ingresso a piedi (a parità, il muro nord, poi l'ovest, l'est, il sud) con un
+        // muro dritto dietro, le due celle di lato libere e il quadrato davanti libero: la stessa forma di un tratto di muro di una
+        // stanza, senza la stanza. Mai a meno di due celle dall'ingresso, perché il trigger sporge oltre la cella davanti.
+        private static bool TryChooseInCave(DungeonLayout layout, out Vector2Int cell, out MapDirection wall)
+        {
+            var steps = new Dictionary<Vector2Int, int> { [layout.Entrance] = 0 };
+            var queue = new Queue<Vector2Int>();
+            queue.Enqueue(layout.Entrance);
+            var order = new List<Vector2Int>();
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                order.Add(current);
+                if (steps[current] >= CaveSearchRadius)
+                {
+                    continue;
+                }
+
+                foreach (var step in LevelGrid.Steps)
+                {
+                    var next = current + step;
+                    char symbol = layout[next.x, next.y];
+                    if (layout.IsFloor(next.x, next.y) && symbol != DungeonGenerator.StairsSymbol && !steps.ContainsKey(next))
+                    {
+                        steps[next] = steps[current] + 1;
+                        queue.Enqueue(next);
+                    }
+                }
+            }
+
+            // Come nelle stanze: prima il muro nord, poi l'ovest, che la camera vede alti, poi est e sud. Su ogni muro il tratto più
+            // vicino (l'ordine della visita è per distanza, senza tiri), prima quello che somiglia a un muro di stanza e poi, se le pareti
+            // storte della caverna non ne hanno, con meno pretese.
+            foreach (var side in Walls)
+            {
+                Vector2Int back = Step(side);
+                var along = new Vector2Int(Mathf.Abs(back.y), Mathf.Abs(back.x));
+                for (int strictness = 0; strictness < CavePasses; strictness++)
+                {
+                    foreach (var candidate in order)
+                    {
+                        if (Mathf.Max(Mathf.Abs(candidate.x - layout.Entrance.x), Mathf.Abs(candidate.y - layout.Entrance.y)) >= 2
+                            && layout[candidate.x, candidate.y] == LevelMap.Floor
+                            && FitsInCave(layout, candidate, back, along, strictness))
+                        {
+                            cell = candidate;
+                            wall = side;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            cell = layout.Entrance;
+            wall = MapDirection.North;
+            return false;
+        }
+
+        private const int CavePasses = 3;
+
+        // 0: un tratto di muro dritto con le celle di lato e il quadrato davanti liberi; 1: le celle di lato possono essere
+        // roccia (una nicchia nel muro); 2: basta roccia dietro e una cella libera davanti
+        private static bool FitsInCave(DungeonLayout layout, Vector2Int cell, Vector2Int back, Vector2Int along, int strictness)
+        {
+            var behind = cell + back;
+            var front = cell - back;
+            bool Free(Vector2Int c) => layout[c.x, c.y] == LevelMap.Floor;
+            bool Rock(Vector2Int c) => layout[c.x, c.y] == LevelMap.Rock;
+            if (!Rock(behind) || !Free(front))
+            {
+                return false;
+            }
+
+            if (strictness < 2 && (!Rock(behind + along) || !Rock(behind - along)))
+            {
+                return false;
+            }
+
+            if (strictness < 1 && (!Free(cell + along) || !Free(cell - along) || !Free(front + along) || !Free(front - along)))
+            {
+                return false;
+            }
+
+            foreach (var feature in layout.Features)
+            {
+                if (feature.Cell == cell)
+                {
+                    return false;
+                }
+            }
+
+            return layout.StaysConnectedWithout(cell);
         }
 
         /// <summary>La direttiva d'arrivo con il tipo, la colonna, la riga e il muro.</summary>

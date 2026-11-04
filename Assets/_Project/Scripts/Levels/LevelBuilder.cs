@@ -37,6 +37,9 @@ namespace DarkDescent.Levels
         /// <summary>Il nome dello sbocco del cunicolo, sull'ingresso della profondità 1 (D7 della M18).</summary>
         public const string EntranceMouthName = "EntranceMouth";
 
+        /// <summary>L'uscita dello sbocco, la scala in su (M22).</summary>
+        public const string UpExitName = "UpExit";
+
         /// <summary>
         /// Come si arriva sull'ingresso: <c>@arrival tunnel x y muro</c> mette lo sbocco del cunicolo del
         /// tileset nel muro di quella cella (D7 della M18). La scrive il livello generato della profondità 1,
@@ -45,6 +48,12 @@ namespace DarkDescent.Levels
         public const string ArrivalDirective = "arrival";
 
         public const string TunnelArrival = "tunnel";
+
+        /// <summary>
+        /// Dove porta lo sbocco del cunicolo, che dalla M22 è anche la scala in su: <c>@upexit scena ingresso profondità</c>.
+        /// Senza, lo sbocco è solo scenografia.
+        /// </summary>
+        public const string UpExitDirective = "upexit";
 
         /// <summary>Il gruppo dell'erba e dei sassi sparsi, figlio della radice del livello.</summary>
         public const string ScatterGroup = "Scatter";
@@ -132,7 +141,8 @@ namespace DarkDescent.Levels
             BuildMarkers(map, level.transform, props, torchSides, enemies, tunnel ? tunnelCell : (Vector2Int?)null);
             if (tunnel)
             {
-                PlaceEntranceMouth(props, tunnelCell, tunnelWall);
+                var mouth = PlaceEntranceMouth(props, tunnelCell, tunnelWall);
+                PlaceUpExit(map, level.transform, mouth, tunnelCell, tunnelWall);
             }
 
             BuildDecals(map, level.transform);
@@ -439,10 +449,28 @@ namespace DarkDescent.Levels
         // Al centro della cella, con il +Z del prefab verso la stanza: il fronte di massi sta sul bordo
         // del muro che manca e la galleria entra nella roccia. Nessun tiro del seme: mappe, arredi e
         // loot restano quelli di prima.
-        private void PlaceEntranceMouth(Transform props, Vector2Int cell, MapDirection wall)
+        private GameObject PlaceEntranceMouth(Transform props, Vector2Int cell, MapDirection wall)
         {
             var rotation = Quaternion.LookRotation(-LevelMap.ToWorld(wall));
-            Place(_tileset.EntranceMouth, props, LevelMap.CellCenter(cell.x, cell.y), rotation).name = EntranceMouthName;
+            var mouth = Place(_tileset.EntranceMouth, props, LevelMap.CellCenter(cell.x, cell.y), rotation);
+            mouth.name = EntranceMouthName;
+            return mouth;
+        }
+
+        // La scala in su (D3 della M22): lo sbocco ha la sua uscita, come la scala giù, rivolta verso la stanza. Il livello di
+        // sopra è già com'era (ADR-079): ci si arriva davanti alla sua scala, o nel borgo davanti alla grotta.
+        private void PlaceUpExit(LevelMap map, Transform level, GameObject mouth, Vector2Int cell, MapDirection wall)
+        {
+            var info = map.GetDirective(UpExitDirective);
+            if (info.Count < 3 || !int.TryParse(info[2], out int targetDepth))
+            {
+                return;
+            }
+
+            Vector3 toRoom = -LevelMap.ToWorld(wall);
+            var exit = CreateExit(level, LevelMap.CellCenter(cell.x, cell.y), toRoom, info[0], info[1], targetDepth, up: true);
+            exit.name = UpExitName;
+            AddHighlight(exit, mouth);
         }
 
         private static int Depth(LevelMap map)
@@ -538,12 +566,28 @@ namespace DarkDescent.Levels
             var exit = CreateExit(level, cellCenter, toEntry, exitInfo[0], exitInfo[1], targetDepth);
             AddHighlight(exit, stairs);
 
+            // solo dove c'è un livello sotto che risale: i livelli generati, non quelli a mano
+            if (map.GetDirective(UpExitDirective).Count > 0)
+            {
+                PlaceArrivalFromBelow(level, cellCenter, toEntry);
+            }
+
             // la grotta si clicca anche sull'arco, sopra la cella: la sua area passa all'uscita
             var click = stairs.transform.Find(ClickAreaName);
             if (click != null)
             {
                 click.SetParent(exit.transform, true);
             }
+        }
+
+        // Dove si arriva risalendo da sotto (D5 della M22): nella cella davanti alla scala, più in là del trigger dell'uscita, che
+        // sporge di ExitTriggerReach oltre il bordo della cella della scala; il cavaliere guarda via dalla scala.
+        private static void PlaceArrivalFromBelow(Transform level, Vector3 stairsCenter, Vector3 toEntry)
+        {
+            var go = new GameObject("Entrance_" + DungeonSettings.EntranceFromBelow);
+            go.transform.SetParent(level, false);
+            go.transform.SetPositionAndRotation(stairsCenter + toEntry * (LevelMap.CellSize * 1.25f), Quaternion.LookRotation(toEntry));
+            go.AddComponent<LevelEntrance>().Configure(DungeonSettings.EntranceFromBelow);
         }
 
         private static bool IsFloorToward(LevelMap map, MapMarker marker, Vector3 dir)
@@ -566,7 +610,8 @@ namespace DarkDescent.Levels
         }
 
         // L'uscita guarda verso la cella da cui si arriva (+Z locale = verso l'ingresso della scala).
-        private static GameObject CreateExit(Transform level, Vector3 cellCenter, Vector3 toEntry, string targetScene, string targetEntrance, int targetDepth)
+        private static GameObject CreateExit(Transform level, Vector3 cellCenter, Vector3 toEntry, string targetScene, string targetEntrance, int targetDepth,
+            bool up = false)
         {
             var go = new GameObject("Exit");
             go.transform.SetParent(level, false);
@@ -593,8 +638,9 @@ namespace DarkDescent.Levels
             var approach = new GameObject("ApproachPoint").transform;
             approach.SetParent(go.transform, false);
             approach.localPosition = new Vector3(0f, 0f, ApproachDistance);
-            // "Descend to level {0}": il numero è la profondità di arrivo
-            go.AddComponent<Interactable>().Configure(approach, TextKeys.ExitDescend, targetDepth.ToString());
+            // "Descend to level {0}" o "Climb to level {0}": il numero è la profondità di arrivo; al borgo, "Return to the village"
+            string label = !up ? TextKeys.ExitDescend : targetDepth > 0 ? TextKeys.ExitAscend : TextKeys.ExitToVillage;
+            go.AddComponent<Interactable>().Configure(approach, label, targetDepth.ToString());
 
             Debug.Assert(ApproachDistance > half && ApproachDistance < half + ExitTriggerReach, "il punto d'arrivo deve stare nel trigger");
             return go;

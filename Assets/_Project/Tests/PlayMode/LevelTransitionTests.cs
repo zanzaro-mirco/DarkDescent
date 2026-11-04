@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using DarkDescent.Combat;
 using DarkDescent.Levels;
@@ -16,8 +17,8 @@ namespace DarkDescent.Tests
 
         private static LevelExit FindExit()
         {
-            Assert.AreEqual(1, Manager.CurrentLevel.Exits.Count, "il livello 1 ha una scala");
-            return Manager.CurrentLevel.Exits[0];
+            Assert.AreEqual(1, Manager.CurrentLevel.DownExits.Count(), "il livello 1 ha una scala giù");
+            return Manager.CurrentLevel.DownExits.First();
         }
 
         private IEnumerator WaitForScene(string sceneName, float timeout = 15f)

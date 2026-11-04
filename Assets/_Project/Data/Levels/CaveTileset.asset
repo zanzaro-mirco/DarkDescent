@@ -21,6 +21,7 @@ MonoBehaviour:
   _wallTorch: {fileID: 7056847793620555119, guid: 6e970fac7631258408fbe395a40143b7, type: 3}
   _stairsDown: {fileID: 2354004079276962870, guid: 5aa31967817d4a04b94de8242e7c8403, type: 3}
   _exitBanner: {fileID: 7684724433698735442, guid: 64c4626053a6e8345b294f0729766217, type: 3}
+  _entranceMouth: {fileID: 4459297362017370694, guid: 92e9e926bc06be741b9d8f0b787d2686, type: 3}
   _highlightMaterial: {fileID: 2100000, guid: 4b16f4eed1b106d4aad33a68e8cce2d4, type: 2}
   _ambientColor: {r: 0.2, g: 0.22, b: 0.3, a: 1}
   _postProcessing: {fileID: 11400000, guid: 189ed164c1b26f943957c535bbf8657e, type: 2}

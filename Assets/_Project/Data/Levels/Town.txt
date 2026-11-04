@@ -1,7 +1,7 @@
 // Il borgo all'ingresso della cripta (M18): la città, fatta a mano, senza nemici. Nord in alto.
 // Si comincia da '<'; a nord, oltre il varco nel muretto, la gola tra i massi porta alla grotta '>',
 // che scende alla profondità 1 della cripta. M il mercante, A l'altare, P l'arrivo dei portali (il
-// portale compare due metri a nord), f il fuoco, E il fabbro davanti alla forgia, L la guaritrice sulla
+// portale compare due metri a nord), K l'arrivo di chi risale dalla cripta (davanti alla grotta, rivolto a sud), f il fuoco, E il fabbro davanti alla forgia, L la guaritrice sulla
 // soglia di casa (anche strada). '#' è il muretto, ':' terreno aperto senza muretto.
 // Pezzi (@solid), con le celle coperte '%': il simbolo sta sul lato della porta.
 //   H I J case, G la casa della guaritrice, V la taverna, D le case sfondate, B la forgia,
@@ -22,7 +22,7 @@ F:FU::::%m%:%%%:%m%::::UZF:
 ZF::UZ::%%%:%O%:%%%:ZR::UZF
 FZFZ:ZZZ:::S.>.S:::Z:Z:Z:FZ
 :FZXYYYYYYYS.,.SYYYYYYYYZ:F
-FRFU#######S.,.S#######Z:F:
+FRFU#######S.,KS#######Z:F:
 UFXR#o%...v..t..v...%o#YZ:F
 FUFU#.H.vg.q.,.%%q..H.#Z:F:
 :FUX#v....dg.,.Q%.v...#YZ:F

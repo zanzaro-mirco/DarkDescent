@@ -162,7 +162,19 @@ namespace DarkDescent.Tests
             Assert.AreEqual(enemyLife, enemyHealth.Current, 0.01f, "il nemico non si fa male");
 
             // fuori dalla piastrella, il giro dopo niente
-            PlayerAgent.Warp(OnNavMesh(trap.transform.position + Vector3.forward * 4f));
+            // un punto a 4 m dalla piastrella, dal lato che ha il pavimento: con le stanze più grandi non è sempre il nord
+            Vector3 away = trap.transform.position;
+            foreach (var direction in new[] { Vector3.forward, Vector3.back, Vector3.right, Vector3.left })
+            {
+                if (NavMesh.SamplePosition(trap.transform.position + direction * 4f, out var hit, 1.5f, NavMesh.AllAreas))
+                {
+                    away = hit.position;
+                    break;
+                }
+            }
+
+            Assert.Greater(Vector3.Distance(away, trap.transform.position), 2f, "nessun pavimento a 4 m dalla piastrella");
+            PlayerAgent.Warp(away);
             float life = PlayerHealth.Current;
             yield return new WaitForSeconds(trap.Cycle + 0.2f);
             Assert.AreEqual(1, strikes);

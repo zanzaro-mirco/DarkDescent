@@ -15,6 +15,7 @@ namespace DarkDescent.Tests
         private const string CryptTilesetPath = "Assets/_Project/Data/Levels/DungeonTileset.asset";
         private const string CaveTilesetPath = "Assets/_Project/Data/Levels/CaveTileset.asset";
         private const string CryptSettingsPath = "Assets/_Project/Data/Levels/CryptSettings.asset";
+        private const string CaveSettingsPath = "Assets/_Project/Data/Levels/CaveSettings.asset";
 
         private static readonly ulong[] Seeds = { 1UL, 7UL, 42UL, 4711UL, 20261026UL, 987654321UL };
 
@@ -49,24 +50,54 @@ namespace DarkDescent.Tests
             Assert.IsTrue(cave.GetComponentsInChildren<Transform>(true).All(t => (walkable & (1 << t.gameObject.layer)) == 0));
         }
 
-        [Test, Description("Lo sbocco del cunicolo è solo nella cripta e solo alla profondità 1: le mappe generate lo chiedono con @arrival e la cella del muro, quelle a mano no")]
-        public void Tunnel_OnlyAtDepthOneOfTheCrypt()
+        [Test, Description("Lo sbocco del cunicolo è anche la scala in su (M22): a ogni profondità della cripta e delle caverne le mappe generate lo chiedono con @arrival e @upexit, quelle a mano no. Alla 1 porta al borgo, nelle altre un livello su, dalla prima delle caverne alla cripta")]
+        public void Tunnel_IsTheStairsUpAtEveryDepth()
         {
             Assert.AreEqual("TunnelMouth", Load<LevelTileset>(CryptTilesetPath).EntranceMouth.name);
-            Assert.IsNull(Load<LevelTileset>(CaveTilesetPath).EntranceMouth, "le caverne restano come sono");
+            Assert.AreEqual("TunnelMouth", Load<LevelTileset>(CaveTilesetPath).EntranceMouth.name, "anche le caverne hanno la loro scala in su");
 
-            var settings = Load<DungeonSettings>(CryptSettingsPath);
+            var crypt = Load<DungeonSettings>(CryptSettingsPath);
+            var caves = Load<DungeonSettings>(CaveSettingsPath);
             foreach (var seed in Seeds)
             {
-                var arrival = DungeonLevel.CreateMap(settings, seed, 1, out _).GetDirective(LevelBuilder.ArrivalDirective);
-                Assert.AreEqual(4, arrival.Count, $"seme {seed}");
-                Assert.AreEqual(LevelBuilder.TunnelArrival, arrival[0]);
-                Assert.IsTrue(TunnelSpot.TryRead(arrival, out _, out _), $"seme {seed}: {string.Join(" ", arrival)}");
-                CollectionAssert.IsEmpty(DungeonLevel.CreateMap(settings, seed, 2, out _).GetDirective(LevelBuilder.ArrivalDirective), $"seme {seed}");
+                foreach (var (settings, depth, scene, entrance, target) in new[]
+                {
+                    (crypt, 1, "Town", "FromCrypt", 0), (crypt, 2, "Level_Crypt", "FromBelow", 1), (crypt, 4, "Level_Crypt", "FromBelow", 3),
+                    (caves, 5, "Level_Crypt", "FromBelow", 4), (caves, 8, "Level_Caves", "FromBelow", 7),
+                })
+                {
+                    var map = DungeonLevel.CreateMap(settings, seed, depth, out _);
+                    var arrival = map.GetDirective(LevelBuilder.ArrivalDirective);
+                    Assert.AreEqual(4, arrival.Count, $"seme {seed}, profondità {depth}: nessuno sbocco");
+                    Assert.AreEqual(LevelBuilder.TunnelArrival, arrival[0]);
+                    Assert.IsTrue(TunnelSpot.TryRead(arrival, out _, out _), $"seme {seed}: {string.Join(" ", arrival)}");
+                    CollectionAssert.AreEqual(new[] { scene, entrance, target.ToString() }, map.GetDirective(LevelBuilder.UpExitDirective), $"seme {seed}, profondità {depth}");
+                }
             }
 
             var hand = LevelMap.Parse(Load<TextAsset>("Assets/_Project/Levels/Level_01.txt").text);
             CollectionAssert.IsEmpty(hand.GetDirective(LevelBuilder.ArrivalDirective));
+            CollectionAssert.IsEmpty(hand.GetDirective(LevelBuilder.UpExitDirective));
+        }
+
+        [Test, Description("DungeonSettings.TryGetUpExit: la cripta dalla 2 alla 4 sale di un livello nella stessa scena e dalla 1 va al borgo; le caverne uguale, dalla 5 alla profondità 4 della cripta; senza scena di sopra la scala non c'è")]
+        public void UpExit_FollowsTheSettings()
+        {
+            var crypt = Load<DungeonSettings>(CryptSettingsPath);
+            var caves = Load<DungeonSettings>(CaveSettingsPath);
+            Assert.IsTrue(crypt.TryGetUpExit(3, out string scene, out string entrance, out int depth));
+            Assert.AreEqual(("Level_Crypt", "FromBelow", 2), (scene, entrance, depth));
+            Assert.IsTrue(crypt.TryGetUpExit(1, out scene, out entrance, out depth));
+            Assert.AreEqual(("Town", "FromCrypt", 0), (scene, entrance, depth));
+            Assert.IsTrue(caves.TryGetUpExit(5, out scene, out entrance, out depth));
+            Assert.AreEqual(("Level_Crypt", "FromBelow", 4), (scene, entrance, depth));
+            Assert.IsTrue(caves.TryGetUpExit(7, out scene, out entrance, out depth));
+            Assert.AreEqual(("Level_Caves", "FromBelow", 6), (scene, entrance, depth));
+            Assert.IsFalse(crypt.TryGetUpExit(5, out _, out _, out _), "la cripta non copre la profondità 5");
+
+            var bare = ScriptableObject.CreateInstance<DungeonSettings>();
+            Assert.IsFalse(bare.TryGetUpExit(1, out _, out _, out _), "senza una scena di sopra la scala in su non c'è");
+            Object.DestroyImmediate(bare);
         }
 
         [Test, Description("Lo sbocco prende il posto del muro dietro la sua cella: i massi arrivano in cima al muro, la galleria entra nella roccia, nella stanza sporge poco e sui muri accanto resta vicino al muro")]

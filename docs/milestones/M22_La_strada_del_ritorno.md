@@ -151,3 +151,29 @@ quattro profondità, la mediana almeno 24 celle, le caverne sempre da 28. **Edit
 Mago): verde, salvo la misura delle difficoltà del cavaliere al Crepuscolo, profondità 8: colpi al bruto **3,799** contro il
 minimo di 3,8. La stessa misura con lo stesso seme sul codice di prima (`git stash`, commit `e8103df`) dà gli stessi
 numeri e lo stesso errore: **non dipende dalle stanze**, c'è dalla M21. È un'altra cosa da guardare, a parte.
+
+---
+
+## Passo 22.3 — La scala in su
+
+**Fatto il 4 novembre 2026** (foto in `Recordings/Photos/m22_scala`, `PhotoTour.StairsUp`).
+
+- **Lo sbocco è l'uscita.** `DungeonLevel.CreateMap` scrive `@arrival tunnel x y muro` e la nuova `@upexit scena ingresso profondità` a ogni
+  profondità che ha un livello di sopra (`DungeonSettings.TryGetUpExit`: la cripta dalla 2 sale nella stessa scena, la 1 va al borgo,
+  le caverne dalla 6 uguale, la 5 alla profondità 4 della cripta). `LevelBuilder.PlaceUpExit` dà allo sbocco la stessa
+  uscita della scala giù (trigger, area del click, bagliore, scritta «Sali al livello N» / «Torna al borgo») rivolta verso la stanza.
+- **Dove sta.** Nella cripta la regola di `TunnelSpot` di prima (stanza d'ingresso, muro nord, ovest, est, sud), più un controllo
+  nuovo: se la cella sparisce, ogni cella libera resta raggiungibile. Nelle caverne, che non hanno una stanza d'ingresso,
+  `TunnelSpot.TryChooseInCave` cerca entro 14 passi dall'ingresso, prima sul muro nord e poi su ovest, est e sud, e su ogni muro
+  prima un tratto dritto con le celle di lato e il quadrato davanti liberi, poi una nicchia, poi con meno pretese; mai a meno di
+  due celle dall'ingresso. Su 400 semi e le quattro profondità delle caverne non ne manca nessuno (con la sola regola stretta
+  ne mancava il 40–70%). Nessun tiro del seme: nemici, casse e loot dei livelli non cambiano.
+- **Dove si arriva.** Ogni livello generato con la scala giù ha l'ingresso `FromBelow` nella cella davanti, a 5 m dal centro della scala
+  (il trigger sporge fino a 3,5 m): `LevelBuilder.PlaceArrivalFromBelow`. Nel borgo l'ingresso `FromCrypt` (marcatore `K`,
+  `Prefabs/Town/CryptSpot.prefab`) sta davanti alla grotta, rivolto a sud.
+- **`LevelExit`** non usa più lo zero per «quella sotto»: la profondità di arrivo è sempre scritta, e il borgo è 0 (`-1` vuol dire «la prossima»,
+  per i livelli fatti a mano). `LevelContext.DownExits` e `UpExit` distinguono le due uscite.
+- **Test.** EditMode 630: lo sbocco a ogni profondità con la sua uscita, `TryGetUpExit`, il posto sempre trovato. PlayMode `StairsUpTests`: si scende
+  da 1 a 8 e si risale fino al borgo, a ogni livello l'ingresso è `FromBelow`, fuori dal trigger della scala giù e senza rimbalzo, e dal borgo si riscende;
+  ogni ingresso dall'alto è fuori dal trigger della scala in su. Corretti i test che contavano una sola uscita (`DownExits`) e quello degli spuntoni,
+  che supponeva il pavimento a nord.

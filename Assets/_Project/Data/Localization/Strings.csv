@@ -119,6 +119,8 @@ skills.none,No skills for this slot yet,Nessuna abilità per questa casella
 
 # Oggetti a terra e scale
 exit.descend,Descend to level {0},Scendi al livello {0}
+exit.ascend,Climb to level {0},Sali al livello {0}
+exit.village,Return to the village,Torna al borgo
 hud.inventory_full,No room in the inventory,Non c'è posto nell'inventario
 hud.experience,Level {0} – {1} / {2},Livello {0} – {1} / {2}
 hud.experience_max,Level {0} (max),Livello {0} (massimo)

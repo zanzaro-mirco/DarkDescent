@@ -701,6 +701,83 @@ namespace DarkDescent.Tests
             yield return Snap("crypt_tunnel_empty");
         }
 
+        [UnityTest, Timeout(600000), Description("La scala in su (22.3): lo sbocco nella cripta e nelle caverne, a riposo e sotto il cursore, l'arrivo davanti alla scala giù risalendo, e l'uscita dal cunicolo nel borgo")]
+        public IEnumerator StairsUp()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            MenuSteps.StartNew(menu, 1);
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Settle();
+
+            // davanti allo sbocco, a qualche metro, fuori dal suo trigger
+            IEnumerator Face(string name)
+            {
+                var up = Manager.CurrentLevel.UpExit;
+                Assert.IsNotNull(up, name);
+                var agent = Hero.GetComponent<NavMeshAgent>();
+                bool placed = false;
+                foreach (float distance in new[] { 6f, 5f, 7f, 8f })
+                {
+                    if (NavMesh.SamplePosition(up.transform.position + up.transform.forward * distance, out var hit, 1.2f, NavMesh.AllAreas))
+                    {
+                        agent.Warp(hit.position);
+                        placed = true;
+                        break;
+                    }
+                }
+
+                Assert.IsTrue(placed, $"{name}: nessun punto davanti allo sbocco");
+                yield return Settle();
+                yield return Snap(name);
+                var interactable = up.GetComponent<Interactable>();
+                interactable.SetHighlighted(true);
+                yield return Frames(3);
+                yield return Snap(name + "_hover");
+                interactable.SetHighlighted(false);
+            }
+
+            yield return Descend("Level_Crypt", 1);
+            yield return Face("up_crypt_1");
+            yield return Descend("Level_Crypt", 3);
+            yield return Face("up_crypt_3");
+            yield return Descend("Level_Caves", 5);
+            yield return Face("up_caves_5");
+            yield return Descend("Level_Caves", 7);
+            yield return Face("up_caves_7");
+
+            // si risale: davanti alla scala giù del livello di sopra, e poi nel borgo
+            var manager = Manager;
+            manager.LoadLevel("Level_Crypt", DungeonSettings.EntranceFromBelow, 4);
+            for (float t = 0f; manager.IsTransitioning || manager.CurrentLevel == null || manager.CurrentLevel.Depth != 4; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 20f, "la profondità 4 non arriva");
+                yield return null;
+            }
+
+            foreach (var enemy in manager.CurrentLevel.Enemies.Where(e => e != null))
+            {
+                enemy.enabled = false;
+            }
+
+            yield return Settle();
+            yield return Snap("below_arrival_4");
+
+            manager.LoadLevel("Town", "FromCrypt", 0);
+            for (float t = 0f; manager.IsTransitioning || manager.CurrentLevel == null || manager.CurrentLevel.Depth != 0; t += Time.unscaledDeltaTime)
+            {
+                Assert.Less(t, 20f, "il borgo non arriva");
+                yield return null;
+            }
+
+            yield return Settle();
+            yield return Snap("village_from_crypt");
+        }
+
         [UnityTest, Timeout(300000), Description("Le stanze della cripta di prima e di dopo (22.1, D11 della M22): quattro semi con le impostazioni di oggi e le alternative, disegnati dal generatore vero, e i numeri su 64 semi")]
         public IEnumerator RoomDesign()
         {

@@ -82,10 +82,12 @@ namespace DarkDescent.Tests
                 Assert.IsTrue(enemy.GetComponent<NavMeshAgent>().isOnNavMesh, $"{enemy.name} fuori dal NavMesh");
             }
 
-            Assert.AreEqual(1, level.Exits.Count);
-            Assert.AreEqual(CryptScene, level.Exits[0].TargetScene);
-            Assert.AreEqual(2, level.Exits[0].TargetDepth);
-            Assert.AreEqual("Descend to level 2", level.Exits[0].GetComponent<Interactable>().GetLabel(Localizer));
+            Assert.AreEqual(1, level.DownExits.Count());
+            var down = level.DownExits.First();
+            Assert.IsNotNull(level.UpExit, "ogni livello della cripta ha la sua scala in su");
+            Assert.AreEqual(CryptScene, down.TargetScene);
+            Assert.AreEqual(2, down.TargetDepth);
+            Assert.AreEqual("Descend to level 2", down.GetComponent<Interactable>().GetLabel(Localizer));
 
             Assert.AreEqual(AmbientMode.Flat, RenderSettings.ambientMode);
             Assert.IsNotNull(Object.FindFirstObjectByType<Volume>(), "post-processing della cripta");
@@ -131,7 +133,8 @@ namespace DarkDescent.Tests
                 }
             }
 
-            Assert.AreEqual(0, Manager.CurrentLevel.Exits.Count, "l'ottavo livello non ha la scala: il boss arriva alla M10");
+            Assert.AreEqual(0, Manager.CurrentLevel.DownExits.Count(), "l'ottavo livello non ha la scala giù: il boss arriva alla M10");
+            Assert.IsNotNull(Manager.CurrentLevel.UpExit, "ma ha la scala in su");
         }
 
         [UnityTest, Description("Con lo stesso seme della partita lo stesso livello torna uguale, nemici e oggetti compresi; con un altro seme no")]

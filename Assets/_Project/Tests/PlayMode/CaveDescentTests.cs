@@ -83,8 +83,10 @@ namespace DarkDescent.Tests
             }
 
             Assert.IsTrue(PlayerAgent.isOnNavMesh);
-            Assert.AreEqual(1, level.Exits.Count);
-            Assert.AreEqual((CaveScene, 6), (level.Exits[0].TargetScene, level.Exits[0].TargetDepth));
+            Assert.AreEqual(1, level.DownExits.Count());
+            var down = level.DownExits.First();
+            Assert.AreEqual((CaveScene, 6), (down.TargetScene, down.TargetDepth));
+            Assert.IsNotNull(level.UpExit, "ogni caverna ha la sua scala in su");
         }
 
         [UnityTest, Description("Con lo stesso seme la stessa caverna torna uguale, nemici e oggetti compresi; con un altro seme no")]

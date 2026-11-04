@@ -22,6 +22,9 @@ MonoBehaviour:
   _firstDepth: 5
   _lastDepth: 8
   _nextScene: 
+  _previousScene: Level_Crypt
+  _previousEntrance: FromBelow
+  _previousDepth: 4
   _enemiesBase: 5
   _enemiesPerDepth: 0
   _minGroup: 2

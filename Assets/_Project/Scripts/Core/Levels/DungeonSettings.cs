@@ -42,6 +42,15 @@ namespace DarkDescent.Levels
         [Tooltip("Dove porta la scala dell'ultima profondità, alla profondità successiva. Vuoto: la scala non c'è.")]
         [SerializeField] private string _nextScene = "";
 
+        [Tooltip("Dove porta la scala in su della prima profondità di questo tipo (M22): la scena di sopra, all'ingresso che dice il campo dopo. Vuoto: la scala in su non c'è, né qui né nelle profondità dopo.")]
+        [SerializeField] private string _previousScene = "";
+
+        [Tooltip("L'ingresso della scena di sopra: FromBelow davanti alla sua scala giù, o quello del borgo davanti alla grotta.")]
+        [SerializeField] private string _previousEntrance = "FromBelow";
+
+        [Tooltip("La profondità della scena di sopra, per la scala in su della prima profondità: l'ultima di quella scena, o 0 per il borgo.")]
+        [SerializeField, Min(0)] private int _previousDepth;
+
         [Header("Contenuto (D6)")]
         [Tooltip("Scheletri = base + per profondità × profondità: 5 al livello 1, 11 al livello 4.")]
         [SerializeField, Min(0)] private int _enemiesBase = 3;
@@ -137,6 +146,37 @@ namespace DarkDescent.Levels
         }
 
         public string NextScene => _nextScene;
+
+        /// <summary>L'ingresso davanti alla scala giù di un livello, dove si arriva risalendo da sotto (M22).</summary>
+        public const string EntranceFromBelow = "FromBelow";
+
+        /// <summary>
+        /// Dove porta la scala in su di un livello di questo tipo (D2, D7 della M22): lo stesso tipo un livello sopra, davanti
+        /// alla sua scala giù, o alla prima profondità la scena di sopra. Falso se non c'è (nessuna scena di sopra).
+        /// </summary>
+        public bool TryGetUpExit(int depth, out string scene, out string entrance, out int targetDepth)
+        {
+            scene = null;
+            entrance = null;
+            targetDepth = 0;
+            if (string.IsNullOrEmpty(_previousScene) || !Covers(depth))
+            {
+                return false;
+            }
+
+            if (depth > _firstDepth)
+            {
+                scene = _sceneName;
+                entrance = EntranceFromBelow;
+                targetDepth = depth - 1;
+                return true;
+            }
+
+            scene = _previousScene;
+            entrance = _previousEntrance;
+            targetDepth = _previousDepth;
+            return true;
+        }
 
         public int MinGroup => _minGroup;
 

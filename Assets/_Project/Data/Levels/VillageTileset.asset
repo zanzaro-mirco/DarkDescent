@@ -221,6 +221,10 @@ MonoBehaviour:
     _prefab: {fileID: 1973091152603408154, guid: 0520ba75abb8f2b42acac1630683ddf6, type: 3}
     _replacesFloor: 0
     _keepsRotation: 0
+  - _symbol: 75
+    _prefab: {fileID: 4172910001000000001, guid: 7a3c91e5d2b84f60a1e8c4d95b2f7e13, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 1
   _road: 44
   _decalMaterial: {fileID: 0}
   _decalLift: 0.02
