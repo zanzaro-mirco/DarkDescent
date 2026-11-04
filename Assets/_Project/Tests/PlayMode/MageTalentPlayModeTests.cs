@@ -274,15 +274,21 @@ namespace DarkDescent.Tests
             var enemies = Skeletons(2);
             StandAt(enemies[0].transform, 6f);
             yield return null;
-            PlaceNear(enemies[1], enemies[0].transform.position, 1f);
-            yield return null;
+            // di fianco al primo, di traverso rispetto al tiro: lo scoppio prende il vicino anche se il tiro arriva da un lato
+            Vector3 side = Vector3.Cross(Vector3.up, (enemies[0].transform.position - Player.position).normalized);
+            PlaceNear(enemies[1], enemies[0].transform.position + side * 0.5f, 0.5f);
+            yield return new WaitForFixedUpdate(); // il collider del vicino raggiunge il nuovo posto solo al passo di fisica
+            Physics.SyncTransforms();
             BecomeMage(0, FinalePath(0));
             Magic.Mana.Fill();
-            float neighbour = enemies[1].GetComponent<Health>().Current;
+            // si conta il colpo e non la vita: un nemico fuori dal suo posto torna a casa e si cura, anche entro il secondo di attesa
+            bool targetHit = false, neighbourHit = false;
+            enemies[0].GetComponent<Health>().Damaged += (info, applied) => targetHit = true;
+            enemies[1].GetComponent<Health>().Damaged += (info, applied) => neighbourHit = true;
             Assert.AreEqual(CastResult.Ready, Magic.TryCastAt(Spell("Firebolt"), enemies[0].transform.position));
             yield return Wait(1.2f);
-            Assert.Less(enemies[0].GetComponent<Health>().Current, enemies[0].GetComponent<Health>().Max);
-            Assert.Less(enemies[1].GetComponent<Health>().Current, neighbour, "il vicino");
+            Assert.IsTrue(targetHit, "il bersaglio");
+            Assert.IsTrue(neighbourHit, "il vicino");
         }
 
         [UnityTest, Description("Meteora doppia: la Meteora cade due volte sullo stesso punto, a un secondo di distanza; senza il nodo una sola")]
