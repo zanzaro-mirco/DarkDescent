@@ -149,6 +149,7 @@ namespace DarkDescent.Tests
         {
             public readonly List<int> Killed = new List<int>();
             public int Opened;
+            public int ChestIndex = -1;
             public List<string> Ground;
             public int Explored;
             public int EnemyCount;
@@ -168,6 +169,19 @@ namespace DarkDescent.Tests
 
         private static bool IsGone(EnemyAI enemy) => enemy == null || !enemy.gameObject.activeSelf;
 
+        private static int IndexOfFirstOpenableChest(LevelContext level)
+        {
+            for (int i = 0; i < level.Chests.Count; i++)
+            {
+                if (level.Chests[i] != null && !level.Chests[i].IsSealed)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         private IEnumerator MarkTheLevel(Marks marks)
         {
             var level = Manager.CurrentLevel;
@@ -183,17 +197,22 @@ namespace DarkDescent.Tests
                 var health = enemy.GetComponent<Health>();
                 health.TakeDamage(new DamageInfo(health.Max, DamageType.Physical, null));
                 marks.Killed.Add(i);
-                if (marks.Opened == 0 && level.Chests.Count > 0)
+                if (marks.Opened == 0)
                 {
-                    level.Chests[0].GetComponent<Interactable>().Use(PlayerObject);
-                    marks.Opened = 1;
+                    // la cassa del Custode (depth 4) è sigillata finché lui vive: si apre la prima che si può
+                    marks.ChestIndex = IndexOfFirstOpenableChest(level);
+                    if (marks.ChestIndex >= 0)
+                    {
+                        level.Chests[marks.ChestIndex].GetComponent<Interactable>().Use(PlayerObject);
+                        marks.Opened = 1;
+                    }
                 }
 
                 yield return new WaitForSeconds(1f);
             }
 
             Assert.Greater(marks.Killed.Count, 0, "un nemico con il suo loot");
-            Assert.IsTrue(level.Chests.Count == 0 || level.Chests[0].IsOpen, "la cassa è aperta");
+            Assert.IsTrue(marks.ChestIndex < 0 || level.Chests[marks.ChestIndex].IsOpen, "la cassa è aperta");
             marks.Ground = GroundNow();
             marks.Explored = Object.FindFirstObjectByType<ExplorationTracker>().Exploration.ExploredCount;
         }
@@ -207,7 +226,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual(marks.EnemyCount - marks.Killed.Count, level.Enemies.Count(e => !IsGone(e)), $"profondità {depth}: gli altri ci sono");
             if (marks.Opened > 0)
             {
-                Assert.IsTrue(level.Chests[0].IsOpen, $"profondità {depth}: la cassa resta aperta");
+                Assert.IsTrue(level.Chests[marks.ChestIndex].IsOpen, $"profondità {depth}: la cassa resta aperta");
             }
 
             CollectionAssert.AreEqual(marks.Ground, GroundNow(), $"profondità {depth}: le cose a terra dov'erano, senza doppioni");

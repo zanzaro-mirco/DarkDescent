@@ -256,11 +256,11 @@ MonoBehaviour:
     _replacesFloor: 1
     _keepsRotation: 0
   - _symbol: 75
-    _prefab: {fileID: 6859590642092365944, guid: 46bb0764db5660a4ebab0cdc28f94ad7, type: 3}
+    _prefab: {fileID: 6859590642092365944, guid: 3bcf6def9424445478aacdf15a1c5b9c, type: 3}
     _replacesFloor: 0
     _keepsRotation: 0
   - _symbol: 107
-    _prefab: {fileID: 1495775306134700890, guid: 33cb374550d7a854d9dc9b035e7c53d5, type: 3}
+    _prefab: {fileID: 1495775306134700890, guid: 72a356cd4aa0538419921309ba13951c, type: 3}
     _replacesFloor: 0
     _keepsRotation: 0
   _road: 0

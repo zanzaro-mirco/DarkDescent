@@ -118,8 +118,8 @@ GameObject:
   - component: {fileID: 9053275634887623085}
   - component: {fileID: 7796166182930670891}
   - component: {fileID: 516965659781621926}
-  - component: {fileID: 8303577786997237678}
-  - component: {fileID: 6843400025747560585}
+  - component: {fileID: 6465821771783134935}
+  - component: {fileID: 8071778617973008115}
   m_Layer: 8
   m_Name: Guardian
   m_TagString: Untagged
@@ -438,7 +438,7 @@ MonoBehaviour:
   _targetAllowance: 0.45
   _height: 0.08
   _segments: 24
---- !u!114 &8303577786997237678
+--- !u!114 &6465821771783134935
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -462,13 +462,13 @@ MonoBehaviour:
   _chargeWindup: 1.1
   _chargeSpeed: 13
   _chargeDistance: 12
-  _chargeMinDistance: 4
+  _chargeMinDistance: 0
   _chargeWidth: 2
   _targetAllowance: 0.45
   _chargeDamage: {x: 30, y: 42}
   _chargeRecover: 1.6
-  _chargeTelegraph: {fileID: 6843400025747560585}
---- !u!114 &6843400025747560585
+  _chargeTelegraph: {fileID: 8071778617973008115}
+--- !u!114 &8071778617973008115
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

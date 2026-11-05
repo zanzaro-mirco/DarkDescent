@@ -166,3 +166,37 @@ viola e con una luce) e la schermata delle difficoltà dell'altare (`05_altar`).
 - **I test.** `EnemyBehaviours.PatrolEnabled` è spento in `SandboxFixture.ForgetPreferences` (D17). EditMode 699 (14 nuovi: lo stato con un corpo finto, il piano, i dati), PlayMode 397 su 399 verdi (2 saltati come prima): 6 test
   (gira entro 8 m a 60%, vede il cavaliere e insegue a passo pieno, senza interruttore né profondità resta fermo, una cella senza ronda resta ferma, dopo il ritorno a casa riprende,
   rallentato non due volte) più uno nei livelli veri (crypt e caverne, sei profondità): **14 nemici su 57 candidati girano (24,6%)**, tutti con punti sul NavMesh e entro 8 m.
+
+## Passo 24.4 — Vorrak il Custode
+
+**Fatto, in locale.** Il boss della profondità 4, come approvato in 24.1 (D8–D11, D16), con quello che il codice ha insegnato.
+
+- **Il posto.** `DungeonPopulator.PlaceGuardian`, per ultimo e con un flusso suo del seme (`SeedMixer.ForGuardian`): nessun tiro del flusso principale, quindi nemici, casse e barili dei semi provati
+  non si spostano; alla profondità 4 la cripta ha in più due segni, **`K`** (il Custode, lo stesso del re delle caverne) e **`k`** (il suo tesoro; la `t` del tesoro del re nella cripta c'era già).
+  Il Custode sta sulla cella libera più vicina al centro della **sala della scala giù**, il tesoro contro un muro della stessa sala. Le stanze della cripta vanno da 3 a 7 celle per lato (la sala della
+  scala è 3×3 una volta su otto, e le celle sono di 4 m, quindi anche quella è un'arena di 12 m), e ci sono già arredi e nemici: in una sala piena il Custode prende il posto di un arredo o di
+  un mobile di legno, mai di un nemico, di un barile o di una cassa (i conteggi della misura sono esatti), e il tesoro prende una cella contro un muro anche accanto a una porta, purché ogni
+  cella resti raggiungibile e davanti alla cassa si arrivi. **In 397 semi su 400 sta nella sala della scala**; nei tre con una sala di 3×3 piena sta nella stanza più vicina alla scala che lo regge
+  (il test fissa il 97%). Le mappe dei semi provati cambiano solo per quei due segni alla profondità 4.
+- **Il controllo.** `GuardianController` accanto al `BossController` del re, che non si tocca: niente porta, anello né portale della vittoria. Sopra la metà della vita combatte con il colpo caricato
+  del bruto (largo e forte); sotto, **una volta sola** evoca tre scheletri (legati al cavaliere senza esperienza, come quelli del re) e comincia a **caricare**: striscia rossa a terra per 1,1 s
+  nella direzione in cui è il cavaliere in quel momento (`TelegraphLine`), corsa a 13 m/s fino a 12 m o a un muro o al cavaliere, colpo se il cavaliere è sulla linea, poi 1,6 s fermo (la
+  finestra per colpirlo); ogni 8 s. Lo stordimento e il gelo lo fermano e annullano la carica. Il cavaliere che cade e torna in vita lo fa ricominciare dalla prima fase, con le evocazioni da rifare.
+- **Il tesoro.** `Chest` ha un secondo sigillo, `OpensWithGuardian`: chiuso finché lui è vivo, si apre alla sua morte. Con il Custode già caduto (il ricordo del livello lo toglie prima di legare
+  i nemici) si apre subito, e il tesoro del re non si apre più per sbaglio quando il re è già caduto: ha il suo sigillo. Tre oggetti (due tiri in più), magici ×1,8 e rari ×2 (il re ×2 e ×3),
+  almeno un magico, oro ×1,8, unici e set ×4 con un tiro a parte del 15%. Gli unici hanno il loro livello minimo: per questo "dalla Tenebra in su" non è una regola scritta ma quello che il livello
+  degli oggetti permette.
+- **La barra e il nome.** In alto per tutto lo scontro, il nome **Vorrak il Custode** (*Vorrak the Keeper*) in oro e un segno a metà, dove comincia la seconda fase; niente barra sopra la testa, come il re.
+- **I dati.** `Tools → Custode`: `GuardianTools` crea in modo ripetibile i colpi (`GuardianStrike` 26–36 e `GuardianQuick` 10–16, il bruto per 1,3), l'archetipo, il prefab (il modello del re tinto di
+  viola, scalato 1,25, con l'aura al posto della luce del re e senza i suoi componenti), il tesoro e i due segni nel set della cripta. Vita **240** (otto scheletri).
+- **Fuori dalle misure tarate.** Il Custode e il suo tesoro non entrano in `LootCensus` né nell'esperienza di `DifficultyCensus`: sono un premio in più che il cavaliere può saltare, e le bande della M14
+  e della M16 restano com'erano (D17). La colonna nuova della tabella (`colpi_custode`, `regge_custode`) li misura a parte.
+
+**Misura (D10), alla profondità 4, ogni difficoltà.** Il Custode contro il Guerriero di riferimento: 14 colpi per ucciderlo al Crepuscolo (bruto 5,3, re 36), fino a 29 all'Abisso IV (bruto 10,9, re 73);
+il cavaliere regge 4,5 suoi colpi al Crepuscolo e 3,1 all'Abisso IV (bruto 5,8 e 3,9, re 3,8 e 2,6). Il Mago di Fuoco: 16–27 lanci (re 40–68), regge 3,5–4,0 colpi (re 2,4–3,4). **È un terzo del re
+per durata (0,33–0,40 a ogni difficoltà, per tutte e due le classi) e meno letale del re ovunque**: la ragione di tenere vita 240 e danno del bruto ×1,3. Se il collaudo di Mirco lo dice troppo morbido
+o troppo duro, i numeri sono nei due asset di colpo e nella vita del prefab, e si tarano senza codice (poi `GuardianTools` li riscrive).
+
+**Test.** EditMode (12 nuovi: le fasi, il posto su 400 semi, la scala raggiungibile, i dati, il prefab, il tesoro, il set), PlayMode (7: aspetta alla scala, la barra, le tre evocazioni una volta sola,
+la carica in linea retta con la striscia e il colpo, la carica mancata, la morte con il tesoro e il ricordo, il cavaliere che cade). **Non ancora provato dal vivo:** come si vede e come si combatte
+(il modello con l'aura, la striscia a terra) — foto e prova di Mirco in 24.6.

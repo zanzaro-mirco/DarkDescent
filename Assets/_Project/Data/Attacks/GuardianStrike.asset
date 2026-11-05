@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1329ffda492c0b47b832c30e4978259, type: 3}
   m_Name: GuardianStrike
   m_EditorClassIdentifier: DarkDescent::DarkDescent.Combat.WeaponDefinition
-  _id: db2f742aace145d0badf66848203d235
+  _id: ba130baa3d8742eb9ddfa4d7edbe318a
   _nameKey: item.skeleton_strike
   _icon: {fileID: 0}
   _sound: 0

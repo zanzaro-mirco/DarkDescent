@@ -48,6 +48,7 @@ namespace DarkDescent.Editor
         private const string SkeletonPath = "Assets/_Project/Prefabs/Skeleton.prefab";
         private const string BrutePath = "Assets/_Project/Prefabs/Brute.prefab";
         private const string KingPath = "Assets/_Project/Prefabs/BoneKing.prefab";
+        private const string GuardianPath = "Assets/_Project/Prefabs/Guardian.prefab";
 
         private readonly ProgressionSettings _settings;
         private readonly IReadOnlyList<LootEntry> _stock;
@@ -58,6 +59,7 @@ namespace DarkDescent.Editor
         private readonly Numbers _player;
         private readonly Numbers _skeleton;
         private readonly Numbers _brute;
+        private readonly Numbers _guardian;
         private readonly Numbers _king;
 
         /// <summary>
@@ -91,6 +93,7 @@ namespace DarkDescent.Editor
             _skeleton = Read(SkeletonPath);
             _brute = Read(BrutePath);
             _king = Read(KingPath);
+            _guardian = Read(GuardianPath);
         }
 
         public ProgressionSettings Settings => _settings;
@@ -165,6 +168,11 @@ namespace DarkDescent.Editor
 
             public double KingSwings { get; set; }
 
+            /// <summary>Vorrak il Custode (M24): fuori dalle bande della M14, solo misurato, per tarare i suoi numeri.</summary>
+            public double GuardianSwings { get; set; }
+
+            public double GuardianHitsTaken { get; set; }
+
             /// <summary>Quanti colpi dello scheletro arrivati regge il cavaliere.</summary>
             public double SkeletonHitsTaken { get; set; }
 
@@ -238,6 +246,7 @@ namespace DarkDescent.Editor
             var skeleton = _skeleton.Foe(tier);
             var brute = _brute.Foe(tier);
             var king = _king.Foe(tier);
+            var guardian = _guardian.Foe(tier);
 
             // la media su più equipaggiamenti dello stesso livello: un solo seme dice poco
             double n = _gearSeeds.Count;
@@ -259,6 +268,8 @@ namespace DarkDescent.Editor
                 row.SkeletonSwings += PowerCensus.SwingsToKill(hero, skeleton) / n;
                 row.BruteSwings += PowerCensus.SwingsToKill(hero, brute) / n;
                 row.KingSwings += PowerCensus.SwingsToKill(hero, king) / n;
+                row.GuardianSwings += PowerCensus.SwingsToKill(hero, guardian) / n;
+                row.GuardianHitsTaken += PowerCensus.HitsToDie(guardian, hero) / n;
                 row.SkeletonHitsTaken += PowerCensus.HitsToDie(skeleton, hero) / n;
                 row.BruteHitsTaken += PowerCensus.HitsToDie(brute, hero) / n;
                 row.KingHitsTaken += PowerCensus.HitsToDie(king, hero) / n;
@@ -398,23 +409,25 @@ namespace DarkDescent.Editor
                 throw new InvalidOperationException($"{OutputVariable} non dice dove scrivere la tabella");
             }
 
-            Write(path);
+            // con DARKDESCENT_CENSUS_MAGE=MageFire (o MageFrost) la tabella è quella del Mago di riferimento
+            Write(path, Environment.GetEnvironmentVariable("DARKDESCENT_CENSUS_MAGE"));
         }
 
         /// <summary>La tabella in CSV, nel formato del foglio di calcolo italiano: punto e virgola, virgola decimale.</summary>
-        public static void Write(string path)
+        public static void Write(string path, string mageSpecialization = null)
         {
             var it = CultureInfo.GetCultureInfo("it-IT");
             var text = new StringBuilder("difficolta;profondita;livello;livello_oggetti;rarita;vita;armatura;blocco;colpisce_bruto;bruto_colpisce;"
-                + "colpi_scheletro;colpi_bruto;colpi_re;regge_scheletro;regge_bruto;regge_re;esperienza\n");
-            foreach (var row in new DifficultyCensus(20, 8).Measure(Load<DifficultyTable>(DifficultiesPath)))
+                + "colpi_scheletro;colpi_bruto;colpi_re;regge_scheletro;regge_bruto;regge_re;esperienza;colpi_custode;regge_custode\n");
+            var census = string.IsNullOrEmpty(mageSpecialization) ? new DifficultyCensus(20, 8) : ForMage(20, 8, mageSpecialization);
+            foreach (var row in census.Measure(Load<DifficultyTable>(DifficultiesPath)))
             {
                 text.Append(string.Join(";", row.TierName, row.Depth, row.HeroLevel, row.ItemLevel, row.Gear,
                     row.HeroLife.ToString("0", it), row.HeroArmor.ToString("0", it), (row.HeroBlock / 100.0).ToString("0%", it),
                     row.HeroLandsOnBrute.ToString("0%", it), row.BruteLandsOnHero.ToString("0%", it),
                     row.SkeletonSwings.ToString("0.0", it), row.BruteSwings.ToString("0.0", it), row.KingSwings.ToString("0", it),
                     row.SkeletonHitsTaken.ToString("0.0", it), row.BruteHitsTaken.ToString("0.0", it), row.KingHitsTaken.ToString("0.0", it),
-                    row.Experience.ToString("0", it)));
+                    row.Experience.ToString("0", it), row.GuardianSwings.ToString("0.0", it), row.GuardianHitsTaken.ToString("0.0", it)));
                 text.Append('\n');
             }
 

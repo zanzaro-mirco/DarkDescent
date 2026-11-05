@@ -64,8 +64,8 @@ namespace DarkDescent.Enemies
         [Tooltip("La corsa finisce dopo tanti metri, o prima contro un muro o il cavaliere.")]
         [SerializeField, Min(1f)] private float _chargeDistance = 12f;
 
-        [Tooltip("Non carica da più vicino di così: da vicino colpisce.")]
-        [SerializeField, Min(0f)] private float _chargeMinDistance = 4f;
+        [Tooltip("Non carica da più vicino di così. Zero: carica anche da vicino, e il cavaliere che resta fermo davanti a lui la prende subito.")]
+        [SerializeField, Min(0f)] private float _chargeMinDistance;
 
         [Tooltip("La larghezza della striscia e di quello che colpisce, in metri.")]
         [SerializeField, Min(0.5f)] private float _chargeWidth = 2f;
