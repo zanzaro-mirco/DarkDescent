@@ -9,6 +9,20 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.11 — M23 "A portata di mano"**, chiusa il 5 novembre 2026 (tag `v1.11.0`). Rispetto alla v1.10:
+
+- il **movimento da tastiera**: `W` `A` `S` `D` e le frecce, relativi alla visuale (`W` va sempre verso l'alto
+  dello schermo, anche dopo `Z` e `X`), con il mouse libero per colpire, raccogliere e lanciare; con un tasto
+  premuto un nemico a portata si colpisce da fermo. Il click funziona come prima;
+- le **barre della vita sui nemici feriti** (opzione, spenta di partenza): un solo canvas e un pool di 24 barre,
+  nel colore del grado, con il nome per gli unici;
+- dieci **suggerimenti al primo uso** (il primo nemico, il primo oggetto a terra, la prima pozione, la scala, i
+  punti da spendere...) in un riquadro in basso al centro, con i tasti letti dai binding; si ricordano tra una
+  partita e l'altra e si spengono o si rivedono dalle opzioni;
+- il **pannello dei comandi**, con `F1` o dal menu di pausa, in italiano e in inglese, con una riga che cambia per
+  il Mago;
+- il salvataggio resta il **10** e i livelli sono gli stessi di prima.
+
 **v1.10 — M22 "La strada del ritorno"**, chiusa il 4 novembre 2026 (tag `v1.10.0`). Rispetto alla v1.9:
 
 - la **scala in su**, in ogni livello della cripta e delle caverne: è lo sbocco del cunicolo, con le sue luci;
@@ -235,9 +249,18 @@ Milestone precedenti:
 
 **Comandi:**
 
+- `F1` apre l'elenco di tutti i comandi, con i tasti veri e nella lingua del gioco (si chiude con `F1` o
+  `Esc`); si apre anche dal menu di pausa, con il pulsante *Comandi*. Alla prima volta che servono, dei
+  suggerimenti brevi in basso al centro dicono come si fa (si spengono nelle opzioni, e *Rivedi i
+  suggerimenti* li fa ripartire)
 - click sinistro sul pavimento per muoversi; tenendo premuto, il personaggio segue il cursore
-- click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo.
-  Il nemico sotto il cursore ha un cerchio rosso a terra, e in alto il suo nome e la sua vita
+- `W` `A` `S` `D`, o le frecce, muovono il personaggio: `W` verso l'alto dello schermo, qualunque sia la
+  rotazione della visuale, due tasti insieme fanno la diagonale (non più veloce). Il tasto vince sul
+  click; rilasciato, ci si ferma. Muri e ostacoli fermano come col click
+- click sinistro su un nemico per colpirlo una volta; tenendo premuto, continua a colpirlo. Con un
+  tasto di movimento premuto, un nemico a portata si colpisce da fermo (un nemico fuori portata o il
+  pavimento non fanno niente). Il nemico sotto il cursore ha un cerchio rosso a terra, e in alto il suo
+  nome e la sua vita; un'opzione mette una barra della vita sopra ogni nemico ferito
 - click sinistro sulla scala per scendere al livello successivo; nel borgo, sulla grotta
 - click sinistro su fabbro, mercante o guaritrice per aprire il loro banco
 - click sinistro su un oggetto a terra per raccoglierlo, su una cassa per aprirla
@@ -268,7 +291,7 @@ Milestone precedenti:
 - rotella del mouse per avvicinare e allontanare la visuale; `Z` e `X` la girano di 90°
 - `M` automappa: nell'angolo, sovrapposta al gioco, spenta
 - `Esc` chiude le finestre aperte, poi mette in pausa: da lì si riprende, si aprono le
-  opzioni o si salva per tornare al menu iniziale
+  opzioni o i comandi, o si salva per tornare al menu iniziale
 
 Il gioco parte da un **menu iniziale**: *Continua* riprende l'ultima partita, *Nuova partita*
 comincia nel **borgo** sopra la cripta, da cui la grotta scende al primo livello. Lì il **fabbro**
@@ -278,8 +301,8 @@ apre un portale per il borgo, e lì un portale riporta dove lo si era aperto.
 e *Carica* usano tre posti di salvataggio (`save_1.json`…`save_3.json` nella cartella dei dati
 dell'applicazione), che si possono anche cancellare. Nelle **opzioni** ci sono la lingua
 (inglese, italiano), i volumi generale, della musica e degli effetti, i nomi degli oggetti
-a terra sempre visibili, i numeri di vita e mana sempre visibili e il filtro retrò (spento,
-leggero, pieno); tutto resta per gli avvii successivi. In fondo alle caverne, alla
+a terra sempre visibili, i numeri di vita e mana sempre visibili, le barre della vita sui nemici
+feriti, i suggerimenti (con *Rivedi*) e il filtro retrò (spento, leggero, pieno); tutto resta per gli avvii successivi. In fondo alle caverne, alla
 profondità 8, aspetta nella sua sala il **Re delle ossa**: entrati, la porta si chiude finché
 uno dei due non cade. Morto il re, il portale della vittoria porta al borgo, alle statistiche
 della partita e ai riconoscimenti; la partita resta salvata e si può riscendere.

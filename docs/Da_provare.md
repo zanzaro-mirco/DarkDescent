@@ -4,8 +4,31 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 4 nov 2026, build della v1.10.0 da provare (l'artefatto della build del tag).
+Ultimo aggiornamento: 5 nov 2026, build della v1.11.0 da provare (l'artefatto della build del tag).
 Le prove della M18 e della M19 restano valide.
+
+## Dalla M23 — "A portata di mano" (v1.11.0)
+
+- **WASD e le frecce**: camminare con la tastiera, anche dopo aver girato la visuale con `Z` e `X` (`W` deve andare
+  sempre verso l'alto dello schermo). Muri, angoli e il corridoio stretto della cripta: si striscia o si vibra? La
+  diagonale è più veloce o uguale? Rilasciando i tasti ci si ferma subito?
+- **Colpire e lanciare camminando**: con `W` premuto, un click su uno scheletro a portata lo colpisce da fermo; il tasto
+  destro, `Q` ed `E` lanciano verso il cursore anche in movimento (col Mago il dardo arcano). Ti sembra naturale, o ti
+  aspettavi di inseguire il nemico?
+- **Click e tasti insieme**: premendo un tasto mentre il cavaliere cammina verso un click, vince il tasto; a tasti
+  rilasciati e sinistro ancora premuto, riprende a seguire il cursore senza uno scatto.
+- **Le barre della vita** (opzioni, spente di partenza): accese, una barra sopra ogni nemico ferito; guarito o morto la
+  perde. Si leggono contro lo sciame? Il campione è blu e l'unico oro, con il nome: ti torna, o li vuoi come nel disegno
+  (dorato e arancione)? Dietro un muro la barra sparisce con il nemico. Con tanti nemici il gioco rallenta? (In editor la
+  misura non vede differenze, sta nel costo di un canvas piccolo.)
+- **I suggerimenti**: a una partita nuova (o con *Rivedi* nelle opzioni) compaiono uno alla volta, in basso al centro:
+  muoversi, il primo nemico, il primo oggetto a terra, la pozione, la scala, i punti da spendere... Compaiono al momento
+  giusto? Il riquadro copre qualcosa che serve? Un tasto lo chiude dopo mezzo secondo, scade da solo in 8 secondi. «1–8»
+  in Cinzel si legge come «I–8»: se confonde, si scrive «da 1 a 8».
+- **Il pannello dei comandi**: `F1` e il pulsante *Comandi* nella pausa. Le righe sono tutte vere? Il Mago legge «dardo
+  arcano». Da pausa, `F1` passa dal menu e ne esce senza chiudere la pausa.
+- **Le opzioni**: il riquadro è più alto (920 px) con le due caselle nuove e *Rivedi i suggerimenti*; stanno tutte a
+  schermo anche a risoluzione bassa?
 
 ## Dalla M22 — "La strada del ritorno" (v1.10.0)
 

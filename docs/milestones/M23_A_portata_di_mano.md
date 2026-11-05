@@ -296,3 +296,31 @@ in italiano, del Mago).
 **Da sapere.** Il pannello è alto 780 px (non 800): le righe di due testi stanno in una colonna senza passare alle tre
 colonne temute in 23.1. Il `1` di «1–8» in Cinzel si legge ancora come una I (come nei suggerimenti): con «Pozione della
 cintura» accanto si capisce.
+
+---
+
+## Passo 23.6 — Misura e chiusura
+
+**Fatto il 5 novembre 2026.**
+
+- **Il costo delle barre (D10).** `PhotoTour.BarsCost` (categoria Photos, fuori dai test di ogni push) mette i nemici
+  feriti del 40% attorno al cavaliere nella cripta alla 4 e misura 600 frame per giro, a vsync spento, due giri con le
+  barre spente e due accese (`Recordings/Photos/m23_costo/costo_barre.txt`). Nel livello c'erano 16 nemici vicini, non
+  24 (il tetto di 24 lo prova `EnemyHealthBarsTests`):
+
+  | | main thread (media) | p95 | allocazioni a frame | batch a frame |
+  |---|---|---|---|---|
+  | barre spente | 4,07 / 4,06 ms | 4,46 / 4,76 | 9552 / 9556 B | 891 |
+  | barre accese (16) | 4,15 / 3,92 ms | 4,58 / 4,29 | 9551 / 9551 B | 892 |
+
+  La differenza sta dentro il rumore tra i due giri uguali; le allocazioni non cambiano e c'è **un solo batch in più**
+  (il canvas). È una misura da editor: i fps della build (531 nel borgo) si guardano nella build, con le barre accese,
+  e sono nella lista *Da provare*.
+- **I numeri.** EditMode 673 verdi (+34 dalla M22), PlayMode 384 verdi e 2 saltati (+39). Salvataggio **10** e livelli
+  invariati, nessun test fisso spostato.
+- **Documenti.** ADR-142…145 (WASD, barre, suggerimenti, pannello), le lezioni e il calendario nel piano (v2.77), il
+  README (*Stato* e *Comandi*), `docs/Da_provare.md`, `bundleVersion` 1.11.0.
+- **Scostamenti dalla scheda, in un posto solo:** i colori delle barre sono quelli dei gradi (blu e oro, non dorato e
+  arancione, 23.3); le condizioni dei suggerimenti si leggono a 4 Hz, senza eventi nuovi (23.4); il banco del borgo non
+  blocca i tasti e il campo del nome vive nel menu (23.2); il pannello è alto 780 px (23.5).
+- **Resta fuori, come da scheda:** cambiare i tasti dal menu, il gamepad, un livello di tutorial.

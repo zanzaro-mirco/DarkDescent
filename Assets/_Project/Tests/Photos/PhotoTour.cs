@@ -694,6 +694,73 @@ namespace DarkDescent.Tests
             Localizer.SetLanguage("en");
         }
 
+        [UnityTest, Timeout(600000), Description("Quanto costano le barre (23.6 della M23): ventiquattro nemici feriti attorno al cavaliere, il tempo del main thread, le allocazioni e i batch con le barre spente e accese; il numero va in costo_barre.txt")]
+        public IEnumerator BarsCost()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            MenuSteps.StartNew(Find<MainMenu>(), 1);
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 4);
+
+            var bars = Find<EnemyHealthBars>();
+            CallEnemies(24);
+            yield return Frames(3);
+            var ring = Manager.CurrentLevel.Enemies.Where(e => e != null && e.gameObject.activeInHierarchy)
+                .OrderBy(e => Vector3.Distance(e.transform.position, Hero.transform.position)).Take(24).ToArray();
+            foreach (var enemy in ring)
+            {
+                var health = enemy.GetComponent<Health>();
+                health.TakeDamage(new DamageInfo(health.Max * 0.4f, DamageType.Physical, Hero));
+            }
+
+            yield return new WaitForSecondsRealtime(1.5f);
+
+            int previousRate = Application.targetFrameRate;
+            int previousSync = QualitySettings.vSyncCount;
+            Application.targetFrameRate = -1;
+            QualitySettings.vSyncCount = 0;
+            var mainThread = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Internal, "Main Thread");
+            var gcAlloc = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Memory, "GC Allocated In Frame");
+            var batches = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Render, "Batches Count");
+            var lines = new List<string> { $"Cripta alla 4, {ring.Length} nemici feriti del 40% attorno al cavaliere, 600 frame per giro, vsync spento (editor)." };
+            const int frames = 600;
+            foreach (bool on in new[] { false, true, false, true })
+            {
+                bars.SetOn(on);
+                yield return Frames(30);
+                var times = new List<float>(frames);
+                long gc = 0;
+                long batchCount = 0;
+                for (int i = 0; i < frames; i++)
+                {
+                    yield return null;
+                    times.Add(mainThread.Valid ? mainThread.LastValue / 1e6f : 0f);
+                    gc += gcAlloc.Valid ? gcAlloc.LastValue : 0;
+                    batchCount += batches.Valid ? batches.LastValue : 0;
+                }
+
+                times.Sort();
+                lines.Add($"barre {(on ? "accese" : "spente ")}: main thread {times.Average():F2} ms in media, mediana {times[frames / 2]:F2}, "
+                    + $"p95 {times[(int)(frames * 0.95f)]:F2}, peggiore {times[frames - 1]:F2}; allocazioni {gc / (float)frames:F0} B a frame; batch {batchCount / (float)frames:F1} a frame; "
+                    + $"barre mostrate {bars.ShownCount}");
+            }
+
+            mainThread.Dispose();
+            gcAlloc.Dispose();
+            batches.Dispose();
+            Application.targetFrameRate = previousRate;
+            QualitySettings.vSyncCount = previousSync;
+            File.WriteAllLines(Path.Combine(_folder, "costo_barre.txt"), lines);
+            foreach (string line in lines)
+            {
+                Debug.Log("BarsCost: " + line);
+            }
+        }
+
         [UnityTest, Timeout(600000), Description("I suggerimenti (23.4, D11 e D12 della M23): il riquadro in basso al centro nelle due lingue, con il testo corto e quello più lungo, e le opzioni con la casella e Rivedi")]
         public IEnumerator Hints()
         {
