@@ -52,8 +52,9 @@ oggetti e all'esperienza, non a loro), e la cripta **non ha una sala del boss** 
 
 ## Decisioni
 
-**Da confermare da Mirco** (nessuna confermata): D1–D18. Quattro vogliono una scelta vera: D8 (il boss), D9 (la sua sala), D12 (come cresce il mondo)
-e D15 (dove si ricorda). Le altre sono proposte con un default.
+**Confermate da Mirco il 5 novembre 2026:** tutte, D1–D18, **come proposte**, senza tagli. Le quattro scelte vere vanno quindi così: **D8** il Custode a due fasi
+(non un re più corto), **D9** la sala della scala giù senza porta con la scala aperta, **D12** l'interruttore all'altare, spento di default (non sempre acceso, non solo gli
+oggetti), **D15** nel salvataggio, formato 11. Il disegno (24.1) resta da approvare prima del codice, e il nome del boss («Vorrak il Custode») è ancora una proposta.
 
 | # | Decisione | Proposta | Perché |
 |---|---|---|---|
