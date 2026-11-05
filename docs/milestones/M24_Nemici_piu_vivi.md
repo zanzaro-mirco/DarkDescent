@@ -126,3 +126,5 @@ viola e con una luce) e la schermata delle difficoltà dell'altare (`05_altar`).
 
 **Da approvare:** il Custode come nella foto, il nome, la riga all'altare, le soglie (25% scheletro, 30% sciame, 4 s, un nemico su quattro di ronda) e la curva (margine 3,
 4% per livello, tetto ×3).
+
+**Approvato da Mirco il 5 novembre 2026:** tutti e cinque i punti, compreso il nome **Vorrak il Custode**.
