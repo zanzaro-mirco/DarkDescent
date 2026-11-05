@@ -23,8 +23,8 @@ Le prove della M18 e della M19 restano valide.
   misura non vede differenze, sta nel costo di un canvas piccolo.)
 - **I suggerimenti**: a una partita nuova (o con *Rivedi* nelle opzioni) compaiono uno alla volta, in basso al centro:
   muoversi, il primo nemico, il primo oggetto a terra, la pozione, la scala, i punti da spendere... Compaiono al momento
-  giusto? Il riquadro copre qualcosa che serve? Un tasto lo chiude dopo mezzo secondo, scade da solo in 8 secondi. «1–8»
-  in Cinzel si legge come «I–8»: se confonde, si scrive «da 1 a 8».
+  giusto? Il riquadro copre qualcosa che serve? Un tasto lo chiude dopo mezzo secondo, scade da solo in 8 secondi. La
+  cintura si legge «da 1 a 8» (in Cinzel il «1» somiglia a una «I», e il trattino non aiutava).
 - **Il pannello dei comandi**: `F1` e il pulsante *Comandi* nella pausa. Le righe sono tutte vere? Il Mago legge «dardo
   arcano». Da pausa, `F1` passa dal menu e ne esce senza chiudere la pausa.
 - **Le opzioni**: il riquadro è più alto (920 px) con le due caselle nuove e *Rivedi i suggerimenti*; stanno tutte a

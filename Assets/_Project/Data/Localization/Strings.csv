@@ -728,7 +728,7 @@ hint.enemy.text,Click it to attack. The right button uses your second ability.,C
 hint.item.title,An item on the ground,Un oggetto a terra
 hint.item.text,{0} shows every name; click an item to take it.,{0} mostra i nomi di tutti; un clic su un oggetto lo raccoglie.
 hint.potion.title,A potion on the belt,Una pozione in cintura
-hint.potion.text,"Press {0}–{1}, or right click it, to drink.","Premi {0}–{1}, o fai clic destro, per berla."
+hint.potion.text,"Press {0} to {1}, or right click it, to drink.","Premi da {0} a {1}, o fai clic destro, per berla."
 hint.stairs.title,Stairs,Una scala
 hint.stairs.text,"Click a staircase to use it: down goes deeper, up goes back.","Clicca su una scala per usarla: giù si scende più a fondo, su si torna indietro."
 hint.attribute.title,Attribute points,Punti attributo
@@ -753,6 +753,7 @@ help.group.windows,Windows,Finestre
 help.key.left_click,Left click,Clic sinistro
 help.key.right_click,Right click,Clic destro
 help.key.wheel,Wheel,Rotella
+help.key.range,{0} to {1},da {0} a {1}
 help.row.click,Walk; hold to follow the cursor,"Cammina; tenuto, segue il cursore"
 help.row.keys,Walk (or the arrow keys),Cammina (o le frecce)
 help.row.rotate,Turn the view,Gira la visuale

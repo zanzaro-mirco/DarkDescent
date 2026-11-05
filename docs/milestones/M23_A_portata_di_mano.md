@@ -324,3 +324,19 @@ cintura» accanto si capisce.
   arancione, 23.3); le condizioni dei suggerimenti si leggono a 4 Hz, senza eventi nuovi (23.4); il banco del borgo non
   blocca i tasti e il campo del nome vive nel menu (23.2); il pannello è alto 780 px (23.5).
 - **Resta fuori, come da scheda:** cambiare i tasti dal menu, il gamepad, un livello di tutorial.
+
+### Dopo la chiusura (5 novembre 2026): i punti aperti e la ronda
+
+- **Due forzieri non raggiungibili alla profondità 8 (issue #7).** Riprodotti in locale con i due semi della ronda (una diagnosi
+  temporanea in PlayMode, tolta): la cassa stava nella cella accanto allo sbocco della scala in su, con il davanti verso la galleria,
+  e il suo punto d'approccio cadeva dentro la galleria, una tasca di NavMesh isolata dal resto. Non era un errore delle mappe (la griglia
+  era connessa) ma del NavMesh con lo sbocco costruito. `TunnelSpot` non sceglie più un muro con una cassa nelle due celle accanto
+  (`BesideOf`), `DungeonLevel` tiene libere quelle celle anche per i forzieri dei nemici speciali, `UpExitClear` le controlla e
+  `UpExitChecksTests.NoChest_StandsBesideTheStairsUp` fissa i due semi. Rifatta la diagnosi dopo la correzione: i due forzieri si raggiungono.
+- **Il bruto del Crepuscolo alla 8 a 3,799 (3,8 il minimo).** Non era un livello, era il bordo: su quattro semi di ronda in locale
+  (20261105–08) il valore più basso dei colpi al bruto è 3,80, 3,83, 3,79 e 3,82, e un'altra fascia (colpi del bruto a segno, 0,049 contro
+  0,05 all'Abisso III, profondità 7) cade sul suo bordo con un altro seme. Il gioco è tarato sul bordo delle fasce, e un campione nuovo
+  ogni notte lo attraversa per qualche millesimo. `CensusChecks.EveryDepth` prende un margine del campione, `SamplingMargin` del **3%**
+  (meno del 5% dell'albero), solo nelle due ronde (cavaliere e Mago): i test di ogni push, con semi fissi, restano a margine zero. Nessun numero
+  del gioco è cambiato.
+- **«1–8» in Cinzel.** Il pannello dice «1 to 8» / «da 1 a 8» (`help.key.range`) e il suggerimento della pozione «Press 1 to 8» / «Premi da 1 a 8».

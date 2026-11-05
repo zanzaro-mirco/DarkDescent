@@ -90,6 +90,24 @@ namespace DarkDescent.Tests
             }
         }
 
+        // le partite della ronda PlayMode del 5 nov 2026: una cassa accanto allo sbocco, col davanti verso la galleria, il cui punto
+        // d'approccio cadeva nella tasca isolata del NavMesh (caverne, profondità 8)
+        private static readonly (ulong seed, int depth)[] ChestBesideTheStairs =
+        {
+            (7110331382653935111UL, 8), (12006719353175426522UL, 8),
+        };
+
+        [Test, Description("Nessuna cassa accanto allo sbocco della scala in su: le due partite della ronda del 5 nov 2026 in cui il suo approccio finiva nella galleria")]
+        public void NoChest_StandsBesideTheStairsUp()
+        {
+            var caves = AssetDatabase.LoadAssetAtPath<DungeonSettings>("Assets/_Project/Data/Levels/CaveSettings.asset");
+            foreach (var (seed, depth) in ChestBesideTheStairs)
+            {
+                var map = DungeonLevel.CreateMap(caves, seed, depth, out _);
+                MapChecks.Pass($"partita {seed}, profondità {depth}", MapChecks.UpExitClear(map));
+            }
+        }
+
         [Test, Description("Una profondità che le impostazioni non coprono non ha un livello di sopra: il controllo non chiede niente")]
         public void WithoutALevelAbove_NothingIsExpected()
         {

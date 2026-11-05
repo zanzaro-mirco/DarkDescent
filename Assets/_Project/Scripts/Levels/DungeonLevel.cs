@@ -52,9 +52,13 @@ namespace DarkDescent.Levels
                 directives[LevelBuilder.ArrivalDirective] = TunnelSpot.ToTokens(LevelBuilder.TunnelArrival, tunnelCell, tunnelWall);
                 directives[LevelBuilder.UpExitDirective] = new[] { upScene, upEntrance, upDepth.ToString() };
 
-                // la cella e il suo davanti restano liberi per i nemici speciali, che si piazzano dopo (forzieri d'oro compresi)
+                // la cella, il suo davanti e le due accanto restano liberi per i nemici speciali, che si piazzano dopo (forzieri d'oro compresi)
                 layout.Reserve(tunnelCell);
                 layout.Reserve(TunnelSpot.FrontOf(tunnelCell, tunnelWall));
+                foreach (var beside in TunnelSpot.BesideOf(tunnelCell, tunnelWall))
+                {
+                    layout.Reserve(beside);
+                }
             }
 
             // i nemici speciali (M12) dopo tutto il resto, con un seme loro: il livello di prima resta com'era

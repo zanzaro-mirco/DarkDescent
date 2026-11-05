@@ -69,6 +69,7 @@ namespace DarkDescent.UI
         public const string LeftClickKey = "help.key.left_click";
         public const string RightClickKey = "help.key.right_click";
         public const string WheelKey = "help.key.wheel";
+        public const string RangeKey = "help.key.range";
 
         private static readonly HelpGroup[] LeftColumn =
         {
@@ -115,6 +116,7 @@ namespace DarkDescent.UI
             yield return LeftClickKey;
             yield return RightClickKey;
             yield return WheelKey;
+            yield return RangeKey;
             foreach (var column in new[] { LeftColumn, RightColumn })
             {
                 foreach (var group in column)

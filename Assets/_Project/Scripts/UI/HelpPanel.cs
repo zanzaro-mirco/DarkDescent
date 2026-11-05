@@ -285,7 +285,7 @@ namespace DarkDescent.UI
                 case HelpKey.Move: return _reader.MoveKeysText();
                 case HelpKey.Rotate: return _reader.RotateKeysText();
                 case HelpKey.Skills: return _reader.KeyText("UseSkill") + " " + _reader.KeyText("UseSkill", last: true);
-                case HelpKey.Belt: return _reader.KeyText("UseBelt") + "–" + _reader.KeyText("UseBelt", last: true);
+                case HelpKey.Belt: return _localizer.Format(HelpTable.RangeKey, _reader.KeyText("UseBelt"), _reader.KeyText("UseBelt", last: true));
                 case HelpKey.Portal: return _reader.KeyText("TownPortal");
                 case HelpKey.Inventory: return _reader.KeyText("ToggleInventory");
                 case HelpKey.Character: return _reader.KeyText("ToggleCharacter");

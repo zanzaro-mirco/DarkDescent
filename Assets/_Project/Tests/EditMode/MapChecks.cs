@@ -209,7 +209,9 @@ namespace DarkDescent.Tests
                 return null;
             }
 
-            foreach (var spot in new[] { cell, TunnelSpot.FrontOf(cell, wall) })
+            var spots = new List<Vector2Int> { cell, TunnelSpot.FrontOf(cell, wall) };
+            spots.AddRange(TunnelSpot.BesideOf(cell, wall));
+            foreach (var spot in spots)
             {
                 char symbol = map.GetSymbol(spot.x, spot.y);
                 if (DungeonPopulator.IsChest(symbol) || symbol == SpecialEnemyPlanner.GoldChestSymbol || symbol == SpecialEnemyPlanner.TreasureSymbol

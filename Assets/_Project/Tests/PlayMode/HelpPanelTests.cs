@@ -74,7 +74,7 @@ namespace DarkDescent.Tests
             var keys = new[]
             {
                 "Left click", "W A S D", "Z X", "Wheel", "Alt", "F1",
-                "Left click", "Right click", "Q E", "1–8", "T",
+                "Left click", "Right click", "Q E", "1 to 8", "T",
                 "I", "C", "K", "N", "M", "Esc",
             };
             for (int i = 0; i < keys.Length; i++)
@@ -99,6 +99,7 @@ namespace DarkDescent.Tests
             Assert.AreEqual("Clic sinistro", Panel.KeyAt(0));
             Assert.AreEqual("Cammina; tenuto, segue il cursore", Panel.TextAt(0));
             Assert.AreEqual("Menu delle abilità", Panel.TextAt(13));
+            Assert.AreEqual("da 1 a 8", Panel.KeyAt(9), "la cintura a parole, non con il trattino");
         }
 
         [UnityTest, Description("Per il Mago la riga del tasto sinistro sul nemico dice il dardo arcano; il resto del pannello è uguale")]

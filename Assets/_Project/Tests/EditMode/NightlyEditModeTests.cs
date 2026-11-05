@@ -135,7 +135,7 @@ namespace DarkDescent.Tests
             Debug.Log($"[DarkDescent] ronda notturna, misura delle difficoltà: {describe}");
             var errors = new[]
             {
-                CensusChecks.EveryDepth(rows),
+                CensusChecks.EveryDepth(rows, CensusChecks.SamplingMargin),
                 CensusChecks.EachDifficultyStartsHarder(rows, table.Count),
                 CensusChecks.KingLastsALittleLonger(rows),
                 CensusChecks.ExperienceKeepsUp(rows, table, census.Settings),
@@ -160,7 +160,7 @@ namespace DarkDescent.Tests
             Debug.Log($"[DarkDescent] ronda notturna, misura delle difficoltà del Mago: {describe}");
             var errors = new[]
             {
-                CensusChecks.EveryDepth(rows),
+                CensusChecks.EveryDepth(rows, CensusChecks.SamplingMargin),
                 CensusChecks.EachDifficultyStartsHarder(rows, table.Count, CensusChecks.MageStepTolerance),
                 CensusChecks.KingLastsALittleLonger(rows),
                 CensusChecks.ExperienceKeepsUp(rows, table, census.Settings),

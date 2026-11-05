@@ -166,7 +166,7 @@ namespace DarkDescent.Levels
             var front = cell - back;
             bool Free(Vector2Int c) => layout[c.x, c.y] == LevelMap.Floor;
             bool Rock(Vector2Int c) => layout[c.x, c.y] == LevelMap.Rock;
-            if (!Rock(behind) || !Free(front))
+            if (!Rock(behind) || !Free(front) || !BesideClear(layout, cell, along))
             {
                 return false;
             }
@@ -190,6 +190,25 @@ namespace DarkDescent.Levels
             }
 
             return layout.StaysConnectedWithout(cell);
+        }
+
+        /// <summary>
+        /// Le due celle accanto allo sbocco, lungo il muro. Una cassa lì ha il davanti verso lo sbocco, e il suo punto d'approccio cade
+        /// nella galleria, dove il NavMesh è una tasca isolata (ronda del 5 nov 2026: due forzieri alla profondità 8 non si raggiungevano).
+        /// </summary>
+        public static IEnumerable<Vector2Int> BesideOf(Vector2Int cell, MapDirection wall)
+        {
+            Vector2Int back = Step(wall);
+            var along = new Vector2Int(Mathf.Abs(back.y), Mathf.Abs(back.x));
+            yield return cell + along;
+            yield return cell - along;
+        }
+
+        // niente cassa nelle due celle accanto: lo sbocco si sposta su un altro tratto di muro
+        private static bool BesideClear(DungeonLayout layout, Vector2Int cell, Vector2Int along)
+        {
+            return !DungeonPopulator.IsChest(layout[cell.x + along.x, cell.y + along.y])
+                && !DungeonPopulator.IsChest(layout[cell.x - along.x, cell.y - along.y]);
         }
 
         /// <summary>La cella davanti allo sbocco, dalla parte della stanza.</summary>
@@ -241,6 +260,7 @@ namespace DarkDescent.Levels
         {
             char symbol = layout[cell.x, cell.y];
             if ((symbol != LevelMap.Floor && symbol != DungeonPopulator.TorchSymbol)
+                || !BesideClear(layout, cell, along)
                 || !room.Contains(cell + along) || !room.Contains(cell - along)
                 || !layout.IsFloor(cell.x + along.x, cell.y + along.y) || !layout.IsFloor(cell.x - along.x, cell.y - along.y))
             {
