@@ -103,7 +103,7 @@ namespace DarkDescent.Levels
         /// <summary>Una cassa di qualunque tipo: quella di sempre, il forziere o il tesoro del re (D8 della M12).</summary>
         public static bool IsChest(char symbol)
         {
-            return symbol == ChestSymbol || symbol == SpecialEnemyPlanner.GoldChestSymbol || symbol == SpecialEnemyPlanner.TreasureSymbol;
+            return symbol == ChestSymbol || symbol == SpecialEnemyPlanner.GoldChestSymbol || symbol == SpecialEnemyPlanner.TreasureSymbol || symbol == GuardianTreasureSymbol;
         }
 
         /// <summary>Un arredo: una composizione di mobili, un gruppo di barili al centro o un mucchietto a terra.</summary>
@@ -138,6 +138,167 @@ namespace DarkDescent.Levels
                 default:
                     return 0;
             }
+        }
+
+        /// <summary>Vorrak il Custode (D8 della M24): il suo segno sulla mappa, lo stesso del boss delle caverne.</summary>
+        public const char GuardianSymbol = 'K';
+
+        /// <summary>Il tesoro del Custode: una cassa, come il tesoro del re (che ha la 't' delle caverne), chiusa finché lui è vivo.</summary>
+        public const char GuardianTreasureSymbol = 'k';
+
+        /// <summary>La profondità del Custode, l'ultima della cripta (D9 della M24).</summary>
+        public const int GuardianDepth = 4;
+
+        public static bool HasGuardian(int depth)
+        {
+            return depth == GuardianDepth;
+        }
+
+        /// <summary>
+        /// Il Custode nella sala della scala giù (D9 della M24): la stanza più lontana dall'ingresso, senza porta che si chiude e con la
+        /// scala aperta. Sta sulla cella libera più vicina al centro, il suo tesoro contro un muro della stessa stanza. Dopo tutto il
+        /// resto e con un flusso suo del seme (nessun tiro del flusso principale): la cripta dei semi provati resta com'è, con in più
+        /// due segni, e nessun nemico, cassa né barile si sposta (in una sala piena il Custode prende il posto di un arredo). Se la sala della
+        /// scala non basta (una stanza di tre celle per tre, circa un seme su cinquanta) sta nella stanza più vicina alla scala che lo regge.
+        /// </summary>
+        public void PlaceGuardian(DungeonLayout layout, int depth, IRandomSource random)
+        {
+            if (!HasGuardian(depth))
+            {
+                return;
+            }
+
+            var reserved = Reserved(layout);
+            var rooms = new List<int>();
+            for (int i = 0; i < layout.Rooms.Count; i++)
+            {
+                if (i != layout.ExitRoom && i != layout.StartRoom)
+                {
+                    rooms.Add(i);
+                }
+            }
+
+            // la sala della scala per prima, poi le altre dalla più vicina alla scala; mai quella di partenza
+            rooms.Sort((x, y) =>
+            {
+                float dx = (layout.Rooms[x].center - new Vector2(layout.Stairs.x, layout.Stairs.y)).sqrMagnitude;
+                float dy = (layout.Rooms[y].center - new Vector2(layout.Stairs.x, layout.Stairs.y)).sqrMagnitude;
+                int byDistance = dx.CompareTo(dy);
+                return byDistance != 0 ? byDistance : x.CompareTo(y);
+            });
+            rooms.Insert(0, layout.ExitRoom);
+            foreach (int index in rooms)
+            {
+                if (TryPlaceGuardianIn(layout, layout.Rooms[index], random, reserved))
+                {
+                    return;
+                }
+            }
+        }
+
+        // Il tesoro contro un muro (può togliere una cella al centro, mai il contrario), poi il Custode: la cella più vicina al centro,
+        // libera o di un arredo da rimpiazzare. Se uno dei due non ha posto la stanza si lascia com'era
+        private static bool TryPlaceGuardianIn(DungeonLayout layout, RectInt room, IRandomSource random, HashSet<Vector2Int> reserved)
+        {
+            var treasure = TryPlaceAgainstWall(layout, room, GuardianTreasureSymbol, random, reserved, keepChestsFree: true)
+                ?? TryPlaceAgainstWall(layout, room, GuardianTreasureSymbol, random, reserved)
+                ?? TryPlaceTreasureLoosely(layout, room, reserved);
+            if (!treasure.HasValue)
+            {
+                return false;
+            }
+
+            var cells = RoomCellsByDistance(room);
+            for (int pass = 0; pass < 2; pass++)
+            {
+                foreach (var cell in cells)
+                {
+                    char symbol = layout[cell.x, cell.y];
+                    if (reserved.Contains(cell) || (pass == 0 ? symbol != LevelMap.Floor : !IsDisplaceable(symbol)))
+                    {
+                        continue;
+                    }
+
+                    if (pass == 1)
+                    {
+                        layout.Remove(cell.x, cell.y);
+                    }
+
+                    if (layout.TryPlace(GuardianSymbol, cell.x, cell.y))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            layout.Remove(treasure.Value.x, treasure.Value.y);
+            return false;
+        }
+
+        // Una sala piccola e piena (le stanze della cripta vanno da tre a sette celle per lato): il tesoro prende una cella contro un muro anche accanto a
+        // una porta, anche al posto di un arredo, purché ogni cella resti raggiungibile e davanti alla cassa si arrivi
+        private static Vector2Int? TryPlaceTreasureLoosely(DungeonLayout layout, RectInt room, HashSet<Vector2Int> reserved)
+        {
+            var cells = RoomCellsByDistance(room);
+            cells.Reverse();
+            foreach (var cell in cells)
+            {
+                bool border = cell.x == room.xMin || cell.y == room.yMin || cell.x == room.xMax - 1 || cell.y == room.yMax - 1;
+                char was = layout[cell.x, cell.y];
+                if (!border || reserved.Contains(cell) || (was != LevelMap.Floor && !IsDisplaceable(was)))
+                {
+                    continue;
+                }
+
+                if (was != LevelMap.Floor)
+                {
+                    layout.Remove(cell.x, cell.y);
+                }
+
+                if (layout.TryPlace(GuardianTreasureSymbol, cell.x, cell.y) && IsConnected(layout))
+                {
+                    return cell;
+                }
+
+                layout.Remove(cell.x, cell.y);
+                if (was != LevelMap.Floor)
+                {
+                    layout.TryPlace(was, cell.x, cell.y);
+                }
+            }
+
+            return null;
+        }
+
+        // Un arredo che il Custode può rimpiazzare se la sala è piena: mobili, mucchietti, pilastri e casse di legno, non i barili (se ne contano), non
+        // il punto d'interesse, non una cassa né un nemico. Togliere un ostacolo non chiude un passaggio
+        private static bool IsDisplaceable(char symbol)
+        {
+            return symbol == 'x' || symbol == 'p' || (IsDecor(symbol) && !IsFeature(symbol) && BarrelsInGroup(symbol) == 0 && symbol != BarrelSymbol);
+        }
+
+        // le celle della stanza, dalla più vicina al centro: a parità, per riga e colonna, perché un seme dia sempre lo stesso posto
+        private static List<Vector2Int> RoomCellsByDistance(RectInt room)
+        {
+            var cells = new List<Vector2Int>();
+            for (int y = room.yMin; y < room.yMax; y++)
+            {
+                for (int x = room.xMin; x < room.xMax; x++)
+                {
+                    cells.Add(new Vector2Int(x, y));
+                }
+            }
+
+            float centerX = room.xMin + (room.width - 1) * 0.5f;
+            float centerY = room.yMin + (room.height - 1) * 0.5f;
+            cells.Sort((a, b) =>
+            {
+                float da = (a.x - centerX) * (a.x - centerX) + (a.y - centerY) * (a.y - centerY);
+                float db = (b.x - centerX) * (b.x - centerX) + (b.y - centerY) * (b.y - centerY);
+                int byDistance = da.CompareTo(db);
+                return byDistance != 0 ? byDistance : a.y != b.y ? a.y.CompareTo(b.y) : a.x.CompareTo(b.x);
+            });
+            return cells;
         }
 
         public void Populate(DungeonLayout layout, int depth, IRandomSource random)

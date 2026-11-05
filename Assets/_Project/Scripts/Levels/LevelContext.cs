@@ -112,6 +112,9 @@ namespace DarkDescent.Levels
         /// <summary>Il boss della sala in fondo alle caverne (D8 della M10); null negli altri livelli.</summary>
         public BossController Boss { get; private set; }
 
+        /// <summary>Vorrak il Custode nella sala della scala della profondità 4 (D8 della M24); null negli altri livelli, o se è già caduto.</summary>
+        public GuardianController Guardian { get; private set; }
+
         /// <summary>La porta della sala del boss; null se non c'è.</summary>
         public BossGate BossGate { get; private set; }
 
@@ -181,6 +184,11 @@ namespace DarkDescent.Levels
                 if (Boss == null)
                 {
                     Boss = root.GetComponentInChildren<BossController>(true);
+                }
+
+                if (Guardian == null)
+                {
+                    Guardian = root.GetComponentInChildren<GuardianController>(true);
                 }
 
                 if (BossGate == null)

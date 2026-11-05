@@ -51,6 +51,9 @@ namespace DarkDescent.Items
         [Tooltip("Sigillata finché il re è vivo: niente click fino a Unseal (il tesoro del re, D8 della M12).")]
         [SerializeField] private bool _sealedUntilBossDies;
 
+        [Tooltip("Sigillata finché Vorrak il Custode è vivo: il suo tesoro (D11 della M24).")]
+        [SerializeField] private bool _sealedUntilGuardianDies;
+
         [SerializeField] private AudioSource _audio;
 
         [SerializeField] private AudioClip[] _openClips;
@@ -74,6 +77,9 @@ namespace DarkDescent.Items
 
         /// <summary>Si apre solo dopo la morte del re: il tesoro del re (D8 della M12).</summary>
         public bool OpensWithBoss => _sealedUntilBossDies;
+
+        /// <summary>Si apre solo dopo la morte di Vorrak il Custode: il suo tesoro (D11 della M24).</summary>
+        public bool OpensWithGuardian => _sealedUntilGuardianDies;
 
         public LootBonus Bonus => _bonus;
 
@@ -202,7 +208,7 @@ namespace DarkDescent.Items
             _interactable = GetComponent<Interactable>();
             _cellX = Mathf.RoundToInt(transform.position.x * CellsPerMeter);
             _cellZ = Mathf.RoundToInt(transform.position.z * CellsPerMeter);
-            IsSealed = _sealedUntilBossDies;
+            IsSealed = _sealedUntilBossDies || _sealedUntilGuardianDies;
             if (IsSealed && _clickArea != null)
             {
                 _clickArea.enabled = false;

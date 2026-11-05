@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using DarkDescent.Audio;
 using DarkDescent.Characters;
 using DarkDescent.Combat;
@@ -267,6 +268,8 @@ namespace DarkDescent.Core
 
         // il boss del livello corrente, se c'è e non è ancora stato sconfitto (D8 della M10)
         private BossController _boss;
+        private GuardianController _guardian;
+        private readonly List<Chest> _guardianChests = new List<Chest>();
 
         // muri e torce del livello corrente, alti o bassi secondo la camera (D12 della M8); null nei livelli fatti a mano senza
         private WallView _walls;
@@ -824,7 +827,8 @@ namespace DarkDescent.Core
                 && !_difficultyPanel.IsOpen
                 && !_helpPanel.IsOpen
                 && !(_films != null && _films.IsPlaying)
-                && !(_boss != null && _boss.IsFighting);
+                && !(_boss != null && _boss.IsFighting)
+                && !(_guardian != null && _guardian.IsFighting);
         }
 
         // in pausa il cavaliere non ascolta i click e non lancia: alla ripresa non partirebbe da solo
@@ -980,6 +984,7 @@ namespace DarkDescent.Core
             // prima di tutto il resto: i nemici già uccisi non si collegano
             _levelRecorder.Restore(level);
             BindBoss(level);
+            BindGuardian(level);
             foreach (var enemy in level.Enemies)
             {
                 // un nemico può essere già morto e sparito se il livello era aperto da prima; il boss
@@ -997,8 +1002,8 @@ namespace DarkDescent.Core
             {
                 chest.Bind(_loot, level.Depth);
 
-                // il tesoro del re (D8 della M12): con il re già sconfitto si apre subito
-                if (_runStats.BossDefeated)
+                // il tesoro del re (D8 della M12): con il re già sconfitto si apre subito. Quello del Custode no: ha il suo
+                if (_runStats.BossDefeated && !chest.OpensWithGuardian)
                 {
                     chest.Unseal();
                 }
@@ -1292,6 +1297,76 @@ namespace DarkDescent.Core
             _boss.Summoned += HandleBossSummoned;
         }
 
+        // Vorrak il Custode (D8–D11 della M24): già sconfitto non rinasce (il ricordo del livello lo toglie prima di legare i nemici, e il suo
+        // tesoro si apre subito); vivo, la sua vita sta in alto per tutto lo scontro e il suo tesoro aspetta
+        private void BindGuardian(LevelContext level)
+        {
+            _guardian = level.Guardian;
+            bool alive = _guardian != null && _guardian.gameObject.activeSelf && !_guardian.Health.IsDead;
+            foreach (var chest in level.Chests)
+            {
+                if (chest.OpensWithGuardian && !alive)
+                {
+                    chest.Unseal();
+                }
+            }
+
+            if (!alive)
+            {
+                _guardian = null;
+                return;
+            }
+
+            _guardian.Bind(_player, _random);
+            _guardian.FightStarted += HandleGuardianFightStarted;
+            _guardian.FightReset += HandleGuardianFightReset;
+            _guardian.Defeated += HandleGuardianDefeated;
+            _guardian.Summoned += HandleBossSummoned;
+            _guardianChests.Clear();
+            _guardianChests.AddRange(level.Chests.Where(c => c.OpensWithGuardian));
+        }
+
+        private void ReleaseGuardian()
+        {
+            if (!ReferenceEquals(_guardian, null))
+            {
+                _guardian.FightStarted -= HandleGuardianFightStarted;
+                _guardian.FightReset -= HandleGuardianFightReset;
+                _guardian.Defeated -= HandleGuardianDefeated;
+                _guardian.Summoned -= HandleBossSummoned;
+                _guardian = null;
+            }
+
+            _guardianChests.Clear();
+            if (_enemyBar != null)
+            {
+                _enemyBar.Unpin();
+            }
+        }
+
+        private void HandleGuardianFightStarted(GuardianController guardian)
+        {
+            _enemyBar.Pin(guardian.Health);
+        }
+
+        private void HandleGuardianFightReset(GuardianController guardian)
+        {
+            _enemyBar.Unpin();
+        }
+
+        // il suo tesoro si apre, nella sala; niente portale né vittoria: la scala è già lì
+        private void HandleGuardianDefeated(GuardianController guardian)
+        {
+            _enemyBar.Unpin();
+            foreach (var chest in _guardianChests)
+            {
+                if (chest != null)
+                {
+                    chest.Unseal();
+                }
+            }
+        }
+
         private void ReleaseBoss()
         {
             if (!ReferenceEquals(_boss, null))
@@ -1479,6 +1554,7 @@ namespace DarkDescent.Core
             ReleaseMerchant();
             ReleaseAltar();
             ReleaseBoss();
+            ReleaseGuardian();
         }
 
         // Entrando in città ogni banco tira il suo assortimento: oggetti del livello della profondità
@@ -1692,6 +1768,11 @@ namespace DarkDescent.Core
             if (_boss != null)
             {
                 _boss.ResetFight();
+            }
+
+            if (_guardian != null)
+            {
+                _guardian.ResetFight();
             }
         }
     }

@@ -175,7 +175,7 @@ namespace DarkDescent.UI
                 return;
             }
 
-            var entry = new Entry { Health = enemy, Excluded = enemy.GetComponent<BossController>() != null };
+            var entry = new Entry { Health = enemy, Excluded = enemy.GetComponent<BossController>() != null || enemy.GetComponent<GuardianController>() != null };
             entry.Changed = (current, max) => Refresh(entry);
             entry.Revived = () => Refresh(entry);
             entry.Died = () => Refresh(entry);

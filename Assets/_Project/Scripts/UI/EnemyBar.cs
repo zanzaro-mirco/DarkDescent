@@ -44,6 +44,10 @@ namespace DarkDescent.UI
         private SpecialEnemy _special;
         private Color _baseNameColor;
         private float _baseHeight;
+        private RectTransform _halfMark;
+
+        // Vorrak il Custode (D8 della M24): il nome in oro e un segno a metà della barra, dove comincia la seconda fase
+        private static readonly Color GuardianNameColor = new Color(1f, 0.82f, 0.3f, 1f);
         private bool _subscribed;
 
         // i nemici seguiti: il colpo e lo schivato di ognuno, per sapere chi il cavaliere sta combattendo
@@ -70,6 +74,9 @@ namespace DarkDescent.UI
         public string ModifiersText => _modifiers != null ? _modifiers.text : string.Empty;
 
         public float FillAmount => _fill.anchorMax.x;
+
+        /// <summary>Il segno a metà barra del Custode si vede: per i test.</summary>
+        public bool HalfMarkShown => _halfMark != null && _halfMark.gameObject.activeSelf;
 
         /// <summary>Come i pannelli: Bind e OnEnable in ordine qualsiasi, si iscrive chi arriva per secondo.</summary>
         public void Bind(PlayerController controller, Localizer localizer)
@@ -265,7 +272,9 @@ namespace DarkDescent.UI
             _enemy.Died += Hide;
             _nameKey = _enemy.TryGetComponent(out EnemyAI ai) && ai.Archetype != null ? ai.Archetype.NameKey : null;
             _special = _enemy.TryGetComponent(out SpecialEnemy special) && special.IsBound ? special : null;
-            _name.color = _special != null ? _special.Numbers.Color : _baseNameColor;
+            bool guardian = _enemy.TryGetComponent(out GuardianController _);
+            _name.color = guardian ? GuardianNameColor : _special != null ? _special.Numbers.Color : _baseNameColor;
+            ShowHalfMark(guardian);
             RefreshName();
             HandleHealthChanged(_enemy.Current, _enemy.Max);
             _panel.SetActive(true);
@@ -274,6 +283,31 @@ namespace DarkDescent.UI
         private void Hide()
         {
             Refresh();
+        }
+
+        // una linea sottile sopra la barra, a metà: nasce al primo bisogno, sotto il riempimento della vita (che si accorcia da destra) la si vede lo stesso
+        private void ShowHalfMark(bool show)
+        {
+            if (_halfMark == null)
+            {
+                if (!show)
+                {
+                    return;
+                }
+
+                var go = new GameObject("HalfMark", typeof(RectTransform), typeof(UnityEngine.UI.Image));
+                _halfMark = (RectTransform)go.transform;
+                _halfMark.SetParent(_fill.parent, false);
+                _halfMark.anchorMin = new Vector2(0.5f, 0f);
+                _halfMark.anchorMax = new Vector2(0.5f, 1f);
+                _halfMark.pivot = new Vector2(0.5f, 0.5f);
+                _halfMark.sizeDelta = new Vector2(3f, 0f);
+                var image = go.GetComponent<UnityEngine.UI.Image>();
+                image.color = GuardianNameColor;
+                image.raycastTarget = false;
+            }
+
+            _halfMark.gameObject.SetActive(show);
         }
 
         private void HandleHealthChanged(float current, float max)

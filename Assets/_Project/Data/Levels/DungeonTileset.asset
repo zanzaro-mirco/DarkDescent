@@ -255,5 +255,14 @@ MonoBehaviour:
     _prefab: {fileID: 8474005168588744992, guid: 24a3c4ca41593104090e5f0f5becff1f, type: 3}
     _replacesFloor: 1
     _keepsRotation: 0
+  - _symbol: 75
+    _prefab: {fileID: 6859590642092365944, guid: 46bb0764db5660a4ebab0cdc28f94ad7, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 0
+  - _symbol: 107
+    _prefab: {fileID: 1495775306134700890, guid: 33cb374550d7a854d9dc9b035e7c53d5, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 0
+  _road: 0
   _decalMaterial: {fileID: 2100000, guid: 26f009dae2df8594f8e52af404ca3a9b, type: 2}
   _decalLift: 0.02

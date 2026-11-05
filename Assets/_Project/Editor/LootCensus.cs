@@ -189,6 +189,13 @@ namespace DarkDescent.Editor
                     continue;
                 }
 
+                // Vorrak il Custode e il suo tesoro (M24) stanno sopra i numeri tarati: un premio in più, che il cavaliere può saltare. La misura
+                // della M24 li conta a parte, e con loro fuori i numeri della M14 e della M16 restano com'erano (D17 della M24)
+                if (prefab.GetComponent<GuardianController>() != null || (prefab.TryGetComponent(out Chest guardianChest) && guardianChest.OpensWithGuardian))
+                {
+                    continue;
+                }
+
                 var cell = new Vector2Int(marker.X, marker.Y);
                 if (prefab.TryGetComponent(out LootDrop drop) && drop.LootTable != null)
                 {

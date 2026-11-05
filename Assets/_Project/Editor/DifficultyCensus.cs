@@ -454,7 +454,8 @@ namespace DarkDescent.Editor
                         foreach (var marker in map.Markers)
                         {
                             var prefab = tileset.GetMarkerPrefab(marker.Symbol);
-                            if (prefab == null || !prefab.TryGetComponent(out EnemyAI enemy) || enemy.Archetype == null)
+                            // il Custode (M24) sta sopra i numeri tarati: la sua esperienza non è nella curva del cavaliere di riferimento (D17 della M24)
+                            if (prefab == null || !prefab.TryGetComponent(out EnemyAI enemy) || enemy.Archetype == null || prefab.GetComponent<GuardianController>() != null)
                             {
                                 continue;
                             }

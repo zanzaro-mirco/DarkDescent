@@ -447,7 +447,7 @@ namespace DarkDescent.Enemies
             }
 
             var special = GetComponent<SpecialEnemy>();
-            bool reduced = (special != null && special.Rank != EnemyRank.Normal) || GetComponent<BossController>() != null;
+            bool reduced = (special != null && special.Rank != EnemyRank.Normal) || GetComponent<BossController>() != null || GetComponent<GuardianController>() != null;
             bool unstoppable = special != null && special.IsUnstoppable;
             if (!_stun.TryStun(StunTimer.Scaled(seconds, reduced, unstoppable)))
             {
@@ -530,7 +530,7 @@ namespace DarkDescent.Enemies
         private void ReadRank(out bool reduced, out bool unstoppable)
         {
             var special = GetComponent<SpecialEnemy>();
-            reduced = (special != null && special.Rank != EnemyRank.Normal) || GetComponent<BossController>() != null;
+            reduced = (special != null && special.Rank != EnemyRank.Normal) || GetComponent<BossController>() != null || GetComponent<GuardianController>() != null;
             unstoppable = special != null && special.IsUnstoppable;
         }
 

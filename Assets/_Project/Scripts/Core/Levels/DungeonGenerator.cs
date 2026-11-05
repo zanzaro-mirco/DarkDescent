@@ -56,6 +56,9 @@ namespace DarkDescent.Levels
             var populator = new DungeonPopulator(_settings);
             populator.Populate(layout, depth, _random);
             populator.Decorate(layout, depth, new SplitMix64Source(SeedMixer.ForDecor(seed)));
+
+            // per ultimo, con un flusso suo e nessun tiro del flusso principale: la cripta di prima non cambia (D9 e D17 della M24)
+            populator.PlaceGuardian(layout, depth, new SplitMix64Source(SeedMixer.ForGuardian(seed)));
             return layout;
         }
 

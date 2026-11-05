@@ -41,6 +41,7 @@ namespace DarkDescent.Levels
                 case DungeonPopulator.ChestSymbol: return Chest;
                 case SpecialEnemyPlanner.GoldChestSymbol: return Chest;
                 case SpecialEnemyPlanner.TreasureSymbol: return Chest;
+                case DungeonPopulator.GuardianTreasureSymbol: return Chest;
                 case DungeonPopulator.TorchSymbol: return Torch;
                 case CavePopulator.CandleSymbol: return Torch;
                 default: return DungeonPopulator.IsObstacle(symbol) ? Obstacle : Floor;

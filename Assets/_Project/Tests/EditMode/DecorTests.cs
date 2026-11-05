@@ -66,12 +66,24 @@ namespace DarkDescent.Tests
                     {
                         for (int x = 0; x < with.Width; x++)
                         {
+                            // il Custode e il suo tesoro (M24) vengono dopo gli arredi e scelgono tra le celle che restano (in una sala piena rimpiazzano un
+                            // arredo): dove stanno cambia con gli arredi, e quelle celle non si confrontano; il resto no
                             char c = with[x, y];
+                            if (IsGuardianSign(c) || IsGuardianSign(without[x, y]))
+                            {
+                                continue;
+                            }
+
                             Assert.AreEqual(DungeonPopulator.IsDecor(c) ? LevelMap.Floor : c, without[x, y], $"seme {seed}, profondità {depth}, cella ({x}, {y})");
                         }
                     }
                 }
             }
+        }
+
+        private static bool IsGuardianSign(char c)
+        {
+            return c == DungeonPopulator.GuardianSymbol || c == DungeonPopulator.GuardianTreasureSymbol;
         }
 
         private static bool IsComposition(char c)

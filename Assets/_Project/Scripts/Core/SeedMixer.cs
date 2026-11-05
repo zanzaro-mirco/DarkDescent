@@ -59,6 +59,14 @@ namespace DarkDescent.Core
             return Mix(levelSeed ^ DecorDomain);
         }
 
+        // "GUARDN": il posto del Custode e del suo tesoro nella sala della scala (D9 della M24), con un flusso suo: la cripta non cambia
+        private const ulong GuardianDomain = 0x475541524400UL;
+
+        public static ulong ForGuardian(ulong levelSeed)
+        {
+            return Mix(levelSeed ^ GuardianDomain);
+        }
+
         // "DECALS": le macchie a terra di un livello (D5 della M17), dopo tutto il resto e con il loro flusso
         private const ulong DecalDomain = 0x444543414C53UL;
 

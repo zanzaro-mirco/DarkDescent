@@ -68,6 +68,7 @@ enemy.bone_king,The Bone King,Il Re delle ossa
 enemy.skeleton_mage,Skeleton Mage,Scheletro mago
 enemy.morvak,Morvak the Jailer,Morvak il Carceriere
 enemy.grumm,Grumm Bonesplitter,Grumm Spaccaossa
+enemy.guardian,Vorrak the Keeper,Vorrak il Custode
 enemy.modifier.fast,Fast,Rapido
 enemy.modifier.frozen,Frozen,Gelido
 enemy.modifier.regenerating,Regenerating,Rigenerante
