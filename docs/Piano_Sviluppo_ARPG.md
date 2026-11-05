@@ -1000,6 +1000,7 @@ Lavori decisi ma rimandati, da riprendere quando arriva il momento indicato. Non
 | **M28 — Il Ladro** | Pugnali e trappole, il suo albero | *Nuove classi e le loro armi* |
 
 **Da valutare**, senza una milestone finché Mirco non le riprende:
+- **Schermate e GIF del README da rifare** (chiesto da Mirco il 5 nov 2026): quelle che si vedono su GitHub (`docs/media`: la GIF in testa `v1_release.gif`, le GIF e le immagini delle milestone dalla M1 alla M19) mostrano il gioco di prima: la console in basso, il menu di pausa a tre pulsanti, le opzioni, il solo click per muoversi, nessuna barra sui nemici né suggerimenti né pannello dei comandi. Da rifare con il gioco di oggi (v1.11 e le milestone che seguono), dalla build e dal giro di foto (`PhotoTour`), quando Mirco lo decide; la GIF in testa per prima.
 - **Pubblicazione su itch.io**: la pagina, la beta e la prova su altri PC. Quando, lo decide Mirco.
 - **Personaggi nello stile di Diablo 2**: il lavoro più grosso; tre strade, da scegliere con l'estensione Blender della M11.
 - **Modelli generati con l'immagine di partenza da testo**: TRELLIS.2 partendo da un'immagine di Z-Image, da provare quando serve un modello che Blender fa male.
