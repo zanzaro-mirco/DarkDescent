@@ -128,3 +128,20 @@ viola e con una luce) e la schermata delle difficoltà dell'altare (`05_altar`).
 4% per livello, tetto ×3).
 
 **Approvato da Mirco il 5 novembre 2026:** tutti e cinque i punti, compreso il nome **Vorrak il Custode**.
+
+## Passo 24.2 — La fuga
+
+**Fatto, in locale.** Gli scheletri normali e lo sciame scappano una sola volta per vita (D2–D6), e lo stato è nel nucleo, quindi si prova senza scene.
+
+- **Lo stato.** `FleeState` e l'interfaccia `IFleeBody` (`WantsToFlee`, `BeginFlee`, `IsAtDestination`, `EndFlee`) accanto a `IEnemyBody`: un corpo che non la implementa non scappa mai.
+  `Chase` e `Attack` passano a `Flee` se il corpo lo vuole (in `Attack` prima di chiedere un altro colpo). Dopo i secondi della fuga torna a `Chase`; se il cavaliere è morto, a `Idle`.
+- **Il corpo.** `EnemyAI` sceglie il punto: dritto all'indietro dal cavaliere, poi sempre più di lato (0, ±30, ±60, ±90 gradi, +0/2/4 m), a almeno 10 m dal cavaliere, al più
+  15 m da casa e raggiungibile in linea retta sulla NavMesh. Senza un punto non è una fuga: combatte e non riprova per un secondo. Va a ×1,25 e a fine fuga torna alla velocità
+  di prima, anche se nel frattempo era rallentato. Non si cura: il limite di 15 m sta sotto la catena (20/30), quindi non scatta mai il ritorno a casa.
+- **Il lutto.** `FleeWatch` (uno per livello, come `EnemyPack`) ricorda le morti: due compagni dello stesso tipo morti entro 8 m e 3 s fanno scappare anche chi sta bene. A fine fuga
+  chiama i compagni dello stesso tipo entro 10 m (12 m lo sciame), che accorrono.
+- **Il grido.** `CharacterAudio.PlayFleeCry`: il verso di dolore del tipo a ×1,35, senza un suono nuovo.
+- **I dati.** Scheletro e sciame hanno i campi nuovi nell'archetipo (soglia 25% e 30%, 2 perdite, 4 s, ×1,25, 10 m, 15 m); bruto, mago, campioni, unici e re non scappano.
+- **I test.** `EnemyBehaviours.FleeEnabled` è spento in `SandboxFixture.ForgetPreferences` (D17): i test che contano su nemici fermi non cambiano. Solo i sei test della fuga lo accendono.
+  EditMode 685 (11 nuovi: lo stato con un corpo finto, i dati, i numeri), PlayMode 390 su 392 verdi (2 saltati come prima; 6 nuovi: scappa sotto il 25% e si allontana, torna e non
+  scappa due volte, interruttore spento, due compagni morti, uno solo non basta, la chiamata a fine fuga).

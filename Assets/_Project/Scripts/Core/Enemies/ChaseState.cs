@@ -17,6 +17,11 @@ namespace DarkDescent.Enemies
                 return EnemyState.Idle;
             }
 
+            if (body is IFleeBody flee && flee.WantsToFlee)
+            {
+                return EnemyState.Flee;
+            }
+
             if (body.IsBeyondLeash)
             {
                 return EnemyState.Return;

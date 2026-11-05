@@ -291,6 +291,7 @@ namespace DarkDescent.Core
 
         // i branchi del livello corrente: chi vede il cavaliere sveglia i compagni (D5 della M7)
         private EnemyPack _pack;
+        private FleeWatch _fleeWatch;
 
         // le Health dei nemici seguite dai numeri di danno: al cambio di livello vanno lasciate, anche
         // quelle già distrutte, di cui non si potrebbe più chiedere il componente all'EnemyAI
@@ -1015,6 +1016,7 @@ namespace DarkDescent.Core
             }
 
             _pack = new EnemyPack(level.Enemies);
+            _fleeWatch = new FleeWatch(level.Enemies);
 
             // il cavaliere è già sull'ingresso: l'automappa parte scoprendo i suoi dintorni
             _exploration.SetLevel(level.Map, level.Depth);
@@ -1447,6 +1449,8 @@ namespace DarkDescent.Core
             _walls = null;
             _pack?.Release();
             _pack = null;
+            _fleeWatch?.Release();
+            _fleeWatch = null;
             foreach (var health in _trackedEnemies)
             {
                 _damageNumbers.Untrack(health);

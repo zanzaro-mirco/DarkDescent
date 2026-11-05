@@ -60,6 +60,34 @@ namespace DarkDescent.Enemies
         [Tooltip("Una fuga dura al massimo tanto, anche se non è arrivato.")]
         [SerializeField, Min(0.1f)] private float _retreatMaxDuration = 2f;
 
+        [Header("Fuga (D2–D6 della M24)")]
+        [Tooltip("Scappa quando la vita scende sotto questa parte (0,25: il 25%). Zero: non scappa per la vita.")]
+        [SerializeField, Range(0f, 0.9f)] private float _fleeBelow;
+
+        [Tooltip("Scappa quando muoiono tanti compagni dello stesso tipo vicino, entro i secondi e i metri qui sotto. Zero: non scappa per i compagni.")]
+        [SerializeField, Min(0)] private int _fleeOnLosses;
+
+        [Tooltip("Entro quanti metri contano i compagni morti.")]
+        [SerializeField, Min(0f)] private float _fleeLossRadius = 8f;
+
+        [Tooltip("Entro quanti secondi contano i compagni morti.")]
+        [SerializeField, Min(0.1f)] private float _fleeLossWindow = 3f;
+
+        [Tooltip("Quanto dura la fuga, in secondi.")]
+        [SerializeField, Min(0.5f)] private float _fleeDuration = 4f;
+
+        [Tooltip("Quante volte più veloce del solito corre scappando.")]
+        [SerializeField, Min(1f)] private float _fleeSpeedFactor = 1.25f;
+
+        [Tooltip("Il punto dove scappa sta ad almeno tanti metri dal bersaglio.")]
+        [SerializeField, Min(1f)] private float _fleeDistance = 10f;
+
+        [Tooltip("...e al più tanti metri da casa: più vicino del limite dell'inseguimento, perché una fuga non lo faccia tornare a casa a curarsi.")]
+        [SerializeField, Min(1f)] private float _fleeHomeLimit = 15f;
+
+        [Tooltip("Finita la fuga i compagni dello stesso tipo entro questi metri accorrono. Zero: nessuno.")]
+        [SerializeField, Min(0f)] private float _fleeCallRadius;
+
         [Header("Versi del critico (D13 della M7)")]
         [Tooltip("Il verso di questo tipo di nemico quando il cavaliere lo colpisce di critico, al posto dell'impatto.")]
         [SerializeField] private AudioClip[] _criticalVoices;
@@ -99,6 +127,27 @@ namespace DarkDescent.Enemies
         }
 
         public float PackRadius => _packRadius;
+
+        public float FleeBelow => _fleeBelow;
+
+        public int FleeOnLosses => _fleeOnLosses;
+
+        public float FleeLossRadius => _fleeLossRadius;
+
+        public float FleeLossWindow => _fleeLossWindow;
+
+        public float FleeDuration => _fleeDuration;
+
+        public float FleeSpeedFactor => _fleeSpeedFactor;
+
+        public float FleeDistance => _fleeDistance;
+
+        public float FleeHomeLimit => _fleeHomeLimit;
+
+        public float FleeCallRadius => _fleeCallRadius;
+
+        /// <summary>Ha un motivo per scappare: la vita bassa o i compagni morti (D2 della M24). Non il mago né il bruto, che hanno i loro stati.</summary>
+        public bool CanFlee => (_fleeBelow > 0f || _fleeOnLosses > 0) && !IsRanged && !IsTelegraphed;
 
         public int AvoidanceSpread => _avoidanceSpread;
 
@@ -140,6 +189,14 @@ namespace DarkDescent.Enemies
 
             if (!IsTelegraphed)
             {
+                if (CanFlee)
+                {
+                    return new EnemyStateBase[]
+                    {
+                        new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new FleeState(_fleeDuration), new ReturnState(), new DeadState(),
+                    };
+                }
+
                 return new EnemyStateBase[] { new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new ReturnState(), new DeadState() };
             }
 

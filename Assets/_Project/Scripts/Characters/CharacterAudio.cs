@@ -182,6 +182,28 @@ namespace DarkDescent.Characters
             }
         }
 
+        /// <summary>
+        /// Il grido di chi comincia a scappare (D6 della M24): il verso di quando viene colpito, più acuto, senza un suono nuovo.
+        /// Niente per un tipo senza versi, e col limite di voci dello sciame.
+        /// </summary>
+        public void PlayFleeCry()
+        {
+            if (_archetype == null || _archetype.HurtVoiceCount == 0 || _health.IsDead)
+            {
+                return;
+            }
+
+            int index = NextVoice(_archetype.HurtVoiceCount, ref _lastHurtVoice);
+            var clip = _archetype.GetHurtVoice(index);
+            _voiceSource.pitch = Random.Range(_archetype.HurtPitch.x, _archetype.HurtPitch.y) * FleeCryPitch;
+            if (Play(SfxKind.HurtVoice, _voiceSource, clip, _archetype.HurtVolume))
+            {
+                HurtVoicePlayed?.Invoke(clip);
+            }
+        }
+
+        private const float FleeCryPitch = 1.35f;
+
         private static int NextVoice(int count, ref int last)
         {
             int index = Random.Range(0, count);

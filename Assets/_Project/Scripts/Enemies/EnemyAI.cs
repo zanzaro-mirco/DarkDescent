@@ -1,3 +1,4 @@
+using DarkDescent.Characters;
 using DarkDescent.Combat;
 using UnityEngine;
 using UnityEngine.AI;
@@ -12,7 +13,7 @@ namespace DarkDescent.Enemies
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NavMeshAgent), typeof(MeleeAttack), typeof(Health))]
-    public class EnemyAI : MonoBehaviour, IRangedBody
+    public class EnemyAI : MonoBehaviour, IRangedBody, IFleeBody
     {
         [Tooltip("Il tipo di nemico: numeri e stati.")]
         [SerializeField] private EnemyArchetype _archetype;
@@ -40,6 +41,12 @@ namespace DarkDescent.Enemies
 
         // dove sta andando il mago: la destinazione si rinnova solo quando il bersaglio si è spostato
         private Vector3 _approachPoint;
+
+        // la fuga (D2–D5 della M24): una sola volta per vita, e senza un posto dove andare non riprova subito
+        private FleeWatch _watch;
+        private bool _hasFled;
+        private bool _fleeBoosted;
+        private float _fleeRetryAt;
 
         // dove l'ha messo il livello: ci torna quando il cavaliere torna in vita (D15 della M7) e
         // quando inseguendo si allontana troppo
@@ -133,6 +140,125 @@ namespace DarkDescent.Enemies
 
         /// <summary>Dove l'ha messo il livello: per i test.</summary>
         public Vector3 HomePosition => _homePosition;
+
+        /// <summary>Ha già scappato in questa vita: non lo rifà finché non torna a casa (D3 della M24).</summary>
+        public bool HasFled => _hasFled;
+
+        public bool IsFleeing => _brain != null && _brain.State == EnemyState.Flee;
+
+        /// <summary>Il registro dei compagni morti e dei richiami del livello; senza, scappa solo per la vita.</summary>
+        public void BindWatch(FleeWatch watch)
+        {
+            _watch = watch;
+        }
+
+        bool IFleeBody.WantsToFlee
+        {
+            get
+            {
+                if (!EnemyBehaviours.FleeEnabled || _hasFled || !_archetype.CanFlee || Time.time < _fleeRetryAt || _health.IsDead || !IsTargetAlive())
+                {
+                    return false;
+                }
+
+                bool low = _archetype.FleeBelow > 0f && _health.Current < _health.Max * _archetype.FleeBelow;
+                bool grief = !low && _archetype.FleeOnLosses > 0 && _watch != null && _watch.RecentLosses(this, Time.time) >= _archetype.FleeOnLosses;
+                if (!low && !grief)
+                {
+                    return false;
+                }
+
+                // solo i nemici normali (D2): un campione, un unico o un re che scappasse e tornasse cambierebbe la sfida
+                bool special = TryGetComponent(out SpecialEnemy rank) && rank.Rank != EnemyRank.Normal;
+                return !special && !TryGetComponent(out BossController _);
+            }
+        }
+
+        // un punto lontano dal bersaglio, vicino a casa, raggiungibile in linea retta: dritto all'indietro, poi sempre più di lato.
+        // Senza un posto che lo allontani non è una fuga: combatte, e per un secondo non riprova
+        bool IFleeBody.BeginFlee()
+        {
+            if (!_agent.enabled || !_agent.isOnNavMesh || !IsTargetAlive())
+            {
+                _fleeRetryAt = Time.time + FleeRetryDelay;
+                return false;
+            }
+
+            Vector3 away = transform.position - _target.transform.position;
+            away.y = 0f;
+            if (away.sqrMagnitude < 0.0001f)
+            {
+                away = -transform.forward;
+            }
+
+            away.Normalize();
+            float wanted = _archetype.FleeDistance;
+            for (int i = 0; i < FleeAngles.Length; i++)
+            {
+                for (int extra = 0; extra < FleeExtras.Length; extra++)
+                {
+                    Vector3 direction = Quaternion.Euler(0f, FleeAngles[i], 0f) * away;
+                    Vector3 candidate = _target.transform.position + direction * (wanted + FleeExtras[extra]);
+                    if (!NavMesh.SamplePosition(candidate, out var hit, 1.5f, NavMesh.AllAreas)
+                        || FlatDistance(hit.position, _target.transform.position) < wanted
+                        || FlatDistance(hit.position, _homePosition) > _archetype.FleeHomeLimit
+                        || NavMesh.Raycast(transform.position, hit.position, out _, NavMesh.AllAreas))
+                    {
+                        continue;
+                    }
+
+                    _hasFled = true;
+                    _fleeBoosted = true;
+                    _agent.speed *= _archetype.FleeSpeedFactor;
+                    _agent.SetDestination(hit.position);
+                    if (TryGetComponent(out CharacterAudio audio))
+                    {
+                        audio.PlayFleeCry();
+                    }
+
+                    return true;
+                }
+            }
+
+            _fleeRetryAt = Time.time + FleeRetryDelay;
+            return false;
+        }
+
+        bool IFleeBody.IsAtDestination => !_agent.enabled || !_agent.isOnNavMesh
+            || (!_agent.pathPending && (!_agent.hasPath || _agent.remainingDistance <= _homeTolerance));
+
+        void IFleeBody.EndFlee()
+        {
+            RestoreFleeSpeed();
+            if (_archetype.FleeCallRadius > 0f && _watch != null)
+            {
+                _watch.Call(this, _archetype.FleeCallRadius);
+            }
+        }
+
+        private void RestoreFleeSpeed()
+        {
+            if (!_fleeBoosted)
+            {
+                return;
+            }
+
+            _fleeBoosted = false;
+            float factor = _archetype.FleeSpeedFactor;
+            _agent.speed /= factor;
+
+            // rallentato mentre scappava: la base da cui il rallentamento toglie la parte era quella veloce
+            if (_slow.IsSlowed)
+            {
+                _slowBase /= factor;
+            }
+        }
+
+        private const float FleeRetryDelay = 1f;
+
+        private static readonly float[] FleeAngles = { 0f, 30f, -30f, 60f, -60f, 90f, -90f };
+
+        private static readonly float[] FleeExtras = { 0f, 2f, 4f };
 
         private void Awake()
         {
@@ -351,6 +477,8 @@ namespace DarkDescent.Enemies
 
             transform.rotation = _homeRotation;
             _health.Heal(_health.Max);
+            RestoreFleeSpeed();
+            _hasFled = false;
             _stun.Clear();
             ClearFrost();
         }
@@ -541,10 +669,13 @@ namespace DarkDescent.Enemies
             }
 
             _health.Heal(_health.Max);
+            RestoreFleeSpeed();
+            _hasFled = false;
         }
 
         private void HandleDied()
         {
+            RestoreFleeSpeed();
             _stun.Clear();
             ClearFrost();
             _brain.Die();

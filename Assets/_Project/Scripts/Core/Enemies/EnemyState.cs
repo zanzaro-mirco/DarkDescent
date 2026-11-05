@@ -21,5 +21,8 @@ namespace DarkDescent.Enemies
 
         /// <summary>Il cavaliere è troppo vicino: si allontana, poi torna a lanciare.</summary>
         Retreat,
+
+        /// <summary>Scappa dal cavaliere per qualche secondo, a vita bassa o per i compagni morti vicino (D2–D5 della M24).</summary>
+        Flee,
     }
 }

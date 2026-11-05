@@ -25,6 +25,11 @@ namespace DarkDescent.Enemies
                 return EnemyState.Idle;
             }
 
+            if (body is IFleeBody flee && flee.WantsToFlee)
+            {
+                return EnemyState.Flee;
+            }
+
             body.Engage();
             if (_telegraphed && body.IsTelegraphedSwing)
             {

@@ -22,6 +22,15 @@ MonoBehaviour:
   _packRadius: 0
   _avoidanceSpread: 0
   _recoverTime: 0
+  _fleeBelow: 0.25
+  _fleeOnLosses: 2
+  _fleeLossRadius: 8
+  _fleeLossWindow: 3
+  _fleeDuration: 4
+  _fleeSpeedFactor: 1.25
+  _fleeDistance: 10
+  _fleeHomeLimit: 15
+  _fleeCallRadius: 10
   _criticalVoices:
   - {fileID: 8300000, guid: 574b969740aa118449557e121ad9f05a, type: 3}
   - {fileID: 8300000, guid: d1edfd4eeed68e042b50cfb755734873, type: 3}
