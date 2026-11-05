@@ -761,6 +761,110 @@ namespace DarkDescent.Tests
             }
         }
 
+        [UnityTest, Timeout(600000), Description("Il disegno del Custode (24.1 della M24): la stanza della scala giù della profondità 4 com'è, con un Custode finto (il modello del re, tinto, con la luce) al centro, e la barra in alto di un nemico ferito per vederne lo stile")]
+        public IEnumerator BossDesign()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            MenuSteps.StartNew(Find<MainMenu>(), 1);
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 4);
+
+            var level = Manager.CurrentLevel;
+            var down = level.DownExits.First();
+            Vector3 front = down.GetComponent<Interactable>().ApproachPoint;
+            Vector3 Spot(Vector3 wanted) => NavMesh.SamplePosition(wanted, out var hit, 3f, NavMesh.AllAreas) ? hit.position : wanted;
+
+            // i nemici della stanza si spengono: la foto è del posto
+            foreach (var enemy in level.Enemies.Where(e => e != null && (e.transform.position - front).sqrMagnitude < 18f * 18f))
+            {
+                enemy.gameObject.SetActive(false);
+            }
+
+            Vector3 centre = Spot(front + new Vector3(0f, 0f, -3.5f));
+            var agent = Hero.GetComponent<NavMeshAgent>();
+            agent.Warp(Spot(front + new Vector3(0f, 0f, -12f)));
+            yield return Settle();
+            yield return Snap("boss_room_empty");
+
+            // il Custode: il modello del re, senza i suoi componenti, tinto di viola e con una luce rossa
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/BoneKing.prefab");
+            var holder = new GameObject("StandInHolder");
+            holder.SetActive(false);
+            var standIn = Object.Instantiate(prefab, holder.transform);
+            // prima chi ne richiede un altro (RequireComponent), poi chi è richiesto
+            var behaviours = standIn.GetComponentsInChildren<MonoBehaviour>(true).ToList();
+            bool Requires(MonoBehaviour owner, MonoBehaviour needed)
+            {
+                return owner.gameObject == needed.gameObject && owner.GetType().GetCustomAttributes(typeof(RequireComponent), true).Cast<RequireComponent>()
+                    .Any(r => (r.m_Type0 != null && r.m_Type0.IsAssignableFrom(needed.GetType())) || (r.m_Type1 != null && r.m_Type1.IsAssignableFrom(needed.GetType()))
+                        || (r.m_Type2 != null && r.m_Type2.IsAssignableFrom(needed.GetType())));
+            }
+
+            while (behaviours.Count > 0)
+            {
+                var free = behaviours.FirstOrDefault(m => !behaviours.Any(o => o != m && Requires(o, m))) ?? behaviours[0];
+                behaviours.Remove(free);
+                Object.DestroyImmediate(free);
+            }
+
+            foreach (var part in standIn.GetComponentsInChildren<Component>(true).Where(c => c is Collider || c is NavMeshAgent || c is NavMeshObstacle || c is Rigidbody).ToArray())
+            {
+                if (part != null)
+                {
+                    Object.DestroyImmediate(part);
+                }
+            }
+
+            standIn.transform.SetParent(null);
+            Object.Destroy(holder);
+            standIn.transform.position = centre;
+            standIn.transform.rotation = Quaternion.LookRotation(Flat(Hero.transform.position - centre));
+            standIn.transform.localScale = Vector3.one * 1.25f;
+            foreach (var renderer in standIn.GetComponentsInChildren<Renderer>())
+            {
+                foreach (var material in renderer.materials)
+                {
+                    if (material.HasProperty("_BaseColor"))
+                    {
+                        material.SetColor("_BaseColor", material.GetColor("_BaseColor") * new Color(0.62f, 0.45f, 0.85f, 1f));
+                    }
+                }
+            }
+
+            var aura = new GameObject("Aura").AddComponent<Light>();
+            aura.transform.SetParent(standIn.transform, false);
+            aura.transform.localPosition = new Vector3(0f, 1.4f, 0f);
+            aura.type = LightType.Point;
+            aura.color = new Color(0.75f, 0.35f, 1f);
+            aura.intensity = 6f;
+            aura.range = 9f;
+            standIn.SetActive(true);
+            yield return Frames(5);
+            yield return Snap("boss_room_custode");
+
+            agent.Warp(Spot(centre + new Vector3(0f, 0f, -6f)));
+            yield return Settle();
+            yield return Snap("boss_custode_near");
+            Object.Destroy(standIn);
+
+            // la barra in alto, nello stile che ha: un nemico vero, ferito a metà
+            CallEnemies(1);
+            yield return Frames(3);
+            var near = level.Enemies.Where(e => e != null && e.gameObject.activeInHierarchy).OrderBy(e => Vector3.Distance(e.transform.position, Hero.transform.position)).FirstOrDefault();
+            if (near != null)
+            {
+                var health = near.GetComponent<Health>();
+                health.TakeDamage(new DamageInfo(health.Max * 0.5f, DamageType.Physical, Hero));
+            }
+
+            yield return Frames(4);
+            yield return Snap("boss_bar_reference", world: false);
+        }
+
         [UnityTest, Timeout(600000), Description("I suggerimenti (23.4, D11 e D12 della M23): il riquadro in basso al centro nelle due lingue, con il testo corto e quello più lungo, e le opzioni con la casella e Rivedi")]
         public IEnumerator Hints()
         {

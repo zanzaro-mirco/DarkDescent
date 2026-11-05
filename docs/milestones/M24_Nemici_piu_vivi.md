@@ -105,3 +105,24 @@ oggetti), **D15** nel salvataggio, formato 11. Il disegno (24.1) resta da approv
 - **Il salvataggio 11.** Una fixture `save_v10.json` si congela **prima** della migrazione (lezione della M22): il test che la legge la legge senza migrare e poi migrata.
 - **Le ore.** Quattro cose in una milestone sono molte: se il 24.4 o il 24.5 si allunga, si taglia come scritto sopra, non si comprime il resto.
 - **Il rumore.** Una fuga si sente: lo stesso verso da dieci scheletri contemporaneamente è un coro; `_sfxLimiter` (già in `CharacterAudio`) lo tiene in ordine, e si guarda nella foto-video della fuga.
+
+---
+
+## Passo 24.1 — Il disegno
+
+**Com'è andata (5 nov 2026).** Il foglio `Recordings/Photos/m24_disegno/disegno.html` (fuori da git, una pagina sola con le immagini dentro) è montato su foto vere
+del gioco: la stanza della scala giù della profondità 4 (`PhotoTour.BossDesign`, che mette un **Custode finto**: il modello del re senza i suoi componenti, tinto di
+viola e con una luce) e la schermata delle difficoltà dell'altare (`05_altar`). La barra, le note e l'altare con la riga nuova sono disegnati sopra. Cosa mostra:
+
+- **Il Custode (D8–D11).** La stanza com'è e con lui al centro, la barra in alto con il nome in oro e il segno bianco a metà vita (dove cambia fase), le due fasi (colpo
+  caricato; evocazione di tre scheletri e carica in linea retta), i numeri di partenza e il tesoro. Il modello del re **galleggia**, e il Custode con lui: è la sua natura,
+  e non serve un modello nuovo.
+- **L'interruttore (D12, D15).** La riga **«Il mondo cresce con te»** tra l'elenco delle difficoltà e *Rifai il mondo*, con un pulsante *No/Sì* e il suggerimento al passaggio,
+  in inglese (spento) e in italiano (acceso). Il riquadro cresce di una riga.
+- **Fuga e ronde (D2–D7).** Una tabella per tipo (chi scappa, a che soglia, chi gira) e due sequenze: la fuga (combatte, scatta una sola volta, scappa 4 s, torna e chiama
+  i compagni) e la ronda (2–3 punti da un hash, pausa 2–4 s, vede il cavaliere, oltre il limite torna alla ronda).
+- **La curva (D13).** Una tabella 4 × 4 (cavaliere di livello 1, 10, 25, 50; profondità 1, 3, 5, 8) con il moltiplicatore di vita e danno e il livello degli oggetti, al
+  Crepuscolo: da ×1,00 (livello 1) a ×2,84 (livello 50 alla profondità 1, oggetti di livello 47). È una curva su carta, da misurare in 24.5.
+
+**Da approvare:** il Custode come nella foto, il nome, la riga all'altare, le soglie (25% scheletro, 30% sciame, 4 s, un nemico su quattro di ronda) e la curva (margine 3,
+4% per livello, tetto ×3).
