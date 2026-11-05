@@ -55,6 +55,8 @@ options.sfx,Effects,Effetti
 options.labels,Always show item names,Nomi degli oggetti sempre visibili
 options.orb_numbers,Always show life and mana numbers,Numeri di vita e mana sempre visibili
 options.enemy_bars,Health bars on wounded enemies,Barre della vita sui nemici feriti
+options.hints,Show hints,Mostra i suggerimenti
+options.hints_review,Review hints,Rivedi i suggerimenti
 options.retro,Retro filter: {0},Filtro retrò: {0}
 retro.off,off,spento
 retro.light,light,leggero
@@ -717,3 +719,25 @@ class.warrior.desc,"Fights up close with heavy weapons and a shield. Takes the b
 class.mage,Mage,Mago
 class.mage.name,Elowen,Elowen
 class.mage.desc,"Hurls fire and frost from afar. Frail up close, devastating at range.",Scaglia fuoco e ghiaccio da lontano. Fragile da vicino e devastante a distanza.
+
+# Suggerimenti del primo gioco (D11 della M23): {0}, {1}, {2} sono i tasti letti dai binding
+hint.move.title,Move,Muoviti
+hint.move.text,"Click the floor, or hold {0}.","Clicca sul pavimento, oppure tieni premuti {0}."
+hint.enemy.title,An enemy,Un nemico
+hint.enemy.text,Click it to attack. The right button uses your second ability.,Clicca per attaccare. Il tasto destro usa la seconda abilità.
+hint.item.title,An item on the ground,Un oggetto a terra
+hint.item.text,{0} shows every name; click an item to take it.,{0} mostra i nomi di tutti; un clic su un oggetto lo raccoglie.
+hint.potion.title,A potion on the belt,Una pozione in cintura
+hint.potion.text,"Press {0}–{1}, or right click it, to drink.","Premi {0}–{1}, o fai clic destro, per berla."
+hint.stairs.title,Stairs,Una scala
+hint.stairs.text,"Click a staircase to use it: down goes deeper, up goes back.","Clicca su una scala per usarla: giù si scende più a fondo, su si torna indietro."
+hint.attribute.title,Attribute points,Punti attributo
+hint.attribute.text,"Press {0}, or click the gold button, to spend them.","Premi {0}, o clicca il pulsante dorato, per spenderli."
+hint.talent.title,Skill points,Punti abilità
+hint.talent.text,Press {0} to open the skill tree.,Premi {0} per aprire l'albero delle abilità.
+hint.portal.title,Town portal,Portale per il borgo
+hint.portal.text,"Press {0} to open a portal to the village, and to come back. It costs mana.","Premi {0} per aprire un portale verso il borgo, e per tornare. Costa mana."
+hint.skills.title,More abilities,Altre abilità
+hint.skills.text,"The right button, {0} and {1} use your abilities. {2} changes them.","Il tasto destro, {0} e {1} usano le tue abilità. {2} le cambia."
+hint.village.title,The village,Il borgo
+hint.village.text,"The blacksmith, the merchant and the healer are here. Click one to walk over.","Qui ci sono il fabbro, il mercante e la guaritrice. Clicca su uno di loro per avvicinarti."

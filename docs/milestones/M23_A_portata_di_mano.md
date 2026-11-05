@@ -215,3 +215,51 @@ senza barra. Foto: `Recordings/Photos/m23_barre` (`PhotoTour.EnemyBars`: lo scia
 
 **Da sapere.** Le barre hanno il test di profondità: un muro davanti a un nemico copre anche la sua barra (e il
 nome), come copre il nemico.
+
+---
+
+## Passo 23.4 — I suggerimenti
+
+**Cosa c'è (5 nov 2026).** Dieci suggerimenti (D11), un riquadro in basso al centro sopra la cintura (la posizione **A**
+approvata il 4 nov), la memoria nelle preferenze del computer e, nelle opzioni, **«Mostra i suggerimenti»** (accesa di
+default) e **«Rivedi i suggerimenti»**.
+
+- **`Hints`, `HintBook`** (`Core/UI`, logica pura): gli id nell'ordine di precedenza (muoversi, nemico, oggetto,
+  pozione, scala, punto attributo, punto abilità, portale, abilità, borgo); il libro sa quali sono stati visti, quali
+  aspettano, se sono accesi; ogni suggerimento esce **una volta sola**, **uno alla volta**, in ordine; spenti, niente
+  entra in coda; `Serialize`/`Load` come una riga di id. Dieci test EditMode, con i testi (titolo e testo in tutte e
+  due le lingue, stessi segnaposto, nessuno vuoto).
+- **`HintDirector`** (`UI`): ogni condizione si controlla **quattro volte al secondo** finché il suggerimento non è
+  stato mostrato; la coda esce un riquadro alla volta per **8 secondi** o finché si preme un tasto (dopo mezzo secondo,
+  perché il tasto che si stava già premendo non lo cancelli); il click non lo chiude e non lo prende (nessun elemento
+  riceve raggi). Tace con `gate` falso e il tempo si ferma dov'è.
+- **`HintSenses`** (`Composition`): le dieci condizioni, che leggono quello che c'è già: nemico vivo a 13 m
+  (`LevelContext.Enemies`), oggetto a terra a 9 m (nuovo registro `GroundItem.OnTheGround`, niente ricerche nella scena),
+  pozione in cintura, scala a 9 m (non nel borgo), punti attributo e abilità da spendere, mana per il portale (non nel
+  borgo), almeno due abilità sul destro/Q/E, il borgo. **Scostamento dalla scheda:** D11 diceva «gli eventi che mancano
+  si aggiungono dove servono»: non ne ho aggiunti, le condizioni si leggono con il controllo a 4 Hz (costo trascurabile,
+  e spento appena il suggerimento è visto), così non ho toccato dodici classi.
+- **Quando tace (D12):** menu iniziale, pausa, filmati, passaggio di livello, morte, sala del re, albero delle
+  abilità e altare aperti. Il riquadro sta sotto la schermata di morte, la dissolvenza e il titolo del livello.
+- **I tasti veri (D12):** `PlayerInputReader.KeyText`/`MoveKeysText` leggono il nome del tasto dal binding («I», «C»,
+  «N», «T», «Alt», da «1» a «8», «Q»/«E», «K», «W A S D»); i testi hanno i segnaposto `{0} {1} {2}`.
+- **La memoria (D13):** `hints.on` (default 1) e `hints.seen` in `PlayerPrefs`, non nel salvataggio: un nuovo
+  personaggio non li ripete. Una **partita già avanti** su un computer nuovo li vede tutti, al loro momento.
+  «Rivedi» li azzera e li riaccende.
+- **Le opzioni:** il riquadro passa da 800 a 920 px e le righe salgono di 45, per fare posto a casella e pulsante;
+  *Indietro* è l'ultima riga.
+- **`HintTools.InstallHints`** (Editor): mette riquadro, direttore e righe delle opzioni nella scena `Core`; si rifà
+  senza doppioni.
+
+**Nei test** i suggerimenti partono **spenti** (`ForgetPreferences` scrive `hints.on = 0` e cancella i visti): un
+riquadro non deve coprire un click. Solo `HintPlayModeTests` li accende.
+
+**Prove.** EditMode 668 verdi (+10). PlayMode `HintPlayModeTests`, 10: spenti nei test; il muoversi compare con
+«W A S D» nel testo, i suoi elementi non ricevono raggi, un tasto lo chiude solo dopo mezzo secondo e non torna; scade
+da solo con la barra che si accorcia; in pausa sparisce e il tempo si ferma, alla ripresa torna; segue la lingua anche
+aperto; i tasti dai binding; i punti attributo e il nemico a portata (da 40 m no); le opzioni (casella, preferenza,
+«Rivedi» li riaccende); riaperto il gioco il visto resta. Foto: `Recordings/Photos/m23_hints` (`PhotoTour.Hints`: il
+riquadro nelle due lingue con testi corti e lunghi, e le opzioni).
+
+**Da sapere.** Il riquadro è largo 640 (non 600 del disegno): in maiuscoletto le righe italiane e inglesi sono più
+larghe di come le avevo disegnate; con testi di due righe sta comodo sopra la cintura. Il `1` in Cinzel somiglia a una I (nella foto della pozione, «PRESS 1–8» si legge «l–8» a colpo d'occhio): si capisce dal contesto, ma è il dubbio che la scheda di 23.1 già segnalava. Se non basta si scrive «da 1 a 8».

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using DarkDescent.Interaction;
 using DarkDescent.Localization;
 using UnityEngine;
@@ -90,6 +91,11 @@ namespace DarkDescent.Items
         /// Mette a terra un oggetto vicino a <paramref name="near"/>, sul NavMesh: altrimenti potrebbe
         /// finire dentro un muro, dove il cavaliere non arriva.
         /// </summary>
+        private static readonly HashSet<GroundItem> Lying = new HashSet<GroundItem>();
+
+        /// <summary>Gli oggetti a terra accesi in questo momento (per i suggerimenti, D11 della M23): nessuna ricerca nella scena.</summary>
+        public static IReadOnlyCollection<GroundItem> OnTheGround => Lying;
+
         public static GroundItem Spawn(GroundItem prefab, ItemInstance item, Vector3 near)
         {
             return Spawn(prefab, item, near, null);
@@ -187,11 +193,13 @@ namespace DarkDescent.Items
         private void OnEnable()
         {
             _interactable.Used += HandleUsed;
+            Lying.Add(this);
         }
 
         private void OnDisable()
         {
             _interactable.Used -= HandleUsed;
+            Lying.Remove(this);
         }
 
         private void Show(ItemInstance item)

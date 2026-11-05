@@ -694,6 +694,59 @@ namespace DarkDescent.Tests
             Localizer.SetLanguage("en");
         }
 
+        [UnityTest, Timeout(600000), Description("I suggerimenti (23.4, D11 e D12 della M23): il riquadro in basso al centro nelle due lingue, con il testo corto e quello più lungo, e le opzioni con la casella e Rivedi")]
+        public IEnumerator Hints()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            MenuSteps.StartNew(menu, 1);
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 1);
+
+            var director = Find<HintDirector>();
+
+            IEnumerator Show(string id, string shot)
+            {
+                // tutti gli altri già visti: esce solo questo
+                director.SetOn(false);
+                director.Book.Load(string.Join(",", UI.Hints.All.Where(other => other != id)));
+                director.SetOn(true);
+                director.Book.Raise(id);
+                for (float t = 0f; director.Current != id; t += Time.unscaledDeltaTime)
+                {
+                    Assert.Less(t, 4f, "il suggerimento " + id + " non compare");
+                    yield return null;
+                }
+
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return Snap(shot);
+            }
+
+            yield return Show(UI.Hints.Move, "hint_move");
+            yield return Show(UI.Hints.Item, "hint_item");
+            yield return Show(UI.Hints.Potion, "hint_potion");
+            yield return Show(UI.Hints.Skills, "hint_skills");
+            yield return Show(UI.Hints.Village, "hint_village");
+            Root.Localizer.SetLanguage("it");
+            yield return Show(UI.Hints.Skills, "hint_skills_it");
+            yield return Show(UI.Hints.Item, "hint_item_it");
+            director.SetOn(false);
+
+            // le opzioni, con la casella dei suggerimenti e Rivedi sotto le barre
+            var options = Find<OptionsPanel>();
+            options.Open();
+            yield return Frames(3);
+            yield return Snap("hint_options_it", world: false);
+            Root.Localizer.SetLanguage("en");
+            yield return Frames(3);
+            yield return Snap("hint_options", world: false);
+            options.Back.onClick.Invoke();
+        }
+
         [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]
         public IEnumerator VillageShops()
         {

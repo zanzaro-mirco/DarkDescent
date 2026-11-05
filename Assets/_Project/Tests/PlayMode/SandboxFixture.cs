@@ -46,6 +46,9 @@ namespace DarkDescent.Tests
             PlayerPrefs.DeleteKey(UI.OptionsPanel.LabelsPreference);
             PlayerPrefs.DeleteKey(UI.OptionsPanel.OrbNumbersPreference);
             PlayerPrefs.DeleteKey(UI.OptionsPanel.EnemyBarsPreference);
+            // i suggerimenti partono spenti nei test: un riquadro non deve coprire un click (23.4 della M23)
+            PlayerPrefs.SetInt(UI.HintDirector.OnPreference, 0);
+            PlayerPrefs.DeleteKey(UI.HintDirector.SeenPreference);
             PlayerPrefs.DeleteKey(Rendering.RetroFilter.Preference);
             PlayerPrefs.DeleteKey(UI.FilmsPanel.VictorySeenPreference);
         }

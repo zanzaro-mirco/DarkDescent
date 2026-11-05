@@ -137,6 +137,9 @@ namespace DarkDescent.Core
         [Tooltip("Le barre sopra i nemici feriti, un'opzione (D9 della M23).")]
         [SerializeField] private EnemyHealthBars _healthBars;
 
+        [Tooltip("I suggerimenti del primo gioco (D11 della M23).")]
+        [SerializeField] private HintDirector _hints;
+
         [Tooltip("I numeri dei nemici speciali, campioni e unici, e i loro modificatori (M12).")]
         [SerializeField] private ChampionSettings _championSettings;
 
@@ -408,7 +411,7 @@ namespace DarkDescent.Core
             _shopPanel.Bind(null, inventory, _inventoryPanel, _localizer);
             _groundLabels.Bind(_reader, _player.GetComponent<PlayerController>(), _localizer);
             _healthBars.Bind(_player.transform, _localizer);
-            _optionsPanel.Bind(_localizer, _groundLabels, _retroFilter, new[] { _healthOrb.Readout, _manaOrb.Readout }, _healthBars);
+            _optionsPanel.Bind(_localizer, _groundLabels, _retroFilter, new[] { _healthOrb.Readout, _manaOrb.Readout }, _healthBars, _hints);
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _cameraRotation = _playerCamera.GetComponent<Rendering.CameraRotation>();
@@ -451,6 +454,8 @@ namespace DarkDescent.Core
             // WASD non muove sotto una finestra a tutto schermo (le abilità, l'altare) né mentre un'abilità porta il cavaliere (D8 della M23)
             controller.SetKeyboardBlocker(() => _talentPanel.IsOpen || _difficultyPanel.IsOpen || warrior.IsBusy);
             _talentPointsButton.Bind(_talents, _talentPanel, _localizer);
+            _hints.Bind(_localizer, _reader, CanShowHints);
+            HintSenses.Install(_hints, _levelManager, _player.transform, _progress, _talents, magic, inventory);
             _difficultyPanel.BindTalents(_talents.Build);
             _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);
         }
@@ -770,6 +775,20 @@ namespace DarkDescent.Core
             {
                 _pauseMenu.Open();
             }
+        }
+
+        // i suggerimenti (D12 della M23) tacciono quando il gioco non è da guardare: menu, pausa, filmati, passaggi di livello, morte, sala del re, finestre a tutto schermo
+        private bool CanShowHints()
+        {
+            return _levelManager.CurrentLevel != null
+                && !_levelManager.IsTransitioning
+                && !_player.IsDead
+                && !_mainMenu.IsShown
+                && !_pauseMenu.IsOpen
+                && !_talentPanel.IsOpen
+                && !_difficultyPanel.IsOpen
+                && !(_films != null && _films.IsPlaying)
+                && !(_boss != null && _boss.IsFighting);
         }
 
         // in pausa il cavaliere non ascolta i click e non lancia: alla ripresa non partirebbe da solo

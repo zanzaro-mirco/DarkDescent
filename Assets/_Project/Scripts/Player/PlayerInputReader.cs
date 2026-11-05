@@ -65,6 +65,90 @@ namespace DarkDescent.Player
         /// <summary>W A S D e le frecce (D2 della M23): x a destra, y in alto sullo schermo, lunghezza al più 1. Zero con le azioni spente.</summary>
         public Vector2 MoveKeys => _controls.Gameplay.Move2D.ReadValue<Vector2>();
 
+        /// <summary>
+        /// Il nome del tasto di un'azione come lo vede il giocatore («I», «Alt», «1»), letto dal binding: se un giorno i
+        /// tasti cambiano, cambiano anche i suggerimenti (D12 della M23). Il primo tasto, o l'ultimo con <paramref name="last"/>;
+        /// vuoto se l'azione non c'è o non ha tasti.
+        /// </summary>
+        public string KeyText(string action, bool last = false)
+        {
+            var found = _controls.asset.FindAction("Gameplay/" + action);
+            if (found == null)
+            {
+                return string.Empty;
+            }
+
+            string text = string.Empty;
+            foreach (var binding in found.bindings)
+            {
+                if (binding.isComposite || binding.isPartOfComposite)
+                {
+                    continue;
+                }
+
+                text = Describe(binding);
+                if (!last)
+                {
+                    break;
+                }
+            }
+
+            return text;
+        }
+
+        /// <summary>I quattro tasti di W A S D, in quest'ordine (su, sinistra, giù, destra), letti dal primo composto di <c>Move2D</c>.</summary>
+        public string MoveKeysText()
+        {
+            var found = _controls.asset.FindAction("Gameplay/Move2D");
+            if (found == null)
+            {
+                return string.Empty;
+            }
+
+            string up = string.Empty, down = string.Empty, left = string.Empty, right = string.Empty;
+            bool inFirst = false;
+            foreach (var binding in found.bindings)
+            {
+                if (binding.isComposite)
+                {
+                    if (inFirst)
+                    {
+                        break;
+                    }
+
+                    inFirst = true;
+                    continue;
+                }
+
+                if (!inFirst || !binding.isPartOfComposite)
+                {
+                    continue;
+                }
+
+                switch (binding.name)
+                {
+                    case "up": up = Describe(binding); break;
+                    case "down": down = Describe(binding); break;
+                    case "left": left = Describe(binding); break;
+                    case "right": right = Describe(binding); break;
+                }
+            }
+
+            return up + " " + left + " " + down + " " + right;
+        }
+
+        // «Left Alt» diventa «Alt»: il tasto di sinistra e quello di destra fanno la stessa cosa
+        private static string Describe(InputBinding binding)
+        {
+            string text = InputControlPath.ToHumanReadableString(binding.effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice);
+            if (text.StartsWith("Left ", StringComparison.Ordinal))
+            {
+                text = text.Substring(5);
+            }
+
+            return text;
+        }
+
         private PlayerControls _controls;
 
         private void Awake()

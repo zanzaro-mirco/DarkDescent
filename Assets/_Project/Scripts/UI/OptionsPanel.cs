@@ -23,6 +23,7 @@ namespace DarkDescent.UI
         public const string LabelsPreference = "labels.always";
         public const string OrbNumbersPreference = "orbs.numbers";
         public const string EnemyBarsPreference = "enemybars.show";
+        public const string HintsPreference = HintDirector.OnPreference;
 
         // i parametri esposti del mixer Main
         public const string MasterParameter = "MasterVolume";
@@ -50,6 +51,12 @@ namespace DarkDescent.UI
         [Tooltip("Le barre della vita sopra i nemici feriti, spente di partenza (D9 della M23).")]
         [SerializeField] private Toggle _enemyBars;
 
+        [Tooltip("I suggerimenti del primo gioco, accesi di partenza (D13 della M23).")]
+        [SerializeField] private Toggle _hintsToggle;
+
+        [Tooltip("«Rivedi i suggerimenti»: li azzera tutti.")]
+        [SerializeField] private Button _hintsReview;
+
         [Tooltip("Il filtro retrò: spento, leggero, pieno (D2 della M11).")]
         [SerializeField] private Button _retro;
 
@@ -64,6 +71,7 @@ namespace DarkDescent.UI
         private RetroFilter _retroFilter;
         private OrbReadout[] _orbReadouts;
         private EnemyHealthBars _healthBars;
+        private HintDirector _hints;
         private bool _subscribed;
 
         /// <summary>Il tasto della lingua: chi tiene le preferenze cambia lingua e la ricorda.</summary>
@@ -84,6 +92,10 @@ namespace DarkDescent.UI
 
         public Toggle EnemyBars => _enemyBars;
 
+        public Toggle Hints => _hintsToggle;
+
+        public Button HintsReview => _hintsReview;
+
         public Button Back => _back;
 
         public Button RetroButton => _retro;
@@ -94,8 +106,9 @@ namespace DarkDescent.UI
 
         /// <param name="retroFilter">Facoltativo: senza, il pulsante del filtro non fa niente.</param>
         /// <param name="orbReadouts">I numeri delle sfere, che l'opzione lascia sempre accesi.</param>
+        /// <param name="hints">Facoltativo: i suggerimenti, che l'opzione accende, spegne e azzera.</param>
         /// <param name="healthBars">Facoltativo: le barre sopra i nemici feriti, che l'opzione accende.</param>
-        public void Bind(Localizer localizer, GroundLabels groundLabels, RetroFilter retroFilter = null, OrbReadout[] orbReadouts = null, EnemyHealthBars healthBars = null)
+        public void Bind(Localizer localizer, GroundLabels groundLabels, RetroFilter retroFilter = null, OrbReadout[] orbReadouts = null, EnemyHealthBars healthBars = null, HintDirector hints = null)
         {
             Unsubscribe();
             _localizer = localizer;
@@ -103,6 +116,7 @@ namespace DarkDescent.UI
             _retroFilter = retroFilter;
             _orbReadouts = orbReadouts;
             _healthBars = healthBars;
+            _hints = hints;
             if (isActiveAndEnabled)
             {
                 Subscribe();
@@ -144,6 +158,11 @@ namespace DarkDescent.UI
             {
                 _enemyBars.SetIsOnWithoutNotify(PlayerPrefs.GetInt(EnemyBarsPreference, 0) == 1);
             }
+
+            if (_hintsToggle != null)
+            {
+                _hintsToggle.SetIsOnWithoutNotify(PlayerPrefs.GetInt(HintsPreference, 1) == 1);
+            }
         }
 
         // il mixer non accetta valori in Awake: i volumi salvati si applicano qui
@@ -181,6 +200,16 @@ namespace DarkDescent.UI
                 _enemyBars.onValueChanged.AddListener(HandleEnemyBars);
             }
 
+            if (_hintsToggle != null)
+            {
+                _hintsToggle.onValueChanged.AddListener(HandleHints);
+            }
+
+            if (_hintsReview != null)
+            {
+                _hintsReview.onClick.AddListener(HandleHintsReview);
+            }
+
             if (_retro != null)
             {
                 _retro.onClick.AddListener(HandleRetro);
@@ -191,6 +220,7 @@ namespace DarkDescent.UI
             _groundLabels.SetAlwaysVisible(_labels.isOn);
             ApplyOrbNumbers();
             ApplyEnemyBars();
+            ApplyHints();
             RefreshLanguage();
         }
 
@@ -211,6 +241,16 @@ namespace DarkDescent.UI
             if (_enemyBars != null)
             {
                 _enemyBars.onValueChanged.RemoveListener(HandleEnemyBars);
+            }
+
+            if (_hintsToggle != null)
+            {
+                _hintsToggle.onValueChanged.RemoveListener(HandleHints);
+            }
+
+            if (_hintsReview != null)
+            {
+                _hintsReview.onClick.RemoveListener(HandleHintsReview);
             }
 
             if (_retro != null)
@@ -255,6 +295,36 @@ namespace DarkDescent.UI
             PlayerPrefs.SetInt(EnemyBarsPreference, on ? 1 : 0);
             PlayerPrefs.Save();
             ApplyEnemyBars();
+        }
+
+        private void HandleHints(bool on)
+        {
+            PlayerPrefs.SetInt(HintsPreference, on ? 1 : 0);
+            PlayerPrefs.Save();
+            ApplyHints();
+        }
+
+        // «Rivedi i suggerimenti»: tornano tutti nuovi, e se erano spenti si riaccendono (se no non si vedrebbe niente)
+        private void HandleHintsReview()
+        {
+            if (_hints == null)
+            {
+                return;
+            }
+
+            _hints.ResetSeen();
+            if (_hintsToggle != null && !_hintsToggle.isOn)
+            {
+                _hintsToggle.isOn = true;
+            }
+        }
+
+        private void ApplyHints()
+        {
+            if (_hints != null && _hintsToggle != null)
+            {
+                _hints.SetOn(_hintsToggle.isOn);
+            }
         }
 
         private void ApplyEnemyBars()
