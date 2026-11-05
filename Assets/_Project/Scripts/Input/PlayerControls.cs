@@ -245,6 +245,16 @@ namespace DarkDescent.Input
                     ""priority"": 0
                 },
                 {
+                    ""name"": ""ToggleHelp"",
+                    ""type"": ""Button"",
+                    ""id"": ""7c4e2a91-5d38-4b06-a1f7-93e08b6d2c15"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
                     ""name"": ""Move2D"",
                     ""type"": ""Value"",
                     ""id"": ""1139e5ac-b3b2-4116-a70a-f3234dd72f71"",
@@ -543,6 +553,17 @@ namespace DarkDescent.Input
                     ""isPartOfComposite"": false
                 },
                 {
+                    ""name"": """",
+                    ""id"": ""e2a57b08-3c19-4f6d-8b40-1d9f6a7c5e32"",
+                    ""path"": ""<Keyboard>/f1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleHelp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
                     ""name"": ""WASD"",
                     ""id"": ""aaa27414-3df6-47da-8a21-a5d615a368af"",
                     ""path"": ""2DVector(mode=2)"",
@@ -674,6 +695,7 @@ namespace DarkDescent.Input
             m_Gameplay_TownPortal = m_Gameplay.FindAction("TownPortal", throwIfNotFound: true);
             m_Gameplay_ToggleSkills = m_Gameplay.FindAction("ToggleSkills", throwIfNotFound: true);
             m_Gameplay_ToggleTalents = m_Gameplay.FindAction("ToggleTalents", throwIfNotFound: true);
+            m_Gameplay_ToggleHelp = m_Gameplay.FindAction("ToggleHelp", throwIfNotFound: true);
             m_Gameplay_Move2D = m_Gameplay.FindAction("Move2D", throwIfNotFound: true);
         }
 
@@ -770,6 +792,7 @@ namespace DarkDescent.Input
         private readonly InputAction m_Gameplay_TownPortal;
         private readonly InputAction m_Gameplay_ToggleSkills;
         private readonly InputAction m_Gameplay_ToggleTalents;
+        private readonly InputAction m_Gameplay_ToggleHelp;
         private readonly InputAction m_Gameplay_Move2D;
         /// <summary>
         /// Provides access to input actions defined in input action map "Gameplay".
@@ -842,6 +865,10 @@ namespace DarkDescent.Input
             /// Provides access to the underlying input action "Gameplay/ToggleTalents".
             /// </summary>
             public InputAction @ToggleTalents => m_Wrapper.m_Gameplay_ToggleTalents;
+            /// <summary>
+            /// Provides access to the underlying input action "Gameplay/ToggleHelp".
+            /// </summary>
+            public InputAction @ToggleHelp => m_Wrapper.m_Gameplay_ToggleHelp;
             /// <summary>
             /// Provides access to the underlying input action "Gameplay/Move2D".
             /// </summary>
@@ -917,6 +944,9 @@ namespace DarkDescent.Input
                 @ToggleTalents.started += instance.OnToggleTalents;
                 @ToggleTalents.performed += instance.OnToggleTalents;
                 @ToggleTalents.canceled += instance.OnToggleTalents;
+                @ToggleHelp.started += instance.OnToggleHelp;
+                @ToggleHelp.performed += instance.OnToggleHelp;
+                @ToggleHelp.canceled += instance.OnToggleHelp;
                 @Move2D.started += instance.OnMove2D;
                 @Move2D.performed += instance.OnMove2D;
                 @Move2D.canceled += instance.OnMove2D;
@@ -976,6 +1006,9 @@ namespace DarkDescent.Input
                 @ToggleTalents.started -= instance.OnToggleTalents;
                 @ToggleTalents.performed -= instance.OnToggleTalents;
                 @ToggleTalents.canceled -= instance.OnToggleTalents;
+                @ToggleHelp.started -= instance.OnToggleHelp;
+                @ToggleHelp.performed -= instance.OnToggleHelp;
+                @ToggleHelp.canceled -= instance.OnToggleHelp;
                 @Move2D.started -= instance.OnMove2D;
                 @Move2D.performed -= instance.OnMove2D;
                 @Move2D.canceled -= instance.OnMove2D;
@@ -1124,6 +1157,13 @@ namespace DarkDescent.Input
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnToggleTalents(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleHelp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleHelp(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "Move2D" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>

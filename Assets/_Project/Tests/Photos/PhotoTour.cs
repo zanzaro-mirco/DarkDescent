@@ -747,6 +747,44 @@ namespace DarkDescent.Tests
             options.Back.onClick.Invoke();
         }
 
+        [UnityTest, Timeout(600000), Description("Il pannello dei comandi (23.5, D14 della M23): il menu di pausa con il pulsante Comandi, il pannello in inglese e in italiano, e quello del Mago")]
+        public IEnumerator Help()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            MenuSteps.StartNew(menu, 1);
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 1);
+
+            var pause = Find<PauseMenu>();
+            var help = Find<HelpPanel>();
+            pause.Open();
+            yield return Frames(3);
+            yield return Snap("help_pause", world: false);
+
+            pause.HelpButton.onClick.Invoke();
+            yield return Frames(3);
+            yield return Snap("help_panel", world: false);
+            Root.Localizer.SetLanguage("it");
+            yield return Frames(3);
+            yield return Snap("help_panel_it", world: false);
+            Root.Localizer.SetLanguage("en");
+
+            help.Close();
+            var playerClass = Hero.GetComponent<PlayerClass>();
+            Root.ApplyClass(playerClass.Catalog.Find("mage"), "Prova");
+            yield return Frames(3);
+            pause.HelpButton.onClick.Invoke();
+            yield return Frames(3);
+            yield return Snap("help_panel_mage", world: false);
+            help.Close();
+            pause.Close();
+        }
+
         [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]
         public IEnumerator VillageShops()
         {

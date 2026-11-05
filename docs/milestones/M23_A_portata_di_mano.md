@@ -263,3 +263,36 @@ riquadro nelle due lingue con testi corti e lunghi, e le opzioni).
 
 **Da sapere.** Il riquadro è largo 640 (non 600 del disegno): in maiuscoletto le righe italiane e inglesi sono più
 larghe di come le avevo disegnate; con testi di due righe sta comodo sopra la cintura. Il `1` in Cinzel somiglia a una I (nella foto della pozione, «PRESS 1–8» si legge «l–8» a colpo d'occhio): si capisce dal contesto, ma è il dubbio che la scheda di 23.1 già segnalava. Se non basta si scrive «da 1 a 8».
+
+---
+
+## Passo 23.5 — Il pannello dei comandi
+
+**Cosa c'è (5 nov 2026).** **F1** apre e chiude il pannello, **Esc** lo chiude, e il menu di pausa ha il pulsante
+**Comandi** tra *Opzioni* e *Salva ed esci*. Quattro gruppi in due colonne come nel disegno approvato: *Movimento* e
+*Vedere* a sinistra, *Combattimento* e *Finestre* a destra, 17 righe.
+
+- **`HelpTable`** (`Core/UI`, dati): i gruppi, le righe e quale tasto va accanto a ognuna (`HelpKey`); solo la riga del
+  tasto sinistro sul nemico ha un testo per il Mago («dardo arcano»), le altre sono uguali per tutti.
+- **`HelpPanel`** (`UI`): costruisce le righe alla prima apertura da `HelpTable` e riscrive tasti e testi a ogni
+  apertura e a ogni cambio di lingua; i tasti vengono dai binding (`PlayerInputReader.KeyText`, `MoveKeysText`,
+  `RotateKeysText`, ora con `CompositeKeysText` per i tasti dei composti). La classe si legge all'apertura.
+- **F1:** nuova azione `ToggleHelp` in `PlayerControls` (il wrapper si è rigenerato da solo; per farlo ho dovuto
+  spegnere un attimo le due righe del reader che la nominano, o la compilazione non partiva).
+- **Pausa:** *Comandi* nasconde il menu e apre il pannello, chiuso il menu torna (come per le opzioni); **F1 in
+  pausa passa dal menu**, così il menu non resta sopra al pannello; Esc dal pannello torna al menu, non chiude la pausa.
+- **Gating:** F1 non fa niente nel menu iniziale, da morti e nei filmati; con il pannello aperto WASD non muove il
+  cavaliere (si aggiunge al blocco di 23.2) e i suggerimenti tacciono.
+- **`HelpTools.InstallHelp`** (Editor): il pannello è una copia ripulita della cornice delle opzioni; il menu di
+  pausa cresce di una riga (400 → 466 px).
+
+**Prove.** EditMode 673 verdi (+5, e `InputBindingsTests` ora sa che F1 è il pannello: F2–F8 restano libere). PlayMode
+`HelpPanelTests`, 7: F1 apre e chiude, Esc chiude senza la pausa; i tasti veri («W A S D», «Z X», «Q E», «1–8», «Esc»…)
+e i testi; italiano a pannello aperto; il Mago; il pulsante della pausa e il ritorno al menu (anche con Esc); F1 in
+pausa; WASD fermo sotto il pannello. PlayMode completa 383 verdi e 2 saltati (prima dell'ultima correzione, F1 in pausa,
+poi 17 su 17 per `HelpPanelTests` e `HintPlayModeTests`). Foto: `Recordings/Photos/m23_help` (pausa, pannello in inglese,
+in italiano, del Mago).
+
+**Da sapere.** Il pannello è alto 780 px (non 800): le righe di due testi stanno in una colonna senza passare alle tre
+colonne temute in 23.1. Il `1` di «1–8» in Cinzel si legge ancora come una I (come nei suggerimenti): con «Pozione della
+cintura» accanto si capisce.

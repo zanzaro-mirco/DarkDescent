@@ -20,6 +20,11 @@ namespace DarkDescent.UI
 
         [SerializeField] private Button _options;
 
+        [Tooltip("«Comandi»: apre il pannello dei comandi (D14 della M23).")]
+        [SerializeField] private Button _help;
+
+        [SerializeField] private HelpPanel _helpPanel;
+
         [SerializeField] private Button _quit;
 
         [SerializeField] private OptionsPanel _optionsPanel;
@@ -39,6 +44,8 @@ namespace DarkDescent.UI
         public Button ResumeButton => _resume;
 
         public Button QuitButton => _quit;
+
+        public Button HelpButton => _help;
 
         public void Open()
         {
@@ -65,6 +72,7 @@ namespace DarkDescent.UI
             _paused = false;
             _optionsPanel.Closed -= HandleOptionsClosed;
             _optionsPanel.Close();
+            DetachHelp();
             _root.SetActive(false);
             Time.timeScale = 1f;
             AudioListener.pause = false;
@@ -80,6 +88,11 @@ namespace DarkDescent.UI
         {
             _resume.onClick.AddListener(Close);
             _options.onClick.AddListener(HandleOptions);
+            if (_help != null)
+            {
+                _help.onClick.AddListener(HandleHelp);
+            }
+
             _quit.onClick.AddListener(HandleQuit);
         }
 
@@ -87,8 +100,14 @@ namespace DarkDescent.UI
         {
             _resume.onClick.RemoveListener(Close);
             _options.onClick.RemoveListener(HandleOptions);
+            if (_help != null)
+            {
+                _help.onClick.RemoveListener(HandleHelp);
+            }
+
             _quit.onClick.RemoveListener(HandleQuit);
             _optionsPanel.Closed -= HandleOptionsClosed;
+            DetachHelp();
 
             // spenta a metà (cambio scena): tempo e suoni non devono restare fermi
             if (_paused)
@@ -104,6 +123,45 @@ namespace DarkDescent.UI
             _root.SetActive(false);
             _optionsPanel.Closed += HandleOptionsClosed;
             _optionsPanel.Open();
+        }
+
+        /// <summary>F1 mentre si è in pausa: il pannello dei comandi passa dal menu (che si nasconde), come dal pulsante.</summary>
+        public void ShowHelp()
+        {
+            if (_paused && _root.activeSelf)
+            {
+                HandleHelp();
+            }
+        }
+
+        // «Comandi»: il menu si nasconde e il pannello gli sta davanti; chiuso, il menu torna (come per le opzioni)
+        private void HandleHelp()
+        {
+            if (_helpPanel == null)
+            {
+                return;
+            }
+
+            _root.SetActive(false);
+            _helpPanel.Closed += HandleHelpClosed;
+            _helpPanel.Open();
+        }
+
+        private void HandleHelpClosed()
+        {
+            DetachHelp();
+            if (_paused)
+            {
+                _root.SetActive(true);
+            }
+        }
+
+        private void DetachHelp()
+        {
+            if (_helpPanel != null)
+            {
+                _helpPanel.Closed -= HandleHelpClosed;
+            }
         }
 
         private void HandleOptionsClosed()

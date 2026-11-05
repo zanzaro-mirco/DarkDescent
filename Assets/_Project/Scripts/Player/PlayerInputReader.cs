@@ -47,6 +47,9 @@ namespace DarkDescent.Player
         /// <summary>N: apre e chiude il pannello delle abilità del personaggio (D10 della M20).</summary>
         public event Action TalentsToggled;
 
+        /// <summary>F1: apre e chiude il pannello dei comandi (D14 della M23).</summary>
+        public event Action HelpToggled;
+
         /// <summary>T: la magia del portale per l'accampamento (passo 11.7 della M11).</summary>
         public event Action PortalPressed;
 
@@ -97,15 +100,24 @@ namespace DarkDescent.Player
         }
 
         /// <summary>I quattro tasti di W A S D, in quest'ordine (su, sinistra, giù, destra), letti dal primo composto di <c>Move2D</c>.</summary>
-        public string MoveKeysText()
+        public string MoveKeysText() => CompositeKeysText("Move2D", "up", "left", "down", "right");
+
+        /// <summary>I due tasti per girare la visuale (Z e X), in ordine, letti dal composto di <c>Rotate</c>.</summary>
+        public string RotateKeysText() => CompositeKeysText("Rotate", "negative", "positive");
+
+        /// <summary>
+        /// I tasti delle parti di un composto (su, giù, destra…), nell'ordine dei nomi dati e separati da uno spazio;
+        /// una parte che non c'è non lascia un buco. Si legge il primo composto dell'azione.
+        /// </summary>
+        public string CompositeKeysText(string action, params string[] parts)
         {
-            var found = _controls.asset.FindAction("Gameplay/Move2D");
+            var found = _controls.asset.FindAction("Gameplay/" + action);
             if (found == null)
             {
                 return string.Empty;
             }
 
-            string up = string.Empty, down = string.Empty, left = string.Empty, right = string.Empty;
+            var byName = new System.Collections.Generic.Dictionary<string, string>();
             bool inFirst = false;
             foreach (var binding in found.bindings)
             {
@@ -120,21 +132,22 @@ namespace DarkDescent.Player
                     continue;
                 }
 
-                if (!inFirst || !binding.isPartOfComposite)
+                if (inFirst && binding.isPartOfComposite)
                 {
-                    continue;
-                }
-
-                switch (binding.name)
-                {
-                    case "up": up = Describe(binding); break;
-                    case "down": down = Describe(binding); break;
-                    case "left": left = Describe(binding); break;
-                    case "right": right = Describe(binding); break;
+                    byName[binding.name] = Describe(binding);
                 }
             }
 
-            return up + " " + left + " " + down + " " + right;
+            var keys = new System.Collections.Generic.List<string>();
+            foreach (string part in parts)
+            {
+                if (byName.TryGetValue(part, out string key))
+                {
+                    keys.Add(key);
+                }
+            }
+
+            return string.Join(" ", keys);
         }
 
         // «Left Alt» diventa «Alt»: il tasto di sinistra e quello di destra fanno la stessa cosa
@@ -144,6 +157,10 @@ namespace DarkDescent.Player
             if (text.StartsWith("Left ", StringComparison.Ordinal))
             {
                 text = text.Substring(5);
+            }
+            else if (text == "Escape")
+            {
+                text = "Esc";
             }
 
             return text;
@@ -172,6 +189,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.UseSkill.performed += HandleUseSkillPerformed;
             _controls.Gameplay.ToggleSkills.performed += HandleToggleSkillsPerformed;
             _controls.Gameplay.ToggleTalents.performed += HandleToggleTalentsPerformed;
+            _controls.Gameplay.ToggleHelp.performed += HandleToggleHelpPerformed;
             _controls.Gameplay.ShowLabels.performed += HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled += HandleLabelsCanceled;
             _controls.Gameplay.Pause.performed += HandlePausePerformed;
@@ -196,6 +214,7 @@ namespace DarkDescent.Player
             _controls.Gameplay.UseSkill.performed -= HandleUseSkillPerformed;
             _controls.Gameplay.ToggleSkills.performed -= HandleToggleSkillsPerformed;
             _controls.Gameplay.ToggleTalents.performed -= HandleToggleTalentsPerformed;
+            _controls.Gameplay.ToggleHelp.performed -= HandleToggleHelpPerformed;
             _controls.Gameplay.ShowLabels.performed -= HandleLabelsPerformed;
             _controls.Gameplay.ShowLabels.canceled -= HandleLabelsCanceled;
             _controls.Gameplay.Pause.performed -= HandlePausePerformed;
@@ -325,6 +344,11 @@ namespace DarkDescent.Player
         private void HandleToggleTalentsPerformed(InputAction.CallbackContext context)
         {
             TalentsToggled?.Invoke();
+        }
+
+        private void HandleToggleHelpPerformed(InputAction.CallbackContext context)
+        {
+            HelpToggled?.Invoke();
         }
 
         /// <summary>Come premere il tasto di una casella (1 il destro, 2 Q, 3 E): per i test.</summary>

@@ -140,6 +140,9 @@ namespace DarkDescent.Core
         [Tooltip("I suggerimenti del primo gioco (D11 della M23).")]
         [SerializeField] private HintDirector _hints;
 
+        [Tooltip("Il pannello dei comandi, F1 e il pulsante nella pausa (D14 della M23).")]
+        [SerializeField] private HelpPanel _helpPanel;
+
         [Tooltip("I numeri dei nemici speciali, campioni e unici, e i loro modificatori (M12).")]
         [SerializeField] private ChampionSettings _championSettings;
 
@@ -452,9 +455,10 @@ namespace DarkDescent.Core
             _talents = _player.GetComponent<PlayerTalents>();
             _talentPanel.Bind(_talents, _reader, _localizer);
             // WASD non muove sotto una finestra a tutto schermo (le abilità, l'altare) né mentre un'abilità porta il cavaliere (D8 della M23)
-            controller.SetKeyboardBlocker(() => _talentPanel.IsOpen || _difficultyPanel.IsOpen || warrior.IsBusy);
+            controller.SetKeyboardBlocker(() => _talentPanel.IsOpen || _difficultyPanel.IsOpen || _helpPanel.IsOpen || warrior.IsBusy);
             _talentPointsButton.Bind(_talents, _talentPanel, _localizer);
             _hints.Bind(_localizer, _reader, CanShowHints);
+            _helpPanel.Bind(_localizer, _reader, _player.GetComponent<PlayerClass>());
             HintSenses.Install(_hints, _levelManager, _player.transform, _progress, _talents, magic, inventory);
             _difficultyPanel.BindTalents(_talents.Build);
             _playerCamera.GetComponent<Rendering.CameraZoom>().Bind(_reader);
@@ -727,11 +731,41 @@ namespace DarkDescent.Core
             }
         }
 
+        // F1: il pannello dei comandi, anche in pausa; non dal menu iniziale né durante un passaggio di livello
+        private void HandleHelpToggled()
+        {
+            if (_mainMenu.IsShown || _player.IsDead || (_films != null && _films.IsPlaying))
+            {
+                return;
+            }
+
+            // in pausa il pannello passa dal menu, che gli lascia il posto e poi torna
+            if (_helpPanel.IsOpen)
+            {
+                _helpPanel.Close();
+            }
+            else if (_pauseMenu.IsOpen)
+            {
+                _pauseMenu.ShowHelp();
+            }
+            else
+            {
+                _helpPanel.Open();
+            }
+        }
+
         // Esc: prima chiude le finestre aperte, poi apre e chiude la pausa (D10 della M10)
         private void HandlePausePressed()
         {
             if (_mainMenu.IsShown)
             {
+                return;
+            }
+
+            // il pannello dei comandi si chiude per primo: se veniva dalla pausa, la pausa torna
+            if (_helpPanel.IsOpen)
+            {
+                _helpPanel.Close();
                 return;
             }
 
@@ -787,6 +821,7 @@ namespace DarkDescent.Core
                 && !_pauseMenu.IsOpen
                 && !_talentPanel.IsOpen
                 && !_difficultyPanel.IsOpen
+                && !_helpPanel.IsOpen
                 && !(_films != null && _films.IsPlaying)
                 && !(_boss != null && _boss.IsFighting);
         }
@@ -849,6 +884,7 @@ namespace DarkDescent.Core
             _mainMenu.Created += HandleMenuCreated;
             _mainMenu.FilmChosen += HandleFilmChosen;
             _reader.PausePressed += HandlePausePressed;
+            _reader.HelpToggled += HandleHelpToggled;
             _pauseMenu.PausedChanged += HandlePausedChanged;
             _pauseMenu.QuitRequested += HandleQuitToMenu;
             _optionsPanel.LanguageCycleRequested += CycleLanguage;
@@ -878,6 +914,7 @@ namespace DarkDescent.Core
             _mainMenu.Created -= HandleMenuCreated;
             _mainMenu.FilmChosen -= HandleFilmChosen;
             _reader.PausePressed -= HandlePausePressed;
+            _reader.HelpToggled -= HandleHelpToggled;
             _pauseMenu.PausedChanged -= HandlePausedChanged;
             _pauseMenu.QuitRequested -= HandleQuitToMenu;
             _optionsPanel.LanguageCycleRequested -= CycleLanguage;
