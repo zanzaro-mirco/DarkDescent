@@ -180,3 +180,38 @@ riprende, il click sul pavimento che non cambia strada, il blocco da fuori, il c
 tasti letto prima che gli altri siano elaborati (W e S stanno nello stesso byte); si manda **un solo stato** con tutti i
 tasti (`KeyboardState`). (2) Dopo uno `Warp` il collider segue al passo di fisica: un click nello stesso frame colpisce
 il pavimento; serve `Physics.SyncTransforms()`.
+
+---
+
+## Passo 23.3 — Le barre sui nemici
+
+**Cosa c'è (5 nov 2026).** L'opzione **«Barre della vita sui nemici feriti»** nelle opzioni (sotto i numeri delle sfere),
+**spenta di default**, chiave `enemybars.show` tra le preferenze. Accesa, ogni nemico **vivo e ferito** ha una barra
+sopra la testa; intatti, morti e il **re** non ne hanno (il re ha la sua in alto).
+
+- **`EnemyBarRules`** (`Core/UI`, logica pura): chi ha la barra (`IsWounded`), quanto è piena (`Fill`), le **24 più
+  vicine** (`PickNearest`, senza allocare). Tredici test EditMode (con i casi).
+- **`EnemyHealthBars`** (`UI`): un solo canvas in **world space**, creato al primo uso (spente non costano niente),
+  girato verso la camera a ogni frame; le barre vengono da un **pool** che non supera 24. Si segue la vita sugli eventi
+  di `Health` (`HealthChanged`, `Died`, `Revived`): niente `Update` per nemico, solo un `LateUpdate` che sceglie le più
+  vicine dentro 24 m e muove le barre mostrate. `Track`/`Untrack` come per i numeri di danno, dal `CompositionRoot`.
+  Nessun raycast né collider: le barre non rubano il click.
+- **Colori (D9):** rosso per i normali; per campioni e unici **il colore del loro grado** (`RankNumbers.Color`), lo
+  stesso del nome nella barra in alto. L'unico ha anche il **nome** sopra la barra, nella lingua attiva.
+- **`HealthBarTools.InstallBars`** (Editor, `DarkDescent/UI/Metti le barre sui nemici`): mette nella scena `Core`
+  l'oggetto `EnemyHealthBars` e la casella nelle opzioni (copia di quella dei numeri delle sfere, con la spunta d'oro);
+  *Indietro* scende di una riga. Si rifà senza doppioni.
+
+**Uno scostamento dalla scheda:** D9 diceva «dorata per i campioni, arancione per gli unici», ma i gradi della M12 sono
+**blu per i campioni e oro per gli unici** (nome, anello sotto i piedi e barra in alto). Le barre prendono il colore dal
+grado, non da una tabella loro: così le tre cose dicono la stessa cosa.
+
+**Prove.** EditMode 658 verdi (+13). PlayMode `EnemyHealthBarsTests`, 9: spente di default (e il canvas non
+nasce), solo sui feriti con la parte piena giusta e sopra la testa, guarito del tutto e morto la tolgono, `Revive`,
+trenta feriti → 24 barre e sono le più vicine (uno oltre il raggio no, e quando uno muore il venticinquesimo prende il
+posto senza far crescere il pool), spegnere l'opzione le toglie, `Untrack`, la casella (spenta di partenza, spunta
+d'oro, preferenza, riaperto il gioco le trova accese), i colori dei gradi e il nome di Morvak nelle due lingue, il re
+senza barra. Foto: `Recordings/Photos/m23_barre` (`PhotoTour.EnemyBars`: lo sciame, un normale, un campione e Morvak).
+
+**Da sapere.** Le barre hanno il test di profondità: un muro davanti a un nemico copre anche la sua barra (e il
+nome), come copre il nemico.

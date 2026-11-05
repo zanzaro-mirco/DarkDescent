@@ -45,6 +45,7 @@ namespace DarkDescent.Tests
             PlayerPrefs.DeleteKey(UI.OptionsPanel.SfxPreference);
             PlayerPrefs.DeleteKey(UI.OptionsPanel.LabelsPreference);
             PlayerPrefs.DeleteKey(UI.OptionsPanel.OrbNumbersPreference);
+            PlayerPrefs.DeleteKey(UI.OptionsPanel.EnemyBarsPreference);
             PlayerPrefs.DeleteKey(Rendering.RetroFilter.Preference);
             PlayerPrefs.DeleteKey(UI.FilmsPanel.VictorySeenPreference);
         }

@@ -134,6 +134,9 @@ namespace DarkDescent.Core
         [Tooltip("Nome e vita del nemico sotto il cursore, o di quello combattuto (M9), in alto al centro.")]
         [SerializeField] private EnemyBar _enemyBar;
 
+        [Tooltip("Le barre sopra i nemici feriti, un'opzione (D9 della M23).")]
+        [SerializeField] private EnemyHealthBars _healthBars;
+
         [Tooltip("I numeri dei nemici speciali, campioni e unici, e i loro modificatori (M12).")]
         [SerializeField] private ChampionSettings _championSettings;
 
@@ -404,7 +407,8 @@ namespace DarkDescent.Core
             _pointsButton.Bind(_progress.Progress, _characterPanel);
             _shopPanel.Bind(null, inventory, _inventoryPanel, _localizer);
             _groundLabels.Bind(_reader, _player.GetComponent<PlayerController>(), _localizer);
-            _optionsPanel.Bind(_localizer, _groundLabels, _retroFilter, new[] { _healthOrb.Readout, _manaOrb.Readout });
+            _healthBars.Bind(_player.transform, _localizer);
+            _optionsPanel.Bind(_localizer, _groundLabels, _retroFilter, new[] { _healthOrb.Readout, _manaOrb.Readout }, _healthBars);
             _beltView.Bind(inventory);
             _exploration.Bind(_player.transform);
             _cameraRotation = _playerCamera.GetComponent<Rendering.CameraRotation>();
@@ -1156,6 +1160,7 @@ namespace DarkDescent.Core
             var health = enemy.GetComponent<Health>();
             _damageNumbers.Track(health, isPlayer: false);
             _enemyBar.Track(health);
+            _healthBars.Track(health);
             _trackedEnemies.Add(health);
             if (rewarding && enemy.TryGetComponent(out LootDrop loot))
             {
@@ -1390,6 +1395,7 @@ namespace DarkDescent.Core
             {
                 _damageNumbers.Untrack(health);
                 _enemyBar.Untrack(health);
+                _healthBars.Untrack(health);
             }
 
             _trackedEnemies.Clear();

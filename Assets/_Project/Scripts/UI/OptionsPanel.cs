@@ -22,6 +22,7 @@ namespace DarkDescent.UI
         public const string SfxPreference = "volume.sfx";
         public const string LabelsPreference = "labels.always";
         public const string OrbNumbersPreference = "orbs.numbers";
+        public const string EnemyBarsPreference = "enemybars.show";
 
         // i parametri esposti del mixer Main
         public const string MasterParameter = "MasterVolume";
@@ -46,6 +47,9 @@ namespace DarkDescent.UI
         [Tooltip("I numeri di vita e mana sempre sulle sfere, non solo con il mouse sopra (v1.0.1).")]
         [SerializeField] private Toggle _orbNumbers;
 
+        [Tooltip("Le barre della vita sopra i nemici feriti, spente di partenza (D9 della M23).")]
+        [SerializeField] private Toggle _enemyBars;
+
         [Tooltip("Il filtro retrò: spento, leggero, pieno (D2 della M11).")]
         [SerializeField] private Button _retro;
 
@@ -59,6 +63,7 @@ namespace DarkDescent.UI
         private GroundLabels _groundLabels;
         private RetroFilter _retroFilter;
         private OrbReadout[] _orbReadouts;
+        private EnemyHealthBars _healthBars;
         private bool _subscribed;
 
         /// <summary>Il tasto della lingua: chi tiene le preferenze cambia lingua e la ricorda.</summary>
@@ -77,6 +82,8 @@ namespace DarkDescent.UI
 
         public Toggle OrbNumbers => _orbNumbers;
 
+        public Toggle EnemyBars => _enemyBars;
+
         public Button Back => _back;
 
         public Button RetroButton => _retro;
@@ -87,13 +94,15 @@ namespace DarkDescent.UI
 
         /// <param name="retroFilter">Facoltativo: senza, il pulsante del filtro non fa niente.</param>
         /// <param name="orbReadouts">I numeri delle sfere, che l'opzione lascia sempre accesi.</param>
-        public void Bind(Localizer localizer, GroundLabels groundLabels, RetroFilter retroFilter = null, OrbReadout[] orbReadouts = null)
+        /// <param name="healthBars">Facoltativo: le barre sopra i nemici feriti, che l'opzione accende.</param>
+        public void Bind(Localizer localizer, GroundLabels groundLabels, RetroFilter retroFilter = null, OrbReadout[] orbReadouts = null, EnemyHealthBars healthBars = null)
         {
             Unsubscribe();
             _localizer = localizer;
             _groundLabels = groundLabels;
             _retroFilter = retroFilter;
             _orbReadouts = orbReadouts;
+            _healthBars = healthBars;
             if (isActiveAndEnabled)
             {
                 Subscribe();
@@ -131,6 +140,10 @@ namespace DarkDescent.UI
             _sfx.SetValueWithoutNotify(PlayerPrefs.GetFloat(SfxPreference, 1f));
             _labels.SetIsOnWithoutNotify(PlayerPrefs.GetInt(LabelsPreference, 0) == 1);
             _orbNumbers.SetIsOnWithoutNotify(PlayerPrefs.GetInt(OrbNumbersPreference, 0) == 1);
+            if (_enemyBars != null)
+            {
+                _enemyBars.SetIsOnWithoutNotify(PlayerPrefs.GetInt(EnemyBarsPreference, 0) == 1);
+            }
         }
 
         // il mixer non accetta valori in Awake: i volumi salvati si applicano qui
@@ -163,6 +176,11 @@ namespace DarkDescent.UI
             _sfx.onValueChanged.AddListener(HandleVolume);
             _labels.onValueChanged.AddListener(HandleLabels);
             _orbNumbers.onValueChanged.AddListener(HandleOrbNumbers);
+            if (_enemyBars != null)
+            {
+                _enemyBars.onValueChanged.AddListener(HandleEnemyBars);
+            }
+
             if (_retro != null)
             {
                 _retro.onClick.AddListener(HandleRetro);
@@ -172,6 +190,7 @@ namespace DarkDescent.UI
             _subscribed = true;
             _groundLabels.SetAlwaysVisible(_labels.isOn);
             ApplyOrbNumbers();
+            ApplyEnemyBars();
             RefreshLanguage();
         }
 
@@ -189,6 +208,11 @@ namespace DarkDescent.UI
             _sfx.onValueChanged.RemoveListener(HandleVolume);
             _labels.onValueChanged.RemoveListener(HandleLabels);
             _orbNumbers.onValueChanged.RemoveListener(HandleOrbNumbers);
+            if (_enemyBars != null)
+            {
+                _enemyBars.onValueChanged.RemoveListener(HandleEnemyBars);
+            }
+
             if (_retro != null)
             {
                 _retro.onClick.RemoveListener(HandleRetro);
@@ -224,6 +248,21 @@ namespace DarkDescent.UI
             PlayerPrefs.SetInt(OrbNumbersPreference, on ? 1 : 0);
             PlayerPrefs.Save();
             ApplyOrbNumbers();
+        }
+
+        private void HandleEnemyBars(bool on)
+        {
+            PlayerPrefs.SetInt(EnemyBarsPreference, on ? 1 : 0);
+            PlayerPrefs.Save();
+            ApplyEnemyBars();
+        }
+
+        private void ApplyEnemyBars()
+        {
+            if (_healthBars != null && _enemyBars != null)
+            {
+                _healthBars.SetOn(_enemyBars.isOn);
+            }
         }
 
         private void ApplyOrbNumbers()

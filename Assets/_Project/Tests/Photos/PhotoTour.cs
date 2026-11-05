@@ -621,6 +621,79 @@ namespace DarkDescent.Tests
             yield return Snap("magespell_blink_after");
         }
 
+        [UnityTest, Timeout(600000), Description("Le barre sui nemici feriti (23.3, D9 e D10 della M23): lo sciame con la barra solo sui feriti, e un campione e un unico nel colore del loro grado, in inglese e in italiano")]
+        public IEnumerator EnemyBars()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            var menu = Find<MainMenu>();
+            MenuSteps.StartNew(menu, 1);
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 1);
+
+            var bars = Find<EnemyHealthBars>();
+            bars.SetOn(true);
+
+            // lo sciame: i sette più vicini attorno al cavaliere, quattro feriti di quanto dice il disegno (62, 34, 81 e 18 per cento)
+            CallEnemies(7);
+            yield return Frames(3);
+            var swarm = Manager.CurrentLevel.Enemies.Where(e => e != null && e.gameObject.activeInHierarchy)
+                .OrderBy(e => Vector3.Distance(e.transform.position, Hero.transform.position)).Take(7).ToArray();
+            float[] lost = { 0.38f, 0f, 0.66f, 0.19f, 0f, 0.82f, 0f };
+            for (int i = 0; i < swarm.Length; i++)
+            {
+                if (lost[i] > 0f)
+                {
+                    var health = swarm[i].GetComponent<Health>();
+                    health.TakeDamage(new DamageInfo(health.Max * lost[i], DamageType.Physical, Hero));
+                }
+            }
+
+            // il lampo bianco del colpo dura un po': la foto lo aspetta
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return Snap("enemybars_swarm");
+
+            // un campione e Morvak, vicini al cavaliere, a metà vita
+            var crypt = AssetDatabase.LoadAssetAtPath<DungeonSettings>("Assets/_Project/Data/Levels/CryptSettings.asset");
+            ulong seed = 1;
+            while (crypt.UniqueDepth(seed) != 3)
+            {
+                seed++;
+            }
+
+            Manager.RunSeed = seed;
+            yield return Descend("Level_Crypt", 3);
+            bars.SetOn(true);
+            var enemies = Manager.CurrentLevel.Enemies.Where(e => e != null).ToArray();
+            var normal = enemies.First(e => e.GetComponent<SpecialEnemy>() == null);
+            var champion = enemies.First(e => e.GetComponent<SpecialEnemy>()?.Rank == EnemyRank.Champion);
+            var morvak = enemies.First(e => e.GetComponent<SpecialEnemy>()?.Rank == EnemyRank.Unique);
+            var line = new[] { normal, champion, morvak };
+            Vector3 ahead = Hero.transform.forward;
+            Vector3 side = Vector3.Cross(Vector3.up, ahead);
+            for (int i = 0; i < line.Length; i++)
+            {
+                Vector3 wanted = Hero.transform.position + ahead * 3.5f + side * ((i - 1) * 3.6f);
+                if (NavMesh.SamplePosition(wanted, out var hit, 2f, NavMesh.AllAreas))
+                {
+                    line[i].GetComponent<NavMeshAgent>().Warp(hit.position);
+                    line[i].transform.rotation = Quaternion.LookRotation(Flat(Hero.transform.position - hit.position));
+                }
+
+                line[i].GetComponent<Health>().SetCurrent(line[i].GetComponent<Health>().Max * (0.7f - 0.15f * i));
+            }
+
+            yield return Frames(5);
+            yield return Snap("enemybars_unique");
+            Localizer.SetLanguage("it");
+            yield return Frames(3);
+            yield return Snap("enemybars_unique_it");
+            Localizer.SetLanguage("en");
+        }
+
         [UnityTest, Timeout(300000), Description("Fabbro, guaritrice e mercante del borgo, ognuno con il suo banco aperto (D18 della M18)")]
         public IEnumerator VillageShops()
         {
