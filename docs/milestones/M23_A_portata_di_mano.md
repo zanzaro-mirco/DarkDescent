@@ -340,3 +340,5 @@ cintura» accanto si capisce.
   (meno del 5% dell'albero), solo nelle due ronde (cavaliere e Mago): i test di ogni push, con semi fissi, restano a margine zero. Nessun numero
   del gioco è cambiato.
 - **«1–8» in Cinzel.** Il pannello dice «1 to 8» / «da 1 a 8» (`help.key.range`) e il suggerimento della pozione «Press 1 to 8» / «Premi da 1 a 8».
+
+**Chiusa il 5 novembre 2026.** Tag `v1.11.0` su 92f15b3: Tests 42025316702 e build 42027880526 verdi, artefatto `DarkDescent-Windows-v1.11.0` di 61,35 MB (+0,03 sulla v1.10.0). Issue #7 aperta fino alla ronda della notte, che prova la correzione su semi nuovi.

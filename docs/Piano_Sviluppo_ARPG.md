@@ -561,7 +561,7 @@ Chiusa il 26 ottobre 2026 con il tag `v1.4.0`: 466 test EditMode e 252 PlayMode 
 
 ### M23 — "A portata di mano" ✅
 
-Chiusa il 5 novembre 2026 (tag `v1.11.0`): 673 test EditMode e 384 PlayMode verdi in locale (2 saltati), con 34 e 39 test nuovi. Il cavaliere e il Mago camminano anche con WASD e le frecce, i nemici feriti possono avere una barra della vita (opzione), dieci suggerimenti insegnano il gioco al primo uso e F1 apre l'elenco dei comandi. Salvataggio e livelli non cambiano. Lezioni emerse:
+Chiusa il 5 novembre 2026 (tag `v1.11.0`, Tests 42025316702 e build 42027880526 verdi, artefatto 61,35 MB, +0,03): 674 test EditMode e 384 PlayMode verdi in locale (2 saltati), con 35 e 39 test nuovi; dopo la chiusura la ronda del 5 nov (issue #7) ha portato una correzione allo sbocco della scala in su e un margine del 3% sulle fasce della difficoltà. Il cavaliere e il Mago camminano anche con WASD e le frecce, i nemici feriti possono avere una barra della vita (opzione), dieci suggerimenti insegnano il gioco al primo uso e F1 apre l'elenco dei comandi. Salvataggio e livelli non cambiano. Lezioni emerse:
 
 - **Un'azione nuova in un file generato rompe la compilazione finché non lo si rigenera:** il wrapper di `PlayerControls` si riscrive solo quando Unity importa il file, e il codice che nomina `ToggleHelp` prima non compila. Si spengono le due righe, si lancia Unity con `-quit`, si riaccendono.
 - **Una tastiera di prova va aggiornata con un solo stato:** più `Set` di fila su tasti nello stesso byte si cancellano a vicenda (W e S). `KeyboardState` con tutti i tasti, e dopo un `Warp` serve `Physics.SyncTransforms()` o il click dello stesso frame colpisce il pavimento.
