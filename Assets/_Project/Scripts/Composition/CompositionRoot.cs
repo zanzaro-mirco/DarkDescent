@@ -990,6 +990,7 @@ namespace DarkDescent.Core
                 }
 
                 BindEnemy(enemy, level.Depth, rewarding: true);
+                enemy.BindPatrol(level.Depth);
             }
 
             foreach (var chest in level.Chests)

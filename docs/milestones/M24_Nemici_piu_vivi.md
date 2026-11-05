@@ -145,3 +145,24 @@ viola e con una luce) e la schermata delle difficoltà dell'altare (`05_altar`).
 - **I test.** `EnemyBehaviours.FleeEnabled` è spento in `SandboxFixture.ForgetPreferences` (D17): i test che contano su nemici fermi non cambiano. Solo i sei test della fuga lo accendono.
   EditMode 685 (11 nuovi: lo stato con un corpo finto, i dati, i numeri), PlayMode 390 su 392 verdi (2 saltati come prima; 6 nuovi: scappa sotto il 25% e si allontana, torna e non
   scappa due volte, interruttore spento, due compagni morti, uno solo non basta, la chiamata a fine fuga).
+
+## Passo 24.3 — Le ronde
+
+**Fatto, in locale.** Un nemico normale su quattro (scheletro e bruto) gira tra due o tre punti vicino a casa invece di aspettare fermo (D7).
+
+- **Il piano.** `PatrolPlan.For(profondità, cella x, cella z, quota, raggio)` ricava da un hash della cella e della profondità (`SeedMixer.ForPatrol`, un dominio suo, senza il seme del
+  mondo) se il nemico gira, quanti punti ha (2 o 3), dove stanno rispetto a casa (angolo e distanza, 3–8 m) e quanto sta fermo a ciascuno (2–4 s). Nessun tiro del seme: le mappe, gli
+  arredi e il loot dei semi provati non si spostano, e la stessa cella ha sempre la stessa ronda. I numeri si prendono sempre tutti e nello stesso ordine, quindi cambiare la quota non
+  sposta i punti di chi già girava.
+- **Lo stato.** `PatrolState` e `IPatrolBody` nel nucleo (come la fuga): sta fermo la pausa, va al punto dopo a 60% del passo, e intanto guarda attorno come chi è fermo; se vede il
+  cavaliere insegue. Un punto che non si raggiunge entro 12 s (un compagno sulla strada) vale come raggiunto. `IdleState` manda subito alla ronda chi la fa: così **dopo l'inseguimento o
+  il ritorno a casa riprende la ronda, non resta fermo**. `EnemyBrain.Alert` sveglia anche chi è di ronda. Novità dell'`EnemyStateBase`: un `Exit` chiamato a ogni cambio di stato
+  (anche la morte e il riposo), che qui rimette il passo.
+- **Il corpo.** `EnemyAI` trasforma il piano in punti sul NavMesh la prima volta che servono (il grado di campione o di unico arriva dopo `Awake`): ognuno entro 8 m, raggiungibile in
+  linea retta da casa, o a metà strada; con meno di due punti non gira. Campioni, unici, re, sciame e mago non girano, né un evocato (`CompositionRoot` lega la profondità solo ai nemici
+  del livello, con `BindPatrol`).
+- **Una correzione che viene dalla fuga.** Fuga e ronda cambiano il passo dell'agente; se è rallentato dal Mago il rallentamento teneva la vecchia base e si rallentava due volte alla
+  fine. Ora c'è un solo `ScaleSpeed` che muove insieme passo, base e velocità attesa. Un test lo prova di ronda.
+- **I test.** `EnemyBehaviours.PatrolEnabled` è spento in `SandboxFixture.ForgetPreferences` (D17). EditMode 699 (14 nuovi: lo stato con un corpo finto, il piano, i dati), PlayMode 397 su 399 verdi (2 saltati come prima): 6 test
+  (gira entro 8 m a 60%, vede il cavaliere e insegue a passo pieno, senza interruttore né profondità resta fermo, una cella senza ronda resta ferma, dopo il ritorno a casa riprende,
+  rallentato non due volte) più uno nei livelli veri (crypt e caverne, sei profondità): **14 nemici su 57 candidati girano (24,6%)**, tutti con punti sul NavMesh e entro 8 m.

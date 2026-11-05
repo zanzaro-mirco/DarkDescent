@@ -31,6 +31,9 @@ MonoBehaviour:
   _fleeDistance: 10
   _fleeHomeLimit: 15
   _fleeCallRadius: 10
+  _patrolShare: 0.25
+  _patrolSpeedFactor: 0.6
+  _patrolRadius: 8
   _criticalVoices:
   - {fileID: 8300000, guid: 574b969740aa118449557e121ad9f05a, type: 3}
   - {fileID: 8300000, guid: d1edfd4eeed68e042b50cfb755734873, type: 3}

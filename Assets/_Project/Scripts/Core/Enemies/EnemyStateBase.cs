@@ -14,6 +14,11 @@ namespace DarkDescent.Enemies
         {
         }
 
+        /// <summary>Appena prima di lasciare lo stato, qualunque sia il motivo (anche la morte o il ritorno a casa).</summary>
+        public virtual void Exit(IEnemyBody body)
+        {
+        }
+
         public abstract EnemyState Tick(IEnemyBody body, float deltaTime);
     }
 }

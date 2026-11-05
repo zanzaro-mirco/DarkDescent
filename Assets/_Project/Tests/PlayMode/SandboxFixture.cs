@@ -48,6 +48,7 @@ namespace DarkDescent.Tests
             PlayerPrefs.DeleteKey(UI.OptionsPanel.EnemyBarsPreference);
             // i nemici dei test non scappano (D17 della M24): i test che contano su nemici fermi o su un duello fino alla fine; solo quelli della fuga li accendono
             EnemyBehaviours.FleeEnabled = false;
+            EnemyBehaviours.PatrolEnabled = false;
             // i suggerimenti partono spenti nei test: un riquadro non deve coprire un click (23.4 della M23)
             PlayerPrefs.SetInt(UI.HintDirector.OnPreference, 0);
             PlayerPrefs.DeleteKey(UI.HintDirector.SeenPreference);

@@ -13,7 +13,7 @@ namespace DarkDescent.Enemies
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NavMeshAgent), typeof(MeleeAttack), typeof(Health))]
-    public class EnemyAI : MonoBehaviour, IRangedBody, IFleeBody
+    public class EnemyAI : MonoBehaviour, IRangedBody, IFleeBody, IPatrolBody
     {
         [Tooltip("Il tipo di nemico: numeri e stati.")]
         [SerializeField] private EnemyArchetype _archetype;
@@ -209,7 +209,7 @@ namespace DarkDescent.Enemies
 
                     _hasFled = true;
                     _fleeBoosted = true;
-                    _agent.speed *= _archetype.FleeSpeedFactor;
+                    ScaleSpeed(_archetype.FleeSpeedFactor);
                     _agent.SetDestination(hit.position);
                     if (TryGetComponent(out CharacterAudio audio))
                     {
@@ -244,13 +244,136 @@ namespace DarkDescent.Enemies
             }
 
             _fleeBoosted = false;
-            float factor = _archetype.FleeSpeedFactor;
-            _agent.speed /= factor;
+            ScaleSpeed(1f / _archetype.FleeSpeedFactor);
+        }
 
-            // rallentato mentre scappava: la base da cui il rallentamento toglie la parte era quella veloce
+        // Fuga e ronda cambiano il passo: se è rallentato (M21) cambia anche la base da cui il rallentamento toglie la parte, e
+        // la velocità che il rallentamento si aspetta di trovare, o Refresh la prenderebbe per una nuova base e lo rallenterebbe due volte
+        private void ScaleSpeed(float factor)
+        {
+            _agent.speed *= factor;
             if (_slow.IsSlowed)
             {
-                _slowBase /= factor;
+                _slowBase *= factor;
+                _slowSpeed *= factor;
+            }
+        }
+
+        // la ronda (D7 della M24): i punti si decidono dal primo momento in cui servono, perché il grado (campione, unico) arriva dopo Awake
+        private int _patrolDepth = -1;
+        private bool _patrolResolved;
+        private readonly System.Collections.Generic.List<Vector3> _patrolPoints = new System.Collections.Generic.List<Vector3>();
+        private readonly System.Collections.Generic.List<float> _patrolPauses = new System.Collections.Generic.List<float>();
+        private int _patrolIndex = -1;
+        private bool _patrolBoosted;
+
+        /// <summary>Il livello lega il nemico alla sua profondità: da lì la ronda. Un evocato non la riceve e resta fermo.</summary>
+        public void BindPatrol(int depth)
+        {
+            _patrolDepth = depth;
+            _patrolResolved = false;
+        }
+
+        /// <summary>I punti della ronda sul NavMesh, vuoti se non gira: per i test.</summary>
+        public System.Collections.Generic.IReadOnlyList<Vector3> PatrolPoints
+        {
+            get
+            {
+                ResolvePatrol();
+                return _patrolPoints;
+            }
+        }
+
+        public bool IsPatrolling => _brain != null && _brain.State == EnemyState.Patrol;
+
+        bool IPatrolBody.IsPatroller => EnemyBehaviours.PatrolEnabled && !_health.IsDead && PatrolPoints.Count >= PatrolPlan.MinPoints;
+
+        float IPatrolBody.PatrolPause => _patrolPauses.Count == 0 ? 0f : _patrolPauses[Mathf.Max(0, _patrolIndex)];
+
+        bool IPatrolBody.IsAtPatrolPoint => !_agent.enabled || !_agent.isOnNavMesh
+            || (!_agent.pathPending && (!_agent.hasPath || _agent.remainingDistance <= _homeTolerance));
+
+        void IPatrolBody.WalkToNextPatrolPoint()
+        {
+            if (!_agent.enabled || !_agent.isOnNavMesh || _patrolPoints.Count == 0)
+            {
+                return;
+            }
+
+            _patrolIndex = (_patrolIndex + 1) % _patrolPoints.Count;
+            if (!_patrolBoosted)
+            {
+                _patrolBoosted = true;
+                ScaleSpeed(_archetype.PatrolSpeedFactor);
+            }
+
+            _agent.SetDestination(_patrolPoints[_patrolIndex]);
+        }
+
+        void IPatrolBody.HoldAtPatrolPoint()
+        {
+            StopMoving();
+        }
+
+        void IPatrolBody.EndPatrol()
+        {
+            if (_patrolBoosted)
+            {
+                _patrolBoosted = false;
+                ScaleSpeed(1f / _archetype.PatrolSpeedFactor);
+            }
+
+            if (_agent != null && _agent.enabled && _agent.isOnNavMesh && _agent.hasPath)
+            {
+                _agent.ResetPath();
+            }
+        }
+
+        // due o tre punti entro il raggio dall'hash della cella e della profondità: ognuno sul NavMesh e raggiungibile in linea retta da casa,
+        // o a metà strada; con meno di due non gira. Solo i nemici normali del livello (D7): i campioni, gli unici e i re stanno dove sono
+        private void ResolvePatrol()
+        {
+            if (_patrolResolved || _patrolDepth < 0 || _agent == null || !_agent.isOnNavMesh)
+            {
+                return;
+            }
+
+            _patrolResolved = true;
+            _patrolPoints.Clear();
+            _patrolPauses.Clear();
+            _patrolIndex = -1;
+            bool special = TryGetComponent(out SpecialEnemy rank) && rank.Rank != EnemyRank.Normal;
+            if (!_archetype.CanPatrol || special || TryGetComponent(out BossController _))
+            {
+                return;
+            }
+
+            int cellX = Mathf.RoundToInt(_homePosition.x / Levels.LevelMap.CellSize);
+            int cellZ = Mathf.RoundToInt(-_homePosition.z / Levels.LevelMap.CellSize);
+            var plan = PatrolPlan.For(_patrolDepth, cellX, cellZ, _archetype.PatrolShare, _archetype.PatrolRadius);
+            for (int i = 0; i < plan.Count; i++)
+            {
+                for (int attempt = 0; attempt < 2; attempt++)
+                {
+                    Vector2 offset = plan.Offset(i, attempt == 0 ? 1f : 0.5f);
+                    Vector3 candidate = _homePosition + new Vector3(offset.x, 0f, offset.y);
+                    if (NavMesh.SamplePosition(candidate, out var hit, 1.5f, NavMesh.AllAreas)
+                        && FlatDistance(hit.position, _homePosition) <= _archetype.PatrolRadius + 0.01f
+                        && FlatDistance(hit.position, _homePosition) >= 1f
+                        && !NavMesh.Raycast(_homePosition, hit.position, out _, NavMesh.AllAreas))
+                    {
+                        _patrolPoints.Add(hit.position);
+                        _patrolPauses.Add(plan.Pause(i));
+                        break;
+                    }
+                }
+            }
+
+            // un punto solo non è una ronda
+            if (_patrolPoints.Count < PatrolPlan.MinPoints)
+            {
+                _patrolPoints.Clear();
+                _patrolPauses.Clear();
             }
         }
 
@@ -522,7 +645,7 @@ namespace DarkDescent.Enemies
 
             EnemyState before = _brain.State;
             _brain.Tick(Time.deltaTime);
-            if (before == EnemyState.Idle && (_brain.State == EnemyState.Chase || _brain.State == EnemyState.Ranged))
+            if ((before == EnemyState.Idle || before == EnemyState.Patrol) && (_brain.State == EnemyState.Chase || _brain.State == EnemyState.Ranged))
             {
                 Spotted?.Invoke(this);
             }

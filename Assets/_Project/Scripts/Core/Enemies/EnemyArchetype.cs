@@ -88,6 +88,16 @@ namespace DarkDescent.Enemies
         [Tooltip("Finita la fuga i compagni dello stesso tipo entro questi metri accorrono. Zero: nessuno.")]
         [SerializeField, Min(0f)] private float _fleeCallRadius;
 
+        [Header("Ronda (D7 della M24)")]
+        [Tooltip("La parte dei nemici normali di questo tipo che fa la ronda (0,25: uno su quattro, scelti dall'hash della cella). Zero: nessuno.")]
+        [SerializeField, Range(0f, 1f)] private float _patrolShare;
+
+        [Tooltip("Il passo della ronda, rispetto a quello dell'inseguimento.")]
+        [SerializeField, Range(0.1f, 1f)] private float _patrolSpeedFactor = 0.6f;
+
+        [Tooltip("Il punto più lontano della ronda sta al più a tanti metri da casa.")]
+        [SerializeField, Min(3f)] private float _patrolRadius = 8f;
+
         [Header("Versi del critico (D13 della M7)")]
         [Tooltip("Il verso di questo tipo di nemico quando il cavaliere lo colpisce di critico, al posto dell'impatto.")]
         [SerializeField] private AudioClip[] _criticalVoices;
@@ -149,6 +159,15 @@ namespace DarkDescent.Enemies
         /// <summary>Ha un motivo per scappare: la vita bassa o i compagni morti (D2 della M24). Non il mago né il bruto, che hanno i loro stati.</summary>
         public bool CanFlee => (_fleeBelow > 0f || _fleeOnLosses > 0) && !IsRanged && !IsTelegraphed;
 
+        public float PatrolShare => _patrolShare;
+
+        public float PatrolSpeedFactor => _patrolSpeedFactor;
+
+        public float PatrolRadius => _patrolRadius;
+
+        /// <summary>Una parte dei nemici di questo tipo fa la ronda (D7 della M24). Non il mago, che ha il suo modo di stare fermo.</summary>
+        public bool CanPatrol => _patrolShare > 0f && !IsRanged;
+
         public int AvoidanceSpread => _avoidanceSpread;
 
         public float RecoverTime => _recoverTime;
@@ -187,24 +206,30 @@ namespace DarkDescent.Enemies
                 };
             }
 
+            var states = new System.Collections.Generic.List<EnemyStateBase> { new IdleState(_perceptionInterval), new ChaseState() };
             if (!IsTelegraphed)
             {
+                states.Add(new AttackState());
                 if (CanFlee)
                 {
-                    return new EnemyStateBase[]
-                    {
-                        new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new FleeState(_fleeDuration), new ReturnState(), new DeadState(),
-                    };
+                    states.Add(new FleeState(_fleeDuration));
                 }
-
-                return new EnemyStateBase[] { new IdleState(_perceptionInterval), new ChaseState(), new AttackState(), new ReturnState(), new DeadState() };
+            }
+            else
+            {
+                states.Add(new AttackState(telegraphed: true));
+                states.Add(new WindUpState());
+                states.Add(new RecoverState(_recoverTime));
             }
 
-            return new EnemyStateBase[]
+            if (CanPatrol)
             {
-                new IdleState(_perceptionInterval), new ChaseState(), new AttackState(telegraphed: true),
-                new WindUpState(), new RecoverState(_recoverTime), new ReturnState(), new DeadState(),
-            };
+                states.Add(new PatrolState(_perceptionInterval));
+            }
+
+            states.Add(new ReturnState());
+            states.Add(new DeadState());
+            return states;
         }
     }
 }

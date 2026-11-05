@@ -24,6 +24,15 @@ namespace DarkDescent.Core
             return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ PotionDomain);
         }
 
+        // "PATROL": la ronda di un nemico dalla cella e dalla profondità, senza il seme del mondo (D7 della M24):
+        // la stessa cella ha sempre la stessa ronda, e nessun'altra cosa legata al seme si sposta
+        private const ulong PatrolDomain = 0x504154524F4CUL;
+
+        public static ulong ForPatrol(int depth, int cellX, int cellZ)
+        {
+            return Mix(ForEnemy(0UL, depth, cellX, cellZ) ^ PatrolDomain);
+        }
+
         // "LEVEL" in ASCII: il seme di un livello non coincide mai con quello di un nemico
         private const ulong LevelDomain = 0x4C4556454CUL;
 

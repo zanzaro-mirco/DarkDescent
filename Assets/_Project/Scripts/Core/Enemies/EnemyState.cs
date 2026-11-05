@@ -24,5 +24,8 @@ namespace DarkDescent.Enemies
 
         /// <summary>Scappa dal cavaliere per qualche secondo, a vita bassa o per i compagni morti vicino (D2–D5 della M24).</summary>
         Flee,
+
+        /// <summary>Gira tra due o tre punti vicino a casa, e intanto guarda attorno (D7 della M24).</summary>
+        Patrol,
     }
 }

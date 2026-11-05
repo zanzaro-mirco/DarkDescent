@@ -22,6 +22,12 @@ namespace DarkDescent.Enemies
 
         public override EnemyState Tick(IEnemyBody body, float deltaTime)
         {
+            // chi fa la ronda (D7 della M24) da fermo ci torna subito: lo stato della ronda guarda attorno per conto suo
+            if (body is IPatrolBody patrol && patrol.IsPatroller)
+            {
+                return EnemyState.Patrol;
+            }
+
             _timer -= deltaTime;
             if (_timer > 0f)
             {
