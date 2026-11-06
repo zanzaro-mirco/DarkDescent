@@ -63,6 +63,7 @@ namespace DarkDescent.Items
         private int _depth = 1;
         private int _cellX;
         private int _cellZ;
+        private bool _disturbed;
 
         // riusata a ogni apertura: gli oggetti in più non creano liste nuove
         private readonly List<ItemInstance> _extra = new List<ItemInstance>();
@@ -70,7 +71,16 @@ namespace DarkDescent.Items
         /// <summary>La cassa si è aperta; l'argomento è l'oggetto caduto, null se non ne è caduto nessuno.</summary>
         public event Action<GroundItem> Opened;
 
+        /// <summary>Un click su una cassa con un segreto (D3 e D4 della M25): non si apre, chi l'ascolta decide cosa succede e poi chiama <see cref="Open"/>.</summary>
+        public event Action<Chest> Disturbed;
+
         public bool IsOpen { get; private set; }
+
+        /// <summary>Il segreto di questa cassa, deciso al caricamento del livello (<see cref="ArmSecret"/>).</summary>
+        public ChestSecretKind Secret { get; private set; }
+
+        /// <summary>Il segreto non si è ancora svegliato e la cassa è ancora chiusa.</summary>
+        public bool HasPendingSecret => Secret != ChestSecretKind.None && !_disturbed && !IsOpen;
 
         /// <summary>Il tesoro del re con il re ancora vivo: non si clicca.</summary>
         public bool IsSealed { get; private set; }
@@ -99,6 +109,25 @@ namespace DarkDescent.Items
             _roller = roller;
             _depth = depth;
         }
+
+        /// <summary>Gli dà un segreto (D3 e D4 della M25); il baule maledetto prende anche il suo premio con <see cref="SetBonus"/>.</summary>
+        public void ArmSecret(ChestSecretKind kind)
+        {
+            Secret = kind;
+            _disturbed = false;
+        }
+
+        /// <summary>Il loot in più al posto di quello di sempre: il baule maledetto (D4 della M25).</summary>
+        public void SetBonus(LootBonus bonus)
+        {
+            _bonus = bonus ?? new LootBonus();
+        }
+
+        /// <summary>La cella della cassa in decimetri (x, z): quella che dà il seme del suo loot e dei suoi segreti.</summary>
+        public Vector2Int Cell => new Vector2Int(_cellX, _cellZ);
+
+        /// <summary>Dove cade il loot, davanti alla cassa.</summary>
+        public Vector3 Front => transform.position + transform.forward * _dropDistance;
 
         /// <summary>Quello che lascerà aprendosi, senza cambiare niente: per i test e per rigiocare un seme.</summary>
         public ItemInstance Preview()
@@ -228,6 +257,31 @@ namespace DarkDescent.Items
         private void HandleUsed(GameObject user)
         {
             if (IsOpen || IsSealed)
+            {
+                return;
+            }
+
+            // un segreto non apre la cassa: sveglia chi lo ascolta, che la apre quando vuole (D3 e D4 della M25)
+            if (Secret != ChestSecretKind.None && !_disturbed)
+            {
+                _disturbed = true;
+                _interactable.SetHighlighted(false);
+                if (_clickArea != null)
+                {
+                    _clickArea.enabled = false;
+                }
+
+                Disturbed?.Invoke(this);
+                return;
+            }
+
+            Open();
+        }
+
+        /// <summary>Apre la cassa: il coperchio si alza e il loot salta fuori. Una volta sola; non guarda se è sigillata.</summary>
+        public void Open()
+        {
+            if (IsOpen)
             {
                 return;
             }

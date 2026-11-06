@@ -1016,6 +1016,8 @@ namespace DarkDescent.Core
                 }
             }
 
+            ArmChestSecrets(level);
+
             // i barili da rompere (D5 della M13): il loot con i loro semi, alla profondità del livello
             foreach (var barrel in level.Breakables)
             {
@@ -1538,6 +1540,65 @@ namespace DarkDescent.Core
         private void HandleVictoryContinued()
         {
             _reader.enabled = true;
+        }
+
+        // I segreti delle casse normali (D3 e D4 della M25): decisi qui, sulle casse che il livello ha già, e non dalla mappa: il numero e
+        // l'ordine di casse e nemici restano quelli del livello generato, e un ricordo di prima (ADR-079) combacia ancora. Tutte le casse
+        // normali contano per la scelta del baule maledetto, anche quelle già aperte, così aprirne una non sposta la scelta
+        private void ArmChestSecrets(LevelContext level)
+        {
+            if (!ChestSecret.Enabled || level.IsTown)
+            {
+                return;
+            }
+
+            var secrets = new List<ChestSecret>();
+            var cells = new List<Vector2Int>();
+            foreach (var chest in level.Chests)
+            {
+                if (chest.OpensWithBoss || chest.OpensWithGuardian || !chest.TryGetComponent(out ChestSecret secret))
+                {
+                    continue;
+                }
+
+                secrets.Add(secret);
+                cells.Add(chest.Cell);
+            }
+
+            int cursed = SecretRules.PickCursed(_loot.RunSeed, level.Depth, cells);
+            for (int i = 0; i < secrets.Count; i++)
+            {
+                var chest = secrets[i].Chest;
+                if (chest.IsOpen)
+                {
+                    continue;
+                }
+
+                var kind = i == cursed ? ChestSecretKind.Cursed
+                    : SecretRules.IsMimic(_loot.RunSeed, level.Depth, cells[i].x, cells[i].y) ? ChestSecretKind.Mimic : ChestSecretKind.None;
+                if (kind == ChestSecretKind.None)
+                {
+                    continue;
+                }
+
+                chest.ArmSecret(kind);
+                secrets[i].Arm(kind, _loot.RunSeed, level.Depth);
+                secrets[i].Spawned += HandleSecretSpawned;
+                if (kind == ChestSecretKind.Cursed)
+                {
+                    // il premio della profondità dopo, con il suo bonus; l'etichetta dice cos'è (D4)
+                    chest.Bind(_loot, level.Depth + 1);
+                    chest.SetBonus(ChestSecret.CursedBonus);
+                    chest.GetComponent<DarkDescent.Interaction.Interactable>().SetLabel("chest.cursed", null);
+                }
+            }
+        }
+
+        // un nemico nato da un segreto (il mimic, l'ondata del baule maledetto): vita, danno, esperienza e barra come gli altri, e subito all'attacco
+        private void HandleSecretSpawned(EnemyAI enemy)
+        {
+            BindEnemy(enemy, _depth, rewarding: true);
+            enemy.Alert();
         }
 
         private void HandleBossSummoned(EnemyAI enemy)

@@ -69,6 +69,7 @@ enemy.skeleton_mage,Skeleton Mage,Scheletro mago
 enemy.morvak,Morvak the Jailer,Morvak il Carceriere
 enemy.grumm,Grumm Bonesplitter,Grumm Spaccaossa
 enemy.guardian,Vorrak the Keeper,Vorrak il Custode
+enemy.mimic,Mimic,Mimic
 enemy.modifier.fast,Fast,Rapido
 enemy.modifier.frozen,Frozen,Gelido
 enemy.modifier.regenerating,Regenerating,Rigenerante
@@ -145,6 +146,7 @@ tooltip.block,Block chance: {0}%,Blocco: {0}%
 chest,Chest,Cassa
 chest.gold,Gold chest,Forziere
 chest.treasure,The King's Hoard,Tesoro del re
+chest.cursed,Cursed chest,Baule maledetto
 well.life,Life Well,Pozzo della vita
 well.life.spent,Life Well (empty),Pozzo della vita (vuoto)
 well.mana,Mana Well,Pozzo del mana

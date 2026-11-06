@@ -975,6 +975,79 @@ namespace DarkDescent.Tests
             yield return Snap("skeleton_flee_2", world: false);
         }
 
+        // la prima cassa con il segreto cercato, carica livelli di semi diversi alla profondità data (25.3 della M25)
+        private IEnumerator FindChestWith(ChestSecretKind kind, int depth, Action<Chest> found)
+        {
+            for (ulong seed = 1; seed <= 80; seed++)
+            {
+                Manager.RunSeed = seed;
+                Root.UseLootSeed(seed);
+                yield return Descend("Level_Crypt", depth);
+                var chest = Manager.CurrentLevel.Chests.FirstOrDefault(c => c != null && c.Secret == kind);
+                if (chest != null)
+                {
+                    found(chest);
+                    yield break;
+                }
+            }
+
+            Assert.Fail($"nessun seme alla profondità {depth} ha una cassa {kind}");
+        }
+
+        // il cavaliere a qualche passo davanti alla cassa, girato verso di lei
+        private IEnumerator StandBefore(Chest chest, float distance)
+        {
+            Vector3 wanted = chest.transform.position + chest.transform.forward * distance;
+            var agent = Hero.GetComponent<NavMeshAgent>();
+            agent.Warp(NavMesh.SamplePosition(wanted, out var hit, 3f, NavMesh.AllAreas) ? hit.position : wanted);
+            Vector3 toward = Flat(chest.transform.position - Hero.transform.position);
+            if (toward.sqrMagnitude > 0.001f)
+            {
+                Hero.transform.rotation = Quaternion.LookRotation(toward);
+            }
+
+            yield return Settle();
+        }
+
+        [UnityTest, Timeout(600000), Description("I segreti delle casse (25.3 della M25): un mimic identico a un forziere, poi in piedi e in salto; il baule maledetto con le catene, poi la sua ondata")]
+        public IEnumerator ChestSecrets()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            ChestSecret.Enabled = true;
+            try
+            {
+                var hero = Hero.GetComponent<Health>();
+                hero.MultiplyMax(500f);
+                hero.Heal(float.MaxValue);
+
+                Chest mimic = null;
+                yield return FindChestWith(ChestSecretKind.Mimic, 3, c => mimic = c);
+                yield return StandBefore(mimic, 3.4f);
+                yield return Snap("mimic_closed");
+                mimic.GetComponent<Interactable>().Use(Hero);
+                yield return new WaitForSecondsRealtime(0.7f);
+                yield return Snap("mimic_awake");
+                yield return new WaitForSecondsRealtime(0.45f);
+                yield return Snap("mimic_chasing");
+
+                Chest cursed = null;
+                yield return FindChestWith(ChestSecretKind.Cursed, 3, c => cursed = c);
+                hero = Hero.GetComponent<Health>();
+                hero.MultiplyMax(500f);
+                hero.Heal(float.MaxValue);
+                yield return StandBefore(cursed, 3.4f);
+                yield return Snap("cursed_closed");
+                cursed.GetComponent<Interactable>().Use(Hero);
+                yield return new WaitForSecondsRealtime(0.8f);
+                yield return Snap("cursed_wave");
+            }
+            finally
+            {
+                ChestSecret.Enabled = false;
+            }
+        }
+
         [UnityTest, Timeout(600000), Description("L'altare con «Il mondo cresce con te» (24.6 della M24): spento, acceso con il suggerimento, e in italiano")]
         public IEnumerator GrowingAltar()
         {

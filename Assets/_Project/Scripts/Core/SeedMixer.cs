@@ -67,6 +67,15 @@ namespace DarkDescent.Core
             return Mix(levelSeed ^ GuardianDomain);
         }
 
+        // "SECRET": i segreti delle casse (D3 e D4 della M25), da seme del mondo, profondità e cella: non spostano né la mappa né il loot, e
+        // una stessa cella ha segreti diversi in mondi diversi
+        private const ulong SecretDomain = 0x53454352455400UL;
+
+        public static ulong ForSecret(ulong runSeed, int depth, int cellX, int cellZ, ulong kind)
+        {
+            return Mix(ForEnemy(runSeed, depth, cellX, cellZ) ^ SecretDomain ^ Mix(kind));
+        }
+
         // "DECALS": le macchie a terra di un livello (D5 della M17), dopo tutto il resto e con il loro flusso
         private const ulong DecalDomain = 0x444543414C53UL;
 

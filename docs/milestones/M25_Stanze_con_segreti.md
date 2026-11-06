@@ -161,3 +161,45 @@ del guardiano della M13 diventa il nemico, con lo scheletro e un materiale di pi
 
 Il foglio con tutti i modelli accanto al forziere dei KayKit è in `Recordings/Photos/m25_modelli/foglio.png` (fuori da git). Nessuna foto in gioco ancora: i
 modelli entrano nelle scene dal 25.3. I 724 test EditMode restano verdi con i sette FBX importati.
+
+**Modelli approvati da Mirco il 6 novembre 2026.**
+
+---
+
+## Passo 25.3 — Il mimic e il baule maledetto
+
+**Com'è andata (6 nov 2026).** Il mimic e il baule maledetto sono fatti, con 9 test EditMode nuovi (733 in tutto) e 6 PlayMode (13 verdi con le classi delle casse e dei ricordi).
+
+**Una correzione al disegno: i segreti delle casse non stanno nella mappa.** La scheda diceva `PlaceSecrets` nel generatore, con un flusso suo del seme come il Custode. Per le
+casse non va: `LevelRecord` ricorda le casse aperte **per posto nell'ordine** in cui il livello le costruisce, e `Matches(enemyCount, chestCount)` scarta il ricordo se il conto
+cambia. Il Custode l'ha potuto fare perché la migrazione 10 → 11 azzerava i ricordi; qui non c'è un formato nuovo (D13), e un simbolo in più o una cassa scambiata avrebbe fatto
+tornare i nemici uccisi e richiudere le casse in un salvataggio della v1.12, senza un errore da nessuna parte. **Il segreto si decide al caricamento**, sulle casse che il livello
+ha già: il livello generato è **identico** (stesso numero e stesso ordine di casse e nemici, `Secrets_DoNotChangeTheLevel`), D14 vale per costruzione, e funziona anche nelle
+caverne senza altro codice (D16). La stessa regola vale per il 25.4 e il 25.5: i nemici della scorta del prigioniero e la statua **non** entrano nel conto dei nemici del livello
+(nascono a runtime o hanno un conto loro).
+
+**Che cosa c'è:**
+- **`SecretRules`** (`Core/Levels`): funzioni pure del seme del mondo, della profondità e della cella (`SeedMixer.ForSecret`, un dominio suo): `IsMimic` (1 su 8 dalla profondità 2),
+  `LevelHasCursed` (1 livello su 2 dalla 3), `PickCursed` (la cassa con il punteggio più alto tra **tutte** le casse normali, anche le aperte, e mai un mimic: aprirne una non sposta
+  la scelta), `WaveSize` (3–5) e `WaveBrutes` (0 o 1 nella cripta, 2 nelle caverne).
+- **`Chest`**: un segreto (`ArmSecret`), l'evento `Disturbed` (un click su una cassa con un segreto non la apre), `Open()` pubblico, `SetBonus` e `Cell`. `ChestSecretKind`: None, Mimic, Cursed.
+- **`ChestSecret`** (`Items`, sul prefab della cassa normale): il mimic nasconde il modello del forziere e salta fuori un nemico al suo posto; alla sua morte il forziere torna e **si apre con
+  il suo loot di sempre** (`Preview()` prima e dopo è lo stesso oggetto: un test lo controlla); il baule maledetto **chiama da tre a cinque nemici** in un arco di 160° davanti a lui e a ondata
+  battuta si apre da solo. I nemici nati qui passano dal CompositionRoot (`HandleSecretSpawned`: difficoltà, mondo che cresce, esperienza, barra), non sono nel ricordo del livello e,
+  se si lascia il livello a metà, la cassa riparte chiusa e con lo stesso segreto (`Mimic_LeftHalfway_IsAClosedChestAgain`).
+- **Il mimic** (`Mimic.prefab`, `Mimic.asset`): il bruto con il modello del forziere dei KayKit, senza loot suo (il premio è la cassa); un componente, `MimicHop`, fa saltare il modello a ogni passo e
+  sbattere il coperchio come una bocca. Il baule maledetto ha **`ChestCurse`** (le catene, il teschio, il cristallo) più un **bagliore viola** (una luce): dalla camera del gioco le catene da sole si perdevano nel buio.
+- **Il premio del baule maledetto** (`ChestSecret.CursedBonus`): il loot della profondità **dopo**, un oggetto in più, magici e rari ×2, almeno un magico, oro ×2, unici ×1,5 e nessun unico garantito:
+  un gradino sopra il forziere (D8), non il tesoro del re. Il numero vero lo dirà la misura del 25.7 (`LootCensus`).
+- **`SecretTools.Build`** (menu *DarkDescent → Segreti*): idempotente, crea l'archetipo e il prefab del mimic e mette il segreto sul prefab della cassa normale. Le casse del forziere dell'unico, del tesoro del re e del Custode hanno
+  un prefab loro senza segreto: non sono mai un mimic né un baule maledetto (`SealedChests_NeverHaveASecret`).
+- **`ChestSecret.Enabled`**: un interruttore statico, spento da `SandboxFixture` (come quelli della M24): i test che aprono la prima cassa non trovano un mimic. Solo i test dei segreti lo accendono. **Resta da fare** (25.4): la
+  ronda notturna gira con l'interruttore spento; per provare i segreti sui semi nuovi la ronda deve accenderlo.
+- **Le stringhe**: `chest.cursed` («Baule maledetto») e `enemy.mimic`.
+
+**Cosa non è come in scheda:** il baule non è «più scuro»: `InteractableHighlight` ricorda i materiali di partenza e un cambio a runtime verrebbe cancellato dall'evidenziazione; lo si riconosce dalle catene, dal teschio, dal
+bagliore viola e dall'etichetta (D4 chiedeva proprio l'etichetta diversa).
+
+**Le foto** (`PhotoTour.ChestSecrets`, in `Recordings/Photos`): il mimic chiuso (identico a un forziere), sveglio e in salto, il baule maledetto chiuso con il bagliore e la sua ondata di quattro scheletri e un bruto.
+
+**Lezione:** `UseLootSeed` e `LevelManager.RunSeed` sono due semi: nel gioco si cambiano insieme, nei test no. Un test che cerca un livello con un segreto deve impostarli tutti e due (`UseSeed`).
