@@ -15,6 +15,10 @@ MonoBehaviour:
   _floor: {fileID: 3591509196574607878, guid: c076e627a23e83645b0312b33742ae99, type: 3}
   _wall: {fileID: 495748484601117670, guid: 6435cf7c139309a4d9602efd8d343183, type: 3}
   _lowWall: {fileID: 8467431757798617024, guid: f15d864e85f17d74d95758a7d274e994, type: 3}
+  _backdrop: {fileID: 0}
+  _scatter: []
+  _scatterChance: 0.5
+  _outsideScatterChance: 0.7
   _floorVariant: {fileID: 8105552435513669587, guid: 83274ee979656fd408da8a70682dc7c5, type: 3}
   _wallVariant: {fileID: 8558557472571316169, guid: f6e087f6d850d674394886ed075cfca1, type: 3}
   _variantChance: 0.3
@@ -26,6 +30,11 @@ MonoBehaviour:
   _ambientColor: {r: 0.2, g: 0.22, b: 0.3, a: 1}
   _postProcessing: {fileID: 11400000, guid: 189ed164c1b26f943957c535bbf8657e, type: 2}
   _ambience: {fileID: 11400000, guid: 78759507528950f4595fb14f2bf5e366, type: 2}
+  _sealedDoor: {fileID: 0}
+  _lever: {fileID: 0}
+  _lectern: {fileID: 6815327911715422784, guid: 549b06a51cd30ce45a0173f6d2835e35, type: 3}
+  _tablet: {fileID: 6695817796504912274, guid: 95673eef8b13acc479a6053ff901a593, type: 3}
+  _book: {fileID: 6473178012619538305, guid: 6b2aa692e77b8af42b4ba681bc0df5a8, type: 3}
   _footsteps:
   - {fileID: 8300000, guid: baa511dd709adcd408f4a934023d63ef, type: 3}
   - {fileID: 8300000, guid: 885e2d47dce085943b3186d13edd142a, type: 3}
@@ -38,80 +47,107 @@ MonoBehaviour:
   - _symbol: 83
     _prefab: {fileID: 544816584095552241, guid: 50d74d0f72579644d8ded6685df810f1, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 98
     _prefab: {fileID: 7393836463303064506, guid: a1a611d7c6820f54aa34ca6a18af19e1, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 120
     _prefab: {fileID: 4831349547782682041, guid: d5bdf81933cad274fa67be91bccbc7c5, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 112
     _prefab: {fileID: 5523904494504149167, guid: 5f554a3ddedacc84fa9757f1471ae1f3, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 99
     _prefab: {fileID: 1495775306134700890, guid: 6a6738ac4ce1fbc43959753afb235041, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 108
     _prefab: {fileID: 285806029662519733, guid: 0d7fda4f7bbc379439113c5a0afc1cf6, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 119
     _prefab: {fileID: 8060362328488688376, guid: a1bfd292db39a5a428c02010fecdd1cd, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 66
     _prefab: {fileID: 6859590642092365944, guid: d7f75dc63754a784891abb4617d5e969, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 109
     _prefab: {fileID: 8346990207950622580, guid: a9636a3b48ea36b408f0be301c2d1757, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 75
     _prefab: {fileID: 6859590642092365944, guid: dc171c9ffed634a40bcc6e573b7cb5a8, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 71
     _prefab: {fileID: 4506804779045071364, guid: f3eb1ed0e0104b84da64d564d9eca357, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 65
     _prefab: {fileID: 6017041810921380575, guid: 19e7eee22f1de4c429ff0324577d7c09, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 67
     _prefab: {fileID: 6978217895143608379, guid: cb6bbf489eb478b4cb6d3d98966989f9, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 72
     _prefab: {fileID: 2691099230493047471, guid: c626f6bfe8e517841a0655749746f19f, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 73
     _prefab: {fileID: 2989341131479896006, guid: 6e260a85e06c17540bb004acacfd4c27, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 74
     _prefab: {fileID: 8770048937453782306, guid: 5f2fd82a30975354db75cbd5127e7fb5, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 77
     _prefab: {fileID: 6301551479689991351, guid: 889e3c625c7116049ad57c7103d3212c, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 80
     _prefab: {fileID: 8138274845429361865, guid: fff57c82b7df0ba48870ec28d21f0ebc, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 81
     _prefab: {fileID: 19088413685834751, guid: 7a08ce6de392b17499763c22d0704751, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 88
     _prefab: {fileID: 6176026670654229313, guid: d79f9935a5cdf2d4f8a4283eb821da4e, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 117
     _prefab: {fileID: 6116544069261412740, guid: ec9b8e22526a44e44a61ee8dd5d73a99, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 102
     _prefab: {fileID: 1495775306134700890, guid: fbac3bc09af328746800c85de0287d08, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 116
     _prefab: {fileID: 1495775306134700890, guid: cfcca19c65004774e806ef8f518cfda9, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 49
     _prefab: {fileID: 1881914660805264014, guid: 0ebe1d71f70402848bf779812c49d159, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 33
     _prefab: {fileID: 8709004925221045444, guid: 7c37774735a52c346bf7d59d7c0267a0, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
   - _symbol: 94
     _prefab: {fileID: 7531695245056883934, guid: e1ca44f07241a6049802d929704c100e, type: 3}
     _replacesFloor: 0
+    _keepsRotation: 0
+  _road: 0
   _decalMaterial: {fileID: 2100000, guid: 26f009dae2df8594f8e52af404ca3a9b, type: 2}
   _decalLift: 0.02

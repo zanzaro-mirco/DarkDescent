@@ -59,6 +59,9 @@ namespace DarkDescent.Localization
 
         /// <summary>Il re battuto di nuovo, senza schermata di vittoria.</summary>
         public const string KingFallen = "hud.king_fallen";
+
+        /// <summary>«Hai sentito scattare qualcosa»: la leva della stanza sigillata è stata tirata (D12 della M25).</summary>
+        public const string SecretHeard = "secret.heard";
         public const string CharacterLevel = "hud.character_level";
         public const string CharacterPoints = "hud.character_points";
         public const string TooltipDamage = "tooltip.damage";

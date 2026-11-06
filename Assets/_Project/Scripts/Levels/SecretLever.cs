@@ -24,10 +24,24 @@ namespace DarkDescent.Levels
 
         [SerializeField, Min(0.05f)] private float _duration = 0.45f;
 
+        [Tooltip("Il tintinnio che si sente quando ci si avvicina (D12 della M25).")]
+        [SerializeField] private AudioSource _audio;
+
+        [SerializeField] private AudioClip _tinkle;
+
+        [Tooltip("A che distanza dalla leva si sente il tintinnio, in metri.")]
+        [SerializeField, Min(1f)] private float _hearRange = 6f;
+
         private Interactable _interactable;
         private Quaternion _rest;
+        private Transform _listener;
+        private float _nextCheck;
+        private bool _near;
 
         public bool IsPulled { get; private set; }
+
+        /// <summary>La leva ha tintinnato perché ci si è avvicinati (D12): per i test.</summary>
+        public event Action Tinkled;
 
         /// <summary>La leva è stata tirata.</summary>
         public event Action Pulled;
@@ -50,6 +64,33 @@ namespace DarkDescent.Levels
         private void OnDisable()
         {
             _interactable.Used -= HandleUsed;
+        }
+
+        /// <summary>Le orecchie del cavaliere: a 6 m la leva tintinna, una volta ogni volta che ci si avvicina (D12 della M25). Controllo quattro volte al secondo al più.</summary>
+        public void BindListener(Transform listener)
+        {
+            _listener = listener;
+        }
+
+        private void Update()
+        {
+            if (_listener == null || IsPulled || _tinkle == null || _audio == null || Time.time < _nextCheck)
+            {
+                return;
+            }
+
+            _nextCheck = Time.time + 0.25f;
+            float distance = Vector3.Distance(_listener.position, transform.position);
+            if (!_near && distance < _hearRange)
+            {
+                _near = true;
+                _audio.PlayOneShot(_tinkle);
+                Tinkled?.Invoke();
+            }
+            else if (_near && distance > _hearRange * 1.5f)
+            {
+                _near = false;
+            }
         }
 
         /// <summary>Già tirata in una visita di prima (ADR-079): l'asta in avanti, niente click.</summary>

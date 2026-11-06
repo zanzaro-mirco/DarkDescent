@@ -174,6 +174,9 @@ namespace DarkDescent.Core
         [Tooltip("Le difficoltà, dal Crepuscolo all'ultimo Abisso (D2 della M14).")]
         [SerializeField] private DifficultyTable _difficulties;
 
+        [Tooltip("Il pannello di lettura dei testi del mondo e delle parole del prigioniero (D9 della M25).")]
+        [SerializeField] private LorePanel _lorePanel;
+
         [Tooltip("Il pannello dell'altare dell'accampamento (D3 della M14).")]
         [SerializeField] private DifficultyPanel _difficultyPanel;
 
@@ -438,6 +441,7 @@ namespace DarkDescent.Core
             _victoryScreen.Bind(_localizer);
             _films.Bind(_reader, _localizer);
             _difficultyPanel.Bind(_difficulties, _difficulty, _localizer);
+            _lorePanel.Bind(_localizer);
             var controller = _player.GetComponent<PlayerController>();
             _enemyBar.Bind(controller, _localizer);
             _targetMarker.Bind(controller);
@@ -464,7 +468,7 @@ namespace DarkDescent.Core
             _talents = _player.GetComponent<PlayerTalents>();
             _talentPanel.Bind(_talents, _reader, _localizer);
             // WASD non muove sotto una finestra a tutto schermo (le abilità, l'altare) né mentre un'abilità porta il cavaliere (D8 della M23)
-            controller.SetKeyboardBlocker(() => _talentPanel.IsOpen || _difficultyPanel.IsOpen || _helpPanel.IsOpen || warrior.IsBusy);
+            controller.SetKeyboardBlocker(() => _talentPanel.IsOpen || _difficultyPanel.IsOpen || _helpPanel.IsOpen || _lorePanel.IsOpen || warrior.IsBusy);
             _talentPointsButton.Bind(_talents, _talentPanel, _localizer);
             _hints.Bind(_localizer, _reader, CanShowHints);
             _helpPanel.Bind(_localizer, _reader, _player.GetComponent<PlayerClass>());
@@ -778,6 +782,12 @@ namespace DarkDescent.Core
                 return;
             }
 
+            if (_lorePanel.IsOpen)
+            {
+                _lorePanel.Close();
+                return;
+            }
+
             if (_pauseMenu.IsOpen)
             {
                 _pauseMenu.Close();
@@ -831,6 +841,7 @@ namespace DarkDescent.Core
                 && !_talentPanel.IsOpen
                 && !_difficultyPanel.IsOpen
                 && !_helpPanel.IsOpen
+                && !_lorePanel.IsOpen
                 && !(_films != null && _films.IsPlaying)
                 && !(_boss != null && _boss.IsFighting)
                 && !(_guardian != null && _guardian.IsFighting);
@@ -990,6 +1001,7 @@ namespace DarkDescent.Core
 
             // la stanza sigillata (D5 della M25) si mette prima del ricordo: il ricordo la ritrova tirata e aperta
             var sealedRoom = ArmSealedRoom(level);
+            ArmLore(level, sealedRoom);
 
             // prima di tutto il resto: i nemici già uccisi non si collegano
             _levelRecorder.Restore(level);
@@ -1568,8 +1580,58 @@ namespace DarkDescent.Core
             }
 
             var room = SealedRoom.Build(level, plan, tileset.SealedDoor, tileset.Lever);
+            room.Unlocked += HandleSealedRoomUnlocked;
+            room.Lever.BindListener(_player.transform);
             level.RegisterSecret(room);
             return room;
+        }
+
+        // «Hai sentito scattare qualcosa» (D12 della M25): la leva è stata tirata e la porta è lontana, forse fuori vista
+        private void HandleSealedRoomUnlocked()
+        {
+            _hudMessage.Show(TextKeys.SecretHeard);
+        }
+
+        // Il testo del mondo del livello (D9 della M25): un leggio, una lapide o delle carte contro un muro, due livelli su tre. Il testo e il posto sono una
+        // funzione del seme del mondo, della profondità e della mappa, come per la stanza sigillata: il ricordo del livello trova le stesse cose nello stesso ordine.
+        // Va registrato dopo la stanza sigillata e prima di prigioniero e statua (stesso ordine a ogni caricamento)
+        private void ArmLore(LevelContext level, SealedRoom sealedRoom)
+        {
+            if (!LoreSpot.Enabled || level.IsTown || level.Map == null || level.Tileset == null)
+            {
+                return;
+            }
+
+            int text = LoreRules.TextFor(_loot.RunSeed, level.Depth);
+            var prefab = text > 0 ? level.Tileset.LoreProp(LoreRules.KindOf(text)) : null;
+            if (prefab == null)
+            {
+                return;
+            }
+
+            var avoid = new List<Vector2Int>();
+            HashSet<Vector2Int> exclude = null;
+            if (sealedRoom != null)
+            {
+                avoid.Add(sealedRoom.Plan.Door);
+                avoid.Add(sealedRoom.Plan.Lever);
+                exclude = new HashSet<Vector2Int>(sealedRoom.Plan.Region);
+            }
+
+            var spot = SecretSpots.Pick(level.Map, _loot.RunSeed, level.Depth, LoreRules.SpotKind, avoid, exclude);
+            if (spot == null)
+            {
+                return;
+            }
+
+            var lore = LoreSpot.Build(level, prefab, spot.Value, text);
+            lore.Reading += HandleLoreReading;
+            level.RegisterSecret(lore);
+        }
+
+        private void HandleLoreReading(LoreSpot lore)
+        {
+            _lorePanel.Open(LoreRules.TitleKey(lore.TextId), LoreRules.BodyKey(lore.TextId));
         }
 
         // I segreti delle casse normali (D3 e D4 della M25): decisi qui, sulle casse che il livello ha già, e non dalla mappa: il numero e
@@ -1640,6 +1702,7 @@ namespace DarkDescent.Core
         private void ReleaseLevel(LevelContext level)
         {
             _levelRecorder.Remember(level);
+            _lorePanel.Close();
             _walls = null;
             _pack?.Release();
             _pack = null;

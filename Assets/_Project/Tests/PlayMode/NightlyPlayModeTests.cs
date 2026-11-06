@@ -159,12 +159,15 @@ namespace DarkDescent.Tests
 
         private const int SecretGames = 60;
 
+        // le caverne si costruiscono in più tempo: la lore (D16) si prova nelle prime venti partite
+        private const int CaveGames = 20;
+
         [UnityTest, Timeout(OneHour), Description("60 partite nuove con i segreti accesi, dalla profondità 2 alla 4 della cripta: con la porta sigillata chiusa dall'ingresso si arriva alla leva e alla scala e non al tesoro del fondo, tirata la leva si arriva a ogni cassa; nessuna cassa con un segreto diventa irraggiungibile")]
         public IEnumerator SecretRooms_AreSound()
         {
             ulong night = NightlyRun.Seed();
             var errors = new List<string>();
-            int built = 0, rooms = 0, mimics = 0, cursed = 0;
+            int built = 0, rooms = 0, mimics = 0, cursed = 0, lores = 0, caveLores = 0;
             string where = "l'avvio del gioco";
             bool reported = false;
             try
@@ -174,17 +177,24 @@ namespace DarkDescent.Tests
                 // dopo l'avvio: ForgetPreferences li spegne come per tutti i test
                 SealedRoom.Enabled = true;
                 ChestSecret.Enabled = true;
+                LoreSpot.Enabled = true;
                 var root = Object.FindFirstObjectByType<CompositionRoot>();
                 for (int game = 0; game < SecretGames; game++)
                 {
                     ulong runSeed = SeedMixer.ForNightly(night, SecretsPart, game);
                     Manager.RunSeed = runSeed;
                     root.UseLootSeed(runSeed);
-                    for (int depth = SealedRoomPlanner.FirstDepth; depth <= SealedRoomPlanner.LastDepth; depth++)
+                    for (int depth = 1; depth <= LoreRules.LastDepth; depth++)
                     {
+                        bool caves = depth > LoreRules.LastCryptDepth;
+                        if (caves && game >= CaveGames)
+                        {
+                            break;
+                        }
+
                         where = $"partita {runSeed}, profondità {depth}";
                         var previous = Manager.CurrentLevel;
-                        Manager.LoadLevel("Level_Crypt", DungeonLevel.EntranceAt(depth), depth);
+                        Manager.LoadLevel(caves ? "Level_Caves" : "Level_Crypt", DungeonLevel.EntranceAt(depth), depth);
                         yield return WaitForNewLevel(previous, depth, where);
                         Recorder.Memory.Import(null);
 
@@ -207,13 +217,21 @@ namespace DarkDescent.Tests
                             }
                         }
 
-                        if (level.Secrets.Count == 0)
+                        // il testo del mondo: si raggiunge dall'ingresso, anche con la porta sigillata chiusa (il suo posto è fuori dal fondo)
+                        foreach (var lore in level.Secrets.OfType<LoreSpot>())
+                        {
+                            lores++;
+                            caveLores += caves ? 1 : 0;
+                            Reach(entrance, lore.GetComponent<Interactable>().ApproachPoint, NearPiece, "il testo del mondo", Error);
+                        }
+
+                        var room = level.Secrets.OfType<SealedRoom>().FirstOrDefault();
+                        if (room == null)
                         {
                             continue;
                         }
 
                         rooms++;
-                        var room = (SealedRoom)level.Secrets[0];
                         Vector3 lever = room.Lever.GetComponent<Interactable>().ApproachPoint;
                         Reach(entrance, lever, NearPiece, "la leva", Error);
                         foreach (var down in level.DownExits)
@@ -250,13 +268,18 @@ namespace DarkDescent.Tests
                     yield return Resources.UnloadUnusedAssets();
                 }
 
-                string summary = $"{built} livelli della cripta, {rooms} con la stanza sigillata, {mimics} mimic e {cursed} bauli maledetti; la porta chiusa ferma il tesoro, la leva e la scala si raggiungono, aperta si arriva a ogni cassa.";
+                string summary = $"{built} livelli, {rooms} con la stanza sigillata, {mimics} mimic, {cursed} bauli maledetti e {lores} testi del mondo ({caveLores} nelle caverne); la porta chiusa ferma il tesoro, la leva, la scala e i testi si raggiungono, aperta si arriva a ogni cassa.";
                 Debug.Log($"[DarkDescent] ronda notturna, segreti: {summary}");
                 NightlyReport.Append(NightlyReport.Part("Segreti", summary, errors));
                 reported = true;
                 if (rooms == 0)
                 {
                     errors.Add("nessun livello di " + built + " ha una stanza sigillata: il controllo non ha provato niente");
+                }
+
+                if (lores == 0 || caveLores == 0)
+                {
+                    errors.Add($"{lores} testi del mondo, {caveLores} nelle caverne, su {built} livelli: il controllo non ha provato niente");
                 }
 
                 if (errors.Count > 0)
@@ -268,6 +291,7 @@ namespace DarkDescent.Tests
             {
                 SealedRoom.Enabled = false;
                 ChestSecret.Enabled = false;
+                LoreSpot.Enabled = false;
                 if (!reported)
                 {
                     errors.Add($"{where}: la parte si è fermata qui (il perché è nei risultati dei test)");

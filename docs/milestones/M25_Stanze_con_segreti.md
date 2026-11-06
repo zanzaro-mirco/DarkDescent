@@ -243,3 +243,22 @@ spegne gli interruttori come per tutti i test (`ForgetPreferences`): vanno acces
 **Le foto** (`PhotoTour.SealedRoomShots`): la porta chiusa con le rune dal corridoio, la leva contro il muro, la porta che scende e la porta aperta.
 
 **Da fare nei passi dopo:** il messaggio «hai sentito scattare qualcosa» (D12) e il tintinnio della leva a 6 m (D12) non ci sono ancora: servono un posto per un messaggio e un suono, e vanno con la lore del 25.5.
+
+---
+
+## Passo 25.5 — Il prigioniero, la statua e la lore
+
+### 25.5a — La lore (D9, D12, D16)
+
+**Com'è andata (6 nov 2026).** Fatti i testi del mondo, il pannello di lettura, la riga della leva e il suo tintinnio. 7 test EditMode nuovi (747 in tutto), 5 PlayMode (9 verdi con la stanza sigillata) e la ronda estesa.
+
+**Quale testo, dove (senza un formato nuovo).** La scheda diceva che un testo letto «non si ripete nello stesso mondo»: per saperlo serviva una lista dei testi letti nel salvataggio, cioè il formato 12 (D13 voleva evitarlo). Invece **lo decide una permutazione del seme del mondo** (`LoreRules`): i testi della cripta (1–6 più 11 e 12) si ordinano con un dominio del seme e le profondità 1–4 prendono i primi quattro; le caverne (7–10 più i due di ovunque che la cripta non ha usato) fanno lo stesso per 5–8. Così **due profondità dello stesso mondo non danno mai lo stesso testo, per costruzione**, e un testo della cripta non sta nelle caverne (`ATextNeverRepeatsInTheSameWorld`, su 2000 semi). Due livelli su tre hanno un testo (misurato 62–71% a ogni profondità). Il ricordo del livello (ADR-079) sa solo se *quel* testo è già stato letto (il bagliore).
+- **`SecretSpots`** (`Core/Levels`): il posto di un arredo dei segreti, per la lore ora e per prigioniero e statua dopo: una cella di pavimento semplice contro un muro, dentro una stanza, davanti libera, senza ostacoli nelle otto celle attorno, lontano da ingresso, scale, porta, leva e dagli altri segreti, fuori dal fondo della stanza sigillata. Funzione della mappa e del seme come la leva. **Misura** (60 semi per profondità): un posto in **240 livelli su 240 nella cripta e 237 su 240 nelle caverne** (98,8%).
+- **`LoreSpot`** (`Levels`): un `Interactable` e un segreto del livello (`ILevelSecret`); un testo non letto ha un **bagliore di candela**, letto si spegne; si può rileggere. Tre prefab (`LoreLectern` per 1, 5 e 10; `LoreTablet` per 3, 6, 7 e 12; `LoreBook`, le carte, per gli altri) nel set della cripta **e** in quello delle caverne. I segreti si registrano sempre nello stesso ordine (stanza sigillata, lore, poi quelli dopo), così l'indice nel ricordo è stabile.
+- **`LorePanel`**: titolo e testo nella lingua attiva (si rilegge se la lingua cambia), cornice delle opzioni come il pannello dei comandi, pulsante «Chiudi» ed Esc. Sta nel giro di Esc, di `CanShowHints`, del blocco dei tasti e si chiude lasciando il livello. Si installa con `LoreTools.InstallPanel` (menu *DarkDescent → UI*, Unity chiuso); i prefab con `LoreTools.BuildProps`.
+- **I dodici testi** sono nella tabella delle stringhe (`lore.N.title` e `lore.N.text`, italiano e inglese), come approvati; un test controlla che ci siano tutti e due, che le due lingue siano diverse e che le virgolette del testo 8 («I think») reggano la tabella.
+- **D12:** tirata la leva compare «Hai sentito scattare qualcosa» (`secret.heard`, `HudMessage`); la leva **tintinna a 6 m**, una volta per avvicinamento (si riarma oltre i 9 m), con un colpo di metallo leggero e il controllo quattro volte al secondo.
+- **Interruttore** `LoreSpot.Enabled`, spento da `SandboxFixture`; la ronda (`SecretRooms_AreSound`) lo accende dopo l'avvio e ora gira anche sulle **caverne** (20 partite): con il seme 424242, **320 livelli, 237 testi (62 nelle caverne), tutti raggiungibili dall'ingresso anche a porta chiusa**; il controllo fallisce se non ne trova nessuno, né nelle caverne.
+- **Foto** (`PhotoTour.LoreShots`): il leggio con il bagliore e il suo pannello, la lapide, le carte, e una lapide nelle caverne.
+
+**Cosa non è come in scheda:** il pannello non si chiude con un click fuori dal foglio, solo con il pulsante ed Esc. Le carte (diari, lettera, biglietto) stanno su un mucchio di libri (`Books`, M13): contro un muro lontano dalla camera si vedono poco, come la leva.

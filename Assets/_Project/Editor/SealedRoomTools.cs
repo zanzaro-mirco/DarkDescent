@@ -34,7 +34,7 @@ namespace DarkDescent.Editor
             var highlight = new SerializedObject(chest.GetComponent<InteractableHighlight>()).FindProperty("_highlightMaterial").objectReferenceValue as Material;
             var runes = RunesMaterial();
             var door = DoorPrefab(stone, runes);
-            var lever = LeverPrefab(stone, highlight);
+            var lever = LeverPrefab(stone, highlight, chest.GetComponentInChildren<AudioSource>(true));
 
             var tileset = Load<LevelTileset>(Root + "/Data/Levels/DungeonTileset.asset");
             var so = new SerializedObject(tileset);
@@ -155,7 +155,7 @@ namespace DarkDescent.Editor
             }
         }
 
-        private static GameObject LeverPrefab(Material stone, Material highlight)
+        private static GameObject LeverPrefab(Material stone, Material highlight, AudioSource chestSource)
         {
             var root = new GameObject("SecretLever");
             try
@@ -197,8 +197,18 @@ namespace DarkDescent.Editor
                 highlightSo.FindProperty("_highlightMaterial").objectReferenceValue = highlight;
                 highlightSo.ApplyModifiedPropertiesWithoutUndo();
 
+                // il tintinnio a 6 m (D12): una sorgente nello spazio, con l'uscita della cassa e un colpo di metallo leggero
+                var source = root.AddComponent<AudioSource>();
+                source.playOnAwake = false;
+                source.spatialBlend = 1f;
+                source.maxDistance = 16f;
+                source.volume = 0.55f;
+                source.outputAudioMixerGroup = chestSource != null ? chestSource.outputAudioMixerGroup : null;
+
                 var lever = root.AddComponent<SecretLever>();
                 var leverSo = new SerializedObject(lever);
+                leverSo.FindProperty("_audio").objectReferenceValue = source;
+                leverSo.FindProperty("_tinkle").objectReferenceValue = AssetDatabase.LoadAssetAtPath<AudioClip>(Root + "/Audio/SFX/Kenney/impactMetal_light_001.ogg");
                 leverSo.FindProperty("_handle").objectReferenceValue = handle.transform;
                 leverSo.FindProperty("_clickArea").objectReferenceValue = box;
                 leverSo.ApplyModifiedPropertiesWithoutUndo();

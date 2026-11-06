@@ -71,6 +71,13 @@ namespace DarkDescent.Levels
         [Tooltip("La leva che apre la porta sigillata (D5 della M25): vuota dove non ce n'è.")]
         [SerializeField] private GameObject _lever;
 
+        [Tooltip("Il leggio, la lapide e le carte dei testi del mondo (D9 della M25): vuoti dove non ci sono.")]
+        [SerializeField] private GameObject _lectern;
+
+        [SerializeField] private GameObject _tablet;
+
+        [SerializeField] private GameObject _book;
+
         [Tooltip("I passi del cavaliere su questo pavimento: pietra nella cripta, terra nelle caverne.")]
         [SerializeField] private AudioClip[] _footsteps;
 
@@ -140,6 +147,12 @@ namespace DarkDescent.Levels
         public GameObject SealedDoor => _sealedDoor;
 
         public GameObject Lever => _lever;
+
+        /// <summary>L'arredo di un testo del mondo (D9 della M25); null dove il set non ne ha.</summary>
+        public GameObject LoreProp(LoreKind kind)
+        {
+            return kind == LoreKind.Lectern ? _lectern : kind == LoreKind.Tablet ? _tablet : _book;
+        }
 
         public AudioClip[] Footsteps => _footsteps;
 

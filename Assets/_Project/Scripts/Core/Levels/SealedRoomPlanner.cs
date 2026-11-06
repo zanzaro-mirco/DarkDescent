@@ -159,7 +159,7 @@ namespace DarkDescent.Levels
             return walkable;
         }
 
-        private static bool TryFindSpecial(LevelMap map, char symbol, out Vector2Int cell)
+        public static bool TryFindSpecial(LevelMap map, char symbol, out Vector2Int cell)
         {
             for (int x = 0; x < map.Width; x++)
             {
@@ -210,7 +210,7 @@ namespace DarkDescent.Levels
         }
 
         // le celle che si raggiungono dall'ingresso senza passare da blocked
-        private static bool[,] Flood(bool[,] walkable, int width, int height, Vector2Int from, Vector2Int blocked)
+        public static bool[,] Flood(bool[,] walkable, int width, int height, Vector2Int from, Vector2Int blocked)
         {
             var seen = new bool[width, height];
             var queue = new Queue<Vector2Int>();
@@ -339,7 +339,7 @@ namespace DarkDescent.Levels
         }
 
         // contro un muro e dentro una stanza: la cella ha roccia da un lato solo e almeno sei delle otto celle attorno camminabili
-        private static bool AgainstAWall(LevelMap map, bool[,] walkable, Vector2Int cell, out Vector2Int facing)
+        public static bool AgainstAWall(LevelMap map, bool[,] walkable, Vector2Int cell, out Vector2Int facing)
         {
             facing = default;
             int rockSides = 0;

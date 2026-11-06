@@ -779,3 +779,34 @@ help.row.skill_menu,Ability menu,Menu delle abilità
 help.row.skill_tree,Skill tree,Albero delle abilità
 help.row.map,Automap,Automappa
 help.row.pause,"Closes windows, then pause","Chiude le finestre, poi pausa"
+
+# I testi del mondo (D9 della M25): dodici, uno per livello al più; i numeri sono quelli della scheda. Le righe seguenti sono gli arredi e la riga della leva
+lore.close,Close,Chiudi
+lore.lectern,Lectern,Leggio
+lore.tablet,Inscription,Incisione
+lore.book,Papers,Carte
+secret.heard,You heard something click,Hai sentito scattare qualcosa
+lore.1.title,The Register of Candles,Il registro delle candele
+lore.1.text,"Every soul laid in this crypt has a candle in the village above. The sexton counts them at dusk and writes the number here. This page: nine hundred and four lit, none dark. Whoever reads this, remember the number. A hundred years of it, and not one lost.","Ogni anima deposta in questa cripta ha una candela nel borgo di sopra. Il sagrestano le conta al tramonto e ne scrive il numero qui. Questa pagina: novecentoquattro accese, nessuna spenta. Chi legge, ricordi il numero. Cento anni così, e non ne è mancata una."
+lore.2.title,The Sexton's Diary,Il diario del sagrestano
+lore.2.text,"The candles went out last night. Not blown, not burned down: out, all at once, like a held breath let go. The bell would not ring. I took the lantern and the key to the gate. If the bones are stirring, someone must warn Morvak.","Le candele si sono spente ieri notte. Non soffiate, non consumate: spente, tutte insieme, come un fiato trattenuto che si lascia andare. La campana non voleva suonare. Ho preso la lanterna e la chiave del cancello. Se le ossa si muovono, qualcuno deve avvisare Morvak."
+lore.3.title,On the Wall,Sul muro
+lore.3.text,"HERE THE JAILER KEEPS THE DEAD. THE DEAD KEEP THE DARK. LET NO ONE CARRY A CANDLE DOWN, AND LET NO ONE CARRY ONE UP.","QUI IL CARCERIERE CUSTODISCE I MORTI. I MORTI CUSTODISCONO IL BUIO. NESSUNO PORTI GIÙ UNA CANDELA, E NESSUNO NE PORTI SU."
+lore.4.title,A Knight's Diary,Il diario di un cavaliere
+lore.4.text,"Third night in the crypt. The skeletons do not fight like beasts; they fight like soldiers who forgot why. Today one ran from me and came back with two friends. I will not underestimate the next. My candle, in a window of the village, is the last: if anyone still keeps it lit.","Terza notte nella cripta. Gli scheletri non combattono come le bestie: combattono come soldati che hanno dimenticato il perché. Oggi uno è scappato, e si è ripresentato con due compagni. Non sottovaluterò il prossimo. La mia candela, in una finestra del borgo, è l'ultima: se qualcuno la tiene ancora accesa."
+lore.5.title,Grumm Bonesplitter,Grumm Spaccaossa
+lore.5.text,"Grumm cut the stone of this crypt a hundred years ago, and never saw the sun again. They say he kept swinging long after the others had gone. They say he is still swinging. Keep your shield high: he does not tire, and he does not choose.","Grumm tagliò la pietra di questa cripta cento anni fa, e non rivide più il sole. Dicono che continuò a picchiare anche quando gli altri se ne furono andati. Dicono che picchi ancora. Tieni alto lo scudo: non si stanca, e non sceglie."
+lore.6.title,The Keeper,Il Custode
+lore.6.text,"Vorrak was the first buried here, and the first to keep the door. He asked to watch the stair, so that no one would go down faster than they could climb back. Whoever passes him owes him something, and the dead keep good accounts.","Vorrak fu il primo sepolto qui, e il primo a custodire la porta. Chiese di guardare la scala, perché nessuno scendesse più in fretta di quanto potesse risalire. Chi lo supera gli deve qualcosa, e i morti sanno tenere i conti."
+lore.7.title,Below the Stair,Sotto la scala
+lore.7.text,"Below the stair the wall forgets the mason. These tunnels were dug by the dead, from below, toward the village. They were not escaping. They were counting candles, and always finding one more than they had left.","Sotto la scala il muro scorda il muratore. Queste gallerie le hanno scavate i morti, da sotto, verso il borgo. Non scappavano. Contavano le candele, e ne trovavano sempre una in più di quante ne avevano lasciate."
+lore.8.title,A Wet Diary,Un diario bagnato
+lore.8.text,"The tunnels are damp and warm. I found a well, a shrine, and a heap of candle stubs, hundreds, laid in rows. Someone carries them down. Someone living, I think. I do not like that I wrote ""I think"". I stopped after this line, then began again.","I cunicoli sono umidi e tiepidi. Ho trovato un pozzo, un santuario e un mucchio di moccoli di candela, centinaia, in file. Qualcuno li porta giù. Qualcuno di vivo, credo. Non mi piace aver pensato «credo». Ho smesso di scrivere dopo questa riga e ho ripreso."
+lore.9.title,An Unsent Letter,Una lettera mai spedita
+lore.9.text,"Dear Anya, the miners say the walls sing at night. The foreman laughs. I wrote my name on the wall of the third gallery, in case anyone should want to know I was here. If you are reading this, the mine has stopped looking like a mine, and I have stopped looking like myself.","Cara Anya, i minatori dicono che di notte i muri cantano. Il caposquadra ride. Ho scritto il mio nome sul muro della terza galleria, nel caso qualcuno volesse sapere che sono stato qui. Se leggi questo, la miniera ha smesso di sembrare una miniera e io di sembrare io."
+lore.10.title,The King's Court,La corte del Re
+lore.10.text,"The Bone King does not sit on a throne. He sits where the last candle burns, and waits for someone to snuff it or carry it away. While it burns he does not know he is dead. While it burns, he remembers being waited for. I do not know which is worse.","Il Re delle ossa non siede su un trono. Siede dove arde l'ultima candela, e aspetta che qualcuno la spenga o la porti via. Finché brucia non sa di essere morto. Finché brucia, ricorda di essere atteso. Non so quale delle due cose sia peggio."
+lore.11.title,A Baker's Note,Un biglietto del fornaio
+lore.11.text,"To whoever reads this: the candle you saw in the village window was lit for you. I do not know your name. I lit it anyway. The bread, when you return, is on the sill. — M., the baker","A chi legge: la candela che hai visto alla finestra del borgo è stata accesa per te. Non so il tuo nome. L'ho accesa lo stesso. Il pane, quando torni, è sul davanzale. — M., il fornaio"
+lore.12.title,The Stair Is a Promise,La scala è una promessa
+lore.12.text,"GOING DOWN IS EASY. THE STAIR IS A PROMISE, NOT ADVICE.","SCENDERE È FACILE. LA SCALA È UNA PROMESSA E NON UN CONSIGLIO."

@@ -25,6 +25,9 @@ namespace DarkDescent.Levels
 
         public SealedRoomPlanner.Plan Plan { get; private set; }
 
+        /// <summary>La leva è stata tirata e la porta comincia ad aprirsi: chi tiene la partita dice «hai sentito scattare qualcosa» (D12).</summary>
+        public event System.Action Unlocked;
+
         public bool IsDone => Door != null && Door.IsOpen;
 
         /// <summary>
@@ -90,6 +93,7 @@ namespace DarkDescent.Levels
         private void HandlePulled()
         {
             Door.Open();
+            Unlocked?.Invoke();
         }
     }
 }

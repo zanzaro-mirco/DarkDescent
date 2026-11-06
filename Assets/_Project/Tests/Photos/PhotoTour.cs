@@ -1009,6 +1009,62 @@ namespace DarkDescent.Tests
             yield return Settle();
         }
 
+        // i testi del mondo (25.5 della M25): il leggio, la lapide e le carte nella cripta, il pannello di lettura, e un testo nelle caverne
+        [UnityTest, Timeout(600000), Description("La lore (25.5 della M25): il leggio, la lapide e le carte contro un muro con il bagliore, il pannello con il testo, e le caverne")]
+        public IEnumerator LoreShots()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            LoreSpot.Enabled = true;
+            try
+            {
+                var hero = Hero.GetComponent<Health>();
+                hero.MultiplyMax(500f);
+                hero.Heal(float.MaxValue);
+                var panel = Object.FindFirstObjectByType<LorePanel>(FindObjectsInactive.Include);
+                var agent = Hero.GetComponent<NavMeshAgent>();
+
+                foreach (var (kind, first, last, scene) in new[] { (LoreKind.Lectern, 1, 4, "Level_Crypt"), (LoreKind.Tablet, 1, 4, "Level_Crypt"), (LoreKind.Book, 1, 4, "Level_Crypt"), (LoreKind.Tablet, 5, 8, "Level_Caves") })
+                {
+                    LoreSpot lore = null;
+                    for (ulong seed = 1; seed <= 120 && lore == null; seed++)
+                    {
+                        for (int depth = first; depth <= last && lore == null; depth++)
+                        {
+                            int text = LoreRules.TextFor(seed, depth);
+                            if (text == 0 || LoreRules.KindOf(text) != kind)
+                            {
+                                continue;
+                            }
+
+                            Manager.RunSeed = seed;
+                            Root.UseLootSeed(seed);
+                            yield return Descend(scene, depth);
+                            lore = Manager.CurrentLevel.Secrets.OfType<LoreSpot>().FirstOrDefault();
+                        }
+                    }
+
+                    Assert.IsNotNull(lore, $"un livello con {kind} in {scene}");
+                    string name = (scene == "Level_Caves" ? "cave_" : "crypt_") + kind.ToString().ToLowerInvariant();
+                    Vector3 wanted = lore.transform.position + lore.transform.forward * 4.2f;
+                    agent.Warp(NavMesh.SamplePosition(wanted, out var hit, 3f, NavMesh.AllAreas) ? hit.position : wanted);
+                    Hero.transform.rotation = Quaternion.LookRotation(Flat(lore.transform.position - Hero.transform.position));
+                    yield return Settle();
+                    yield return Snap("lore_" + name);
+
+                    lore.GetComponent<Interactable>().Use(Hero);
+                    yield return new WaitForSecondsRealtime(0.5f);
+                    Assert.IsTrue(panel.IsOpen);
+                    yield return Snap("lore_" + name + "_panel", world: false);
+                    panel.Close();
+                }
+            }
+            finally
+            {
+                LoreSpot.Enabled = false;
+            }
+        }
+
         [UnityTest, Timeout(600000), Description("La stanza sigillata (25.4 della M25): la porta di pietra con le rune dal corridoio, la leva contro il muro, e la porta aperta con il tesoro dietro")]
         public IEnumerator SealedRoomShots()
         {
