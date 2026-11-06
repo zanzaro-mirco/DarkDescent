@@ -136,3 +136,28 @@ Ogni testo ha un titolo e 35–70 parole (le incisioni, in maiuscolo, meno). Le 
 | 12 | ovunque, incisione | *La scala è una promessa* / *The Stair Is a Promise* | SCENDERE È FACILE. LA SCALA È UNA PROMESSA E NON UN CONSIGLIO. | GOING DOWN IS EASY. THE STAIR IS A PROMISE, NOT ADVICE. |
 
 **Da approvare:** i sei segreti come descritti, le probabilità e il tetto di tre per livello, le **caverne con tre soli segreti** (D16), e i dodici testi (con le correzioni che vuoi).
+
+**Approvato da Mirco il 6 novembre 2026:** tutto: i sei segreti, le probabilità e il tetto di tre, la D16 (caverne con mimic, baule maledetto e lore) e i dodici testi.
+
+---
+
+## Passo 25.2 — Gli arredi e i modelli
+
+**Com'è andata (6 nov 2026).** Sette modelli nuovi in `Tools/Blender/models/hidden.py` (stile KayKit, atlante `dungeon_texture.png`, ADR-094/096), esportati in
+`Assets/_Project/Art/Models/DarkDescent/`:
+
+| Modello | Cos'è | Misura | Note per Unity |
+|---|---|---|---|
+| `SealedDoor` | La porta di pietra: stipiti e architrave scuri, due battenti con specchiature e bandelle di ferro, il fermo di mezzo | 4,0 × 0,7 × 4,0 m (una cella) | Davanti -Y. Chiude un passaggio di una cella; si apre abbassandosi nel pavimento o scorrendo di lato |
+| `SealedDoor_Runes` | Le rune viola (quattro rombi, il filo sull'architrave, un cristallino): stanno a un pelo dalla porta | 2,0 × 0,6 × 3,7 m | Stesso centro della porta; materiale **emissivo** (come `Well_Liquid` e `Crystal`) acceso a porta chiusa, spento alla leva |
+| `Lever` | Il piedistallo con la placca e l'arco graduato | 1,0 × 0,8 × 1,1 m | Il perno dell'asta è a z 1,05 |
+| `Lever_Handle` | L'asta con il pomello rosso, l'origine al piede | 0,2 × 0,2 × 1,1 m | Gira attorno a X nel perno del piedistallo, da -30° a +30° |
+| `Lectern` | Il leggio con il libro aperto e il segnalibro | 1,0 × 0,9 × 1,55 m | Il piano guarda -Y; per i testi 1, 5, 10 |
+| `Tablet` | La lapide con le righe incise e il sole in cima | 1,2 × 0,6 × 1,7 m | Per le incisioni 3, 6, 7, 12 |
+| `ChestCurse` | Le catene che cingono il forziere, il teschio con gli occhi viola sul fermo, un cristallo in cima | 1,9 × 1,4 × 1,5 m | Si mette sul forziere `chest.fbx` stesso centro e stessa base; il forziere prende un materiale più scuro |
+
+Non servono modelli per il **prigioniero** (la `Cage` e le `Chains` della M13 ci sono già; il cavaliere è un modello di *Adventurers*), per la **statua** (la `Statue`
+del guardiano della M13 diventa il nemico, con lo scheletro e un materiale di pietra) né per **diari, lettere e biglietti** (`Books`, M13). Il **mimic** è il forziere.
+
+Il foglio con tutti i modelli accanto al forziere dei KayKit è in `Recordings/Photos/m25_modelli/foglio.png` (fuori da git). Nessuna foto in gioco ancora: i
+modelli entrano nelle scene dal 25.3. I 724 test EditMode restano verdi con i sette FBX importati.
