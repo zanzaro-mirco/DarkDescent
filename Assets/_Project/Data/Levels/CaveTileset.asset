@@ -35,6 +35,8 @@ MonoBehaviour:
   _lectern: {fileID: 6815327911715422784, guid: 549b06a51cd30ce45a0173f6d2835e35, type: 3}
   _tablet: {fileID: 6695817796504912274, guid: 95673eef8b13acc479a6053ff901a593, type: 3}
   _book: {fileID: 6473178012619538305, guid: 6b2aa692e77b8af42b4ba681bc0df5a8, type: 3}
+  _statue: {fileID: 0}
+  _prisoner: {fileID: 0}
   _footsteps:
   - {fileID: 8300000, guid: baa511dd709adcd408f4a934023d63ef, type: 3}
   - {fileID: 8300000, guid: 885e2d47dce085943b3186d13edd142a, type: 3}
@@ -146,6 +148,30 @@ MonoBehaviour:
     _keepsRotation: 0
   - _symbol: 94
     _prefab: {fileID: 7531695245056883934, guid: e1ca44f07241a6049802d929704c100e, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 0
+  - _symbol: 40
+    _prefab: {fileID: 4964887276303902355, guid: c874374388295fb45b5467fdd496282a, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 0
+  - _symbol: 41
+    _prefab: {fileID: 7150666452649638480, guid: 6d76129ed9da17149afb1370e761ce6e, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 0
+  - _symbol: 91
+    _prefab: {fileID: 4138966012849445861, guid: d2acb80c96ebc6341ab18e4d58f6b869, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 0
+  - _symbol: 93
+    _prefab: {fileID: 3676453724236134216, guid: 7908d4a87af972b43a72c1fc8201f570, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 0
+  - _symbol: 123
+    _prefab: {fileID: 6178295140821286716, guid: 59d62bbf292f0024f83bea146d3e510e, type: 3}
+    _replacesFloor: 0
+    _keepsRotation: 0
+  - _symbol: 125
+    _prefab: {fileID: 2854416862382528871, guid: 5eb87d47267861e4a9aeeb14c18f4492, type: 3}
     _replacesFloor: 0
     _keepsRotation: 0
   _road: 0

@@ -69,8 +69,8 @@ namespace DarkDescent.Tests
                         for (int x = 0; x < with.Width; x++)
                         {
                             char c = with[x, y];
-                            // i gruppi di barili contro la roccia (D5 della M13) e gli spuntoni (D8) arrivano con gli arredi
-                            bool decor = CavePopulator.IsDecor(c) || DungeonPopulator.BarrelWallSymbols.IndexOf(c) >= 0 || c == DungeonPopulator.SpikeSymbol;
+                            // i gruppi di barili contro la roccia (D5 della M13), gli spuntoni (D8) e i pozzi e i santuari (D10 della M25) arrivano con gli arredi
+                            bool decor = CavePopulator.IsDecor(c) || DungeonPopulator.BarrelWallSymbols.IndexOf(c) >= 0 || c == DungeonPopulator.SpikeSymbol || DungeonPopulator.IsFeature(c);
                             Assert.AreEqual(decor ? LevelMap.Floor : c, without[x, y], $"seme {seed}, profondità {depth}, cella ({x}, {y})");
                         }
                     }
@@ -183,13 +183,26 @@ namespace DarkDescent.Tests
                 Assert.IsNotNull(prefab, $"'{symbol}' senza prefab");
                 var colliders = prefab.GetComponentsInChildren<Collider>();
                 Assert.Greater(colliders.Length, 0, prefab.name);
-                Assert.IsTrue(colliders.All(c => c.gameObject.layer == ObstacleLayer), prefab.name + ": collider fuori dal layer degli ostacoli");
+                // il barile del crollo è un barile vero (D11 della M25): il suo collider sta nel layer dei nemici, come quello di tutti i barili da rompere
+                Assert.IsTrue(colliders.All(c => c.gameObject.layer == ObstacleLayer || c.GetComponentInParent<DarkDescent.Items.Breakable>(true) != null), prefab.name + ": collider fuori dal layer degli ostacoli");
                 var instance = Object.Instantiate(prefab);
                 try
                 {
                     foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
                     {
-                        Assert.IsTrue(renderer.sharedMaterials.All(m => m != null && allowed.Contains(m.name)), $"{prefab.name}: {renderer.name}");
+                        // il barile del crollo ha i materiali e gli effetti dei barili (pezzi, scintille, modello esplosivo): del suo solo l'ingombro
+                        if (renderer.GetComponentInParent<DarkDescent.Items.Breakable>(true) != null)
+                        {
+                            if (renderer.name != "Intact")
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            Assert.IsTrue(renderer.sharedMaterials.All(m => m != null && allowed.Contains(m.name)), $"{prefab.name}: {renderer.name}");
+                        }
+
                         var bounds = renderer.bounds;
                         foreach (var corner in new[] { bounds.min, bounds.max })
                         {

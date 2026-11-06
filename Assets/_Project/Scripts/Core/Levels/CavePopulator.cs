@@ -169,7 +169,7 @@ namespace DarkDescent.Levels
         /// ciascuna; le composizioni stanno contro la roccia, lontane tra loro, mai in un cunicolo, mai
         /// accanto a una cassa o alla scala, e se chiudono il cammino si tolgono.
         /// </summary>
-        public void Decorate(DungeonLayout layout, IRandomSource random)
+        public void Decorate(DungeonLayout layout, int depth, IRandomSource random)
         {
             if (_settings.FloorPerDecor <= 0)
             {
@@ -240,6 +240,106 @@ namespace DarkDescent.Levels
 
             PlaceWallBarrels(layout, random, candidates, placed);
             PlaceSpikes(layout, random, reserved);
+            PlaceFeatures(layout, depth, random, reserved);
+        }
+
+        /// <summary>Quanti tiri di una cripta (le sue stanze grandi) vale un livello di caverna: la probabilità per livello è quella di almeno un tiro riuscito.</summary>
+        public const int FeatureRolls = 4;
+
+        /// <summary>Le celle libere attorno a uno slargo: più di cinque delle otto (D10 della M25).</summary>
+        public const int WideNeighbours = 5;
+
+        /// <summary>Quante celle ci vogliono tra il pozzo e il santuario.</summary>
+        public const int FeatureGap = 6;
+
+        // Un pozzo e un santuario al più, negli slarghi dei cunicoli, come nella cripta (D10 della M25): le probabilità sono quelle del livello di cripta,
+        // la cella la sceglie l'hash della cella e della profondità. Due tiri soli in fondo al flusso degli arredi, dopo tutto il resto: mappa, nemici, casse
+        // e arredi dei semi già provati non cambiano.
+        private void PlaceFeatures(DungeonLayout layout, int depth, IRandomSource random, HashSet<Vector2Int> reserved)
+        {
+            double wellRoll = random.NextDouble();
+            double shrineRoll = random.NextDouble();
+            var wide = WideCells(layout, reserved);
+            Vector2Int? well = null;
+            if (wellRoll < LevelChance(_settings.WellChance))
+            {
+                well = PlaceFeature(layout, wide, RoomFeatureKind.Well, depth, null);
+            }
+
+            if (shrineRoll < LevelChance(_settings.ShrineChance))
+            {
+                PlaceFeature(layout, wide, RoomFeatureKind.Shrine, depth, well);
+            }
+        }
+
+        private static double LevelChance(float perRoll)
+        {
+            return 1d - Math.Pow(1d - perRoll, FeatureRolls);
+        }
+
+        /// <summary>Gli slarghi: celle libere con più di cinque vicini liberi su otto, fuori dai posti riservati, dai cunicoli e da quello che deve restare raggiungibile.</summary>
+        public static List<Vector2Int> WideCells(DungeonLayout layout, HashSet<Vector2Int> reserved)
+        {
+            var cells = new List<Vector2Int>();
+            for (int y = 1; y < layout.Height - 1; y++)
+            {
+                for (int x = 1; x < layout.Width - 1; x++)
+                {
+                    var cell = new Vector2Int(x, y);
+                    if (layout[x, y] != LevelMap.Floor || (reserved != null && reserved.Contains(cell)) || IsPassage(layout, cell) || NextToKeep(layout, cell))
+                    {
+                        continue;
+                    }
+
+                    int free = 0;
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        for (int dx = -1; dx <= 1; dx++)
+                        {
+                            if ((dx != 0 || dy != 0) && layout[x + dx, y + dy] == LevelMap.Floor)
+                            {
+                                free++;
+                            }
+                        }
+                    }
+
+                    if (free > WideNeighbours)
+                    {
+                        cells.Add(cell);
+                    }
+                }
+            }
+
+            return cells;
+        }
+
+        // la cella col punteggio più alto dell'hash che non chiude il cammino; null se non c'è posto
+        private static Vector2Int? PlaceFeature(DungeonLayout layout, List<Vector2Int> wide, RoomFeatureKind kind, int depth, Vector2Int? apart)
+        {
+            int salt = kind == RoomFeatureKind.Well ? 1 : 2;
+            var ordered = new List<Vector2Int>(wide);
+            ordered.Sort((a, b) =>
+            {
+                int byScore = DungeonPopulator.CellPick(b, depth + 100 * salt, 1 << 20).CompareTo(DungeonPopulator.CellPick(a, depth + 100 * salt, 1 << 20));
+                return byScore != 0 ? byScore : a.y != b.y ? a.y.CompareTo(b.y) : a.x.CompareTo(b.x);
+            });
+            foreach (var cell in ordered)
+            {
+                if ((apart.HasValue && Chebyshev(apart.Value, cell) < FeatureGap) || !layout.TryPlace(DungeonPopulator.FeatureSymbol(kind, cell, depth), cell.x, cell.y))
+                {
+                    continue;
+                }
+
+                if (IsConnected(layout))
+                {
+                    layout.AddFeature(new RoomFeature(-1, kind, cell));
+                    return cell;
+                }
+
+                layout.Remove(cell.x, cell.y);
+            }
+
+            return null;
         }
 
         // Gli spuntoni nei cunicoli (D8 della M13): le caverne vengono tutte dopo la prima profondità con

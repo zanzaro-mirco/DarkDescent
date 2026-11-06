@@ -297,3 +297,32 @@ spegne gli interruttori come per tutti i test (`ForgetPreferences`): vanno acces
 | 4 | Salirò al borgo a dire che qualcuno sta ancora scendendo. Prendi questo. Non fidarti di una statua che sta troppo vicina a un forziere. | I will go up to the village and tell them someone is still coming down. Take this. Do not trust a statue that stands too close to a chest. |
 
 Il titolo del pannello è «Il cavaliere in catene» / «The Knight in Chains»; l'etichetta è «Prigioniero» / «Prisoner».
+
+## Passo 25.6 — Le code della M13 (D10, D11)
+
+Tre pezzi che la M13 aveva lasciato fuori: i pozzi e i santuari nelle caverne, gli incantesimi che rompono i barili, il barile del crollo.
+
+### Pozzi e santuari nelle caverne (D10)
+
+- **Dove e quanti.** Negli **slarghi** (celle libere con più di cinque vicini liberi su otto), fuori dai posti riservati, dai cunicoli, dall'ingresso, dalla scala e dal davanti delle casse. **Al più un pozzo e un santuario per livello**, a sei celle l'uno dall'altro, come in cripta.
+- **Probabilità.** Quelle della cripta (`_wellChance` e `_shrineChance`, 15% per punto d'interesse), contate come i quattro punti d'interesse di una cripta: per livello di caverna **1 − 0,85⁴ ≈ 48%** a tipo. Misura su 400 semi: 199 pozzi, 202 santuari, 110 livelli con tutti e due.
+- **Come si sceglie.** La cella e il tipo vengono dall'**hash della cella e della profondità** (`DungeonPopulator.CellPick`, lo stesso della cripta), e i due soli tiri per livello stanno **in fondo al flusso degli arredi**: tutto quello che c'era prima (mappa, nemici, casse, arredi, spuntoni) resta cella per cella com'era. Un test lo controlla confrontando ogni caverna con la stessa senza i due tiri.
+- **Il ricordo.** Sono `OneUseFeature` come in cripta: `LevelRecord` li conta a parte (`MatchesFeatures`), e un salvataggio di una caverna di prima non ha quel conto, quindi nemici e casse tornano come erano e i pozzi sono nuovi.
+- **Il tileset.** `CaveFeatureTools.Install` aggiunge al `CaveTileset` i sei simboli della cripta con gli stessi prefab (si rilancia).
+
+### Gli incantesimi rompono i barili (D11)
+
+- **Il proiettile** (Dardo di fuoco, Dardo arcano, Palla di fuoco): un barile intero sulla sua strada si rompe e il proiettile scoppia lì, anche se il colpo non fa danno. Prima passava sopra.
+- **L'area** (Anello di fuoco, Nova di gelo, scoppio della Palla di fuoco): i barili dentro il raggio si rompono, **anche quelli esplosivi** (accendono la miccia come con un colpo, e l'esplosione rompe i vicini).
+- **Il buco del NavMesh.** Il proiettile si ferma sui muri leggendo il NavMesh, e un barile ci scava un buco più largo del suo collider: il dardo lo scambiava per un muro e scoppiava prima di toccarlo. Ora un barile subito oltre il bordo (1,6 m, `Projectile.BarrelCarve`) si colpisce. Lo ha trovato il test.
+- **Chi non rompe.** I proiettili dei nemici non cambiano: cercano solo il cavaliere. Nessuna esperienza e nessun segno sul barile, come per il colpo di mischia.
+
+### Il barile del crollo (D11)
+
+`CaveDecor_RockfallC` aveva un barile piccolo come modello con un collider fermo. Ora il posto è un'istanza di `Barrel_Small` (`RockfallBarrelTools.Build`, si rilancia): si rompe come gli altri, con i suoi pezzi, il suo suono e il passaggio che si libera, ma **vuoto** (nessuna tabella di loot e niente oggetto a terra), quindi i premi delle caverne non cambiano. Poggia a terra dove stava il vecchio.
+
+### Controlli
+
+- **EditMode:** `CaveFeaturesTests` (5: al più uno per tipo con le probabilità della cripta, nello slargo e a distanza, la caverna resta raggiungibile, il resto non cambia, l'hash sceglie tipo e posto). 760 verdi in tutto.
+- **PlayMode:** `BarrelSpellsPlayModeTests` (4: l'Anello di fuoco rompe il barile vicino e non quello lontano, il Dardo di fuoco rompe il barile sulla strada, un barile esplosivo colpito da un incantesimo accende la miccia ed esplode, il barile del crollo è un barile vero, vuoto e a terra).
+- **Foto** (`PhotoTour.CaveFeatureShots`): `cave_well`, `cave_shrine`, `cave_rockfall_barrel` e `cave_rockfall_barrel_broken` in `Recordings/Photos`. Il barile del crollo sta contro un muro e con certe rotazioni della camera si vede appena: è il limite della camera già descritto nel 25.5.

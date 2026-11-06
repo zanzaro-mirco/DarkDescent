@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
 using DarkDescent.Levels;
@@ -95,7 +96,10 @@ namespace DarkDescent.Tests
                     Assert.That(points.Count, Is.InRange(PatrolPlan.MinPoints, PatrolPlan.MaxPoints), enemy.name);
                     foreach (var point in points)
                     {
-                        Assert.IsTrue(NavMesh.SamplePosition(point, out _, 0.2f, NavMesh.AllAreas), $"{enemy.name}: un punto fuori dal NavMesh");
+                        string near = string.Join(", ", Manager.CurrentLevel.Breakables.Where(b => b != null && Vector3.Distance(b.transform.position, point) < 3f).Select(b => $"{b.name} a {Vector3.Distance(b.transform.position, point):0.0} m")
+                            .Concat(Manager.CurrentLevel.Features.Where(f => f != null && Vector3.Distance(f.transform.position, point) < 3f).Select(f => $"{f.name} a {Vector3.Distance(f.transform.position, point):0.0} m")));
+                        bool far = NavMesh.SamplePosition(point, out var closest, 20f, NavMesh.AllAreas);
+                        Assert.IsTrue(NavMesh.SamplePosition(point, out _, 0.2f, NavMesh.AllAreas), $"{enemy.name}: un punto fuori dal NavMesh ({spot.Item1} profondità {spot.Item3}, punto {point}, casa {enemy.HomePosition}, il NavMesh più vicino {(far ? closest.position.ToString() : "nessuno")}, vicino a: {(near.Length == 0 ? "niente" : near)})");
                         Assert.LessOrEqual(Vector3.Distance(new Vector3(point.x, 0f, point.z), new Vector3(enemy.HomePosition.x, 0f, enemy.HomePosition.z)), 8.01f, $"{enemy.name}: un punto oltre gli 8 m");
                     }
                 }

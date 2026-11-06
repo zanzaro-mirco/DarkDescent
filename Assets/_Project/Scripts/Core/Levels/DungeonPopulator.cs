@@ -579,7 +579,7 @@ namespace DarkDescent.Levels
 
         // Il simbolo del punto d'interesse; quale pozzo e quale santuario lo dice un hash della cella e della
         // profondità, non il flusso degli arredi: gli arredi dei semi già provati non scorrono
-        private static char FeatureSymbol(RoomFeatureKind kind, Vector2Int cell, int depth)
+        public static char FeatureSymbol(RoomFeatureKind kind, Vector2Int cell, int depth)
         {
             switch (kind)
             {
@@ -594,7 +594,7 @@ namespace DarkDescent.Levels
             }
         }
 
-        private static int CellPick(Vector2Int cell, int depth, int count)
+        public static int CellPick(Vector2Int cell, int depth, int count)
         {
             unchecked
             {

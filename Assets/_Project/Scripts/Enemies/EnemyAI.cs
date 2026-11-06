@@ -360,6 +360,7 @@ namespace DarkDescent.Enemies
                     if (NavMesh.SamplePosition(candidate, out var hit, 1.5f, NavMesh.AllAreas)
                         && FlatDistance(hit.position, _homePosition) <= _archetype.PatrolRadius + 0.01f
                         && FlatDistance(hit.position, _homePosition) >= 1f
+                        && NavMesh.SamplePosition(hit.position, out _, 0.2f, NavMesh.AllAreas)
                         && !NavMesh.Raycast(_homePosition, hit.position, out _, NavMesh.AllAreas))
                     {
                         _patrolPoints.Add(hit.position);

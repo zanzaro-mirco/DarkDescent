@@ -4,6 +4,7 @@ using DarkDescent.Characters;
 using DarkDescent.Combat;
 using DarkDescent.Core;
 using DarkDescent.Enemies;
+using DarkDescent.Items;
 using DarkDescent.Player;
 using DarkDescent.Stats;
 using DarkDescent.Talents;
@@ -327,7 +328,13 @@ namespace DarkDescent.Magic
                 for (int i = 0; i < count; i++)
                 {
                     var target = AreaHits[i].GetComponentInParent<Health>();
-                    if (target == null || target.IsDead || target.gameObject == gameObject || !_areaTargets.Add(target))
+                    if (target == null)
+                    {
+                        BreakBarrel(AreaHits[i]);
+                        continue;
+                    }
+
+                    if (target.IsDead || target.gameObject == gameObject || !_areaTargets.Add(target))
                     {
                         continue;
                     }
@@ -499,7 +506,14 @@ namespace DarkDescent.Magic
             for (int i = 0; i < count; i++)
             {
                 var target = AreaHits[i].GetComponentInParent<Health>();
-                if (target == null || target.IsDead || target.gameObject == gameObject || !_areaTargets.Add(target))
+                if (target == null)
+                {
+                    // i barili dentro l'anello si rompono, anche con la Nova di gelo che non fa danno (D11 della M25)
+                    BreakBarrel(AreaHits[i]);
+                    continue;
+                }
+
+                if (target.IsDead || target.gameObject == gameObject || !_areaTargets.Add(target))
                 {
                     continue;
                 }
@@ -517,6 +531,16 @@ namespace DarkDescent.Magic
             }
 
             _areaTargets.Clear();
+        }
+
+        // un barile dentro lo scoppio o l'anello si rompe (D11 della M25), anche l'esplosivo: accende la miccia come con un colpo
+        private void BreakBarrel(Collider hit)
+        {
+            var barrel = hit.GetComponentInParent<Breakable>();
+            if (barrel != null && !barrel.IsBroken)
+            {
+                barrel.Break(gameObject);
+            }
         }
 
         private AreaEffect AreaEffectFor(GameObject prefab)

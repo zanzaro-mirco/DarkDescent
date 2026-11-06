@@ -1065,6 +1065,82 @@ namespace DarkDescent.Tests
             }
         }
 
+        [UnityTest, Timeout(600000), Description("Pozzi e santuari nelle caverne e il barile del crollo (25.6 della M25): lo slargo con il pozzo, il santuario, il barile intero e rotto")]
+        public IEnumerator CaveFeatureShots()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            var hero = Hero.GetComponent<Health>();
+            hero.MultiplyMax(500f);
+            hero.Heal(float.MaxValue);
+            var agent = Hero.GetComponent<NavMeshAgent>();
+
+            Well well = null;
+            Shrine shrine = null;
+            Breakable rockfall = null;
+            for (ulong seed = 1; seed <= 40 && (well == null || shrine == null || rockfall == null); seed++)
+            {
+                Manager.RunSeed = seed;
+                Root.UseLootSeed(seed);
+                yield return Descend("Level_Caves", 5);
+                var level = Manager.CurrentLevel;
+                foreach (var enemy in level.Enemies.Where(e => e != null))
+                {
+                    enemy.enabled = false;
+                }
+
+                var foundWell = level.Features.OfType<Well>().FirstOrDefault();
+                var foundShrine = level.Features.OfType<Shrine>().FirstOrDefault();
+                var foundBarrel = level.Breakables.FirstOrDefault(b => b.name == "RockfallBarrel");
+
+                // una foto per cosa, nel primo livello che la ha: ci si sta vicini, la camera guarda da lontano
+                if (well == null && foundWell != null)
+                {
+                    well = foundWell;
+                    yield return StandNear(agent, well.transform.position, 3.5f);
+                    yield return Snap("cave_well");
+                }
+
+                if (shrine == null && foundShrine != null)
+                {
+                    shrine = foundShrine;
+                    yield return StandNear(agent, shrine.transform.position, 3.5f);
+                    yield return Snap("cave_shrine");
+                }
+
+                if (rockfall == null && foundBarrel != null)
+                {
+                    rockfall = foundBarrel;
+                    yield return StandNear(agent, rockfall.transform.position, 3.5f);
+                    yield return Snap("cave_rockfall_barrel");
+                    rockfall.TakeDamage(new DamageInfo(10f, DamageType.Physical, Hero));
+                    yield return new WaitForSecondsRealtime(1f);
+                    yield return Snap("cave_rockfall_barrel_broken");
+                }
+            }
+
+            Assert.IsNotNull(well, "una caverna con il pozzo");
+            Assert.IsNotNull(shrine, "una caverna con il santuario");
+            Assert.IsNotNull(rockfall, "una caverna con il barile del crollo");
+        }
+
+        private IEnumerator StandNear(NavMeshAgent agent, Vector3 target, float distance)
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                float angle = i * Mathf.PI / 8f;
+                Vector3 probe = target + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * distance;
+                if (NavMesh.SamplePosition(probe, out var hit, 0.4f, NavMesh.AllAreas))
+                {
+                    agent.Warp(hit.position);
+                    Hero.transform.rotation = Quaternion.LookRotation(Flat(target - hit.position));
+                    break;
+                }
+            }
+
+            yield return Settle();
+        }
+
         [UnityTest, Timeout(600000), Description("La statua che si anima (25.5 della M25): in piedi accanto alla cassa, mentre si scrolla con la polvere, il nemico di pietra, e le macerie")]
         public IEnumerator StatueShots()
         {

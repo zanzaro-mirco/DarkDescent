@@ -1,6 +1,7 @@
 using System;
 using DarkDescent.Combat;
 using DarkDescent.Core;
+using DarkDescent.Items;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -17,6 +18,9 @@ namespace DarkDescent.Magic
     [DisallowMultipleComponent]
     public class Projectile : MonoBehaviour
     {
+        /// <summary>Quanto oltre il bordo del NavMesh si cerca un barile: il suo ostacolo scava un buco più largo del suo collider.</summary>
+        public const float BarrelCarve = 1.6f;
+
         [Tooltip("Il raggio della sfera che cerca i bersagli.")]
         [SerializeField, Min(0.01f)] private float _radius = 0.3f;
 
@@ -126,9 +130,18 @@ namespace DarkDescent.Magic
 
             float step = Mathf.Min(_speed * Time.deltaTime, _range - _travelled);
             Vector3 from = transform.position;
-            if (TryHitTarget(from, step, out Health target, out Vector3 point))
+            if (TryHitTarget(from, step, out Health target, out Breakable barrel, out Vector3 point))
             {
                 var info = new DamageInfo(_damage, _damageType, _source);
+                if (target == null)
+                {
+                    // un barile sulla strada (D11 della M25): si rompe, anche con un colpo senza danno, e il proiettile scoppia lì
+                    WasBlocked = false;
+                    barrel.TakeDamage(info);
+                    Explode(point, barrel);
+                    return;
+                }
+
                 WasBlocked = _blockRandom != null && target.TryGetComponent(out ShieldBlock shield) && shield.TryBlock(info, _blockRandom);
                 if (!WasBlocked)
                 {
@@ -142,7 +155,17 @@ namespace DarkDescent.Magic
             Vector3 to = from + _direction * step;
             if (NavMesh.Raycast(Ground(from), Ground(to), out NavMeshHit wall, NavMesh.AllAreas))
             {
-                Explode(new Vector3(wall.position.x, from.y, wall.position.z), null);
+                // il buco che un barile lascia nel NavMesh non è un muro (D11 della M25): un barile subito oltre il bordo lo colpisce il proiettile
+                var edge = new Vector3(wall.position.x, from.y, wall.position.z);
+                if (TryHitTarget(from, Vector3.Distance(from, edge) + BarrelCarve, out Health beyond, out Breakable carved, out Vector3 carvedPoint) && beyond == null)
+                {
+                    WasBlocked = false;
+                    carved.TakeDamage(new DamageInfo(_damage, _damageType, _source));
+                    Explode(carvedPoint, carved);
+                    return;
+                }
+
+                Explode(edge, null);
                 return;
             }
 
@@ -154,27 +177,50 @@ namespace DarkDescent.Magic
             }
         }
 
-        // il primo bersaglio vivo sulla strada, senza il lanciatore
-        private bool TryHitTarget(Vector3 from, float step, out Health target, out Vector3 point)
+        // il primo bersaglio sulla strada, senza il lanciatore: un nemico vivo, o un barile intero (D11 della M25, solo se i suoi collider
+        // stanno tra i livelli cercati: li ha il cavaliere, non i maghi); mai tutti e due
+        private bool TryHitTarget(Vector3 from, float step, out Health target, out Breakable barrel, out Vector3 point)
         {
             target = null;
+            barrel = null;
             point = from;
             int count = Physics.SphereCastNonAlloc(from, _radius, _direction, Hits, step, _targetLayers, QueryTriggerInteraction.Ignore);
             float best = float.MaxValue;
             for (int i = 0; i < count; i++)
             {
+                if (Hits[i].distance >= best)
+                {
+                    continue;
+                }
+
                 var health = Hits[i].collider.GetComponentInParent<Health>();
-                if (health == null || health.IsDead || health.gameObject == _source || Hits[i].distance >= best)
+                if (health != null)
+                {
+                    if (health.IsDead || health.gameObject == _source)
+                    {
+                        continue;
+                    }
+
+                    best = Hits[i].distance;
+                    target = health;
+                    barrel = null;
+                    point = Hits[i].distance > 0f ? Hits[i].point : from;
+                    continue;
+                }
+
+                var breakable = Hits[i].collider.GetComponentInParent<Breakable>();
+                if (breakable == null || breakable.IsBroken)
                 {
                     continue;
                 }
 
                 best = Hits[i].distance;
-                target = health;
+                target = null;
+                barrel = breakable;
                 point = Hits[i].distance > 0f ? Hits[i].point : from;
             }
 
-            return target != null;
+            return target != null || barrel != null;
         }
 
         // le posizioni sul pavimento: il proiettile vola all'altezza del petto, il NavMesh sta a terra.

@@ -186,6 +186,12 @@ namespace DarkDescent.Levels
 
         public int MaxDecorPerRoom => _maxDecorPerRoom;
 
+        /// <summary>Probabilità di un pozzo per punto d'interesse (D4 della M13); le caverne la usano per i loro slarghi (D10 della M25).</summary>
+        public float WellChance => _wellChance;
+
+        /// <summary>Probabilità di un santuario per punto d'interesse (D4 della M13); le caverne la usano per i loro slarghi (D10 della M25).</summary>
+        public float ShrineChance => _shrineChance;
+
 
         public int MaxScatterPerRoom => _maxScatterPerRoom;
 
