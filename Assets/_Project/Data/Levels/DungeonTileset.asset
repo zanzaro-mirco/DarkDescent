@@ -35,6 +35,7 @@ MonoBehaviour:
   _lectern: {fileID: 6815327911715422784, guid: 549b06a51cd30ce45a0173f6d2835e35, type: 3}
   _tablet: {fileID: 6695817796504912274, guid: 95673eef8b13acc479a6053ff901a593, type: 3}
   _book: {fileID: 6473178012619538305, guid: 6b2aa692e77b8af42b4ba681bc0df5a8, type: 3}
+  _statue: {fileID: 1696711762681624312, guid: e11ba42d49c1d194f88613192e278d6d, type: 3}
   _footsteps:
   - {fileID: 8300000, guid: 472b0b680a5215b47b4af275cef8e6a9, type: 3}
   - {fileID: 8300000, guid: 0a05646a413e71149b40d1132317df34, type: 3}

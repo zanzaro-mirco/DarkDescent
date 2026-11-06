@@ -55,6 +55,8 @@ namespace DarkDescent.Tests
             SealedRoom.Enabled = false;
             // un leggio contro un muro è un oggetto in più nelle stanze dei test (D14 della M25): solo i test della lore lo accendono
             LoreSpot.Enabled = false;
+            // una statua che si anima cambia i combattimenti dei test (D14 della M25): solo i suoi test la accendono
+            StatueGuard.Enabled = false;
             // i suggerimenti partono spenti nei test: un riquadro non deve coprire un click (23.4 della M23)
             PlayerPrefs.SetInt(UI.HintDirector.OnPreference, 0);
             PlayerPrefs.DeleteKey(UI.HintDirector.SeenPreference);

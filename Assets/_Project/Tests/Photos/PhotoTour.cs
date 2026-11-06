@@ -1065,6 +1065,65 @@ namespace DarkDescent.Tests
             }
         }
 
+        [UnityTest, Timeout(600000), Description("La statua che si anima (25.5 della M25): in piedi accanto alla cassa, mentre si scrolla con la polvere, il nemico di pietra, e le macerie")]
+        public IEnumerator StatueShots()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            StatueGuard.Enabled = true;
+            try
+            {
+                var hero = Hero.GetComponent<Health>();
+                hero.MultiplyMax(500f);
+                hero.Heal(float.MaxValue);
+
+                StatueGuard guard = null;
+                for (ulong seed = 1; seed <= 80 && guard == null; seed++)
+                {
+                    if (!StatueRules.LevelWantsOne(seed, 3))
+                    {
+                        continue;
+                    }
+
+                    Manager.RunSeed = seed;
+                    Root.UseLootSeed(seed);
+                    yield return Descend("Level_Crypt", 3);
+                    guard = Manager.CurrentLevel.Secrets.OfType<StatueGuard>().FirstOrDefault();
+                }
+
+                Assert.IsNotNull(guard, "un livello con la statua");
+                var agent = Hero.GetComponent<NavMeshAgent>();
+                Vector3 chest = guard.ChestPosition;
+                Vector3 away = Flat(guard.transform.position - chest);
+                Vector3 far = chest + (away.sqrMagnitude > 0.01f ? away.normalized : Vector3.forward) * 7f;
+                agent.Warp(NavMesh.SamplePosition(far, out var farHit, 4f, NavMesh.AllAreas) ? farHit.position : far);
+                Hero.transform.rotation = Quaternion.LookRotation(Flat(guard.transform.position - Hero.transform.position));
+                yield return Settle();
+                yield return Snap("statue_still");
+
+                // vicino alla cassa: si scrolla
+                Vector3 near = chest + (away.sqrMagnitude > 0.01f ? away.normalized : Vector3.forward) * 1.8f;
+                agent.Warp(NavMesh.SamplePosition(near, out var nearHit, 3f, NavMesh.AllAreas) ? nearHit.position : near);
+                Hero.transform.rotation = Quaternion.LookRotation(Flat(guard.transform.position - Hero.transform.position));
+                yield return new WaitForSecondsRealtime(0.55f);
+                yield return Snap("statue_shaking");
+                yield return new WaitForSecondsRealtime(1.3f);
+                yield return Snap("statue_awake");
+
+                // abbattuta: le macerie
+                var enemy = guard.Enemy;
+                Assert.IsNotNull(enemy, "il nemico è nato");
+                var health = enemy.GetComponent<Health>();
+                health.TakeDamage(new DamageInfo(health.Max * 5f, DamageType.Physical, Hero));
+                yield return new WaitForSecondsRealtime(1.2f);
+                yield return Snap("statue_rubble");
+            }
+            finally
+            {
+                StatueGuard.Enabled = false;
+            }
+        }
+
         [UnityTest, Timeout(600000), Description("La stanza sigillata (25.4 della M25): la porta di pietra con le rune dal corridoio, la leva contro il muro, e la porta aperta con il tesoro dietro")]
         public IEnumerator SealedRoomShots()
         {

@@ -1002,6 +1002,7 @@ namespace DarkDescent.Core
             // la stanza sigillata (D5 della M25) si mette prima del ricordo: il ricordo la ritrova tirata e aperta
             var sealedRoom = ArmSealedRoom(level);
             ArmLore(level, sealedRoom);
+            ArmStatue(level, sealedRoom);
 
             // prima di tutto il resto: i nemici già uccisi non si collegano
             _levelRecorder.Restore(level);
@@ -1627,6 +1628,88 @@ namespace DarkDescent.Core
             var lore = LoreSpot.Build(level, prefab, spot.Value, text);
             lore.Reading += HandleLoreReading;
             level.RegisterSecret(lore);
+        }
+
+        // La statua che si anima (D7 della M25): vicino a una cassa normale scelta dal seme tra tutte quelle del livello (anche le aperte), mai un mimic, mai il baule
+        // maledetto né una cassa a meno di 14 m da lui, mai nel fondo della stanza sigillata. Il tetto di tre segreti (D16): se il livello ha già stanza sigillata, prigioniero
+        // e baule maledetto, la statua cede. Tutto è una funzione del seme e delle casse, anche con gli interruttori spenti: il livello è lo stesso e l'ordine dei segreti pure
+        private void ArmStatue(LevelContext level, SealedRoom sealedRoom)
+        {
+            if (!StatueGuard.Enabled || level.IsTown || level.Map == null || level.Tileset == null || level.Tileset.Statue == null
+                || !StatueRules.LevelWantsOne(_loot.RunSeed, level.Depth))
+            {
+                return;
+            }
+
+            var chests = new List<Chest>();
+            var cells = new List<Vector2Int>();
+            foreach (var chest in level.Chests)
+            {
+                if (!chest.OpensWithBoss && !chest.OpensWithGuardian && chest.TryGetComponent(out ChestSecret _))
+                {
+                    chests.Add(chest);
+                    cells.Add(chest.Cell);
+                }
+            }
+
+            int cursed = SecretRules.PickCursed(_loot.RunSeed, level.Depth, cells);
+            if (StatueRules.Yields(sealedRoom != null, false, cursed >= 0))
+            {
+                return;
+            }
+
+            var eligible = new List<int>();
+            var eligibleCells = new List<Vector2Int>();
+            for (int i = 0; i < chests.Count; i++)
+            {
+                bool mimic = SecretRules.IsMimic(_loot.RunSeed, level.Depth, cells[i].x, cells[i].y);
+                bool nearCursed = cursed >= 0 && Vector3.Distance(chests[i].transform.position, chests[cursed].transform.position) < StatueRules.CursedSeparation;
+                bool sealedIn = sealedRoom != null && sealedRoom.Touches(chests[i].transform.position);
+                if (!mimic && !nearCursed && !sealedIn)
+                {
+                    eligible.Add(i);
+                    eligibleCells.Add(cells[i]);
+                }
+            }
+
+            int pick = StatueRules.Pick(_loot.RunSeed, level.Depth, eligibleCells);
+            if (pick < 0)
+            {
+                return;
+            }
+
+            var guarded = chests[eligible[pick]];
+            var guard = StatueGuard.Build(level, level.Tileset.Statue, StatueSpot(level.Map, guarded), guarded.transform.position);
+            guard.BindPlayer(_player.transform);
+            guard.Spawned += HandleSecretSpawned;
+            level.RegisterSecret(guard);
+        }
+
+        // il posto della statua: accanto al davanti della cassa, su pavimento semplice della mappa, di lato e poi un poco avanti; senza un posto di lato, davanti
+        private static Vector3 StatueSpot(LevelMap map, Chest chest)
+        {
+            var t = chest.transform;
+            Vector3 front = chest.Front;
+            var candidates = new[]
+            {
+                front + t.right * 2.6f,
+                front - t.right * 2.6f,
+                front + t.right * 2.6f + t.forward * 1.5f,
+                front - t.right * 2.6f + t.forward * 1.5f,
+                front + t.forward * 2.4f,
+            };
+            var walkable = SealedRoomPlanner.Walkability(map);
+            foreach (var candidate in candidates)
+            {
+                int x = Mathf.RoundToInt(candidate.x / LevelMap.CellSize);
+                int y = Mathf.RoundToInt(-candidate.z / LevelMap.CellSize);
+                if (x > 0 && y > 0 && x < map.Width - 1 && y < map.Height - 1 && map.GetSymbol(x, y) == LevelMap.Floor && walkable[x, y])
+                {
+                    return candidate;
+                }
+            }
+
+            return candidates[candidates.Length - 1];
         }
 
         private void HandleLoreReading(LoreSpot lore)
