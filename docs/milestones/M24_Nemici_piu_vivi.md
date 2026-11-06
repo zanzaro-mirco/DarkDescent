@@ -200,3 +200,40 @@ o troppo duro, i numeri sono nei due asset di colpo e nella vita del prefab, e s
 **Test.** EditMode (12 nuovi: le fasi, il posto su 400 semi, la scala raggiungibile, i dati, il prefab, il tesoro, il set), PlayMode (7: aspetta alla scala, la barra, le tre evocazioni una volta sola,
 la carica in linea retta con la striscia e il colpo, la carica mancata, la morte con il tesoro e il ricordo, il cavaliere che cade). **Non ancora provato dal vivo:** come si vede e come si combatte
 (il modello con l'aura, la striscia a terra) — foto e prova di Mirco in 24.6.
+
+## Passo 24.5 — Il mondo cresce con te
+
+**Fatto, in locale.** L'interruttore dell'altare e quello che fa (D12–D15), spento di default.
+
+- **Il nucleo.** `ProgressionSettings` ha il margine (3), la curva (0,04 per livello) e il tetto (×3), tarabili nell'asset. `EffectiveLevel(profondità, livello, bonus, acceso)` è `max(zona, livello − 3)`,
+  `EnemyGrowth` è `min(tetto, 1 + 0,04 × (livello efficace − zona))`; spento, uno è la zona e l'altro 1. `ExperienceForKill` ha un parametro in più: acceso, il calo oltre la zona parte dal livello
+  efficace, cioè dal margine. `DifficultyProgress.GrowingWorld` tiene l'interruttore.
+- **Il gioco.** `CompositionRoot` dà al `LootRoller` il livello efficace (la funzione legge il livello del cavaliere e l'interruttore a ogni tiro), moltiplica vita e danno di ogni nemico che si lega
+  (`GrowthOf`, sopra la difficoltà e il grado) tranne **il re e il Custode**, e passa l'interruttore all'esperienza. Un nemico si lega una volta: l'interruttore vale **dal prossimo livello che si carica**,
+  non cambia i nemici di un livello già aperto, e non fa un mondo nuovo (non chiede conferma).
+- **Il salvataggio 11.** `_growingWorld` in `SaveData`; migrazione **10 → 11**: interruttore spento, **e i ricordi dei livelli e il punto del portale si azzerano** (il livello 4 ha il Custode, e i ricordi
+  leggono nemici e casse nell'ordine in cui il livello li costruisce: come il 9 → 10 della M22). Fixture `save_v11.json` (con l'interruttore acceso) accanto a `save_v10.json`; difficoltà, classe,
+  oggetti e mappa scoperta restano.
+- **L'altare.** `GrowingWorldTools` (menu *UI → Interruttore del mondo che cresce*, idempotente) aggiunge a `DifficultyPanel` un pulsante tra l'elenco e «Rifai il mondo» (la finestra cresce di una riga), con
+  «Il mondo cresce con te: No/Sì» e un suggerimento (`HoverShow`) che compare sotto la finestra al passaggio. Stringhe `altar.growing_off`, `altar.growing_on`, `altar.growing_hint`.
+
+**Misura con l'interruttore acceso (D13, D18).** `DifficultyCensus.MeasureGrowing`: la griglia 4 × 4 della scheda (cavaliere di livello 1, 10, 25, 50; profondità 1, 3, 5, 8) a ogni difficoltà, oggetti al livello
+efficace e bruto e scheletro con la crescita; il re non cresce. Guerriero (Armi) e Mago di Fuoco. Numeri al Crepuscolo, Guerriero, colpi al bruto da spento ad acceso (e colpi del bruto retti):
+
+| cavaliere | profondità 1 | profondità 8 |
+|---|---|---|
+| livello 10 (oggetti 7) | 4,2 → 5,2 (regge 7,5 → 6,0), ×1,24 | 4,2 → 4,2, ×1,00 (zona 10) |
+| livello 25 (oggetti 22) | 1,9 → 3,1 (regge 11,7 → 6,4), ×1,84 | 1,8 → 2,5 (regge 11,6 → 8,0), ×1,48 |
+| livello 50 (oggetti 47) | 0,8 → 1,7 (regge 18,7 → 7,0), ×2,84 | 0,7 → 1,5 (regge 18,6 → 8,0), ×2,48 |
+
+L'esperienza di un cavaliere di livello 50 alla 1 sale da 60 a 270 per livello (il calo parte dal margine). Il Mago dà numeri quasi uguali (livello 50 alla 1: 0,8 → 1,9).
+
+**Che cosa dicono, senza addolcirlo.** La curva fa quello che la scheda scrive (×1,64 a livello 20, ×2,84 al massimo, sotto il tetto), ma **non basta a tenere un cavaliere molto più forte della zona dentro le
+fasce di un cavaliere in pari**: a livello 25 il bruto muore ancora in 3 colpi, a livello 50 in 1,7. Quello che l'interruttore fa è dimezzare la distanza: il cavaliere non vince più in uno o due colpi senza
+rischio (regge 6–8 colpi del bruto invece di 12–19) e ogni livello in più si sente ancora (5,2 → 3,1 → 1,7). Dall'Abisso I gli oggetti da 47 tengono il passo con la crescita e l'interruttore è quasi neutro
+(a livello 50 alla 1 dell'Abisso I: 6,0 → 6,8 colpi; mai più facile del 15%). **Se Mirco vuole un mondo più duro**, è la pendenza (0,04 → 0,06) o il tetto (×3 → ×4) in `Progression.asset`, senza codice; il
+tetto di ×3 basta fino a 0,043 per livello al 50.
+
+**Test.** EditMode (13 nuovi tra cui: spento non cambia niente per ogni profondità, livello e bonus; la curva della scheda; il tetto; l'esperienza dal margine; le migrazioni 10 → 11 e il campione
+dell'11; la misura spenta uguale a prima; le fasce nuove dell'interruttore acceso per Guerriero e Mago nelle celle in cui un cavaliere sta davvero; salire di livello si sente ancora). PlayMode (4 nuovi:
+l'interruttore all'altare, il livello degli oggetti, la vita dei nemici ×1,64 e il Custode che non cresce, l'esperienza più alta). Corretti i test che chiedevano il formato 10.

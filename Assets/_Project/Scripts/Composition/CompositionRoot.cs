@@ -308,6 +308,9 @@ namespace DarkDescent.Core
         /// <summary>Il seme della partita, da cui viene ogni drop (D5 della M5).</summary>
         public ulong LootSeed => _loot.RunSeed;
 
+        /// <summary>Il livello degli oggetti che cadono a una profondità, con la difficoltà e «Il mondo cresce con te»: per i test.</summary>
+        public int LootItemLevel(int depth) => _loot.ItemLevel(depth);
+
         /// <summary>La difficoltà della partita, quelle completate e il mondo (M14).</summary>
         public DifficultyProgress Difficulty => _difficulty;
 
@@ -384,10 +387,12 @@ namespace DarkDescent.Core
                 }
             }
 
-            // il livello degli oggetti è quello della zona, con la difficoltà (D7 della M14)
-            var progression = _player.GetComponent<PlayerProgress>().Settings;
+            // il livello degli oggetti è quello della zona, con la difficoltà (D7 della M14); con «Il mondo cresce con te» non
+            // scende sotto il livello del cavaliere meno il margine (D12 della M24)
+            var playerProgress = _player.GetComponent<PlayerProgress>();
+            var progression = playerProgress.Settings;
             _loot = new LootRoller(new ItemGenerator(_affixes.Affixes, RarityTable.Default), seed,
-                depth => progression.ZoneLevel(depth, CurrentDifficulty.ZoneLevelBonus));
+                depth => progression.EffectiveLevel(depth, playerProgress.Progress.Level, CurrentDifficulty.ZoneLevelBonus, _difficulty.GrowingWorld));
             _loot.UseNamed(_namedItems);
             ReadNamedChance(args);
             ApplyDifficultyToLoot();
@@ -898,6 +903,7 @@ namespace DarkDescent.Core
             _difficulty.WorldChanged += HandleWorldChanged;
             _difficultyPanel.SelectRequested += HandleDifficultySelected;
             _difficultyPanel.NewWorldRequested += HandleNewWorldRequested;
+            _difficultyPanel.GrowingWorldRequested += HandleGrowingWorldRequested;
             _deathScreen.RestartRequested += Restart;
             _playerAttack.HitLanded += HandlePlayerHitLanded;
             _levelManager.LevelLoaded += BindLevel;
@@ -928,6 +934,7 @@ namespace DarkDescent.Core
             _difficulty.WorldChanged -= HandleWorldChanged;
             _difficultyPanel.SelectRequested -= HandleDifficultySelected;
             _difficultyPanel.NewWorldRequested -= HandleNewWorldRequested;
+            _difficultyPanel.GrowingWorldRequested -= HandleGrowingWorldRequested;
             _deathScreen.RestartRequested -= Restart;
             _playerAttack.HitLanded -= HandlePlayerHitLanded;
             _levelManager.LevelLoaded -= BindLevel;
@@ -1151,6 +1158,12 @@ namespace DarkDescent.Core
             _difficulty.Select(index);
         }
 
+        // l'interruttore «Il mondo cresce con te» (D12 della M24): niente conferma e niente mondo nuovo, si può girare in ogni momento
+        private void HandleGrowingWorldRequested(bool on)
+        {
+            _difficulty.SetGrowingWorld(on);
+        }
+
         private void HandleNewWorldRequested()
         {
             _difficultyPanel.Close();
@@ -1199,7 +1212,7 @@ namespace DarkDescent.Core
                 bonus = special.Rank != EnemyRank.Boss ? special.Numbers.Loot : null;
             }
 
-            ApplyDifficulty(enemy);
+            ApplyDifficulty(enemy, depth);
 
             if (rewarding)
             {
@@ -1234,14 +1247,15 @@ namespace DarkDescent.Core
 
         // La difficoltà sopra il grado (D5 della M14): vita e danno moltiplicati, colpire e Armatura in
         // più. Un nemico si lega una volta: ogni livello caricato ha nemici nuovi
-        private void ApplyDifficulty(EnemyAI enemy)
+        private void ApplyDifficulty(EnemyAI enemy, int depth)
         {
             var tier = CurrentDifficulty;
-            enemy.GetComponent<Health>().MultiplyMax(tier.Life);
-            enemy.GetComponent<MeleeAttack>().SetDifficultyMultiplier(tier.Damage);
+            float growth = GrowthOf(enemy, depth);
+            enemy.GetComponent<Health>().MultiplyMax(tier.Life * growth);
+            enemy.GetComponent<MeleeAttack>().SetDifficultyMultiplier(tier.Damage * growth);
             if (enemy.TryGetComponent(out RangedAttack ranged))
             {
-                ranged.SetDifficultyMultiplier(tier.Damage);
+                ranged.SetDifficultyMultiplier(tier.Damage * growth);
             }
 
             if (enemy.TryGetComponent(out CharacterStats stats))
@@ -1250,6 +1264,19 @@ namespace DarkDescent.Core
                 stats.Sheet.AddModifier(new StatModifier(StatType.ToHit, ModifierKind.Flat, tier.ToHit, tier));
                 stats.Sheet.AddModifier(new StatModifier(StatType.Armor, ModifierKind.Flat, tier.Armor, tier));
             }
+        }
+
+        // «Il mondo cresce con te» (D12–D14 della M24): vita e danno seguono il livello efficace; il re e il Custode hanno la loro
+        // taratura e non crescono, i campioni e gli unici sì (il grado si applica sopra). Un nemico si lega una volta, al caricamento
+        private float GrowthOf(EnemyAI enemy, int depth)
+        {
+            if (!_difficulty.GrowingWorld || enemy.TryGetComponent(out BossController _) || enemy.TryGetComponent(out GuardianController _))
+            {
+                return 1f;
+            }
+
+            var progress = _player.GetComponent<PlayerProgress>();
+            return progress.Settings.EnemyGrowth(depth, progress.Progress.Level, CurrentDifficulty.ZoneLevelBonus, true);
         }
 
         // Il re prende i modificatori dei campioni secondo la difficoltà (D5 della M14), dal seme del
@@ -1679,7 +1706,7 @@ namespace DarkDescent.Core
         {
             enemy.Killed -= HandleEnemyKilled;
             _rewardingEnemies.Remove(enemy);
-            _progress.AwardKill(ExperienceOf(enemy), _depth, CurrentDifficulty);
+            _progress.AwardKill(ExperienceOf(enemy), _depth, CurrentDifficulty, _difficulty.GrowingWorld);
             _runStats.AddKill();
             _talents.HandleKill();
         }

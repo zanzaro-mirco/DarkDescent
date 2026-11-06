@@ -61,7 +61,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(10, data.Version, "portato al formato corrente");
+            Assert.AreEqual(11, data.Version, "portato al formato corrente");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.IsNotNull(data.Explored);
             Assert.AreEqual(0, data.Explored.Count, "un salvataggio vecchio non ha mappe");
@@ -105,7 +105,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(10, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6, dal 6 al 7, dal 7 all'8, dall'8 al 9 e dal 9 al 10");
+            Assert.AreEqual(11, data.Version, "passa anche dal 3 al 4, dal 4 al 5, dal 5 al 6, dal 6 al 7, dal 7 all'8, dall'8 al 9, dal 9 al 10 e dal 10 all'11");
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.KnownSpells.Count, "nessun incantesimo imparato: il Dardo è noto dall'inizio");
             Assert.AreEqual(0, data.SelectedSpell);
@@ -265,7 +265,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(10, data.Version, "portato al formato 10, passando dal 9: un Guerriero senza nome");
+            Assert.AreEqual(11, data.Version, "portato al formato corrente, passando dal 9: un Guerriero senza nome");
             Assert.AreEqual(("warrior", ""), (data.Class, data.CharacterName));
             Assert.AreEqual(("Town", 24, 4321), (data.Scene, data.Level, data.Gold));
             Assert.AreEqual("warrior.arms", data.Specialization);
@@ -288,7 +288,7 @@ namespace DarkDescent.Tests
             SaveFile.Write(_path, data);
             StringAssert.Contains($"\"_version\": {SaveData.CurrentVersion}", File.ReadAllText(_path));
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var again));
-            Assert.AreEqual((10, "mage", "Merlino"), (again.Version, again.Class, again.CharacterName));
+            Assert.AreEqual((SaveData.CurrentVersion, "mage", "Merlino"), (again.Version, again.Class, again.CharacterName));
 
             Assert.AreEqual("warrior", data.WithCharacter(null, null).Class, "senza classe è il Guerriero");
         }
@@ -304,7 +304,7 @@ namespace DarkDescent.Tests
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(10, data.Version);
+            Assert.AreEqual(11, data.Version);
             Assert.AreEqual(SaveData.CurrentVersion, data.Version);
             Assert.AreEqual(0, data.Levels.Count, "nessun livello è ricordato: si rigenerano come nuovi");
             Assert.IsNull(data.PortalSpot, "il portale riporta all'ingresso della profondità");
@@ -340,25 +340,78 @@ namespace DarkDescent.Tests
             Assert.IsNull(read.PortalSpot);
         }
 
-        [Test, Description("Il campione del formato 10 (M22) si carica com'è, senza migrazione, e riscritto e riletto resta lo stesso; un file già del 10 non perde i ricordi dei livelli")]
-        public void FormatTen_LoadsAsItIs()
+        [Test, Description("Il campione del formato 10 (M22) passa dalla migrazione all'11 (D15 della M24): il mondo non cresce e i ricordi dei livelli e il punto del portale si azzerano, perché il livello 4 ha il Custode; il resto resta")]
+        public void FormatTen_MigratesToEleven()
         {
             var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v10.json");
             StringAssert.Contains("\"_version\": 10", fixture.text, "il file congelato è davvero del formato 10");
+            var raw = SaveData.FromJson(fixture.text);
+            raw.WithLevels(new List<LevelRecord> { new LevelRecord("Level_Crypt", 4, 8, 1) }).WithTown(true, 2, new Vector3(1f, 0f, 2f));
+            File.WriteAllText(_path, raw.ToJson());
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(11, data.Version);
+            Assert.AreEqual(SaveData.CurrentVersion, data.Version);
+            Assert.IsFalse(data.GrowingWorld, "il mondo non cresce, finché non lo si accende all'altare");
+            Assert.AreEqual(0, data.Levels.Count, "nessun livello è ricordato: il livello 4 ha il Custode");
+            Assert.IsNull(data.PortalSpot);
+            Assert.AreEqual((1, 0, 2), (data.Difficulty, data.HighestDifficulty, data.World), "la difficoltà e il mondo restano");
+            Assert.AreEqual(("mage", "Merlino", 24), (data.Class, data.CharacterName, data.Level));
+        }
+
+        [Test, Description("Il campione del formato 10 com'è, senza altri ritocchi, si migra all'11 con l'interruttore spento")]
+        public void FormatTen_FixtureLoadsWithTheSwitchOff()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v10.json");
             File.WriteAllText(_path, fixture.text);
 
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
-            Assert.AreEqual(10, data.Version);
-            Assert.AreEqual((0, 5), (data.Levels.Count, data.PortalDepth));
-            Assert.IsNull(data.PortalSpot);
+            Assert.AreEqual(11, data.Version);
+            Assert.IsFalse(data.GrowingWorld);
+            Assert.AreEqual(5, data.PortalDepth, "la profondità del portale resta");
+        }
+
+        [Test, Description("Il campione del formato 11 (M24) si carica com'è, senza migrazione, con «Il mondo cresce con te» acceso; riscritto e riletto resta acceso, e un livello ricordato dopo l'11 resta")]
+        public void FormatEleven_LoadsAsItIs()
+        {
+            var fixture = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/_Project/Tests/EditMode/Fixtures/save_v11.json");
+            StringAssert.Contains("\"_version\": 11", fixture.text, "il file congelato è davvero del formato 11");
+            File.WriteAllText(_path, fixture.text);
+
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var data));
+            Assert.AreEqual(11, data.Version);
+            Assert.IsTrue(data.GrowingWorld, "l'interruttore acceso nel file resta acceso");
+            Assert.AreEqual((1, 0, 2), (data.Difficulty, data.HighestDifficulty, data.World));
             Assert.AreEqual(("mage", "Merlino", 24), (data.Class, data.CharacterName, data.Level));
 
-            // un livello ricordato dopo il 10 resta, tornando a leggere il file
             data.WithLevels(new List<LevelRecord> { new LevelRecord("Level_Crypt", 2, 8, 1) }).WithTown(true, 2, new Vector3(1f, 0f, 2f));
             SaveFile.Write(_path, data);
             Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var again));
-            Assert.AreEqual(1, again.Levels.Count, "un file del 10 non passa dalla migrazione che azzera");
+            Assert.AreEqual(1, again.Levels.Count, "un file dell'11 non passa dalla migrazione che azzera");
+            Assert.IsTrue(again.GrowingWorld);
             Assert.AreEqual(new Vector3(1f, 0f, 2f), again.PortalSpot);
+        }
+
+        [Test, Description("L'interruttore passa dal progresso della difficoltà al salvataggio e ritorno; un mondo nuovo o una difficoltà diversa non lo spengono")]
+        public void GrowingWorld_TravelsThroughTheSave()
+        {
+            var progress = new DarkDescent.Progression.DifficultyProgress(4);
+            Assert.IsFalse(progress.GrowingWorld, "spento di default");
+            int changes = 0;
+            progress.Changed += () => changes++;
+            progress.SetGrowingWorld(true);
+            progress.SetGrowingWorld(true);
+            Assert.AreEqual(1, changes, "un solo avviso, se non cambia niente");
+
+            var data = SaveData.Create(5UL, "Town", "Start", 0).WithDifficulty(progress.Current, progress.HighestCompleted, progress.World, progress.GrowingWorld);
+            SaveFile.Write(_path, data);
+            Assert.AreEqual(SaveReadResult.Ok, SaveFile.TryRead(_path, out var read));
+            var again = new DarkDescent.Progression.DifficultyProgress(4);
+            again.Restore(read.Difficulty, read.HighestDifficulty, read.World, read.GrowingWorld);
+            Assert.IsTrue(again.GrowingWorld);
+
+            again.NewWorld();
+            Assert.IsTrue(again.GrowingWorld, "rifare il mondo non spegne l'interruttore");
         }
 
         [Test, Description("La barra a otto posti del 20.3 (D18): messa nelle quattro caselle, il sinistro ha l'Attacco e nessuna abilità che costa, e ogni casella tiene solo abilità che ci stanno")]

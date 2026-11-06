@@ -29,6 +29,12 @@ namespace DarkDescent.UI
 
         [SerializeField] private Button _newWorld;
 
+        [Tooltip("«Il mondo cresce con te» (D12 della M24): un interruttore Sì/No tra le difficoltà e Rifai il mondo.")]
+        [SerializeField] private Button _growingWorld;
+
+        [Tooltip("Il testo del suggerimento dell'interruttore; si mostra al passaggio (HoverShow sul pulsante).")]
+        [SerializeField] private TMP_Text _growingHint;
+
         [Tooltip("Ricomincia l'albero delle abilità per 30 oro a livello (D11 della M20).")]
         [SerializeField] private Button _resetTalents;
 
@@ -57,12 +63,20 @@ namespace DarkDescent.UI
         /// <summary>Confermato "Rifai il mondo".</summary>
         public event Action NewWorldRequested;
 
+        /// <summary>Girato l'interruttore «Il mondo cresce con te»: il valore nuovo.</summary>
+        public event Action<bool> GrowingWorldRequested;
+
         /// <summary>Confermato "Riassegna le abilità": chi tiene la partita prende l'oro e azzera l'albero.</summary>
         public event Action ResetTalentsRequested;
 
         public bool IsOpen => _root.activeSelf;
 
         public Button NewWorldButton => _newWorld;
+
+        public Button GrowingWorldButton => _growingWorld;
+
+        /// <summary>Il testo dell'interruttore «Il mondo cresce con te»: per i test.</summary>
+        public string GrowingWorldText => _growingWorld != null ? _growingWorld.GetComponentInChildren<TMP_Text>(true).text : null;
 
         public Button ResetTalentsButton => _resetTalents;
 
@@ -124,6 +138,11 @@ namespace DarkDescent.UI
         {
             _newWorld.onClick.AddListener(HandleNewWorldClicked);
             _resetTalents.onClick.AddListener(HandleResetTalentsClicked);
+            if (_growingWorld != null)
+            {
+                _growingWorld.onClick.AddListener(HandleGrowingWorldClicked);
+            }
+
             _close.onClick.AddListener(Close);
             Subscribe();
         }
@@ -132,6 +151,11 @@ namespace DarkDescent.UI
         {
             _newWorld.onClick.RemoveListener(HandleNewWorldClicked);
             _resetTalents.onClick.RemoveListener(HandleResetTalentsClicked);
+            if (_growingWorld != null)
+            {
+                _growingWorld.onClick.RemoveListener(HandleGrowingWorldClicked);
+            }
+
             _close.onClick.RemoveListener(Close);
             Unsubscribe();
         }
@@ -207,6 +231,16 @@ namespace DarkDescent.UI
                 _labels[i].color = open ? Color.Lerp(tier.Color, Color.white, _lift) : _lockedColor;
                 _rows[i].interactable = open && i != _progress.Current;
             }
+
+            if (_growingWorld != null)
+            {
+                _growingWorld.GetComponentInChildren<TMP_Text>(true).text = _localizer.Get(_progress.GrowingWorld ? TextKeys.AltarGrowingOn : TextKeys.AltarGrowingOff);
+            }
+
+            if (_growingHint != null)
+            {
+                _growingHint.text = _localizer.Get(TextKeys.AltarGrowingHint);
+            }
         }
 
         private void HandleRowClicked(int index)
@@ -218,6 +252,11 @@ namespace DarkDescent.UI
 
             string name = _localizer.Get(_table.Tier(index).NameKey);
             _confirm.Ask(_localizer.Format(TextKeys.AltarConfirmDifficulty, name), () => SelectRequested?.Invoke(index));
+        }
+
+        private void HandleGrowingWorldClicked()
+        {
+            GrowingWorldRequested?.Invoke(!_progress.GrowingWorld);
         }
 
         private void HandleNewWorldClicked()

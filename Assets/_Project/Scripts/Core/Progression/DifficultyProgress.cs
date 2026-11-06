@@ -26,6 +26,23 @@ namespace DarkDescent.Progression
 
         public int HighestCompleted { get; private set; } = -1;
 
+        /// <summary>
+        /// «Il mondo cresce con te» (D12 della M24): spento di default. Acceso, livello degli oggetti, vita e danno dei nemici e esperienza
+        /// seguono il cavaliere. Non fa un mondo nuovo: vale dal prossimo livello che si carica e dal prossimo colpo.
+        /// </summary>
+        public bool GrowingWorld { get; private set; }
+
+        public void SetGrowingWorld(bool on)
+        {
+            if (GrowingWorld == on)
+            {
+                return;
+            }
+
+            GrowingWorld = on;
+            Changed?.Invoke();
+        }
+
         /// <summary>Quanti mondi nuovi ci sono stati: 0 è quello della partita nuova.</summary>
         public int World { get; private set; }
 
@@ -71,8 +88,9 @@ namespace DarkDescent.Progression
         }
 
         /// <summary>Rimette uno stato salvato; valori fuori misura si correggono.</summary>
-        public void Restore(int current, int highestCompleted, int world)
+        public void Restore(int current, int highestCompleted, int world, bool growingWorld = false)
         {
+            GrowingWorld = growingWorld;
             HighestCompleted = Math.Max(-1, Math.Min(highestCompleted, _count - 1));
             Current = Math.Max(0, Math.Min(current, Math.Min(_count - 1, HighestCompleted + 1)));
             World = Math.Max(0, world);

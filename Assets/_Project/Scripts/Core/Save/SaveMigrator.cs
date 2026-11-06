@@ -71,6 +71,13 @@ namespace DarkDescent.Save
                 data.UpgradeTo(10);
             }
 
+            // formato 10 → 11 (D15 della M24): arriva «Il mondo cresce con te», spento; il Custode è nel livello 4, quindi i ricordi dei
+            // livelli e il punto del portale si azzerano
+            if (data.Version == 10)
+            {
+                data.UpgradeTo(11);
+            }
+
             return data;
         }
     }

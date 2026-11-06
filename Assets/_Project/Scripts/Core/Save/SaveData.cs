@@ -20,7 +20,8 @@ namespace DarkDescent.Save
     /// unici e i pezzi di set, con il loro id e i valori delle proprietà (D13 della M16); dal formato
     /// 8 l'albero delle abilità, con la specializzazione e i nodi presi, e la barra delle abilità
     /// (M20); dal formato 9 la classe e il nome (M21); il 10 (M22) azzera i ricordi dei livelli e il
-    /// punto del portale, perché le stanze della cripta sono cambiate. Il campo
+    /// punto del portale, perché le stanze della cripta sono cambiate; l'11 (M24) aggiunge «Il mondo cresce con te» e li azzera di
+    /// nuovo, perché il livello 4 ha il Custode. Il campo
     /// <c>version</c> dice il formato: il codice ne legge uno solo, e i formati vecchi si migrano
     /// prima di leggerli.
     /// </summary>
@@ -28,7 +29,7 @@ namespace DarkDescent.Save
     public sealed class SaveData
     {
         /// <summary>Il formato che questo codice scrive e legge.</summary>
-        public const int CurrentVersion = 10;
+        public const int CurrentVersion = 11;
 
         /// <summary>Il mana salvato quando va riempito: un salvataggio migrato, o un cavaliere morto.</summary>
         public const float FullMana = -1f;
@@ -82,6 +83,9 @@ namespace DarkDescent.Save
         [SerializeField] private int _difficulty;
         [SerializeField] private int _highestDifficulty = -1;
         [SerializeField] private int _world;
+
+        // formato 11 (D15 della M24): «Il mondo cresce con te», spento di default
+        [SerializeField] private bool _growingWorld;
 
         // formato 8: la specializzazione (vuota: nessuna), i nodi presi e applicati, e l'id
         // dell'abilità in ogni posto della barra (vuoto: posto libero). I punti vengono dal livello
@@ -162,6 +166,9 @@ namespace DarkDescent.Save
 
         /// <summary>Quanti mondi nuovi ci sono stati.</summary>
         public int World => _world;
+
+        /// <summary>«Il mondo cresce con te» (formato 11): spento in un salvataggio più vecchio.</summary>
+        public bool GrowingWorld => _growingWorld;
 
         /// <summary>L'id della specializzazione scelta; vuoto se nessuna.</summary>
         public string Specialization => _specialization ?? "";
@@ -257,8 +264,9 @@ namespace DarkDescent.Save
         }
 
         /// <summary>La difficoltà, la più alta completata (−1: nessuna) e il numero del mondo.</summary>
-        public SaveData WithDifficulty(int difficulty, int highestDifficulty, int world)
+        public SaveData WithDifficulty(int difficulty, int highestDifficulty, int world, bool growingWorld = false)
         {
+            _growingWorld = growingWorld;
             _difficulty = difficulty;
             _highestDifficulty = highestDifficulty;
             _world = world;
@@ -361,6 +369,16 @@ namespace DarkDescent.Save
             // la mappa scoperta resta, che si scarta da sola se la misura non è più quella
             if (_version < 10 && version >= 10)
             {
+                _hasPortalSpot = false;
+                _portalSpot = Vector3.zero;
+                _levels = new List<LevelRecord>();
+            }
+
+            // dal formato 10 all'11 (D15 della M24): il mondo non cresce, e il livello 4 ha il Custode, quindi i ricordi dei livelli (che
+            // leggono nemici e casse nell'ordine in cui il livello li costruisce) e il punto del portale si azzerano, come nel 10
+            if (_version < 11 && version >= 11)
+            {
+                _growingWorld = false;
                 _hasPortalSpot = false;
                 _portalSpot = Vector3.zero;
                 _levels = new List<LevelRecord>();

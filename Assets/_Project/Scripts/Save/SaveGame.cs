@@ -141,7 +141,7 @@ namespace DarkDescent.Save
 
             if (_difficulty != null)
             {
-                data.WithDifficulty(_difficulty.Current, _difficulty.HighestCompleted, _difficulty.World);
+                data.WithDifficulty(_difficulty.Current, _difficulty.HighestCompleted, _difficulty.World, _difficulty.GrowingWorld);
             }
 
             if (_class != null && _class.Current != null)
@@ -242,7 +242,7 @@ namespace DarkDescent.Save
             }
 
             // prima che il livello si colleghi: i nemici prendono i numeri della difficoltà (M14)
-            _difficulty?.Restore(data.Difficulty, data.HighestDifficulty, data.World);
+            _difficulty?.Restore(data.Difficulty, data.HighestDifficulty, data.World, data.GrowingWorld);
 
             _health.SetCurrent(data.Life);
 

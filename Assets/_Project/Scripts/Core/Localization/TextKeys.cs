@@ -33,6 +33,13 @@ namespace DarkDescent.Localization
 
         public const string AltarConfirmNewWorld = "altar.confirm_new_world";
 
+        /// <summary>«Il mondo cresce con te», spento e acceso (D12 della M24); il suggerimento sta in <see cref="AltarGrowingHint"/>.</summary>
+        public const string AltarGrowingOff = "altar.growing_off";
+
+        public const string AltarGrowingOn = "altar.growing_on";
+
+        public const string AltarGrowingHint = "altar.growing_hint";
+
         /// <summary>La voce dell'altare che ricomincia l'albero delle abilità, con l'oro che costa (D11 della M20).</summary>
         public const string AltarTalents = "altar.talents";
 

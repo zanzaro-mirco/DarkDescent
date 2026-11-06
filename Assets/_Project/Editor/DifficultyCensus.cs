@@ -140,6 +140,9 @@ namespace DarkDescent.Editor
 
             public int ItemLevel { get; set; }
 
+            /// <summary>Il moltiplicatore di vita e danno dei nemici normali di «Il mondo cresce con te» (1 a mondo spento).</summary>
+            public float Growth { get; set; } = 1f;
+
             public Rarity Gear { get; set; }
 
             public double HeroLife { get; set; }
@@ -233,18 +236,46 @@ namespace DarkDescent.Editor
         /// <summary>Una profondità di una difficoltà, per un cavaliere arrivato lì al livello dato.</summary>
         public Row MeasureDepth(DifficultyTier tier, int tierIndex, int depth, int heroLevel)
         {
+            return MeasureDepth(tier, tierIndex, depth, heroLevel, false);
+        }
+
+        /// <summary>
+        /// Con «Il mondo cresce con te» acceso (D12–D14 della M24): ogni difficoltà e profondità per cavalieri di livelli scelti, non
+        /// per una discesa. Gli oggetti sono al livello efficace, i nemici normali ×la crescita; il re non cresce.
+        /// </summary>
+        public List<Row> MeasureGrowing(DifficultyTable table, IReadOnlyList<int> heroLevels, IReadOnlyList<int> depths, bool growing = true)
+        {
+            var rows = new List<Row>();
+            for (int t = 0; t < table.Count; t++)
+            {
+                foreach (int depth in depths)
+                {
+                    foreach (int level in heroLevels)
+                    {
+                        rows.Add(MeasureDepth(table.Tier(t), t, depth, level, growing));
+                    }
+                }
+            }
+
+            return rows;
+        }
+
+        private Row MeasureDepth(DifficultyTier tier, int tierIndex, int depth, int heroLevel, bool growing)
+        {
             var row = new Row
             {
                 Tier = tierIndex,
                 TierName = tier.NameKey,
                 Depth = depth,
                 HeroLevel = heroLevel,
-                ItemLevel = _settings.ZoneLevel(depth, tier.ZoneLevelBonus),
+                ItemLevel = _settings.EffectiveLevel(depth, heroLevel, tier.ZoneLevelBonus, growing),
                 Gear = GearFor(tierIndex),
-                Experience = ExperienceAt(tier, depth, heroLevel),
+                Experience = ExperienceAt(tier, depth, heroLevel, growing),
             };
-            var skeleton = _skeleton.Foe(tier);
-            var brute = _brute.Foe(tier);
+            float growth = _settings.EnemyGrowth(depth, heroLevel, tier.ZoneLevelBonus, growing);
+            row.Growth = growth;
+            var skeleton = _skeleton.Foe(tier, growth);
+            var brute = _brute.Foe(tier, growth);
             var king = _king.Foe(tier);
             var guardian = _guardian.Foe(tier);
 
@@ -387,9 +418,9 @@ namespace DarkDescent.Editor
         private float BoltDivisor => Hero != null && Hero.IsCaster && Hero.AttackSpell != null ? Hero.AttackSpell.MagicDivisor : 0f;
 
         /// <summary>L'esperienza attesa di un livello a quella profondità, per un cavaliere di quel livello.</summary>
-        public double ExperienceAt(DifficultyTier tier, int depth, int heroLevel)
+        public double ExperienceAt(DifficultyTier tier, int depth, int heroLevel, bool growingWorld = false)
         {
-            return _experience[depth].Sum(b => (double)_settings.ExperienceForKill(b, depth, heroLevel, tier.ZoneLevelBonus, tier.Experience)) / _mapSeeds.Count;
+            return _experience[depth].Sum(b => (double)_settings.ExperienceForKill(b, depth, heroLevel, tier.ZoneLevelBonus, tier.Experience, growingWorld)) / _mapSeeds.Count;
         }
 
         [MenuItem("DarkDescent/Misura le difficoltà")]
@@ -411,6 +442,38 @@ namespace DarkDescent.Editor
 
             // con DARKDESCENT_CENSUS_MAGE=MageFire (o MageFrost) la tabella è quella del Mago di riferimento
             Write(path, Environment.GetEnvironmentVariable("DARKDESCENT_CENSUS_MAGE"));
+        }
+
+        /// <summary>I cavalieri e le profondità della misura con l'interruttore acceso: la tabella 4 × 4 della scheda (D13 della M24).</summary>
+        public static readonly int[] GrowthHeroLevels = { 1, 10, 25, 50 };
+
+        public static readonly int[] GrowthDepths = { 1, 3, 5, 8 };
+
+        /// <summary>Da riga di comando: la tabella con l'interruttore acceso nel file della variabile <see cref="OutputVariable"/>.</summary>
+        public static void WriteGrowingFromCommandLine()
+        {
+            string path = Environment.GetEnvironmentVariable(OutputVariable);
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new InvalidOperationException($"{OutputVariable} non dice dove scrivere la tabella");
+            }
+
+            string spec = Environment.GetEnvironmentVariable("DARKDESCENT_CENSUS_MAGE");
+            var census = string.IsNullOrEmpty(spec) ? new DifficultyCensus(20, 8) : ForMage(20, 8, spec);
+            var it = CultureInfo.GetCultureInfo("it-IT");
+            var text = new StringBuilder("difficolta;profondita;livello;livello_oggetti;crescita;vita;armatura;colpi_scheletro;colpi_bruto;regge_scheletro;regge_bruto;colpi_re;regge_re;esperienza\n");
+            foreach (var row in census.MeasureGrowing(Load<DifficultyTable>(DifficultiesPath), GrowthHeroLevels, GrowthDepths, Environment.GetEnvironmentVariable("DARKDESCENT_CENSUS_GROWTH") != "off"))
+            {
+                text.Append(string.Join(";", row.TierName, row.Depth, row.HeroLevel, row.ItemLevel, row.Growth.ToString("0.00", it),
+                    row.HeroLife.ToString("0", it), row.HeroArmor.ToString("0", it),
+                    row.SkeletonSwings.ToString("0.0", it), row.BruteSwings.ToString("0.0", it),
+                    row.SkeletonHitsTaken.ToString("0.0", it), row.BruteHitsTaken.ToString("0.0", it),
+                    row.KingSwings.ToString("0", it), row.KingHitsTaken.ToString("0.0", it), row.Experience.ToString("0", it)));
+                text.Append('\n');
+            }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(path) ?? ".");
+            File.WriteAllText(path, text.ToString(), new UTF8Encoding(true));
         }
 
         /// <summary>La tabella in CSV, nel formato del foglio di calcolo italiano: punto e virgola, virgola decimale.</summary>
@@ -536,9 +599,9 @@ namespace DarkDescent.Editor
 
             public float Armor { get; }
 
-            public CensusFighter Foe(DifficultyTier tier)
+            public CensusFighter Foe(DifficultyTier tier, float growth = 1f)
             {
-                return PowerCensus.Foe(_life, _weapon.MinDamage, _weapon.MaxDamage, Dexterity, Armor, tier);
+                return PowerCensus.Foe(_life, _weapon.MinDamage, _weapon.MaxDamage, Dexterity, Armor, tier, growth);
             }
         }
     }

@@ -173,6 +173,101 @@ namespace DarkDescent.Tests
             Assert.Greater(Combat.CombatFormulas.SpellGrowth(200f), 5f, "a fine gioco il Mago fa molte volte i numeri di base");
         }
 
+        // le celle della misura con l'interruttore acceso in cui un cavaliere sta davvero: non più di due livelli sotto la zona
+        // il Crepuscolo, l'Ombra e la Tenebra: dall'Abisso I gli oggetti del livello efficace tengono il passo con la crescita
+        private const int LastBitingTier = 2;
+
+        private static bool Realistic(DifficultyCensus.Row row, DifficultyTable table, ProgressionSettings settings)
+        {
+            return row.HeroLevel >= settings.ZoneLevel(row.Depth, table.Tier(row.Tier).ZoneLevelBonus) - 2;
+        }
+
+        private static DifficultyCensus[] References()
+        {
+            return new[] { new DifficultyCensus(20, 8), DifficultyCensus.ForMage(20, 8, "MageFire") };
+        }
+
+        [Test, Description("Con l'interruttore spento la misura per livelli scelti è quella di prima, cella per cella (D17 della M24): la griglia 4 × 4 non si muove")]
+        public void GrowingWorld_Off_IsTheOldMeasure()
+        {
+            var off = _census.MeasureGrowing(_table, DifficultyCensus.GrowthHeroLevels, DifficultyCensus.GrowthDepths, false);
+            foreach (var row in off)
+            {
+                var old = _census.MeasureDepth(_table.Tier(row.Tier), row.Tier, row.Depth, row.HeroLevel);
+                Assert.AreEqual(1f, row.Growth, $"{row.TierName} {row.Depth} L{row.HeroLevel}: nessuna crescita");
+                Assert.AreEqual(old.ItemLevel, row.ItemLevel);
+                Assert.AreEqual(old.BruteSwings, row.BruteSwings, 1e-9);
+                Assert.AreEqual(old.BruteHitsTaken, row.BruteHitsTaken, 1e-9);
+                Assert.AreEqual(old.Experience, row.Experience, 1e-9);
+            }
+        }
+
+        [Test, Description("Le fasce con l'interruttore acceso (D13 della M24), per il Guerriero e il Mago di riferimento, nelle celle in cui un cavaliere sta davvero: il bruto non muore mai in un colpo solo (almeno 1,4), il cavaliere regge almeno 3 colpi del bruto e 2 del re, la crescita non supera il tetto")]
+        public void GrowingWorld_On_StaysInTheNewBands()
+        {
+            foreach (var census in References())
+            {
+                foreach (var row in census.MeasureGrowing(_table, DifficultyCensus.GrowthHeroLevels, DifficultyCensus.GrowthDepths, true))
+                {
+                    if (!Realistic(row, _table, _census.Settings))
+                    {
+                        continue;
+                    }
+
+                    string where = $"{census.Hero?.name ?? "Guerriero"}, {row.TierName} profondità {row.Depth}, livello {row.HeroLevel}";
+                    Assert.LessOrEqual(row.Growth, _census.Settings.GrowthCap + 1e-6f, where + ": il tetto");
+                    Assert.GreaterOrEqual(row.BruteSwings, 1.4, where + ": colpi al bruto");
+                    Assert.GreaterOrEqual(row.BruteHitsTaken, 3.0, where + ": colpi del bruto retti");
+                    Assert.GreaterOrEqual(row.KingHitsTaken, 2.0, where + ": colpi del re retti");
+                }
+            }
+        }
+
+        [Test, Description("Dove la crescita morde (almeno ×1,5) fino alla Tenebra, l'interruttore acceso rende il mondo più duro di quello spento: il bruto resiste almeno il 10% di colpi in più e il cavaliere ne regge meno; dall'Abisso, dove gli oggetti da 47 raggiungono la crescita, non lo rende più facile di oltre il 15%; l'esperienza non cala mai")]
+        public void GrowingWorld_On_IsHarderWhereItBites()
+        {
+            foreach (var census in References())
+            {
+                var on = census.MeasureGrowing(_table, DifficultyCensus.GrowthHeroLevels, DifficultyCensus.GrowthDepths, true);
+                var off = census.MeasureGrowing(_table, DifficultyCensus.GrowthHeroLevels, DifficultyCensus.GrowthDepths, false);
+                int bites = 0;
+                for (int i = 0; i < on.Count; i++)
+                {
+                    string where = $"{on[i].TierName} profondità {on[i].Depth}, livello {on[i].HeroLevel}";
+                    Assert.GreaterOrEqual(on[i].Experience, off[i].Experience - 1e-9, where + ": l'esperienza");
+                    if (on[i].Tier > LastBitingTier)
+                    {
+                        Assert.GreaterOrEqual(on[i].BruteSwings, off[i].BruteSwings * 0.85, where + ": non più facile di oltre il 15%");
+                        continue;
+                    }
+
+                    if (on[i].Growth < 1.5f)
+                    {
+                        continue;
+                    }
+
+                    bites++;
+                    Assert.GreaterOrEqual(on[i].BruteSwings, off[i].BruteSwings * 1.1, where + ": colpi al bruto");
+                    Assert.Less(on[i].BruteHitsTaken, off[i].BruteHitsTaken, where + ": colpi del bruto retti");
+                }
+
+                Assert.GreaterOrEqual(bites, 6, "la griglia ha celle in cui la crescita morde");
+            }
+        }
+
+        [Test, Description("Anche con l'interruttore acceso salire di livello si sente: alla profondità 1 del Crepuscolo il bruto muore in meno colpi al 10, al 25 e al 50 (D12: sempre acceso, salire non si sentirebbe più)")]
+        public void GrowingWorld_On_LevelingUpIsStillFelt()
+        {
+            foreach (var census in References())
+            {
+                var rows = census.MeasureGrowing(_table, DifficultyCensus.GrowthHeroLevels, new[] { 1 }, true).Where(r => r.Tier == 0).OrderBy(r => r.HeroLevel).ToList();
+                for (int i = 1; i < rows.Count; i++)
+                {
+                    Assert.Less(rows[i].BruteSwings, rows[i - 1].BruteSwings, $"livello {rows[i].HeroLevel} contro {rows[i - 1].HeroLevel}");
+                }
+            }
+        }
+
         [Test, Description("La rarità dell'equipaggiamento segue la difficoltà: normale al Crepuscolo, magica all'Ombra e alla Tenebra, rara dall'Abisso")]
         public void Gear_FollowsTheDifficulty()
         {

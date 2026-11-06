@@ -639,6 +639,9 @@ spell.ice_bolt.desc,A bolt of ice that slows the enemy.,Un dardo di ghiaccio che
 spell.frost_nova.desc,A wave of frost around you that freezes the enemies nearby.,Un'onda di gelo attorno a te che congela i nemici vicini.
 spell.frost_armor.desc,"Raises your armor for a while, and slows who hits you in melee.","Alza l'armatura per un po' e rallenta chi ti colpisce in mischia."
 spell.blizzard.desc,A snowstorm that slows the enemies inside and strikes them.,Una tempesta di neve che rallenta i nemici e li colpisce.
+altar.growing_off,The world grows with you: No,Il mondo cresce con te: No
+altar.growing_on,The world grows with you: Yes,Il mondo cresce con te: Sì
+altar.growing_hint,"Items, monsters and experience follow your level, with 3 levels of margin: monsters get up to x3 life and damage. The king and Vorrak do not change. It applies from the next level you enter.","Oggetti, nemici ed esperienza seguono il tuo livello, con 3 livelli di margine: i nemici hanno fino a x3 di vita e danno. Il re e Vorrak non cambiano. Vale dal prossimo livello in cui entri."
 altar.talents,Reassign skills · {0} gold,Riassegna le abilità · {0} oro
 altar.talents_nothing,No skills to reassign,Nessuna abilità da riassegnare
 altar.confirm_talents,Start your skill tree over for {0} gold? All points come back and you can change specialization.,Ricominciare l'albero per {0} oro? Tutti i punti tornano e puoi cambiare specializzazione.

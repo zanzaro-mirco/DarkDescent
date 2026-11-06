@@ -50,15 +50,16 @@ namespace DarkDescent.Progression
         /// Un nemico alla difficoltà data: la vita e il danno moltiplicati, il colpire e l'Armatura in
         /// più, come <c>CompositionRoot.ApplyDifficulty</c>. Niente Forza né livello, niente scudo.
         /// </summary>
-        public static CensusFighter Foe(float life, int minDamage, int maxDamage, float dexterity, float armor, DifficultyTier tier)
+        public static CensusFighter Foe(float life, int minDamage, int maxDamage, float dexterity, float armor, DifficultyTier tier, float growth = 1f)
         {
             if (tier == null)
             {
                 throw new ArgumentNullException(nameof(tier));
             }
 
-            return new CensusFighter(life * tier.Life, minDamage, maxDamage, 0f, 0f, dexterity,
-                armor + tier.Armor, tier.ToHit, 0f, false, 0f, tier.Damage);
+            // growth: «Il mondo cresce con te» (D12 della M24), sopra la difficoltà, come CompositionRoot.ApplyDifficulty
+            return new CensusFighter(life * tier.Life * growth, minDamage, maxDamage, 0f, 0f, dexterity,
+                armor + tier.Armor, tier.ToHit, 0f, false, 0f, tier.Damage * growth);
         }
 
         /// <summary>
