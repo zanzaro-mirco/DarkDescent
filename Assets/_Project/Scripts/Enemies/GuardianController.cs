@@ -284,7 +284,14 @@ namespace DarkDescent.Enemies
             transform.rotation = Quaternion.LookRotation(_chargeDirection, Vector3.up);
             if (_chargeTelegraph != null)
             {
-                _chargeTelegraph.Show(transform.position, _chargeDirection, _chargeDistance, _chargeWidth, _chargeWindup);
+                // la striscia si ferma dove si ferma lo scatto: al primo muro, non attraverso
+                float length = _chargeDistance;
+                if (NavMesh.Raycast(transform.position, transform.position + _chargeDirection * _chargeDistance, out var wall, NavMesh.AllAreas))
+                {
+                    length = wall.distance;
+                }
+
+                _chargeTelegraph.Show(transform.position, _chargeDirection, length, _chargeWidth, _chargeWindup);
             }
         }
 

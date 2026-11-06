@@ -211,7 +211,12 @@ namespace DarkDescent.Tests
             yield return WaitFor(() => guardian.Stage == GuardianController.ChargeStage.WindUp, 8f);
             Assert.AreEqual(GuardianController.ChargeStage.WindUp, guardian.Stage, "dopo qualche secondo prepara la carica");
             Assert.IsTrue(line.IsShown, "la striscia rossa a terra");
-            Assert.AreEqual(guardian.ChargeDistance, line.Length, 1e-3f);
+            // la striscia finisce dove finisce lo scatto: al primo bordo del NavMesh, o dopo la distanza intera
+            float freeRun = NavMesh.Raycast(guardian.transform.position, guardian.transform.position + guardian.ChargeDirection * guardian.ChargeDistance, out var runEdge, NavMesh.AllAreas)
+                ? runEdge.distance
+                : guardian.ChargeDistance;
+            Assert.AreEqual(freeRun, line.Length, 1e-3f, "la striscia non attraversa il muro");
+            Assert.LessOrEqual(line.Length, guardian.ChargeDistance + 1e-3f);
             Vector3 from = guardian.transform.position;
             Vector3 direction = guardian.ChargeDirection;
             Assert.AreEqual(1f, direction.magnitude, 1e-3f);

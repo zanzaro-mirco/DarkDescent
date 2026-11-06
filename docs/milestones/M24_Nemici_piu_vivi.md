@@ -237,3 +237,16 @@ tetto di ×3 basta fino a 0,043 per livello al 50.
 **Test.** EditMode (13 nuovi tra cui: spento non cambia niente per ogni profondità, livello e bonus; la curva della scheda; il tetto; l'esperienza dal margine; le migrazioni 10 → 11 e il campione
 dell'11; la misura spenta uguale a prima; le fasce nuove dell'interruttore acceso per Guerriero e Mago nelle celle in cui un cavaliere sta davvero; salire di livello si sente ancora). PlayMode (4 nuovi:
 l'interruttore all'altare, il livello degli oggetti, la vita dei nemici ×1,64 e il Custode che non cresce, l'esperienza più alta). Corretti i test che chiedevano il formato 10.
+
+## Passo 24.6 — Misura e chiusura
+
+**Fatto.** Le foto, il costo, la chiusura. La scheda e il piano dicono com'è finita, con quello che le foto hanno trovato.
+
+- **Le foto** (`PhotoTour.Keeper`, `Flee`, `GrowingAltar`, in `Recordings/Photos`): il Custode vero nella sala della scala (aura viola, barra con il nome in oro e il segno a metà, il tesoro contro il muro), le tre evocazioni, la carica con la striscia rossa; uno scheletro ferito che si allontana; l'altare con l'interruttore, spento e acceso, con il suggerimento in inglese e in italiano.
+- **Che cosa hanno trovato** (nessun test lo diceva):
+  - la **striscia della carica attraversava il muro** e andava per 12 m anche dove lo scatto si ferma al muro: ora la lunghezza è la corsa fino al primo bordo del NavMesh;
+  - il **pannello dell'altare**, con la riga nuova, arriva al bordo dello schermo a 1080p: il suggerimento non ha posto sotto, e sta a **destra** della finestra, all'altezza del pulsante;
+  - la voce «Riassegna le abilità» dell'altare **non cambiava lingua** insieme alle altre (si riscriveva solo all'apertura): ora si riscrive a ogni cambio di lingua.
+- **Il costo** (`PhotoTour.BehavioursCost`, in editor): i nemici più vicini al cavaliere in una cripta alla 3, **12–14 invece dei 30 della scheda** (quanti ne ha attivi un livello), tutti attivi con la fuga e le ronde accese contro tutti fermi: main thread 2,72–2,75 ms contro 2,72–2,73, stesse allocazioni (9535 B a frame) e stessi batch (422). Dentro il rumore; la prova vera è la build di Mirco (*Da provare*).
+- **I test.** EditMode 724 (+50 dalla M23), PlayMode 410, 408 verdi e 2 saltati come prima (+26). Corretti il test delle scale (apriva la prima cassa, che alla 4 è quella sigillata del Custode) e quelli del formato 10.
+- **La chiusura.** ADR-146…148, lezioni e piano v2.79, il README (*Stato*), `bundleVersion` 1.12.0, le prove in build in `docs/Da_provare.md`.

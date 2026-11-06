@@ -865,6 +865,215 @@ namespace DarkDescent.Tests
             yield return Snap("boss_bar_reference", world: false);
         }
 
+        // l'inizio di una partita nuova dal menu, come BossDesign
+        private IEnumerator StartNewFromMenu()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            MenuSteps.StartNew(Find<MainMenu>(), 1);
+            yield return WaitForLevel();
+        }
+
+        [UnityTest, Timeout(600000), Description("Vorrak il Custode vero (24.6 della M24): la sala della scala giù con lui al centro, la barra in alto, le tre evocazioni e la striscia rossa della carica")]
+        public IEnumerator Keeper()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 4);
+
+            var level = Manager.CurrentLevel;
+            var keeper = level.Guardian;
+            Assert.IsNotNull(keeper, "il Custode alla profondità 4");
+            var keeperAi = keeper.GetComponent<EnemyAI>();
+            keeperAi.enabled = true;
+            var hero = Hero.GetComponent<Health>();
+            hero.MultiplyMax(500f);
+            hero.Heal(float.MaxValue);
+            var agent = Hero.GetComponent<NavMeshAgent>();
+            Vector3 Spot(Vector3 wanted) => NavMesh.SamplePosition(wanted, out var hit, 3f, NavMesh.AllAreas) ? hit.position : wanted;
+
+            Vector3 front = level.DownExits.First().GetComponent<Interactable>().ApproachPoint;
+            agent.Warp(Spot(front + new Vector3(0f, 0f, -12f)));
+            keeperAi.enabled = false;
+            yield return Settle();
+            yield return Snap("keeper_room");
+
+            // vicino, ma ancora fermo
+            Vector3 toHero = Flat(Hero.transform.position - keeper.transform.position);
+            agent.Warp(Spot(keeper.transform.position + toHero * 6.5f));
+            yield return Frames(30);
+            yield return Snap("keeper_near");
+
+            // lo scontro: la prima fase, poi sotto la metà evoca e carica
+            keeperAi.enabled = true;
+            yield return new WaitForSecondsRealtime(1.5f);
+            yield return Snap("keeper_fight", world: false);
+            // il cavaliere dove la sala è più libera (otto direzioni, la corsa più lunga sul NavMesh): la striscia si vede per intero
+            Vector3 best = toHero;
+            float longest = 0f;
+            for (int k = 0; k < 8; k++)
+            {
+                Vector3 way = Quaternion.Euler(0f, 45f * k, 0f) * Vector3.forward;
+                float free = NavMesh.Raycast(keeper.transform.position, keeper.transform.position + way * 12f, out var edge, NavMesh.AllAreas) ? edge.distance : 12f;
+                if (free > longest)
+                {
+                    longest = free;
+                    best = way;
+                }
+            }
+
+            agent.Warp(Spot(keeper.transform.position + best * Mathf.Min(5f, longest * 0.4f)));
+            var health = keeper.GetComponent<Health>();
+            health.TakeDamage(new DamageInfo(health.Max * 0.55f, DamageType.Physical, Hero));
+            for (float t = 0f; !keeper.HasSummoned && t < 10f; t += Time.unscaledDeltaTime)
+            {
+                yield return null;
+            }
+
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Snap("keeper_summons", world: false);
+            for (float t = 0f; keeper.Stage != GuardianController.ChargeStage.WindUp && t < 15f; t += Time.unscaledDeltaTime)
+            {
+                yield return null;
+            }
+
+            Assert.AreEqual(GuardianController.ChargeStage.WindUp, keeper.Stage, "la carica comincia");
+            yield return new WaitForSecondsRealtime(0.5f);
+            yield return Snap("keeper_charge", world: false);
+        }
+
+        [UnityTest, Timeout(600000), Description("Uno scheletro che scappa (24.6 della M24): ferito sotto il 25% durante lo scontro, scatta all'indietro; due foto a mezzo secondo e a un secondo e mezzo")]
+        public IEnumerator Flee()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            yield return Descend("Level_Crypt", 1);
+            EnemyBehaviours.FleeEnabled = true;
+            EnemyBehaviours.PatrolEnabled = false;
+
+            var hero = Hero.GetComponent<Health>();
+            hero.MultiplyMax(500f);
+            hero.Heal(float.MaxValue);
+            var skeleton = Manager.CurrentLevel.Enemies
+                .Where(e => e != null && e.gameObject.activeInHierarchy && e.Archetype.name == "Skeleton")
+                .OrderBy(e => Vector3.Distance(e.transform.position, Hero.transform.position))
+                .First();
+
+            // davanti al cavaliere, a pochi metri, e vivo
+            Vector3 toward = Flat(Hero.transform.forward);
+            Vector3 wanted = Hero.transform.position + toward * 3.2f;
+            skeleton.GetComponent<NavMeshAgent>().Warp(NavMesh.SamplePosition(wanted, out var spot, 3f, NavMesh.AllAreas) ? spot.position : wanted);
+            skeleton.enabled = true;
+            yield return new WaitForSecondsRealtime(1.2f);
+            var health = skeleton.GetComponent<Health>();
+            health.TakeDamage(new DamageInfo(health.Max * 0.8f, DamageType.Physical, Hero));
+            yield return new WaitForSecondsRealtime(0.5f);
+            yield return Snap("skeleton_flee_1", world: false);
+            yield return new WaitForSecondsRealtime(1.0f);
+            yield return Snap("skeleton_flee_2", world: false);
+        }
+
+        [UnityTest, Timeout(600000), Description("L'altare con «Il mondo cresce con te» (24.6 della M24): spento, acceso con il suggerimento, e in italiano")]
+        public IEnumerator GrowingAltar()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            yield return Settle();
+
+            Manager.CurrentLevel.Altar.GetComponent<Interactable>().Use(Hero);
+            var altar = Find<DifficultyPanel>();
+            for (float t = 0f; !altar.IsOpen && t < 10f; t += Time.unscaledDeltaTime)
+            {
+                yield return null;
+            }
+
+            yield return Frames(5);
+            yield return Snap("altar_growing_off", world: false);
+
+            altar.GrowingWorldButton.onClick.Invoke();
+            altar.GrowingWorldButton.GetComponent<HoverShow>().Target.SetActive(true);
+            yield return Frames(5);
+            yield return Snap("altar_growing_on_hint", world: false);
+
+            Root.Localizer.SetLanguage("it");
+            altar.GrowingWorldButton.GetComponent<HoverShow>().Target.SetActive(true);
+            yield return Frames(5);
+            yield return Snap("altar_growing_on_hint_it", world: false);
+            Root.Localizer.SetLanguage("en");
+        }
+
+        [UnityTest, Timeout(600000), Description("Quanto costano le ronde e la fuga (24.6 della M24): fino a trenta nemici tra i più vicini al cavaliere (in una cripta alla 3 ce ne sono 12-14 attivi), tutti attivi con la fuga e le ronde accese, contro tutti fermi; il tempo del main thread, le allocazioni e i batch vanno in costo_ronde.txt")]
+        public IEnumerator BehavioursCost()
+        {
+            ForgetPreferences();
+            Environment.SetEnvironmentVariable(CompositionRoot.MenuVariable, "1");
+            SceneManager.LoadScene("Core");
+            yield return Frames(10);
+            MenuSteps.StartNew(Find<MainMenu>(), 1);
+            yield return WaitForLevel();
+            Root.PrepareHero(HeroLevel);
+            // le ronde si legano al caricamento del livello: accese prima di scendere
+            EnemyBehaviours.FleeEnabled = true;
+            EnemyBehaviours.PatrolEnabled = true;
+            yield return Descend("Level_Crypt", 3);
+
+            var hero = Hero.GetComponent<Health>();
+            hero.MultiplyMax(500f);
+            hero.Heal(float.MaxValue);
+            var crowd = Manager.CurrentLevel.Enemies.Where(e => e != null && e.gameObject.activeInHierarchy)
+                .OrderBy(e => Vector3.Distance(e.transform.position, Hero.transform.position)).Take(30).ToArray();
+            yield return Frames(3);
+
+            int previousRate = Application.targetFrameRate;
+            int previousSync = QualitySettings.vSyncCount;
+            Application.targetFrameRate = -1;
+            QualitySettings.vSyncCount = 0;
+            var mainThread = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Internal, "Main Thread");
+            var gcAlloc = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Memory, "GC Allocated In Frame");
+            var batches = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Render, "Batches Count");
+            var lines = new List<string> { $"Cripta alla 3, {crowd.Length} nemici più vicini al cavaliere, 600 frame per giro, vsync spento (editor)." };
+            const int frames = 600;
+            foreach (bool on in new[] { false, true, false, true })
+            {
+                foreach (var enemy in crowd)
+                {
+                    if (enemy != null)
+                    {
+                        enemy.enabled = on;
+                    }
+                }
+
+                yield return Frames(30);
+                var times = new List<float>(frames);
+                long gc = 0;
+                long batchCount = 0;
+                for (int k = 0; k < frames; k++)
+                {
+                    yield return null;
+                    times.Add(mainThread.Valid ? mainThread.LastValue / 1e6f : 0f);
+                    gc += gcAlloc.Valid ? gcAlloc.LastValue : 0;
+                    batchCount += batches.Valid ? batches.LastValue : 0;
+                }
+
+                times.Sort();
+                lines.Add($"nemici {(on ? "attivi " : "fermi   ")}: main thread {times.Average():F2} ms in media, mediana {times[frames / 2]:F2}, "
+                    + $"p95 {times[(int)(frames * 0.95f)]:F2}, peggiore {times[frames - 1]:F2}; allocazioni {gc / (float)frames:F0} B a frame; batch {batchCount / (float)frames:F1} a frame");
+            }
+
+            mainThread.Dispose();
+            gcAlloc.Dispose();
+            batches.Dispose();
+            Application.targetFrameRate = previousRate;
+            QualitySettings.vSyncCount = previousSync;
+            File.WriteAllLines(Path.Combine(_folder, "costo_ronde.txt"), lines);
+            foreach (string line in lines)
+            {
+                Debug.Log("BehavioursCost: " + line);
+            }
+        }
+
         [UnityTest, Timeout(600000), Description("I suggerimenti (23.4, D11 e D12 della M23): il riquadro in basso al centro nelle due lingue, con il testo corto e quello più lungo, e le opzioni con la casella e Rivedi")]
         public IEnumerator Hints()
         {

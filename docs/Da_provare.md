@@ -4,8 +4,27 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 5 nov 2026, build della v1.11.0 da provare (l'artefatto della build del tag).
-Le prove della M18 e della M19 restano valide.
+Ultimo aggiornamento: 6 nov 2026, build della v1.12.0 da provare (l'artefatto della build del tag).
+Le prove della M18, della M19 e della M23 restano valide.
+
+## Dalla M24 — "Nemici più vivi" (v1.12.0)
+
+- **Vorrak il Custode** (profondità 4, nella sala della scala giù): lo trovi senza cercarlo? Con 240 di vita, sono 8 scheletri:
+  è troppo morbido o troppo duro? La carica si schiva guardando la striscia rossa? Sotto la metà evoca tre scheletri e
+  carica: ti sembra giusto, o troppo tutto insieme? La scala giù resta aperta (chi non vuole combattere scende).
+  Il tesoro si apre solo alla sua morte (tre oggetti, almeno un magico).
+- **La fuga**: uno scheletro ferito scappa una volta sola e torna con i compagni; uno sciame con i compagni morti scappa?
+  Si capisce che sta scappando, o sembra un errore del percorso?
+- **Le ronde**: un nemico su quattro cammina tra due o tre punti; quando ti vede, ti insegue; tornato a casa riprende. Si
+  nota subito la differenza con i livelli di prima? Un nemico di ronda può coprire una porta o un corridoio?
+- **«Il mondo cresce con te»** (altare): il pulsante sta a schermo a 1080p e a risoluzioni più basse? Il suggerimento
+  compare a destra della finestra. Acceso, con un cavaliere di livello 20 alla profondità 1 i nemici hanno più vita
+  (×1,64) e gli oggetti sono da livello 17: si sente? È troppo poco (a livello 25 il bruto muore ancora in 3 colpi)?
+  La pendenza e il tetto stanno in `Progression.asset`.
+- **Il salvataggio 11**: una partita salvata con la v1.11 si carica; i livelli si rigenerano (nessun livello ricordato) e
+  il portale riporta all'ingresso della profondità, ma classe, oggetti, oro e livello restano.
+- **Il costo** (build, `-benchmark-levels`): con le ronde e la fuga accese il tempo dei livelli e i fotogrammi in
+  una cripta alla 6 sono quelli della v1.11? (In editor la misura non vede differenze.)
 
 ## Dalla M23 — "A portata di mano" (v1.11.0)
 

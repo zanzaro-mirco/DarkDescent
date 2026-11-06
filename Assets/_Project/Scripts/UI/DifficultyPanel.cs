@@ -241,6 +241,9 @@ namespace DarkDescent.UI
             {
                 _growingHint.text = _localizer.Get(TextKeys.AltarGrowingHint);
             }
+
+            // la voce delle abilità cambia lingua con le altre
+            RefreshTalents();
         }
 
         private void HandleRowClicked(int index)

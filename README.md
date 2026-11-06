@@ -9,6 +9,19 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.12 — M24 "Nemici più vivi"**, chiusa il 6 novembre 2026 (tag `v1.12.0`). Rispetto alla v1.11:
+
+- gli **scheletri e lo sciame scappano** una volta per vita, quando restano a poca vita o muoiono i compagni, e
+  tornano a chiamare il branco; un nemico normale su quattro fa la **ronda** tra due o tre punti vicino a casa e
+  la lascia quando vede il cavaliere;
+- **Vorrak il Custode**, alla profondità 4, nella sala della scala giù (la scala resta sempre aperta): due fasi,
+  tre scheletri evocati sotto la metà della vita, una carica in linea retta avvisata da una striscia rossa, e un
+  tesoro suo che si apre quando cade;
+- **«Il mondo cresce con te»**, un interruttore all'altare (spento di partenza): acceso, gli oggetti, la vita e il
+  danno dei nemici e l'esperienza seguono il livello del cavaliere, con tre livelli di margine e un tetto di ×3;
+  il re e il Custode non cambiano;
+- il salvataggio è l'**11**: una partita in una cripta riprende nello stesso posto, ma in livelli nuovi.
+
 **v1.11 — M23 "A portata di mano"**, chiusa il 5 novembre 2026 (tag `v1.11.0`). Rispetto alla v1.10:
 
 - il **movimento da tastiera**: `W` `A` `S` `D` e le frecce, relativi alla visuale (`W` va sempre verso l'alto
