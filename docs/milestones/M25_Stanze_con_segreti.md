@@ -326,3 +326,49 @@ Tre pezzi che la M13 aveva lasciato fuori: i pozzi e i santuari nelle caverne, g
 - **EditMode:** `CaveFeaturesTests` (5: al più uno per tipo con le probabilità della cripta, nello slargo e a distanza, la caverna resta raggiungibile, il resto non cambia, l'hash sceglie tipo e posto). 760 verdi in tutto.
 - **PlayMode:** `BarrelSpellsPlayModeTests` (4: l'Anello di fuoco rompe il barile vicino e non quello lontano, il Dardo di fuoco rompe il barile sulla strada, un barile esplosivo colpito da un incantesimo accende la miccia ed esplode, il barile del crollo è un barile vero, vuoto e a terra).
 - **Foto** (`PhotoTour.CaveFeatureShots`): `cave_well`, `cave_shrine`, `cave_rockfall_barrel` e `cave_rockfall_barrel_broken` in `Recordings/Photos`. Il barile del crollo sta contro un muro e con certe rotazioni della camera si vede appena: è il limite della camera già descritto nel 25.5.
+
+---
+
+## Passo 25.7 — Misura e chiusura
+
+### La misura del loot (D8)
+
+`LootCensus` ora conta anche il baule maledetto (`secrets: true`): prende il posto di una cassa normale scelta da `SecretRules.PickCursed`, con il bonus `ChestSecret.CursedBonus` e il livello degli oggetti della profondità dopo. Il test nuovo `SecretLootTests` misura 320 livelli (40 semi, profondità 1–8):
+
+| | Oggetti a livello | Rari | Magici |
+|---|---|---|---|
+| Senza segreti | 4,99 | 16,6% | 30,2% |
+| Con il baule maledetto | 5,39 | 16,1% | 31,0% |
+| Fasce della M14 | 4,0–5,2 | 10–25% | 25–35% |
+
+Il baule maledetto è in 60 livelli della cripta su 240 (uno su due dalla profondità 3, mai alle prime due: uno su quattro in tutto) e vale **una cassa normale più un oggetto sicuro**: +0,40 oggetti a livello. **Rari e magici restano nelle fasce; gli oggetti a livello le superano di 0,19.** Il baule è un premio che il cavaliere può saltare e che costa un'ondata, come Vorrak e il suo tesoro (D17 della M24): la fascia degli oggetti resta misurata **senza** segreti (`LootCensusTests`, 4,99), e i segreti hanno un tetto loro, **mezzo oggetto a livello** (`SecretLootTests`). Se si preferisse tenere il baule dentro la fascia, le strade sono due: il baule **sostituisce** il tiro di sempre invece di aggiungersi (circa +0,26, 5,25: ancora fuori) oppure compare in un livello su tre invece che su due (con la sostituzione, circa 5,16); nessuna delle due è stata fatta, e il numero resta a chi gioca. Gli unici restano al più uno per baule: il fattore degli unici è 1,5, sotto quello dei forzieri (3).
+
+Non sono contati dalla misura, come nella M24: i nemici dell'ondata e dei segreti (lasciano il loot dei nemici normali) e il prigioniero (una pozione e oro).
+
+### I tempi dei livelli (build locale, `-benchmark-levels 20`, seme 424242)
+
+| Livello | Generazione | Costruzione | NavMesh | Totale medio | Il peggiore |
+|---|---|---|---|---|---|
+| Borgo | 0,0 | 8,5 | 9,8 | 18,2 ms | 19 ms |
+| Cripta, profondità 1 | 4,7 | 5,7 | 9,2 | 19,6 ms | 37 ms |
+| Cripta, profondità 4 | 4,8 | 6,4 | 10,2 | 21,4 ms | 25 ms |
+| Caverne, profondità 8 | 2,5 | 4,7 | 10,1 | 17,2 ms | 25 ms |
+
+Tutti sotto i 50 ms della D4 della M6 (alla M18: 15,7–17,5 ms, ora 17,2–21,4). Il tempo di generazione della cripta è salito da 2,8 a 4,8 ms: non è stato indagato, perché nessun segreto sta nel generatore (si decidono in `BindLevel`, e la mappa è la stessa, lo prova un test); può essere la macchina di oggi, e in ogni caso il totale sta a meno della metà del limite. Non serve aprire voci.
+
+### I numeri di fine milestone
+
+EditMode 762, PlayMode 440 (438 verdi, 2 saltati), e la ronda notturna intera in locale con il seme 424242: 13 test verdi, comprese le partite da sole a ogni difficoltà e la partita lunga di sei mondi.
+
+### La chiusura
+
+- ADR-149…154 in `DECISIONS.md`.
+- Le lezioni nel piano (v2.81).
+- Il README con la v1.13, *Da provare* con la sezione della M25, `bundleVersion` 1.13.0.
+- Il tag `v1.13.0` dopo i Tests verdi (letta la conclusione, non solo la fine).
+
+### Aperti
+
+- I **quattro consigli del prigioniero** non hanno avuto una risposta di Mirco: restano i testi proposti.
+- Il **baule maledetto sopra la fascia** (sopra): resta a Mirco la scelta tra tenerlo com'è (0,4 oggetti a livello in più, un premio che si può saltare) e riportarlo nella fascia.
+- Il limite della camera isometrica (un prop contro un muro vicino si vede dietro il muro solo ruotando) resta quello dei forzieri e delle torce.

@@ -9,6 +9,20 @@ Progetto personale in Unity (URP) / C#.
 
 ## Stato
 
+**v1.13 — M25 "Stanze con segreti"**, chiusa il 6 novembre 2026 (tag `v1.13.0`). Rispetto alla v1.12:
+
+- **mimic e baule maledetto**: da una cassa su otto salta fuori un mimic; in un livello su due, dalla profondità 3, una
+  cassa è un baule maledetto che chiama un'ondata di tre-cinque nemici e, a ondata battuta, dà il premio della profondità
+  dopo;
+- **la stanza sigillata**: un fondo cieco chiuso da una porta, con una leva da trovare altrove nel livello; il tintinnio
+  si sente a sei metri;
+- **il prigioniero** (da liberare solo a scorta morta: lascia una pozione, oro e un consiglio), **la lore** (dodici
+  testi in italiano e inglese su leggii, lapidi e carte, senza ripetizioni in una discesa) e **la statua** che si anima
+  quando ci si avvicina a una cassa;
+- **pozzi e santuari anche nelle caverne**, e gli incantesimi (dardo, Anello di fuoco, Nova, Palla) **rompono i barili**;
+- nessun segreto è nella mappa: i livelli, i nemici e i loot dei semi di prima sono gli stessi, e un salvataggio della
+  v1.12 si carica come prima.
+
 **v1.12 — M24 "Nemici più vivi"**, chiusa il 6 novembre 2026 (tag `v1.12.0`). Rispetto alla v1.11:
 
 - gli **scheletri e lo sciame scappano** una volta per vita, quando restano a poca vita o muoiono i compagni, e

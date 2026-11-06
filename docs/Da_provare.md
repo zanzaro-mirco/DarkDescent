@@ -4,8 +4,29 @@ Le prove in build che Mirco non ha ancora fatto. Si aggiunge una riga quando una
 prova, e si toglie quando la prova è fatta (con le note nella scheda della milestone). I test
 automatici non bastano per queste: sono sensazioni, cose a schermo o suoni.
 
-Ultimo aggiornamento: 6 nov 2026, build della v1.12.0 da provare (l'artefatto della build del tag).
-Le prove della M18, della M19 e della M23 restano valide.
+Ultimo aggiornamento: 6 nov 2026, build della v1.13.0 da provare (l'artefatto della build del tag).
+Le prove della M18, della M19, della M23 e della M24 restano valide.
+
+## Dalla M25 — "Stanze con segreti" (v1.13.0)
+
+- **Il mimic** (una cassa su otto dalla profondità 2): il click non apre la cassa, il forziere si rialza e attacca. Il salto
+  è abbastanza improvviso da fare effetto, ma leggibile? Alla sua morte la cassa si apre con il suo loot di sempre.
+- **Il baule maledetto** (uno su due dei livelli dalla profondità 3, con catene, teschio e cristallo): l'ondata di tre-cinque
+  scheletri e bruti è troppo dura per un cavaliere del livello giusto? Il premio (oggetto in più, almeno un magico, più oro)
+  vale il rischio? Un livello con un baule dà in media 0,4 oggetti in più degli altri: si sente?
+- **La stanza sigillata** (profondità 2–4, circa un livello su tre della cripta): la leva si trova senza cercarla per ore?
+  Il tintinnio a sei metri e la riga «hai sentito scattare qualcosa» fanno capire che qualcosa si è aperto altrove?
+  La porta che scende nel pavimento si vede?
+- **Il prigioniero**: la scorta (i nemici entro tre celle) lo rende un combattimento vero? «Prima la scorta» si capisce?
+  I quattro consigli del pannello (ancora da approvare nei testi) sono utili o solo decorativi?
+- **La lore** (leggii, lapidi, carte: due livelli su tre): i testi si leggono bene a 1080p? Non si ripete lo stesso testo in
+  una discesa? Cambiando lingua col pannello aperto?
+- **La statua che si anima** (vicino a una cassa normale): la scossa di un secondo avvisa abbastanza? Il nemico di pietra è
+  troppo per quel punto del livello?
+- **Pozzi e santuari nelle caverne**: ce n'è uno ogni tanto, in uno slargo? Funzionano come quelli della cripta?
+- **I barili**: dardo, Anello di fuoco, Nova e Palla li rompono; un barile esplosivo scoppia e ferisce anche chi lo colpisce
+  da vicino. Il barile del crollo nella caverna si rompe e basta.
+- **Il costo** (build, `-benchmark-levels 20`): i tempi dei livelli con i segreti sono quelli della v1.12?
 
 ## Dalla M24 — "Nemici più vivi" (v1.12.0)
 

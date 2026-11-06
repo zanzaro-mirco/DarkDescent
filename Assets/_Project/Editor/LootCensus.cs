@@ -63,13 +63,17 @@ namespace DarkDescent.Editor
         /// <summary>Un tiro di loot di un livello: da dove viene, con quale tabella e quale bonus.</summary>
         public readonly struct Source
         {
-            public Source(string name, LootTable table, LootBonus bonus, float chanceFactor)
+            public Source(string name, LootTable table, LootBonus bonus, float chanceFactor, int depthOffset = 0)
             {
                 Name = name;
                 Table = table;
                 Bonus = bonus;
                 ChanceFactor = chanceFactor;
+                DepthOffset = depthOffset;
             }
+
+            /// <summary>Di quante profondità il livello degli oggetti è avanti: il baule maledetto dà il loot della profondità dopo (D4 della M25).</summary>
+            public int DepthOffset { get; }
 
             public string Name { get; }
 
@@ -156,9 +160,9 @@ namespace DarkDescent.Editor
         /// Gli oggetti attesi del livello di una partita a una profondità; con <paramref name="odds"/>
         /// anche gli unici e i pezzi di set.
         /// </summary>
-        public static Tally Level(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, ulong runSeed, int depth, NamedOdds odds = null)
+        public static Tally Level(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, ulong runSeed, int depth, NamedOdds odds = null, bool secrets = false)
         {
-            return Count(Sources(settings, tileset, champions, runSeed, depth), depth, odds);
+            return Count(Sources(settings, tileset, champions, runSeed, depth, secrets), depth, odds);
         }
 
         /// <summary>Gli oggetti attesi di un livello dai suoi tiri: lo stesso livello si conta con più difficoltà senza rigenerarlo.</summary>
@@ -175,9 +179,13 @@ namespace DarkDescent.Editor
         }
 
         /// <summary>I tiri di loot del livello di una partita a una profondità, generato come nel gioco.</summary>
-        public static List<Source> Sources(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, ulong runSeed, int depth)
+        public static List<Source> Sources(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, ulong runSeed, int depth, bool secrets = false)
         {
             var sources = new List<Source>();
+
+            // le casse normali, per posto nella lista e per cella come le vede il gioco (in decimetri): tra loro c'è il baule maledetto (D4 della M25)
+            var normalChests = new List<int>();
+            var normalCells = new List<Vector2Int>();
             var map = DungeonLevel.CreateMap(settings, runSeed, depth, out _);
             var leaders = new HashSet<Vector2Int>(ChampionSpawn.FromMap(map).Select(c => new Vector2Int(c.X, c.Y)));
             var escorts = SpecialEnemyPlanner.EscortsFromMap(map);
@@ -214,6 +222,13 @@ namespace DarkDescent.Editor
                 {
                     string source = chest.Bonus != null && chest.Bonus.NamedGuarantee > 0f ? "tesoro del re"
                         : chest.Bonus != null && chest.Bonus.ExtraRolls > 0 ? "forzieri" : "casse";
+                    if (source == "casse" && prefab.TryGetComponent(out ChestSecret _))
+                    {
+                        var center = LevelMap.CellCenter(marker.X, marker.Y);
+                        normalChests.Add(sources.Count);
+                        normalCells.Add(new Vector2Int(Mathf.RoundToInt(center.x * 10f), Mathf.RoundToInt(center.z * 10f)));
+                    }
+
                     sources.Add(new Source(source, chest.LootTable, chest.Bonus, 1f));
                 }
                 else
@@ -225,24 +240,32 @@ namespace DarkDescent.Editor
                 }
             }
 
+            // il baule maledetto prende il posto di una cassa normale con il premio della profondità dopo e il suo bonus
+            int cursed = secrets ? SecretRules.PickCursed(runSeed, depth, normalCells) : -1;
+            if (cursed >= 0)
+            {
+                var plain = sources[normalChests[cursed]];
+                sources[normalChests[cursed]] = new Source("baule maledetto", plain.Table, ChestSecret.CursedBonus, 1f, 1);
+            }
+
             return sources;
         }
 
         /// <summary>Le profondità da <paramref name="first"/> a <paramref name="last"/>, <paramref name="seeds"/> partite ciascuna: sempre le stesse.</summary>
-        public static Tally Range(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, int first, int last, int seeds, NamedOdds odds = null)
+        public static Tally Range(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, int first, int last, int seeds, NamedOdds odds = null, bool secrets = false)
         {
-            return Range(settings, tileset, champions, first, last, FixedSeeds(seeds), odds);
+            return Range(settings, tileset, champions, first, last, FixedSeeds(seeds), odds, secrets);
         }
 
         /// <summary>Le profondità da <paramref name="first"/> a <paramref name="last"/>, una partita per seme: la ronda notturna dà i suoi (M15).</summary>
-        public static Tally Range(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, int first, int last, IReadOnlyList<ulong> runSeeds, NamedOdds odds = null)
+        public static Tally Range(DungeonSettings settings, LevelTileset tileset, ChampionSettings champions, int first, int last, IReadOnlyList<ulong> runSeeds, NamedOdds odds = null, bool secrets = false)
         {
             var total = new Tally();
             for (int depth = first; depth <= last; depth++)
             {
                 foreach (ulong seed in runSeeds)
                 {
-                    total.Merge(Level(settings, tileset, champions, seed, depth, odds));
+                    total.Merge(Level(settings, tileset, champions, seed, depth, odds, secrets));
                 }
             }
 
@@ -315,7 +338,7 @@ namespace DarkDescent.Editor
                 return;
             }
 
-            AddNamed(tally, roll, depth, odds);
+            AddNamed(tally, roll, depth + roll.DepthOffset, odds);
             if (bonus == null || !bonus.ReplacesRoll)
             {
                 double chance = table.DropChance * chanceFactor;
