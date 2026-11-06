@@ -81,6 +81,9 @@ namespace DarkDescent.Levels
         [Tooltip("La statua che si anima accanto a una cassa (D7 della M25): vuota dove non ce n'è.")]
         [SerializeField] private GameObject _statue;
 
+        [Tooltip("Il cavaliere in catene con la sua scorta (D6 della M25): vuoto dove non ce n'è.")]
+        [SerializeField] private GameObject _prisoner;
+
         [Tooltip("I passi del cavaliere su questo pavimento: pietra nella cripta, terra nelle caverne.")]
         [SerializeField] private AudioClip[] _footsteps;
 
@@ -152,6 +155,8 @@ namespace DarkDescent.Levels
         public GameObject Lever => _lever;
 
         public GameObject Statue => _statue;
+
+        public GameObject Prisoner => _prisoner;
 
         /// <summary>L'arredo di un testo del mondo (D9 della M25); null dove il set non ne ha.</summary>
         public GameObject LoreProp(LoreKind kind)

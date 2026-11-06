@@ -167,7 +167,7 @@ namespace DarkDescent.Tests
         {
             ulong night = NightlyRun.Seed();
             var errors = new List<string>();
-            int built = 0, rooms = 0, mimics = 0, cursed = 0, lores = 0, caveLores = 0, statues = 0;
+            int built = 0, rooms = 0, mimics = 0, cursed = 0, lores = 0, caveLores = 0, statues = 0, prisoners = 0;
             string where = "l'avvio del gioco";
             bool reported = false;
             try
@@ -179,6 +179,7 @@ namespace DarkDescent.Tests
                 ChestSecret.Enabled = true;
                 LoreSpot.Enabled = true;
                 StatueGuard.Enabled = true;
+                Prisoner.Enabled = true;
                 var root = Object.FindFirstObjectByType<CompositionRoot>();
                 for (int game = 0; game < SecretGames; game++)
                 {
@@ -228,10 +229,23 @@ namespace DarkDescent.Tests
 
                         // la statua: sta su pavimento di cammino, la sua cassa si raggiunge dall'ingresso anche a porta chiusa, e il tetto di tre segreti regge
                         var statue = level.Secrets.OfType<StatueGuard>().FirstOrDefault();
-                        int counted = level.Secrets.OfType<SealedRoom>().Count() + level.Secrets.OfType<StatueGuard>().Count() + level.Chests.Count(c => c.Secret == ChestSecretKind.Cursed);
+                        var prisoner = level.Secrets.OfType<Prisoner>().FirstOrDefault();
+                        int counted = level.Secrets.OfType<SealedRoom>().Count() + level.Secrets.OfType<StatueGuard>().Count() + level.Secrets.OfType<Prisoner>().Count() + level.Chests.Count(c => c.Secret == ChestSecretKind.Cursed);
                         if (counted > 3)
                         {
                             Error($"{counted} segreti che contano, il tetto è tre");
+                        }
+
+                        // il prigioniero: ha la sua scorta tra i nemici del livello e si raggiunge dall'ingresso anche a porta chiusa
+                        if (prisoner != null)
+                        {
+                            prisoners++;
+                            if (prisoner.Escort.Count == 0)
+                            {
+                                Error("il prigioniero non ha scorta");
+                            }
+
+                            Reach(entrance, prisoner.GetComponent<Interactable>().ApproachPoint, NearPiece, "il prigioniero", Error);
                         }
 
                         if (statue != null)
@@ -295,7 +309,7 @@ namespace DarkDescent.Tests
                     yield return Resources.UnloadUnusedAssets();
                 }
 
-                string summary = $"{built} livelli, {rooms} con la stanza sigillata, {mimics} mimic, {cursed} bauli maledetti, {lores} testi del mondo ({caveLores} nelle caverne) e {statues} statue; la porta chiusa ferma il tesoro, la leva, la scala, i testi e le casse delle statue si raggiungono, aperta si arriva a ogni cassa.";
+                string summary = $"{built} livelli, {rooms} con la stanza sigillata, {mimics} mimic, {cursed} bauli maledetti, {lores} testi del mondo ({caveLores} nelle caverne), {statues} statue e {prisoners} prigionieri; la porta chiusa ferma il tesoro, la leva, la scala, i testi, i prigionieri e le casse delle statue si raggiungono, aperta si arriva a ogni cassa.";
                 Debug.Log($"[DarkDescent] ronda notturna, segreti: {summary}");
                 NightlyReport.Append(NightlyReport.Part("Segreti", summary, errors));
                 reported = true;
@@ -304,9 +318,9 @@ namespace DarkDescent.Tests
                     errors.Add("nessun livello di " + built + " ha una stanza sigillata: il controllo non ha provato niente");
                 }
 
-                if (statues == 0)
+                if (statues == 0 || prisoners == 0)
                 {
-                    errors.Add($"{statues} statue su {built} livelli: il controllo non ha provato niente");
+                    errors.Add($"{statues} statue e {prisoners} prigionieri su {built} livelli: il controllo non ha provato niente");
                 }
 
                 if (lores == 0 || caveLores == 0)
@@ -325,6 +339,7 @@ namespace DarkDescent.Tests
                 ChestSecret.Enabled = false;
                 LoreSpot.Enabled = false;
                 StatueGuard.Enabled = false;
+                Prisoner.Enabled = false;
                 if (!reported)
                 {
                     errors.Add($"{where}: la parte si è fermata qui (il perché è nei risultati dei test)");

@@ -1124,6 +1124,72 @@ namespace DarkDescent.Tests
             }
         }
 
+        [UnityTest, Timeout(600000), Description("Il prigioniero (25.5 della M25): in catene tra la sua scorta, liberato con il suo consiglio, e mentre sale verso la scala")]
+        public IEnumerator PrisonerShots()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            Prisoner.Enabled = true;
+            try
+            {
+                var hero = Hero.GetComponent<Health>();
+                hero.MultiplyMax(500f);
+                hero.Heal(float.MaxValue);
+
+                Prisoner prisoner = null;
+                for (ulong seed = 1; seed <= 80 && prisoner == null; seed++)
+                {
+                    for (int depth = PrisonerRules.FirstDepth; depth <= PrisonerRules.LastDepth && prisoner == null; depth++)
+                    {
+                        if (!PrisonerRules.LevelWantsOne(seed, depth))
+                        {
+                            continue;
+                        }
+
+                        Manager.RunSeed = seed;
+                        Root.UseLootSeed(seed);
+                        yield return Descend("Level_Crypt", depth);
+                        prisoner = Manager.CurrentLevel.Secrets.OfType<Prisoner>().FirstOrDefault();
+                    }
+                }
+
+                Assert.IsNotNull(prisoner, "un livello con il prigioniero");
+                var agent = Hero.GetComponent<NavMeshAgent>();
+                // la camera guarda da lontano e il muro davanti nasconde chi sta contro il muro opposto: il cavaliere gli sta vicino
+                Vector3 front = prisoner.GetComponent<Interactable>().ApproachPoint;
+                agent.Warp(NavMesh.SamplePosition(front, out var hit, 3f, NavMesh.AllAreas) ? hit.position : front);
+                Hero.transform.rotation = Quaternion.LookRotation(Flat(prisoner.transform.position - Hero.transform.position));
+                foreach (var enemy in prisoner.Escort.Where(e => e != null))
+                {
+                    enemy.enabled = false;
+                }
+
+                yield return Settle();
+                yield return Snap("prisoner_captive");
+
+                // la scorta cade, il click lo libera
+                foreach (var enemy in prisoner.Escort.Where(e => e != null))
+                {
+                    var health = enemy.GetComponent<Health>();
+                    health.TakeDamage(new DamageInfo(health.Max * 10f, DamageType.Physical, Hero));
+                }
+
+                yield return new WaitForSecondsRealtime(1.0f);
+                prisoner.GetComponent<Interactable>().Use(Hero);
+                yield return new WaitForSecondsRealtime(0.8f);
+                yield return Snap("prisoner_freed_panel", world: false);
+                Object.FindFirstObjectByType<LorePanel>(FindObjectsInactive.Include).Close();
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return Snap("prisoner_freed");
+                yield return new WaitForSecondsRealtime(3.4f);
+                yield return Snap("prisoner_leaving");
+            }
+            finally
+            {
+                Prisoner.Enabled = false;
+            }
+        }
+
         [UnityTest, Timeout(600000), Description("La stanza sigillata (25.4 della M25): la porta di pietra con le rune dal corridoio, la leva contro il muro, e la porta aperta con il tesoro dietro")]
         public IEnumerator SealedRoomShots()
         {

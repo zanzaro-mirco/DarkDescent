@@ -28,6 +28,9 @@ namespace DarkDescent.Levels
 
         public bool IsDone { get; private set; }
 
+        /// <summary>La cella del livello dove sta: gli altri segreti stanno lontano.</summary>
+        public Vector2Int Cell { get; private set; }
+
         public LoreKind Kind => LoreRules.KindOf(TextId);
 
         /// <summary>Il cavaliere ha letto: chi tiene la partita apre il pannello con questo testo.</summary>
@@ -41,6 +44,7 @@ namespace DarkDescent.Levels
             instance.name = "Lore" + textId;
             var lore = instance.GetComponent<LoreSpot>();
             lore.TextId = textId;
+            lore.Cell = spot.Cell;
             return lore;
         }
 

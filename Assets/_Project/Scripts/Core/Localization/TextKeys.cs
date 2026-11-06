@@ -62,6 +62,11 @@ namespace DarkDescent.Localization
 
         /// <summary>«Hai sentito scattare qualcosa»: la leva della stanza sigillata è stata tirata (D12 della M25).</summary>
         public const string SecretHeard = "secret.heard";
+
+        /// <summary>Il prigioniero (D6 della M25): il titolo del suo pannello e la riga quando la scorta è ancora viva.</summary>
+        public const string PrisonerTitle = "prisoner.title";
+
+        public const string PrisonerGuarded = "prisoner.guarded";
         public const string CharacterLevel = "hud.character_level";
         public const string CharacterPoints = "hud.character_points";
         public const string TooltipDamage = "tooltip.damage";

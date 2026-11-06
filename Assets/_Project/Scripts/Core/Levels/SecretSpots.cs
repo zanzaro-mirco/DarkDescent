@@ -26,15 +26,15 @@ namespace DarkDescent.Levels
 
         /// <summary>
         /// Il posto col punteggio più alto del dominio <paramref name="kind"/> del seme, o null se il livello non ne ha uno. <paramref name="avoid"/>: le celle dei
-        /// segreti già messi, da tenere a <paramref name="gap"/> passi di distanza. <paramref name="exclude"/>: celle dove non va (il fondo della stanza sigillata).
+        /// segreti già messi, da tenere a <paramref name="gap"/> passi di distanza. <paramref name="accept"/>: un ultimo filtro sulla cella (il prigioniero vuole una scorta attorno). <paramref name="exclude"/>: celle dove non va (il fondo della stanza sigillata).
         /// </summary>
-        public static Spot? Pick(LevelMap map, ulong runSeed, int depth, ulong kind, IReadOnlyCollection<Vector2Int> avoid, ISet<Vector2Int> exclude, int gap = 6)
+        public static Spot? Pick(LevelMap map, ulong runSeed, int depth, ulong kind, IReadOnlyCollection<Vector2Int> avoid, ISet<Vector2Int> exclude, int gap = 6, System.Func<Vector2Int, bool> accept = null)
         {
-            return Pick(map, SealedRoomPlanner.Walkability(map), runSeed, depth, kind, avoid, exclude, gap);
+            return Pick(map, SealedRoomPlanner.Walkability(map), runSeed, depth, kind, avoid, exclude, gap, accept);
         }
 
         /// <summary>Come sopra, con la mappa del cammino già calcolata (chi sceglie più posti la calcola una volta).</summary>
-        public static Spot? Pick(LevelMap map, bool[,] walkable, ulong runSeed, int depth, ulong kind, IReadOnlyCollection<Vector2Int> avoid, ISet<Vector2Int> exclude, int gap = 6)
+        public static Spot? Pick(LevelMap map, bool[,] walkable, ulong runSeed, int depth, ulong kind, IReadOnlyCollection<Vector2Int> avoid, ISet<Vector2Int> exclude, int gap = 6, System.Func<Vector2Int, bool> accept = null)
         {
             SealedRoomPlanner.TryFindSpecial(map, DungeonGenerator.EntranceSymbol, out var entrance);
             SealedRoomPlanner.TryFindSpecial(map, DungeonGenerator.StairsSymbol, out var stairs);
@@ -62,7 +62,7 @@ namespace DarkDescent.Levels
                         continue;
                     }
 
-                    if (TooClose(cell, avoid, gap))
+                    if (TooClose(cell, avoid, gap) || (accept != null && !accept(cell)))
                     {
                         continue;
                     }

@@ -1001,8 +1001,9 @@ namespace DarkDescent.Core
 
             // la stanza sigillata (D5 della M25) si mette prima del ricordo: il ricordo la ritrova tirata e aperta
             var sealedRoom = ArmSealedRoom(level);
-            ArmLore(level, sealedRoom);
-            ArmStatue(level, sealedRoom);
+            var lore = ArmLore(level, sealedRoom);
+            bool prisoner = ArmPrisoner(level, sealedRoom, lore);
+            ArmStatue(level, sealedRoom, prisoner);
 
             // prima di tutto il resto: i nemici già uccisi non si collegano
             _levelRecorder.Restore(level);
@@ -1596,18 +1597,18 @@ namespace DarkDescent.Core
         // Il testo del mondo del livello (D9 della M25): un leggio, una lapide o delle carte contro un muro, due livelli su tre. Il testo e il posto sono una
         // funzione del seme del mondo, della profondità e della mappa, come per la stanza sigillata: il ricordo del livello trova le stesse cose nello stesso ordine.
         // Va registrato dopo la stanza sigillata e prima di prigioniero e statua (stesso ordine a ogni caricamento)
-        private void ArmLore(LevelContext level, SealedRoom sealedRoom)
+        private LoreSpot ArmLore(LevelContext level, SealedRoom sealedRoom)
         {
             if (!LoreSpot.Enabled || level.IsTown || level.Map == null || level.Tileset == null)
             {
-                return;
+                return null;
             }
 
             int text = LoreRules.TextFor(_loot.RunSeed, level.Depth);
             var prefab = text > 0 ? level.Tileset.LoreProp(LoreRules.KindOf(text)) : null;
             if (prefab == null)
             {
-                return;
+                return null;
             }
 
             var avoid = new List<Vector2Int>();
@@ -1622,18 +1623,72 @@ namespace DarkDescent.Core
             var spot = SecretSpots.Pick(level.Map, _loot.RunSeed, level.Depth, LoreRules.SpotKind, avoid, exclude);
             if (spot == null)
             {
-                return;
+                return null;
             }
 
             var lore = LoreSpot.Build(level, prefab, spot.Value, text);
             lore.Reading += HandleLoreReading;
             level.RegisterSecret(lore);
+            return lore;
+        }
+
+        // Il prigioniero (D6 della M25): un cavaliere in catene in una stanza dove ci sono già dei nemici, che sono la sua scorta; un livello su tre della cripta. Il posto è una
+        // funzione della mappa e del seme come gli altri segreti: il livello non cambia. Dice se il livello ne ha uno (anche con l'interruttore spento, perché il tetto di tre
+        // segreti non dipenda dai test), e lo costruisce se acceso
+        private bool ArmPrisoner(LevelContext level, SealedRoom sealedRoom, LoreSpot lore)
+        {
+            if (level.IsTown || level.Map == null || level.Tileset == null || !PrisonerRules.LevelWantsOne(_loot.RunSeed, level.Depth))
+            {
+                return false;
+            }
+
+            var avoid = new List<Vector2Int>();
+            HashSet<Vector2Int> exclude = null;
+            if (sealedRoom != null)
+            {
+                avoid.Add(sealedRoom.Plan.Door);
+                avoid.Add(sealedRoom.Plan.Lever);
+                exclude = new HashSet<Vector2Int>(sealedRoom.Plan.Region);
+            }
+
+            if (lore != null)
+            {
+                avoid.Add(lore.Cell);
+            }
+
+            var spot = PrisonerRules.Place(level.Map, _loot.RunSeed, level.Depth, avoid, exclude);
+            if (spot == null)
+            {
+                return false;
+            }
+
+            if (Prisoner.Enabled && level.Tileset.Prisoner != null)
+            {
+                var stairs = level.UpExit != null ? level.UpExit.transform.position : _player.transform.position;
+                var prisoner = Prisoner.Build(level, level.Tileset.Prisoner, spot.Value, level.Depth, PrisonerRules.AdviceFor(_loot.RunSeed, level.Depth), stairs, exclude);
+                prisoner.Freed += HandlePrisonerFreed;
+                prisoner.Refused += HandlePrisonerRefused;
+                level.RegisterSecret(prisoner);
+            }
+
+            return true;
+        }
+
+        // liberato: il suo consiglio nel pannello di lettura; con la scorta ancora viva, una riga
+        private void HandlePrisonerFreed(Prisoner prisoner)
+        {
+            _lorePanel.Open(TextKeys.PrisonerTitle, PrisonerRules.AdviceKey(prisoner.Advice));
+        }
+
+        private void HandlePrisonerRefused()
+        {
+            _hudMessage.Show(TextKeys.PrisonerGuarded);
         }
 
         // La statua che si anima (D7 della M25): vicino a una cassa normale scelta dal seme tra tutte quelle del livello (anche le aperte), mai un mimic, mai il baule
         // maledetto né una cassa a meno di 14 m da lui, mai nel fondo della stanza sigillata. Il tetto di tre segreti (D16): se il livello ha già stanza sigillata, prigioniero
         // e baule maledetto, la statua cede. Tutto è una funzione del seme e delle casse, anche con gli interruttori spenti: il livello è lo stesso e l'ordine dei segreti pure
-        private void ArmStatue(LevelContext level, SealedRoom sealedRoom)
+        private void ArmStatue(LevelContext level, SealedRoom sealedRoom, bool prisoner)
         {
             if (!StatueGuard.Enabled || level.IsTown || level.Map == null || level.Tileset == null || level.Tileset.Statue == null
                 || !StatueRules.LevelWantsOne(_loot.RunSeed, level.Depth))
@@ -1653,7 +1708,7 @@ namespace DarkDescent.Core
             }
 
             int cursed = SecretRules.PickCursed(_loot.RunSeed, level.Depth, cells);
-            if (StatueRules.Yields(sealedRoom != null, false, cursed >= 0))
+            if (StatueRules.Yields(sealedRoom != null, prisoner, cursed >= 0))
             {
                 return;
             }

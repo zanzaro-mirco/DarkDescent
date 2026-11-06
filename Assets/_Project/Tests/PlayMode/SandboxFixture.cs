@@ -57,6 +57,8 @@ namespace DarkDescent.Tests
             LoreSpot.Enabled = false;
             // una statua che si anima cambia i combattimenti dei test (D14 della M25): solo i suoi test la accendono
             StatueGuard.Enabled = false;
+            // un prigioniero con la sua scorta cambia i conti dei test (D14 della M25): solo i suoi test lo accendono
+            Prisoner.Enabled = false;
             // i suggerimenti partono spenti nei test: un riquadro non deve coprire un click (23.4 della M23)
             PlayerPrefs.SetInt(UI.HintDirector.OnPreference, 0);
             PlayerPrefs.DeleteKey(UI.HintDirector.SeenPreference);
