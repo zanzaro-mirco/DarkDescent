@@ -250,3 +250,5 @@ l'interruttore all'altare, il livello degli oggetti, la vita dei nemici ×1,64 e
 - **Il costo** (`PhotoTour.BehavioursCost`, in editor): i nemici più vicini al cavaliere in una cripta alla 3, **12–14 invece dei 30 della scheda** (quanti ne ha attivi un livello), tutti attivi con la fuga e le ronde accese contro tutti fermi: main thread 2,72–2,75 ms contro 2,72–2,73, stesse allocazioni (9535 B a frame) e stessi batch (422). Dentro il rumore; la prova vera è la build di Mirco (*Da provare*).
 - **I test.** EditMode 724 (+50 dalla M23), PlayMode 410, 408 verdi e 2 saltati come prima (+26). Corretti il test delle scale (apriva la prima cassa, che alla 4 è quella sigillata del Custode) e quelli del formato 10.
 - **La chiusura.** ADR-146…148, lezioni e piano v2.79, il README (*Stato*), `bundleVersion` 1.12.0, le prove in build in `docs/Da_provare.md`.
+
+**Chiusa il 6 novembre 2026.** Tag `v1.12.0` su e941830: Tests 42214251426 e build 42216532781 verdi, artefatto `DarkDescent-Windows-v1.12.0` di 61,36 MB (+0,01 sulla v1.11.0).

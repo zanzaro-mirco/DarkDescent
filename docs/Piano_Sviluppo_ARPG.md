@@ -563,7 +563,7 @@ Chiusa il 26 ottobre 2026 con il tag `v1.4.0`: 466 test EditMode e 252 PlayMode 
 
 ### M24 — "Nemici più vivi" ✅
 
-Chiusa il 6 novembre 2026 (tag `v1.12.0`): 724 test EditMode e 410 PlayMode in locale (408 verdi, 2 saltati), con 50 e 26 test nuovi. Gli scheletri e lo sciame feriti scappano una volta per vita e tornano con i compagni, un nemico normale su quattro fa la ronda, alla profondità 4 aspetta Vorrak il Custode e all'altare c'è «Il mondo cresce con te» (spento di default). Il salvataggio è l'11 e azzera i ricordi dei livelli. Lezioni emerse:
+Chiusa il 6 novembre 2026 (tag `v1.12.0` su e941830, Tests 42214251426 e build 42216532781 verdi, artefatto 61,36 MB, +0,01): 724 test EditMode e 410 PlayMode in locale (408 verdi, 2 saltati), con 50 e 26 test nuovi. Gli scheletri e lo sciame feriti scappano una volta per vita e tornano con i compagni, un nemico normale su quattro fa la ronda, alla profondità 4 aspetta Vorrak il Custode e all'altare c'è «Il mondo cresce con te» (spento di default). Il salvataggio è l'11 e azzera i ricordi dei livelli. Lezioni emerse:
 
 - **Un luogo nuovo nel generatore muove i livelli vecchi, anche con un flusso suo:** il Custode non ha spostato un nemico o una cassa dei semi provati, ma il livello 4 ha un nemico e una cassa in più, e i ricordi li leggono per posto. Servono il formato nuovo che li azzera e un test che lo dica (ADR-148); lo si è visto in tempo perché la scheda chiedeva «che cosa cambia nei salvataggi» a ogni passo.
 - **Un test che prende «la prima cassa» si rompe quando una cassa diventa speciale:** `StairsUpTests` apriva la prima cassa del livello e alla 4 era quella sigillata. I test che aprono, uccidono o scelgono «il primo» scelgono il primo che si può.
