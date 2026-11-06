@@ -1009,6 +1009,63 @@ namespace DarkDescent.Tests
             yield return Settle();
         }
 
+        [UnityTest, Timeout(600000), Description("La stanza sigillata (25.4 della M25): la porta di pietra con le rune dal corridoio, la leva contro il muro, e la porta aperta con il tesoro dietro")]
+        public IEnumerator SealedRoomShots()
+        {
+            yield return StartNewFromMenu();
+            Root.PrepareHero(HeroLevel);
+            SealedRoom.Enabled = true;
+            try
+            {
+                var hero = Hero.GetComponent<Health>();
+                hero.MultiplyMax(500f);
+                hero.Heal(float.MaxValue);
+
+                SealedRoom room = null;
+                for (ulong seed = 1; seed <= 80 && room == null; seed++)
+                {
+                    Manager.RunSeed = seed;
+                    Root.UseLootSeed(seed);
+                    yield return Descend("Level_Crypt", 3);
+                    room = Manager.CurrentLevel.Secrets.Count > 0 ? (SealedRoom)Manager.CurrentLevel.Secrets[0] : null;
+                }
+
+                Assert.IsNotNull(room, "un livello con la stanza sigillata");
+                var agent = Hero.GetComponent<NavMeshAgent>();
+
+                // davanti alla porta, dal lato di fuori: lungo il corridoio, dal lato che non è il fondo
+                Vector3 door = room.Door.transform.position;
+                Vector3 axis = room.Plan.CorridorAlongX ? Vector3.right : Vector3.forward;
+                Vector3 outside = room.Holds(door + axis * 4f) ? -axis : axis;
+                Vector3 stand = door + outside * 5f;
+                agent.Warp(NavMesh.SamplePosition(stand, out var hit, 3f, NavMesh.AllAreas) ? hit.position : stand);
+                Hero.transform.rotation = Quaternion.LookRotation(-outside);
+                yield return Settle();
+                yield return Snap("sealed_door_closed");
+
+                // la leva, contro il muro
+                Vector3 front = room.Lever.GetComponent<Interactable>().ApproachPoint;
+                agent.Warp(NavMesh.SamplePosition(front, out var leverHit, 3f, NavMesh.AllAreas) ? leverHit.position : front);
+                Hero.transform.rotation = Quaternion.LookRotation(Flat(room.Lever.transform.position - Hero.transform.position));
+                yield return Settle();
+                yield return Snap("sealed_lever");
+
+                // la leva tirata, e la porta che scende
+                room.Lever.GetComponent<Interactable>().Use(Hero);
+                yield return new WaitForSecondsRealtime(0.8f);
+                agent.Warp(NavMesh.SamplePosition(stand, out var again, 3f, NavMesh.AllAreas) ? again.position : stand);
+                Hero.transform.rotation = Quaternion.LookRotation(-outside);
+                yield return new WaitForSecondsRealtime(0.3f);
+                yield return Snap("sealed_door_opening");
+                yield return new WaitForSecondsRealtime(1.8f);
+                yield return Snap("sealed_door_open");
+            }
+            finally
+            {
+                SealedRoom.Enabled = false;
+            }
+        }
+
         [UnityTest, Timeout(600000), Description("I segreti delle casse (25.3 della M25): un mimic identico a un forziere, poi in piedi e in salto; il baule maledetto con le catene, poi la sua ondata")]
         public IEnumerator ChestSecrets()
         {

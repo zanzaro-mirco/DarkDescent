@@ -30,6 +30,8 @@ MonoBehaviour:
   _ambientColor: {r: 0.24, g: 0.24, b: 0.3, a: 1}
   _postProcessing: {fileID: 11400000, guid: 9929bcb3021807643ad1c3e1fad1cc1d, type: 2}
   _ambience: {fileID: 11400000, guid: ccdcb357fa80ded4abfb0450c33c7380, type: 2}
+  _sealedDoor: {fileID: 2856131141649538953, guid: 44440173d7663324abc955131bab5813, type: 3}
+  _lever: {fileID: 892466107624111399, guid: ff7e3a702f4b3fb4fb38c966fb64744c, type: 3}
   _footsteps:
   - {fileID: 8300000, guid: 472b0b680a5215b47b4af275cef8e6a9, type: 3}
   - {fileID: 8300000, guid: 0a05646a413e71149b40d1132317df34, type: 3}

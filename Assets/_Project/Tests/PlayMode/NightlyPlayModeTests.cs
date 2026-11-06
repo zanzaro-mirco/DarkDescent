@@ -154,6 +154,128 @@ namespace DarkDescent.Tests
             }
         }
 
+        /// <summary>Partite della parte dei segreti (25.4 della M25): la cripta, dalla profondità 2 alla 4, con la stanza sigillata e i segreti delle casse accesi.</summary>
+        private const int SecretsPart = 12;
+
+        private const int SecretGames = 60;
+
+        [UnityTest, Timeout(OneHour), Description("60 partite nuove con i segreti accesi, dalla profondità 2 alla 4 della cripta: con la porta sigillata chiusa dall'ingresso si arriva alla leva e alla scala e non al tesoro del fondo, tirata la leva si arriva a ogni cassa; nessuna cassa con un segreto diventa irraggiungibile")]
+        public IEnumerator SecretRooms_AreSound()
+        {
+            ulong night = NightlyRun.Seed();
+            var errors = new List<string>();
+            int built = 0, rooms = 0, mimics = 0, cursed = 0;
+            string where = "l'avvio del gioco";
+            bool reported = false;
+            try
+            {
+                yield return LoadGeneratedCore();
+
+                // dopo l'avvio: ForgetPreferences li spegne come per tutti i test
+                SealedRoom.Enabled = true;
+                ChestSecret.Enabled = true;
+                var root = Object.FindFirstObjectByType<CompositionRoot>();
+                for (int game = 0; game < SecretGames; game++)
+                {
+                    ulong runSeed = SeedMixer.ForNightly(night, SecretsPart, game);
+                    Manager.RunSeed = runSeed;
+                    root.UseLootSeed(runSeed);
+                    for (int depth = SealedRoomPlanner.FirstDepth; depth <= SealedRoomPlanner.LastDepth; depth++)
+                    {
+                        where = $"partita {runSeed}, profondità {depth}";
+                        var previous = Manager.CurrentLevel;
+                        Manager.LoadLevel("Level_Crypt", DungeonLevel.EntranceAt(depth), depth);
+                        yield return WaitForNewLevel(previous, depth, where);
+                        Recorder.Memory.Import(null);
+
+                        // un frame per gli agent dei nemici, due perché il ritaglio della porta sul NavMesh si applichi
+                        yield return null;
+                        yield return null;
+                        yield return null;
+                        built++;
+                        var level = Manager.CurrentLevel;
+                        Vector3 entrance = Player.position;
+                        void Error(string text) => errors.Add($"{where}: {text}");
+
+                        foreach (var chest in level.Chests)
+                        {
+                            mimics += chest.Secret == ChestSecretKind.Mimic ? 1 : 0;
+                            cursed += chest.Secret == ChestSecretKind.Cursed ? 1 : 0;
+                            if (chest.Secret != ChestSecretKind.None && !chest.GetComponent<ChestSecret>().Chest.HasPendingSecret)
+                            {
+                                Error($"{chest.name} ha un segreto ma non è armata");
+                            }
+                        }
+
+                        if (level.Secrets.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        rooms++;
+                        var room = (SealedRoom)level.Secrets[0];
+                        Vector3 lever = room.Lever.GetComponent<Interactable>().ApproachPoint;
+                        Reach(entrance, lever, NearPiece, "la leva", Error);
+                        foreach (var down in level.DownExits)
+                        {
+                            Reach(entrance, down.GetComponent<Interactable>().ApproachPoint, NearPiece, "la scala giù", Error, "a porta chiusa");
+                        }
+
+                        var treasure = level.Chests.Where(c => room.Touches(c.transform.position)).ToList();
+                        if (treasure.Count == 0)
+                        {
+                            Error("la stanza sigillata non ha una cassa");
+                        }
+
+                        foreach (var chest in treasure)
+                        {
+                            if (Walkable(entrance, chest.GetComponent<Interactable>().ApproachPoint))
+                            {
+                                Error($"{chest.name} si raggiunge a porta chiusa");
+                            }
+                        }
+
+                        room.Lever.GetComponent<Interactable>().Use(Player.gameObject);
+                        for (int i = 0; i < 6; i++)
+                        {
+                            yield return null;
+                        }
+
+                        foreach (var chest in level.Chests)
+                        {
+                            Reach(entrance, chest.GetComponent<Interactable>().ApproachPoint, NearPiece, chest.name, Error, "a porta aperta");
+                        }
+                    }
+
+                    yield return Resources.UnloadUnusedAssets();
+                }
+
+                string summary = $"{built} livelli della cripta, {rooms} con la stanza sigillata, {mimics} mimic e {cursed} bauli maledetti; la porta chiusa ferma il tesoro, la leva e la scala si raggiungono, aperta si arriva a ogni cassa.";
+                Debug.Log($"[DarkDescent] ronda notturna, segreti: {summary}");
+                NightlyReport.Append(NightlyReport.Part("Segreti", summary, errors));
+                reported = true;
+                if (rooms == 0)
+                {
+                    errors.Add("nessun livello di " + built + " ha una stanza sigillata: il controllo non ha provato niente");
+                }
+
+                if (errors.Count > 0)
+                {
+                    Assert.Fail($"segreti: {errors.Count} errori (per rifare la notte: {NightlyRun.SeedOption} {night}); i primi:\n\n" + string.Join("\n", errors.Take(NightlyReport.ShownErrors)));
+                }
+            }
+            finally
+            {
+                SealedRoom.Enabled = false;
+                ChestSecret.Enabled = false;
+                if (!reported)
+                {
+                    errors.Add($"{where}: la parte si è fermata qui (il perché è nei risultati dei test)");
+                    NightlyReport.Append(NightlyReport.Part("Segreti", $"interrotta dopo {built} livelli, a {where}", errors));
+                }
+            }
+        }
+
         // un livello nuovo, non quello di prima: la prima partita ricarica la profondità 1 da cui parte il gioco
         private static IEnumerator WaitForNewLevel(LevelContext previous, int depth, string where)
         {
@@ -347,6 +469,18 @@ namespace DarkDescent.Tests
             }
 
             return false;
+        }
+
+        // si arriva a piedi dal punto al bersaglio, sul NavMesh di adesso
+        private static bool Walkable(Vector3 from, Vector3 target)
+        {
+            if (!NavMesh.SamplePosition(target, out var hit, NearPiece, NavMesh.AllAreas))
+            {
+                return false;
+            }
+
+            var path = new NavMeshPath();
+            return NavMesh.CalculatePath(from, hit.position, NavMesh.AllAreas, path) && path.status == NavMeshPathStatus.PathComplete;
         }
 
         private void Reach(Vector3 from, Vector3 target, float near, string what, Action<string> error, string origin = "dall'ingresso")

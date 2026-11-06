@@ -988,6 +988,9 @@ namespace DarkDescent.Core
                 level.Daylight.Bind(() => _runStats.PlayTime, Camera.main);
             }
 
+            // la stanza sigillata (D5 della M25) si mette prima del ricordo: il ricordo la ritrova tirata e aperta
+            var sealedRoom = ArmSealedRoom(level);
+
             // prima di tutto il resto: i nemici già uccisi non si collegano
             _levelRecorder.Restore(level);
             BindBoss(level);
@@ -1002,7 +1005,12 @@ namespace DarkDescent.Core
                 }
 
                 BindEnemy(enemy, level.Depth, rewarding: true);
-                enemy.BindPatrol(level.Depth);
+
+                // chi sta nel fondo chiuso dalla porta non fa la ronda: i suoi punti potrebbero stare oltre la porta
+                if (sealedRoom == null || sealedRoom.IsDone || !sealedRoom.Holds(enemy.HomePosition))
+                {
+                    enemy.BindPatrol(level.Depth);
+                }
             }
 
             foreach (var chest in level.Chests)
@@ -1540,6 +1548,28 @@ namespace DarkDescent.Core
         private void HandleVictoryContinued()
         {
             _reader.enabled = true;
+        }
+
+        // La stanza sigillata (D5 della M25): un fondo cieco del livello che c'è già, chiuso da una porta di pietra con la leva altrove. Non nasce niente
+        // nella mappa: le casse e i nemici di quel fondo sono il tesoro e la scorta, e il ricordo del livello combacia come prima. Si registra tra i
+        // segreti del livello, prima che il ricordo venga rimesso
+        private SealedRoom ArmSealedRoom(LevelContext level)
+        {
+            var tileset = level.Tileset;
+            if (!SealedRoom.Enabled || level.IsTown || level.Map == null || tileset == null || tileset.SealedDoor == null || tileset.Lever == null)
+            {
+                return null;
+            }
+
+            var plan = SealedRoomPlanner.For(level.Map, _loot.RunSeed, level.Depth);
+            if (plan == null)
+            {
+                return null;
+            }
+
+            var room = SealedRoom.Build(level, plan, tileset.SealedDoor, tileset.Lever);
+            level.RegisterSecret(room);
+            return room;
         }
 
         // I segreti delle casse normali (D3 e D4 della M25): decisi qui, sulle casse che il livello ha già, e non dalla mappa: il numero e

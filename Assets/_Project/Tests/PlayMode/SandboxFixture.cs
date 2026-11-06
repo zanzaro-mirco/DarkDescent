@@ -51,6 +51,8 @@ namespace DarkDescent.Tests
             EnemyBehaviours.PatrolEnabled = false;
             // i forzieri dei test sono forzieri (D14 della M25): niente mimic né baule maledetto, tranne nei test dei segreti
             ChestSecret.Enabled = false;
+            // la porta di pietra della stanza sigillata chiuderebbe percorsi che i test contano di fare (D14 della M25): solo i suoi test la accendono
+            SealedRoom.Enabled = false;
             // i suggerimenti partono spenti nei test: un riquadro non deve coprire un click (23.4 della M23)
             PlayerPrefs.SetInt(UI.HintDirector.OnPreference, 0);
             PlayerPrefs.DeleteKey(UI.HintDirector.SeenPreference);

@@ -10,7 +10,8 @@ namespace DarkDescent.Levels
     /// costruisce, e gli oggetti rimasti a terra. Con quanti nemici e casse c'erano si riconosce un
     /// ricordo che non corrisponde più al livello generato: allora nemici e casse ripartono come nuovi.
     /// Dalla M13 anche i barili rotti (D5) e i pozzi e i santuari usati (D6, D7), contati a parte: un
-    /// salvataggio di prima non li ha, e i suoi nemici e le sue casse restano com'erano.
+    /// salvataggio di prima non li ha, e i suoi nemici e le sue casse restano com'erano. Dalla M25 anche i segreti del livello (D13: la
+    /// stanza sigillata con la sua leva), contati a parte allo stesso modo.
     /// </summary>
     [Serializable]
     public sealed class LevelRecord
@@ -25,10 +26,13 @@ namespace DarkDescent.Levels
         [SerializeField] private List<int> _broken = new List<int>();
         [SerializeField] private int _featureCount;
         [SerializeField] private List<int> _spent = new List<int>();
+        [SerializeField] private int _secretCount;
+        [SerializeField] private List<int> _secretsDone = new List<int>();
         [SerializeField] private List<GroundItemRecord> _items = new List<GroundItemRecord>();
 
-        public LevelRecord(string scene, int depth, int enemyCount, int chestCount, int breakableCount = 0, int featureCount = 0)
+        public LevelRecord(string scene, int depth, int enemyCount, int chestCount, int breakableCount = 0, int featureCount = 0, int secretCount = 0)
         {
+            _secretCount = secretCount;
             _scene = scene;
             _depth = depth;
             _enemyCount = enemyCount;
@@ -54,6 +58,20 @@ namespace DarkDescent.Levels
 
         /// <summary>I posti dei pozzi e dei santuari usati (D6 e D7 della M13).</summary>
         public IReadOnlyList<int> Spent => _spent ??= new List<int>();
+
+        /// <summary>I posti dei segreti del livello già risolti: la leva tirata e la porta aperta (D13 della M25).</summary>
+        public IReadOnlyList<int> SecretsDone => _secretsDone ??= new List<int>();
+
+        /// <summary>Il livello generato ha gli stessi segreti del ricordo; uno di prima della M25 non ne ha.</summary>
+        public bool MatchesSecrets(int secretCount)
+        {
+            return secretCount == _secretCount;
+        }
+
+        public void AddSecretDone(int index)
+        {
+            (_secretsDone ??= new List<int>()).Add(index);
+        }
 
         /// <summary>Il livello generato ha gli stessi nemici e le stesse casse del ricordo.</summary>
         public bool Matches(int enemyCount, int chestCount)

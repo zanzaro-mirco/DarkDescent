@@ -77,6 +77,15 @@ namespace DarkDescent.Levels
                 Debug.LogWarning($"[DarkDescent] il ricordo di {record.Scene} a profondità {record.Depth} non corrisponde al livello generato: nemici e casse ripartono nuovi.", this);
             }
 
+            // i segreti del livello (la stanza sigillata, D13 della M25): contati a parte, un ricordo di prima non ne ha
+            if (record.MatchesSecrets(level.Secrets.Count))
+            {
+                foreach (int index in record.SecretsDone)
+                {
+                    level.Secrets[index].RestoreDone();
+                }
+            }
+
             // contati a parte: un ricordo di prima della M13 non ha barili, e questi ripartono interi
             if (record.MatchesBreakables(level.Breakables.Count))
             {
@@ -132,7 +141,7 @@ namespace DarkDescent.Levels
         private LevelRecord Record(LevelContext level)
         {
             var record = new LevelRecord(level.gameObject.scene.name, level.Depth, level.Enemies.Count, level.Chests.Count, level.Breakables.Count,
-                level.Features.Count);
+                level.Features.Count, level.Secrets.Count);
             for (int i = 0; i < level.Enemies.Count; i++)
             {
                 // un nemico morto da un po' è già sparito
@@ -165,6 +174,14 @@ namespace DarkDescent.Levels
                 if (level.Features[i] != null && level.Features[i].IsSpent)
                 {
                     record.AddSpent(i);
+                }
+            }
+
+            for (int i = 0; i < level.Secrets.Count; i++)
+            {
+                if (level.Secrets[i].IsDone)
+                {
+                    record.AddSecretDone(i);
                 }
             }
 

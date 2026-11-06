@@ -30,6 +30,7 @@ namespace DarkDescent.Levels
         private readonly List<Chest> _chests = new List<Chest>();
         private readonly List<Breakable> _breakables = new List<Breakable>();
         private readonly List<OneUseFeature> _features = new List<OneUseFeature>();
+        private readonly List<ILevelSecret> _secrets = new List<ILevelSecret>();
         private readonly List<SpikeTrap> _traps = new List<SpikeTrap>();
         private readonly List<Merchant> _merchants = new List<Merchant>();
 
@@ -82,6 +83,15 @@ namespace DarkDescent.Levels
 
         /// <summary>I pozzi e i santuari (D6 e D7 della M13), nell'ordine in cui il livello li costruisce.</summary>
         public IReadOnlyList<OneUseFeature> Features => _features;
+
+        /// <summary>I segreti messi dal gioco sopra il livello generato (la stanza sigillata, M25): contati a parte da casse e nemici.</summary>
+        public IReadOnlyList<ILevelSecret> Secrets => _secrets;
+
+        /// <summary>Un segreto nato al caricamento: va registrato prima che il ricordo del livello venga rimesso.</summary>
+        public void RegisterSecret(ILevelSecret secret)
+        {
+            _secrets.Add(secret);
+        }
 
         /// <summary>Gli spuntoni (D8 della M13).</summary>
         public IReadOnlyList<SpikeTrap> Traps => _traps;

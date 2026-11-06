@@ -203,3 +203,43 @@ bagliore viola e dall'etichetta (D4 chiedeva proprio l'etichetta diversa).
 **Le foto** (`PhotoTour.ChestSecrets`, in `Recordings/Photos`): il mimic chiuso (identico a un forziere), sveglio e in salto, il baule maledetto chiuso con il bagliore e la sua ondata di quattro scheletri e un bruto.
 
 **Lezione:** `UseLootSeed` e `LevelManager.RunSeed` sono due semi: nel gioco si cambiano insieme, nei test no. Un test che cerca un livello con un segreto deve impostarli tutti e due (`UseSeed`).
+
+**Tests di c27623e (25.2 e 25.3) verdi in CI.**
+
+---
+
+## Passo 25.4 — La leva e la stanza sigillata
+
+**Com'è andata (6 nov 2026).** Fatto, con 7 test EditMode nuovi (740 in tutto), 4 PlayMode e un test della ronda (38 PlayMode verdi con le classi dei livelli, delle casse e dei ricordi).
+
+**La misura che decideva se si poteva fare** (`SealedRoomMeasureTests`, 200 semi per profondità). I corridoi sono L di una cella tra i centri delle stanze e si incrociano, quindi un fondo cieco
+non è scontato. Risultato: **un fondo cieco adatto c'è in 197 livelli su 200** a ogni profondità della cripta, e **con almeno una cassa in 132 su 200 alla 2 e alla 3, 152 alla 4** (a metà: una stanza
+di circa 32 celle, una cassa, 1–3 nemici, la leva a 27–30 passi dalla porta). Con «uno su tre» applicato a tutti i livelli ne sarebbe uscito uno su cinque: la regola è quindi **uno su due tra quelli che hanno un
+fondo adatto con una cassa**, e in tutto **circa uno su tre della cripta** (nella ronda locale: 63 livelli su 180, 35%).
+
+**Come sta in piedi, senza una stanza nuova.** Come per le casse del 25.3, il generatore non cambia: la stanza sigillata è **un fondo cieco che il livello ha già**, chiuso al caricamento da una porta di pietra
+su un corridoio dritto. Le casse e i nemici che ci sono dentro sono il tesoro e la scorta, quindi il numero e l'ordine di casse e nemici **non cambiano** (un test lo controlla), e le mappe dei semi provati
+nemmeno.
+- **`SealedRoomPlanner`** (`Core/Levels`): funzione pura della mappa e del seme. Prende le celle di pavimento semplice con due lati di cammino opposti e roccia sugli altri due (un corridoio dritto), lontano
+  almeno 4 celle dall'ingresso e dalla scala; per ognuna calcola quello che l'ingresso non raggiunge più chiudendola; vale se è una stanza (almeno 8 celle, meno del 60% del livello), senza ingresso, scala
+  né segni del Custode, e con almeno una cassa. Tra le candidate vince il punteggio più alto di un dominio del seme. La leva sta su una cella semplice del livello **raggiungibile a porta chiusa**, contro un muro e
+  dentro una stanza (non alla bocca di un corridoio), a 12 passi dalla porta almeno (6 se non ce n'è una). Nella cripta, profondità 2–4 (D16).
+- **Gli invarianti**, su 450 livelli (150 semi × 3 profondità, `SealedRoomPlannerTests`): con la porta chiusa l'ingresso raggiunge la scala giù, la leva e il suo davanti e **non** il fondo; con la porta aperta raggiunge
+  tutto il fondo; il resto del livello resta raggiungibile; la leva ha il muro alle spalle.
+- **`SealedDoor`** (sul prefab `SealedDoor`): un ostacolo che **ritaglia il NavMesh**, un collider sul layer degli ostacoli (ferma la vista dei nemici e gli incantesimi), le rune viola (un materiale emissivo
+  salvato: niente emissione accesa a runtime) e un bagliore; aperta, il modello **scende nel pavimento** in 1,6 s. **`SecretLever`** (prefab `SecretLever`, un `Interactable` con la sua etichetta «Leva»): l'asta
+  da -32° a +32°. **`SealedRoom`** li mette sotto il livello (la faccia a rune dal lato di chi arriva, la leva contro il muro) e li registra come **segreto del livello** (`ILevelSecret`).
+- **Il ricordo (D13), senza formato nuovo:** `LevelRecord` ha due campi nuovi con il loro conteggio (`_secretCount`, `_secretsDone`), come i barili e i pozzi della M13. Un ricordo di una versione prima **combacia ancora**
+  (nemici morti e casse aperte restano), e non inventa una porta aperta (`LevelRecordSecretsTests`). La porta si crea **prima** che il ricordo venga rimesso, in `BindLevel`, perché lo ritrovi.
+- **Chi sta nel fondo non fa la ronda** (M24): i suoi punti di ronda potrebbero stare oltre la porta.
+- **L'interruttore** `SealedRoom.Enabled`: spento da `SandboxFixture`, perché una porta chiusa cambia i percorsi che molti test contano di fare. Lo accendono i suoi test e la ronda.
+- **`SealedRoomTools`** (menu *DarkDescent → Segreti*): crea i due prefab, il materiale e li mette nel set della cripta; idempotente.
+
+**La ronda** (`NightlyPlayModeTests.SecretRooms_AreSound`, parte 12): 60 partite nuove, profondità 2–4, **con i segreti accesi** (stanza sigillata e casse). A porta chiusa dall'ingresso si raggiungono la leva e la
+scala giù e **non** il tesoro del fondo; tirata la leva si raggiunge ogni cassa; ogni cassa con un segreto resta armata. Se in 60 partite nessuna ha la stanza sigillata, il controllo fallisce (un controllo
+che non trova niente da provare passa sempre). Prova in locale con il seme 424242: 180 livelli, 63 con la stanza sigillata, 59 mimic e 61 bauli maledetti, nessun errore. *Una trappola trovata:* `LoadGeneratedCore`
+spegne gli interruttori come per tutti i test (`ForgetPreferences`): vanno accesi **dopo**, non prima, o il controllo non prova niente e passa.
+
+**Le foto** (`PhotoTour.SealedRoomShots`): la porta chiusa con le rune dal corridoio, la leva contro il muro, la porta che scende e la porta aperta.
+
+**Da fare nei passi dopo:** il messaggio «hai sentito scattare qualcosa» (D12) e il tintinnio della leva a 6 m (D12) non ci sono ancora: servono un posto per un messaggio e un suono, e vanno con la lore del 25.5.

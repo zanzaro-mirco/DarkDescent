@@ -65,6 +65,12 @@ namespace DarkDescent.Levels
         [Tooltip("Musica, fondo e versi nel buio del livello (passo 7.0 della M7).")]
         [SerializeField] private AmbienceProfile _ambience;
 
+        [Tooltip("La porta di pietra della stanza sigillata (D5 della M25): vuota dove non ce n'è.")]
+        [SerializeField] private GameObject _sealedDoor;
+
+        [Tooltip("La leva che apre la porta sigillata (D5 della M25): vuota dove non ce n'è.")]
+        [SerializeField] private GameObject _lever;
+
         [Tooltip("I passi del cavaliere su questo pavimento: pietra nella cripta, terra nelle caverne.")]
         [SerializeField] private AudioClip[] _footsteps;
 
@@ -130,6 +136,10 @@ namespace DarkDescent.Levels
         public VolumeProfile PostProcessing => _postProcessing;
 
         public AmbienceProfile Ambience => _ambience;
+
+        public GameObject SealedDoor => _sealedDoor;
+
+        public GameObject Lever => _lever;
 
         public AudioClip[] Footsteps => _footsteps;
 
